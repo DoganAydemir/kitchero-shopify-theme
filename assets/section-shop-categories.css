@@ -1,0 +1,173 @@
+/* ============================================================
+   Shop Categories Section — Kitchero Theme
+   Ported from ShopCategories.tsx — Horizontal scroll gallery
+   ============================================================ */
+
+.kt-shop-categories {
+  background-color: #fafaf9;
+  overflow: hidden;
+  padding-top: 6rem;
+}
+
+.kt-shop-categories__header {
+  margin-bottom: 3rem;
+}
+
+.kt-shop-categories__title {
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: #1c1917;
+  margin-bottom: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-categories__title {
+    font-size: 4.375rem;
+  }
+}
+
+.kt-shop-categories__subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #57534e;
+}
+
+.kt-shop-categories__subtitle {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.kt-shop-categories__subtitle-row svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Scrolling Container */
+.kt-shop-categories__scroll {
+  display: flex;
+  align-items: center;
+  height: 60vh;
+  gap: 2rem;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kt-shop-categories__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-categories__scroll {
+    padding: 0 3rem;
+  }
+}
+
+/* Category Card */
+.kt-shop-categories__card {
+  position: relative;
+  height: 100%;
+  width: 85vw;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  scroll-snap-align: center;
+  display: block;
+  text-decoration: none;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-categories__card {
+    width: 45vw;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-shop-categories__card {
+    width: 35vw;
+  }
+}
+
+.kt-shop-categories__card-image-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.kt-shop-categories__card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.kt-shop-categories__card:hover .kt-shop-categories__card-image {
+  transform: scale(1.05);
+}
+
+.kt-shop-categories__card-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: background-color 0.5s ease;
+  z-index: 1;
+}
+
+.kt-shop-categories__card:hover .kt-shop-categories__card-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.kt-shop-categories__card-content {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.kt-shop-categories__card-title {
+  font-size: 1.875rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+}
+
+.kt-shop-categories__card-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50%;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.kt-shop-categories__card:hover .kt-shop-categories__card-arrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kt-shop-categories__card-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Placeholder fallback */
+.kt-shop-categories__card .placeholder-svg {
+  width: 100%;
+  height: 100%;
+}

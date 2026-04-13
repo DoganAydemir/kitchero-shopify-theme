@@ -1,0 +1,114 @@
+/* ============================================================
+   Trust Bar Section — Kitchero Theme
+   Ported from TrustBar.tsx — Animated stat counters
+   ============================================================ */
+
+.kt-trust-bar {
+  padding: 6rem 0;
+  background-color: #f5f5f4;
+  overflow: hidden;
+  color: #1c1917;
+  border-top: 1px solid #e7e5e4;
+}
+
+.kt-trust-bar__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem 3rem;
+  position: relative;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-trust-bar__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5rem 3rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-trust-bar__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kt-trust-bar__stat {
+  display: flex;
+  gap: 2rem;
+  position: relative;
+  align-items: flex-start;
+}
+
+.kt-trust-bar__line {
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #d6d3d1;
+  transform-origin: top;
+}
+
+[dir="rtl"] .kt-trust-bar__line {
+  left: auto;
+  right: -0.5rem;
+}
+
+.kt-trust-bar__stat-content {
+  padding-left: 1rem;
+}
+
+[dir="rtl"] .kt-trust-bar__stat-content {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.kt-trust-bar__value-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.kt-trust-bar__number {
+  font-size: 4.375rem;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-trust-bar__number {
+    font-size: 5rem;
+  }
+}
+
+.kt-trust-bar__prefix {
+  font-size: 2.25rem;
+  color: #a8a29e;
+  font-weight: 300;
+  margin-left: 0.25rem;
+}
+
+[dir="rtl"] .kt-trust-bar__prefix {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-trust-bar__prefix {
+    font-size: 3.75rem;
+  }
+}
+
+.kt-trust-bar__label {
+  font-size: 0.875rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #78716c;
+  margin-top: 1rem;
+  transition: color 0.2s ease;
+}
+
+.kt-trust-bar__stat:hover .kt-trust-bar__label {
+  color: #1c1917;
+}

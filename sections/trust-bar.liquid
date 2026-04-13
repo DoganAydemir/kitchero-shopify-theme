@@ -1,0 +1,83 @@
+{{ 'section-trust-bar.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-trust-bar" data-section-id="{{ section.id }}" data-section-type="trust-bar">
+  <div class="page-width">
+    <div class="kt-trust-bar__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'stat' -%}
+          <div class="kt-trust-bar__stat" {{ block.shopify_attributes }}>
+            <div class="kt-trust-bar__line" aria-hidden="true"></div>
+            <div class="kt-trust-bar__stat-content">
+              <div class="kt-trust-bar__value-row">
+                <span
+                  class="kt-trust-bar__number"
+                  data-count-to="{{ block.settings.value }}"
+                >
+                  {{ block.settings.value }}
+                </span>
+                {%- if block.settings.prefix != blank -%}
+                  <span class="kt-trust-bar__prefix">{{ block.settings.prefix }}</span>
+                {%- endif -%}
+              </div>
+              <h3 class="kt-trust-bar__label">{{ block.settings.label }}</h3>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.trust-bar.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "t:sections.trust-bar.blocks.stat.name",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "value",
+          "label": "t:sections.trust-bar.blocks.stat.settings.value.label",
+          "default": "1200"
+        },
+        {
+          "type": "text",
+          "id": "prefix",
+          "label": "t:sections.trust-bar.blocks.stat.settings.prefix.label",
+          "default": "+"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.trust-bar.blocks.stat.settings.label.label",
+          "default": "Projects Completed"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.trust-bar.presets.name",
+      "blocks": [
+        { "type": "stat", "settings": { "value": "1200", "prefix": "+", "label": "Projects Completed" } },
+        { "type": "stat", "settings": { "value": "99", "prefix": "%", "label": "Client Satisfaction" } },
+        { "type": "stat", "settings": { "value": "25", "prefix": "+", "label": "Years Mastery" } },
+        { "type": "stat", "settings": { "value": "15", "prefix": "", "label": "Design Awards" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

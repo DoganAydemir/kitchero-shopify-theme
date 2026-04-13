@@ -1,0 +1,117 @@
+{{ 'section-shop-categories.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-shop-categories" data-section-id="{{ section.id }}" data-section-type="shop-categories">
+  <div class="page-width">
+    <div class="kt-shop-categories__header">
+      <h2 class="kt-shop-categories__title">
+        {{ section.settings.heading | default: 'Shop by Style' }}
+      </h2>
+      <div class="kt-shop-categories__subtitle-row">
+        <p class="kt-shop-categories__subtitle">{{ section.settings.subtitle | default: 'Discover your perfect aesthetic' }}</p>
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="kt-shop-categories__scroll">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'category' -%}
+        <a
+          href="{{ block.settings.link | default: routes.collections_url }}"
+          class="kt-shop-categories__card"
+          {{ block.shopify_attributes }}
+        >
+          <div class="kt-shop-categories__card-image-wrap">
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 1200
+                | image_tag:
+                  class: 'kt-shop-categories__card-image',
+                  loading: 'lazy',
+                  widths: '375, 550, 750, 1100',
+                  sizes: '(min-width: 990px) 35vw, (min-width: 750px) 45vw, 85vw',
+                  width: block.settings.image.width,
+                  height: block.settings.image.height,
+                  alt: block.settings.title | default: ''
+              }}
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </div>
+          <div class="kt-shop-categories__card-overlay" aria-hidden="true"></div>
+          <div class="kt-shop-categories__card-content">
+            <h3 class="kt-shop-categories__card-title">{{ block.settings.title }}</h3>
+            <div class="kt-shop-categories__card-arrow" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </div>
+          </div>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.shop-categories.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.shop-categories.settings.heading.label",
+      "default": "Shop by Style"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.shop-categories.settings.subtitle.label",
+      "default": "Discover your perfect aesthetic"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "t:sections.shop-categories.blocks.category.name",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.shop-categories.blocks.category.settings.title.label",
+          "default": "Category"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.shop-categories.blocks.category.settings.image.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.shop-categories.blocks.category.settings.link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.shop-categories.presets.name",
+      "blocks": [
+        { "type": "category", "settings": { "title": "Minimalist Modern" } },
+        { "type": "category", "settings": { "title": "Classic Wood" } },
+        { "type": "category", "settings": { "title": "Dark Luxury" } },
+        { "type": "category", "settings": { "title": "Scandinavian" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

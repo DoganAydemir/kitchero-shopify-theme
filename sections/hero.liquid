@@ -1,0 +1,224 @@
+{{ 'section-hero.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="kt-hero"
+  data-section-id="{{ section.id }}"
+  data-section-type="hero"
+>
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'slide' -%}
+      <div
+        class="kt-hero__slide{% if forloop.first %} kt-hero__slide--active{% endif %}"
+        data-slide-index="{{ forloop.index0 }}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="kt-hero__slide-image-wrap">
+          {%- if block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 2000
+              | image_tag:
+                class: 'kt-hero__slide-image',
+                loading: 'eager',
+                fetchpriority: 'high',
+                widths: '750, 1100, 1500, 2000',
+                sizes: '100vw',
+                width: block.settings.image.width,
+                height: block.settings.image.height,
+                alt: block.settings.subtitle | default: shop.name
+            }}
+          {%- else -%}
+            {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-hero__slide-image' }}
+          {%- endif -%}
+        </div>
+        <div class="kt-hero__slide-overlay" aria-hidden="true"></div>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%} Content — shows active slide's text {%- endcomment -%}
+  <div class="kt-hero__content">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'slide' -%}
+        <div
+          class="kt-hero__text{% unless forloop.first %} hidden{% endunless %}"
+          data-slide-text="{{ forloop.index0 }}"
+        >
+          {%- if block.settings.subtitle != blank -%}
+            <span class="kt-hero__subtitle">{{ block.settings.subtitle }}</span>
+          {%- endif -%}
+
+          <h1 class="kt-hero__heading">
+            {%- if block.settings.line1 != blank -%}
+              <span class="kt-hero__heading-line">{{ block.settings.line1 }}</span>
+            {%- endif -%}
+            <span class="kt-hero__heading-row">
+              {%- if block.settings.serif_word != blank -%}
+                <span class="kt-hero__heading-serif">{{ block.settings.serif_word }}</span>
+              {%- endif -%}
+              {%- if block.settings.line2 != blank -%}
+                <span class="kt-hero__heading-bold">{{ block.settings.line2 }}</span>
+              {%- endif -%}
+            </span>
+          </h1>
+
+          {%- if block.settings.description != blank -%}
+            <p class="kt-hero__desc">{{ block.settings.description }}</p>
+          {%- endif -%}
+
+          {%- if block.settings.cta_text != blank -%}
+            <a href="{{ block.settings.cta_link | default: routes.root_url }}" class="kt-hero__cta">
+              {{ block.settings.cta_text }}
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} Prev/Next Navigation {%- endcomment -%}
+    <div class="kt-hero__nav">
+      <button class="kt-hero__nav-btn" data-hero-prev aria-label="{{ 'sections.hero.previous_slide' | t | default: 'Previous slide' }}">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="kt-hero__nav-btn" data-hero-next aria-label="{{ 'sections.hero.next_slide' | t | default: 'Next slide' }}">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 6 15 12 9 18"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    {%- comment -%} Scroll Indicator {%- endcomment -%}
+    <div class="kt-hero__scroll" aria-hidden="true">
+      <div class="kt-hero__scroll-inner">
+        <p class="kt-hero__scroll-label">{{ 'sections.hero.scroll' | t | default: 'Scroll' }}</p>
+        <p class="kt-hero__scroll-discover">{{ 'sections.hero.discover' | t | default: 'Discover' }} {{ shop.name }}</p>
+        <div class="kt-hero__scroll-bar">
+          <div class="kt-hero__scroll-bar-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'section-hero.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.hero.name",
+  "tag": "section",
+  "class": "section-hero",
+  "settings": [
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "label": "t:sections.hero.settings.autoplay_speed.label",
+      "default": 8
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.hero.blocks.slide.name",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.hero.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "t:sections.hero.blocks.slide.settings.subtitle.label",
+          "default": "Kitchero Bespoke"
+        },
+        {
+          "type": "text",
+          "id": "line1",
+          "label": "t:sections.hero.blocks.slide.settings.line1.label",
+          "default": "REDEFINE"
+        },
+        {
+          "type": "text",
+          "id": "serif_word",
+          "label": "t:sections.hero.blocks.slide.settings.serif_word.label",
+          "default": "your"
+        },
+        {
+          "type": "text",
+          "id": "line2",
+          "label": "t:sections.hero.blocks.slide.settings.line2.label",
+          "default": "KITCHEN."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.hero.blocks.slide.settings.description.label",
+          "default": "Experience the perfect orchestration of engineering and tactile luxury in your own home."
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "t:sections.hero.blocks.slide.settings.cta_text.label",
+          "default": "Start A Project"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "t:sections.hero.blocks.slide.settings.cta_link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.hero.presets.name",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "subtitle": "Kitchero Bespoke",
+            "line1": "REDEFINE",
+            "serif_word": "your",
+            "line2": "KITCHEN.",
+            "description": "Experience the perfect orchestration of engineering and tactile luxury in your own home.",
+            "cta_text": "Start A Project"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "subtitle": "Modern Minimal",
+            "line1": "ELEVATE",
+            "serif_word": "daily",
+            "line2": "LIVING.",
+            "description": "Where functionality meets timeless aesthetics. Handcrafted precision in every joint.",
+            "cta_text": "Explore Styles"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "subtitle": "Pure Crafts",
+            "line1": "BEYOND",
+            "serif_word": "the",
+            "line2": "ORDINARY.",
+            "description": "Uncompromising quality materials sourced sustainably for generations to come.",
+            "cta_text": "Our Process"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

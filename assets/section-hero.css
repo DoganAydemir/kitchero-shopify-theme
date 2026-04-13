@@ -1,0 +1,341 @@
+/* ============================================================
+   Hero Section — Kitchero Theme
+   Ported from Hero.tsx — 3-slide carousel
+   ============================================================ */
+
+.kt-hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #000;
+}
+
+/* Slide */
+.kt-hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  z-index: 0;
+}
+
+.kt-hero__slide--active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.kt-hero__slide-image-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.kt-hero__slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kt-hero__slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.4));
+}
+
+/* Content */
+.kt-hero__content {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 1.5rem 3rem;
+  max-width: var(--page-width);
+  margin: 0 auto;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__content {
+    padding: 5rem 3rem 3rem;
+  }
+}
+
+.kt-hero__text {
+  max-width: 64rem;
+}
+
+/* Subtitle */
+.kt-hero__subtitle {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #d6d3d1;
+  margin-bottom: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__subtitle {
+    font-size: 0.75rem;
+  }
+}
+
+/* Heading */
+.kt-hero__heading {
+  color: #fff;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.kt-hero__heading-line {
+  display: block;
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__heading-line {
+    font-size: 7.5rem;
+  }
+}
+
+.kt-hero__heading-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.5rem 0.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__heading-row {
+    gap: 2rem;
+  }
+}
+
+.kt-hero__heading-serif {
+  font-family: var(--font-heading-family);
+  font-size: 3rem;
+  text-transform: lowercase;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 0.9;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__heading-serif {
+    font-size: 7.5rem;
+  }
+}
+
+.kt-hero__heading-bold {
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__heading-bold {
+    font-size: 7.5rem;
+  }
+}
+
+/* Description */
+.kt-hero__desc {
+  margin-top: 2rem;
+  max-width: 32rem;
+  color: #d6d3d1;
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__desc {
+    font-size: 1.25rem;
+  }
+}
+
+/* CTA Button */
+.kt-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 9999px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kt-hero__cta:hover {
+  background-color: #e7e5e4;
+}
+
+.kt-hero__cta svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.kt-hero__cta:hover svg {
+  transform: translateX(4px);
+}
+
+[dir="rtl"] .kt-hero__cta:hover svg {
+  transform: translateX(-4px);
+}
+
+/* Navigation Arrows */
+.kt-hero__nav {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 3rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__nav {
+    right: 3rem;
+  }
+}
+
+[dir="rtl"] .kt-hero__nav {
+  right: auto;
+  left: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  [dir="rtl"] .kt-hero__nav {
+    left: 3rem;
+  }
+}
+
+.kt-hero__nav-btn {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kt-hero__nav-btn:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+.kt-hero__nav-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Scroll Indicator */
+.kt-hero__scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 1.5rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero__scroll {
+    left: 3rem;
+  }
+}
+
+[dir="rtl"] .kt-hero__scroll {
+  left: auto;
+  right: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  [dir="rtl"] .kt-hero__scroll {
+    right: 3rem;
+  }
+}
+
+.kt-hero__scroll-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+[dir="rtl"] .kt-hero__scroll-inner {
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+.kt-hero__scroll-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.5rem;
+}
+
+.kt-hero__scroll-discover {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.kt-hero__scroll-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+[dir="rtl"] .kt-hero__scroll-bar {
+  left: auto;
+  right: 0;
+}
+
+.kt-hero__scroll-bar-indicator {
+  width: 100%;
+  height: 33%;
+  background-color: #34d399;
+  animation: kt-hero-scroll-bar 2s linear infinite;
+}
+
+@keyframes kt-hero-scroll-bar {
+  0% { transform: translateY(-100%); }
+  50% { transform: translateY(200%); }
+  100% { transform: translateY(200%); }
+}
