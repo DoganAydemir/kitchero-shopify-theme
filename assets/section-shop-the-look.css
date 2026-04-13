@@ -1,88 +1,159 @@
-/* Shop The Look — Image with product hotspot blocks */
+/* Shop The Look — Birebir from ShopTheLookHome.tsx */
 
+/* section: py-24 bg-stone-50 overflow-hidden */
 .kt-shop-the-look {
   padding: 6rem 0;
   background-color: #fafaf9;
+  overflow: hidden;
 }
 
+/* Header: mb-16 border-l-2 border-stone-900 pl-6 */
 .kt-shop-the-look__header {
-  margin-bottom: 3rem;
-  padding-left: 1.5rem;
+  margin-bottom: 4rem;
   border-left: 2px solid #1c1917;
+  padding-left: 1.5rem;
 }
 
 [dir="rtl"] .kt-shop-the-look__header {
-  padding-left: 0;
-  padding-right: 1.5rem;
   border-left: none;
   border-right: 2px solid #1c1917;
+  padding-left: 0;
+  padding-right: 1.5rem;
 }
 
-.kt-shop-the-look__title {
-  font-size: 3rem;
-  font-weight: 600;
-  letter-spacing: -0.05em;
+/* Label: text-xs font-bold tracking-widest text-stone-400 uppercase mb-2 block */
+.kt-shop-the-look__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #a8a29e;
   text-transform: uppercase;
-  color: #1c1917;
   margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* h2: text-3xl md:text-5xl font-serif tracking-tight text-stone-900 leading-tight */
+.kt-shop-the-look__title {
+  font-family: var(--font-heading-family);
+  font-size: 1.875rem;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  line-height: 1.1;
+  margin: 0;
 }
 
 @media screen and (min-width: 750px) {
-  .kt-shop-the-look__title { font-size: 4.375rem; }
+  .kt-shop-the-look__title {
+    font-size: 3rem;
+  }
 }
 
-.kt-shop-the-look__subtitle {
-  font-size: 1.25rem;
-  color: #57534e;
-  font-weight: 300;
+.kt-shop-the-look__title em {
+  font-style: italic;
 }
 
-.kt-shop-the-look__container {
+/* Wrapper: relative, NOT overflow-hidden so popups escape */
+/* aspect-[4/5] md:aspect-[16/9] md:h-[700px] */
+.kt-shop-the-look__wrapper {
   position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-the-look__wrapper {
+    aspect-ratio: 16 / 9;
+    height: 700px;
+  }
+}
+
+/* Image container: absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-stone-100 */
+.kt-shop-the-look__image-container {
+  position: absolute;
+  inset: 0;
   border-radius: 1.5rem;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  background-color: #f5f5f4;
 }
 
+/* img: w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105 */
 .kt-shop-the-look__image {
   width: 100%;
-  height: auto;
-  display: block;
-  aspect-ratio: 4 / 5;
+  height: 100%;
   object-fit: cover;
+  transition: transform 2s ease;
 }
 
-@media screen and (min-width: 750px) {
-  .kt-shop-the-look__image { aspect-ratio: 16 / 9; }
+.kt-shop-the-look__wrapper:hover .kt-shop-the-look__image {
+  transform: scale(1.05);
 }
 
-/* Hotspot buttons — positioned via inline style */
-.kt-shop-the-look__hotspot {
+/* Dark overlay: absolute inset-0 bg-black/5 group-hover:bg-black/10 */
+.kt-shop-the-look__image-overlay {
   position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.05);
+  transition: background-color 0.7s ease;
+}
+
+.kt-shop-the-look__wrapper:hover .kt-shop-the-look__image-overlay {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.kt-shop-the-look__image-container .placeholder-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hotspot: absolute z-30 */
+.kt-shop-the-look__hotspot-wrap {
+  position: absolute;
+  z-index: 30;
+}
+
+/* Button: w-10 h-10 rounded-full bg-white shadow-lg */
+.kt-shop-the-look__hotspot {
+  position: relative;
   width: 2.5rem;
   height: 2.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid #fff;
   border-radius: 50%;
+  background: #fff;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-  z-index: 5;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.5s ease;
+  cursor: pointer;
 }
 
-.kt-shop-the-look__hotspot:hover {
-  transform: scale(1.15);
+.kt-shop-the-look__hotspot:hover,
+.kt-shop-the-look__hotspot--active {
+  transform: scale(1.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
+.kt-shop-the-look__hotspot svg {
+  width: 18px;
+  height: 18px;
+  color: #1c1917;
+  transition: transform 0.5s ease;
+}
+
+.kt-shop-the-look__hotspot--active svg {
+  transform: rotate(45deg);
+}
+
+/* Ping animation */
 .kt-shop-the-look__hotspot::after {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: 0;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.4);
   animation: kt-hotspot-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
 }
 
 @keyframes kt-hotspot-ping {
@@ -90,45 +161,218 @@
   75%, 100% { transform: scale(1.5); opacity: 0; }
 }
 
-.kt-shop-the-look__hotspot svg {
-  width: 16px;
-  height: 16px;
-  color: #1c1917;
+/* Desktop Popup: hidden md:block absolute w-72 bg-white p-5 rounded-2xl shadow */
+.kt-shop-the-look__popup {
+  display: none;
+  position: absolute;
+  width: 18rem;
+  background: #fff;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+  z-index: 900;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Tooltip (appears on hover) */
-.kt-shop-the-look__tooltip {
-  position: absolute;
-  bottom: calc(100% + 0.75rem);
+@media screen and (min-width: 750px) {
+  .kt-shop-the-look__popup {
+    display: block;
+  }
+}
+
+.kt-shop-the-look__popup--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Popup positioning */
+.kt-shop-the-look__popup--above {
+  bottom: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.kt-shop-the-look__popup--below {
+  top: 100%;
+  margin-top: 1.5rem;
+}
+
+.kt-shop-the-look__popup--center {
   left: 50%;
   transform: translateX(-50%);
-  background: #fff;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  z-index: 6;
-  pointer-events: none;
 }
 
-.kt-shop-the-look__hotspot:hover .kt-shop-the-look__tooltip,
-.kt-shop-the-look__hotspot:focus .kt-shop-the-look__tooltip {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+.kt-shop-the-look__popup--center.kt-shop-the-look__popup--visible {
+  transform: translateX(-50%) translateY(0);
 }
 
-.kt-shop-the-look__tooltip-title {
+.kt-shop-the-look__popup--left {
+  left: 0;
+}
+
+.kt-shop-the-look__popup--right {
+  right: 0;
+}
+
+/* Popup image: aspect-square rounded-xl overflow-hidden mb-4 */
+.kt-shop-the-look__popup-image-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.kt-shop-the-look__popup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Popup meta: flex items-center justify-between mb-3 */
+.kt-shop-the-look__popup-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* h4: text-sm font-bold uppercase tracking-wide text-stone-900 */
+.kt-shop-the-look__popup-name {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: #1c1917;
-  margin-bottom: 0.125rem;
+  margin: 0;
 }
 
-.kt-shop-the-look__tooltip-price {
-  font-size: 0.75rem;
+/* span: text-sm font-medium text-stone-500 */
+.kt-shop-the-look__popup-price {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #78716c;
+}
+
+/* Link: text-[11px] font-bold tracking-[0.15em] uppercase text-stone-400 hover:text-stone-900 */
+.kt-shop-the-look__popup-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #a8a29e;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.kt-shop-the-look__popup-link:hover {
+  color: #1c1917;
+}
+
+.kt-shop-the-look__popup-link svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+
+.kt-shop-the-look__popup-link:hover svg {
+  transform: translateX(4px);
+}
+
+/* Mobile bottom sheet */
+.kt-shop-the-look__mobile-sheet {
+  display: none;
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 1100;
+  padding: 1.5rem;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-shop-the-look__mobile-sheet--visible {
+  transform: translateY(0);
+}
+
+@media screen and (max-width: 749px) {
+  .kt-shop-the-look__mobile-sheet {
+    display: block;
+  }
+}
+
+.kt-shop-the-look__mobile-sheet-inner {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  position: relative;
+}
+
+.kt-shop-the-look__mobile-sheet-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #f5f5f4;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #78716c;
+}
+
+.kt-shop-the-look__mobile-sheet-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.kt-shop-the-look__mobile-sheet-img {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.kt-shop-the-look__mobile-sheet-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kt-shop-the-look__mobile-sheet-name {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin: 0 0 0.25rem;
+}
+
+.kt-shop-the-look__mobile-sheet-price {
+  color: #78716c;
+  font-weight: 500;
+  margin: 0 0 1rem;
+}
+
+.kt-shop-the-look__mobile-sheet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1c1917;
+  text-decoration: none;
 }

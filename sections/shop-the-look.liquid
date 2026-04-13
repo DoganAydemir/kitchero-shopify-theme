@@ -1,41 +1,88 @@
 {{ 'section-shop-the-look.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-shop-the-look" data-section-id="{{ section.id }}">
+<section class="kt-shop-the-look" data-section-id="{{ section.id }}" data-section-type="shop-the-look">
   <div class="page-width">
     <div class="kt-shop-the-look__header">
-      <h2 class="kt-shop-the-look__title">{{ section.settings.heading | default: 'Shop the Look' }}</h2>
-      <p class="kt-shop-the-look__subtitle">{{ section.settings.subtitle | default: 'Click hotspots to discover featured products' }}</p>
+      <span class="kt-shop-the-look__label">{{ section.settings.label | default: 'Visual Commerce' }}</span>
+      <h2 class="kt-shop-the-look__title">{{ section.settings.heading | default: 'Interactive <br><em>Kitchero</em> Environments' }}</h2>
     </div>
 
-    <div class="kt-shop-the-look__container">
-      {%- if section.settings.image != blank -%}
-        {{ section.settings.image | image_url: width: 1600 | image_tag: class: 'kt-shop-the-look__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.image.width, height: section.settings.image.height, alt: section.settings.heading | default: '' }}
-      {%- else -%}
-        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-shop-the-look__image' }}
-      {%- endif -%}
+    {%- comment -%} Wrapper is NOT overflow-hidden so popups escape {%- endcomment -%}
+    <div class="kt-shop-the-look__wrapper">
+      {%- comment -%} Image container: rounded & clipped {%- endcomment -%}
+      <div class="kt-shop-the-look__image-container">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 1600 | image_tag: class: 'kt-shop-the-look__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.image.width, height: section.settings.image.height, alt: section.settings.heading | default: '' }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+        <div class="kt-shop-the-look__image-overlay" aria-hidden="true"></div>
+      </div>
 
+      {%- comment -%} Hotspot layer — ABOVE clipped container {%- endcomment -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'hotspot' -%}
-          <a
-            href="{{ block.settings.product_link | default: '#' }}"
-            class="kt-shop-the-look__hotspot"
+          <div
+            class="kt-shop-the-look__hotspot-wrap"
             style="top: {{ block.settings.vertical_position }}%; left: {{ block.settings.horizontal_position }}%;"
+            data-hotspot-id="{{ block.id }}"
             {{ block.shopify_attributes }}
-            aria-label="{{ block.settings.product_title | default: 'Product' }}"
           >
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span class="kt-shop-the-look__tooltip">
-              <span class="kt-shop-the-look__tooltip-title">{{ block.settings.product_title }}</span>
-              {%- if block.settings.product_price != blank -%}
-                <span class="kt-shop-the-look__tooltip-price">{{ block.settings.product_price }}</span>
+            <button
+              class="kt-shop-the-look__hotspot"
+              data-hotspot-toggle="{{ block.id }}"
+              aria-label="{{ block.settings.product_title | default: 'Product' }}"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+
+            {%- comment -%} Desktop popup {%- endcomment -%}
+            <div
+              class="kt-shop-the-look__popup{% if block.settings.vertical_position > 55 %} kt-shop-the-look__popup--above{% else %} kt-shop-the-look__popup--below{% endif %}{% if block.settings.horizontal_position > 70 %} kt-shop-the-look__popup--right{% elsif block.settings.horizontal_position < 30 %} kt-shop-the-look__popup--left{% else %} kt-shop-the-look__popup--center{% endif %}"
+              data-hotspot-popup="{{ block.id }}"
+            >
+              {%- if block.settings.product_image != blank -%}
+                <div class="kt-shop-the-look__popup-image-wrap">
+                  {{ block.settings.product_image | image_url: width: 400 | image_tag: class: 'kt-shop-the-look__popup-image', loading: 'lazy', width: 400, height: 400, alt: block.settings.product_title | default: '' }}
+                </div>
               {%- endif -%}
-            </span>
-          </a>
+              <div class="kt-shop-the-look__popup-meta">
+                <h4 class="kt-shop-the-look__popup-name">{{ block.settings.product_title }}</h4>
+                <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
+              </div>
+              <a href="{{ block.settings.product_link | default: '#' }}" class="kt-shop-the-look__popup-link">
+                {{ 'sections.shop_the_look.view_details' | t | default: 'View Details' }}
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </a>
+            </div>
+          </div>
         {%- endif -%}
       {%- endfor -%}
     </div>
+
+    {%- comment -%} Mobile bottom sheet {%- endcomment -%}
+    <div class="kt-shop-the-look__mobile-sheet" data-mobile-sheet>
+      <div class="kt-shop-the-look__mobile-sheet-inner">
+        <button class="kt-shop-the-look__mobile-sheet-close" data-mobile-sheet-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="kt-shop-the-look__mobile-sheet-content">
+          <div class="kt-shop-the-look__mobile-sheet-img" data-mobile-sheet-img></div>
+          <div>
+            <h4 class="kt-shop-the-look__mobile-sheet-name" data-mobile-sheet-name></h4>
+            <p class="kt-shop-the-look__mobile-sheet-price" data-mobile-sheet-price></p>
+            <a href="#" class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link>
+              {{ 'sections.shop_the_look.view_product' | t | default: 'View Product' }}
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+
+<script src="{{ 'section-shop-the-look.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
@@ -43,20 +90,21 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop the Look" },
-    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Click hotspots to discover featured products" },
+    { "type": "text", "id": "label", "label": "Label", "default": "Visual Commerce" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Interactive <em>Kitchero</em> Environments" },
     { "type": "image_picker", "id": "image", "label": "Room image" }
   ],
   "blocks": [
     {
       "type": "hotspot",
       "name": "Hotspot",
-      "limit": 8,
+      "limit": 6,
       "settings": [
-        { "type": "range", "id": "horizontal_position", "min": 5, "max": 95, "step": 1, "unit": "%", "label": "Horizontal position", "default": 50 },
-        { "type": "range", "id": "vertical_position", "min": 5, "max": 95, "step": 1, "unit": "%", "label": "Vertical position", "default": 50 },
-        { "type": "text", "id": "product_title", "label": "Product name", "default": "Heritage Cabinet" },
-        { "type": "text", "id": "product_price", "label": "Price", "default": "$1,200" },
+        { "type": "range", "id": "horizontal_position", "min": 5, "max": 95, "step": 1, "unit": "%", "label": "Horizontal position", "default": 35 },
+        { "type": "range", "id": "vertical_position", "min": 5, "max": 95, "step": 1, "unit": "%", "label": "Vertical position", "default": 25 },
+        { "type": "text", "id": "product_title", "label": "Product name", "default": "Chelsea Navy Base" },
+        { "type": "text", "id": "product_price", "label": "Price", "default": "$450" },
+        { "type": "image_picker", "id": "product_image", "label": "Product image" },
         { "type": "url", "id": "product_link", "label": "Product link" }
       ]
     }
@@ -65,8 +113,9 @@
     {
       "name": "Shop the look",
       "blocks": [
-        { "type": "hotspot", "settings": { "horizontal_position": 30, "vertical_position": 45, "product_title": "Heritage Base Cabinet", "product_price": "$1,450" } },
-        { "type": "hotspot", "settings": { "horizontal_position": 65, "vertical_position": 35, "product_title": "Brass Pull Handle", "product_price": "$24" } }
+        { "type": "hotspot", "settings": { "horizontal_position": 35, "vertical_position": 25, "product_title": "Chelsea Navy Base", "product_price": "$450" } },
+        { "type": "hotspot", "settings": { "horizontal_position": 55, "vertical_position": 65, "product_title": "Quartz Carrara", "product_price": "$1,200" } },
+        { "type": "hotspot", "settings": { "horizontal_position": 75, "vertical_position": 45, "product_title": "Brass Hardware Set", "product_price": "$85" } }
       ]
     }
   ]
