@@ -13,10 +13,8 @@
         <div class="kt-shop-color__image-sticky">
           <div class="kt-shop-color__image-wrap">
             {%- for block in section.blocks -%}
-              {%- if block.type == 'category' -%}
-                {%- if block.settings.image != blank -%}
-                  {{ block.settings.image | image_url: width: 1000 | image_tag: class: 'kt-shop-color__image', loading: 'lazy', widths: '375, 550, 750, 1000', sizes: '42vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title, data-category-image: block.id, style: 'opacity:0;' }}
-                {%- endif -%}
+              {%- if block.type == 'category' and block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 1000 | image_tag: class: 'kt-shop-color__image', loading: 'lazy', widths: '375, 550, 750, 1000', sizes: '42vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title, data-category-image: block.id, style: 'opacity:0;' }}
               {%- endif -%}
             {%- endfor -%}
             <div class="kt-shop-color__image-gradient"></div>
@@ -48,8 +46,8 @@
               data-category-id="{{ block.id }}"
               data-color1="{{ block.settings.swatch_color_1 | default: '#F5F0EB' }}"
               data-color2="{{ block.settings.swatch_color_2 | default: '#E8E6DF' }}"
-              data-code="{{ block.settings.finish_code | default: '' }}"
-              data-finish-name="{{ block.settings.finish_name | default: block.settings.title }}"
+              data-code="{{ block.settings.finish_1_code | default: '' }}"
+              data-finish-name="{{ block.settings.finish_1_name | default: block.settings.title }}"
               {{ block.shopify_attributes }}
             >
               <div class="kt-shop-color__category-header">
@@ -70,13 +68,32 @@
                   {%- endif -%}
                   <div class="kt-shop-color__mobile-image-overlay"></div>
                   <div class="kt-shop-color__mobile-image-info">
-                    <p class="kt-shop-color__mobile-image-code">{{ block.settings.finish_code }}</p>
-                    <p class="kt-shop-color__mobile-image-name">{{ block.settings.finish_name | default: block.settings.title }}</p>
+                    <p class="kt-shop-color__mobile-image-code">{{ block.settings.finish_1_code }}</p>
+                    <p class="kt-shop-color__mobile-image-name">{{ block.settings.finish_1_name | default: block.settings.title }}</p>
                   </div>
                   <div class="kt-shop-color__mobile-swatch">
                     <div class="kt-shop-color__palette-top" style="background-color: {{ block.settings.swatch_color_1 | default: '#F5F0EB' }};"></div>
                     <div class="kt-shop-color__palette-bottom" style="background-color: {{ block.settings.swatch_color_2 | default: '#E8E6DF' }};"></div>
                   </div>
+                </div>
+
+                {%- comment -%} Finish sub-links {%- endcomment -%}
+                <div class="kt-shop-color__finishes">
+                  {%- if block.settings.finish_1_name != blank -%}
+                    <a href="{{ block.settings.finish_1_link | default: '#' }}" class="kt-shop-color__finish-btn kt-shop-color__finish-btn--active">
+                      {{ block.settings.finish_1_name }}
+                    </a>
+                  {%- endif -%}
+                  {%- if block.settings.finish_2_name != blank -%}
+                    <a href="{{ block.settings.finish_2_link | default: '#' }}" class="kt-shop-color__finish-btn">
+                      {{ block.settings.finish_2_name }}
+                    </a>
+                  {%- endif -%}
+                  {%- if block.settings.finish_3_name != blank -%}
+                    <a href="{{ block.settings.finish_3_link | default: '#' }}" class="kt-shop-color__finish-btn">
+                      {{ block.settings.finish_3_name }}
+                    </a>
+                  {%- endif -%}
                 </div>
               </div>
             </div>
@@ -117,10 +134,20 @@
       "settings": [
         { "type": "text", "id": "title", "label": "Category title", "default": "Luminous Light" },
         { "type": "image_picker", "id": "image", "label": "Category image" },
-        { "type": "text", "id": "finish_name", "label": "Featured finish name", "default": "Alabaster Base" },
-        { "type": "text", "id": "finish_code", "label": "Finish code", "default": "B-200" },
         { "type": "color", "id": "swatch_color_1", "label": "Swatch color top", "default": "#faf9f6" },
-        { "type": "color", "id": "swatch_color_2", "label": "Swatch color bottom", "default": "#e8e6df" }
+        { "type": "color", "id": "swatch_color_2", "label": "Swatch color bottom", "default": "#e8e6df" },
+        { "type": "header", "content": "Finish 1" },
+        { "type": "text", "id": "finish_1_name", "label": "Name", "default": "Alabaster Base" },
+        { "type": "text", "id": "finish_1_code", "label": "Code", "default": "B-200" },
+        { "type": "url", "id": "finish_1_link", "label": "Product link" },
+        { "type": "header", "content": "Finish 2" },
+        { "type": "text", "id": "finish_2_name", "label": "Name", "default": "Arctic White" },
+        { "type": "text", "id": "finish_2_code", "label": "Code" },
+        { "type": "url", "id": "finish_2_link", "label": "Product link" },
+        { "type": "header", "content": "Finish 3 (optional)" },
+        { "type": "text", "id": "finish_3_name", "label": "Name" },
+        { "type": "text", "id": "finish_3_code", "label": "Code" },
+        { "type": "url", "id": "finish_3_link", "label": "Product link" }
       ]
     }
   ],
@@ -128,9 +155,9 @@
     {
       "name": "Shop by color",
       "blocks": [
-        { "type": "category", "settings": { "title": "Luminous Light", "finish_name": "Alabaster Base", "finish_code": "B-200", "swatch_color_1": "#faf9f6", "swatch_color_2": "#e8e6df" } },
-        { "type": "category", "settings": { "title": "Balanced Medium", "finish_name": "Walnut Grain", "finish_code": "W-400", "swatch_color_1": "#3e2a1e", "swatch_color_2": "#2a1c14" } },
-        { "type": "category", "settings": { "title": "Dramatic Dark", "finish_name": "Obsidian Mat", "finish_code": "MAT-900", "swatch_color_1": "#1a1a1a", "swatch_color_2": "#2d2d2d" } }
+        { "type": "category", "settings": { "title": "Luminous Light", "swatch_color_1": "#faf9f6", "swatch_color_2": "#e8e6df", "finish_1_name": "Alabaster Base", "finish_1_code": "B-200", "finish_2_name": "Arctic White", "finish_2_code": "W-100" } },
+        { "type": "category", "settings": { "title": "Balanced Medium", "swatch_color_1": "#3e2a1e", "swatch_color_2": "#2a1c14", "finish_1_name": "Walnut Grain", "finish_1_code": "W-400", "finish_2_name": "Natural Oak", "finish_2_code": "O-300" } },
+        { "type": "category", "settings": { "title": "Dramatic Dark", "swatch_color_1": "#1a1a1a", "swatch_color_2": "#2d2d2d", "finish_1_name": "Obsidian Mat", "finish_1_code": "MAT-900", "finish_2_name": "Midnight Navy", "finish_2_code": "N-800" } }
       ]
     }
   ]
