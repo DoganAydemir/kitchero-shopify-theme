@@ -1,23 +1,41 @@
 {{ 'section-why-choose-us.css' | asset_url | stylesheet_tag }}
 
 <section class="kt-why-choose-us" data-section-id="{{ section.id }}" data-section-type="why-choose-us">
-  <div class="kt-why-choose-us__hero">
-    {%- if section.settings.image != blank -%}
-      {{ section.settings.image | image_url: width: 1600 | image_tag: class: 'kt-why-choose-us__hero-image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.image.width, height: section.settings.image.height, alt: '' }}
-    {%- endif -%}
-    <h2 class="kt-why-choose-us__hero-title">{{ section.settings.heading | default: 'Why Kitchero' }}</h2>
-  </div>
+  <div class="page-width">
 
-  <div class="kt-why-choose-us__features page-width">
-    {%- for block in section.blocks -%}
-      {%- if block.type == 'feature' -%}
-        <div class="kt-why-choose-us__feature" {{ block.shopify_attributes }}>
-          <p class="kt-why-choose-us__feature-number">{{ block.settings.number | default: forloop.index | prepend: '0' }}</p>
-          <h3 class="kt-why-choose-us__feature-title">{{ block.settings.title }}</h3>
-          <p class="kt-why-choose-us__feature-desc">{{ block.settings.description }}</p>
-        </div>
+    {%- comment -%} Header: title left, description right {%- endcomment -%}
+    <div class="kt-why-choose-us__header">
+      <h2 class="kt-why-choose-us__title">
+        {{ section.settings.heading_line1 | default: 'The' }}<br>{{ section.settings.heading_line2 | default: 'Standard.' }}
+      </h2>
+      {%- if section.settings.description != blank -%}
+        <p class="kt-why-choose-us__desc">{{ section.settings.description }}</p>
       {%- endif -%}
-    {%- endfor -%}
+    </div>
+
+    {%- comment -%} Cinematic Image with parallax {%- endcomment -%}
+    <div class="kt-why-choose-us__image-wrap">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 1600 | image_tag: class: 'kt-why-choose-us__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.image.width, height: section.settings.image.height, alt: section.settings.heading_line1 | append: ' ' | append: section.settings.heading_line2 }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+      <div class="kt-why-choose-us__image-overlay" aria-hidden="true"></div>
+    </div>
+
+    {%- comment -%} 3-column feature grid {%- endcomment -%}
+    <div class="kt-why-choose-us__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'feature' -%}
+          <div class="kt-why-choose-us__feature" {{ block.shopify_attributes }}>
+            <span class="kt-why-choose-us__feature-label">{{ block.settings.label }}</span>
+            <h3 class="kt-why-choose-us__feature-title">{{ block.settings.title }}</h3>
+            <p class="kt-why-choose-us__feature-desc">{{ block.settings.description }}</p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
   </div>
 </section>
 
@@ -25,32 +43,34 @@
 
 {% schema %}
 {
-  "name": "Why choose us",
+  "name": "The Standard",
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Why Kitchero" },
-    { "type": "image_picker", "id": "image", "label": "Background image" }
+    { "type": "text", "id": "heading_line1", "label": "Heading line 1", "default": "The" },
+    { "type": "text", "id": "heading_line2", "label": "Heading line 2", "default": "Standard." },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "We do not assemble, we orchestrate. Every material is hand-selected. Every grain matched perfectly." },
+    { "type": "image_picker", "id": "image", "label": "Cinematic image" }
   ],
   "blocks": [
     {
       "type": "feature",
       "name": "Feature",
-      "limit": 6,
+      "limit": 3,
       "settings": [
-        { "type": "text", "id": "number", "label": "Number", "default": "01" },
-        { "type": "text", "id": "title", "label": "Title", "default": "Feature title" },
-        { "type": "textarea", "id": "description", "label": "Description", "default": "Feature description." }
+        { "type": "text", "id": "label", "label": "Label", "default": "01 / Craftsmanship" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Tactile Luxury" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "From the moment you touch the handle-less drawers, you realize that true luxury is tactile." }
       ]
     }
   ],
   "presets": [
     {
-      "name": "Why choose us",
+      "name": "The Standard",
       "blocks": [
-        { "type": "feature", "settings": { "number": "01", "title": "Handcrafted Quality", "description": "Every cabinet is built by master artisans using time-honored joinery techniques and premium materials." } },
-        { "type": "feature", "settings": { "number": "02", "title": "Lifetime Warranty", "description": "We stand behind our craftsmanship with a comprehensive lifetime warranty on all structural components." } },
-        { "type": "feature", "settings": { "number": "03", "title": "Sustainable Materials", "description": "Responsibly sourced hardwoods and eco-friendly finishes for a kitchen that respects the planet." } }
+        { "type": "feature", "settings": { "label": "01 / Craftsmanship", "title": "Tactile Luxury", "description": "From the moment you touch the handle-less drawers, you realize that true luxury is tactile. The soft-close physics feel deliberate and engineered to perfection." } },
+        { "type": "feature", "settings": { "label": "02 / Materials", "title": "Absolute Grade", "description": "Only A-grade veneers, robust European mechanics, and absolutely flawless quartz make it past our rigorous selection process. No compromises." } },
+        { "type": "feature", "settings": { "label": "03 / Guarantee", "title": "Built to Outlast", "description": "Patience and precision equal longevity. A culinary space built not just for a decade, but for generations. Fully supported by our lifetime warranty." } }
       ]
     }
   ]

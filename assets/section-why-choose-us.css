@@ -1,100 +1,192 @@
-/* Why Choose Us — Dark hero with feature grid */
+/* Why Choose Us / "The Standard." — Birebir from WhyChooseUs.tsx */
 
+/* section: bg-stone-950 text-white overflow-hidden relative py-32 md:py-48 */
 .kt-why-choose-us {
-  position: relative;
   background-color: #0c0a09;
-  color: #fafaf9;
+  color: #fff;
   overflow: hidden;
+  position: relative;
+  padding: 8rem 0;
 }
 
-.kt-why-choose-us__hero {
-  position: relative;
-  height: 50vh;
+@media screen and (min-width: 750px) {
+  .kt-why-choose-us {
+    padding: 12rem 0;
+  }
+}
+
+/* Header: flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-24 gap-10 */
+.kt-why-choose-us__header {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+  gap: 2.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-why-choose-us__header {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 6rem;
+  }
+}
+
+/* h2: text-6xl md:text-[10rem] leading-[0.85] font-bold tracking-tighter uppercase */
+.kt-why-choose-us__title {
+  font-size: 3.75rem;
+  line-height: 0.85;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-why-choose-us__title {
+    font-size: 10rem;
+  }
+}
+
+/* p: text-xl md:text-2xl text-stone-400 font-light max-w-md md:text-right md:pb-4 */
+.kt-why-choose-us__desc {
+  font-size: 1.25rem;
+  color: #a8a29e;
+  font-weight: 300;
+  max-width: 28rem;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-why-choose-us__desc {
+    font-size: 1.5rem;
+    text-align: right;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Image: w-full h-[50vh] md:h-[75vh] relative mb-24 md:mb-32 overflow-hidden */
+.kt-why-choose-us__image-wrap {
+  width: 100%;
+  height: 50vh;
+  position: relative;
+  margin-bottom: 6rem;
   overflow: hidden;
 }
 
 @media screen and (min-width: 750px) {
-  .kt-why-choose-us__hero {
+  .kt-why-choose-us__image-wrap {
     height: 75vh;
+    margin-bottom: 8rem;
   }
 }
 
-.kt-why-choose-us__hero-image {
+/* img: absolute inset-0 w-full h-[130%] object-cover -top-[15%] opacity-80 */
+.kt-why-choose-us__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 130%;
+  object-fit: cover;
+  top: -15%;
+  opacity: 0.8;
+}
+
+/* Overlay: absolute inset-0 bg-stone-950/20 mix-blend-multiply */
+.kt-why-choose-us__image-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(12, 10, 9, 0.2);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.kt-why-choose-us__image-wrap .placeholder-svg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  opacity: 0.4;
-  mix-blend-mode: multiply;
+  opacity: 0.3;
 }
 
-.kt-why-choose-us__hero-title {
-  position: relative;
-  z-index: 2;
-  font-size: 3.75rem;
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  text-align: center;
-  text-transform: uppercase;
-  color: #fff;
-  padding: 0 1.5rem;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-why-choose-us__hero-title { font-size: 10rem; }
-}
-
-.kt-why-choose-us__features {
+/* Grid: grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-stone-800 */
+.kt-why-choose-us__grid {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 0;
   border-top: 1px solid #292524;
 }
 
 @media screen and (min-width: 750px) {
-  .kt-why-choose-us__features {
+  .kt-why-choose-us__grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/* Feature columns */
 .kt-why-choose-us__feature {
-  padding: 3rem 1.5rem;
-  border-bottom: 1px solid #292524;
+  display: flex;
+  flex-direction: column;
+  padding-top: 3rem;
+  border-top: 1px solid #292524;
 }
 
 @media screen and (min-width: 750px) {
   .kt-why-choose-us__feature {
-    padding: 3rem;
-    border-bottom: none;
+    padding-bottom: 2rem;
+    border-top: none;
+  }
+
+  /* md:pr-16 md:border-r */
+  .kt-why-choose-us__feature:first-child {
+    padding-right: 4rem;
     border-right: 1px solid #292524;
   }
 
+  /* md:px-16 md:border-r */
+  .kt-why-choose-us__feature:nth-child(2) {
+    padding-left: 4rem;
+    padding-right: 4rem;
+    border-right: 1px solid #292524;
+  }
+
+  /* md:pl-16 */
   .kt-why-choose-us__feature:last-child {
-    border-right: none;
+    padding-left: 4rem;
   }
 }
 
-.kt-why-choose-us__feature-number {
+/* span: text-xs uppercase tracking-[0.2em] font-semibold text-stone-500 mb-6 block */
+.kt-why-choose-us__feature-label {
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 600;
   color: #78716c;
   margin-bottom: 1.5rem;
+  display: block;
 }
 
+/* h3: text-3xl md:text-4xl mb-6 font-medium tracking-tight */
 .kt-why-choose-us__feature-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.5rem;
   color: #fff;
-  margin-bottom: 1rem;
 }
 
+@media screen and (min-width: 750px) {
+  .kt-why-choose-us__feature-title {
+    font-size: 2.25rem;
+  }
+}
+
+/* p: text-stone-400 leading-relaxed text-lg */
 .kt-why-choose-us__feature-desc {
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: #a8a29e;
-  font-weight: 300;
-  line-height: 1.6;
+  line-height: 1.625;
 }
