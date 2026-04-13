@@ -57,11 +57,21 @@
           </a>
         {%- endif -%}
 
-        <div class="kt-home-financing__partner-logos" aria-hidden="true">
-          <span>affirm</span>
-          <div class="kt-home-financing__partner-logos-divider"></div>
-          <span>bread pay&reg;</span>
-        </div>
+        {%- assign partner_blocks = section.blocks | where: 'type', 'partner' -%}
+        {%- if partner_blocks.size > 0 -%}
+          <div class="kt-home-financing__partner-logos" aria-hidden="true">
+            {%- for block in partner_blocks -%}
+              {%- if block.settings.logo_image != blank -%}
+                {{ block.settings.logo_image | image_url: height: 48 | image_tag: class: 'kt-home-financing__partner-logo-img', loading: 'lazy', height: 24, alt: block.settings.name }}
+              {%- else -%}
+                <span>{{ block.settings.name }}</span>
+              {%- endif -%}
+              {%- unless forloop.last -%}
+                <div class="kt-home-financing__partner-logos-divider"></div>
+              {%- endunless -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
       </div>
     </div>
   </div>
@@ -89,6 +99,7 @@
       "limit": 4,
       "settings": [
         { "type": "text", "id": "name", "label": "Partner name", "default": "Affirm" },
+        { "type": "image_picker", "id": "logo_image", "label": "Partner logo" },
         { "type": "textarea", "id": "description", "label": "Description", "default": "Simple monthly payments without hidden fees or surprises. See if you qualify in seconds." },
         { "type": "text", "id": "badge", "label": "Badge text", "default": "0% APR Available" }
       ]
