@@ -1,6 +1,6 @@
 /**
- * Kitchero Hero — Auto-playing carousel + GSAP parallax
- * Re-initializes on shopify:section:load.
+ * Kitchero Hero — Carousel with text entrance animations
+ * Matches Hero.tsx: staggered slide-up text, opacity fade on images.
  */
 (function () {
   'use strict';
@@ -21,19 +21,42 @@
 
     if (this.total > 0) {
       this.bindEvents();
+      this.animateText(0);
       if (this.total > 1) this.startAutoplay();
       this.initGSAP();
     }
   }
 
+  KitcheroHero.prototype.animateText = function (index) {
+    /* Reset all text panels */
+    this.texts.forEach(function (panel) {
+      var anims = panel.querySelectorAll('[data-hero-anim]');
+      anims.forEach(function (el) {
+        el.classList.remove('kt-hero__anim--visible');
+        el.classList.remove('kt-hero__anim-slide--visible');
+      });
+    });
+
+    /* Animate active panel's elements with staggered delays */
+    var activePanel = this.texts[index];
+    if (!activePanel) return;
+
+    var anims = activePanel.querySelectorAll('[data-hero-anim]');
+    anims.forEach(function (el) {
+      var delay = parseInt(el.dataset.delay || '0', 10);
+      setTimeout(function () {
+        el.classList.add('kt-hero__anim--visible');
+        el.classList.add('kt-hero__anim-slide--visible');
+      }, delay);
+    });
+  };
+
   KitcheroHero.prototype.initGSAP = function () {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-
     gsap.registerPlugin(ScrollTrigger);
     var section = this.section;
 
     this.gsapCtx = gsap.context(function () {
-      /* Parallax on all slide images */
       gsap.utils.toArray('.kt-hero__slide-image-wrap', section).forEach(function (wrap) {
         gsap.to(wrap, {
           yPercent: 15,
@@ -51,14 +74,12 @@
 
   KitcheroHero.prototype.bindEvents = function () {
     var self = this;
-
     if (this.prevBtn) {
       this.prevBtn.addEventListener('click', function () {
         self.goTo((self.current - 1 + self.total) % self.total);
         self.resetAutoplay();
       });
     }
-
     if (this.nextBtn) {
       this.nextBtn.addEventListener('click', function () {
         self.goTo((self.current + 1) % self.total);
@@ -76,6 +97,8 @@
     this.current = index;
     this.slides[this.current].classList.add('kt-hero__slide--active');
     this.texts[this.current].classList.remove('hidden');
+
+    this.animateText(index);
   };
 
   KitcheroHero.prototype.startAutoplay = function () {
@@ -107,36 +130,23 @@
     initHero(el.closest('.shopify-section') || el);
   });
 
-  document.addEventListener('shopify:section:load', function (event) {
-    initHero(event.target);
+  document.addEventListener('shopify:section:load', function (e) { initHero(e.target); });
+  document.addEventListener('shopify:section:unload', function (e) {
+    var id = e.detail.sectionId;
+    if (heroInstances[id]) { heroInstances[id].destroy(); delete heroInstances[id]; }
   });
-
-  document.addEventListener('shopify:section:unload', function (event) {
-    var id = event.detail.sectionId;
-    if (heroInstances[id]) {
-      heroInstances[id].destroy();
-      delete heroInstances[id];
-    }
-  });
-
-  document.addEventListener('shopify:block:select', function (event) {
-    var section = event.target.closest('[data-section-type="hero"]');
+  document.addEventListener('shopify:block:select', function (e) {
+    var section = e.target.closest('[data-section-type="hero"]');
     if (!section) return;
-    var id = section.dataset.sectionId;
-    var instance = heroInstances[id];
+    var instance = heroInstances[section.dataset.sectionId];
     if (!instance) return;
-    var slideIndex = parseInt(event.target.dataset.slideIndex, 10);
-    if (!isNaN(slideIndex)) {
-      instance.goTo(slideIndex);
-      clearInterval(instance.timer);
-    }
+    var idx = parseInt(e.target.dataset.slideIndex, 10);
+    if (!isNaN(idx)) { instance.goTo(idx); clearInterval(instance.timer); }
   });
-
-  document.addEventListener('shopify:block:deselect', function (event) {
-    var section = event.target.closest('[data-section-type="hero"]');
+  document.addEventListener('shopify:block:deselect', function (e) {
+    var section = e.target.closest('[data-section-type="hero"]');
     if (!section) return;
-    var id = section.dataset.sectionId;
-    var instance = heroInstances[id];
+    var instance = heroInstances[section.dataset.sectionId];
     if (instance && instance.total > 1) instance.startAutoplay();
   });
 })();

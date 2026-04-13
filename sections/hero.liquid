@@ -45,35 +45,43 @@
           data-slide-text="{{ forloop.index0 }}"
         >
           {%- if block.settings.subtitle != blank -%}
-            <span class="kt-hero__subtitle">{{ block.settings.subtitle }}</span>
+            <span class="kt-hero__subtitle kt-hero__anim" data-hero-anim data-delay="200">{{ block.settings.subtitle }}</span>
           {%- endif -%}
 
           <h1 class="kt-hero__heading">
             {%- if block.settings.line1 != blank -%}
-              <span class="kt-hero__heading-line">{{ block.settings.line1 }}</span>
+              <span class="kt-hero__heading-clip">
+                <span class="kt-hero__heading-line kt-hero__anim-slide" data-hero-anim data-delay="400">{{ block.settings.line1 }}</span>
+              </span>
             {%- endif -%}
             <span class="kt-hero__heading-row">
               {%- if block.settings.serif_word != blank -%}
-                <span class="kt-hero__heading-serif">{{ block.settings.serif_word }}</span>
+                <span class="kt-hero__heading-clip">
+                  <span class="kt-hero__heading-serif kt-hero__anim-slide" data-hero-anim data-delay="500">{{ block.settings.serif_word }}</span>
+                </span>
               {%- endif -%}
               {%- if block.settings.line2 != blank -%}
-                <span class="kt-hero__heading-bold">{{ block.settings.line2 }}</span>
+                <span class="kt-hero__heading-clip">
+                  <span class="kt-hero__heading-bold kt-hero__anim-slide" data-hero-anim data-delay="600">{{ block.settings.line2 }}</span>
+                </span>
               {%- endif -%}
             </span>
           </h1>
 
           {%- if block.settings.description != blank -%}
-            <p class="kt-hero__desc">{{ block.settings.description }}</p>
+            <p class="kt-hero__desc kt-hero__anim" data-hero-anim data-delay="800">{{ block.settings.description }}</p>
           {%- endif -%}
 
           {%- if block.settings.cta_text != blank -%}
-            <a href="{{ block.settings.cta_link | default: routes.root_url }}" class="kt-hero__cta">
-              {{ block.settings.cta_text }}
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
+            <div class="kt-hero__anim" data-hero-anim data-delay="1000">
+              <a href="{{ block.settings.cta_link | default: routes.root_url }}" class="kt-hero__cta">
+                {{ block.settings.cta_text }}
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            </div>
           {%- endif -%}
         </div>
       {%- endif -%}

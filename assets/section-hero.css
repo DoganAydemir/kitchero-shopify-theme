@@ -25,6 +25,47 @@
   z-index: 1;
 }
 
+/* Text animation: fade-up with stagger */
+.kt-hero__anim {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.kt-hero__anim--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Heading slide-up from behind clip mask — matches Framer initial={{ y: "100%" }} */
+.kt-hero__heading-clip {
+  display: block;
+  overflow: hidden;
+  padding: 0.125rem 0;
+}
+
+.kt-hero__anim-slide {
+  display: block;
+  transform: translateY(100%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-hero__anim-slide--visible {
+  transform: translateY(0);
+}
+
+/* CTA scale-in — matches Framer initial={{ opacity: 0, scale: 0.9 }} */
+.kt-hero__anim--scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.kt-hero__anim--scale.kt-hero__anim--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
 .kt-hero__slide-image-wrap {
   width: 100%;
   height: 100%;
