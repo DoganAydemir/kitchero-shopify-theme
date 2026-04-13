@@ -7,7 +7,7 @@
       {%- comment -%} Brand Column (always first) {%- endcomment -%}
       <div class="kt-footer__brand">
         <h2 class="kt-footer__brand-heading">
-          {{ section.settings.heading }}
+          {{ section.settings.heading_line1 | default: 'Let&rsquo;s build your' }}<br>{{ section.settings.heading_line2 | default: 'dream kitchen.' }}
         </h2>
         <p class="kt-footer__brand-text">
           {{ section.settings.description | default: 'Experience the perfect orchestration of engineering and tactile luxury in your own home.' }}
@@ -139,10 +139,16 @@
       "content": "t:sections.footer.settings.header__brand.content"
     },
     {
-      "type": "inline_richtext",
-      "id": "heading",
-      "label": "t:sections.footer.settings.heading.label",
-      "default": "Let\u2019s build your<br>dream kitchen."
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.footer.settings.heading_line1.label",
+      "default": "Let\u2019s build your"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2",
+      "label": "t:sections.footer.settings.heading_line2.label",
+      "default": "dream kitchen."
     },
     {
       "type": "text",
