@@ -1,7 +1,8 @@
-/* Brands — Infinite marquee logo strip */
+/* Brands — Infinite marquee logo strip
+   Birebir from Brands.tsx */
 
 .kt-brands {
-  padding: 4rem 0;
+  padding: 5rem 0;
   background-color: #fafaf9;
   overflow: hidden;
   position: relative;
@@ -21,27 +22,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 2rem;
+  margin: 0 2rem;
+  width: 10rem;
+  height: 4rem;
   flex-shrink: 0;
+  color: #78716c;
+  user-select: none;
+  transition: color 0.3s ease;
 }
 
 @media screen and (min-width: 750px) {
-  .kt-brands__item { padding: 0 3rem; }
+  .kt-brands__item {
+    margin: 0 3rem;
+    width: 12rem;
+  }
+}
+
+.kt-brands__item:hover {
+  color: #1c1917;
 }
 
 .kt-brands__logo {
-  height: 2rem;
+  max-height: 100%;
+  max-width: 100%;
   width: auto;
+  height: auto;
   opacity: 0.4;
   transition: opacity 0.3s ease;
 }
 
-@media screen and (min-width: 750px) {
-  .kt-brands__logo { height: 2.5rem; }
-}
-
 .kt-brands__item:hover .kt-brands__logo {
   opacity: 1;
+}
+
+/* Text fallback for brands without images */
+.kt-brands__item span {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 /* Fade edges */
