@@ -1,6 +1,7 @@
-/* Ecosystem — Dark section with pinned right image + scrolling left features
-   Birebir from Ecosystem.tsx */
+/* Ecosystem — Birebir from Ecosystem.tsx
+   Every Tailwind class mapped line by line. */
 
+/* section: py-32 bg-stone-900 text-stone-50 relative overflow-hidden */
 .kt-ecosystem {
   padding: 8rem 0;
   background-color: #1c1917;
@@ -9,7 +10,7 @@
   overflow: hidden;
 }
 
-/* Background grid pattern */
+/* Background grid: absolute inset-0 z-0 opacity-[0.05] pointer-events-none */
 .kt-ecosystem__grid-pattern {
   position: absolute;
   inset: 0;
@@ -25,13 +26,14 @@
   height: 100%;
 }
 
+/* absolute inset-0 bg-gradient-to-b from-stone-900 via-transparent to-stone-900 */
 .kt-ecosystem__grid-fade {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, #1c1917, transparent 30%, transparent 70%, #1c1917);
 }
 
-/* Layout */
+/* container: mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-12 lg:gap-24 relative z-10 */
 .kt-ecosystem__layout {
   display: flex;
   flex-direction: column;
@@ -40,21 +42,27 @@
   z-index: 10;
 }
 
-@media screen and (min-width: 990px) {
+@media screen and (min-width: 750px) {
   .kt-ecosystem__layout {
     flex-direction: row;
+    gap: 3rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-ecosystem__layout {
     gap: 6rem;
   }
 }
 
-/* Left column: scrolling text */
+/* Left col: md:w-1/2 pt-[10vh] pb-[20vh] relative z-20 */
 .kt-ecosystem__text-col {
   width: 100%;
   position: relative;
   z-index: 20;
 }
 
-@media screen and (min-width: 990px) {
+@media screen and (min-width: 750px) {
   .kt-ecosystem__text-col {
     width: 50%;
     padding-top: 10vh;
@@ -62,6 +70,7 @@
   }
 }
 
+/* Title block: flex flex-col justify-end pb-10 */
 .kt-ecosystem__title-block {
   display: flex;
   flex-direction: column;
@@ -69,22 +78,24 @@
   padding-bottom: 2.5rem;
 }
 
+/* h2: text-5xl md:text-8xl font-semibold tracking-tighter uppercase mb-6 leading-none */
 .kt-ecosystem__title {
   font-size: 3rem;
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  line-height: 1;
   margin-bottom: 1.5rem;
+  line-height: 1;
   color: #fff;
 }
 
 @media screen and (min-width: 750px) {
   .kt-ecosystem__title {
-    font-size: 8rem;
+    font-size: 6rem;
   }
 }
 
+/* subtitle: text-xl text-stone-400 max-w-md hidden md:block */
 .kt-ecosystem__subtitle {
   font-size: 1.25rem;
   color: #a8a29e;
@@ -98,7 +109,7 @@
   }
 }
 
-/* Features list */
+/* Features: flex flex-col gap-32 mt-20 relative z-0 */
 .kt-ecosystem__features {
   display: flex;
   flex-direction: column;
@@ -108,37 +119,40 @@
   z-index: 0;
 }
 
-.kt-ecosystem__feature {
-  /* no border-bottom here, clean per source */
-}
-
+/* h3: text-4xl font-medium mb-4 group-hover:text-white transition-colors */
 .kt-ecosystem__feature-title {
-  font-size: 1.5rem;
+  font-size: 2.25rem;
   font-weight: 500;
   color: #fafaf9;
   margin-bottom: 1rem;
   transition: color 0.2s ease;
 }
 
-@media screen and (min-width: 750px) {
-  .kt-ecosystem__feature-title {
-    font-size: 2.25rem;
-  }
-}
-
 .kt-ecosystem__feature:hover .kt-ecosystem__feature-title {
   color: #fff;
 }
 
+/* desc: text-xl text-stone-500 leading-relaxed max-w-sm */
 .kt-ecosystem__feature-desc {
   font-size: 1.25rem;
   color: #78716c;
-  font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.625;
   max-width: 24rem;
 }
 
-/* CTA link */
+/* CTA: inline-flex items-center gap-4 text-white uppercase tracking-widest text-sm font-bold border-b border-stone-500 pb-2 hover:border-white transition-all w-max */
+/* Also: mt-8 hidden md:block wrapper */
+.kt-ecosystem__cta-wrap {
+  margin-top: 2rem;
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ecosystem__cta-wrap {
+    display: block;
+  }
+}
+
 .kt-ecosystem__cta {
   display: inline-flex;
   align-items: center;
@@ -146,35 +160,27 @@
   color: #fff;
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   font-size: 0.875rem;
   font-weight: 700;
-  padding-bottom: 0.5rem;
   border-bottom: 1px solid #78716c;
-  transition: border-color 0.2s ease;
-  margin-top: 2rem;
+  padding-bottom: 0.5rem;
+  transition: all 0.2s ease;
   width: max-content;
-  display: none;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-ecosystem__cta {
-    display: inline-flex;
-  }
 }
 
 .kt-ecosystem__cta:hover {
   border-color: #fff;
 }
 
-/* Right column: pinned image */
+/* Right col: md:w-1/2 relative h-screen flex flex-col justify-center items-center z-10 */
 .kt-ecosystem__image-col {
   width: 100%;
   position: relative;
   z-index: 10;
 }
 
-@media screen and (min-width: 990px) {
+@media screen and (min-width: 750px) {
   .kt-ecosystem__image-col {
     width: 50%;
     height: 100vh;
@@ -185,15 +191,17 @@
   }
 }
 
+/* Image wrap: w-full h-[60vh] rounded-[2rem] overflow-hidden shadow-2xl relative */
 .kt-ecosystem__image-wrap {
   width: 100%;
   height: 60vh;
   border-radius: 2rem;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* img: absolute inset-0 w-full h-[120%] object-cover -top-[10%] */
 .kt-ecosystem__image {
   position: absolute;
   inset: 0;
@@ -210,6 +218,7 @@
   height: 100%;
 }
 
+/* Overlay: absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent pointer-events-none */
 .kt-ecosystem__image-overlay {
   position: absolute;
   inset: 0;
