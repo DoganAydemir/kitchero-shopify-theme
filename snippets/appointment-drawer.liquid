@@ -86,11 +86,12 @@
         <fieldset class="kt-appointment-drawer__fieldset">
           <legend class="field__label">{{ 'sections.appointment.interested_in' | t | default: 'Interested In' }} <span aria-hidden="true">*</span></legend>
           <div class="kt-appointment-drawer__radio-group">
-            {%- assign interests = 'Kitchen Cabinets,Kitchen Countertops,Cabinet + Countertop' | split: ',' -%}
-            {%- for interest in interests -%}
+            {%- assign interest_keys = 'interest_cabinets,interest_countertops,interest_both' | split: ',' -%}
+            {%- for key in interest_keys -%}
+              {%- assign interest_label = 'sections.appointment.' | append: key | t -%}
               <label class="kt-appointment-drawer__radio-label">
-                <input type="radio" name="contact[interest]" value="{{ interest }}" {% if forloop.first %}checked{% endif %} class="kt-appointment-drawer__radio">
-                <span>{{ interest }}</span>
+                <input type="radio" name="contact[interest]" value="{{ interest_label }}" {% if forloop.first %}checked{% endif %} class="kt-appointment-drawer__radio">
+                <span>{{ interest_label }}</span>
               </label>
             {%- endfor -%}
           </div>
