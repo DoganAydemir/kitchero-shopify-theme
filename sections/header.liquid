@@ -1,11 +1,14 @@
 {{ 'section-header.css' | asset_url | stylesheet_tag }}
 
-<div class="kt-header-spacer" aria-hidden="true"></div>
+{%- unless section.settings.header_style == 'transparent' -%}
+  <div class="kt-header-spacer" aria-hidden="true"></div>
+{%- endunless -%}
 
 <header
-  class="kt-header"
+  class="kt-header{% if section.settings.header_style == 'transparent' %} kt-header--transparent{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
+  data-header-style="{{ section.settings.header_style | default: 'solid' }}"
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
@@ -227,6 +230,17 @@
   "name": "t:sections.header.name",
   "class": "section-header",
   "settings": [
+    {
+      "type": "select",
+      "id": "header_style",
+      "label": "Header style",
+      "options": [
+        { "value": "transparent", "label": "Transparent (overlay on hero)" },
+        { "value": "solid", "label": "Solid background" }
+      ],
+      "default": "transparent",
+      "info": "Transparent floats over the page content. Solid adds a background and pushes content down."
+    },
     {
       "type": "header",
       "content": "t:sections.header.settings.header__navigation.content"

@@ -92,7 +92,14 @@
     handleScroll() {
       if (!this.header) return;
       var scrolled = window.scrollY > this.scrollThreshold;
+      var isTransparent = this.header.dataset.headerStyle === 'transparent';
+
       this.header.classList.toggle('kt-header--scrolled', scrolled);
+
+      /* In transparent mode: remove transparent class when scrolled, restore when back to top */
+      if (isTransparent) {
+        this.header.classList.toggle('kt-header--transparent', !scrolled);
+      }
     }
 
     handleKeydown(event) {

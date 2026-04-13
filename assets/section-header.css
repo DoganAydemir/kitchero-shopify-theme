@@ -4,24 +4,27 @@
    BEM naming: .kt-header, .kt-header__*
    ============================================================ */
 
+/* Solid mode (default): always has dark background */
 .kt-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  transition: background-color 0.3s ease, padding 0.3s ease;
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, padding 0.3s ease;
   background-color: rgba(28, 25, 23, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* Transparent mode: no background until scrolled — floats over hero */
 .kt-header--transparent {
   background-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
+/* When scrolled (both modes get solid background) */
 .kt-header--scrolled {
   background-color: rgba(28, 25, 23, 0.95);
   backdrop-filter: blur(12px);
@@ -490,13 +493,13 @@
   transform: translateX(4px);
 }
 
-/* Spacer for fixed header */
+/* Spacer for solid header — pushes content below fixed header */
 .kt-header-spacer {
-  height: 80px;
+  height: 5rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-header-spacer {
-    height: 96px;
+    height: 6rem;
   }
 }
