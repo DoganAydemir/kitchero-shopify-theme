@@ -11,17 +11,20 @@
         <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration & Guides' }}</{{ heading_tag }}>
       </div>
       {%- if section.settings.blog != blank -%}
-        <a href="{{ section.settings.blog.url }}" class="kt-guide-teaser__view-all">
-          {{ 'sections.guide_teaser.view_all' | t | default: 'View All Journals' }}
-        </a>
+        {%- assign blog_obj = blogs[section.settings.blog] -%}
+        {%- if blog_obj -%}
+          <a href="{{ blog_obj.url }}" class="kt-guide-teaser__view-all">
+            {{ 'sections.guide_teaser.view_all' | t | default: 'View All Journals' }}
+          </a>
+        {%- endif -%}
       {%- endif -%}
     </div>
 
     <div class="kt-guide-teaser__grid">
       {%- if section.settings.blog != blank -%}
-        {%- comment -%} Dynamic: pull articles from selected blog {%- endcomment -%}
-        {%- if section.settings.blog.articles_count > 0 -%}
-          {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+        {%- assign blog_obj = blogs[section.settings.blog] -%}
+        {%- if blog_obj and blog_obj.articles_count > 0 -%}
+          {%- for article in blog_obj.articles limit: section.settings.posts_count -%}
             <a href="{{ article.url }}" class="kt-guide-teaser__card">
               <div class="kt-guide-teaser__card-image-wrap">
                 {%- if article.image -%}
@@ -52,7 +55,7 @@
             </a>
           {%- endfor -%}
         {%- else -%}
-          {%- comment -%} Blog selected but no articles yet {%- endcomment -%}
+          {%- comment -%} Blog selected but no articles — show placeholders {%- endcomment -%}
           {%- for i in (1..3) -%}
             <div class="kt-guide-teaser__card">
               <div class="kt-guide-teaser__card-image-wrap">
@@ -66,7 +69,7 @@
           {%- endfor -%}
         {%- endif -%}
       {%- else -%}
-        {%- comment -%} Fallback: static blocks when no blog selected {%- endcomment -%}
+        {%- comment -%} No blog selected — use manual blocks {%- endcomment -%}
         {%- for block in section.blocks -%}
           {%- if block.type == 'article' -%}
             <a href="{{ block.settings.link | default: '#' }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
