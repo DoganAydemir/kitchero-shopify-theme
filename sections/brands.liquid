@@ -13,7 +13,12 @@
             {%- if block.settings.image != blank -%}
               {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', height: 40, alt: block.settings.alt | default: 'sections.brands.logo_alt' | t }}
             {%- else -%}
-              <span class="kt-brands__logo" style="font-size:1.5rem;font-weight:700;color:#a8a29e;">{{ block.settings.alt | default: 'sections.brands.logo_alt' | t }}</span>
+              <div class="kt-brands__placeholder">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                {%- if block.settings.alt != blank -%}
+                  <span class="kt-brands__placeholder-name">{{ block.settings.alt }}</span>
+                {%- endif -%}
+              </div>
             {%- endif -%}
           </div>
         {%- endif -%}
