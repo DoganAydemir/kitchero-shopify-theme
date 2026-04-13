@@ -99,7 +99,7 @@
 
     {%- comment -%} Large Branding Text {%- endcomment -%}
     <div class="kt-footer__branding">
-      <span class="kt-footer__branding-text" aria-hidden="true">{{ shop.name }}</span>
+      <span class="kt-footer__branding-text" aria-hidden="true">{{ section.settings.branding_text | default: 'KITCHERO' }}</span>
 
       {%- comment -%} Bottom Bar {%- endcomment -%}
       <div class="kt-footer__bottom">
@@ -219,6 +219,12 @@
     {
       "type": "header",
       "content": "t:sections.footer.settings.header__bottom.content"
+    },
+    {
+      "type": "text",
+      "id": "branding_text",
+      "label": "Large branding text",
+      "default": "KITCHERO"
     },
     {
       "type": "checkbox",
