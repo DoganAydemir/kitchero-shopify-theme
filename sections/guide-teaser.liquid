@@ -11,7 +11,7 @@
         <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration & Guides' }}</{{ heading_tag }}>
       </div>
       {%- if section.settings.blog != blank -%}
-        <a href="{{ section.settings.blog.url }}" class="kt-guide-teaser__view-all">
+        <a href="{{ blogs[section.settings.blog].url }}" class="kt-guide-teaser__view-all">
           {{ 'sections.guide_teaser.view_all' | t | default: 'View All Journals' }}
         </a>
       {%- endif -%}
@@ -20,7 +20,8 @@
     <div class="kt-guide-teaser__grid">
       {%- if section.settings.blog != blank -%}
         {%- comment -%} Dynamic: pull articles from selected blog {%- endcomment -%}
-        {%- for article in section.settings.blog.articles limit: section.settings.posts_count -%}
+        {%- assign selected_blog = blogs[section.settings.blog] -%}
+        {%- for article in selected_blog.articles limit: section.settings.posts_count -%}
           <a href="{{ article.url }}" class="kt-guide-teaser__card">
             <div class="kt-guide-teaser__card-image-wrap">
               {%- if article.image -%}
