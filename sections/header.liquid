@@ -1,0 +1,85 @@
+<header class="kt-header" data-section-id="{{ section.id }}">
+  <div class="kt-header__inner page-width">
+    {%- if settings.logo != blank -%}
+      <a href="{{ routes.root_url }}" class="kt-header__logo">
+        {{
+          settings.logo
+          | image_url: width: settings.logo_width
+          | image_tag:
+            class: 'kt-header__logo-image',
+            widths: '100, 150, 200, 300',
+            alt: shop.name
+        }}
+      </a>
+    {%- else -%}
+      <a href="{{ routes.root_url }}" class="kt-header__logo">
+        <span class="kt-header__logo-text">{{ shop.name }}</span>
+      </a>
+    {%- endif -%}
+
+    <nav class="kt-header__nav" aria-label="{{ 'accessibility.navigation' | t }}">
+      {%- if section.settings.main_menu != blank -%}
+        <ul class="kt-header__menu list-unstyled" role="list">
+          {%- for link in section.settings.main_menu.links -%}
+            <li>
+              <a href="{{ link.url }}" class="kt-header__menu-link"{% if link.current %} aria-current="page"{% endif %}>
+                {{ link.title }}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </nav>
+
+    <div class="kt-header__icons">
+      <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'general.search.search' | t }}">
+        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </a>
+
+      <a href="{{ routes.account_url }}" class="kt-header__icon" aria-label="{{ 'accessibility.account' | t }}">
+        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </a>
+
+      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart" aria-label="{{ 'sections.cart.title' | t }}">
+        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span class="kt-header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.main_menu.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

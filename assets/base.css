@@ -1,0 +1,262 @@
+/* Kitchero Theme — Base Styles
+   Design tokens come from theme.liquid :root via settings_schema.
+   This file provides foundational layout, typography, and utility classes. */
+
+/* ============================================================
+   Reset & Box Model
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+img,
+picture,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* ============================================================
+   Layout Utilities
+   ============================================================ */
+
+.page-width {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .page-width {
+    padding: 0 2rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .page-width {
+    padding: 0 3rem;
+  }
+}
+
+.section + .section {
+  margin-top: var(--spacing-sections-mobile);
+}
+
+@media screen and (min-width: 750px) {
+  .section + .section {
+    margin-top: var(--spacing-sections-desktop);
+  }
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--font-heading-family);
+  font-style: var(--font-heading-style);
+  font-weight: var(--font-heading-weight);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: rgb(var(--color-foreground));
+}
+
+h1, .h1 { font-size: calc(var(--font-heading-scale) * 3.2rem); }
+h2, .h2 { font-size: calc(var(--font-heading-scale) * 2.4rem); }
+h3, .h3 { font-size: calc(var(--font-heading-scale) * 2rem); }
+h4, .h4 { font-size: calc(var(--font-heading-scale) * 1.8rem); }
+h5, .h5 { font-size: calc(var(--font-heading-scale) * 1.6rem); }
+h6, .h6 { font-size: calc(var(--font-heading-scale) * 1.4rem); }
+
+@media screen and (min-width: 750px) {
+  h1, .h1 { font-size: calc(var(--font-heading-scale) * 4.8rem); }
+  h2, .h2 { font-size: calc(var(--font-heading-scale) * 3.2rem); }
+  h3, .h3 { font-size: calc(var(--font-heading-scale) * 2.4rem); }
+}
+
+a {
+  color: rgb(var(--color-link));
+  text-underline-offset: 0.3rem;
+}
+
+.rte a {
+  color: rgb(var(--color-link));
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.button,
+button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.2rem 2.4rem;
+  font-family: var(--font-body-family);
+  font-size: 1.4rem;
+  font-weight: var(--font-body-weight-bold, 700);
+  letter-spacing: 0.06rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: var(--buttons-border-width) solid rgba(var(--color-button), var(--buttons-border-opacity));
+  border-radius: var(--buttons-radius);
+  background-color: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  transition: opacity 0.2s ease;
+}
+
+.button:hover,
+button[type="submit"]:hover {
+  opacity: 0.85;
+}
+
+.button--secondary {
+  background-color: rgb(var(--color-secondary-button));
+  color: rgb(var(--color-secondary-button-text));
+  border-color: rgba(var(--color-secondary-button-text), var(--buttons-border-opacity));
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+
+.field__input,
+.field__textarea {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  font-size: 1.4rem;
+  border: var(--inputs-border-width) solid rgba(var(--color-foreground), var(--inputs-border-opacity));
+  border-radius: var(--inputs-radius);
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  appearance: none;
+}
+
+.field__input:focus,
+.field__textarea:focus {
+  outline: 2px solid rgb(var(--color-foreground));
+  outline-offset: 2px;
+}
+
+.field__label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 1.4rem;
+  font-weight: var(--font-body-weight-bold, 700);
+  color: rgb(var(--color-foreground));
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-to-content-link:focus {
+  position: fixed !important;
+  top: 1rem;
+  left: 1rem;
+  z-index: 9999;
+  width: auto !important;
+  height: auto !important;
+  padding: 1rem 2rem !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+.focus-none:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--color-foreground));
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+.list-unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.gradient {
+  background: var(--gradient-background);
+}
+
+/* Color scheme application */
+.color-scheme {
+  background-color: rgb(var(--color-background));
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+/* Rich text content */
+.rte > *:first-child {
+  margin-top: 0;
+}
+
+.rte > * + * {
+  margin-top: 1.2rem;
+}
+
+.rte img {
+  height: auto;
+}
+
+/* Placeholder SVGs */
+.placeholder-svg {
+  fill: rgba(var(--color-foreground), 0.08);
+  background-color: rgba(var(--color-foreground), 0.04);
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================
+   RTL Support
+   ============================================================ */
+
+[dir="rtl"] .kt-pagination__item--prev svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .kt-pagination__item--next svg {
+  transform: scaleX(-1);
+}
