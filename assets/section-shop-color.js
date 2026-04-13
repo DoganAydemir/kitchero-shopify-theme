@@ -1,7 +1,9 @@
 /**
- * Shop Color — Category accordion + desktop image switching
- * Matches ShopColor.tsx interaction: hover/click to switch category,
- * update sticky image, palette, code/name overlays.
+ * Shop Color — Category accordion + finish image switching
+ * Birebir from ShopColor.tsx:
+ * - Hover category → activate, select first finish
+ * - Hover finish button → switch desktop image, palette, code/name
+ * - Active finish gets underline style
  */
 (function () {
   'use strict';
@@ -11,48 +13,84 @@
     if (!section) return;
 
     var categories = section.querySelectorAll('[data-category-id]');
-    var images = section.querySelectorAll('[data-category-image]');
+    var allImages = section.querySelectorAll('[data-finish-image]');
+    var allFinishBtns = section.querySelectorAll('[data-finish-select]');
     var codeEl = section.querySelector('[data-finish-code]');
     var labelEl = section.querySelector('[data-finish-label]');
     var paletteTop = section.querySelector('[data-palette-top]');
     var paletteBottom = section.querySelector('[data-palette-bottom]');
 
-    function activate(cat) {
-      /* Remove active from all */
+    function hideAllImages() {
+      allImages.forEach(function (img) { img.style.opacity = '0'; });
+    }
+
+    function clearAllFinishActive() {
+      allFinishBtns.forEach(function (btn) {
+        btn.classList.remove('kt-shop-color__finish-btn--active');
+      });
+    }
+
+    function showFinish(btn) {
+      var imageId = btn.dataset.finishImageId;
+      var code = btn.dataset.finishCode || '';
+      var name = btn.dataset.finishName || '';
+      var cat = btn.dataset.finishCat || '';
+      var color1 = btn.dataset.finishColor1 || '';
+      var color2 = btn.dataset.finishColor2 || '';
+
+      /* Switch image */
+      hideAllImages();
+      var targetImg = section.querySelector('[data-finish-image="' + imageId + '"]');
+      if (targetImg) targetImg.style.opacity = '1';
+
+      /* Update overlay info */
+      if (codeEl) codeEl.textContent = code;
+      if (labelEl) labelEl.textContent = name + (cat ? ' \u2014 ' + cat : '');
+
+      /* Update palette */
+      if (paletteTop) paletteTop.style.backgroundColor = color1;
+      if (paletteBottom) paletteBottom.style.backgroundColor = color2;
+
+      /* Active state on button */
+      clearAllFinishActive();
+      btn.classList.add('kt-shop-color__finish-btn--active');
+    }
+
+    function activateCategory(cat) {
+      /* Toggle accordion */
       categories.forEach(function (c) {
         c.classList.remove('kt-shop-color__category--active');
       });
-
-      /* Activate this one */
       cat.classList.add('kt-shop-color__category--active');
 
-      /* Switch desktop image */
-      var catId = cat.dataset.categoryId;
-      images.forEach(function (img) {
-        img.style.opacity = img.dataset.categoryImage === catId ? '1' : '0';
-      });
-
-      /* Update overlay info */
-      if (codeEl) codeEl.textContent = cat.dataset.code || '';
-      if (labelEl) {
-        var finishName = cat.dataset.finishName || '';
-        var catTitle = cat.querySelector('.kt-shop-color__category-title');
-        labelEl.textContent = finishName + (catTitle ? ' \u2014 ' + catTitle.textContent : '');
-      }
-
-      /* Update palette */
-      if (paletteTop) paletteTop.style.backgroundColor = cat.dataset.color1 || '';
-      if (paletteBottom) paletteBottom.style.backgroundColor = cat.dataset.color2 || '';
+      /* Auto-select first finish in this category */
+      var firstBtn = cat.querySelector('[data-finish-select]');
+      if (firstBtn) showFinish(firstBtn);
     }
 
     /* Set initial state */
-    var firstActive = section.querySelector('.kt-shop-color__category--active');
-    if (firstActive) activate(firstActive);
+    var firstCat = section.querySelector('.kt-shop-color__category--active');
+    if (firstCat) {
+      var firstBtn = firstCat.querySelector('[data-finish-select]');
+      if (firstBtn) showFinish(firstBtn);
+    }
 
-    /* Bind events */
+    /* Category hover/click */
     categories.forEach(function (cat) {
-      cat.addEventListener('mouseenter', function () { activate(cat); });
-      cat.addEventListener('click', function () { activate(cat); });
+      cat.addEventListener('mouseenter', function () { activateCategory(cat); });
+      cat.addEventListener('click', function () { activateCategory(cat); });
+    });
+
+    /* Finish button hover/click */
+    allFinishBtns.forEach(function (btn) {
+      btn.addEventListener('mouseenter', function (e) {
+        e.stopPropagation();
+        showFinish(btn);
+      });
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showFinish(btn);
+      });
     });
   }
 
