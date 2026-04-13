@@ -1,60 +1,90 @@
 {{ 'section-shop-color.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-shop-color" data-section-id="{{ section.id }}">
+<section class="kt-shop-color" data-section-id="{{ section.id }}" data-section-type="shop-color">
   <div class="page-width">
+    <div class="kt-shop-color__intro">
+      <p class="kt-shop-color__label">{{ section.settings.label | default: 'Material Library' }}</p>
+      <h2 class="kt-shop-color__title">{{ section.settings.heading | default: 'Shop by colors.' }}</h2>
+    </div>
+
     <div class="kt-shop-color__layout">
-      {%- comment -%} Image Column {%- endcomment -%}
+      {%- comment -%} Left: Sticky image canvas (desktop only) {%- endcomment -%}
       <div class="kt-shop-color__image-col">
-        <div class="kt-shop-color__image-wrap">
-          {%- if section.settings.image != blank -%}
-            {{
-              section.settings.image
-              | image_url: width: 1200
-              | image_tag:
-                class: 'kt-shop-color__image',
-                loading: 'lazy',
-                widths: '375, 550, 750, 1100',
-                sizes: '(min-width: 990px) 58vw, 100vw',
-                width: section.settings.image.width,
-                height: section.settings.image.height,
-                alt: section.settings.heading | default: shop.name
-            }}
-          {%- else -%}
-            {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg kt-shop-color__image' }}
-          {%- endif -%}
+        <div class="kt-shop-color__image-sticky">
+          <div class="kt-shop-color__image-wrap">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'category' -%}
+                {%- if block.settings.image != blank -%}
+                  {{ block.settings.image | image_url: width: 1000 | image_tag: class: 'kt-shop-color__image', loading: 'lazy', widths: '375, 550, 750, 1000', sizes: '42vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title, data-category-image: block.id, style: 'opacity:0;' }}
+                {%- endif -%}
+              {%- endfor -%}
+            <div class="kt-shop-color__image-gradient"></div>
+
+            <div class="kt-shop-color__image-info">
+              <p class="kt-shop-color__image-code" data-finish-code></p>
+              <div class="kt-shop-color__image-line"></div>
+              <p class="kt-shop-color__image-name" data-finish-label></p>
+            </div>
+
+            <div class="kt-shop-color__palette">
+              <div class="kt-shop-color__palette-top" data-palette-top></div>
+              <div class="kt-shop-color__palette-bottom" data-palette-bottom></div>
+            </div>
+          </div>
+
+          <p class="kt-shop-color__image-desc">
+            {{ section.settings.description | default: 'Explore our curated material palettes. Select a category to see its characteristic finishes and textures.' }}
+          </p>
         </div>
       </div>
 
-      {%- comment -%} Content Column {%- endcomment -%}
-      <div class="kt-shop-color__content-col">
-        <h2 class="kt-shop-color__title">{{ section.settings.heading | default: 'Shop by Color' }}</h2>
-        <p class="kt-shop-color__subtitle">{{ section.settings.subtitle | default: 'Find your perfect finish' }}</p>
-
-        <div class="kt-shop-color__finishes">
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'finish' -%}
-              <a
-                href="{{ block.settings.link | default: routes.collections_url }}"
-                class="kt-shop-color__finish"
-                {{ block.shopify_attributes }}
-              >
-                {%- if block.settings.swatch_color != blank -%}
-                  <span class="kt-shop-color__swatch" style="background-color: {{ block.settings.swatch_color }};"></span>
-                {%- endif -%}
-                <div>
-                  <p class="kt-shop-color__finish-name">{{ block.settings.title }}</p>
-                  {%- if block.settings.code != blank -%}
-                    <p class="kt-shop-color__finish-code">{{ block.settings.code }}</p>
-                  {%- endif -%}
+      {%- comment -%} Right: Category list with accordion {%- endcomment -%}
+      <div class="kt-shop-color__categories-col">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'category' -%}
+            <div
+              class="kt-shop-color__category{% if forloop.first %} kt-shop-color__category--active{% endif %}"
+              data-category-id="{{ block.id }}"
+              data-color1="{{ block.settings.swatch_color_1 | default: '#F5F0EB' }}"
+              data-color2="{{ block.settings.swatch_color_2 | default: '#E8E6DF' }}"
+              data-code="{{ block.settings.finish_code | default: '' }}"
+              data-finish-name="{{ block.settings.finish_name | default: block.settings.title }}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="kt-shop-color__category-header">
+                <h3 class="kt-shop-color__category-title">{{ block.settings.title }}</h3>
+                <div class="kt-shop-color__category-swatch">
+                  <div class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.swatch_color_1 | default: '#F5F0EB' }};"></div>
+                  <div class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.swatch_color_2 | default: '#E8E6DF' }};"></div>
                 </div>
-              </a>
-            {%- endif -%}
-          {%- endfor -%}
-        </div>
+              </div>
+
+              <div class="kt-shop-color__category-content">
+                {%- comment -%} Mobile inline image {%- endcomment -%}
+                <div class="kt-shop-color__mobile-image">
+                  {%- if block.settings.image != blank -%}
+                    {{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title }}
+                  {%- else -%}
+                    {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {%- endif -%}
+                  <div class="kt-shop-color__mobile-image-overlay"></div>
+                  <div class="kt-shop-color__mobile-image-info">
+                    <p class="kt-shop-color__mobile-image-code">{{ block.settings.finish_code }}</p>
+                    <p class="kt-shop-color__mobile-image-name">{{ block.settings.finish_name | default: block.settings.title }}</p>
+                  </div>
+                  <div class="kt-shop-color__mobile-swatch">
+                    <div class="kt-shop-color__palette-top" style="background-color: {{ block.settings.swatch_color_1 | default: '#F5F0EB' }};"></div>
+                    <div class="kt-shop-color__palette-bottom" style="background-color: {{ block.settings.swatch_color_2 | default: '#E8E6DF' }};"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
 
         {%- if section.settings.cta_text != blank -%}
           <div class="kt-shop-color__cta">
-            <a href="{{ section.settings.cta_link | default: routes.root_url }}" class="button">
+            <a href="{{ section.settings.cta_link | default: routes.root_url }}" class="kt-shop-color__cta-btn">
               {{ section.settings.cta_text }}
             </a>
           </div>
@@ -64,28 +94,32 @@
   </div>
 </section>
 
+<script src="{{ 'section-shop-color.js' | asset_url }}" defer="defer"></script>
+
 {% schema %}
 {
   "name": "Shop by color",
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by Color" },
-    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Find your perfect finish" },
-    { "type": "image_picker", "id": "image", "label": "Featured image" },
+    { "type": "text", "id": "label", "label": "Label", "default": "Material Library" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by colors." },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "Explore our curated material palettes. Select a category to see its characteristic finishes and textures." },
     { "type": "text", "id": "cta_text", "label": "Button text", "default": "Request Free Samples" },
     { "type": "url", "id": "cta_link", "label": "Button link" }
   ],
   "blocks": [
     {
-      "type": "finish",
-      "name": "Finish",
-      "limit": 12,
+      "type": "category",
+      "name": "Color category",
+      "limit": 6,
       "settings": [
-        { "type": "text", "id": "title", "label": "Name", "default": "Ivory Mist" },
-        { "type": "text", "id": "code", "label": "Code", "default": "LT-001" },
-        { "type": "color", "id": "swatch_color", "label": "Swatch color", "default": "#F5F0EB" },
-        { "type": "url", "id": "link", "label": "Link" }
+        { "type": "text", "id": "title", "label": "Category title", "default": "Luminous Light" },
+        { "type": "image_picker", "id": "image", "label": "Category image" },
+        { "type": "text", "id": "finish_name", "label": "Featured finish name", "default": "Alabaster Base" },
+        { "type": "text", "id": "finish_code", "label": "Finish code", "default": "B-200" },
+        { "type": "color", "id": "swatch_color_1", "label": "Swatch color top", "default": "#faf9f6" },
+        { "type": "color", "id": "swatch_color_2", "label": "Swatch color bottom", "default": "#e8e6df" }
       ]
     }
   ],
@@ -93,10 +127,9 @@
     {
       "name": "Shop by color",
       "blocks": [
-        { "type": "finish", "settings": { "title": "Ivory Mist", "code": "LT-001", "swatch_color": "#F5F0EB" } },
-        { "type": "finish", "settings": { "title": "Warm Almond", "code": "LT-002", "swatch_color": "#D4C4A8" } },
-        { "type": "finish", "settings": { "title": "Classic Walnut", "code": "MD-001", "swatch_color": "#6B4E37" } },
-        { "type": "finish", "settings": { "title": "Midnight Charcoal", "code": "DK-001", "swatch_color": "#2C2C2C" } }
+        { "type": "category", "settings": { "title": "Luminous Light", "finish_name": "Alabaster Base", "finish_code": "B-200", "swatch_color_1": "#faf9f6", "swatch_color_2": "#e8e6df" } },
+        { "type": "category", "settings": { "title": "Balanced Medium", "finish_name": "Walnut Grain", "finish_code": "W-400", "swatch_color_1": "#3e2a1e", "swatch_color_2": "#2a1c14" } },
+        { "type": "category", "settings": { "title": "Dramatic Dark", "finish_name": "Obsidian Mat", "finish_code": "MAT-900", "swatch_color_1": "#1a1a1a", "swatch_color_2": "#2d2d2d" } }
       ]
     }
   ]

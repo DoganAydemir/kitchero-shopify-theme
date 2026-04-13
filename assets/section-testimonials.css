@@ -4,6 +4,28 @@
   padding: 6rem 0;
   background-color: #0c0a09;
   color: #fafaf9;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Spotlight layer — follows mouse */
+.kt-testimonials__spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  background: radial-gradient(
+    450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    rgba(255, 255, 255, 0.04),
+    transparent 70%
+  );
+}
+
+.kt-testimonials .page-width {
+  position: relative;
+  z-index: 1;
 }
 
 .kt-testimonials__header {

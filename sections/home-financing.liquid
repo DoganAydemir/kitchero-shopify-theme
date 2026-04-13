@@ -14,6 +14,20 @@
       {%- if section.settings.description != blank -%}
         <p class="kt-home-financing__desc">{{ section.settings.description }}</p>
       {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="kt-home-financing__partners">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'partner' -%}
+              <div class="kt-home-financing__partner" {{ block.shopify_attributes }}>
+                <h3 class="kt-home-financing__partner-name">{{ block.settings.name }}</h3>
+                <p class="kt-home-financing__partner-desc">{{ block.settings.description }}</p>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
       {%- if section.settings.cta_text != blank -%}
         <a href="{{ section.settings.cta_link | default: routes.root_url }}" class="button kt-home-financing__cta">{{ section.settings.cta_text }}</a>
       {%- endif -%}
@@ -34,6 +48,25 @@
     { "type": "url", "id": "cta_link", "label": "Button link" },
     { "type": "image_picker", "id": "background_image", "label": "Background image" }
   ],
-  "presets": [{ "name": "Financing promo" }]
+  "blocks": [
+    {
+      "type": "partner",
+      "name": "Financing partner",
+      "limit": 4,
+      "settings": [
+        { "type": "text", "id": "name", "label": "Partner name", "default": "Affirm" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "Pay in 4 interest-free installments. No hidden fees." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Financing promo",
+      "blocks": [
+        { "type": "partner", "settings": { "name": "Affirm", "description": "Pay in 4 interest-free installments. No hidden fees, no impact on your credit score." } },
+        { "type": "partner", "settings": { "name": "Bread Pay", "description": "Flexible monthly payments up to 60 months. Pre-qualify without affecting your credit." } }
+      ]
+    }
+  ]
 }
 {% endschema %}

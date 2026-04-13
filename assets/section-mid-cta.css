@@ -1,4 +1,5 @@
-/* Mid CTA — 50/50 split with image and text */
+/* Mid CTA — 50/50 split with image + measurement lines overlay
+   Birebir from MidCta.tsx */
 
 .kt-mid-cta {
   display: grid;
@@ -19,12 +20,35 @@
   justify-content: center;
   padding: 4rem 1.5rem;
   background-color: #f5f5f4;
+  position: relative;
 }
 
 @media screen and (min-width: 750px) {
   .kt-mid-cta__text {
     padding: 4rem 3rem;
   }
+}
+
+/* Subtle decorative line (top-left) */
+.kt-mid-cta__text::before {
+  content: '';
+  position: absolute;
+  top: 2rem;
+  left: 1.5rem;
+  width: 3rem;
+  height: 1px;
+  background: #d6d3d1;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-mid-cta__text::before {
+    left: 3rem;
+  }
+}
+
+[dir="rtl"] .kt-mid-cta__text::before {
+  left: auto;
+  right: 1.5rem;
 }
 
 .kt-mid-cta__label {
@@ -83,6 +107,7 @@
   transform: translateX(-4px);
 }
 
+/* Image column with measurement line overlay */
 .kt-mid-cta__image-col {
   position: relative;
   overflow: hidden;
@@ -98,4 +123,32 @@
 
 .kt-mid-cta:hover .kt-mid-cta__image {
   transform: scale(1.05);
+}
+
+/* Measurement overlay lines */
+.kt-mid-cta__measure-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.kt-mid-cta__measure-h,
+.kt-mid-cta__measure-v {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.kt-mid-cta__measure-h {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.kt-mid-cta__measure-v {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
 }
