@@ -8,12 +8,16 @@
 >
   {%- comment -%} Layer 1: Dimmed background base {%- endcomment -%}
   <div
-    class="kt-testimonials__bg-base"
+    class="kt-testimonials__bg-base{% if section.settings.background_image == blank %} kt-testimonials__bg-base--placeholder{% endif %}"
     {%- if section.settings.background_image != blank -%}
       style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
     {%- endif -%}
     aria-hidden="true"
-  ></div>
+  >
+    {%- if section.settings.background_image == blank -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
 
   {%- comment -%} Layer 2: Spotlight reveal (mouse follow) {%- endcomment -%}
   <div
