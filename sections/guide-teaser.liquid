@@ -70,6 +70,16 @@
                 {%- if block.settings.description != blank -%}
                   <p class="kt-guide-teaser__card-desc">{{ block.settings.description }}</p>
                 {%- endif -%}
+                {%- if block.settings.author != blank or block.settings.date != blank -%}
+                  <div class="kt-guide-teaser__card-meta">
+                    {%- if section.settings.show_author and block.settings.author != blank -%}
+                      <span class="kt-guide-teaser__card-author">{{ block.settings.author }}</span>
+                    {%- endif -%}
+                    {%- if section.settings.show_date and block.settings.date != blank -%}
+                      <time class="kt-guide-teaser__card-date">{{ block.settings.date }}</time>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
               </div>
             </a>
           {%- endif -%}
@@ -115,7 +125,9 @@
         { "type": "text", "id": "title", "label": "Title", "default": "Modern Minimalism: The Secret to Serene Kitchens" },
         { "type": "textarea", "id": "description", "label": "Description", "default": "Explore how restraint in design creates the most impactful kitchen spaces." },
         { "type": "image_picker", "id": "image", "label": "Image" },
-        { "type": "url", "id": "link", "label": "Link" }
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "text", "id": "author", "label": "Author", "default": "Kitchero Team" },
+        { "type": "text", "id": "date", "label": "Date", "default": "Apr 2026" }
       ]
     }
   ],
@@ -130,9 +142,9 @@
         "show_date": true
       },
       "blocks": [
-        { "type": "article", "settings": { "volume": "Design", "title": "Modern Minimalism: The Secret to Serene Kitchens", "description": "Explore how restraint in design creates the most impactful kitchen spaces." } },
-        { "type": "article", "settings": { "volume": "Materials", "title": "Material Guide: Choosing the Perfect Countertop", "description": "From quartz to marble, understand the pros and cons of every surface." } },
-        { "type": "article", "settings": { "volume": "Small Spaces", "title": "Small Space, Big Impact: Kitchen Solutions Under 150sqft", "description": "Clever storage and layout tricks that transform compact kitchens." } }
+        { "type": "article", "settings": { "volume": "Design", "title": "Modern Minimalism: The Secret to Serene Kitchens", "description": "Explore how restraint in design creates the most impactful kitchen spaces.", "author": "Kitchero Team", "date": "Apr 2026" } },
+        { "type": "article", "settings": { "volume": "Materials", "title": "Material Guide: Choosing the Perfect Countertop", "description": "From quartz to marble, understand the pros and cons of every surface.", "author": "Kitchero Team", "date": "Mar 2026" } },
+        { "type": "article", "settings": { "volume": "Small Spaces", "title": "Small Space, Big Impact: Kitchen Solutions Under 150sqft", "description": "Clever storage and layout tricks that transform compact kitchens.", "author": "Kitchero Team", "date": "Feb 2026" } }
       ]
     }
   ]
