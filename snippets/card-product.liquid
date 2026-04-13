@@ -1,0 +1,108 @@
+{%- comment -%}
+  Product Card — renders a single product in collection grids.
+  Ported birebir from CollectionsGrid.tsx card structure.
+
+  Accepts:
+  - product: {Object} Shopify product
+  - show_vendor: {Boolean} Show vendor name on hover (default: true)
+  - show_secondary_image: {Boolean} Show hover image swap (default: true)
+  - show_quote_button: {Boolean} Show "Get Quote" button (default: true)
+{%- endcomment -%}
+
+{%- liquid
+  assign show_vendor = show_vendor | default: true
+  assign show_secondary_image = show_secondary_image | default: true
+  assign show_quote_button = show_quote_button | default: true
+  assign secondary_image = product.images[1] | default: nil
+-%}
+
+<div class="kt-card-product">
+  {%- comment -%} Image Link {%- endcomment -%}
+  <a href="{{ product.url }}" class="kt-card-product__image-link" aria-label="{{ product.title }}">
+    {%- comment -%} Gradient overlay {%- endcomment -%}
+    <div class="kt-card-product__gradient" aria-hidden="true"></div>
+
+    {%- comment -%} Primary image {%- endcomment -%}
+    {%- if product.featured_image -%}
+      {{
+        product.featured_image
+        | image_url: width: 800
+        | image_tag:
+          class: 'kt-card-product__image-primary',
+          loading: 'lazy',
+          widths: '375, 550, 800',
+          sizes: '(min-width: 750px) 50vw, 100vw',
+          width: product.featured_image.width,
+          height: product.featured_image.height,
+          alt: product.title
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-card-product__image-primary' }}
+    {%- endif -%}
+
+    {%- comment -%} Secondary hover image {%- endcomment -%}
+    {%- if show_secondary_image and secondary_image -%}
+      {{
+        secondary_image
+        | image_url: width: 800
+        | image_tag:
+          class: 'kt-card-product__image-secondary',
+          loading: 'lazy',
+          widths: '375, 550, 800',
+          sizes: '(min-width: 750px) 50vw, 100vw',
+          width: secondary_image.width,
+          height: secondary_image.height,
+          alt: product.title | append: ' detail'
+      }}
+    {%- endif -%}
+
+    {%- comment -%} Style badge (first tag or product type) {%- endcomment -%}
+    {%- if product.type != blank -%}
+      <span class="kt-card-product__badge">{{ product.type }}</span>
+    {%- endif -%}
+
+    {%- comment -%} Sale badge {%- endcomment -%}
+    {%- if product.compare_at_price > product.price -%}
+      {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+      <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+        {{ discount_pct }}% OFF
+      </span>
+    {%- endif -%}
+
+    {%- comment -%} Hover info (vendor + material) {%- endcomment -%}
+    {%- if show_vendor and product.vendor != blank -%}
+      <div class="kt-card-product__hover-info">
+        <p class="kt-card-product__vendor">{{ product.vendor }}</p>
+      </div>
+    {%- endif -%}
+  </a>
+
+  {%- comment -%} Content below image {%- endcomment -%}
+  <div class="kt-card-product__content">
+    <div class="kt-card-product__info">
+      <h3 class="kt-card-product__title">
+        <a href="{{ product.url }}" style="text-decoration: none; color: inherit;">{{ product.title }}</a>
+      </h3>
+
+      {%- comment -%} Price {%- endcomment -%}
+      <div class="kt-card-product__price-row">
+        <span class="kt-card-product__price">{{ product.price | money }}</span>
+        {%- if product.compare_at_price > product.price -%}
+          <span class="kt-card-product__compare-price">{{ product.compare_at_price | money }}</span>
+        {%- endif -%}
+      </div>
+
+      <a href="{{ product.url }}" class="kt-card-product__view-link">
+        {{ 'products.product.view_details' | t | default: 'View Details' }}
+      </a>
+    </div>
+
+    {%- if show_quote_button -%}
+      <div>
+        <a href="{{ product.url }}" class="kt-card-product__quote-btn">
+          {{ 'products.product.get_quote' | t | default: 'Get Quote' }}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

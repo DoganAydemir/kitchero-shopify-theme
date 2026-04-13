@@ -1,0 +1,258 @@
+/* Product Card — Birebir from CollectionsGrid.tsx card (lines 191-244)
+   Used in all collection templates.
+   BEM: .kt-card-product, .kt-card-product__* */
+
+/* Card container: flex flex-col */
+.kt-card-product {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Image link: relative block w-full aspect-[4/3] overflow-hidden rounded-sm mb-6 */
+.kt-card-product__image-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: box-shadow 0.7s ease;
+}
+
+.kt-card-product:hover .kt-card-product__image-link {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Gradient overlay: absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 */
+.kt-card-product__gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 50%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2) 50%, transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Primary image: absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 group-hover:opacity-0 */
+.kt-card-product__image-primary {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out;
+  z-index: 0;
+}
+
+.kt-card-product:hover .kt-card-product__image-primary {
+  opacity: 0;
+}
+
+/* Secondary image: absolute inset-0 scale-105 group-hover:scale-100 opacity-0 group-hover:opacity-100 */
+.kt-card-product__image-secondary {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 1s ease-in-out;
+  transform: scale(1.05);
+  opacity: 0;
+  z-index: 0;
+}
+
+.kt-card-product:hover .kt-card-product__image-secondary {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Placeholder for missing images */
+.kt-card-product__image-link .placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Badge: absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-xs font-semibold tracking-widest uppercase text-stone-900 z-20 */
+.kt-card-product__badge {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1c1917;
+  z-index: 20;
+}
+
+[dir="rtl"] .kt-card-product__badge {
+  left: auto;
+  right: 1.5rem;
+}
+
+/* Sale badge */
+.kt-card-product__badge--sale {
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+}
+
+/* Hover info overlay: absolute inset-x-0 bottom-6 px-8 z-20 translate-y-4 opacity-0 → translate-y-0 opacity-100 */
+.kt-card-product__hover-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.5rem;
+  padding: 0 2rem;
+  z-index: 20;
+  transform: translateY(1rem);
+  opacity: 0;
+  transition: all 0.7s ease;
+  pointer-events: none;
+  color: #fff;
+}
+
+.kt-card-product:hover .kt-card-product__hover-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Vendor: text-sm font-medium tracking-widest uppercase mb-1 */
+.kt-card-product__vendor {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+/* Material: text-xs text-stone-300 */
+.kt-card-product__material {
+  font-size: 0.75rem;
+  color: #d6d3d1;
+}
+
+/* Content below image: flex flex-col md:flex-row md:items-end justify-between gap-6 */
+.kt-card-product__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__content {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.kt-card-product__info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title: text-xl md:text-4xl font-semibold tracking-tight text-stone-900 mb-2 truncate */
+.kt-card-product__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__title {
+    font-size: 2.25rem;
+  }
+}
+
+/* Price row */
+.kt-card-product__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.kt-card-product__price {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.kt-card-product__compare-price {
+  font-size: 0.875rem;
+  color: #a8a29e;
+  text-decoration: line-through;
+}
+
+/* View details link: border-b border-stone-800 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium */
+.kt-card-product__view-link {
+  display: inline-block;
+  border-bottom: 1px solid #1c1917;
+  color: #1c1917;
+  padding-bottom: 0.125rem;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__view-link {
+    font-size: 0.875rem;
+  }
+}
+
+.kt-card-product__view-link:hover {
+  color: #78716c;
+  border-color: #78716c;
+}
+
+/* Quote button: px-6 py-3 md:px-8 md:py-4 bg-stone-900 text-white rounded-full text-[11px] md:text-sm font-bold tracking-widest uppercase */
+.kt-card-product__quote-btn {
+  white-space: nowrap;
+  padding: 0.75rem 1.5rem;
+  background-color: #1c1917;
+  color: #fff;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__quote-btn {
+    padding: 1rem 2rem;
+    font-size: 0.875rem;
+  }
+}
+
+.kt-card-product__quote-btn:hover {
+  background-color: #44403c;
+  transform: scale(1.05);
+}
