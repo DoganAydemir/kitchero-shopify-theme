@@ -1,34 +1,52 @@
 {{ 'section-ecosystem.css' | asset_url | stylesheet_tag }}
 
 <section class="kt-ecosystem" data-section-id="{{ section.id }}" data-section-type="ecosystem">
+  {%- comment -%} Background grid pattern {%- endcomment -%}
+  <div class="kt-ecosystem__grid-pattern" aria-hidden="true">
+    <svg fill="none">
+      <defs>
+        <pattern id="tech-grid-{{ section.id }}" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M0 40V.5H40" fill="none" stroke="white" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#tech-grid-{{ section.id }})" />
+    </svg>
+    <div class="kt-ecosystem__grid-fade"></div>
+  </div>
+
   <div class="page-width">
     <div class="kt-ecosystem__layout">
+      {%- comment -%} Left Column — Scrolling Text {%- endcomment -%}
       <div class="kt-ecosystem__text-col">
-        <h2 class="kt-ecosystem__title">{{ section.settings.heading | default: 'High-Tech Storage.' }}</h2>
-        {%- if section.settings.subtitle != blank -%}
-          <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
-        {%- endif -%}
+        <div class="kt-ecosystem__title-block">
+          <h2 class="kt-ecosystem__title">{{ section.settings.heading | default: 'High-Tech<br>Storage.' }}</h2>
+          {%- if section.settings.subtitle != blank -%}
+            <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
+          {%- endif -%}
+        </div>
 
         <div class="kt-ecosystem__features">
           {%- for block in section.blocks -%}
             {%- if block.type == 'feature' -%}
-              <div class="kt-ecosystem__feature" {{ block.shopify_attributes }}>
-                <p class="kt-ecosystem__feature-number">{{ block.settings.number | default: forloop.index | prepend: '0' }}</p>
-                <h3 class="kt-ecosystem__feature-title">{{ block.settings.title }}</h3>
+              <div class="kt-ecosystem__feature eco-item" {{ block.shopify_attributes }}>
+                <h3 class="kt-ecosystem__feature-title">{{ block.settings.number | default: forloop.index | prepend: '0' }} / {{ block.settings.title }}</h3>
                 <p class="kt-ecosystem__feature-desc">{{ block.settings.description }}</p>
               </div>
             {%- endif -%}
           {%- endfor -%}
-        </div>
 
-        {%- if section.settings.cta_text != blank -%}
-          <a href="{{ section.settings.cta_link | default: routes.root_url }}" class="kt-ecosystem__cta">
-            {{ section.settings.cta_text }}
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </a>
-        {%- endif -%}
+          {%- if section.settings.cta_text != blank -%}
+            <div class="eco-item">
+              <a href="{{ section.settings.cta_link | default: routes.collections_url }}" class="kt-ecosystem__cta">
+                {{ section.settings.cta_text }}
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
       </div>
 
+      {%- comment -%} Right Column — Pinned Image {%- endcomment -%}
       <div class="kt-ecosystem__image-col">
         <div class="kt-ecosystem__image-wrap">
           {%- if section.settings.image != blank -%}
@@ -36,6 +54,7 @@
           {%- else -%}
             {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg kt-ecosystem__image' }}
           {%- endif -%}
+          <div class="kt-ecosystem__image-overlay" aria-hidden="true"></div>
         </div>
       </div>
     </div>
@@ -50,8 +69,8 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "High-Tech Storage." },
-    { "type": "textarea", "id": "subtitle", "label": "Subtitle", "default": "Intelligent storage systems that transform the way you organize your kitchen." },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>High-Tech<br>Storage.</p>" },
+    { "type": "textarea", "id": "subtitle", "label": "Subtitle", "default": "A kitchen is a machine for living. We precision-engineer every drawer and hinge for absolute perfection." },
     { "type": "image_picker", "id": "image", "label": "Featured image" },
     { "type": "text", "id": "cta_text", "label": "Button text", "default": "Explore Smart Kitchens" },
     { "type": "url", "id": "cta_link", "label": "Button link" }
@@ -72,9 +91,9 @@
     {
       "name": "Ecosystem",
       "blocks": [
-        { "type": "feature", "settings": { "number": "01", "title": "Motorized Lift Systems", "description": "Upper cabinets with soft-close electric lift mechanisms for effortless access." } },
-        { "type": "feature", "settings": { "number": "02", "title": "Internal LED Lighting", "description": "Motion-activated LED strips illuminate every drawer and cabinet interior." } },
-        { "type": "feature", "settings": { "number": "03", "title": "Integrated Charging", "description": "Built-in USB-C and wireless charging stations hidden within drawer organizers." } }
+        { "type": "feature", "settings": { "number": "01", "title": "Invisible Automation", "description": "Handle-less drawers that open with a gentle touch. Powered by whisper-quiet electric mechanisms hidden within the dark wood frame." } },
+        { "type": "feature", "settings": { "number": "02", "title": "Integrated LED", "description": "Motion-sensing ambient lighting embedded directly into the cabinetry, illuminating exactly what you need, exactly when you need it." } },
+        { "type": "feature", "settings": { "number": "03", "title": "Perfect Organization", "description": "Custom laser-cut organizers designed precisely for your exact utensils, pans, and ingredients. No space is wasted." } }
       ]
     }
   ]

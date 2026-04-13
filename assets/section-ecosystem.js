@@ -1,6 +1,9 @@
 /**
- * Ecosystem — GSAP ScrollTrigger pin on right image, parallax scale, text fade
- * Matches Ecosystem.tsx.
+ * Ecosystem — GSAP ScrollTrigger
+ * Birebir from Ecosystem.tsx:
+ * - Pin entire right column during left text scroll
+ * - Parallax scale on image (1 → 1.1)
+ * - Fade out + y:-50 on each .eco-item as it scrolls past top 30%→10%
  */
 (function () {
   'use strict';
@@ -14,37 +17,57 @@
     var mm = gsap.matchMedia();
 
     mm.add('(min-width: 990px)', function () {
-      var imageCol = section.querySelector('.kt-ecosystem__image-col');
-      var image = section.querySelector('.kt-ecosystem__image');
-      var features = gsap.utils.toArray('.kt-ecosystem__feature', section);
+      var ctx = gsap.context(function () {
+        var leftCol = section.querySelector('.kt-ecosystem__text-col');
+        var rightCol = section.querySelector('.kt-ecosystem__image-col');
+        var image = section.querySelector('.kt-ecosystem__image');
 
-      if (!imageCol || !image) return;
+        if (!leftCol || !rightCol) return;
 
-      /* Image parallax scale */
-      gsap.to(image, {
-        scale: 1.1,
-        ease: 'none',
-        scrollTrigger: {
+        var leftHeight = leftCol.offsetHeight;
+        var windowHeight = window.innerHeight;
+
+        /* Pin the entire right column */
+        ScrollTrigger.create({
           trigger: section,
           start: 'top top',
-          end: 'bottom bottom',
-          scrub: true
-        }
-      });
-
-      /* Text items fade out as they scroll past */
-      features.forEach(function (feat) {
-        gsap.to(feat, {
-          opacity: 0,
-          y: -50,
-          scrollTrigger: {
-            trigger: feat,
-            start: 'bottom 30%',
-            end: 'bottom top',
-            scrub: true
-          }
+          end: '+=' + (leftHeight - windowHeight + 100),
+          pin: rightCol,
+          pinSpacing: false
         });
-      });
+
+        /* Parallax image scale */
+        if (image) {
+          gsap.to(image, {
+            scale: 1.1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true
+            }
+          });
+        }
+
+        /* Fade out text items */
+        var items = gsap.utils.toArray('.eco-item', section);
+        items.forEach(function (item) {
+          gsap.to(item, {
+            opacity: 0,
+            y: -50,
+            scrollTrigger: {
+              trigger: item,
+              start: 'top 30%',
+              end: 'top 10%',
+              scrub: true
+            }
+          });
+        });
+
+      }, section);
+
+      return function () { ctx.revert(); };
     });
 
     return mm;
@@ -57,7 +80,10 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="ecosystem"]');
-    if (s) instances[s.dataset.sectionId] = initEcosystem(e.target);
+    if (s) {
+      if (instances[s.dataset.sectionId]) instances[s.dataset.sectionId].revert();
+      instances[s.dataset.sectionId] = initEcosystem(e.target);
+    }
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
