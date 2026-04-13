@@ -1,140 +1,291 @@
-/* Testimonials — Dark grid with quote cards */
+/* Testimonials — "Living with Kitchero" — Birebir from Testimonials.tsx */
 
+/* section: bg-stone-950 py-32 border-t border-white/5 relative overflow-hidden */
 .kt-testimonials {
-  padding: 6rem 0;
   background-color: #0c0a09;
-  color: #fafaf9;
+  padding: 8rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
-/* Spotlight layer — follows mouse */
+/* Layer 1: dimmed bg base — opacity-10 grayscale, hover opacity-20 */
+.kt-testimonials__bg-base {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  filter: grayscale(100%);
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1s ease;
+}
+
+.kt-testimonials:hover .kt-testimonials__bg-base {
+  opacity: 0.2;
+}
+
+/* Layer 2: spotlight reveal — mouse-follow mask */
 .kt-testimonials__spotlight {
   position: absolute;
   inset: 0;
+  z-index: 0;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 0;
-  background: radial-gradient(
-    450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
-    rgba(255, 255, 255, 0.04),
-    transparent 70%
-  );
+  transition: opacity 0.7s ease;
+  background-size: cover;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), black 0%, transparent 100%);
+  mask-image: radial-gradient(450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), black 0%, transparent 100%);
 }
 
-.kt-testimonials .page-width {
+.kt-testimonials:hover .kt-testimonials__spotlight {
+  opacity: 0.6;
+}
+
+/* Content wrapper */
+.kt-testimonials__content {
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
+/* Header: flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-24 */
 .kt-testimonials__header {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 3rem;
+  gap: 2rem;
+  margin-bottom: 6rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-testimonials__header {
+    flex-direction: row;
     align-items: flex-end;
-    text-align: right;
   }
 }
 
+/* Label: text-xs font-bold tracking-[0.4em] uppercase text-stone-500 mb-6 */
 .kt-testimonials__label {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: #78716c;
+  margin-bottom: 1.5rem;
 }
 
+/* h2: text-4xl md:text-6xl font-serif italic text-white leading-tight */
 .kt-testimonials__title {
-  font-size: 3rem;
-  font-weight: 600;
-  letter-spacing: -0.05em;
+  font-family: var(--font-accent-family);
+  font-size: 2.25rem;
+  font-style: italic;
   color: #fff;
+  line-height: 1.1;
+  margin: 0;
 }
 
 @media screen and (min-width: 750px) {
-  .kt-testimonials__title { font-size: 4.375rem; }
+  .kt-testimonials__title {
+    font-size: 3.75rem;
+  }
 }
 
+/* Right description: max-w-xs text-stone-400 font-light leading-relaxed */
+.kt-testimonials__header-desc {
+  max-width: 20rem;
+  color: #a8a29e;
+  font-weight: 300;
+  line-height: 1.625;
+  font-size: 0.9375rem;
+}
+
+/* Grid: grid-cols-1 md:grid-cols-3 gap-12 md:gap-20 */
 .kt-testimonials__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 3rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-testimonials__grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 5rem;
   }
 }
 
+/* Card: p-8 rounded-2xl bg-stone-900/40 backdrop-blur-md border border-white/5 */
 .kt-testimonials__card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
   padding: 2rem;
-  transition: background-color 0.3s ease;
+  border-radius: 1rem;
+  background: rgba(28, 25, 23, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.5s ease, border-color 0.5s ease;
 }
 
 .kt-testimonials__card:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(28, 25, 23, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Quote icon: text-white/10 hover:text-white/30, size 56 */
 .kt-testimonials__quote-icon {
-  color: #78716c;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .kt-testimonials__quote-icon svg {
   width: 56px;
   height: 56px;
-  opacity: 0.15;
+  color: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+  transition: color 0.3s ease;
 }
 
+.kt-testimonials__card:hover .kt-testimonials__quote-icon svg {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* blockquote: text-lg md:text-xl text-stone-300 font-light italic leading-relaxed mb-10 */
 .kt-testimonials__quote-text {
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   color: #d6d3d1;
   font-weight: 300;
-  line-height: 1.7;
-  margin-bottom: 2rem;
   font-style: italic;
-  letter-spacing: 0.01em;
+  line-height: 1.625;
+  margin-bottom: 2.5rem;
 }
 
+@media screen and (min-width: 750px) {
+  .kt-testimonials__quote-text {
+    font-size: 1.25rem;
+  }
+}
+
+/* Author row: flex items-center gap-4 mt-auto pt-6 border-t border-white/5 */
 .kt-testimonials__author {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Avatar: w-12 h-12 rounded-full grayscale hover:grayscale-0 ring-1 ring-white/10 */
 .kt-testimonials__avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   object-fit: cover;
   filter: grayscale(100%);
-  transition: filter 0.3s ease;
+  transition: filter 0.7s ease;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .kt-testimonials__card:hover .kt-testimonials__avatar {
   filter: grayscale(0%);
 }
 
+/* Author name: text-sm font-bold text-white uppercase tracking-widest */
 .kt-testimonials__author-name {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
 }
 
+/* Role: text-[10px] text-stone-500 uppercase tracking-widest mt-1 */
 .kt-testimonials__author-role {
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0.25rem 0 0;
+}
+
+/* ============================================================
+   CTA Block — "READY TO BEGIN?" with text masking
+   ============================================================ */
+
+.kt-testimonials-cta {
+  position: relative;
+  padding: 8rem 0;
+  background-color: #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-testimonials-cta {
+    padding: 12rem 0;
+  }
+}
+
+/* h2: text-[13vw] leading-[0.85] font-bold tracking-tighter uppercase text-center bg-clip-text */
+.kt-testimonials-cta__title {
+  font-size: 13vw;
+  line-height: 0.85;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-size: cover;
+  background-position: center;
+  user-select: none;
+  margin: 0;
+}
+
+.kt-testimonials-cta__action {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* CTA button: px-10 py-5 bg-black text-white rounded-full text-xl */
+.kt-testimonials-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 2.5rem;
+  background-color: #000;
+  color: #fff;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.kt-testimonials-cta__btn:hover {
+  background-color: #292524;
+}
+
+.kt-testimonials-cta__btn-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.kt-testimonials-cta__btn:hover .kt-testimonials-cta__btn-arrow {
+  transform: rotate(45deg);
 }

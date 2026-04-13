@@ -1,25 +1,63 @@
 {{ 'section-testimonials.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-testimonials" data-section-id="{{ section.id }}" data-section-type="testimonials">
-  <div class="kt-testimonials__spotlight" data-testimonials-spotlight aria-hidden="true"></div>
-  <div class="page-width">
+{%- comment -%} Testimonials — "Living with Kitchero" {%- endcomment -%}
+<section
+  class="kt-testimonials"
+  data-section-id="{{ section.id }}"
+  data-section-type="testimonials"
+>
+  {%- comment -%} Layer 1: Dimmed background base {%- endcomment -%}
+  <div
+    class="kt-testimonials__bg-base"
+    {%- if section.settings.background_image != blank -%}
+      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
+    {%- endif -%}
+    aria-hidden="true"
+  ></div>
+
+  {%- comment -%} Layer 2: Spotlight reveal (mouse follow) {%- endcomment -%}
+  <div
+    class="kt-testimonials__spotlight"
+    data-testimonials-spotlight
+    {%- if section.settings.background_image != blank -%}
+      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
+    {%- endif -%}
+    aria-hidden="true"
+  ></div>
+
+  <div class="page-width kt-testimonials__content">
+    {%- comment -%} Header {%- endcomment -%}
     <div class="kt-testimonials__header">
-      <p class="kt-testimonials__label">{{ section.settings.label | default: 'Client Stories' }}</p>
-      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-testimonials__title">{{ section.settings.heading | default: 'What They Say' }}</{{ heading_tag }}>
+      <div>
+        {%- if section.settings.label != blank -%}
+          <p class="kt-testimonials__label">{{ section.settings.label }}</p>
+        {%- endif -%}
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+        <{{ heading_tag }} class="kt-testimonials__title">
+          {{ section.settings.heading_line1 | default: 'Living with' }}<br>{{ section.settings.heading_line2 | default: 'Kitchero.' }}
+        </{{ heading_tag }}>
+      </div>
+      {%- if section.settings.description != blank -%}
+        <p class="kt-testimonials__header-desc">{{ section.settings.description }}</p>
+      {%- endif -%}
     </div>
 
+    {%- comment -%} Testimonial cards {%- endcomment -%}
     <div class="kt-testimonials__grid">
       {%- for block in section.blocks -%}
         {%- if block.type == 'testimonial' -%}
           <div class="kt-testimonials__card" {{ block.shopify_attributes }}>
             <div class="kt-testimonials__quote-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
             </div>
-            <p class="kt-testimonials__quote-text">{{ block.settings.quote }}</p>
+
+            <blockquote class="kt-testimonials__quote-text">
+              &ldquo;{{ block.settings.quote }}&rdquo;
+            </blockquote>
+
             <div class="kt-testimonials__author">
               {%- if block.settings.avatar != blank -%}
-                {{ block.settings.avatar | image_url: width: 80 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 40, height: 40, alt: block.settings.name | default: '' }}
+                {{ block.settings.avatar | image_url: width: 96 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: block.settings.name | default: '' }}
               {%- endif -%}
               <div>
                 <p class="kt-testimonials__author-name">{{ block.settings.name }}</p>
@@ -35,6 +73,34 @@
   </div>
 </section>
 
+{%- comment -%} CTA Block — "READY TO BEGIN?" with text masking {%- endcomment -%}
+{%- if section.settings.show_cta_block -%}
+  <section class="kt-testimonials-cta">
+    <div class="page-width" style="position: relative; z-index: 10;">
+      <{{ heading_tag }} class="kt-testimonials-cta__title"
+        {%- if section.settings.cta_background_image != blank -%}
+          style="background-image: url('{{ section.settings.cta_background_image | image_url: width: 1600 }}');"
+        {%- else -%}
+          style="background-image: linear-gradient(135deg, #1c1917 0%, #78716c 100%);"
+        {%- endif -%}
+      >
+        {{ section.settings.cta_heading_line1 | default: 'READY TO' }}<br>{{ section.settings.cta_heading_line2 | default: 'BEGIN?' }}
+      </{{ heading_tag }}>
+
+      {%- if section.settings.cta_button_text != blank -%}
+        <div class="kt-testimonials-cta__action">
+          <a href="{{ section.settings.cta_button_link | default: routes.root_url }}" class="kt-testimonials-cta__btn">
+            <span>{{ section.settings.cta_button_text }}</span>
+            <span class="kt-testimonials-cta__btn-arrow" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endif -%}
+
 <script src="{{ 'section-testimonials.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
@@ -43,9 +109,26 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "label", "label": "Label", "default": "Client Stories" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "What They Say" },
-    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" }
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    { "type": "text", "id": "label", "label": "Label", "default": "Voices of the Atelier" },
+    { "type": "text", "id": "heading_line1", "label": "Heading line 1", "default": "Living with" },
+    { "type": "text", "id": "heading_line2", "label": "Heading line 2", "default": "Kitchero." },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
+    { "type": "textarea", "id": "description", "label": "Right description", "default": "We believe the kitchen is the heart of the home. Here is how our clients experience the convergence of form and function." },
+    { "type": "image_picker", "id": "background_image", "label": "Background image (spotlight effect)" },
+    {
+      "type": "header",
+      "content": "CTA block"
+    },
+    { "type": "checkbox", "id": "show_cta_block", "label": "Show CTA section below", "default": true },
+    { "type": "text", "id": "cta_heading_line1", "label": "CTA heading line 1", "default": "READY TO" },
+    { "type": "text", "id": "cta_heading_line2", "label": "CTA heading line 2", "default": "BEGIN?" },
+    { "type": "image_picker", "id": "cta_background_image", "label": "CTA text background image" },
+    { "type": "text", "id": "cta_button_text", "label": "CTA button text", "default": "Reserve Your Design Slot" },
+    { "type": "url", "id": "cta_button_link", "label": "CTA button link" }
   ],
   "blocks": [
     {
@@ -53,9 +136,9 @@
       "name": "Testimonial",
       "limit": 9,
       "settings": [
-        { "type": "textarea", "id": "quote", "label": "Quote", "default": "Kitchero transformed our kitchen beyond anything we imagined. The attention to detail is extraordinary." },
-        { "type": "text", "id": "name", "label": "Author name", "default": "Sarah Mitchell" },
-        { "type": "text", "id": "role", "label": "Author role", "default": "Homeowner, Brooklyn" },
+        { "type": "textarea", "id": "quote", "label": "Quote", "default": "Kitchero transformed our space into a masterpiece. Every morning feels like stepping into a premium showroom." },
+        { "type": "text", "id": "name", "label": "Author name", "default": "Sarah Jenkins" },
+        { "type": "text", "id": "role", "label": "Author role", "default": "Architect" },
         { "type": "image_picker", "id": "avatar", "label": "Author photo" }
       ]
     }
@@ -63,10 +146,20 @@
   "presets": [
     {
       "name": "Testimonials",
+      "settings": {
+        "label": "Voices of the Atelier",
+        "heading_line1": "Living with",
+        "heading_line2": "Kitchero.",
+        "description": "We believe the kitchen is the heart of the home. Here is how our clients experience the convergence of form and function.",
+        "show_cta_block": true,
+        "cta_heading_line1": "READY TO",
+        "cta_heading_line2": "BEGIN?",
+        "cta_button_text": "Reserve Your Design Slot"
+      },
       "blocks": [
-        { "type": "testimonial", "settings": { "quote": "Kitchero transformed our kitchen beyond anything we imagined. The attention to detail is extraordinary.", "name": "Sarah Mitchell", "role": "Homeowner, Brooklyn" } },
-        { "type": "testimonial", "settings": { "quote": "From the initial consultation to the final installation, every step was handled with professionalism and care.", "name": "James Rivera", "role": "Interior Designer" } },
-        { "type": "testimonial", "settings": { "quote": "The quality of materials and craftsmanship is unmatched. Our kitchen has become the heart of our home.", "name": "Emma Chen", "role": "Homeowner, Manhattan" } }
+        { "type": "testimonial", "settings": { "quote": "Kitchero transformed our space into a masterpiece. Every morning feels like stepping into a premium showroom.", "name": "Sarah Jenkins", "role": "Architect" } },
+        { "type": "testimonial", "settings": { "quote": "The attention to detail in the walnut finishes is unlike anything we've seen. Truly quiet luxury at its best.", "name": "Marcus Thorne", "role": "Design Enthusiast" } },
+        { "type": "testimonial", "settings": { "quote": "Sustainably sourced and masterfully engineered. It's the kitchen our house deserved for years.", "name": "Elena Rossi", "role": "Culinary Artist" } }
       ]
     }
   ]
