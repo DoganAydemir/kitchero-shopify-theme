@@ -3,7 +3,8 @@
 <section class="kt-before-after" data-section-id="{{ section.id }}" data-section-type="before-after">
   <div class="page-width">
     <div class="kt-before-after__header">
-      <h2 class="kt-before-after__title">{{ section.settings.heading | default: 'See the Difference' }}</h2>
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+      <{{ heading_tag }} class="kt-before-after__title">{{ section.settings.heading | default: 'See the Difference' }}</{{ heading_tag }}>
       <p class="kt-before-after__subtitle">{{ section.settings.subtitle | default: 'Drag to compare before and after' }}</p>
     </div>
 
@@ -45,6 +46,7 @@
   "class": "section",
   "settings": [
     { "type": "text", "id": "heading", "label": "Heading", "default": "See the Difference" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Drag to compare before and after" },
     { "type": "image_picker", "id": "before_image", "label": "Before image" },
     { "type": "image_picker", "id": "after_image", "label": "After image" }

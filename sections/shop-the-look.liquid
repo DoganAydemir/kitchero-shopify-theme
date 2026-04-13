@@ -4,7 +4,8 @@
   <div class="page-width">
     <div class="kt-shop-the-look__header">
       <span class="kt-shop-the-look__label">{{ section.settings.label | default: 'Visual Commerce' }}</span>
-      <h2 class="kt-shop-the-look__title">{{ section.settings.heading | default: 'Interactive <br><em>Kitchero</em> Environments' }}</h2>
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+      <{{ heading_tag }} class="kt-shop-the-look__title">{{ section.settings.heading | default: 'Interactive <em>Kitchero</em> Environments' }}</{{ heading_tag }}>
     </div>
 
     {%- comment -%} Wrapper is NOT overflow-hidden so popups escape {%- endcomment -%}
@@ -92,6 +93,7 @@
   "settings": [
     { "type": "text", "id": "label", "label": "Label", "default": "Visual Commerce" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Interactive <em>Kitchero</em> Environments" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "image_picker", "id": "image", "label": "Room image" }
   ],
   "blocks": [

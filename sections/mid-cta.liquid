@@ -5,7 +5,8 @@
     {%- if section.settings.label != blank -%}
       <span class="kt-mid-cta__label">{{ section.settings.label }}</span>
     {%- endif -%}
-    <h2 class="kt-mid-cta__heading">{{ section.settings.heading }}</h2>
+    {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+    <{{ heading_tag }} class="kt-mid-cta__heading">{{ section.settings.heading }}</{{ heading_tag }}>
     {%- if section.settings.description != blank -%}
       <p class="kt-mid-cta__desc">{{ section.settings.description }}</p>
     {%- endif -%}
@@ -48,6 +49,7 @@
   "settings": [
     { "type": "text", "id": "label", "label": "Label", "default": "Visualization" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Free <em>3D</em> Design" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "textarea", "id": "description", "label": "Description", "default": "See your dream kitchen come to life with our complimentary 3D visualization service before you commit." },
     { "type": "text", "id": "cta_text", "label": "Button text", "default": "Request Quote" },
     { "type": "url", "id": "cta_link", "label": "Button link" },

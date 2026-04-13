@@ -5,9 +5,10 @@
 
     {%- comment -%} Header: title left, description right {%- endcomment -%}
     <div class="kt-why-choose-us__header">
-      <h2 class="kt-why-choose-us__title">
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+      <{{ heading_tag }} class="kt-why-choose-us__title">
         {{ section.settings.heading_line1 | default: 'The' }}<br>{{ section.settings.heading_line2 | default: 'Standard.' }}
-      </h2>
+      </{{ heading_tag }}>
       {%- if section.settings.description != blank -%}
         <p class="kt-why-choose-us__desc">{{ section.settings.description }}</p>
       {%- endif -%}
@@ -48,6 +49,7 @@
   "class": "section",
   "settings": [
     { "type": "text", "id": "heading_line1", "label": "Heading line 1", "default": "The" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "text", "id": "heading_line2", "label": "Heading line 2", "default": "Standard." },
     { "type": "textarea", "id": "description", "label": "Description", "default": "We do not assemble, we orchestrate. Every material is hand-selected. Every grain matched perfectly." },
     { "type": "image_picker", "id": "image", "label": "Cinematic image" }

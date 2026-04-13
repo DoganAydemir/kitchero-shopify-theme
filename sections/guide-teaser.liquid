@@ -5,7 +5,8 @@
     <div class="kt-guide-teaser__header">
       <div>
         <p class="kt-guide-teaser__label">{{ section.settings.label | default: 'Curated Reading' }}</p>
-        <h2 class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration & Guides' }}</h2>
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+        <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration & Guides' }}</{{ heading_tag }}>
       </div>
       {%- if section.settings.blog != blank -%}
         <a href="{{ section.settings.blog.url }}" class="kt-guide-teaser__view-all">
@@ -51,6 +52,7 @@
   "settings": [
     { "type": "text", "id": "label", "label": "Label", "default": "Curated Reading" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Inspiration & Guides" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "blog", "id": "blog", "label": "Blog (for View All link)" }
   ],
   "blocks": [

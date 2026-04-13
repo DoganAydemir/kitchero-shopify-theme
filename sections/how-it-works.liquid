@@ -2,7 +2,8 @@
 
 <section class="kt-how-it-works" data-section-id="{{ section.id }}" data-section-type="how-it-works">
   <div class="page-width">
-    <h2 class="kt-how-it-works__title">{{ section.settings.heading | default: 'How It Works' }}</h2>
+    {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+    <{{ heading_tag }} class="kt-how-it-works__title">{{ section.settings.heading | default: 'How It Works' }}</{{ heading_tag }}>
     <p class="kt-how-it-works__subtitle">{{ section.settings.subtitle | default: 'From vision to reality in four steps' }}</p>
 
     <div class="kt-how-it-works__cards">
@@ -37,6 +38,7 @@
   "class": "section",
   "settings": [
     { "type": "text", "id": "heading", "label": "Heading", "default": "How It Works" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "From vision to reality in four steps" }
   ],
   "blocks": [

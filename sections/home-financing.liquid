@@ -17,10 +17,11 @@
         <span class="kt-home-financing__label">{{ section.settings.label }}</span>
       {%- endif -%}
 
-      <h2 class="kt-home-financing__title">
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+      <{{ heading_tag }} class="kt-home-financing__title">
         {{ section.settings.heading_line1 | default: 'Design your dream today,' }}
         <span class="kt-home-financing__title-sub">{{ section.settings.heading_line2 | default: 'Pay over time.' }}</span>
-      </h2>
+      </{{ heading_tag }}>
 
       {%- if section.settings.description != blank -%}
         <p class="kt-home-financing__desc">{{ section.settings.description }}</p>
@@ -74,6 +75,7 @@
   "settings": [
     { "type": "text", "id": "label", "label": "Label", "default": "Flexible Ownership" },
     { "type": "text", "id": "heading_line1", "label": "Heading line 1", "default": "Design your dream today," },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "text", "id": "heading_line2", "label": "Heading line 2 (italic)", "default": "Pay over time." },
     { "type": "textarea", "id": "description", "label": "Description", "default": "Experience Kitchero luxury now with transparent, predictable payment plans. Choose from leading partners like Affirm and Bread Pay." },
     { "type": "text", "id": "cta_text", "label": "Button text", "default": "Explore Financing Options" },

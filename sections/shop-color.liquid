@@ -4,7 +4,8 @@
   <div class="page-width">
     <div class="kt-shop-color__intro">
       <p class="kt-shop-color__label">{{ section.settings.label | default: 'Material Library' }}</p>
-      <h2 class="kt-shop-color__title">{{ section.settings.heading | default: 'Shop by colors.' }}</h2>
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+      <{{ heading_tag }} class="kt-shop-color__title">{{ section.settings.heading | default: 'Shop by colors.' }}</{{ heading_tag }}>
     </div>
 
     <div class="kt-shop-color__layout">
@@ -167,6 +168,7 @@
   "settings": [
     { "type": "text", "id": "label", "label": "Label", "default": "Material Library" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by colors." },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "textarea", "id": "description", "label": "Description", "default": "Explore our curated material palettes. Select a category to see its characteristic finishes and textures." },
     { "type": "text", "id": "cta_text", "label": "Button text", "default": "Request Free Samples" },
     { "type": "url", "id": "cta_link", "label": "Button link" }

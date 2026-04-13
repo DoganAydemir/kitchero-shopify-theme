@@ -19,7 +19,8 @@
       {%- comment -%} Left Column — Scrolling Text {%- endcomment -%}
       <div class="kt-ecosystem__text-col">
         <div class="kt-ecosystem__title-block">
-          <h2 class="kt-ecosystem__title">{{ section.settings.heading_line1 | default: 'High-Tech' }}<br>{{ section.settings.heading_line2 | default: 'Storage.' }}</h2>
+          {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+          <{{ heading_tag }} class="kt-ecosystem__title">{{ section.settings.heading_line1 | default: 'High-Tech' }}<br>{{ section.settings.heading_line2 | default: 'Storage.' }}</{{ heading_tag }}>
           {%- if section.settings.subtitle != blank -%}
             <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
           {%- endif -%}
@@ -70,6 +71,7 @@
   "class": "section",
   "settings": [
     { "type": "text", "id": "heading_line1", "label": "Heading line 1", "default": "High-Tech" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
     { "type": "text", "id": "heading_line2", "label": "Heading line 2", "default": "Storage." },
     { "type": "textarea", "id": "subtitle", "label": "Subtitle", "default": "A kitchen is a machine for living. We precision-engineer every drawer and hinge for absolute perfection." },
     { "type": "image_picker", "id": "image", "label": "Featured image" },

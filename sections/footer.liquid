@@ -6,9 +6,10 @@
 
       {%- comment -%} Brand Column (always first) {%- endcomment -%}
       <div class="kt-footer__brand">
-        <h2 class="kt-footer__brand-heading">
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+        <{{ heading_tag }} class="kt-footer__brand-heading">
           {{ section.settings.heading_line1 | default: 'Let&rsquo;s build your' }}<br>{{ section.settings.heading_line2 | default: 'dream kitchen.' }}
-        </h2>
+        </{{ heading_tag }}>
         <p class="kt-footer__brand-text">
           {{ section.settings.description | default: 'Experience the perfect orchestration of engineering and tactile luxury in your own home.' }}
         </p>
@@ -183,6 +184,20 @@
       "id": "heading_line2",
       "label": "t:sections.footer.settings.heading_line2.label",
       "default": "dream kitchen."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.footer.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" },
+        { "value": "h5", "label": "H5" },
+        { "value": "h6", "label": "H6" }
+      ],
+      "default": "h2"
     },
     {
       "type": "text",
