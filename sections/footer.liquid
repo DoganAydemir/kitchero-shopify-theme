@@ -58,6 +58,40 @@
               {%- endif -%}
               <div class="kt-footer__text rte">{{ block.settings.text }}</div>
             </div>
+
+          {%- when 'newsletter' -%}
+            <div class="kt-footer__column" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h4 class="kt-footer__column-title">{{ block.settings.heading }}</h4>
+              {%- endif -%}
+              {%- form 'customer', id: 'FooterNewsletter' -%}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <div class="kt-footer__newsletter">
+                  <label for="footer-newsletter-email" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+                  <input
+                    type="email"
+                    id="footer-newsletter-email"
+                    name="contact[email]"
+                    class="field__input kt-footer__newsletter-input"
+                    placeholder="{{ 'newsletter.label' | t }}"
+                    required
+                    autocomplete="email"
+                  >
+                  <button type="submit" class="button kt-footer__newsletter-btn">
+                    {{ 'newsletter.button_label' | t }}
+                  </button>
+                </div>
+              {%- endform -%}
+            </div>
+
+          {%- when 'image' -%}
+            <div class="kt-footer__column" {{ block.shopify_attributes }}>
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 400 | image_tag: class: 'kt-footer__block-image', loading: 'lazy', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.image.alt | default: '' }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-footer__block-image' }}
+              {%- endif -%}
+            </div>
         {%- endcase -%}
       {%- endfor -%}
     </div>
@@ -216,6 +250,30 @@
           "type": "richtext",
           "id": "text",
           "label": "t:sections.footer.blocks.text.settings.text.label"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Subscribe"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
         }
       ]
     },
