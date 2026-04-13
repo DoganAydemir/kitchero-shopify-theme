@@ -1,0 +1,93 @@
+{%- comment -%}
+  Cart Drawer — slide-in from right.
+  Ported from CartDrawer.tsx. Uses Section Rendering API for updates.
+  Works without JS: links to /cart page.
+{%- endcomment -%}
+
+<cart-drawer class="kt-cart-drawer" id="cart-drawer" aria-hidden="true">
+  <div class="kt-cart-drawer__overlay" data-cart-drawer-close></div>
+  <div class="kt-cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'sections.cart.title' | t }}">
+    {%- comment -%} Header {%- endcomment -%}
+    <div class="kt-cart-drawer__header">
+      <h2 class="kt-cart-drawer__title">{{ 'sections.cart.title' | t }}</h2>
+      <button class="kt-cart-drawer__close" data-cart-drawer-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+        <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    {%- comment -%} Cart Items {%- endcomment -%}
+    <div class="kt-cart-drawer__body" id="cart-drawer-items">
+      {%- if cart.item_count > 0 -%}
+        {%- for item in cart.items -%}
+          <div class="kt-cart-drawer__item" data-line-key="{{ item.key }}">
+            <div class="kt-cart-drawer__item-image">
+              {%- if item.image -%}
+                {{
+                  item.image
+                  | image_url: width: 192
+                  | image_tag:
+                    width: 96,
+                    height: 96,
+                    alt: item.title,
+                    loading: 'lazy',
+                    class: 'kt-cart-drawer__item-img'
+                }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-cart-drawer__item-img' }}
+              {%- endif -%}
+            </div>
+            <div class="kt-cart-drawer__item-info">
+              <a href="{{ item.url }}" class="kt-cart-drawer__item-title">{{ item.product.title }}</a>
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="kt-cart-drawer__item-variant">{{ item.variant.title }}</p>
+              {%- endunless -%}
+              <p class="kt-cart-drawer__item-price">{{ item.final_line_price | money }}</p>
+              <div class="kt-cart-drawer__item-qty">
+                <button
+                  class="kt-cart-drawer__qty-btn"
+                  aria-label="{{ 'products.product.quantity.decrease' | t: title: item.product.title }}"
+                  data-qty-change
+                  data-line-key="{{ item.key }}"
+                  data-qty="{{ item.quantity | minus: 1 }}"
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <span class="kt-cart-drawer__qty-value">{{ item.quantity }}</span>
+                <button
+                  class="kt-cart-drawer__qty-btn"
+                  aria-label="{{ 'products.product.quantity.increase' | t: title: item.product.title }}"
+                  data-qty-change
+                  data-line-key="{{ item.key }}"
+                  data-qty="{{ item.quantity | plus: 1 }}"
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        <p class="kt-cart-drawer__empty">{{ 'sections.cart.empty' | t | default: 'Your cart is empty' }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Footer {%- endcomment -%}
+    {%- if cart.item_count > 0 -%}
+      <div class="kt-cart-drawer__footer">
+        <div class="kt-cart-drawer__subtotal">
+          <span>{{ 'sections.cart.subtotal' | t | default: 'Subtotal' }}</span>
+          <span>{{ cart.total_price | money }}</span>
+        </div>
+        <a href="{{ routes.cart_url }}" class="kt-cart-drawer__checkout button">
+          {{ 'sections.cart.checkout' | t | default: 'Checkout' }}
+        </a>
+        <button class="kt-cart-drawer__continue button button--secondary" data-cart-drawer-close>
+          {{ 'sections.cart.continue_shopping' | t | default: 'Continue shopping' }}
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+</cart-drawer>

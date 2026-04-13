@@ -1,0 +1,58 @@
+{%- comment -%}
+  Search Overlay — full-screen search modal.
+  Ported from SearchOverlay.tsx. Uses predictive search API.
+  Works without JS: links to /search page.
+{%- endcomment -%}
+
+<search-overlay class="kt-search-overlay" id="search-overlay" aria-hidden="true">
+  <div class="kt-search-overlay__backdrop" data-search-close></div>
+  <div class="kt-search-overlay__content" role="dialog" aria-modal="true" aria-label="{{ 'general.search.search' | t }}">
+    <button class="kt-search-overlay__close" data-search-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="kt-search-overlay__form-wrapper">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-overlay__form">
+        <label for="search-input" class="visually-hidden">{{ 'general.search.search' | t }}</label>
+        <div class="kt-search-overlay__input-wrap">
+          <svg class="kt-search-overlay__icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            id="search-input"
+            name="q"
+            class="kt-search-overlay__input"
+            placeholder="{{ 'general.search.placeholder' | t }}"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <input type="hidden" name="type" value="product,article,page">
+        </div>
+      </form>
+
+      {%- comment -%} Predictive search results container {%- endcomment -%}
+      <div class="kt-search-overlay__results" id="predictive-search-results" aria-live="polite"></div>
+
+      {%- comment -%} Suggested search terms {%- endcomment -%}
+      <div class="kt-search-overlay__suggestions">
+        <p class="kt-search-overlay__suggestions-label">{{ 'general.search.suggestions' | t | default: 'Popular searches' }}</p>
+        <div class="kt-search-overlay__suggestions-list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'search_term' -%}
+              <button type="button" class="kt-search-overlay__suggestion-pill" data-search-term="{{ block.settings.term }}">
+                {{ block.settings.term }}
+              </button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</search-overlay>

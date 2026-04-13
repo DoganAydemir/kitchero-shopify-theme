@@ -1,0 +1,133 @@
+{%- comment -%}
+  Outputs JSON-LD structured data for SEO.
+  Supports: Organization, Product, Article, BreadcrumbList.
+  Must be rendered in theme.liquid or per-template sections.
+{%- endcomment -%}
+
+{%- if request.page_type == 'product' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "url": {{ request.origin | append: product.url | json }},
+      "image": [
+        {{ product.featured_image | image_url: width: 1024 | prepend: 'https:' | json }}
+      ],
+      "description": {{ product.description | strip_html | truncatewords: 100 | json }},
+      {%- if product.vendor != blank -%}
+        "brand": {
+          "@type": "Brand",
+          "name": {{ product.vendor | json }}
+        },
+      {%- endif -%}
+      "sku": {{ product.selected_or_first_available_variant.sku | json }},
+      "offers": {
+        "@type": "Offer",
+        "url": {{ request.origin | append: product.url | json }},
+        "priceCurrency": {{ cart.currency.iso_code | json }},
+        "price": {{ product.price | money_without_currency | strip_html | json }},
+        {%- if product.compare_at_price > product.price -%}
+          "priceValidUntil": "{{ 'now' | date: '%Y' | plus: 1 }}-12-31",
+        {%- endif -%}
+        "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}"
+      }
+    }
+  </script>
+
+{%- elsif request.page_type == 'article' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": {{ article.title | json }},
+      "url": {{ request.origin | append: article.url | json }},
+      {%- if article.image -%}
+        "image": {{ article.image | image_url: width: 1024 | prepend: 'https:' | json }},
+      {%- endif -%}
+      "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+      "dateModified": {{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+      "author": {
+        "@type": "Person",
+        "name": {{ article.author | json }}
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": {{ shop.name | json }}
+      },
+      "description": {{ article.excerpt_or_content | strip_html | truncatewords: 100 | json }}
+    }
+  </script>
+
+{%- else -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | json }}
+      {%- if settings.social_facebook_link != blank or settings.social_instagram_link != blank or settings.social_twitter_link != blank -%}
+        ,"sameAs": [
+          {%- if settings.social_facebook_link != blank -%}{{ settings.social_facebook_link | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
+          {%- if settings.social_instagram_link != blank -%}{{ settings.social_instagram_link | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
+          {%- if settings.social_twitter_link != blank -%}{{ settings.social_twitter_link | json }}{%- endif -%}
+        ]
+      {%- endif -%}
+    }
+  </script>
+{%- endif -%}
+
+{%- comment -%} BreadcrumbList — always output if not homepage {%- endcomment -%}
+{%- unless request.page_type == 'index' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": {{ shop.name | json }},
+          "item": {{ request.origin | json }}
+        }
+        {%- if request.page_type == 'product' -%}
+          ,{
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ product.collections.first.title | default: 'Products' | json }},
+            "item": {{ request.origin | append: product.collections.first.url | default: '/collections/all' | json }}
+          }
+          ,{
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ product.title | json }}
+          }
+        {%- elsif request.page_type == 'collection' -%}
+          ,{
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ collection.title | json }}
+          }
+        {%- elsif request.page_type == 'article' -%}
+          ,{
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ blog.title | json }},
+            "item": {{ request.origin | append: blog.url | json }}
+          }
+          ,{
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ article.title | json }}
+          }
+        {%- elsif request.page_type == 'page' -%}
+          ,{
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ page.title | json }}
+          }
+        {%- endif -%}
+      ]
+    }
+  </script>
+{%- endunless -%}

@@ -1,62 +1,226 @@
-<header class="kt-header" data-section-id="{{ section.id }}">
-  <div class="kt-header__inner page-width">
-    {%- if settings.logo != blank -%}
-      <a href="{{ routes.root_url }}" class="kt-header__logo">
+{{ 'section-header.css' | asset_url | stylesheet_tag }}
+
+<div class="kt-header-spacer" aria-hidden="true"></div>
+
+<header
+  class="kt-header"
+  data-section-id="{{ section.id }}"
+  data-section-type="header"
+>
+  <div class="kt-header__inner">
+    {%- comment -%} Logo {%- endcomment -%}
+    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
+      {%- if settings.logo != blank -%}
         {{
           settings.logo
-          | image_url: width: settings.logo_width
+          | image_url: width: 300
           | image_tag:
             class: 'kt-header__logo-image',
             widths: '100, 150, 200, 300',
+            width: settings.logo_width,
+            height: settings.logo_width | divided_by: settings.logo.aspect_ratio,
             alt: shop.name
         }}
-      </a>
-    {%- else -%}
-      <a href="{{ routes.root_url }}" class="kt-header__logo">
+      {%- else -%}
         <span class="kt-header__logo-text">{{ shop.name }}</span>
-      </a>
-    {%- endif -%}
+      {%- endif -%}
+    </a>
 
+    {%- comment -%} Desktop Navigation {%- endcomment -%}
     <nav class="kt-header__nav" aria-label="{{ 'accessibility.navigation' | t }}">
       {%- if section.settings.main_menu != blank -%}
         <ul class="kt-header__menu list-unstyled" role="list">
           {%- for link in section.settings.main_menu.links -%}
-            <li>
-              <a href="{{ link.url }}" class="kt-header__menu-link"{% if link.current %} aria-current="page"{% endif %}>
-                {{ link.title }}
-              </a>
+            <li class="kt-header__menu-item">
+              {%- if link.links.size > 0 -%}
+                {%- comment -%} Has children — render mega menu {%- endcomment -%}
+                <a
+                  href="{{ link.url }}"
+                  class="kt-header__menu-link"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >
+                  {{ link.title }}
+                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </a>
+                <div class="kt-header__mega-menu" role="menu">
+                  <div class="kt-header__mega-grid">
+                    {%- for child_link in link.links -%}
+                      <div class="kt-header__mega-column">
+                        <h3 class="kt-header__mega-column-title">{{ child_link.title }}</h3>
+                        {%- if child_link.links.size > 0 -%}
+                          <ul class="kt-header__mega-list list-unstyled" role="list">
+                            {%- for grandchild_link in child_link.links -%}
+                              <li>
+                                <a href="{{ grandchild_link.url }}" class="kt-header__mega-link" role="menuitem">
+                                  {{ grandchild_link.title }}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- else -%}
+                          <a href="{{ child_link.url }}" class="kt-header__mega-link" role="menuitem">
+                            {{ child_link.title }}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+
+                    {%- comment -%} Featured card block (optional via blocks) {%- endcomment -%}
+                    {%- for block in section.blocks -%}
+                      {%- if block.type == 'mega_menu_featured' and block.settings.menu_title == link.title -%}
+                        <div class="kt-header__mega-featured" {{ block.shopify_attributes }}>
+                          {%- if block.settings.image != blank -%}
+                            {{
+                              block.settings.image
+                              | image_url: width: 400
+                              | image_tag:
+                                class: 'kt-header__mega-featured-image',
+                                loading: 'lazy',
+                                width: 400,
+                                height: 300,
+                                alt: block.settings.heading | default: ''
+                            }}
+                          {%- else -%}
+                            {{ 'collection-1' | placeholder_svg_tag: 'kt-header__mega-featured-image placeholder-svg' }}
+                          {%- endif -%}
+                          <div class="kt-header__mega-featured-overlay">
+                            {%- if block.settings.heading != blank -%}
+                              <p class="kt-header__mega-featured-title">{{ block.settings.heading }}</p>
+                            {%- endif -%}
+                            {%- if block.settings.link != blank -%}
+                              <a href="{{ block.settings.link }}" class="kt-header__mega-featured-cta">
+                                {{ block.settings.link_text | default: 'Shop now' }}
+                              </a>
+                            {%- endif -%}
+                          </div>
+                        </div>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- else -%}
+                {%- comment -%} Simple link {%- endcomment -%}
+                <a
+                  href="{{ link.url }}"
+                  class="kt-header__menu-link"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >
+                  {{ link.title }}
+                </a>
+              {%- endif -%}
             </li>
           {%- endfor -%}
         </ul>
       {%- endif -%}
     </nav>
 
+    {%- comment -%} Action Icons {%- endcomment -%}
     <div class="kt-header__icons">
+      {%- comment -%} Search {%- endcomment -%}
       <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'general.search.search' | t }}">
-        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </a>
 
+      {%- comment -%} Account {%- endcomment -%}
       <a href="{{ routes.account_url }}" class="kt-header__icon" aria-label="{{ 'accessibility.account' | t }}">
-        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
       </a>
 
-      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart" aria-label="{{ 'sections.cart.title' | t }}">
-        <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      {%- comment -%} Cart {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'sections.cart.title' | t }}">
+        <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
-        <span class="kt-header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
+        {%- if cart.item_count > 0 -%}
+          <span class="kt-header__cart-count" aria-label="{{ 'general.cart.item_count' | t: count: cart.item_count }}">
+            {{ cart.item_count }}
+          </span>
+        {%- endif -%}
       </a>
+
+      {%- comment -%} Mobile menu toggle — only visible below 990px {%- endcomment -%}
+      <button
+        class="kt-header__menu-toggle"
+        aria-label="{{ 'accessibility.navigation' | t }}"
+        aria-expanded="false"
+        aria-controls="kt-mobile-panel-{{ section.id }}"
+      >
+        <svg class="kt-header__menu-toggle-open" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="kt-header__menu-toggle-close hidden" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </div>
+
+  {%- comment -%} Mobile Panel {%- endcomment -%}
+  <div
+    id="kt-mobile-panel-{{ section.id }}"
+    class="kt-header__mobile-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ 'accessibility.navigation' | t }}"
+  >
+    <div class="kt-header__mobile-panel-header">
+      <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
+        <span class="kt-header__logo-text">{{ shop.name }}</span>
+      </a>
+      <button class="kt-header__mobile-panel-close" aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+        <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="kt-header__mobile-menu" aria-label="{{ 'accessibility.navigation' | t }}">
+      {%- if section.settings.main_menu != blank -%}
+        <ul class="list-unstyled" role="list">
+          {%- for link in section.settings.main_menu.links -%}
+            <li>
+              <a href="{{ link.url }}" class="kt-header__mobile-link">
+                {{ link.title }}
+                {%- if link.links.size > 0 -%}
+                  <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                {%- endif -%}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.mobile_cta_text != blank -%}
+        <a
+          href="{{ section.settings.mobile_cta_link | default: routes.root_url }}"
+          class="kt-header__mobile-cta"
+        >
+          {{ section.settings.mobile_cta_text }}
+        </a>
+      {%- endif -%}
+    </nav>
+  </div>
 </header>
+
+<script src="{{ 'section-header.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
@@ -64,10 +228,33 @@
   "class": "section-header",
   "settings": [
     {
+      "type": "header",
+      "content": "t:sections.header.settings.header__navigation.content"
+    },
+    {
       "type": "link_list",
       "id": "main_menu",
       "default": "main-menu",
       "label": "t:sections.header.settings.main_menu.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__mobile.content"
+    },
+    {
+      "type": "text",
+      "id": "mobile_cta_text",
+      "label": "t:sections.header.settings.mobile_cta_text.label",
+      "default": "Estimate Project"
+    },
+    {
+      "type": "url",
+      "id": "mobile_cta_link",
+      "label": "t:sections.header.settings.mobile_cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.colors.label"
     },
     {
       "type": "color_scheme",
@@ -77,6 +264,41 @@
     }
   ],
   "blocks": [
+    {
+      "type": "mega_menu_featured",
+      "name": "t:sections.header.blocks.mega_menu_featured.name",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "menu_title",
+          "label": "t:sections.header.blocks.mega_menu_featured.settings.menu_title.label",
+          "info": "t:sections.header.blocks.mega_menu_featured.settings.menu_title.info"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.header.blocks.mega_menu_featured.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.header.blocks.mega_menu_featured.settings.heading.label",
+          "default": "The Heritage Collection"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.header.blocks.mega_menu_featured.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "t:sections.header.blocks.mega_menu_featured.settings.link_text.label",
+          "default": "Explore"
+        }
+      ]
+    },
     {
       "type": "@app"
     }
