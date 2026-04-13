@@ -1,0 +1,120 @@
+/* Shop The Look — Image with product hotspot blocks */
+
+.kt-shop-the-look {
+  padding: 6rem 0;
+  background-color: #fafaf9;
+}
+
+.kt-shop-the-look__header {
+  margin-bottom: 3rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid #1c1917;
+}
+
+[dir="rtl"] .kt-shop-the-look__header {
+  padding-left: 0;
+  padding-right: 1.5rem;
+  border-left: none;
+  border-right: 2px solid #1c1917;
+}
+
+.kt-shop-the-look__title {
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: #1c1917;
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-the-look__title { font-size: 4.375rem; }
+}
+
+.kt-shop-the-look__subtitle {
+  font-size: 1.25rem;
+  color: #57534e;
+  font-weight: 300;
+}
+
+.kt-shop-the-look__container {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.kt-shop-the-look__image {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-the-look__image { aspect-ratio: 16 / 9; }
+}
+
+/* Hotspot buttons — positioned via inline style */
+.kt-shop-the-look__hotspot {
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+  z-index: 5;
+}
+
+.kt-shop-the-look__hotspot:hover {
+  transform: scale(1.15);
+}
+
+.kt-shop-the-look__hotspot svg {
+  width: 16px;
+  height: 16px;
+  color: #1c1917;
+}
+
+/* Tooltip (appears on hover) */
+.kt-shop-the-look__tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.kt-shop-the-look__hotspot:hover .kt-shop-the-look__tooltip,
+.kt-shop-the-look__hotspot:focus .kt-shop-the-look__tooltip {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.kt-shop-the-look__tooltip-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 0.125rem;
+}
+
+.kt-shop-the-look__tooltip-price {
+  font-size: 0.75rem;
+  color: #78716c;
+}

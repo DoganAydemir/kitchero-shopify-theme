@@ -1,0 +1,71 @@
+/* Brands — Infinite marquee logo strip */
+
+.kt-brands {
+  padding: 4rem 0;
+  background-color: #fafaf9;
+  overflow: hidden;
+  position: relative;
+}
+
+.kt-brands__track {
+  display: flex;
+  width: max-content;
+  animation: kt-marquee 30s linear infinite;
+}
+
+.kt-brands:hover .kt-brands__track {
+  animation-play-state: paused;
+}
+
+.kt-brands__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2rem;
+  flex-shrink: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-brands__item { padding: 0 3rem; }
+}
+
+.kt-brands__logo {
+  height: 2rem;
+  width: auto;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-brands__logo { height: 2.5rem; }
+}
+
+.kt-brands__item:hover .kt-brands__logo {
+  opacity: 1;
+}
+
+/* Fade edges */
+.kt-brands__fade-left,
+.kt-brands__fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.kt-brands__fade-left {
+  left: 0;
+  background: linear-gradient(to right, #fafaf9, transparent);
+}
+
+.kt-brands__fade-right {
+  right: 0;
+  background: linear-gradient(to left, #fafaf9, transparent);
+}
+
+@keyframes kt-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

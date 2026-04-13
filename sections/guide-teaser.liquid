@@ -1,0 +1,79 @@
+{{ 'section-guide-teaser.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-guide-teaser" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="kt-guide-teaser__header">
+      <div>
+        <p class="kt-guide-teaser__label">{{ section.settings.label | default: 'Curated Reading' }}</p>
+        <h2 class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration & Guides' }}</h2>
+      </div>
+      {%- if section.settings.blog != blank -%}
+        <a href="{{ section.settings.blog.url }}" class="kt-guide-teaser__view-all">
+          {{ 'sections.guide_teaser.view_all' | t | default: 'View All Journals' }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="kt-guide-teaser__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'article' -%}
+          <a href="{{ block.settings.link | default: '#' }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
+            <div class="kt-guide-teaser__card-image-wrap">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-guide-teaser__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title | default: '' }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-guide-teaser__card-image' }}
+              {%- endif -%}
+            </div>
+            <div class="kt-guide-teaser__card-content">
+              {%- if block.settings.volume != blank -%}
+                <p class="kt-guide-teaser__card-volume">{{ block.settings.volume }}</p>
+              {%- endif -%}
+              <h3 class="kt-guide-teaser__card-title">{{ block.settings.title }}</h3>
+              {%- if block.settings.description != blank -%}
+                <p class="kt-guide-teaser__card-desc">{{ block.settings.description }}</p>
+              {%- endif -%}
+            </div>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Guide teaser",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Curated Reading" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Inspiration & Guides" },
+    { "type": "blog", "id": "blog", "label": "Blog (for View All link)" }
+  ],
+  "blocks": [
+    {
+      "type": "article",
+      "name": "Article card",
+      "limit": 6,
+      "settings": [
+        { "type": "text", "id": "volume", "label": "Volume label", "default": "Volume 1" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Modern Minimalism: The Secret to Serene Kitchens" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "Explore how restraint in design creates the most impactful kitchen spaces." },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Guide teaser",
+      "blocks": [
+        { "type": "article", "settings": { "volume": "Volume 1", "title": "Modern Minimalism: The Secret to Serene Kitchens", "description": "Explore how restraint in design creates the most impactful kitchen spaces." } },
+        { "type": "article", "settings": { "volume": "Volume 2", "title": "Material Guide: Choosing the Perfect Countertop", "description": "From quartz to marble, understand the pros and cons of every surface." } },
+        { "type": "article", "settings": { "volume": "Volume 3", "title": "Small Space, Big Impact: Kitchen Solutions Under 150sqft", "description": "Clever storage and layout tricks that transform compact kitchens." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

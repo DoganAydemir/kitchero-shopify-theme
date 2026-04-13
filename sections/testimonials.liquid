@@ -1,0 +1,69 @@
+{{ 'section-testimonials.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-testimonials" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="kt-testimonials__header">
+      <p class="kt-testimonials__label">{{ section.settings.label | default: 'Client Stories' }}</p>
+      <h2 class="kt-testimonials__title">{{ section.settings.heading | default: 'What They Say' }}</h2>
+    </div>
+
+    <div class="kt-testimonials__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'testimonial' -%}
+          <div class="kt-testimonials__card" {{ block.shopify_attributes }}>
+            <div class="kt-testimonials__quote-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/></svg>
+            </div>
+            <p class="kt-testimonials__quote-text">{{ block.settings.quote }}</p>
+            <div class="kt-testimonials__author">
+              {%- if block.settings.avatar != blank -%}
+                {{ block.settings.avatar | image_url: width: 80 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 40, height: 40, alt: block.settings.name | default: '' }}
+              {%- endif -%}
+              <div>
+                <p class="kt-testimonials__author-name">{{ block.settings.name }}</p>
+                {%- if block.settings.role != blank -%}
+                  <p class="kt-testimonials__author-role">{{ block.settings.role }}</p>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Client Stories" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What They Say" }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "limit": 9,
+      "settings": [
+        { "type": "textarea", "id": "quote", "label": "Quote", "default": "Kitchero transformed our kitchen beyond anything we imagined. The attention to detail is extraordinary." },
+        { "type": "text", "id": "name", "label": "Author name", "default": "Sarah Mitchell" },
+        { "type": "text", "id": "role", "label": "Author role", "default": "Homeowner, Brooklyn" },
+        { "type": "image_picker", "id": "avatar", "label": "Author photo" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        { "type": "testimonial", "settings": { "quote": "Kitchero transformed our kitchen beyond anything we imagined. The attention to detail is extraordinary.", "name": "Sarah Mitchell", "role": "Homeowner, Brooklyn" } },
+        { "type": "testimonial", "settings": { "quote": "From the initial consultation to the final installation, every step was handled with professionalism and care.", "name": "James Rivera", "role": "Interior Designer" } },
+        { "type": "testimonial", "settings": { "quote": "The quality of materials and craftsmanship is unmatched. Our kitchen has become the heart of our home.", "name": "Emma Chen", "role": "Homeowner, Manhattan" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,55 @@
+{{ 'section-brands.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-brands" data-section-id="{{ section.id }}">
+  <div class="kt-brands__fade-left" aria-hidden="true"></div>
+  <div class="kt-brands__fade-right" aria-hidden="true"></div>
+
+  <div class="kt-brands__track" aria-label="{{ 'sections.brands.label' | t | default: 'Partner brands' }}">
+    {%- comment -%} Render blocks twice for seamless loop {%- endcomment -%}
+    {%- for i in (1..2) -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'logo' -%}
+          <div class="kt-brands__item" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', height: 40, alt: block.settings.alt | default: 'Brand logo' }}
+            {%- else -%}
+              <span class="kt-brands__logo" style="font-size:1.5rem;font-weight:700;color:#a8a29e;">{{ block.settings.alt | default: 'Brand' }}</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Brand logos",
+  "tag": "section",
+  "class": "section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "limit": 12,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Logo image" },
+        { "type": "text", "id": "alt", "label": "Brand name (alt text)", "default": "Brand" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand logos",
+      "blocks": [
+        { "type": "logo", "settings": { "alt": "Caesarstone" } },
+        { "type": "logo", "settings": { "alt": "Silestone" } },
+        { "type": "logo", "settings": { "alt": "Blum" } },
+        { "type": "logo", "settings": { "alt": "Hettich" } },
+        { "type": "logo", "settings": { "alt": "Cosentino" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
