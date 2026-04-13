@@ -30,6 +30,13 @@
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
 
+    {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
+    {%- if settings.animations_reveal_on_scroll -%}
+      <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
+      <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
+
     {{ content_for_header }}
 
     {%- liquid

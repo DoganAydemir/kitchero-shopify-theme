@@ -1,9 +1,7 @@
 /**
- * Kitchero Hero — Auto-playing carousel
- * Handles slide transitions, prev/next buttons, auto-play.
+ * Kitchero Hero — Auto-playing carousel + GSAP parallax
  * Re-initializes on shopify:section:load.
  */
-
 (function () {
   'use strict';
 
@@ -19,12 +17,37 @@
     this.total = this.slides.length;
     this.autoplaySpeed = parseInt(section.dataset.autoplaySpeed || '8', 10) * 1000;
     this.timer = null;
+    this.gsapCtx = null;
 
-    if (this.total <= 1) return;
-
-    this.bindEvents();
-    this.startAutoplay();
+    if (this.total > 0) {
+      this.bindEvents();
+      if (this.total > 1) this.startAutoplay();
+      this.initGSAP();
+    }
   }
+
+  KitcheroHero.prototype.initGSAP = function () {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    var section = this.section;
+
+    this.gsapCtx = gsap.context(function () {
+      /* Parallax on all slide images */
+      gsap.utils.toArray('.kt-hero__slide-image-wrap', section).forEach(function (wrap) {
+        gsap.to(wrap, {
+          yPercent: 15,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true
+          }
+        });
+      });
+    }, section);
+  };
 
   KitcheroHero.prototype.bindEvents = function () {
     var self = this;
@@ -47,11 +70,9 @@
   KitcheroHero.prototype.goTo = function (index) {
     if (index === this.current) return;
 
-    /* Hide current */
     this.slides[this.current].classList.remove('kt-hero__slide--active');
     this.texts[this.current].classList.add('hidden');
 
-    /* Show next */
     this.current = index;
     this.slides[this.current].classList.add('kt-hero__slide--active');
     this.texts[this.current].classList.remove('hidden');
@@ -71,20 +92,14 @@
 
   KitcheroHero.prototype.destroy = function () {
     clearInterval(this.timer);
+    if (this.gsapCtx) this.gsapCtx.revert();
   };
 
-  /* Init */
   function initHero(container) {
     var section = container.querySelector('[data-section-type="hero"]');
     if (!section) return;
     var id = section.dataset.sectionId;
     if (heroInstances[id]) heroInstances[id].destroy();
-
-    /* Read autoplay speed from schema setting */
-    var speedEl = section.closest('.shopify-section');
-    section.dataset.autoplaySpeed = section.querySelector('.kt-hero') ?
-      (section.dataset.autoplaySpeed || '8') : '8';
-
     heroInstances[id] = new KitcheroHero(section);
   }
 
@@ -110,7 +125,6 @@
     var id = section.dataset.sectionId;
     var instance = heroInstances[id];
     if (!instance) return;
-
     var slideIndex = parseInt(event.target.dataset.slideIndex, 10);
     if (!isNaN(slideIndex)) {
       instance.goTo(slideIndex);
@@ -123,6 +137,6 @@
     if (!section) return;
     var id = section.dataset.sectionId;
     var instance = heroInstances[id];
-    if (instance) instance.startAutoplay();
+    if (instance && instance.total > 1) instance.startAutoplay();
   });
 })();
