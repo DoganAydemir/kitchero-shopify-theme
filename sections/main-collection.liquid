@@ -1,0 +1,162 @@
+{{ 'section-main-collection.css' | asset_url | stylesheet_tag }}
+{{ 'component-card-product.css' | asset_url | stylesheet_tag }}
+
+<div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
+  {%- comment -%} Hero Header {%- endcomment -%}
+  <section class="kt-collection__hero">
+    <div class="page-width">
+      <div class="kt-collection__hero-inner">
+        <div>
+          <p class="kt-collection__label">{{ 'sections.collection.label' | t | default: 'The Archives' }}</p>
+          {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
+          <{{ heading_tag }} class="kt-collection__title">{{ collection.title }}</{{ heading_tag }}>
+          {%- if collection.description != blank -%}
+            <p class="kt-collection__desc">{{ collection.description }}</p>
+          {%- else -%}
+            <p class="kt-collection__desc">{{ 'sections.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
+          {%- endif -%}
+        </div>
+        <span class="kt-collection__count">
+          {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} Sticky Control Bar {%- endcomment -%}
+  <div class="kt-collection__controls" data-collection-controls>
+    <div class="page-width">
+      <div class="kt-collection__controls-inner">
+        <p class="kt-collection__results-count">
+          {{ 'sections.collection.showing' | t | default: 'Showing' }}
+          {{ collection.products.size }}
+          {{ 'sections.collection.of' | t | default: 'of' }}
+          {{ collection.products_count }}
+        </p>
+
+        <div class="kt-collection__sort">
+          {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+          <label for="SortBy" class="kt-collection__sort-label">{{ 'sections.collection.sort_by' | t | default: 'Sort by' }}</label>
+          <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
+                {{ option.name }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      </div>
+
+      {%- comment -%} Active filters {%- endcomment -%}
+      {%- if collection.filters != empty -%}
+        {%- assign active_filters_count = 0 -%}
+        {%- for filter in collection.filters -%}
+          {%- assign active_filters_count = active_filters_count | plus: filter.active_values.size -%}
+        {%- endfor -%}
+
+        {%- if active_filters_count > 0 -%}
+          <div class="kt-collection__active-filters">
+            {%- for filter in collection.filters -%}
+              {%- for value in filter.active_values -%}
+                <a href="{{ value.url_to_remove }}" class="kt-collection__active-filter">
+                  {{ value.label }}
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </a>
+              {%- endfor -%}
+            {%- endfor -%}
+            <a href="{{ collection.url }}" class="kt-collection__clear-all">
+              {{ 'sections.collection.clear_all' | t | default: 'Clear all' }}
+            </a>
+          </div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Product Grid {%- endcomment -%}
+  <div class="page-width">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      {%- if collection.products.size > 0 -%}
+        <div class="kt-collection__grid" id="product-grid">
+          {%- for product in collection.products -%}
+            {%- render 'card-product', product: product, show_vendor: section.settings.show_vendor, show_secondary_image: section.settings.show_secondary_image, show_quote_button: section.settings.show_quote_button -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <div class="kt-collection__pagination">
+            {%- render 'pagination', paginate: paginate -%}
+          </div>
+        {%- endif -%}
+      {%- else -%}
+        <div class="kt-collection__empty">
+          <h3 class="kt-collection__empty-title">{{ 'sections.collection.no_products' | t | default: 'No products found' }}</h3>
+          <p class="kt-collection__empty-text">{{ 'sections.collection.no_products_desc' | t | default: 'Try adjusting your filters to discover more products.' }}</p>
+          {%- if active_filters_count > 0 -%}
+            <a href="{{ collection.url }}" class="kt-collection__clear-all">
+              {{ 'sections.collection.clear_all' | t | default: 'Clear all filters' }}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+<script src="{{ 'section-main-collection.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Collection products",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 4,
+      "max": 50,
+      "step": 2,
+      "default": 12,
+      "label": "Products per page"
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quote_button",
+      "label": "Show quote button",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}
