@@ -1,0 +1,82 @@
+{%- comment -%}
+  Product Media Gallery — vertical thumbs (desktop) + horizontal (mobile)
+  + fullscreen lightbox with prev/next + zoom.
+  Birebir from product/[id]/page.tsx gallery section.
+
+  Accepts:
+  - product: {Object} Shopify product
+{%- endcomment -%}
+
+<div class="kt-gallery" data-product-gallery>
+  {%- comment -%} Vertical Thumbnail Column (desktop) / Horizontal strip (mobile) {%- endcomment -%}
+  <div class="kt-gallery__thumbs" data-gallery-thumbs>
+    {%- for media in product.media -%}
+      {%- if media.media_type == 'image' -%}
+        <button
+          class="kt-gallery__thumb{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
+          data-gallery-thumb-btn
+          data-media-index="{{ forloop.index0 }}"
+          aria-label="{{ 'products.product.media.image_available' | t: index: forloop.index }}"
+        >
+          {{
+            media
+            | image_url: width: 184
+            | image_tag:
+              loading: 'lazy',
+              width: 92,
+              height: 92,
+              alt: media.alt | default: product.title,
+              class: 'kt-gallery__thumb-image'
+          }}
+        </button>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Main Image {%- endcomment -%}
+  <div class="kt-gallery__main" data-gallery-main>
+    {%- for media in product.media -%}
+      {%- if media.media_type == 'image' -%}
+        <div
+          class="kt-gallery__slide{% if forloop.first %} kt-gallery__slide--active{% endif %}"
+          data-gallery-slide="{{ forloop.index0 }}"
+        >
+          {{
+            media
+            | image_url: width: 1200
+            | image_tag:
+              loading: forloop.first | ternary: 'eager', 'lazy',
+              widths: '375, 550, 750, 1100',
+              sizes: '(min-width: 990px) 58vw, 100vw',
+              width: media.width,
+              height: media.height,
+              alt: media.alt | default: product.title,
+              class: 'kt-gallery__image'
+          }}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if product.media.size == 0 -%}
+      <div class="kt-gallery__slide kt-gallery__slide--active">
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-gallery__image' }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Fullscreen Lightbox {%- endcomment -%}
+  <div class="kt-lightbox" data-lightbox aria-hidden="true" data-lenis-prevent="true">
+    <button class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <button class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'sections.hero.previous_slide' | t | default: 'Previous' }}">
+      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <button class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'sections.hero.next_slide' | t | default: 'Next' }}">
+      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
+    </button>
+    <div class="kt-lightbox__viewport" data-lightbox-viewport>
+      <img class="kt-lightbox__image" data-lightbox-image src="" alt="" />
+    </div>
+  </div>
+</div>
