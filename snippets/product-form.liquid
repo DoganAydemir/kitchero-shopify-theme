@@ -1,0 +1,83 @@
+{%- comment -%}
+  Product Form — quantity + add to cart + dynamic checkout button.
+  Birebir from source PDP: quantity selector + ATC + wishlist/share.
+  Uses Shopify {% form 'product' %} with variant ID.
+
+  Accepts:
+  - product: {Object} Shopify product
+{%- endcomment -%}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+{%- form 'product', product, id: 'ProductForm', data-product-form: '', data-product-id: product.id -%}
+  <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+  {%- comment -%} Quantity + Add to Cart row {%- endcomment -%}
+  <div class="kt-product-form__row">
+    {%- comment -%} Quantity selector {%- endcomment -%}
+    <div class="kt-product-form__qty">
+      <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'products.product.quantity.decrease' | t: title: product.title }}">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+      <input
+        type="number"
+        name="quantity"
+        id="Quantity-{{ product.id }}"
+        value="1"
+        min="1"
+        class="kt-product-form__qty-input"
+        data-qty-input
+        aria-label="{{ 'products.product.quantity.label' | t }}"
+      >
+      <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'products.product.quantity.increase' | t: title: product.title }}">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+    </div>
+
+    {%- comment -%} Add to Cart button {%- endcomment -%}
+    <button
+      type="submit"
+      class="kt-product-form__atc"
+      {% unless current_variant.available %}disabled{% endunless %}
+      data-add-to-cart
+    >
+      <svg class="kt-product-form__atc-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+      <span data-add-to-cart-text>
+        {%- if current_variant.available -%}
+          {{ 'products.product.add_to_cart' | t }}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t }}
+        {%- endif -%}
+      </span>
+    </button>
+  </div>
+
+  {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) {%- endcomment -%}
+  <div class="kt-product-form__dynamic-checkout">
+    {{ form | payment_button }}
+  </div>
+
+  {%- comment -%} Wishlist + Share (visual only — no real backend) {%- endcomment -%}
+  <div class="kt-product-form__actions">
+    <button type="button" class="kt-product-form__action-btn" data-wishlist-toggle>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      <span>{{ 'products.product.wishlist' | t | default: 'Add to Wishlist' }}</span>
+    </button>
+    <button type="button" class="kt-product-form__action-btn" data-share-btn>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+      </svg>
+      <span>{{ 'products.product.share' | t | default: 'Share' }}</span>
+    </button>
+  </div>
+{%- endform -%}
