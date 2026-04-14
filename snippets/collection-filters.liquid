@@ -1,0 +1,114 @@
+{%- comment -%}
+  Collection Filters — renders Shopify native storefront filters.
+  Used in all collection template variants.
+
+  Accepts:
+  - layout: 'horizontal' | 'drawer' | 'vertical'
+  - collection: {Object} the collection
+{%- endcomment -%}
+
+{%- if collection.filters.size > 0 -%}
+  <form id="CollectionFiltersForm" data-collection-filters-form>
+    {%- for filter in collection.filters -%}
+      <div class="kt-filter" data-filter-group>
+        {%- case filter.type -%}
+          {%- when 'list' -%}
+            <details class="kt-filter__details"{% if filter.active_values.size > 0 %} open{% endif %}>
+              <summary class="kt-filter__summary">
+                <span class="kt-filter__title">{{ filter.label }}</span>
+                {%- if filter.active_values.size > 0 -%}
+                  <span class="kt-filter__count">{{ filter.active_values.size }}</span>
+                {%- endif -%}
+                <svg class="kt-filter__chevron" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </summary>
+              <div class="kt-filter__content">
+                <ul class="kt-filter__list list-unstyled" role="list">
+                  {%- for value in filter.values -%}
+                    <li>
+                      <label class="kt-filter__option" for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
+                        <input
+                          type="checkbox"
+                          id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value }}"
+                          {% if value.active %}checked{% endif %}
+                          {% if value.count == 0 %}disabled{% endif %}
+                          class="kt-filter__checkbox"
+                          data-filter-checkbox
+                        >
+                        <span class="kt-filter__checkbox-visual">
+                          {%- if value.active -%}
+                            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          {%- endif -%}
+                        </span>
+
+                        {%- if filter.param_name contains 'color' and value.swatch -%}
+                          <span class="kt-filter__swatch" style="background-color: {{ value.swatch.color }};"></span>
+                        {%- endif -%}
+
+                        <span class="kt-filter__label{% if value.count == 0 %} kt-filter__label--disabled{% endif %}">{{ value.label }}</span>
+                        <span class="kt-filter__value-count">({{ value.count }})</span>
+                      </label>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+
+                {%- if filter.active_values.size > 0 -%}
+                  <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">
+                    {{ 'sections.collection.reset' | t | default: 'Reset' }}
+                  </a>
+                {%- endif -%}
+              </div>
+            </details>
+
+          {%- when 'price_range' -%}
+            <details class="kt-filter__details"{% if filter.min_value.value or filter.max_value.value %} open{% endif %}>
+              <summary class="kt-filter__summary">
+                <span class="kt-filter__title">{{ filter.label }}</span>
+                <svg class="kt-filter__chevron" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </summary>
+              <div class="kt-filter__content">
+                <div class="kt-filter__price-range">
+                  <div class="kt-filter__price-field">
+                    <label for="Filter-{{ filter.min_value.param_name }}" class="visually-hidden">{{ 'sections.collection.price_min' | t | default: 'From' }}</label>
+                    <span class="kt-filter__price-prefix">{{ cart.currency.symbol }}</span>
+                    <input
+                      type="number"
+                      id="Filter-{{ filter.min_value.param_name }}"
+                      name="{{ filter.min_value.param_name }}"
+                      value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                      placeholder="0"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      class="kt-filter__price-input"
+                      data-filter-price
+                    >
+                  </div>
+                  <span class="kt-filter__price-separator">—</span>
+                  <div class="kt-filter__price-field">
+                    <label for="Filter-{{ filter.max_value.param_name }}" class="visually-hidden">{{ 'sections.collection.price_max' | t | default: 'To' }}</label>
+                    <span class="kt-filter__price-prefix">{{ cart.currency.symbol }}</span>
+                    <input
+                      type="number"
+                      id="Filter-{{ filter.max_value.param_name }}"
+                      name="{{ filter.max_value.param_name }}"
+                      value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                      placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      class="kt-filter__price-input"
+                      data-filter-price
+                    >
+                  </div>
+                </div>
+              </div>
+            </details>
+        {%- endcase -%}
+      </div>
+    {%- endfor -%}
+
+    <noscript>
+      <button type="submit" class="button">{{ 'sections.collection.apply' | t | default: 'Apply' }}</button>
+    </noscript>
+  </form>
+{%- endif -%}

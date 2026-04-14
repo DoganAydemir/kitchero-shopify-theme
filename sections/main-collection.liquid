@@ -1,5 +1,6 @@
 {{ 'section-main-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-collection-filters.css' | asset_url | stylesheet_tag }}
 
 <div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
   {%- comment -%} Hero Header {%- endcomment -%}
@@ -43,12 +44,70 @@
   <div class="kt-collection__controls" data-collection-controls>
     <div class="page-width">
       <div class="kt-collection__controls-inner">
-        <p class="kt-collection__results-count">
-          {{ 'sections.collection.showing' | t | default: 'Showing' }}
-          {{ collection.products.size }}
-          {{ 'sections.collection.of' | t | default: 'of' }}
-          {{ collection.products_count }}
-        </p>
+        {%- comment -%} Desktop: horizontal filter dropdowns {%- endcomment -%}
+        <div class="kt-filter-bar">
+          <span class="kt-filter-bar__label">{{ 'sections.collection.filter' | t | default: 'Filter:' }}</span>
+          {%- for filter in collection.filters -%}
+            {%- if filter.type == 'list' -%}
+              <div class="kt-filter-bar__dropdown">
+                <button class="kt-filter-bar__trigger" type="button">
+                  <span>{{ filter.label }}</span>
+                  {%- if filter.active_values.size > 0 -%}
+                    <span class="kt-filter__count">{{ filter.active_values.size }}</span>
+                  {%- endif -%}
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="kt-filter-bar__panel">
+                  <div class="kt-filter-bar__panel-inner">
+                    <div class="kt-filter-bar__panel-header">
+                      <span class="kt-filter-bar__panel-count">{{ filter.active_values.size }} {{ 'sections.collection.selected' | t | default: 'selected' }}</span>
+                      {%- if filter.active_values.size > 0 -%}
+                        <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">{{ 'sections.collection.reset' | t | default: 'Reset' }}</a>
+                      {%- endif -%}
+                    </div>
+                    <form id="FilterBar-{{ filter.param_name }}" data-collection-filters-form>
+                      <ul class="kt-filter__list list-unstyled" role="list">
+                        {%- for value in filter.values -%}
+                          <li>
+                            <label class="kt-filter__option" for="Bar-{{ filter.param_name }}-{{ forloop.index }}">
+                              <input
+                                type="checkbox"
+                                id="Bar-{{ filter.param_name }}-{{ forloop.index }}"
+                                name="{{ value.param_name }}"
+                                value="{{ value.value }}"
+                                {% if value.active %}checked{% endif %}
+                                class="kt-filter__checkbox"
+                                data-filter-checkbox
+                              >
+                              <span class="kt-filter__checkbox-visual">
+                                {%- if value.active -%}
+                                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                {%- endif -%}
+                              </span>
+                              <span class="kt-filter__label">{{ value.label }}</span>
+                              <span class="kt-filter__value-count">({{ value.count }})</span>
+                            </label>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- comment -%} Mobile: filter button (opens drawer) {%- endcomment -%}
+        <div class="kt-collection__mobile-filter-bar">
+          <p class="kt-collection__results-count">
+            {{ collection.products.size }} {{ 'sections.collection.of' | t | default: 'of' }} {{ collection.products_count }}
+          </p>
+          <button class="kt-collection__filter-btn" data-open-filter-drawer type="button">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
+            <span>{{ 'sections.collection.filters' | t | default: 'Filters' }}</span>
+          </button>
+        </div>
 
         <div class="kt-collection__sort">
           {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
@@ -120,6 +179,7 @@
 </div>
 
 <script src="{{ 'section-main-collection.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'collection-filters.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
