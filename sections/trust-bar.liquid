@@ -1,6 +1,6 @@
 {{ 'section-trust-bar.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-trust-bar color-{{ section.settings.color_scheme }}" data-section-id="{{ section.id }}" data-section-type="trust-bar">
+<section class="kt-trust-bar" data-section-id="{{ section.id }}" data-section-type="trust-bar">
   <div class="page-width">
     <div class="kt-trust-bar__grid">
       {%- for block in section.blocks -%}
@@ -41,14 +41,7 @@
   "name": "t:sections.trust-bar.name",
   "tag": "section",
   "class": "section",
-  "settings": [
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "scheme-1"
-    }
-  ],
+  "settings": [],
   "blocks": [
     {
       "type": "stat",
@@ -80,10 +73,38 @@
     {
       "name": "t:sections.trust-bar.presets.name",
       "blocks": [
-        { "type": "stat", "settings": { "value": "1200", "prefix": "+", "label": "Projects Completed" } },
-        { "type": "stat", "settings": { "value": "99", "prefix": "%", "label": "Client Satisfaction" } },
-        { "type": "stat", "settings": { "value": "25", "prefix": "+", "label": "Years Mastery" } },
-        { "type": "stat", "settings": { "value": "15", "prefix": "", "label": "Design Awards" } }
+        {
+          "type": "stat",
+          "settings": {
+            "value": "1200",
+            "prefix": "+",
+            "label": "Projects Completed"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "value": "99",
+            "prefix": "%",
+            "label": "Client Satisfaction"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "value": "25",
+            "prefix": "+",
+            "label": "Years Mastery"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "value": "15",
+            "prefix": "",
+            "label": "Design Awards"
+          }
+        }
       ]
     }
   ]
