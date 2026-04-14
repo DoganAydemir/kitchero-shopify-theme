@@ -1,9 +1,6 @@
 /**
  * Shop Color — Category accordion + finish image switching
- * Birebir from ShopColor.tsx:
- * - Hover category → activate, select first finish
- * - Hover finish button → switch desktop image, palette, code/name
- * - Active finish gets underline style
+ * Works on both desktop (hover) and mobile (click/tap)
  */
 (function () {
   'use strict';
@@ -38,12 +35,12 @@
       var color1 = btn.dataset.finishColor1 || '';
       var color2 = btn.dataset.finishColor2 || '';
 
-      /* Switch image */
+      /* Switch desktop images */
       hideAllImages();
       var targetImg = section.querySelector('[data-finish-image="' + imageId + '"]');
       if (targetImg) targetImg.style.opacity = '1';
 
-      /* Update overlay info */
+      /* Update desktop overlay info */
       if (codeEl) codeEl.textContent = code;
       if (labelEl) labelEl.textContent = name + (cat ? ' \u2014 ' + cat : '');
 
@@ -51,19 +48,31 @@
       if (paletteTop) paletteTop.style.backgroundColor = color1;
       if (paletteBottom) paletteBottom.style.backgroundColor = color2;
 
+      /* Update mobile inline image + info */
+      var parentCat = btn.closest('[data-category-id]');
+      if (parentCat) {
+        var mobileCode = parentCat.querySelector('.kt-shop-color__mobile-image-code');
+        var mobileName = parentCat.querySelector('.kt-shop-color__mobile-image-name');
+        var mobileSwatch = parentCat.querySelectorAll('.kt-shop-color__mobile-swatch > div');
+        if (mobileCode) mobileCode.textContent = code;
+        if (mobileName) mobileName.textContent = name;
+        if (mobileSwatch.length >= 2) {
+          mobileSwatch[0].style.backgroundColor = color1;
+          mobileSwatch[1].style.backgroundColor = color2;
+        }
+      }
+
       /* Active state on button */
       clearAllFinishActive();
       btn.classList.add('kt-shop-color__finish-btn--active');
     }
 
     function activateCategory(cat) {
-      /* Toggle accordion */
       categories.forEach(function (c) {
         c.classList.remove('kt-shop-color__category--active');
       });
       cat.classList.add('kt-shop-color__category--active');
 
-      /* Auto-select first finish in this category */
       var firstBtn = cat.querySelector('[data-finish-select]');
       if (firstBtn) showFinish(firstBtn);
     }
@@ -75,13 +84,17 @@
       if (firstBtn) showFinish(firstBtn);
     }
 
-    /* Category hover/click */
+    /* Category — hover on desktop, click on both */
     categories.forEach(function (cat) {
       cat.addEventListener('mouseenter', function () { activateCategory(cat); });
-      cat.addEventListener('click', function () { activateCategory(cat); });
+      cat.addEventListener('click', function (e) {
+        /* Don't re-activate if clicking a finish button inside */
+        if (e.target.closest('[data-finish-select]')) return;
+        activateCategory(cat);
+      });
     });
 
-    /* Finish button hover/click */
+    /* Finish buttons — hover on desktop, click on both */
     allFinishBtns.forEach(function (btn) {
       btn.addEventListener('mouseenter', function (e) {
         e.stopPropagation();
