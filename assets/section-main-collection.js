@@ -29,17 +29,21 @@
       window.addEventListener('scroll', onScroll, { passive: true });
     }
 
-    /* Grid column toggle */
+    /* Grid column toggle — uses CSS classes, not inline styles */
     var grid = section.querySelector('#product-grid');
     section.querySelectorAll('[data-grid-cols]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var cols = btn.dataset.gridCols;
         if (!grid) return;
 
-        /* Update grid columns */
-        grid.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+        /* Remove all col classes */
+        grid.classList.remove('kt-collection__grid--cols-3', 'kt-collection__grid--cols-4');
 
-        /* Active state */
+        /* Add class only for 3 or 4 (2 is default from CSS) */
+        if (cols === '3') grid.classList.add('kt-collection__grid--cols-3');
+        if (cols === '4') grid.classList.add('kt-collection__grid--cols-4');
+
+        /* Active state on buttons */
         section.querySelectorAll('[data-grid-cols]').forEach(function (b) {
           b.classList.remove('kt-collection__grid-btn--active');
         });
