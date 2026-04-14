@@ -1,0 +1,217 @@
+{{ 'section-main-product-showroom.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-gallery.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-form.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-accordion.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Main Product Showroom — Premium visual layout
+  Birebir from showroom/[id]/page.tsx
+  Left 73%: alternating gallery | Right 27%: product info (sticky)
+{%- endcomment -%}
+
+<section class="kt-showroom" data-section-id="{{ section.id }}" data-section-type="main-product">
+  <div class="kt-showroom__container">
+    <div class="kt-showroom__layout">
+
+      {%- comment -%} LEFT: Gallery — alternating full + pair pattern (73%) {%- endcomment -%}
+      <div class="kt-showroom__gallery-col" data-product-gallery>
+        {%- comment -%} Desktop: alternating layout (full, pair, full, pair...) {%- endcomment -%}
+        <div class="kt-showroom__gallery-desktop">
+          {%- for media in product.media -%}
+            {%- if media.media_type == 'image' -%}
+              {%- assign pattern_pos = forloop.index0 | modulo: 3 -%}
+              {%- if pattern_pos == 0 -%}
+                {%- comment -%} Full width image {%- endcomment -%}
+                <div class="kt-showroom__gallery-full" data-gallery-slide="{{ forloop.index0 }}">
+                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                </div>
+              {%- elsif pattern_pos == 1 -%}
+                {%- comment -%} Left of pair {%- endcomment -%}
+                <div class="kt-showroom__gallery-pair">
+                  <div class="kt-showroom__gallery-half" data-gallery-slide="{{ forloop.index0 }}">
+                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                  </div>
+                  {%- comment -%} Right of pair (next image) {%- endcomment -%}
+                  {%- assign next_index = forloop.index -%}
+                  {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
+                    <div class="kt-showroom__gallery-half" data-gallery-slide="{{ next_index }}">
+                      {{ product.media[next_index] | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: product.media[next_index].width, height: product.media[next_index].height, alt: product.media[next_index].alt | default: product.title }}
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+              {%- comment -%} pattern_pos == 2 is handled as right side of pair above {%- endcomment -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if product.media.size == 0 -%}
+            <div class="kt-showroom__gallery-full">
+              {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-showroom__gallery-image' }}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Mobile: horizontal scroll carousel {%- endcomment -%}
+        <div class="kt-showroom__gallery-mobile">
+          {%- for media in product.media -%}
+            {%- if media.media_type == 'image' -%}
+              <div class="kt-showroom__gallery-mobile-slide">
+                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- comment -%} Lightbox (shared) {%- endcomment -%}
+        <div class="kt-lightbox" data-lightbox aria-hidden="true" data-lenis-prevent="true">
+          <button class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          <button class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'sections.hero.previous_slide' | t | default: 'Previous' }}">
+            <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'sections.hero.next_slide' | t | default: 'Next' }}">
+            <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          </button>
+          <div class="kt-lightbox__viewport" data-lightbox-viewport>
+            <img class="kt-lightbox__image" data-lightbox-image src="" alt="" width="1200" height="900" />
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} RIGHT: Product Info (27%, sticky) {%- endcomment -%}
+      <div class="kt-showroom__info-col">
+        <div class="kt-showroom__info-sticky">
+
+          {%- comment -%} Brand label {%- endcomment -%}
+          <p class="kt-showroom__brand">{{ product.vendor | default: shop.name }} {{ 'products.product.collection_label' | t | default: 'Collection' }}</p>
+
+          {%- comment -%} Title {%- endcomment -%}
+          <h1 class="kt-showroom__title">{{ product.title }}</h1>
+
+          {%- comment -%} Rating {%- endcomment -%}
+          {%- render 'product-rating', product: product -%}
+
+          {%- comment -%} Price {%- endcomment -%}
+          {%- render 'product-price', product: product -%}
+
+          {%- comment -%} Variant Picker {%- endcomment -%}
+          {%- render 'product-variant-picker', product: product -%}
+
+          {%- comment -%} CTA Buttons {%- endcomment -%}
+          {%- render 'product-form', product: product -%}
+
+          {%- comment -%} Trust Badges {%- endcomment -%}
+          {%- if section.blocks.size > 0 -%}
+            <div class="kt-showroom__tags">
+              <p class="kt-showroom__tags-label">{{ 'products.product.at_a_glance' | t | default: 'At a glance' }}</p>
+              <div class="kt-showroom__tags-list">
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'tag' -%}
+                    <span class="kt-showroom__tag" {{ block.shopify_attributes }}>{{ block.settings.text }}</span>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} Accordions {%- endcomment -%}
+          <div class="kt-showroom__accordions">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'accordion' -%}
+                {%- capture acc_content -%}
+                  {%- if block.settings.page != blank -%}
+                    {{ block.settings.page.content }}
+                  {%- elsif block.settings.content != blank -%}
+                    {{ block.settings.content }}
+                  {%- else -%}
+                    <p>{{ product.description }}</p>
+                  {%- endif -%}
+                {%- endcapture -%}
+                {%- render 'product-accordion', title: block.settings.title, content: acc_content, open: block.settings.open -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%} Warranty Banner {%- endcomment -%}
+          {%- if section.settings.show_warranty -%}
+            <div class="kt-showroom__warranty">
+              <div class="kt-showroom__warranty-icon">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div>
+                <h4 class="kt-showroom__warranty-title">{{ section.settings.warranty_title | default: 'Limited Lifetime Warranty' }}</h4>
+                <p class="kt-showroom__warranty-desc">{{ section.settings.warranty_text | default: 'Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets.' }}</p>
+              </div>
+            </div>
+          {%- endif -%}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Product showroom",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Warranty banner"
+    },
+    { "type": "checkbox", "id": "show_warranty", "label": "Show warranty banner", "default": true },
+    { "type": "text", "id": "warranty_title", "label": "Warranty title", "default": "Limited Lifetime Warranty" },
+    { "type": "textarea", "id": "warranty_text", "label": "Warranty description", "default": "Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets." }
+  ],
+  "blocks": [
+    {
+      "type": "tag",
+      "name": "Feature tag",
+      "limit": 8,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "5-Piece Shaker" }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Accordion tab",
+      "limit": 6,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "About This Kitchen" },
+        { "type": "richtext", "id": "content", "label": "Content" },
+        { "type": "page", "id": "page", "label": "Or select a page" },
+        { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product showroom",
+      "blocks": [
+        { "type": "tag", "settings": { "text": "5-Piece Shaker" } },
+        { "type": "tag", "settings": { "text": "Solid Maple" } },
+        { "type": "tag", "settings": { "text": "Dovetail Drawer" } },
+        { "type": "tag", "settings": { "text": "Soft-Close" } },
+        { "type": "accordion", "settings": { "title": "About This Kitchen", "open": true } },
+        { "type": "accordion", "settings": { "title": "Specifications" } },
+        { "type": "accordion", "settings": { "title": "Installation" } },
+        { "type": "accordion", "settings": { "title": "Delivery" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
