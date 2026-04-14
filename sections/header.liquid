@@ -1,14 +1,25 @@
 {{ 'section-header.css' | asset_url | stylesheet_tag }}
 
-{%- unless section.settings.header_style == 'transparent' -%}
+{%- liquid
+  assign header_style = section.settings.header_style | default: 'transparent'
+  comment
+    Transparent only on index (home) page. All other pages force solid.
+    Merchant can override via setting.
+  endcomment
+  if header_style == 'transparent' and request.page_type != 'index'
+    assign header_style = 'solid'
+  endif
+-%}
+
+{%- unless header_style == 'transparent' -%}
   <div class="kt-header-spacer" aria-hidden="true"></div>
 {%- endunless -%}
 
 <header
-  class="kt-header{% if section.settings.header_style == 'transparent' %} kt-header--transparent{% endif %}"
+  class="kt-header{% if header_style == 'transparent' %} kt-header--transparent{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
-  data-header-style="{{ section.settings.header_style | default: 'solid' }}"
+  data-header-style="{{ header_style }}"
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
