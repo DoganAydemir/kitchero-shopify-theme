@@ -224,10 +224,30 @@ button[type="submit"]:hover {
   background: var(--gradient-background);
 }
 
-/* Color scheme application */
-.color-scheme {
+/* Color scheme application — any element with color-* class */
+.color-scheme,
+[class*="color-"] {
   background-color: rgb(var(--color-background));
   color: rgba(var(--color-foreground), 0.75);
+}
+
+[class*="color-"] h1,
+[class*="color-"] h2,
+[class*="color-"] h3,
+[class*="color-"] h4,
+[class*="color-"] h5,
+[class*="color-"] h6 {
+  color: rgb(var(--color-foreground));
+}
+
+[class*="color-"] .button,
+[class*="color-"] button[type="submit"] {
+  background-color: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+}
+
+[class*="color-"] a:not(.button) {
+  color: rgb(var(--color-link));
 }
 
 /* Font utility — accent/serif font for decorative headings */
