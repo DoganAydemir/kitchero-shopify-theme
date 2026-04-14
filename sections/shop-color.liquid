@@ -76,13 +76,23 @@
 
               <div class="kt-shop-color__category-content">
                 <div class="kt-shop-color__category-content-inner">
-                {%- comment -%} Mobile inline image {%- endcomment -%}
+                {%- comment -%} Mobile inline images — one per finish, JS toggles visibility {%- endcomment -%}
                 <div class="kt-shop-color__mobile-image">
-                  {%- if block.settings.finish_1_image != blank -%}
-                    {{ block.settings.finish_1_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: block.settings.finish_1_image.width, height: block.settings.finish_1_image.height, alt: block.settings.finish_1_name }}
-                  {%- else -%}
-                    {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
-                  {%- endif -%}
+                  {%- for i in (1..3) -%}
+                    {%- assign m_img_id = 'finish_' | append: i | append: '_image' -%}
+                    {%- assign m_name_id = 'finish_' | append: i | append: '_name' -%}
+                    {%- assign m_img = block.settings[m_img_id] -%}
+                    {%- assign m_name = block.settings[m_name_id] -%}
+                    {%- if m_name != blank -%}
+                      <div class="kt-shop-color__mobile-image-slide{% if i == 1 %} kt-shop-color__mobile-image-slide--active{% endif %}" data-mobile-finish-image="{{ block.id }}-{{ i }}">
+                        {%- if m_img != blank -%}
+                          {{ m_img | image_url: width: 800 | image_tag: loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: m_img.width, height: m_img.height, alt: m_name }}
+                        {%- else -%}
+                          {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
                   <div class="kt-shop-color__mobile-image-overlay"></div>
                   <div class="kt-shop-color__mobile-image-info">
                     <p class="kt-shop-color__mobile-image-code">{{ block.settings.finish_1_code }}</p>

@@ -51,6 +51,14 @@
       /* Update mobile inline image + info */
       var parentCat = btn.closest('[data-category-id]');
       if (parentCat) {
+        /* Switch mobile image slide */
+        parentCat.querySelectorAll('[data-mobile-finish-image]').forEach(function (slide) {
+          slide.classList.remove('kt-shop-color__mobile-image-slide--active');
+        });
+        var mobileSlide = parentCat.querySelector('[data-mobile-finish-image="' + imageId + '"]');
+        if (mobileSlide) mobileSlide.classList.add('kt-shop-color__mobile-image-slide--active');
+
+        /* Update code, name, swatch */
         var mobileCode = parentCat.querySelector('.kt-shop-color__mobile-image-code');
         var mobileName = parentCat.querySelector('.kt-shop-color__mobile-image-name');
         var mobileSwatch = parentCat.querySelectorAll('.kt-shop-color__mobile-swatch > div');

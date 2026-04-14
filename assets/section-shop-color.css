@@ -281,13 +281,32 @@
   }
 }
 
-.kt-shop-color__mobile-image img,
-.kt-shop-color__mobile-image .placeholder-svg {
+.kt-shop-color__mobile-image > img,
+.kt-shop-color__mobile-image > .placeholder-svg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Mobile image slides — stacked, only active visible */
+.kt-shop-color__mobile-image-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kt-shop-color__mobile-image-slide img,
+.kt-shop-color__mobile-image-slide .placeholder-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kt-shop-color__mobile-image-slide--active {
+  opacity: 1;
 }
 
 .kt-shop-color__mobile-image-overlay {
