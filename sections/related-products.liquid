@@ -1,0 +1,59 @@
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+{{ 'component-card-product.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Related Products — "You may also like"
+  Uses Shopify product.recommendations or manual collection.
+{%- endcomment -%}
+
+{%- if recommendations.performed and recommendations.products_count > 0 -%}
+  <section class="kt-related" data-section-id="{{ section.id }}">
+    <div class="page-width">
+      <div class="kt-related__header">
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+        <{{ heading_tag }} class="kt-related__title">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
+      </div>
+
+      <div class="kt-related__grid">
+        {%- for product in recommendations.products limit: section.settings.products_count -%}
+          {%- render 'card-product', product: product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Related products",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "range",
+      "id": "products_count",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "Number of products"
+    }
+  ]
+}
+{% endschema %}
