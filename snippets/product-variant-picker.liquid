@@ -1,0 +1,99 @@
+{%- comment -%}
+  Product Variant Picker — renders option selectors.
+  Birebir from source: finish selector (swatches) + cabinet type (grid buttons).
+  Uses Shopify product.options_with_values.
+
+  Accepts:
+  - product: {Object} Shopify product
+{%- endcomment -%}
+
+{%- unless product.has_only_default_variant -%}
+  <div class="kt-variant-picker" data-variant-picker>
+    {%- for option in product.options_with_values -%}
+      {%- assign option_name_lower = option.name | downcase -%}
+      {%- assign is_color = false -%}
+      {%- if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk' or option_name_lower == 'finish' -%}
+        {%- assign is_color = true -%}
+      {%- endif -%}
+
+      <fieldset class="kt-variant-picker__group" data-option-index="{{ forloop.index0 }}">
+        <legend class="kt-variant-picker__label">
+          {{ option.name }}:
+          <span class="kt-variant-picker__selected" data-option-selected="{{ forloop.index0 }}">
+            {{ option.selected_value | default: option.values.first }}
+          </span>
+        </legend>
+
+        {%- if is_color -%}
+          {%- comment -%} Color/finish: round swatches {%- endcomment -%}
+          <div class="kt-variant-picker__swatches">
+            {%- for value in option.values -%}
+              {%- assign color_lower = value | downcase | strip -%}
+              {%- case color_lower -%}
+                {%- when 'black' -%}{%- assign swatch_hex = '#1a1a1a' -%}
+                {%- when 'white' or 'arctic white' -%}{%- assign swatch_hex = '#faf9f6' -%}
+                {%- when 'gray' or 'grey' or 'pebble gray' -%}{%- assign swatch_hex = '#a8a29e' -%}
+                {%- when 'charcoal' -%}{%- assign swatch_hex = '#44403c' -%}
+                {%- when 'espresso' -%}{%- assign swatch_hex = '#3C2415' -%}
+                {%- when 'navy' or 'navy blue' -%}{%- assign swatch_hex = '#1e3a5f' -%}
+                {%- when 'walnut' -%}{%- assign swatch_hex = '#5D432C' -%}
+                {%- when 'oak' or 'natural oak' -%}{%- assign swatch_hex = '#d2b48c' -%}
+                {%- when 'brown' -%}{%- assign swatch_hex = '#6b4e31' -%}
+                {%- when 'beige' or 'ivory' -%}{%- assign swatch_hex = '#e8dccc' -%}
+                {%- else -%}{%- assign swatch_hex = '#a8a29e' -%}
+              {%- endcase -%}
+
+              <label class="kt-variant-picker__swatch-label">
+                <input
+                  type="radio"
+                  name="option-{{ option.name | handle }}"
+                  value="{{ value | escape }}"
+                  {% if forloop.first %}checked{% endif %}
+                  class="kt-variant-picker__swatch-input visually-hidden"
+                  data-option-value
+                >
+                <span
+                  class="kt-variant-picker__swatch"
+                  style="background-color: {{ swatch_hex }};"
+                  title="{{ value }}"
+                ></span>
+              </label>
+            {%- endfor -%}
+          </div>
+
+        {%- else -%}
+          {%- comment -%} Non-color: grid buttons {%- endcomment -%}
+          <div class="kt-variant-picker__buttons">
+            {%- for value in option.values -%}
+              <label class="kt-variant-picker__btn-label">
+                <input
+                  type="radio"
+                  name="option-{{ option.name | handle }}"
+                  value="{{ value | escape }}"
+                  {% if forloop.first %}checked{% endif %}
+                  class="kt-variant-picker__btn-input visually-hidden"
+                  data-option-value
+                >
+                <span class="kt-variant-picker__btn">{{ value }}</span>
+              </label>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </fieldset>
+    {%- endfor -%}
+
+    {%- comment -%} Hidden select for variant ID (JS updates this) {%- endcomment -%}
+    <select name="id" class="visually-hidden" data-variant-select aria-label="{{ 'products.product.variant' | t | default: 'Variant' }}">
+      {%- for variant in product.variants -%}
+        <option
+          value="{{ variant.id }}"
+          {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
+          {% unless variant.available %}disabled{% endunless %}
+          data-variant-json='{{ variant | json }}'
+        >
+          {{ variant.title }}
+        </option>
+      {%- endfor -%}
+    </select>
+  </div>
+{%- endunless -%}

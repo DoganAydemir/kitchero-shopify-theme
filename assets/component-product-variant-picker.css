@@ -1,0 +1,103 @@
+/* Product Variant Picker — birebir from source PDP */
+
+.kt-variant-picker__group {
+  border: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+/* text-xs font-bold uppercase tracking-widest text-stone-900 mb-3 block */
+.kt-variant-picker__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #1c1917;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.kt-variant-picker__selected {
+  font-weight: 500;
+  color: #78716c;
+  margin-left: 0.25rem;
+}
+
+[dir="rtl"] .kt-variant-picker__selected {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+/* Color swatches: flex gap-2 */
+.kt-variant-picker__swatches {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.kt-variant-picker__swatch-label {
+  cursor: pointer;
+}
+
+/* w-10 h-10 rounded-full border-2 */
+.kt-variant-picker__swatch {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #e7e5e4;
+  transition: all 0.2s ease;
+}
+
+.kt-variant-picker__swatch:hover {
+  border-color: #a8a29e;
+}
+
+/* Active: border-stone-900 ring-2 ring-stone-900 ring-offset-2 */
+.kt-variant-picker__swatch-input:checked + .kt-variant-picker__swatch {
+  border-color: #1c1917;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1c1917;
+}
+
+/* Grid buttons: grid grid-cols-3 gap-2 */
+.kt-variant-picker__buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.kt-variant-picker__btn-label {
+  cursor: pointer;
+}
+
+/* py-2.5 px-3 border text-xs font-bold tracking-wide rounded-[4px] */
+.kt-variant-picker__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d6d3d1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #57534e;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.kt-variant-picker__btn:hover {
+  border-color: #1c1917;
+}
+
+/* Active: border-stone-900 bg-stone-900 text-white */
+.kt-variant-picker__btn-input:checked + .kt-variant-picker__btn {
+  border-color: #1c1917;
+  background-color: #1c1917;
+  color: #fff;
+}
+
+/* Disabled variant */
+.kt-variant-picker__btn-input:disabled + .kt-variant-picker__btn {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
