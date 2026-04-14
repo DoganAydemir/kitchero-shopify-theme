@@ -180,12 +180,73 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "label", "label": "Label", "default": "Material Library" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by colors." },
-    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"},{"value":"h3","label":"H3"},{"value":"h4","label":"H4"},{"value":"h5","label":"H5"},{"value":"h6","label":"H6"}], "default": "h2" },
-    { "type": "textarea", "id": "description", "label": "Description", "default": "Explore our curated material palettes. Select a category to see its characteristic finishes and textures." },
-    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Request Free Samples" },
-    { "type": "url", "id": "cta_link", "label": "Button link" }
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "Material Library"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by colors."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Explore our curated material palettes. Select a category to see its characteristic finishes and textures."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "Request Free Samples"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
   ],
   "blocks": [
     {
@@ -193,28 +254,122 @@
       "name": "Color category",
       "limit": 6,
       "settings": [
-        { "type": "text", "id": "title", "label": "Category title", "default": "Luminous Light" },
-        { "type": "header", "content": "Finish 1" },
-        { "type": "text", "id": "finish_1_name", "label": "Name", "default": "Alabaster Base" },
-        { "type": "text", "id": "finish_1_code", "label": "Code", "default": "B-200" },
-        { "type": "image_picker", "id": "finish_1_image", "label": "Image" },
-        { "type": "color", "id": "finish_1_color1", "label": "Swatch top", "default": "#faf9f6" },
-        { "type": "color", "id": "finish_1_color2", "label": "Swatch bottom", "default": "#e8e6df" },
-        { "type": "url", "id": "finish_1_link", "label": "Product link" },
-        { "type": "header", "content": "Finish 2" },
-        { "type": "text", "id": "finish_2_name", "label": "Name", "default": "Arctic White" },
-        { "type": "text", "id": "finish_2_code", "label": "Code", "default": "W-100" },
-        { "type": "image_picker", "id": "finish_2_image", "label": "Image" },
-        { "type": "color", "id": "finish_2_color1", "label": "Swatch top", "default": "#ffffff" },
-        { "type": "color", "id": "finish_2_color2", "label": "Swatch bottom", "default": "#f0f0f0" },
-        { "type": "url", "id": "finish_2_link", "label": "Product link" },
-        { "type": "header", "content": "Finish 3 (optional)" },
-        { "type": "text", "id": "finish_3_name", "label": "Name" },
-        { "type": "text", "id": "finish_3_code", "label": "Code" },
-        { "type": "image_picker", "id": "finish_3_image", "label": "Image" },
-        { "type": "color", "id": "finish_3_color1", "label": "Swatch top" },
-        { "type": "color", "id": "finish_3_color2", "label": "Swatch bottom" },
-        { "type": "url", "id": "finish_3_link", "label": "Product link" }
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category title",
+          "default": "Luminous Light"
+        },
+        {
+          "type": "header",
+          "content": "Finish 1"
+        },
+        {
+          "type": "text",
+          "id": "finish_1_name",
+          "label": "Name",
+          "default": "Alabaster Base"
+        },
+        {
+          "type": "text",
+          "id": "finish_1_code",
+          "label": "Code",
+          "default": "B-200"
+        },
+        {
+          "type": "image_picker",
+          "id": "finish_1_image",
+          "label": "Image"
+        },
+        {
+          "type": "color",
+          "id": "finish_1_color1",
+          "label": "Swatch top",
+          "default": "#faf9f6"
+        },
+        {
+          "type": "color",
+          "id": "finish_1_color2",
+          "label": "Swatch bottom",
+          "default": "#e8e6df"
+        },
+        {
+          "type": "url",
+          "id": "finish_1_link",
+          "label": "Product link"
+        },
+        {
+          "type": "header",
+          "content": "Finish 2"
+        },
+        {
+          "type": "text",
+          "id": "finish_2_name",
+          "label": "Name",
+          "default": "Arctic White"
+        },
+        {
+          "type": "text",
+          "id": "finish_2_code",
+          "label": "Code",
+          "default": "W-100"
+        },
+        {
+          "type": "image_picker",
+          "id": "finish_2_image",
+          "label": "Image"
+        },
+        {
+          "type": "color",
+          "id": "finish_2_color1",
+          "label": "Swatch top",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "finish_2_color2",
+          "label": "Swatch bottom",
+          "default": "#f0f0f0"
+        },
+        {
+          "type": "url",
+          "id": "finish_2_link",
+          "label": "Product link"
+        },
+        {
+          "type": "header",
+          "content": "Finish 3 (optional)"
+        },
+        {
+          "type": "text",
+          "id": "finish_3_name",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "finish_3_code",
+          "label": "Code"
+        },
+        {
+          "type": "image_picker",
+          "id": "finish_3_image",
+          "label": "Image"
+        },
+        {
+          "type": "color",
+          "id": "finish_3_color1",
+          "label": "Swatch top"
+        },
+        {
+          "type": "color",
+          "id": "finish_3_color2",
+          "label": "Swatch bottom"
+        },
+        {
+          "type": "url",
+          "id": "finish_3_link",
+          "label": "Product link"
+        }
       ]
     }
   ],
@@ -222,9 +377,48 @@
     {
       "name": "Collection tabs",
       "blocks": [
-        { "type": "category", "settings": { "title": "Luminous Light", "finish_1_name": "Alabaster Base", "finish_1_code": "B-200", "finish_1_color1": "#faf9f6", "finish_1_color2": "#e8e6df", "finish_2_name": "Arctic White", "finish_2_code": "W-100", "finish_2_color1": "#ffffff", "finish_2_color2": "#f0f0f0" } },
-        { "type": "category", "settings": { "title": "Balanced Medium", "finish_1_name": "Walnut Grain", "finish_1_code": "W-400", "finish_1_color1": "#3e2a1e", "finish_1_color2": "#2a1c14", "finish_2_name": "Natural Oak", "finish_2_code": "O-300", "finish_2_color1": "#d2b48c", "finish_2_color2": "#c19a6b" } },
-        { "type": "category", "settings": { "title": "Dramatic Dark", "finish_1_name": "Obsidian Mat", "finish_1_code": "MAT-900", "finish_1_color1": "#1a1a1a", "finish_1_color2": "#2d2d2d", "finish_2_name": "Midnight Navy", "finish_2_code": "N-800", "finish_2_color1": "#1e2b3c", "finish_2_color2": "#0f172a" } }
+        {
+          "type": "category",
+          "settings": {
+            "title": "Luminous Light",
+            "finish_1_name": "Alabaster Base",
+            "finish_1_code": "B-200",
+            "finish_1_color1": "#faf9f6",
+            "finish_1_color2": "#e8e6df",
+            "finish_2_name": "Arctic White",
+            "finish_2_code": "W-100",
+            "finish_2_color1": "#ffffff",
+            "finish_2_color2": "#f0f0f0"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Balanced Medium",
+            "finish_1_name": "Walnut Grain",
+            "finish_1_code": "W-400",
+            "finish_1_color1": "#3e2a1e",
+            "finish_1_color2": "#2a1c14",
+            "finish_2_name": "Natural Oak",
+            "finish_2_code": "O-300",
+            "finish_2_color1": "#d2b48c",
+            "finish_2_color2": "#c19a6b"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Dramatic Dark",
+            "finish_1_name": "Obsidian Mat",
+            "finish_1_code": "MAT-900",
+            "finish_1_color1": "#1a1a1a",
+            "finish_1_color2": "#2d2d2d",
+            "finish_2_name": "Midnight Navy",
+            "finish_2_code": "N-800",
+            "finish_2_color1": "#1e2b3c",
+            "finish_2_color2": "#0f172a"
+          }
+        }
       ]
     }
   ]
