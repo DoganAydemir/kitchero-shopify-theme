@@ -1,0 +1,25 @@
+{%- comment -%}
+  Product Accordion — collapsible content sections.
+  Birebir from source PDP AccordionItem component.
+  Uses details/summary for no-JS fallback.
+
+  Accepts:
+  - title: {String} accordion heading
+  - open: {Boolean} initially open (default: false)
+  - content: {String} HTML content (via capture)
+{%- endcomment -%}
+
+<details class="kt-accordion" {% if open %}open{% endif %}>
+  <summary class="kt-accordion__header">
+    <span class="kt-accordion__title">{{ title }}</span>
+    <span class="kt-accordion__icon" aria-hidden="true">
+      <span class="kt-accordion__icon-h"></span>
+      <span class="kt-accordion__icon-v"></span>
+    </span>
+  </summary>
+  <div class="kt-accordion__body">
+    <div class="kt-accordion__content">
+      {{ content }}
+    </div>
+  </div>
+</details>
