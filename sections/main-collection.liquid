@@ -109,16 +109,35 @@
           </button>
         </div>
 
-        <div class="kt-collection__sort">
-          {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
-          <label for="SortBy" class="kt-collection__sort-label">{{ 'sections.collection.sort_by' | t | default: 'Sort by' }}</label>
-          <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
-            {%- for option in collection.sort_options -%}
-              <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
-                {{ option.name }}
-              </option>
-            {%- endfor -%}
-          </select>
+        {%- comment -%} Desktop right: sort + grid toggle + count {%- endcomment -%}
+        <div class="kt-collection__controls-right">
+          <div class="kt-collection__sort">
+            {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+            <label for="SortBy" class="kt-collection__sort-label">{{ 'sections.collection.sort_by' | t | default: 'Sort by:' }}</label>
+            <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
+                  {{ option.name }}
+                </option>
+              {%- endfor -%}
+            </select>
+          </div>
+
+          <div class="kt-collection__grid-toggle" aria-label="{{ 'sections.collection.grid_view' | t | default: 'Grid view' }}">
+            <button class="kt-collection__grid-btn kt-collection__grid-btn--active" data-grid-cols="2" title="2 columns" type="button">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+            </button>
+            <button class="kt-collection__grid-btn" data-grid-cols="3" title="3 columns" type="button">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="3" x2="4" y2="21"></line><line x1="12" y1="3" x2="12" y2="21"></line><line x1="20" y1="3" x2="20" y2="21"></line></svg>
+            </button>
+            <button class="kt-collection__grid-btn" data-grid-cols="4" title="4 columns" type="button">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="4" height="4"></rect><rect x="10" y="3" width="4" height="4"></rect><rect x="17" y="3" width="4" height="4"></rect><rect x="3" y="10" width="4" height="4"></rect><rect x="10" y="10" width="4" height="4"></rect><rect x="17" y="10" width="4" height="4"></rect><rect x="3" y="17" width="4" height="4"></rect><rect x="10" y="17" width="4" height="4"></rect><rect x="17" y="17" width="4" height="4"></rect></svg>
+            </button>
+          </div>
+
+          <span class="kt-collection__bar-count">
+            {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+          </span>
         </div>
       </div>
 

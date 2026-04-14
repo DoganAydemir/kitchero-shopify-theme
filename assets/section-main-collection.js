@@ -29,6 +29,24 @@
       window.addEventListener('scroll', onScroll, { passive: true });
     }
 
+    /* Grid column toggle */
+    var grid = section.querySelector('#product-grid');
+    section.querySelectorAll('[data-grid-cols]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cols = btn.dataset.gridCols;
+        if (!grid) return;
+
+        /* Update grid columns */
+        grid.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+
+        /* Active state */
+        section.querySelectorAll('[data-grid-cols]').forEach(function (b) {
+          b.classList.remove('kt-collection__grid-btn--active');
+        });
+        btn.classList.add('kt-collection__grid-btn--active');
+      });
+    });
+
     /* GSAP parallax + reveal animations */
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
       gsap.registerPlugin(ScrollTrigger);
