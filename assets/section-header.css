@@ -127,23 +127,25 @@
   transform: rotate(180deg);
 }
 
-/* Flyout Dropdown (2-level, narrow list) */
+/* Flyout Dropdown (2-level, narrow list)
+   From Navbar.tsx: duration-500, cubic-bezier easing */
 .kt-header__flyout {
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
   width: 200px;
   background-color: #fff;
   border: 1px solid #e7e5e4;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   border-radius: 2px;
   padding: 0.5rem 0;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
   pointer-events: none;
-  transform: translateX(-50%) translateY(-0.5rem);
+  transform: translateX(-50%) translateY(-1rem);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.5s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .kt-header__menu-item:hover > .kt-header__flyout {
@@ -155,13 +157,18 @@
 
 .kt-header__flyout-link {
   display: block;
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.8125rem;
   font-weight: 500;
   color: #44403c;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kt-header__flyout-link:hover {
+  background-color: #fafaf9;
+  color: #1c1917;
 }
 
 .kt-header__flyout-link:hover {
@@ -191,13 +198,16 @@
   color: rgb(var(--color-button-text));
 }
 
-/* Mega Menu */
+/* Mega Menu — birebir from Navbar.tsx:
+   duration-700, cubic-bezier(0.16,1,0.3,1), origin-top
+   opacity + translateY(-8px) + blur → visible */
 .kt-header__mega-menu {
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
+  transform: translateX(-50%) translateY(-0.5rem);
+  width: auto;
+  min-width: 600px;
   max-width: 1100px;
   padding: 2.5rem;
   background-color: #fff;
@@ -206,8 +216,13 @@
   border-radius: 2px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
   pointer-events: none;
+  filter: blur(4px);
+  transform-origin: top center;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.7s,
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .kt-header__menu-item:hover > .kt-header__mega-menu,
@@ -215,12 +230,46 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+  filter: blur(0);
 }
 
 .kt-header__mega-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 2rem;
+}
+
+/* Staggered column entrance — each column slides up with delay */
+.kt-header__mega-column {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-header__mega-column:nth-child(1) { transition-delay: 75ms; }
+.kt-header__mega-column:nth-child(2) { transition-delay: 100ms; }
+.kt-header__mega-column:nth-child(3) { transition-delay: 150ms; }
+.kt-header__mega-column:nth-child(4) { transition-delay: 200ms; }
+.kt-header__mega-column:nth-child(5) { transition-delay: 250ms; }
+
+.kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-column {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Featured card also staggers */
+.kt-header__mega-featured {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 200ms,
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+
+.kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-featured {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .kt-header__mega-column-title {
@@ -252,12 +301,13 @@
   letter-spacing: 0.025em;
 }
 
-/* Mega Menu Featured Card */
+/* Mega Menu Featured Card — layout (animation defined above) */
 .kt-header__mega-featured {
   position: relative;
   border-radius: 2px;
   overflow: hidden;
   min-height: 200px;
+  /* opacity + transform transitions handled by stagger rules above */
 }
 
 .kt-header__mega-featured-image {
