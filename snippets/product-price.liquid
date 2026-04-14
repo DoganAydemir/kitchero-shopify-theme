@@ -1,0 +1,36 @@
+{%- comment -%}
+  Product Price — renders price with compare-at and discount badge.
+  Birebir from product/[id]/page.tsx price section.
+
+  Accepts:
+  - product: {Object} Shopify product
+  - variant: {Object} Shopify variant (optional, defaults to selected_or_first_available)
+{%- endcomment -%}
+
+{%- liquid
+  unless variant
+    assign variant = product.selected_or_first_available_variant
+  endunless
+  assign current_price = variant.price
+  assign compare_price = variant.compare_at_price
+  assign on_sale = false
+  if compare_price > current_price
+    assign on_sale = true
+    assign discount_pct = compare_price | minus: current_price | times: 100 | divided_by: compare_price
+  endif
+-%}
+
+<div class="kt-product-price" data-product-price>
+  <span class="kt-product-price__current{% if on_sale %} kt-product-price__current--sale{% endif %}">
+    {{ current_price | money }}
+  </span>
+
+  {%- if on_sale -%}
+    <span class="kt-product-price__compare">
+      {{ compare_price | money }}
+    </span>
+    <span class="kt-product-price__discount">
+      -{{ discount_pct }}%
+    </span>
+  {%- endif -%}
+</div>
