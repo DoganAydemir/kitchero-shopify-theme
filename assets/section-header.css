@@ -127,6 +127,48 @@
   transform: rotate(180deg);
 }
 
+/* Flyout Dropdown (2-level, narrow list) */
+.kt-header__flyout {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #e7e5e4;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  padding: 0.5rem 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-0.5rem);
+}
+
+.kt-header__menu-item:hover > .kt-header__flyout {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.kt-header__flyout-link {
+  display: block;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #44403c;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kt-header__flyout-link:hover {
+  background-color: #fafaf9;
+  color: #1c1917;
+}
+
 /* Badge (Sale, NEW) */
 .kt-header__badge {
   display: inline-flex;

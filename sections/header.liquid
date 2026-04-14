@@ -35,8 +35,24 @@
         <ul class="kt-header__menu list-unstyled" role="list">
           {%- for link in section.settings.main_menu.links -%}
             <li class="kt-header__menu-item">
-              {%- if link.links.size > 0 -%}
-                {%- comment -%} Has children — render mega menu {%- endcomment -%}
+              {%- comment -%}
+                Determine menu type:
+                - has_grandchildren = at least one child has its own children → MEGA MENU
+                - link.links.size > 0 but no grandchildren → FLYOUT DROPDOWN
+                - no children → SIMPLE LINK
+              {%- endcomment -%}
+              {%- liquid
+                assign has_grandchildren = false
+                for child in link.links
+                  if child.links.size > 0
+                    assign has_grandchildren = true
+                    break
+                  endif
+                endfor
+              -%}
+
+              {%- if has_grandchildren -%}
+                {%- comment -%} ===== MEGA MENU (3-level: By Style > Contemporary) ===== {%- endcomment -%}
                 <a
                   href="{{ link.url }}"
                   class="kt-header__menu-link"
@@ -72,7 +88,7 @@
                       </div>
                     {%- endfor -%}
 
-                    {%- comment -%} Featured card block (optional via blocks) {%- endcomment -%}
+                    {%- comment -%} Featured card block (optional) {%- endcomment -%}
                     {%- for block in section.blocks -%}
                       {%- if block.type == 'mega_menu_featured' and block.settings.menu_title == link.title -%}
                         <div class="kt-header__mega-featured" {{ block.shopify_attributes }}>
@@ -105,8 +121,31 @@
                     {%- endfor -%}
                   </div>
                 </div>
+
+              {%- elsif link.links.size > 0 -%}
+                {%- comment -%} ===== FLYOUT DROPDOWN (2-level: parent > children list) ===== {%- endcomment -%}
+                <a
+                  href="{{ link.url }}"
+                  class="kt-header__menu-link"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >
+                  {{ link.title }}
+                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </a>
+                <div class="kt-header__flyout" role="menu">
+                  {%- for child_link in link.links -%}
+                    <a href="{{ child_link.url }}" class="kt-header__flyout-link" role="menuitem">
+                      {{ child_link.title }}
+                    </a>
+                  {%- endfor -%}
+                </div>
+
               {%- else -%}
-                {%- comment -%} Simple link {%- endcomment -%}
+                {%- comment -%} ===== SIMPLE LINK ===== {%- endcomment -%}
                 <a
                   href="{{ link.url }}"
                   class="kt-header__menu-link"
