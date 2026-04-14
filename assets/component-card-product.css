@@ -50,8 +50,16 @@
   z-index: 0;
 }
 
+/* When secondary image exists: fade out primary */
 .kt-card-product:hover .kt-card-product__image-primary {
   opacity: 0;
+}
+
+/* When NO secondary image: zoom primary instead of fading */
+.kt-card-product__image-link--zoom-only:hover .kt-card-product__image-primary {
+  opacity: 1;
+  transform: scale(1.03);
+  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Secondary image: absolute inset-0 scale-105 group-hover:scale-100 opacity-0 group-hover:opacity-100 */
