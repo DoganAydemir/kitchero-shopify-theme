@@ -1,0 +1,81 @@
+{{ 'section-deals-grid.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Deals Grid — deal cards linking to collections.
+  PORT_PLAN: "Deal cards link to collections, NOT product detail."
+{%- endcomment -%}
+
+<section class="kt-deals" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="kt-deals__header">
+      <span class="kt-deals__label">{{ section.settings.label | default: 'Limited Time' }}</span>
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
+      <{{ heading_tag }} class="kt-deals__title">{{ section.settings.heading | default: 'Special Deals' }}</{{ heading_tag }}>
+      <p class="kt-deals__desc">{{ section.settings.description | default: 'Explore our current promotions on premium kitchen collections.' }}</p>
+    </div>
+
+    <div class="kt-deals__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'deal' -%}
+          <a href="{{ block.settings.link | default: routes.collections_url }}" class="kt-deals__card" {{ block.shopify_attributes }}>
+            <div class="kt-deals__card-image-wrap">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-deals__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title }}
+              {%- else -%}
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-deals__card-image' }}
+              {%- endif -%}
+              {%- if block.settings.badge != blank -%}
+                <span class="kt-deals__badge">{{ block.settings.badge }}</span>
+              {%- endif -%}
+            </div>
+            <div class="kt-deals__card-content">
+              <h3 class="kt-deals__card-title">{{ block.settings.title }}</h3>
+              {%- if block.settings.description != blank -%}
+                <p class="kt-deals__card-desc">{{ block.settings.description }}</p>
+              {%- endif -%}
+              <span class="kt-deals__card-link">{{ 'products.product.view_details' | t | default: 'View Details' }} →</span>
+            </div>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Deals grid",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Limited Time" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Special Deals" },
+    { "type": "select", "id": "heading_tag", "label": "Heading tag", "options": [{"value":"h1","label":"H1"},{"value":"h2","label":"H2"}], "default": "h1" },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "Explore our current promotions on premium kitchen collections." }
+  ],
+  "blocks": [
+    {
+      "type": "deal",
+      "name": "Deal card",
+      "limit": 6,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Summer Sale" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "Up to 40% off select kitchen collections." },
+        { "type": "text", "id": "badge", "label": "Badge text", "default": "40% OFF" },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "url", "id": "link", "label": "Collection link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Deals grid",
+      "blocks": [
+        { "type": "deal", "settings": { "title": "Summer Sale", "description": "Up to 40% off select kitchen collections.", "badge": "40% OFF" } },
+        { "type": "deal", "settings": { "title": "Clearance Event", "description": "Last chance on discontinued styles.", "badge": "FINAL SALE" } },
+        { "type": "deal", "settings": { "title": "Bundle & Save", "description": "Save when you order cabinets + countertops together.", "badge": "BUNDLE" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
