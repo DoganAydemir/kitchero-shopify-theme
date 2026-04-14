@@ -1,0 +1,225 @@
+{{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-gallery.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-form.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-accordion.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Main Product — E-Commerce Style PDP
+  Birebir from product/[id]/page.tsx
+  Left 58%: gallery | Right 42%: product info (sticky)
+{%- endcomment -%}
+
+<section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
+  <div class="page-width">
+    <div class="kt-pdp__layout">
+
+      {%- comment -%} LEFT: Gallery (58%) {%- endcomment -%}
+      <div class="kt-pdp__gallery-col">
+        {%- render 'product-media-gallery', product: product -%}
+      </div>
+
+      {%- comment -%} RIGHT: Product Info (42%, sticky) {%- endcomment -%}
+      <div class="kt-pdp__info-col">
+        <div class="kt-pdp__info-sticky">
+
+          {%- comment -%} Breadcrumb {%- endcomment -%}
+          <nav class="kt-pdp__breadcrumb" aria-label="Breadcrumb">
+            <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t | default: 'Home' }}</a>
+            <span aria-hidden="true">/</span>
+            {%- if product.collections.first -%}
+              <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+              <span aria-hidden="true">/</span>
+            {%- endif -%}
+            <span>{{ product.title }}</span>
+          </nav>
+
+          {%- comment -%} Title {%- endcomment -%}
+          <h1 class="kt-pdp__title">{{ product.title }}</h1>
+
+          {%- comment -%} Rating {%- endcomment -%}
+          {%- render 'product-rating', product: product -%}
+
+          {%- comment -%} Availability {%- endcomment -%}
+          {%- assign current_variant = product.selected_or_first_available_variant -%}
+          <div class="kt-pdp__availability">
+            {%- if current_variant.available -%}
+              <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'products.product.in_stock' | t | default: 'In Stock' }}</span>
+            {%- else -%}
+              <span class="kt-pdp__stock kt-pdp__stock--out">{{ 'products.product.sold_out' | t }}</span>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Countdown (if limited offer) {%- endcomment -%}
+          {%- render 'countdown', product: product -%}
+
+          {%- comment -%} Price {%- endcomment -%}
+          {%- render 'product-price', product: product -%}
+
+          {%- comment -%} Description (short) {%- endcomment -%}
+          {%- if product.description != blank -%}
+            <div class="kt-pdp__short-desc">
+              {{ product.description | strip_html | truncatewords: 40 }}
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} Variant Picker {%- endcomment -%}
+          {%- render 'product-variant-picker', product: product -%}
+
+          {%- comment -%} Product Form (qty + ATC + payment + actions) {%- endcomment -%}
+          {%- render 'product-form', product: product -%}
+
+          {%- comment -%} Trust Badges {%- endcomment -%}
+          <div class="kt-pdp__trust-badges">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'trust_badge' -%}
+                <div class="kt-pdp__trust-badge" {{ block.shopify_attributes }}>
+                  <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    {%- case block.settings.icon -%}
+                      {%- when 'shipping' -%}
+                        <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+                      {%- when 'returns' -%}
+                        <polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                      {%- when 'warranty' -%}
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      {%- when 'package' -%}
+                        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    {%- endcase -%}
+                  </svg>
+                  <span class="kt-pdp__trust-badge-text">{{ block.settings.text }}</span>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%} Accordions {%- endcomment -%}
+          <div class="kt-pdp__accordions">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'accordion' -%}
+                {%- capture accordion_content -%}
+                  {%- if block.settings.page != blank -%}
+                    {{ block.settings.page.content }}
+                  {%- else -%}
+                    {{ block.settings.content }}
+                  {%- endif -%}
+                {%- endcapture -%}
+                {%- render 'product-accordion', title: block.settings.title, content: accordion_content, open: block.settings.open -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- comment -%} Default accordions if no blocks {%- endcomment -%}
+            {%- if section.blocks.size == 0 -%}
+              {%- capture desc_content -%}
+                <p>{{ product.description }}</p>
+              {%- endcapture -%}
+              {%- render 'product-accordion', title: 'Description', content: desc_content, open: true -%}
+            {%- endif -%}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Product information",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust badge",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "shipping", "label": "Shipping" },
+            { "value": "returns", "label": "Returns" },
+            { "value": "warranty", "label": "Warranty" },
+            { "value": "package", "label": "Package" }
+          ],
+          "default": "shipping"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Free Shipping"
+        }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Accordion tab",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Description"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Or select a page"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product information",
+      "blocks": [
+        { "type": "trust_badge", "settings": { "icon": "shipping", "text": "Free Shipping" } },
+        { "type": "trust_badge", "settings": { "icon": "returns", "text": "30-Day Returns" } },
+        { "type": "trust_badge", "settings": { "icon": "warranty", "text": "Lifetime Warranty" } },
+        { "type": "accordion", "settings": { "title": "Description", "open": true } },
+        { "type": "accordion", "settings": { "title": "Specifications" } },
+        { "type": "accordion", "settings": { "title": "Shipping & Returns" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
