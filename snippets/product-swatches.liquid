@@ -1,0 +1,60 @@
+{%- comment -%}
+  Product Color Swatches — renders small color circles from variant options.
+  Reads the "Color" option from product.options_with_values.
+  Each swatch links to the variant URL.
+  Renders nothing if no "Color" option exists.
+
+  Accepts:
+  - product: {Object} Shopify product
+{%- endcomment -%}
+
+{%- liquid
+  assign color_option = nil
+  for option in product.options_with_values
+    assign option_name_lower = option.name | downcase
+    if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk'
+      assign color_option = option
+      break
+    endif
+  endfor
+-%}
+
+{%- if color_option and color_option.values.size > 0 -%}
+  <div class="kt-swatches" aria-label="{{ color_option.name }}">
+    {%- for value in color_option.values -%}
+      {%- assign color_lower = value | downcase | strip -%}
+      {%- comment -%} Map common color names to hex {%- endcomment -%}
+      {%- case color_lower -%}
+        {%- when 'black' -%}{%- assign swatch_bg = '#1a1a1a' -%}
+        {%- when 'white' -%}{%- assign swatch_bg = '#faf9f6' -%}
+        {%- when 'beige' -%}{%- assign swatch_bg = '#e8dccc' -%}
+        {%- when 'brown' -%}{%- assign swatch_bg = '#6b4e31' -%}
+        {%- when 'gray' or 'grey' -%}{%- assign swatch_bg = '#808080' -%}
+        {%- when 'navy' -%}{%- assign swatch_bg = '#2c3e50' -%}
+        {%- when 'silver' -%}{%- assign swatch_bg = '#c0c0c0' -%}
+        {%- when 'orange' -%}{%- assign swatch_bg = '#d35400' -%}
+        {%- when 'green' -%}{%- assign swatch_bg = '#27ae60' -%}
+        {%- when 'burgundy' -%}{%- assign swatch_bg = '#800020' -%}
+        {%- when 'red' -%}{%- assign swatch_bg = '#c0392b' -%}
+        {%- when 'blue' -%}{%- assign swatch_bg = '#2980b9' -%}
+        {%- when 'yellow' -%}{%- assign swatch_bg = '#f1c40f' -%}
+        {%- when 'pink' -%}{%- assign swatch_bg = '#e91e8c' -%}
+        {%- when 'cream' -%}{%- assign swatch_bg = '#FFFDD0' -%}
+        {%- when 'ivory' -%}{%- assign swatch_bg = '#FFFFF0' -%}
+        {%- when 'walnut' -%}{%- assign swatch_bg = '#5D432C' -%}
+        {%- when 'oak' -%}{%- assign swatch_bg = '#d2b48c' -%}
+        {%- when 'espresso' -%}{%- assign swatch_bg = '#3C2415' -%}
+        {%- when 'charcoal' -%}{%- assign swatch_bg = '#36454F' -%}
+        {%- when 'midnight' -%}{%- assign swatch_bg = '#191970' -%}
+        {%- else -%}{%- assign swatch_bg = '#a8a29e' -%}
+      {%- endcase -%}
+
+      <span
+        class="kt-swatches__dot"
+        style="background-color: {{ swatch_bg }};"
+        title="{{ value }}"
+        aria-label="{{ value }}"
+      ></span>
+    {%- endfor -%}
+  </div>
+{%- endif -%}
