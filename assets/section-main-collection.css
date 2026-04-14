@@ -8,28 +8,65 @@
   padding-bottom: 10rem;
 }
 
-/* Hero header: pt-40 pb-20 border-b border-stone-200 */
+/* Hero header: birebir from PageHeader.tsx — pt-32 pb-12 */
 .kt-collection__hero {
-  padding-top: 6rem;
-  padding-bottom: 4rem;
+  padding-top: 8rem;
+  padding-bottom: 3rem;
   background-color: #fafaf9;
   border-bottom: 1px solid #e7e5e4;
   position: relative;
   overflow: hidden;
 }
 
-/* Dot grid pattern background */
-.kt-collection__hero-pattern {
+/* Layer 1: Base matrix grid — radial-gradient 1.2px dots, 24px, opacity 0.18 */
+.kt-collection__dots-base {
   position: absolute;
   inset: 0;
-  color: #a8a29e;
-  opacity: 0.6;
+  opacity: 0.18;
   pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, #000 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
 }
 
-.kt-collection__hero-pattern svg {
-  width: 100%;
-  height: 100%;
+/* Layer 2: Major parallax dots — 2px dots, 80px, opacity 0.22, h-150% */
+.kt-collection__dots-parallax {
+  position: absolute;
+  inset: 0;
+  height: 150%;
+  top: -25%;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, #000 2px, transparent 2px);
+  background-size: 80px 80px;
+}
+
+/* Layer 3: Scanlines — horizontal lines, opacity 0.05 */
+.kt-collection__scanlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+/* Layer 4: Technical markers (+) — parallax */
+.kt-collection__markers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.kt-collection__marker {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: #1c1917;
 }
 
 .kt-collection__hero .page-width {

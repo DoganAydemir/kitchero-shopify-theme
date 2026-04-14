@@ -3,17 +3,22 @@
 
 <div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
   {%- comment -%} Hero Header {%- endcomment -%}
-  <section class="kt-collection__hero">
-    <div class="kt-collection__hero-pattern" aria-hidden="true">
-      <svg fill="none" width="100%" height="100%">
-        <defs>
-          <pattern id="collection-dots-{{ section.id }}" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-            <line x1="8" y1="6" x2="8" y2="10" stroke="currentColor" stroke-width="1" />
-            <line x1="6" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#collection-dots-{{ section.id }})" />
-      </svg>
+  <section class="kt-collection__hero" data-collection-hero>
+    {%- comment -%} Layer 1: Base matrix grid (small dots, static) {%- endcomment -%}
+    <div class="kt-collection__dots-base" aria-hidden="true"></div>
+
+    {%- comment -%} Layer 2: Major parallax dots (large dots, moves on scroll) {%- endcomment -%}
+    <div class="kt-collection__dots-parallax" data-parallax-dots aria-hidden="true"></div>
+
+    {%- comment -%} Layer 3: Subtle scanlines {%- endcomment -%}
+    <div class="kt-collection__scanlines" aria-hidden="true"></div>
+
+    {%- comment -%} Layer 4: Technical + markers (parallax) {%- endcomment -%}
+    <div class="kt-collection__markers" data-parallax-markers aria-hidden="true">
+      <span class="kt-collection__marker" style="top: 2.5rem; left: 15%;">+</span>
+      <span class="kt-collection__marker" style="top: 35%; right: 10%;">+</span>
+      <span class="kt-collection__marker" style="bottom: 2.5rem; left: 40%;">+</span>
+      <span class="kt-collection__marker" style="top: 13rem; right: 45%;">+</span>
     </div>
     <div class="page-width">
       <div class="kt-collection__hero-inner">
