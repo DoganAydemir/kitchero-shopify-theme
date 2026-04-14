@@ -341,17 +341,15 @@
   color: #1c1917;
 }
 
-/* Product Grid — responsive columns from source:
-   Mobile: always 1 col
-   Tablet (750px): always 2 col
-   Desktop (990px): 2/3/4 col per toggle
-   transition-all duration-700 for smooth switch */
+/* Product Grid — responsive columns from source */
 .kt-collection__grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 4rem 1.5rem;
   margin-top: 4rem;
-  transition: all 0.7s ease-in-out;
+  transition: gap 0.7s ease-in-out;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Tablet: 2 columns */
@@ -363,18 +361,18 @@
   }
 }
 
-/* Desktop: 3 columns (only when toggled) */
+/* Desktop: 3 columns */
 @media screen and (min-width: 990px) {
   .kt-collection__grid--cols-3 {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 3rem 2rem;
   }
 }
 
-/* Desktop: 4 columns (only when toggled) */
+/* Desktop: 4 columns */
 @media screen and (min-width: 990px) {
   .kt-collection__grid--cols-4 {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2.5rem 1.5rem;
   }
 }
