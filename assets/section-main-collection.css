@@ -341,20 +341,30 @@
   color: #1c1917;
 }
 
-/* Product Grid: grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24 md:gap-y-32 */
+/* Product Grid */
 .kt-collection__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem 3rem;
+  gap: 2rem 1.5rem;
   margin-top: 4rem;
+  overflow: hidden;
 }
 
 @media screen and (min-width: 750px) {
   .kt-collection__grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8rem 3rem;
+    gap: 4rem 2rem;
     margin-top: 6rem;
   }
+}
+
+/* 3-col and 4-col from grid toggle — tighter gap */
+.kt-collection__grid[style*="repeat(3"] {
+  gap: 3rem 1.5rem;
+}
+
+.kt-collection__grid[style*="repeat(4"] {
+  gap: 2rem 1rem;
 }
 
 /* Empty state */
