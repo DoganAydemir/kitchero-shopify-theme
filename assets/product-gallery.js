@@ -60,12 +60,28 @@
       });
     });
 
-    /* Main image click → open lightbox */
+    /* Main image area click → open lightbox (E-commerce PDP wrapper) */
     if (mainArea) {
       mainArea.addEventListener('click', function () {
         openLightbox();
       });
     }
+
+    /* Slide click → open lightbox to that specific image (Showroom PDP
+       uses inline gallery without a single [data-gallery-main] wrapper,
+       so each slide needs its own click handler). Works for E-commerce
+       too: clicking the currently-active slide opens the lightbox. */
+    slides.forEach(function (slide, slideIdx) {
+      slide.addEventListener('click', function (e) {
+        // Avoid double-firing when the click already bubbles up to mainArea.
+        if (mainArea && mainArea.contains(slide)) return;
+
+        var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
+        if (isNaN(targetIndex)) targetIndex = slideIdx;
+        goTo(targetIndex);
+        openLightbox();
+      });
+    });
 
     /* Lightbox open */
     function openLightbox() {

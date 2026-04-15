@@ -137,19 +137,35 @@
   outline-offset: 2px;
 }
 
-/* Sold out / disabled — clean neutral card look, no opacity */
+/* Sold out / disabled — light red card with red border + red text + X icon.
+   Designed to be clearly "unavailable" but visually warm rather than the
+   usual washed-out grey. Matches the price discount pill color family. */
 .kt-product-form__atc:disabled {
-  background-color: #e7e5e4;       /* stone-200 */
-  color: #78716c;                  /* stone-500 */
-  border-color: #e7e5e4;
+  background-color: #fef2f2;       /* red-50 — very light pink */
+  color: #dc2626;                  /* red-600 */
+  border-color: #fca5a5;           /* red-300 */
   box-shadow: none;
   cursor: not-allowed;
   opacity: 1;
 }
 
 .kt-product-form__atc:disabled:hover {
-  background-color: #e7e5e4;
-  border-color: #e7e5e4;
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+}
+
+/* Icon swap — show shopping bag when available, X-circle when sold out.
+   Both SVGs are rendered in the Liquid so no JS state is needed. */
+.kt-product-form__atc-icon--sold-out {
+  display: none;
+}
+
+.kt-product-form__atc:disabled .kt-product-form__atc-icon--available {
+  display: none;
+}
+
+.kt-product-form__atc:disabled .kt-product-form__atc-icon--sold-out {
+  display: inline-block;
 }
 
 /* Success state (Added to Cart) */
@@ -157,6 +173,7 @@
 .kt-product-form__atc--added:hover:not(:disabled) {
   background-color: #059669;
   border-color: #059669;
+  color: #fff;
 }
 
 /* ============================================================

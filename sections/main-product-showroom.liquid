@@ -68,11 +68,12 @@
           {%- endif -%}
         </div>
 
-        {%- comment -%} Mobile: horizontal scroll carousel {%- endcomment -%}
+        {%- comment -%} Mobile: horizontal scroll carousel — slides also tag
+          data-gallery-slide so the shared product-gallery.js lightbox works. {%- endcomment -%}
         <div class="kt-showroom__gallery-mobile">
           {%- for media in product.media -%}
             {%- if media.media_type == 'image' -%}
-              <div class="kt-showroom__gallery-mobile-slide">
+              <div class="kt-showroom__gallery-mobile-slide" data-gallery-slide="{{ forloop.index0 }}">
                 {%- assign media_alt = media.alt | default: product.title -%}
                 {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
                 <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
@@ -105,12 +106,20 @@
           {%- comment -%} Brand label {%- endcomment -%}
           <p class="kt-showroom__brand">{{ product.vendor | default: shop.name }} {{ 'products.product.collection_label' | t | default: 'Collection' }}</p>
 
-          {%- comment -%} Title + Door Thumbnail row {%- endcomment -%}
+          {%- comment -%}
+            Title + Door Thumbnail row.
+            Door sample image comes from the product metafield
+            `custom.door_sample` (type: file_reference → image). This is
+            a per-product image so every product can show its own door
+            finish. Falls back to the product's featured image when the
+            metafield is not set.
+          {%- endcomment -%}
+          {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
           <div class="kt-showroom__title-row">
             <{{ heading_tag_value }} class="kt-showroom__title">{{ product.title }}</{{ heading_tag_value }}>
-            {%- if section.settings.door_thumbnail != blank -%}
+            {%- if door_sample_image != blank -%}
               <div class="kt-showroom__door-thumb">
-                {{ section.settings.door_thumbnail | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
+                {{ door_sample_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
               </div>
             {%- elsif product.featured_image != blank -%}
               <div class="kt-showroom__door-thumb">
@@ -313,10 +322,8 @@
       "default": "h1"
     },
     {
-      "type": "image_picker",
-      "id": "door_thumbnail",
-      "label": "t:sections.main-product-showroom.settings.door_thumbnail.label",
-      "info": "t:sections.main-product-showroom.settings.door_thumbnail.info"
+      "type": "paragraph",
+      "content": "t:sections.main-product-showroom.settings.paragraph__door_sample.content"
     },
     {
       "type": "header",

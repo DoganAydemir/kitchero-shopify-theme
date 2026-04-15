@@ -40,17 +40,24 @@
       </button>
     </div>
 
-    {%- comment -%} Add to Cart button {%- endcomment -%}
+    {%- comment -%} Add to Cart button — two icons rendered, CSS swaps based on :disabled {%- endcomment -%}
     <button
       type="submit"
       class="kt-product-form__atc"
       {% unless current_variant.available %}disabled{% endunless %}
       data-add-to-cart
     >
-      <svg class="kt-product-form__atc-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      {%- comment -%} Available: shopping bag icon {%- endcomment -%}
+      <svg class="kt-product-form__atc-icon kt-product-form__atc-icon--available" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
         <line x1="3" y1="6" x2="21" y2="6"></line>
         <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+      {%- comment -%} Sold out: X-in-circle icon {%- endcomment -%}
+      <svg class="kt-product-form__atc-icon kt-product-form__atc-icon--sold-out" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
       </svg>
       <span data-add-to-cart-text>
         {%- if current_variant.available -%}

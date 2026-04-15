@@ -64,6 +64,29 @@ No manual setup is needed if you install a review app.
 
 ---
 
+### 4. Door Sample Thumbnail (Showroom PDP)
+
+| Field | Value |
+|---|---|
+| **Namespace & key** | `custom.door_sample` |
+| **Type** | `File` (file_reference, accepts images) |
+| **Required** | No (optional per product) |
+| **Used by** | `product.showroom` template — the small thumbnail next to the product title |
+
+The Showroom product page shows a small 80×106 door-sample thumbnail next to the product title. This image is meant to be a close-up of the cabinet door front (or a color swatch) so shoppers instantly see the finish they're looking at.
+
+**Fallback:** When this metafield is not set, the theme renders the product's **featured image** instead. That is rarely what you want on a Showroom layout, so setting the metafield per product is strongly recommended.
+
+**How to set it:**
+1. Go to **Settings > Custom data > Products**.
+2. Click **Add definition**.
+3. Set namespace and key to `custom.door_sample`.
+4. Choose type **File** with the option **Accept files of type: Image** enabled.
+5. Save.
+6. Edit any product that uses the `product.showroom` template, scroll to **Metafields** and upload a door-front / finish close-up (recommended 400×520 px or larger, 4:5.2 portrait aspect works best).
+
+---
+
 ## Navigation Menus
 
 ### Main Menu
