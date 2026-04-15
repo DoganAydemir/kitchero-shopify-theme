@@ -8,57 +8,106 @@
   margin-bottom: 1rem;
 }
 
-/* Quantity selector: flex items-center border border-stone-300 rounded-[4px] */
+/* ============================================================
+   Quantity selector — matches Next.js source exactly:
+   border border-stone-300 rounded-[4px], minus/plus buttons with
+   px-4 py-3 hover:text-stone-900, center number is a readonly
+   input styled to look like a non-editable display.
+   ============================================================ */
+
 .kt-product-form__qty {
   display: flex;
   align-items: center;
   border: 1px solid #d6d3d1;
   border-radius: 4px;
   flex-shrink: 0;
+  background-color: #fff;
+  overflow: hidden;
 }
 
-/* px-4 py-3 text-stone-500 hover:text-stone-900 */
 .kt-product-form__qty-btn {
-  padding: 0.75rem 1rem;
-  background: none;
+  padding: 0.75rem 1rem;           /* px-4 py-3 = 16px 12px */
+  background: transparent;
   border: none;
-  color: #78716c;
+  color: #78716c;                  /* stone-500 */
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-family: inherit;
 }
 
-.kt-product-form__qty-btn:hover {
-  color: #1c1917;
+.kt-product-form__qty-btn:hover:not(:disabled) {
+  color: #1c1917;                  /* stone-900 */
+  background-color: #f5f5f4;       /* stone-100 — subtle hover feedback */
 }
 
-/* text-sm font-bold text-stone-900 w-8 text-center */
+.kt-product-form__qty-btn:active:not(:disabled) {
+  background-color: #e7e5e4;       /* stone-200 */
+}
+
+.kt-product-form__qty-btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: -2px;
+}
+
+.kt-product-form__qty-btn:disabled {
+  color: #d6d3d1;
+  cursor: not-allowed;
+}
+
+/* Number display — readonly input styled like a span:
+   text-sm font-bold text-stone-900 w-8 text-center. Readonly
+   removes the text caret and prevents keyboard editing but keeps
+   the value in the form submission. */
 .kt-product-form__qty-input {
-  width: 2.5rem;
+  width: 2rem;                     /* w-8 = 32px — matches source */
+  min-width: 2rem;
   text-align: center;
   font-size: 0.875rem;
   font-weight: 700;
   color: #1c1917;
   border: none;
-  background: none;
+  background: transparent;
   padding: 0;
+  margin: 0;
+  line-height: 1;
+  font-family: inherit;
   -moz-appearance: textfield;
+  appearance: none;
+  caret-color: transparent;        /* hide blinking cursor */
+  cursor: default;
+  user-select: none;
+  pointer-events: none;            /* clicks fall through to the buttons */
+}
+
+.kt-product-form__qty-input:focus,
+.kt-product-form__qty-input:focus-visible {
+  outline: none;
 }
 
 .kt-product-form__qty-input::-webkit-inner-spin-button,
 .kt-product-form__qty-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
-/* ATC button: flex-1 py-4 font-bold tracking-widest uppercase text-xs bg-stone-900 text-white rounded-[4px] */
+/* ============================================================
+   Add to Cart button — bg-stone-900 text-white py-4 uppercase
+   text-xs tracking-widest shadow-lg, hover:bg-black, active:scale.
+   Disabled state renders a clean sold-out styling (not opacity).
+   ============================================================ */
+
 .kt-product-form__atc {
   flex: 1;
-  padding: 1rem;
+  padding: 1rem;                   /* py-4 = 16px */
+  font-family: inherit;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.1em;           /* tracking-widest */
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.75rem;              /* text-xs */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,27 +115,48 @@
   border-radius: 4px;
   background-color: #1c1917;
   color: #fff;
-  border: none;
+  border: 1px solid #1c1917;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.kt-product-form__atc:hover {
+/* Hover and active only apply when the button is NOT disabled,
+   otherwise the sold-out state would mutate visually on hover. */
+.kt-product-form__atc:hover:not(:disabled) {
   background-color: #000;
+  border-color: #000;
 }
 
-.kt-product-form__atc:active {
+.kt-product-form__atc:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-.kt-product-form__atc:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.kt-product-form__atc:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
 }
 
-.kt-product-form__atc--added {
+/* Sold out / disabled — clean neutral card look, no opacity */
+.kt-product-form__atc:disabled {
+  background-color: #e7e5e4;       /* stone-200 */
+  color: #78716c;                  /* stone-500 */
+  border-color: #e7e5e4;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.kt-product-form__atc:disabled:hover {
+  background-color: #e7e5e4;
+  border-color: #e7e5e4;
+}
+
+/* Success state (Added to Cart) */
+.kt-product-form__atc--added,
+.kt-product-form__atc--added:hover:not(:disabled) {
   background-color: #059669;
+  border-color: #059669;
 }
 
 /* ============================================================
@@ -156,6 +226,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0;
+  font-family: inherit;
   font-size: 0.875rem;
   color: #78716c;
   background: none;
@@ -166,4 +238,17 @@
 
 .kt-product-form__action-btn:hover {
   color: #1c1917;
+}
+
+.kt-product-form__action-btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Wishlisted state — heart fills red */
+.kt-product-form__action-btn[aria-pressed="true"] svg,
+.kt-product-form__action-btn.is-wishlisted svg {
+  fill: #dc2626;
+  color: #dc2626;
 }
