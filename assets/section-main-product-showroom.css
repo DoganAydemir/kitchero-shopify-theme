@@ -75,6 +75,7 @@
 }
 
 .kt-showroom__gallery-full {
+  position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -88,6 +89,7 @@
 }
 
 .kt-showroom__gallery-half {
+  position: relative;
   width: 50%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -95,7 +97,14 @@
   cursor: zoom-in;
 }
 
+/* Same percentage-height-inside-aspect-ratio fix as the E-commerce
+   gallery: use absolute positioning so the img is pinned to its
+   parent's edges instead of trying to resolve `height: 100%` against
+   an aspect-ratio-computed parent (which some browsers give up on
+   and fall back to the img's HTML height attribute). */
 .kt-showroom__gallery-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -121,12 +130,13 @@
 }
 
 .kt-showroom__gallery-mobile-slide {
+  position: relative;
   width: 100%;
   flex-shrink: 0;
   aspect-ratio: 4 / 3;
   scroll-snap-align: center;
   background-color: #f5f5f4;
-  position: relative;
+  overflow: hidden;
 }
 
 .kt-showroom__gallery-counter {

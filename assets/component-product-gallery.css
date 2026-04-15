@@ -88,7 +88,15 @@
    On mobile the gallery is a flex column and the main area uses its
    natural size driven by aspect-ratio (square mobile, 4:3 tablet).
    On desktop it switches to a flex row and the main area flexes to
-   fill the remaining width alongside the vertical thumbnail column. */
+   fill the remaining width alongside the vertical thumbnail column.
+
+   IMPORTANT: slides and the image are `position: absolute; inset: 0`
+   because a percentage height (`height: 100%`) on a child of an
+   aspect-ratio parent does NOT always resolve to a definite value —
+   some browsers fall back to the img's own HTML `height` attribute
+   (which can be thousands of px from Shopify's media object) and
+   render the image absurdly tall. Absolute positioning sidesteps
+   that resolution entirely. */
 .kt-gallery__main {
   position: relative;
   order: 1;
@@ -117,8 +125,8 @@
 
 .kt-gallery__slide {
   display: none;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
 }
 
 .kt-gallery__slide--active {
@@ -126,6 +134,8 @@
 }
 
 .kt-gallery__image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -133,6 +143,8 @@
 }
 
 .kt-gallery__main .placeholder-svg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
