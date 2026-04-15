@@ -84,11 +84,15 @@
   object-fit: cover;
 }
 
-/* Main image area */
+/* Main image area.
+   On mobile the gallery is a flex column and the main area uses its
+   natural size driven by aspect-ratio (square mobile, 4:3 tablet).
+   On desktop it switches to a flex row and the main area flexes to
+   fill the remaining width alongside the vertical thumbnail column. */
 .kt-gallery__main {
-  flex: 1;
-  order: 1;
   position: relative;
+  order: 1;
+  width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
   background-color: #f5f5f4;
@@ -103,7 +107,9 @@
 
 @media screen and (min-width: 990px) {
   .kt-gallery__main {
+    flex: 1;
     order: 2;
+    width: auto;
     aspect-ratio: auto;
     min-height: 560px;
   }

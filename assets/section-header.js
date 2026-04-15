@@ -17,11 +17,18 @@
   class KitcheroHeader {
     constructor(section) {
       this.section = section;
-      this.header = section.querySelector('.kt-header');
+      // The .kt-header element IS the one with data-section-type="header",
+      // so fall back to the section itself when section.querySelector can't
+      // find it (happens when `section` is already the header element).
+      this.header = section.querySelector('.kt-header') || (section.matches && section.matches('.kt-header') ? section : null);
       if (!this.header) return;
 
       this.mobileToggle = this.header.querySelector('.kt-header__menu-toggle');
-      this.mobilePanel = this.header.querySelector('.kt-header__mobile-panel');
+      // The mobile panel is a direct child of <header> but in case theme
+      // editor re-renders mangle the DOM, also search globally by its
+      // generated id as a fallback.
+      this.mobilePanel = this.header.querySelector('.kt-header__mobile-panel')
+        || document.querySelector('.kt-header__mobile-panel');
       this.mobileClose = this.header.querySelector('.kt-header__mobile-panel-close');
       this.openIcon = this.header.querySelector('.kt-header__menu-toggle-open');
       this.closeIcon = this.header.querySelector('.kt-header__menu-toggle-close');
@@ -129,9 +136,51 @@
     headerSections[sectionId] = new KitcheroHeader(container);
   }
 
-  /* Init on page load */
-  document.querySelectorAll('[data-section-type="header"]').forEach(function (el) {
-    initHeader(el.closest('.shopify-section') || el);
+  function initAll() {
+    document.querySelectorAll('[data-section-type="header"]').forEach(function (el) {
+      initHeader(el.closest('.shopify-section') || el);
+    });
+  }
+
+  /* Init on page load — defer scripts run after DOM parse, but in case a
+     theme editor re-render or third-party script delays things, also
+     re-run on DOMContentLoaded and window load. Idempotent because
+     initHeader destroys the prior instance first. */
+  initAll();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  }
+  window.addEventListener('load', initAll);
+
+  /* Delegated safety-net click handler — if the class-based listener
+     never got bound (race condition, DOM mutation, etc.), a click on
+     the hamburger still opens the mobile panel. */
+  document.addEventListener('click', function (e) {
+    var toggle = e.target.closest('.kt-header__menu-toggle');
+    if (toggle) {
+      var section = toggle.closest('[data-section-type="header"]');
+      var wrapper = section && section.closest('.shopify-section');
+      var sid = (wrapper || section) && (wrapper || section).dataset && (wrapper || section).dataset.sectionId;
+      if (sid && headerSections[sid]) return; // normal handler will take it
+      // Fallback: toggle the panel directly
+      var panel = document.querySelector('.kt-header__mobile-panel');
+      if (panel) {
+        var isOpen = panel.classList.toggle('kt-header__mobile-panel--open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      }
+      return;
+    }
+    var closer = e.target.closest('.kt-header__mobile-panel-close');
+    if (closer) {
+      var panel2 = document.querySelector('.kt-header__mobile-panel');
+      if (panel2) {
+        panel2.classList.remove('kt-header__mobile-panel--open');
+        document.body.style.overflow = '';
+        var t = document.querySelector('.kt-header__menu-toggle');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      }
+    }
   });
 
   /* Theme editor events */
