@@ -23,12 +23,56 @@
     var currentIndex = 0;
     var totalSlides = slides.length;
     var imageUrls = [];
+    var imageAlts = [];
 
-    /* Collect image URLs for lightbox */
+    /* Collect image URLs for lightbox (use the largest srcset candidate
+       when available, otherwise fall back to src) */
     slides.forEach(function (slide) {
       var img = slide.querySelector('img');
-      if (img) imageUrls.push(img.src);
+      if (!img) return;
+      var url = img.src;
+      if (img.srcset) {
+        var candidates = img.srcset.split(',').map(function (s) { return s.trim(); });
+        var last = candidates[candidates.length - 1];
+        if (last) url = last.split(' ')[0];
+      }
+      imageUrls.push(url);
+      imageAlts.push(img.alt || '');
     });
+
+    /* Lightbox image load/loading state handling — show spinner until
+       the new image's `load` event fires, then fade it in.
+       Matches the product/[id]/page.tsx isImageLoading behavior. */
+    function setLightboxImage(url, alt) {
+      if (!lightboxImage) return;
+
+      // Reset to loading state: hide image, show spinner.
+      lightboxImage.classList.remove('is-loaded');
+      if (lightboxViewport) lightboxViewport.classList.add('is-loading');
+
+      // Detach previous onload to avoid stale callbacks.
+      lightboxImage.onload = null;
+      lightboxImage.onerror = null;
+
+      lightboxImage.onload = function () {
+        lightboxImage.classList.add('is-loaded');
+        if (lightboxViewport) lightboxViewport.classList.remove('is-loading');
+      };
+      lightboxImage.onerror = function () {
+        // Still hide the spinner on error so the user isn't stuck staring
+        // at an endlessly spinning circle — we leave the image invisible.
+        if (lightboxViewport) lightboxViewport.classList.remove('is-loading');
+      };
+
+      lightboxImage.alt = alt || '';
+      lightboxImage.src = url || '';
+
+      // If the browser already has the image cached, `load` may never fire
+      // (Firefox). Fall back to `complete`.
+      if (lightboxImage.complete && lightboxImage.naturalWidth > 0) {
+        lightboxImage.onload();
+      }
+    }
 
     /* Switch to slide by index */
     function goTo(index) {
@@ -48,7 +92,7 @@
 
       /* Update lightbox image if open */
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false' && lightboxImage) {
-        lightboxImage.src = imageUrls[index] || '';
+        setLightboxImage(imageUrls[index], imageAlts[index]);
       }
     }
 
@@ -86,7 +130,7 @@
     /* Lightbox open */
     function openLightbox() {
       if (!lightbox || !lightboxImage) return;
-      lightboxImage.src = imageUrls[currentIndex] || '';
+      setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       if (typeof trapFocus === 'function') trapFocus(lightbox);
@@ -97,7 +141,11 @@
       if (!lightbox) return;
       lightbox.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
-      if (lightboxViewport) lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
+      if (lightboxViewport) {
+        lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
+        lightboxViewport.classList.remove('is-loading');
+      }
+      if (lightboxImage) lightboxImage.classList.remove('is-loaded');
       if (typeof removeTrapFocus === 'function') removeTrapFocus();
     }
 
