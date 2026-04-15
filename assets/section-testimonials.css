@@ -37,7 +37,12 @@
   fill: rgba(255, 255, 255, 0.03);
 }
 
-/* Layer 2: spotlight reveal — mouse-follow mask */
+/* Layer 2: spotlight reveal — mouse-follow mask
+   Note: mask-image is set dynamically by section-testimonials.js each
+   animation frame. We intentionally DO NOT declare mask-image in CSS
+   because some browsers fail to parse `radial-gradient(<length> circle
+   at var(--x, 50%) var(--y, 50%), ...)` and drop the position clause.
+   JS writes the full gradient string inline, which is reliable. */
 .kt-testimonials__spotlight {
   position: absolute;
   inset: 0;
@@ -47,8 +52,6 @@
   transition: opacity 0.7s ease;
   background-size: cover;
   background-position: center;
-  -webkit-mask-image: radial-gradient(450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), black 0%, transparent 100%);
-  mask-image: radial-gradient(450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), black 0%, transparent 100%);
 }
 
 .kt-testimonials:hover .kt-testimonials__spotlight {
