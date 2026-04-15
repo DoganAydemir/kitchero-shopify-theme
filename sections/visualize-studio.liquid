@@ -1,0 +1,186 @@
+{{ 'section-visualize-studio.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Visualize Studio — "Lumina Visual Studio" pro upgrade block.
+  Birebir from showroom/[id]/page.tsx bottom CTA section.
+  Immersive dark background + text on left, glassmorphic contact form on right.
+
+  Uses Shopify {% form 'contact' %} for no-JS submission fallback.
+{%- endcomment -%}
+
+<section
+  class="kt-visualize-studio"
+  data-section-id="{{ section.id }}"
+  data-section-type="visualize-studio"
+>
+  {%- comment -%} Immersive background {%- endcomment -%}
+  <div class="kt-visualize-studio__bg" aria-hidden="true">
+    {%- if section.settings.background_image != blank -%}
+      {{ section.settings.background_image | image_url: width: 2000 | image_tag: class: 'kt-visualize-studio__bg-img', loading: 'lazy', widths: '750, 1100, 1600, 2000', sizes: '100vw', width: section.settings.background_image.width, height: section.settings.background_image.height, alt: '' }}
+    {%- else -%}
+      <div class="kt-visualize-studio__bg-placeholder">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {%- endif -%}
+    <div class="kt-visualize-studio__bg-overlay"></div>
+    <div class="kt-visualize-studio__bg-gradient"></div>
+  </div>
+
+  <div class="page-width kt-visualize-studio__content">
+    <div class="kt-visualize-studio__grid">
+
+      {%- comment -%} LEFT: heading + description {%- endcomment -%}
+      <div class="kt-visualize-studio__text">
+        <div class="kt-visualize-studio__eyebrow-row">
+          <span class="kt-visualize-studio__rule" aria-hidden="true"></span>
+          {%- if section.settings.eyebrow != blank -%}
+            <h2 class="kt-visualize-studio__eyebrow">{{ section.settings.eyebrow }}</h2>
+          {%- endif -%}
+        </div>
+
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h3' -%}
+        {%- if section.settings.heading_line1 != blank or section.settings.heading_line2 != blank -%}
+          <{{ heading_tag }} class="kt-visualize-studio__heading">
+            {{ section.settings.heading_line1 }}
+            {%- if section.settings.heading_line2 != blank -%}
+              <br><span class="kt-visualize-studio__heading-italic">{{ section.settings.heading_line2 }}</span>
+            {%- endif -%}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="kt-visualize-studio__desc">{{ section.settings.description }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} RIGHT: glassmorphic form {%- endcomment -%}
+      <div class="kt-visualize-studio__form-wrap">
+        <div class="kt-visualize-studio__form-card">
+          {%- if section.settings.form_heading != blank -%}
+            <h4 class="kt-visualize-studio__form-heading">{{ section.settings.form_heading }}</h4>
+          {%- endif -%}
+          {%- if section.settings.form_subheading != blank -%}
+            <p class="kt-visualize-studio__form-subheading">{{ section.settings.form_subheading }}</p>
+          {%- endif -%}
+
+          {%- form 'contact', id: 'visualize-studio-form', class: 'kt-visualize-studio__form' -%}
+            {%- if form.posted_successfully? -%}
+              <p class="kt-visualize-studio__success">
+                {{ 'templates.contact.form.post_success' | t | default: 'Thanks — we will get back to you soon.' }}
+              </p>
+            {%- endif -%}
+
+            <div class="kt-visualize-studio__field">
+              <label for="VisualizeStudioName" class="visually-hidden">
+                {{ 'templates.contact.form.name' | t | default: 'Name' }}
+              </label>
+              <input
+                type="text"
+                id="VisualizeStudioName"
+                name="contact[name]"
+                placeholder="{{ 'templates.contact.form.name_placeholder' | t | default: 'Your Name' }}"
+                autocomplete="name"
+                required
+              >
+            </div>
+
+            <div class="kt-visualize-studio__field">
+              <label for="VisualizeStudioEmail" class="visually-hidden">
+                {{ 'templates.contact.form.email' | t | default: 'Email' }}
+              </label>
+              <input
+                type="email"
+                id="VisualizeStudioEmail"
+                name="contact[email]"
+                placeholder="{{ 'templates.contact.form.email_placeholder' | t | default: 'Your Email' }}"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+            <button type="submit" class="kt-visualize-studio__submit">
+              {{ section.settings.submit_text | default: 'Start The Process' }}
+            </button>
+          {%- endform -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.visualize-studio.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:sections.visualize-studio.settings.background_image.label"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.visualize-studio.settings.eyebrow.label",
+      "default": "Lumina Visual Studio"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.visualize-studio.settings.heading_line1.label",
+      "default": "Visualize It"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2",
+      "label": "t:sections.visualize-studio.settings.heading_line2.label",
+      "default": "In Your Home."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.visualize-studio.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.visualize-studio.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.visualize-studio.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h3"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.visualize-studio.settings.description.label",
+      "default": "Our designers use proprietary 3D rendering to map exact cabinetry structures into your space with millimeter precision — before a single board is cut."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.visualize-studio.settings.header__form.content"
+    },
+    {
+      "type": "text",
+      "id": "form_heading",
+      "label": "t:sections.visualize-studio.settings.form_heading.label",
+      "default": "Request Design Help"
+    },
+    {
+      "type": "text",
+      "id": "form_subheading",
+      "label": "t:sections.visualize-studio.settings.form_subheading.label",
+      "default": "Complimentary consultation for qualifying projects."
+    },
+    {
+      "type": "text",
+      "id": "submit_text",
+      "label": "t:sections.visualize-studio.settings.submit_text.label",
+      "default": "Start The Process"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.visualize-studio.presets.name"
+    }
+  ]
+}
+{% endschema %}

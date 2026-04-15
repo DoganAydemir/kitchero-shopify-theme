@@ -1,0 +1,138 @@
+{{ 'section-why-choose-us-product.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Why Choose Us (product PDP companion) — 6-col feature grid.
+  Birebir from showroom/[id]/page.tsx "Why Choose Us?" section.
+  Each block: icon + title + description.
+{%- endcomment -%}
+
+<section class="kt-why-choose-us-product" data-section-id="{{ section.id }}" data-section-type="why-choose-us-product">
+  <div class="page-width">
+    <div class="kt-why-choose-us-product__header">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="kt-why-choose-us-product__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        {%- assign heading_tag = section.settings.heading_tag | default: 'h3' -%}
+        <{{ heading_tag }} class="kt-why-choose-us-product__heading">{{ section.settings.heading }}</{{ heading_tag }}>
+      {%- endif -%}
+    </div>
+
+    <div class="kt-why-choose-us-product__grid">
+      {%- for block in section.blocks -%}
+        <div class="kt-why-choose-us-product__card" {{ block.shopify_attributes }}>
+          <div class="kt-why-choose-us-product__icon" aria-hidden="true">
+            {%- case block.settings.icon -%}
+              {%- when 'tree' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14v8"/><path d="m10 14-3 5h10l-3-5"/><path d="M10 14h7"/><path d="M10 14c0-3.6 2-8 5-8s5 4.4 5 8z"/><path d="M13 6c0-3.6 2-8 5-8"/></svg>
+              {%- when 'dollar' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+              {%- when 'layers' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              {%- when 'clock' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {%- when 'shield' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              {%- when 'pen' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+              {%- when 'star' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {%- when 'truck' -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              {%- else -%}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+            {%- endcase -%}
+          </div>
+          {%- if block.settings.title != blank -%}
+            <h4 class="kt-why-choose-us-product__title">{{ block.settings.title }}</h4>
+          {%- endif -%}
+          {%- if block.settings.description != blank -%}
+            <p class="kt-why-choose-us-product__desc">{{ block.settings.description }}</p>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.why-choose-us-product.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.why-choose-us-product.settings.eyebrow.label",
+      "default": "The Kitchero Difference"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.why-choose-us-product.settings.heading.label",
+      "default": "Why Choose Us?"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.why-choose-us-product.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.why-choose-us-product.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.why-choose-us-product.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "t:sections.why-choose-us-product.blocks.feature.name",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.label",
+          "options": [
+            { "value": "tree", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__1.label" },
+            { "value": "dollar", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__2.label" },
+            { "value": "layers", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__3.label" },
+            { "value": "clock", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__4.label" },
+            { "value": "shield", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__5.label" },
+            { "value": "pen", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__6.label" },
+            { "value": "star", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__7.label" },
+            { "value": "truck", "label": "t:sections.why-choose-us-product.blocks.feature.settings.icon.options__8.label" }
+          ],
+          "default": "shield"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.why-choose-us-product.blocks.feature.settings.title.label",
+          "default": "Feature title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.why-choose-us-product.blocks.feature.settings.description.label",
+          "default": "Short explanation of the value proposition."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.why-choose-us-product.presets.name",
+      "blocks": [
+        { "type": "feature", "settings": { "icon": "tree", "title": "Highest Quality Woods", "description": "We source only premium, sustainable North American timber for solid, warp-resistant frames." } },
+        { "type": "feature", "settings": { "icon": "dollar", "title": "Unbeatable Price", "description": "By manufacturing direct-to-consumer, we bypass retail markups saving you 40%." } },
+        { "type": "feature", "settings": { "icon": "layers", "title": "Dovetail Joinery", "description": "Our drawer boxes feature traditional interlocking dovetail joints for superior lifetime strength." } },
+        { "type": "feature", "settings": { "icon": "clock", "title": "Fast Lead Times", "description": "Stock lines ship in 7-14 days. Custom finishes are delivered rapidly in 4-6 weeks." } },
+        { "type": "feature", "settings": { "icon": "shield", "title": "Lifetime Warranty", "description": "Fully guaranteed. We stand by our craftsmanship for as long as you own your home." } },
+        { "type": "feature", "settings": { "icon": "pen", "title": "Free 3D Design", "description": "Work 1-on-1 with architectural designers to perfectly visualize your space before ordering." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
