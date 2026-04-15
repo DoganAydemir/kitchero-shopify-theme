@@ -24,11 +24,12 @@
                   {%- assign finish_img = block.settings[img_id] -%}
                   {%- assign finish_name = block.settings[name_id] -%}
                   {%- if finish_name != blank -%}
+                    {%- assign finish_data_id = block.id | append: '-' | append: i -%}
                     {%- if finish_img != blank -%}
-                      {{ finish_img | image_url: width: 1000 | image_tag: class: 'kt-shop-color__image', loading: 'lazy', widths: '375, 550, 750, 1000', sizes: '42vw', width: finish_img.width, height: finish_img.height, alt: finish_name, data-finish-image: block.id | append: '-' | append: i, style: 'opacity:0;' }}
+                      {{ finish_img | image_url: width: 1000 | image_tag: class: 'kt-shop-color__image', loading: 'lazy', widths: '375, 550, 750, 1000', sizes: '42vw', width: finish_img.width, height: finish_img.height, alt: finish_name, data-finish-image: finish_data_id, style: 'opacity:0;' }}
                     {%- else -%}
                       {%- assign ph_index = img_counter | modulo: 6 -%}
-                      <div class="kt-shop-color__image kt-shop-color__placeholder" data-finish-image="{{ block.id }}-{{ i }}" style="opacity:0;">
+                      <div class="kt-shop-color__image kt-shop-color__placeholder" data-finish-image="{{ finish_data_id }}" style="opacity:0;">
                         {{ placeholder_names[ph_index] | placeholder_svg_tag: 'placeholder-svg' }}
                       </div>
                     {%- endif -%}

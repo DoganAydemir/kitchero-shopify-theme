@@ -1,0 +1,32 @@
+# .shopifyignore — files excluded from `shopify theme push` and `shopify theme dev`
+#
+# Purpose: protect merchant-edited content from being overwritten by local pushes.
+# These JSON files store section blocks, images, text, and theme settings that
+# merchants fill in via the Shopify admin theme editor. If you push the local
+# (default placeholder) versions, you'll wipe the merchant's content.
+#
+# Strategy:
+#   - Code files (sections/, snippets/, assets/, layout/, locales/, config/settings_schema.json)
+#     are always pushed — this is the "theme logic".
+#   - Data files (config/settings_data.json, templates/*.json) are ignored —
+#     this is the "merchant content".
+#
+# If you need to push a NEW template structure (e.g. adding a new section type to
+# templates/index.json), temporarily comment out the relevant line below, push,
+# then restore.
+
+# Merchant-editable theme settings (colors, logo, fonts, layout values)
+config/settings_data.json
+
+# Merchant-editable JSON templates (section blocks, content, images)
+templates/*.json
+templates/customers/*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor backups
+*.swp
+*~
+*.bak
