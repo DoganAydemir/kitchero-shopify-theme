@@ -4,12 +4,22 @@
   Uses details/summary for no-JS fallback.
 
   Accepts:
-  - title: {String} accordion heading
-  - open: {Boolean} initially open (default: false)
-  - content: {String} HTML content (via capture)
+  - title:   {String}  accordion heading
+  - open:    {Boolean} initially open (default: false)
+  - content: {String}  HTML content (via capture)
+  - style:   {String}  'default' (uppercase small, E-commerce PDP) or 'serif'
+                       (large serif, Showroom PDP). Defaults to 'default'.
 {%- endcomment -%}
 
-<details class="kt-accordion" {% if open %}open{% endif %}>
+{%- liquid
+  assign accordion_style = style | default: 'default'
+  assign accordion_class = 'kt-accordion'
+  if accordion_style == 'serif'
+    assign accordion_class = 'kt-accordion kt-accordion--serif'
+  endif
+-%}
+
+<details class="{{ accordion_class }}" {% if open %}open{% endif %}>
   <summary class="kt-accordion__header">
     <span class="kt-accordion__title">{{ title }}</span>
     <span class="kt-accordion__icon" aria-hidden="true">

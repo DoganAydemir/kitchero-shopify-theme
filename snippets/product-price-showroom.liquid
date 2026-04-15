@@ -1,0 +1,70 @@
+{%- comment -%}
+  Product Price — Showroom style.
+  Birebir from showroom/[id]/page.tsx pricing block.
+
+  Renders:
+    "Now only" label (small, muted)
+    Big red current price
+    "Save $X" badge (red pill, only if on sale)
+    "Was $X" strikethrough (only if on sale)
+    Monthly installment pill (auto-calculated from financing_months + financing_apr
+    section settings, if provided)
+
+  Accepts:
+  - product: {Object}          Shopify product
+  - financing_months: {Number} number of months for the installment line
+  - financing_apr: {Number}    APR percentage (0 for interest-free)
+  - financing_label: {String}  text to render the monthly pill (optional override)
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign current_price = variant.price
+  assign compare_price = variant.compare_at_price
+  assign on_sale = false
+  if compare_price > current_price
+    assign on_sale = true
+    assign savings = compare_price | minus: current_price
+  endif
+
+  unless financing_months
+    assign financing_months = 60
+  endunless
+-%}
+
+<div class="kt-showroom-price" data-product-price>
+  <span class="kt-showroom-price__label">{{ 'products.product.price.now_only' | t | default: 'Now only' }}</span>
+
+  <div class="kt-showroom-price__row">
+    <span class="kt-showroom-price__current">{{ current_price | money }}</span>
+    {%- if on_sale -%}
+      <span class="kt-showroom-price__save">
+        {{ 'products.product.price.save_html' | t: amount: savings | money | default: 'Save' }}
+      </span>
+    {%- endif -%}
+  </div>
+
+  {%- if on_sale -%}
+    <span class="kt-showroom-price__was">
+      {{ 'products.product.price.was_html' | t: amount: compare_price | money | default: 'Was' }}
+    </span>
+  {%- endif -%}
+
+  {%- comment -%} Monthly installment pill — calculated price / months {%- endcomment -%}
+  {%- if financing_months > 0 -%}
+    {%- assign monthly = current_price | divided_by: financing_months -%}
+    <p class="kt-showroom-price__financing">
+      <span class="kt-showroom-price__financing-pill">
+        {%- if financing_label != blank -%}
+          {{ financing_label }}
+        {%- else -%}
+          {{ monthly | money }} {{ 'products.product.price.per_month' | t | default: 'per month' }}
+          {%- if financing_apr and financing_apr == 0 -%}
+            &nbsp;· 0% APR
+          {%- endif -%}
+          &nbsp;· {{ financing_months | divided_by: 12 }} {{ 'products.product.price.years' | t | default: 'years' }}*
+        {%- endif -%}
+      </span>
+    </p>
+  {%- endif -%}
+</div>

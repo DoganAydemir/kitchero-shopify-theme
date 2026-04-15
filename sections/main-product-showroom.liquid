@@ -1,15 +1,26 @@
 {{ 'section-main-product-showroom.css' | asset_url | stylesheet_tag }}
 {{ 'component-product-gallery.css' | asset_url | stylesheet_tag }}
-{{ 'component-product-price.css' | asset_url | stylesheet_tag }}
 {{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
-{{ 'component-product-form.css' | asset_url | stylesheet_tag }}
 {{ 'component-product-accordion.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
-  Main Product Showroom — Premium visual layout
+  Main Product Showroom — premium visual layout (lead-gen focused)
   Birebir from showroom/[id]/page.tsx
-  Left 73%: alternating gallery | Right 27%: product info (sticky)
+
+  Key differences vs E-commerce PDP:
+  - No quantity selector, no main Add to Cart
+  - Two CTAs: "Book Your Free Appointment" + "Book a Free Home Measure"
+  - Rich pricing block with "Now only", save badge, monthly installment
+  - Title + door thumbnail row
+  - Color swatches are bigger (36px) with "+N more" indicator
+  - Size selector uses big rounded-xl buttons (3-col)
+  - Accordion titles use serif font, bigger
+  - "Order a Door Sample" box — the ONLY place ATC happens
 {%- endcomment -%}
+
+{%- liquid
+  assign heading_tag_value = section.settings.heading_tag | default: 'h1'
+-%}
 
 <section class="kt-showroom" data-section-id="{{ section.id }}" data-section-type="main-product">
   <div class="kt-showroom__container">
@@ -25,19 +36,23 @@
               {%- if pattern_pos == 0 -%}
                 {%- comment -%} Full width image {%- endcomment -%}
                 <div class="kt-showroom__gallery-full" data-gallery-slide="{{ forloop.index0 }}">
-                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                  {%- assign media_alt = media.alt | default: product.title -%}
+                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
                 </div>
               {%- elsif pattern_pos == 1 -%}
                 {%- comment -%} Left of pair {%- endcomment -%}
                 <div class="kt-showroom__gallery-pair">
                   <div class="kt-showroom__gallery-half" data-gallery-slide="{{ forloop.index0 }}">
-                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                    {%- assign media_alt = media.alt | default: product.title -%}
+                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
                   </div>
                   {%- comment -%} Right of pair (next image) {%- endcomment -%}
                   {%- assign next_index = forloop.index -%}
                   {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
                     <div class="kt-showroom__gallery-half" data-gallery-slide="{{ next_index }}">
-                      {{ product.media[next_index] | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: product.media[next_index].width, height: product.media[next_index].height, alt: product.media[next_index].alt | default: product.title }}
+                      {%- assign next_media = product.media[next_index] -%}
+                      {%- assign next_alt = next_media.alt | default: product.title -%}
+                      {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
                     </div>
                   {%- endif -%}
                 </div>
@@ -58,7 +73,8 @@
           {%- for media in product.media -%}
             {%- if media.media_type == 'image' -%}
               <div class="kt-showroom__gallery-mobile-slide">
-                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media.alt | default: product.title }}
+                {%- assign media_alt = media.alt | default: product.title -%}
+                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
                 <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
               </div>
             {%- endif -%}
@@ -83,29 +99,89 @@
       </div>
 
       {%- comment -%} RIGHT: Product Info (27%, sticky) {%- endcomment -%}
-      <div class="kt-showroom__info-col">
+      <div class="kt-showroom__info-col kt-showroom--variant-picker-big">
         <div class="kt-showroom__info-sticky">
 
           {%- comment -%} Brand label {%- endcomment -%}
           <p class="kt-showroom__brand">{{ product.vendor | default: shop.name }} {{ 'products.product.collection_label' | t | default: 'Collection' }}</p>
 
-          {%- comment -%} Title {%- endcomment -%}
-          <h1 class="kt-showroom__title">{{ product.title }}</h1>
+          {%- comment -%} Title + Door Thumbnail row {%- endcomment -%}
+          <div class="kt-showroom__title-row">
+            <{{ heading_tag_value }} class="kt-showroom__title">{{ product.title }}</{{ heading_tag_value }}>
+            {%- if section.settings.door_thumbnail != blank -%}
+              <div class="kt-showroom__door-thumb">
+                {{ section.settings.door_thumbnail | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
+              </div>
+            {%- elsif product.featured_image != blank -%}
+              <div class="kt-showroom__door-thumb">
+                {{ product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
+              </div>
+            {%- endif -%}
+          </div>
 
-          {%- comment -%} Rating {%- endcomment -%}
-          {%- render 'product-rating', product: product -%}
+          {%- comment -%} Rich Pricing Block {%- endcomment -%}
+          {%- render 'product-price-showroom',
+            product: product,
+            financing_months: section.settings.financing_months,
+            financing_apr: section.settings.financing_apr,
+            financing_label: section.settings.financing_label
+          -%}
 
-          {%- comment -%} Price {%- endcomment -%}
-          {%- render 'product-price', product: product -%}
-
-          {%- comment -%} Variant Picker {%- endcomment -%}
+          {%- comment -%} Variant Picker (color swatches + size buttons) {%- endcomment -%}
           {%- render 'product-variant-picker', product: product -%}
 
-          {%- comment -%} CTA Buttons {%- endcomment -%}
-          {%- render 'product-form', product: product -%}
+          {%- comment -%} Lead-gen CTAs: Book Appointment + Book Home Measure {%- endcomment -%}
+          <div class="kt-showroom__ctas">
+            <button
+              type="button"
+              class="kt-showroom__cta kt-showroom__cta--primary"
+              data-appointment-open
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>{{ section.settings.primary_cta_text | default: 'Book Your Free Appointment' }}</span>
+            </button>
 
-          {%- comment -%} Trust Badges {%- endcomment -%}
-          {%- if section.blocks.size > 0 -%}
+            {%- if section.settings.secondary_cta_text != blank -%}
+              {%- if section.settings.secondary_cta_link != blank -%}
+                <a
+                  href="{{ section.settings.secondary_cta_link }}"
+                  class="kt-showroom__cta kt-showroom__cta--secondary"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                  </svg>
+                  <span>{{ section.settings.secondary_cta_text }}</span>
+                </a>
+              {%- else -%}
+                <button
+                  type="button"
+                  class="kt-showroom__cta kt-showroom__cta--secondary"
+                  data-appointment-open
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                  </svg>
+                  <span>{{ section.settings.secondary_cta_text }}</span>
+                </button>
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} At a glance tags {%- endcomment -%}
+          {%- assign has_tag_blocks = false -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'tag' -%}{%- assign has_tag_blocks = true -%}{%- break -%}{%- endif -%}
+          {%- endfor -%}
+          {%- if has_tag_blocks -%}
             <div class="kt-showroom__tags">
               <p class="kt-showroom__tags-label">{{ 'products.product.at_a_glance' | t | default: 'At a glance' }}</p>
               <div class="kt-showroom__tags-list">
@@ -118,7 +194,7 @@
             </div>
           {%- endif -%}
 
-          {%- comment -%} Accordions {%- endcomment -%}
+          {%- comment -%} Accordions (serif headings, Wren style) {%- endcomment -%}
           <div class="kt-showroom__accordions">
             {%- for block in section.blocks -%}
               {%- if block.type == 'accordion' -%}
@@ -131,7 +207,7 @@
                     <p>{{ product.description }}</p>
                   {%- endif -%}
                 {%- endcapture -%}
-                {%- render 'product-accordion', title: block.settings.title, content: acc_content, open: block.settings.open -%}
+                {%- render 'product-accordion', title: block.settings.title, content: acc_content, open: block.settings.open, style: 'serif' -%}
               {%- endif -%}
             {%- endfor -%}
           </div>
@@ -149,6 +225,63 @@
             </div>
           {%- endif -%}
 
+          {%- comment -%} Order a Door Sample box — the ONLY place ATC happens in Showroom {%- endcomment -%}
+          {%- if section.settings.show_door_sample -%}
+            {%- assign sample_product = section.settings.sample_product -%}
+            {%- if sample_product != blank -%}
+              {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
+              <div class="kt-showroom__sample-box">
+                <div class="kt-showroom__sample-header">
+                  <span class="kt-showroom__sample-header-title">
+                    {{ section.settings.sample_header_title | default: 'Order a Door Sample' }}
+                  </span>
+                  {%- if section.settings.sample_ships_badge != blank -%}
+                    <span class="kt-showroom__sample-ships-badge">{{ section.settings.sample_ships_badge }}</span>
+                  {%- endif -%}
+                </div>
+                <div class="kt-showroom__sample-body">
+                  <div class="kt-showroom__sample-top">
+                    <div class="kt-showroom__sample-thumb">
+                      {%- if sample_product.featured_image != blank -%}
+                        {{ sample_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 72, height: 96, alt: sample_product.title }}
+                      {%- else -%}
+                        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                      {%- endif -%}
+                    </div>
+                    <div class="kt-showroom__sample-info">
+                      <h4 class="kt-showroom__sample-title">{{ sample_product.title }}</h4>
+                      <div class="kt-showroom__sample-price-row">
+                        <span class="kt-showroom__sample-price">{{ sample_variant.price | money }}</span>
+                        {%- if section.settings.sample_refundable -%}
+                          <span class="kt-showroom__sample-refundable">
+                            {{ 'products.product.sample.refundable' | t | default: 'Refundable' }}
+                          </span>
+                        {%- endif -%}
+                      </div>
+                      {%- if section.settings.sample_desc != blank -%}
+                        <p class="kt-showroom__sample-desc">{{ section.settings.sample_desc }}</p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                  {%- if section.settings.sample_meta != blank -%}
+                    <div class="kt-showroom__sample-meta">{{ section.settings.sample_meta }}</div>
+                  {%- endif -%}
+                  {%- form 'product', sample_product, id: 'DoorSampleForm', class: 'kt-showroom__sample-form' -%}
+                    <input type="hidden" name="id" value="{{ sample_variant.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="kt-showroom__sample-btn" {% unless sample_variant.available %}disabled{% endunless %}>
+                      {%- if sample_variant.available -%}
+                        {{ 'products.product.sample.add_to_cart' | t | default: 'Add Sample to Cart' }}
+                      {%- else -%}
+                        {{ 'products.product.sold_out' | t }}
+                      {%- endif -%}
+                    </button>
+                  {%- endform -%}
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+
         </div>
       </div>
 
@@ -157,7 +290,6 @@
 </section>
 
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
-<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
@@ -168,11 +300,116 @@
   "settings": [
     {
       "type": "header",
+      "content": "t:sections.main-product-showroom.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.main-product-showroom.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "t:sections.main-product-showroom.settings.heading_tag.options__1.label" },
+        { "value": "h2", "label": "t:sections.main-product-showroom.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "image_picker",
+      "id": "door_thumbnail",
+      "label": "t:sections.main-product-showroom.settings.door_thumbnail.label",
+      "info": "t:sections.main-product-showroom.settings.door_thumbnail.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-product-showroom.settings.header__financing.content"
+    },
+    {
+      "type": "number",
+      "id": "financing_months",
+      "label": "t:sections.main-product-showroom.settings.financing_months.label",
+      "default": 60
+    },
+    {
+      "type": "number",
+      "id": "financing_apr",
+      "label": "t:sections.main-product-showroom.settings.financing_apr.label",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "financing_label",
+      "label": "t:sections.main-product-showroom.settings.financing_label.label",
+      "info": "t:sections.main-product-showroom.settings.financing_label.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-product-showroom.settings.header__ctas.content"
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_text",
+      "label": "t:sections.main-product-showroom.settings.primary_cta_text.label",
+      "default": "Book Your Free Appointment"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_text",
+      "label": "t:sections.main-product-showroom.settings.secondary_cta_text.label",
+      "default": "Book a Free Home Measure"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_link",
+      "label": "t:sections.main-product-showroom.settings.secondary_cta_link.label",
+      "info": "t:sections.main-product-showroom.settings.secondary_cta_link.info"
+    },
+    {
+      "type": "header",
       "content": "t:sections.main-product-showroom.settings.header__warranty.content"
     },
     { "type": "checkbox", "id": "show_warranty", "label": "t:sections.main-product-showroom.settings.show_warranty.label", "default": true },
     { "type": "text", "id": "warranty_title", "label": "t:sections.main-product-showroom.settings.warranty_title.label", "default": "Limited Lifetime Warranty" },
-    { "type": "textarea", "id": "warranty_text", "label": "t:sections.main-product-showroom.settings.warranty_text.label", "default": "Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets." }
+    { "type": "textarea", "id": "warranty_text", "label": "t:sections.main-product-showroom.settings.warranty_text.label", "default": "Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets." },
+    {
+      "type": "header",
+      "content": "t:sections.main-product-showroom.settings.header__door_sample.content"
+    },
+    { "type": "checkbox", "id": "show_door_sample", "label": "t:sections.main-product-showroom.settings.show_door_sample.label", "default": true },
+    {
+      "type": "product",
+      "id": "sample_product",
+      "label": "t:sections.main-product-showroom.settings.sample_product.label",
+      "info": "t:sections.main-product-showroom.settings.sample_product.info"
+    },
+    {
+      "type": "text",
+      "id": "sample_header_title",
+      "label": "t:sections.main-product-showroom.settings.sample_header_title.label",
+      "default": "Order a Door Sample"
+    },
+    {
+      "type": "text",
+      "id": "sample_ships_badge",
+      "label": "t:sections.main-product-showroom.settings.sample_ships_badge.label",
+      "default": "Ships in 48h"
+    },
+    {
+      "type": "text",
+      "id": "sample_desc",
+      "label": "t:sections.main-product-showroom.settings.sample_desc.label",
+      "default": "Sample cost applied to your full order"
+    },
+    {
+      "type": "checkbox",
+      "id": "sample_refundable",
+      "label": "t:sections.main-product-showroom.settings.sample_refundable.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "sample_meta",
+      "label": "t:sections.main-product-showroom.settings.sample_meta.label",
+      "default": "5″ × 7″ door front · Actual finish & texture"
+    }
   ],
   "blocks": [
     {

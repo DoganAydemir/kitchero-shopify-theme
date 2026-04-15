@@ -180,6 +180,15 @@
   margin-bottom: 0.75rem;
 }
 
+/* Title + Door Thumbnail row: flex items-start justify-between gap-4 mb-6 */
+.kt-showroom__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 /* Title: text-3xl lg:text-4xl font-serif tracking-tight */
 .kt-showroom__title {
   font-family: var(--font-accent-family);
@@ -187,13 +196,194 @@
   letter-spacing: -0.025em;
   line-height: 1.1;
   color: #1c1917;
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
 @media screen and (min-width: 990px) {
   .kt-showroom__title {
     font-size: 2.25rem;
   }
+}
+
+/* Door thumbnail (80x106 rounded + bordered stone-200) */
+.kt-showroom__door-thumb {
+  width: 5rem;
+  height: 6.625rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 2px solid #e7e5e4;
+  flex-shrink: 0;
+  background-color: #f5f5f4;
+}
+
+.kt-showroom__door-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   Rich Pricing Block — "Now only" + big red price + save badge
+   + "Was" strikethrough + monthly installment pill
+   ============================================================ */
+
+.kt-showroom-price {
+  margin-bottom: 1.5rem;
+}
+
+.kt-showroom-price__label {
+  display: block;
+  font-size: 0.875rem;
+  color: #78716c;
+  margin-bottom: 0.25rem;
+}
+
+.kt-showroom-price__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kt-showroom-price__current {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #b91c1c;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.kt-showroom-price__save {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  white-space: nowrap;
+}
+
+.kt-showroom-price__was {
+  display: block;
+  font-size: 0.875rem;
+  color: #a8a29e;
+  text-decoration: line-through;
+  margin-top: 0.25rem;
+}
+
+.kt-showroom-price__financing {
+  margin: 0.75rem 0 0;
+}
+
+.kt-showroom-price__financing-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #78716c;
+  border: 1px solid #d6d3d1;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+}
+
+/* ============================================================
+   Showroom Variant Picker overrides — bigger swatches (9 * 4 = 36px),
+   size selector uses 3-col big rounded-xl buttons
+   ============================================================ */
+
+.kt-showroom--variant-picker-big .kt-variant-picker__swatch {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__buttons {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__btn {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__btn-input:checked + .kt-variant-picker__btn {
+  border-width: 2px;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__group {
+  margin-bottom: 2rem;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__label {
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #1c1917;
+}
+
+.kt-showroom--variant-picker-big .kt-variant-picker__selected {
+  font-weight: 700;
+  color: #1c1917;
+}
+
+/* ============================================================
+   Lead-gen CTAs: Book Appointment (black pill) + Book Home Measure (outline pill)
+   ============================================================ */
+
+.kt-showroom__ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.kt-showroom__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.kt-showroom__cta--primary {
+  background-color: #1c1917;
+  color: #fff;
+  border: 1px solid #1c1917;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kt-showroom__cta--primary:hover {
+  background-color: #000;
+}
+
+.kt-showroom__cta--secondary {
+  background-color: #fff;
+  color: #1c1917;
+  border: 1px solid #d6d3d1;
+}
+
+.kt-showroom__cta--secondary:hover {
+  border-color: #1c1917;
+}
+
+.kt-showroom__cta:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
 }
 
 /* Feature tags: "At a glance" */
@@ -263,4 +453,164 @@
 /* Accordions container */
 .kt-showroom__accordions {
   margin-top: 0;
+}
+
+/* ============================================================
+   Order a Door Sample box — the ONLY place ATC happens in Showroom
+   Black header + thumbnail + product info + refundable badge + ATC button
+   ============================================================ */
+
+.kt-showroom__sample-box {
+  margin-top: 1.5rem;
+  border: 1px solid #e7e5e4;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.kt-showroom__sample-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1c1917;
+  padding: 0.75rem 1.25rem;
+}
+
+.kt-showroom__sample-header-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.kt-showroom__sample-ships-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.kt-showroom__sample-body {
+  padding: 1.25rem;
+}
+
+.kt-showroom__sample-top {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kt-showroom__sample-thumb {
+  width: 4.5rem;
+  height: 6rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  border: 1px solid #e7e5e4;
+  flex-shrink: 0;
+  background-color: #f5f5f4;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.kt-showroom__sample-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kt-showroom__sample-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.kt-showroom__sample-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1c1917;
+  margin: 0 0 0.25rem;
+}
+
+.kt-showroom__sample-price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.kt-showroom__sample-price {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.kt-showroom__sample-refundable {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: #047857;
+  background-color: #ecfdf5;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.kt-showroom__sample-desc {
+  font-size: 0.6875rem;
+  color: #78716c;
+  line-height: 1.375;
+  margin: 0;
+}
+
+.kt-showroom__sample-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  color: #a8a29e;
+  margin-bottom: 1rem;
+}
+
+.kt-showroom__sample-form {
+  margin: 0;
+}
+
+.kt-showroom__sample-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #1c1917;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.kt-showroom__sample-btn:hover {
+  background-color: #000;
+}
+
+.kt-showroom__sample-btn:active {
+  transform: scale(0.98);
+}
+
+.kt-showroom__sample-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kt-showroom__sample-btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
 }
