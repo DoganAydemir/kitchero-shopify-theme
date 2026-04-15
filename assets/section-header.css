@@ -504,18 +504,40 @@
   padding: 1rem 1.5rem 2rem;
 }
 
+.kt-header__mobile-list {
+  margin: 0;
+}
+
+.kt-header__mobile-item {
+  border-bottom: 1px solid #292524;
+}
+
 .kt-header__mobile-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 1rem 0;
   font-family: var(--font-heading-family);
   font-size: 1.5rem;
   letter-spacing: -0.025em;
   color: #fafaf9;
   text-decoration: none;
-  border-bottom: 1px solid #292524;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition: color 0.2s ease;
+  list-style: none;
+}
+
+/* Remove default <details>/<summary> marker */
+.kt-header__mobile-link::-webkit-details-marker {
+  display: none;
+}
+
+.kt-header__mobile-link::marker {
+  display: none;
+  content: '';
 }
 
 @media screen and (min-width: 750px) {
@@ -529,18 +551,136 @@
   color: #78716c;
 }
 
-.kt-header__mobile-link svg {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.2s ease;
+.kt-header__mobile-link > span {
+  flex: 1;
+  min-width: 0;
 }
 
-.kt-header__mobile-link:hover svg {
-  transform: translateX(4px);
+/* ============================================================
+   Mobile menu — nested accordion (2nd + 3rd levels)
+   Uses native <details>/<summary> so sub-items expand with no JS,
+   keyboard-accessible out of the box.
+   ============================================================ */
+
+.kt-header__mobile-group {
+  list-style: none;
 }
 
-[dir="rtl"] .kt-header__mobile-link:hover svg {
-  transform: translateX(-4px);
+.kt-header__mobile-chevron {
+  flex-shrink: 0;
+  margin-left: 1rem;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[dir="rtl"] .kt-header__mobile-chevron {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.kt-header__mobile-group[open] > summary .kt-header__mobile-chevron {
+  transform: rotate(180deg);
+}
+
+.kt-header__mobile-link--parent {
+  /* Parent becomes the <summary> — same look as a link but with a
+     chevron that rotates when open. No hover translate; the chevron
+     rotation is the affordance. */
+}
+
+.kt-header__mobile-link--parent:hover .kt-header__mobile-chevron {
+  transform: none;
+}
+
+.kt-header__mobile-group[open] > summary.kt-header__mobile-link--parent:hover .kt-header__mobile-chevron {
+  transform: rotate(180deg);
+}
+
+/* Sub-list (level 2) */
+.kt-header__mobile-sublist {
+  margin: 0.25rem 0 1rem;
+  padding: 0 0 0 1rem;
+  border-left: 1px solid #292524;
+}
+
+[dir="rtl"] .kt-header__mobile-sublist {
+  padding: 0 1rem 0 0;
+  border-left: none;
+  border-right: 1px solid #292524;
+}
+
+.kt-header__mobile-sublist li {
+  list-style: none;
+}
+
+.kt-header__mobile-sublink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.625rem 0;
+  font-family: var(--font-body-family);
+  font-size: 1rem;
+  letter-spacing: 0;
+  color: #d6d3d1;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  list-style: none;
+}
+
+.kt-header__mobile-sublink::-webkit-details-marker {
+  display: none;
+}
+
+.kt-header__mobile-sublink:hover,
+.kt-header__mobile-sublink:focus-visible {
+  color: #fafaf9;
+}
+
+.kt-header__mobile-sublink > span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* "View all {parent}" pill link — differentiated from regular children */
+.kt-header__mobile-sublink--all {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #78716c;
+  padding-top: 0.25rem;
+}
+
+.kt-header__mobile-sublink--all:hover {
+  color: #fafaf9;
+}
+
+/* Level 3 (grandchildren) — deeper indent + slightly smaller text */
+.kt-header__mobile-sublist--deep {
+  padding-left: 1rem;
+}
+
+[dir="rtl"] .kt-header__mobile-sublist--deep {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.kt-header__mobile-sublist--deep .kt-header__mobile-sublink {
+  font-size: 0.9375rem;
+  padding: 0.5rem 0;
+}
+
+.kt-header__mobile-group--sub {
+  margin-bottom: 0.25rem;
+}
+
+/* Smooth expand/collapse — only works if content-visibility is
+   supported, otherwise details just snaps open. That's fine. */
+.kt-header__mobile-group > *:not(summary) {
+  overflow: hidden;
 }
 
 .kt-header__mobile-cta {
