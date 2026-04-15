@@ -203,13 +203,22 @@
         {%- endif -%}
       </a>
 
-      {%- comment -%} Mobile menu toggle — only visible below 990px {%- endcomment -%}
+      {%- comment -%}
+        Mobile menu toggle — only visible below 990px.
+        The inline onclick is the absolute source of truth: it bypasses
+        event delegation, CDN-cached external scripts, and any other
+        script on the page that might intercept document-level clicks.
+        The delegated handler in the <script> block below and the one
+        in section-header.js are both removed now; this onclick handles
+        100% of the open/close toggle.
+      {%- endcomment -%}
       <button
         type="button"
         class="kt-header__menu-toggle"
         aria-label="{{ 'accessibility.navigation' | t }}"
         aria-expanded="false"
         aria-controls="kt-mobile-panel-{{ section.id }}"
+        onclick="(function(btn){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;var open=p.classList.toggle('kt-header__mobile-panel--open');btn.setAttribute('aria-expanded',open?'true':'false');document.body.style.overflow=open?'hidden':'';var oi=btn.querySelector('.kt-header__menu-toggle-open');var ci=btn.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.toggle('hidden',open);if(ci)ci.classList.toggle('hidden',!open);})(this);"
       >
         <svg class="kt-header__menu-toggle-open" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -236,7 +245,12 @@
       <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
         <span class="kt-header__logo-text">{{ shop.name }}</span>
       </a>
-      <button type="button" class="kt-header__mobile-panel-close" aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <button
+        type="button"
+        class="kt-header__mobile-panel-close"
+        aria-label="{{ 'accessibility.close' | t | default: 'Close' }}"
+        onclick="(function(){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;p.classList.remove('kt-header__mobile-panel--open');document.body.style.overflow='';var t=document.querySelector('.kt-header__menu-toggle');if(t){t.setAttribute('aria-expanded','false');var oi=t.querySelector('.kt-header__menu-toggle-open');var ci=t.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.remove('hidden');if(ci)ci.classList.add('hidden');}})();"
+      >
         <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -277,91 +291,30 @@
 <script src="{{ 'section-header.js' | asset_url }}" defer="defer"></script>
 
 {%- comment -%}
-  Inline mobile menu bootstrap.
-
-  Rendered fresh with every response (not cached by the Shopify CDN
-  like external .js assets can be), so merchants never end up stuck
-  with a stale external section-header.js that fails to open the
-  mobile panel. This is the one exception we carve out to the rule
-  against inline <script> blocks — documented in CLAUDE.md as allowed
-  when strictly necessary for reliability.
-
-  The delegated click handlers here are the SOURCE OF TRUTH for the
-  mobile menu. The external section-header.js repeats the same logic
-  so that future features (scroll state, keyboard handlers) have a
-  place to live, but the menu itself never depends on the external
-  file having loaded or parsed successfully.
+  Mobile menu open/close is wired via inline `onclick` attributes on
+  the toggle button and the close button above. This is the absolute
+  simplest possible implementation — no event delegation, no external
+  asset timing, no CDN cache to stale out. This small <script> block
+  only adds Escape-key-to-close as a keyboard affordance.
 {%- endcomment -%}
 <script>
-  (function () {
-    if (window.__kitcheroMobileMenuBound) return;
-    window.__kitcheroMobileMenuBound = true;
-
-    var OPEN_CLASS = 'kt-header__mobile-panel--open';
-
-    function getPanel() {
-      return document.querySelector('.kt-header__mobile-panel');
-    }
-
-    function openPanel() {
-      var panel = getPanel();
-      if (!panel) return;
-      panel.classList.add(OPEN_CLASS);
-      document.body.style.overflow = 'hidden';
-      var toggle = document.querySelector('.kt-header__menu-toggle');
-      if (toggle) toggle.setAttribute('aria-expanded', 'true');
-      var openIcon = document.querySelector('.kt-header__menu-toggle-open');
-      var closeIcon = document.querySelector('.kt-header__menu-toggle-close');
-      if (openIcon) openIcon.classList.add('hidden');
-      if (closeIcon) closeIcon.classList.remove('hidden');
-    }
-
-    function closePanel() {
-      var panel = getPanel();
-      if (!panel) return;
-      panel.classList.remove(OPEN_CLASS);
-      document.body.style.overflow = '';
-      var toggle = document.querySelector('.kt-header__menu-toggle');
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
-      var openIcon = document.querySelector('.kt-header__menu-toggle-open');
-      var closeIcon = document.querySelector('.kt-header__menu-toggle-close');
-      if (openIcon) openIcon.classList.remove('hidden');
-      if (closeIcon) closeIcon.classList.add('hidden');
-    }
-
-    function togglePanel() {
-      var panel = getPanel();
-      if (!panel) return;
-      if (panel.classList.contains(OPEN_CLASS)) {
-        closePanel();
-      } else {
-        openPanel();
-      }
-    }
-
-    document.addEventListener('click', function (e) {
-      var toggle = e.target.closest && e.target.closest('.kt-header__menu-toggle');
-      if (toggle) {
-        e.preventDefault();
-        togglePanel();
-        return;
-      }
-      var closer = e.target.closest && e.target.closest('.kt-header__mobile-panel-close');
-      if (closer) {
-        e.preventDefault();
-        closePanel();
-      }
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' || e.code === 'Escape') {
-        var panel = getPanel();
-        if (panel && panel.classList.contains(OPEN_CLASS)) {
-          closePanel();
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.code === 'Escape') {
+      var panel = document.querySelector('.kt-header__mobile-panel');
+      if (panel && panel.classList.contains('kt-header__mobile-panel--open')) {
+        panel.classList.remove('kt-header__mobile-panel--open');
+        document.body.style.overflow = '';
+        var t = document.querySelector('.kt-header__menu-toggle');
+        if (t) {
+          t.setAttribute('aria-expanded', 'false');
+          var oi = t.querySelector('.kt-header__menu-toggle-open');
+          var ci = t.querySelector('.kt-header__menu-toggle-close');
+          if (oi) oi.classList.remove('hidden');
+          if (ci) ci.classList.add('hidden');
         }
       }
-    });
-  })();
+    }
+  });
 </script>
 
 {% schema %}

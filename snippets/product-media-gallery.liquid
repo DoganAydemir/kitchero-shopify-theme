@@ -13,20 +13,22 @@
     {%- for media in product.media -%}
       {%- if media.media_type == 'image' -%}
         <button
+          type="button"
           class="kt-gallery__thumb{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
           data-gallery-thumb-btn
           data-media-index="{{ forloop.index0 }}"
           aria-label="{{ 'products.product.media.image_available' | t: index: forloop.index }}"
         >
+          {%- assign thumb_alt = media.alt | default: product.title -%}
           {{
             media
             | image_url: width: 184
             | image_tag:
+              class: 'kt-gallery__thumb-image',
               loading: 'lazy',
               width: 92,
               height: 92,
-              alt: media.alt | default: product.title,
-              class: 'kt-gallery__thumb-image'
+              alt: thumb_alt
           }}
         </button>
       {%- endif -%}
@@ -41,17 +43,25 @@
           class="kt-gallery__slide{% if forloop.first %} kt-gallery__slide--active{% endif %}"
           data-gallery-slide="{{ forloop.index0 }}"
         >
+          {%- comment -%}
+            Pre-assign alt to a variable. Liquid parses `alt: media.alt |
+            default: product.title` inside image_tag as a pipe chain that
+            eats all subsequent params (class, loading, widths, ...), so
+            the img ships without our class and all the layout CSS that
+            depends on it goes missing.
+          {%- endcomment -%}
+          {%- assign media_alt = media.alt | default: product.title -%}
           {{
             media
             | image_url: width: 1200
             | image_tag:
+              class: 'kt-gallery__image',
               loading: 'lazy',
               widths: '375, 550, 750, 1100',
               sizes: '(min-width: 990px) 58vw, 100vw',
               width: media.width,
               height: media.height,
-              alt: media.alt | default: product.title,
-              class: 'kt-gallery__image'
+              alt: media_alt
           }}
         </div>
       {%- endif -%}
