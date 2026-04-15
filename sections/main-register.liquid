@@ -1,0 +1,44 @@
+{{ 'section-customer-forms.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-customer" data-section-id="{{ section.id }}">
+  <div class="kt-customer__container">
+    <h1 class="kt-customer__title">{{ 'customers.register.title' | t }}</h1>
+
+    {%- form 'create_customer', id: 'CreateCustomerForm' -%}
+      <div class="kt-customer__form">
+        <div class="kt-customer__row">
+          <div class="kt-customer__field">
+            <label for="register-first-name" class="visually-hidden">{{ 'customers.register.first_name' | t }}</label>
+            <input type="text" id="register-first-name" name="customer[first_name]" class="kt-customer__input" placeholder="{{ 'customers.register.first_name' | t }}" required autocomplete="given-name">
+          </div>
+          <div class="kt-customer__field">
+            <label for="register-last-name" class="visually-hidden">{{ 'customers.register.last_name' | t }}</label>
+            <input type="text" id="register-last-name" name="customer[last_name]" class="kt-customer__input" placeholder="{{ 'customers.register.last_name' | t }}" required autocomplete="family-name">
+          </div>
+        </div>
+        <div class="kt-customer__field">
+          <label for="register-email" class="visually-hidden">{{ 'customers.register.email' | t }}</label>
+          <input type="email" id="register-email" name="customer[email]" class="kt-customer__input" placeholder="{{ 'customers.register.email' | t }}" required autocomplete="email">
+        </div>
+        <div class="kt-customer__field">
+          <label for="register-password" class="visually-hidden">{{ 'customers.register.password' | t }}</label>
+          <input type="password" id="register-password" name="customer[password]" class="kt-customer__input" placeholder="{{ 'customers.register.password' | t }}" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="kt-customer__submit">{{ 'customers.register.submit' | t }}</button>
+
+        <div class="kt-customer__alt">
+          {{ 'customers.register.already_have' | t | default: 'Already have an account?' }}
+          <a href="{{ routes.account_login_url }}">{{ 'customers.login.sign_in' | t }}</a>
+        </div>
+      </div>
+    {%- endform -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Customer register",
+  "tag": "section",
+  "class": "section"
+}
+{% endschema %}

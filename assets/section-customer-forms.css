@@ -1,0 +1,184 @@
+/* Customer Forms — Login + Register + Forgot Password */
+
+.kt-customer {
+  min-height: 100vh;
+  background-color: #fafaf9;
+  padding: 10rem 1.5rem 8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.kt-customer__container {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.kt-customer__title {
+  font-family: var(--font-accent-family);
+  font-size: 2.25rem;
+  text-align: center;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin-bottom: 2.5rem;
+}
+
+.kt-customer__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: #fff;
+  padding: 2rem;
+  border: 1px solid #e7e5e4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kt-customer__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.kt-customer__input {
+  width: 100%;
+  border: 1px solid #d6d3d1;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  color: #1c1917;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.kt-customer__input::placeholder {
+  color: #a8a29e;
+}
+
+.kt-customer__input:focus {
+  border-color: #1c1917;
+}
+
+.kt-customer__submit {
+  width: 100%;
+  padding: 1rem;
+  background-color: #1c1917;
+  color: #fff;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.kt-customer__submit:hover {
+  background-color: #000;
+}
+
+.kt-customer__forgot-link {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: #78716c;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.kt-customer__forgot-link:hover {
+  color: #1c1917;
+}
+
+.kt-customer__alt {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #78716c;
+  margin-top: 0.5rem;
+}
+
+.kt-customer__alt a {
+  color: #1c1917;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.kt-customer__cancel {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: #78716c;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* Forgot Password Modal */
+.kt-customer__modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+}
+
+.kt-customer__modal[aria-hidden="false"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.kt-customer__modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.kt-customer__modal-panel {
+  position: relative;
+  background: #fff;
+  padding: 2rem 2rem;
+  width: 100%;
+  max-width: 28rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-customer__modal-panel {
+    padding: 3rem;
+  }
+}
+
+.kt-customer__modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: #a8a29e;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.kt-customer__modal-close:hover {
+  color: #1c1917;
+}
+
+.kt-customer__modal-title {
+  font-family: var(--font-accent-family);
+  font-size: 1.5rem;
+  color: #1c1917;
+  margin: 0 0 0.5rem;
+}
+
+.kt-customer__modal-desc {
+  font-size: 0.875rem;
+  color: #78716c;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
