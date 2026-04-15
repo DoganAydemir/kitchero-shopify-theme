@@ -291,14 +291,14 @@
                 class="kt-header__mobile-link kt-header__mobile-link--parent"
                 data-mobile-forward="p-{{ forloop.index0 }}"
               >
-                <span>{{ link.title }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
                 <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
               </button>
             {%- else -%}
               <a href="{{ link.url }}" class="kt-header__mobile-link">
-                <span>{{ link.title }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
               </a>
             {%- endif -%}
           {%- endfor -%}
@@ -330,13 +330,13 @@
                   <line x1="19" y1="12" x2="5" y2="12"></line>
                   <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
-                <span>{{ 'general.back' | t | default: 'Back' }}</span>
+                <span class="kt-header__mobile-back-label">{{ 'general.back' | t | default: 'Back' }}</span>
               </button>
               <h3 class="kt-header__mobile-view-title">{{ link.title }}</h3>
 
               {%- if link.url != blank and link.url != '#' -%}
                 <a href="{{ link.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
-                  <span>
+                  <span class="kt-header__mobile-link-label">
                     {{ 'general.view_all' | t | default: 'View all' }} {{ link.title }}
                   </span>
                 </a>
@@ -349,14 +349,14 @@
                     class="kt-header__mobile-link kt-header__mobile-link--parent"
                     data-mobile-forward="p-{{ l1_index }}-{{ forloop.index0 }}"
                   >
-                    <span>{{ child.title }}</span>
+                    <span class="kt-header__mobile-link-label">{{ child.title }}</span>
                     <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                   </button>
                 {%- else -%}
                   <a href="{{ child.url }}" class="kt-header__mobile-link">
-                    <span>{{ child.title }}</span>
+                    <span class="kt-header__mobile-link-label">{{ child.title }}</span>
                   </a>
                 {%- endif -%}
               {%- endfor -%}
@@ -378,13 +378,13 @@
                       <line x1="19" y1="12" x2="5" y2="12"></line>
                       <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
-                    <span>{{ 'general.back' | t | default: 'Back' }}</span>
+                    <span class="kt-header__mobile-back-label">{{ 'general.back' | t | default: 'Back' }}</span>
                   </button>
                   <h3 class="kt-header__mobile-view-title">{{ child.title }}</h3>
 
                   {%- if child.url != blank and child.url != '#' -%}
                     <a href="{{ child.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
-                      <span>
+                      <span class="kt-header__mobile-link-label">
                         {{ 'general.view_all' | t | default: 'View all' }} {{ child.title }}
                       </span>
                     </a>
@@ -392,7 +392,7 @@
 
                   {%- for grandchild in child.links -%}
                     <a href="{{ grandchild.url }}" class="kt-header__mobile-link">
-                      <span>{{ grandchild.title }}</span>
+                      <span class="kt-header__mobile-link-label">{{ grandchild.title }}</span>
                     </a>
                   {%- endfor -%}
                 </div>
