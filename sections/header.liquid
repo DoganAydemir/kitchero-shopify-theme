@@ -268,95 +268,208 @@
     </button>
   </div>
 
-  <nav class="kt-header__mobile-menu" aria-label="{{ 'accessibility.navigation' | t }}">
+  {%- comment -%}
+    Mobile menu — multi-panel slide navigation, ported birebir from
+    Navbar.tsx. Each menu level is its own full-viewport panel. The
+    main panel lists top-level items; tapping a parent slides in the
+    corresponding sub-panel from the right. Sub-panels have a "Back"
+    button that reverses the slide.
+
+    Panel identity: `main` for the top level, `p-{i}` for the i-th
+    top-level item's sub-panel, `p-{i}-{j}` for the j-th child's
+    sub-sub-panel. Up to 3 levels deep (Shopify's menu max).
+  {%- endcomment -%}
+  <div class="kt-header__mobile-slider" data-mobile-slider>
     {%- if section.settings.main_menu != blank -%}
-      <ul class="list-unstyled kt-header__mobile-list" role="list">
-        {%- for link in section.settings.main_menu.links -%}
-          <li class="kt-header__mobile-item">
+      {%- comment -%} ============ LEVEL 1: Main panel ============ {%- endcomment -%}
+      <div class="kt-header__mobile-view" data-panel="main" data-state="current">
+        <div class="kt-header__mobile-view-inner">
+          {%- for link in section.settings.main_menu.links -%}
             {%- if link.links.size > 0 -%}
-              {%- comment -%}
-                Parent with children — render as a <details>/<summary>
-                accordion. The <summary> is the tap target (not a link),
-                so tapping a parent expands instead of navigating away.
-                A "View all {parent}" link is rendered first inside the
-                expanded submenu so users can still reach the parent URL
-                if they need to.
-              {%- endcomment -%}
-              <details class="kt-header__mobile-group">
-                <summary class="kt-header__mobile-link kt-header__mobile-link--parent">
-                  <span>{{ link.title }}</span>
-                  <svg class="kt-header__mobile-chevron" aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </summary>
-                <ul class="list-unstyled kt-header__mobile-sublist" role="list">
-                  {%- if link.url != blank and link.url != '#' -%}
-                    <li>
-                      <a href="{{ link.url }}" class="kt-header__mobile-sublink kt-header__mobile-sublink--all">
-                        {{ 'general.view_all' | t | default: 'View all' }}
-                        <span class="visually-hidden"> {{ link.title }}</span>
-                      </a>
-                    </li>
-                  {%- endif -%}
-                  {%- for child in link.links -%}
-                    <li>
-                      {%- if child.links.size > 0 -%}
-                        {%- comment -%} 3rd level — nested accordion {%- endcomment -%}
-                        <details class="kt-header__mobile-group kt-header__mobile-group--sub">
-                          <summary class="kt-header__mobile-sublink kt-header__mobile-sublink--parent">
-                            <span>{{ child.title }}</span>
-                            <svg class="kt-header__mobile-chevron" aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                              <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                          </summary>
-                          <ul class="list-unstyled kt-header__mobile-sublist kt-header__mobile-sublist--deep" role="list">
-                            {%- if child.url != blank and child.url != '#' -%}
-                              <li>
-                                <a href="{{ child.url }}" class="kt-header__mobile-sublink kt-header__mobile-sublink--all">
-                                  {{ 'general.view_all' | t | default: 'View all' }}
-                                  <span class="visually-hidden"> {{ child.title }}</span>
-                                </a>
-                              </li>
-                            {%- endif -%}
-                            {%- for grandchild in child.links -%}
-                              <li>
-                                <a href="{{ grandchild.url }}" class="kt-header__mobile-sublink">
-                                  {{ grandchild.title }}
-                                </a>
-                              </li>
-                            {%- endfor -%}
-                          </ul>
-                        </details>
-                      {%- else -%}
-                        <a href="{{ child.url }}" class="kt-header__mobile-sublink">
-                          {{ child.title }}
-                        </a>
-                      {%- endif -%}
-                    </li>
-                  {%- endfor -%}
-                </ul>
-              </details>
+              <button
+                type="button"
+                class="kt-header__mobile-link kt-header__mobile-link--parent"
+                data-mobile-forward="p-{{ forloop.index0 }}"
+              >
+                <span>{{ link.title }}</span>
+                <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
             {%- else -%}
-              {%- comment -%} Leaf item — regular link that navigates {%- endcomment -%}
               <a href="{{ link.url }}" class="kt-header__mobile-link">
                 <span>{{ link.title }}</span>
               </a>
             {%- endif -%}
-          </li>
-        {%- endfor -%}
-      </ul>
-    {%- endif -%}
+          {%- endfor -%}
 
-    {%- if section.settings.mobile_cta_text != blank -%}
-      <a
-        href="{{ section.settings.mobile_cta_link | default: routes.root_url }}"
-        class="kt-header__mobile-cta"
-      >
-        {{ section.settings.mobile_cta_text }}
-      </a>
+          {%- if section.settings.mobile_cta_text != blank -%}
+            <a
+              href="{{ section.settings.mobile_cta_link | default: routes.root_url }}"
+              class="kt-header__mobile-cta"
+            >
+              {{ section.settings.mobile_cta_text }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} ============ LEVEL 2: Sub-panels ============ {%- endcomment -%}
+      {%- for link in section.settings.main_menu.links -%}
+        {%- if link.links.size > 0 -%}
+          {%- assign l1_id = 'p-' | append: forloop.index0 -%}
+          {%- assign l1_index = forloop.index0 -%}
+          <div class="kt-header__mobile-view" data-panel="{{ l1_id }}" data-state="ahead">
+            <div class="kt-header__mobile-view-inner">
+              <button
+                type="button"
+                class="kt-header__mobile-back"
+                data-mobile-back
+              >
+                <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>{{ 'general.back' | t | default: 'Back' }}</span>
+              </button>
+              <h3 class="kt-header__mobile-view-title">{{ link.title }}</h3>
+
+              {%- if link.url != blank and link.url != '#' -%}
+                <a href="{{ link.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
+                  <span>
+                    {{ 'general.view_all' | t | default: 'View all' }} {{ link.title }}
+                  </span>
+                </a>
+              {%- endif -%}
+
+              {%- for child in link.links -%}
+                {%- if child.links.size > 0 -%}
+                  <button
+                    type="button"
+                    class="kt-header__mobile-link kt-header__mobile-link--parent"
+                    data-mobile-forward="p-{{ l1_index }}-{{ forloop.index0 }}"
+                  >
+                    <span>{{ child.title }}</span>
+                    <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                {%- else -%}
+                  <a href="{{ child.url }}" class="kt-header__mobile-link">
+                    <span>{{ child.title }}</span>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+
+          {%- comment -%} ============ LEVEL 3: Sub-sub-panels ============ {%- endcomment -%}
+          {%- for child in link.links -%}
+            {%- if child.links.size > 0 -%}
+              {%- assign l2_id = 'p-' | append: l1_index | append: '-' | append: forloop.index0 -%}
+              <div class="kt-header__mobile-view" data-panel="{{ l2_id }}" data-state="ahead">
+                <div class="kt-header__mobile-view-inner">
+                  <button
+                    type="button"
+                    class="kt-header__mobile-back"
+                    data-mobile-back
+                  >
+                    <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12"></line>
+                      <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>{{ 'general.back' | t | default: 'Back' }}</span>
+                  </button>
+                  <h3 class="kt-header__mobile-view-title">{{ child.title }}</h3>
+
+                  {%- if child.url != blank and child.url != '#' -%}
+                    <a href="{{ child.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
+                      <span>
+                        {{ 'general.view_all' | t | default: 'View all' }} {{ child.title }}
+                      </span>
+                    </a>
+                  {%- endif -%}
+
+                  {%- for grandchild in child.links -%}
+                    <a href="{{ grandchild.url }}" class="kt-header__mobile-link">
+                      <span>{{ grandchild.title }}</span>
+                    </a>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
     {%- endif -%}
-  </nav>
+  </div>
 </div>
+
+{%- comment -%}
+  Mobile menu slide navigation script — tracks the panel stack,
+  updates data-state on each panel to drive the CSS transitions.
+  Inline so it's always fresh (no CDN cache risk). Idempotent via
+  window.__kitcheroMobileNavBound flag.
+{%- endcomment -%}
+<script>
+  (function () {
+    if (window.__kitcheroMobileNavBound) return;
+    window.__kitcheroMobileNavBound = true;
+
+    var stack = ['main'];
+
+    function updatePanels() {
+      var slider = document.querySelector('[data-mobile-slider]');
+      if (!slider) return;
+      var panels = slider.querySelectorAll('[data-panel]');
+      var currentId = stack[stack.length - 1];
+      panels.forEach(function (p) {
+        var id = p.dataset.panel;
+        var idx = stack.indexOf(id);
+        if (idx === stack.length - 1) {
+          p.dataset.state = 'current';
+        } else if (idx >= 0) {
+          p.dataset.state = 'behind';
+        } else {
+          p.dataset.state = 'ahead';
+        }
+      });
+    }
+
+    function resetStack() {
+      stack = ['main'];
+      updatePanels();
+    }
+
+    // Reset the panel stack whenever the mobile menu is closed so the
+    // user starts fresh next time. Runs via the same onclick attributes
+    // on the close button and toggle — this listener is a fallback.
+    document.addEventListener('click', function (e) {
+      var forward = e.target.closest('[data-mobile-forward]');
+      if (forward) {
+        e.preventDefault();
+        stack.push(forward.dataset.mobileForward);
+        updatePanels();
+        return;
+      }
+      var back = e.target.closest('[data-mobile-back]');
+      if (back) {
+        e.preventDefault();
+        if (stack.length > 1) {
+          stack.pop();
+          updatePanels();
+        }
+        return;
+      }
+      // Close → reset stack
+      var closer = e.target.closest('.kt-header__mobile-panel-close, .kt-header__menu-toggle');
+      if (closer) {
+        // Defer slightly so the close transition runs first
+        setTimeout(resetStack, 500);
+      }
+    });
+  })();
+</script>
 
 <script src="{{ 'section-header.js' | asset_url }}" defer="defer"></script>
 

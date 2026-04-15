@@ -460,7 +460,8 @@
   stroke-width: 1.5;
 }
 
-/* Mobile Panel */
+/* Mobile Panel — fills the viewport when open. The inner slider is
+   absolute-positioned so its children panels can slide horizontally. */
 .kt-header__mobile-panel {
   position: fixed;
   inset: 0;
@@ -469,8 +470,9 @@
   color: #fafaf9;
   transform: translateY(-100%);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;  /* slider handles its own scroll per-panel */
+  display: flex;
+  flex-direction: column;
 }
 
 .kt-header__mobile-panel[open],
@@ -483,6 +485,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Slider container — takes the remaining vertical space under the
+   panel header so the level panels inside can fill it. */
+.kt-header__mobile-panel .kt-header__mobile-slider {
+  flex: 1;
+  min-height: 0;
 }
 
 .kt-header__mobile-panel-close {
@@ -500,44 +510,131 @@
   height: 28px;
 }
 
-.kt-header__mobile-menu {
-  padding: 1rem 1.5rem 2rem;
+/* ============================================================
+   Mobile menu — multi-panel slide navigation
+   Ported birebir from Navbar.tsx.
+   Each panel is a full-viewport absolute-positioned view with its
+   own `data-state` attribute driving its translateX.
+   ============================================================ */
+
+.kt-header__mobile-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-.kt-header__mobile-list {
-  margin: 0;
+.kt-header__mobile-view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
 }
 
-.kt-header__mobile-item {
+/* Current panel — on screen */
+.kt-header__mobile-view[data-state="current"] {
+  transform: translateX(0);
+}
+
+/* Panels the user has already passed through — held just off-screen
+   to the left, ready to slide back in when the user taps Back. */
+.kt-header__mobile-view[data-state="behind"] {
+  transform: translateX(-100%);
+}
+
+/* Panels ahead of the user (not yet visited) — off-screen to the right. */
+.kt-header__mobile-view[data-state="ahead"] {
+  transform: translateX(100%);
+}
+
+.kt-header__mobile-view-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem 3rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-header__mobile-view-inner {
+    padding: 0 3rem 3rem;
+  }
+}
+
+/* Back button — small uppercase link at the top of each sub-panel */
+.kt-header__mobile-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  align-self: flex-start;
+  padding: 0;
+  margin-bottom: 2.5rem;
+  background: none;
+  border: none;
+  color: #78716c;
+  font-family: var(--font-body-family);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.kt-header__mobile-back:hover {
+  color: #fafaf9;
+}
+
+.kt-header__mobile-back svg {
+  transition: transform 0.2s ease;
+}
+
+.kt-header__mobile-back:hover svg {
+  transform: translateX(-4px);
+}
+
+[dir="rtl"] .kt-header__mobile-back svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .kt-header__mobile-back:hover svg {
+  transform: scaleX(-1) translateX(-4px);
+}
+
+/* Panel title — small uppercase label above the sub-menu */
+.kt-header__mobile-view-title {
+  font-family: var(--font-body-family);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #57534e;
+  margin: 0 0 2rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #292524;
 }
 
+/* Menu items (both top-level and sub-level). Shared styling. */
 .kt-header__mobile-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 1rem 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-accent-family);
   font-size: 1.5rem;
   letter-spacing: -0.025em;
+  line-height: 1.2;
   color: #fafaf9;
   text-decoration: none;
   background: none;
   border: none;
+  border-bottom: 1px solid #292524;
   cursor: pointer;
   transition: color 0.2s ease;
-  list-style: none;
-}
-
-/* Remove default <details>/<summary> marker */
-.kt-header__mobile-link::-webkit-details-marker {
-  display: none;
-}
-
-.kt-header__mobile-link::marker {
-  display: none;
-  content: '';
+  text-align: left;
+  font-weight: inherit;
 }
 
 @media screen and (min-width: 750px) {
@@ -548,139 +645,54 @@
 }
 
 .kt-header__mobile-link:hover {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 .kt-header__mobile-link > span {
   flex: 1;
   min-width: 0;
-}
-
-/* ============================================================
-   Mobile menu — nested accordion (2nd + 3rd levels)
-   Uses native <details>/<summary> so sub-items expand with no JS,
-   keyboard-accessible out of the box.
-   ============================================================ */
-
-.kt-header__mobile-group {
-  list-style: none;
-}
-
-.kt-header__mobile-chevron {
-  flex-shrink: 0;
-  margin-left: 1rem;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-[dir="rtl"] .kt-header__mobile-chevron {
-  margin-left: 0;
-  margin-right: 1rem;
-}
-
-.kt-header__mobile-group[open] > summary .kt-header__mobile-chevron {
-  transform: rotate(180deg);
-}
-
-.kt-header__mobile-link--parent {
-  /* Parent becomes the <summary> — same look as a link but with a
-     chevron that rotates when open. No hover translate; the chevron
-     rotation is the affordance. */
-}
-
-.kt-header__mobile-link--parent:hover .kt-header__mobile-chevron {
-  transform: none;
-}
-
-.kt-header__mobile-group[open] > summary.kt-header__mobile-link--parent:hover .kt-header__mobile-chevron {
-  transform: rotate(180deg);
-}
-
-/* Sub-list (level 2) */
-.kt-header__mobile-sublist {
-  margin: 0.25rem 0 1rem;
-  padding: 0 0 0 1rem;
-  border-left: 1px solid #292524;
-}
-
-[dir="rtl"] .kt-header__mobile-sublist {
-  padding: 0 1rem 0 0;
-  border-left: none;
-  border-right: 1px solid #292524;
-}
-
-.kt-header__mobile-sublist li {
-  list-style: none;
-}
-
-.kt-header__mobile-sublink {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.625rem 0;
-  font-family: var(--font-body-family);
-  font-size: 1rem;
-  letter-spacing: 0;
-  color: #d6d3d1;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  list-style: none;
+  gap: 0.75rem;
 }
 
-.kt-header__mobile-sublink::-webkit-details-marker {
-  display: none;
+.kt-header__mobile-link svg {
+  flex-shrink: 0;
+  color: #57534e;
+  transition: transform 0.2s ease;
 }
 
-.kt-header__mobile-sublink:hover,
-.kt-header__mobile-sublink:focus-visible {
-  color: #fafaf9;
+.kt-header__mobile-link:hover svg {
+  transform: translateX(4px);
 }
 
-.kt-header__mobile-sublink > span {
-  flex: 1;
-  min-width: 0;
+[dir="rtl"] .kt-header__mobile-link svg {
+  transform: scaleX(-1);
 }
 
-/* "View all {parent}" pill link — differentiated from regular children */
-.kt-header__mobile-sublink--all {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #78716c;
-  padding-top: 0.25rem;
+[dir="rtl"] .kt-header__mobile-link:hover svg {
+  transform: scaleX(-1) translateX(-4px);
 }
 
-.kt-header__mobile-sublink--all:hover {
-  color: #fafaf9;
-}
-
-/* Level 3 (grandchildren) — deeper indent + slightly smaller text */
-.kt-header__mobile-sublist--deep {
-  padding-left: 1rem;
-}
-
-[dir="rtl"] .kt-header__mobile-sublist--deep {
-  padding-left: 0;
-  padding-right: 1rem;
-}
-
-.kt-header__mobile-sublist--deep .kt-header__mobile-sublink {
+/* "View all {parent}" link at the top of each sub-panel */
+.kt-header__mobile-link--all {
   font-size: 0.9375rem;
-  padding: 0.5rem 0;
+  font-family: var(--font-body-family);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #a8a29e;
+  padding: 0.75rem 0;
 }
 
-.kt-header__mobile-group--sub {
-  margin-bottom: 0.25rem;
+@media screen and (min-width: 750px) {
+  .kt-header__mobile-link--all {
+    font-size: 1rem;
+  }
 }
 
-/* Smooth expand/collapse — only works if content-visibility is
-   supported, otherwise details just snaps open. That's fine. */
-.kt-header__mobile-group > *:not(summary) {
-  overflow: hidden;
+.kt-header__mobile-link--all:hover {
+  color: #fafaf9;
 }
 
 .kt-header__mobile-cta {
