@@ -229,10 +229,14 @@
   cursor: zoom-in;
 }
 
+/* When zoomed the viewport turns into a scrollable block so the
+   oversized image can overflow and the user can pan around it. */
 .kt-lightbox__viewport--zoomed {
   cursor: zoom-out;
   overflow: auto;
   display: block;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
 }
 
 .kt-lightbox__image {
@@ -284,14 +288,29 @@
   }
 }
 
+/* Zoomed image — override max-width/max-height + object-fit so the
+   image can exceed the viewport. Uses width-based scaling (200% mobile,
+   300% tablet, 400% small mobile) so it matches the Next.js source's
+   w-[400vw] md:w-[300vw] lg:w-[200vw] behavior. */
 .kt-lightbox__viewport--zoomed .kt-lightbox__image {
-  max-width: none;
-  max-height: none;
-  width: 200%;
+  max-width: none !important;
+  max-height: none !important;
+  width: 400%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+  transform-origin: top left;
 }
 
 @media screen and (min-width: 750px) {
   .kt-lightbox__viewport--zoomed .kt-lightbox__image {
     width: 300%;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-lightbox__viewport--zoomed .kt-lightbox__image {
+    width: 200%;
   }
 }

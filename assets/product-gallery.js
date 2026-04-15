@@ -153,12 +153,17 @@
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener('click', function () { goTo(currentIndex + 1); });
 
-    /* Lightbox zoom toggle */
+    /* Lightbox zoom toggle — clicking anywhere inside the viewport
+       (image, padding area, or loaded image bounds) toggles the zoomed
+       state. The prev/next/close buttons are siblings of the viewport
+       so they never fire this handler. The spinner has pointer-events
+       none so it's invisible to clicks. */
     if (lightboxViewport) {
       lightboxViewport.addEventListener('click', function (e) {
-        if (e.target === lightboxViewport || e.target === lightboxImage) {
-          lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed');
-        }
+        // Only toggle once the image has finished loading, otherwise the
+        // very first click (while still loading) would zoom into nothing.
+        if (lightboxViewport.classList.contains('is-loading')) return;
+        lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed');
       });
     }
 
