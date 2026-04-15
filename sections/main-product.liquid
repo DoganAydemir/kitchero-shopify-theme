@@ -38,12 +38,14 @@
           {%- comment -%} Title {%- endcomment -%}
           <h1 class="kt-pdp__title">{{ product.title }}</h1>
 
-          {%- comment -%} Rating {%- endcomment -%}
-          {%- render 'product-rating', product: product -%}
-
-          {%- comment -%} Availability {%- endcomment -%}
+          {%- comment -%} Meta row: rating + "X reviews" + separator + In Stock {%- endcomment -%}
           {%- assign current_variant = product.selected_or_first_available_variant -%}
-          <div class="kt-pdp__availability">
+          <div class="kt-pdp__meta">
+            {%- render 'product-rating', product: product -%}
+            {%- assign review_count = product.metafields.reviews.rating_count.value -%}
+            {%- if review_count -%}
+              <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
+            {%- endif -%}
             {%- if current_variant.available -%}
               <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'products.product.in_stock' | t | default: 'In Stock' }}</span>
             {%- else -%}
@@ -51,8 +53,52 @@
             {%- endif -%}
           </div>
 
-          {%- comment -%} Countdown (if limited offer) {%- endcomment -%}
-          {%- render 'countdown', product: product -%}
+          {%- comment -%} Premium Countdown Block (if limited offer metafield set) {%- endcomment -%}
+          {%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
+          {%- if deal_ends_at != blank -%}
+            <div class="kt-pdp__countdown-block">
+              <div class="kt-pdp__countdown-glow" aria-hidden="true"></div>
+              <div class="kt-pdp__countdown-top">
+                <div class="kt-pdp__countdown-label">
+                  <span class="kt-pdp__countdown-dot" aria-hidden="true"></span>
+                  <span>{{ 'sections.countdown.limited_offer' | t | default: 'Limited Time Offer' }}</span>
+                </div>
+                <span class="kt-pdp__countdown-badge">{{ 'sections.countdown.promo_active' | t | default: 'Promo Active' }}</span>
+              </div>
+              <div class="kt-pdp__countdown-bottom">
+                <div
+                  class="kt-pdp__countdown-timer"
+                  data-countdown
+                  data-ends-at="{{ deal_ends_at | date: '%Y-%m-%dT%H:%M:%S%z' }}"
+                  aria-label="{{ 'sections.countdown.label' | t | default: 'Limited time offer' }}"
+                >
+                  <div class="kt-pdp__countdown-unit">
+                    <span class="kt-pdp__countdown-num" data-countdown-days>00</span>
+                    <span class="kt-pdp__countdown-key">{{ 'sections.countdown.days' | t | default: 'D' }}</span>
+                  </div>
+                  <span class="kt-pdp__countdown-colon">:</span>
+                  <div class="kt-pdp__countdown-unit">
+                    <span class="kt-pdp__countdown-num" data-countdown-hours>00</span>
+                    <span class="kt-pdp__countdown-key">{{ 'sections.countdown.hours' | t | default: 'H' }}</span>
+                  </div>
+                  <span class="kt-pdp__countdown-colon">:</span>
+                  <div class="kt-pdp__countdown-unit">
+                    <span class="kt-pdp__countdown-num" data-countdown-minutes>00</span>
+                    <span class="kt-pdp__countdown-key">{{ 'sections.countdown.minutes' | t | default: 'M' }}</span>
+                  </div>
+                  <span class="kt-pdp__countdown-colon">:</span>
+                  <div class="kt-pdp__countdown-unit">
+                    <span class="kt-pdp__countdown-num" data-countdown-seconds>00</span>
+                    <span class="kt-pdp__countdown-key">{{ 'sections.countdown.seconds' | t | default: 'S' }}</span>
+                  </div>
+                </div>
+                <div class="kt-pdp__countdown-ends">
+                  <div class="kt-pdp__countdown-ends-label">{{ 'sections.countdown.ends_soon' | t | default: 'Ends soon' }}</div>
+                  <div class="kt-pdp__countdown-progress"><div class="kt-pdp__countdown-progress-fill"></div></div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
 
           {%- comment -%} Price {%- endcomment -%}
           {%- render 'product-price', product: product -%}

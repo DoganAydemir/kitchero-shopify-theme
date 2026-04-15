@@ -103,9 +103,23 @@
   }
 }
 
-/* Availability */
-.kt-pdp__availability {
+/* Meta row: rating + review count + separator + availability inline */
+.kt-pdp__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-bottom: 1.25rem;
+}
+
+.kt-pdp__meta .kt-rating {
+  margin: 0;
+}
+
+.kt-pdp__meta-sep {
+  color: #d6d3d1;
+  font-size: 0.875rem;
+  line-height: 1;
 }
 
 .kt-pdp__stock {
@@ -119,6 +133,169 @@
 
 .kt-pdp__stock--out {
   color: #dc2626;
+}
+
+/* ============================================================
+   Premium Countdown Block — birebir from Next.js PDP source
+   bg-stone-950 p-6 rounded-sm border border-white/10 shadow-2xl
+   with red glow effect + pulsing dot + promo badge + progress bar
+   ============================================================ */
+
+.kt-pdp__countdown-block {
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #0c0a09;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+/* Subtle red glow in top-right corner */
+.kt-pdp__countdown-glow {
+  position: absolute;
+  top: -6rem;
+  right: -6rem;
+  width: 12rem;
+  height: 12rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  filter: blur(100px);
+  pointer-events: none;
+  transition: background-color 1s ease;
+}
+
+.kt-pdp__countdown-block:hover .kt-pdp__countdown-glow {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Top row: label + badge */
+.kt-pdp__countdown-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.kt-pdp__countdown-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+/* Pulsing red dot with outer ring */
+.kt-pdp__countdown-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+  animation: kt-pdp-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes kt-pdp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-pdp__countdown-dot { animation: none; }
+}
+
+/* Promo Active badge */
+.kt-pdp__countdown-badge {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+}
+
+/* Bottom row: timer + ends-soon indicator */
+.kt-pdp__countdown-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.kt-pdp__countdown-timer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  color: #fff;
+}
+
+.kt-pdp__countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.kt-pdp__countdown-num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  letter-spacing: -0.025em;
+}
+
+.kt-pdp__countdown-key {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.25rem;
+}
+
+.kt-pdp__countdown-colon {
+  font-size: 1.25rem;
+  color: #44403c;
+  line-height: 1;
+  padding-bottom: 0.75rem;
+}
+
+.kt-pdp__countdown-ends {
+  flex-shrink: 0;
+  padding-bottom: 0.25rem;
+}
+
+.kt-pdp__countdown-ends-label {
+  font-size: 0.5625rem;
+  color: #f87171;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.kt-pdp__countdown-progress {
+  width: 5rem;
+  height: 0.25rem;
+  background-color: #292524;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.kt-pdp__countdown-progress-fill {
+  height: 100%;
+  background-color: #ef4444;
+  width: 65%;
 }
 
 /* Short description: text-stone-600 text-sm leading-relaxed mb-6 */
@@ -164,11 +341,4 @@
 /* Accordions container */
 .kt-pdp__accordions {
   margin-top: 0;
-}
-
-/* Countdown on PDP gets more space */
-.kt-pdp .kt-countdown {
-  position: static;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
 }
