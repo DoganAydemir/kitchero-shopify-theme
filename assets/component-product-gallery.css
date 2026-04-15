@@ -230,7 +230,11 @@
 }
 
 /* When zoomed the viewport turns into a scrollable block so the
-   oversized image can overflow and the user can pan around it. */
+   oversized image can overflow. On touch devices the user drags
+   with their finger (native overflow scroll). On fine-pointer
+   devices (mouse / trackpad) we disable overflow in JS and pan
+   the image via transform based on cursor position — a more
+   natural "magnifier" UX. */
 .kt-lightbox__viewport--zoomed {
   cursor: zoom-out;
   overflow: auto;
@@ -239,12 +243,18 @@
   padding: 0;
 }
 
+@media (pointer: fine) {
+  .kt-lightbox__viewport--zoomed {
+    overflow: hidden;
+  }
+}
+
 .kt-lightbox__image {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 0.7s ease;
+  transition: opacity 0.7s ease, transform 0.12s ease-out;
 }
 
 /* Image becomes visible once the JS flips the `is-loaded` class on `load`

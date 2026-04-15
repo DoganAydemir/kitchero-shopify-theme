@@ -6,6 +6,13 @@
 (function () {
   'use strict';
 
+  /* Devices with a fine pointer (mouse / trackpad) get the
+     magnifier-style mouse-follow pan when the lightbox image is
+     zoomed. Touch-only devices fall back to the default overflow
+     scroll so users can drag the image with their finger. */
+  var hasFinePointer =
+    window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+
   function initGallery(container) {
     var gallery = container.querySelector('[data-product-gallery]');
     if (!gallery) return;
@@ -46,9 +53,15 @@
     function setLightboxImage(url, alt) {
       if (!lightboxImage) return;
 
-      // Reset to loading state: hide image, show spinner.
+      // Reset to loading state: hide image, show spinner, clear any
+      // leftover zoom pan transform from the previous image, and exit
+      // zoom mode so the new image starts at its fit-to-viewport size.
       lightboxImage.classList.remove('is-loaded');
-      if (lightboxViewport) lightboxViewport.classList.add('is-loading');
+      lightboxImage.style.transform = '';
+      if (lightboxViewport) {
+        lightboxViewport.classList.add('is-loading');
+        lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
+      }
 
       // Detach previous onload to avoid stale callbacks.
       lightboxImage.onload = null;
@@ -145,13 +158,44 @@
         lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
         lightboxViewport.classList.remove('is-loading');
       }
-      if (lightboxImage) lightboxImage.classList.remove('is-loaded');
+      if (lightboxImage) {
+        lightboxImage.classList.remove('is-loaded');
+        lightboxImage.style.transform = '';
+      }
       if (typeof removeTrapFocus === 'function') removeTrapFocus();
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener('click', function () { goTo(currentIndex + 1); });
+
+    /* Update the zoomed image's translate so the area under the
+       cursor is what's visible. Called on click-to-zoom (using the
+       click coordinates for the initial position) and on mousemove
+       while zoomed. No-op on touch devices — those still use the
+       native overflow scroll. */
+    function updateZoomPan(clientX, clientY) {
+      if (!lightboxImage || !lightboxViewport) return;
+      if (!lightboxViewport.classList.contains('kt-lightbox__viewport--zoomed')) return;
+
+      var rect = lightboxViewport.getBoundingClientRect();
+      var px = (clientX - rect.left) / rect.width;
+      var py = (clientY - rect.top) / rect.height;
+
+      // Clamp to [0, 1] so the edges of the image stay pinned to the
+      // edges of the viewport — no black gap on aggressive cursor moves.
+      px = Math.max(0, Math.min(1, px));
+      py = Math.max(0, Math.min(1, py));
+
+      var imgRect = lightboxImage.getBoundingClientRect();
+      var overflowX = Math.max(0, imgRect.width - rect.width);
+      var overflowY = Math.max(0, imgRect.height - rect.height);
+
+      var tx = -px * overflowX;
+      var ty = -py * overflowY;
+
+      lightboxImage.style.transform = 'translate(' + tx + 'px, ' + ty + 'px)';
+    }
 
     /* Lightbox zoom toggle — clicking anywhere inside the viewport
        (image, padding area, or loaded image bounds) toggles the zoomed
@@ -163,8 +207,26 @@
         // Only toggle once the image has finished loading, otherwise the
         // very first click (while still loading) would zoom into nothing.
         if (lightboxViewport.classList.contains('is-loading')) return;
-        lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed');
+
+        var isNowZoomed = lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed');
+
+        if (!isNowZoomed) {
+          // Un-zoomed → reset inline transform so the next zoom starts fresh.
+          if (lightboxImage) lightboxImage.style.transform = '';
+        } else if (hasFinePointer) {
+          // Initial pan based on where the user clicked — so the clicked
+          // spot is what remains visible after the zoom-in.
+          updateZoomPan(e.clientX, e.clientY);
+        }
       });
+
+      /* Mouse-follow pan — desktop/trackpad only. Moving the cursor
+         translates the image so the hovered area is visible. */
+      if (hasFinePointer) {
+        lightboxViewport.addEventListener('mousemove', function (e) {
+          updateZoomPan(e.clientX, e.clientY);
+        });
+      }
     }
 
     /* Keyboard: Escape close, arrows navigate */
