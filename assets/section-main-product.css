@@ -1,15 +1,22 @@
 /* Main Product PDP — birebir from source product/[id]/page.tsx
-   Layout: left 58% gallery + right 42% info (sticky) */
+   Layout: left 58% gallery + right 42% info (sticky)
+
+   Note: the Next.js source uses `pt-20 md:pt-32` because the navbar
+   there is `position: fixed` and overlays the content, so the padding
+   has to absorb the navbar height (≈80px) plus the visual gap (≈48px).
+   Our Shopify header is in-flow on PDPs (solid mode pushes content
+   down), so we only need the ≈48px visual gap — the header's own
+   height already does the rest. */
 
 .kt-pdp {
   background-color: #fff;
-  padding-top: 5rem;
+  padding-top: 1.5rem;
   padding-bottom: 4rem;
 }
 
 @media screen and (min-width: 990px) {
   .kt-pdp {
-    padding-top: 8rem;
+    padding-top: 3rem;
   }
 }
 
