@@ -4,10 +4,15 @@
   Uses Shopify {% form 'product' %} with variant ID.
 
   Accepts:
-  - product: {Object} Shopify product
+  - product:              {Object}  Shopify product
+  - show_dynamic_checkout {Boolean} render the Shop Pay / Buy it now button.
+                                    Defaults to true (Theme Store best practice).
 {%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- if show_dynamic_checkout == nil -%}
+  {%- assign show_dynamic_checkout = true -%}
+{%- endif -%}
 
 {%- form 'product', product, id: 'ProductForm', data-product-form: '', data-product-id: product.id -%}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
@@ -57,9 +62,11 @@
   </div>
 
   {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) {%- endcomment -%}
-  <div class="kt-product-form__dynamic-checkout">
-    {{ form | payment_button }}
-  </div>
+  {%- if show_dynamic_checkout -%}
+    <div class="kt-product-form__dynamic-checkout">
+      {{ form | payment_button }}
+    </div>
+  {%- endif -%}
 
   {%- comment -%} Wishlist + Share (visual only — no real backend) {%- endcomment -%}
   <div class="kt-product-form__actions">

@@ -89,7 +89,14 @@
   background-color: #059669;
 }
 
-/* Dynamic checkout (payment_button) */
+/* ============================================================
+   Dynamic Checkout Button (Shopify payment_button)
+   Override Shopify's default blue "Buy it now" button to match
+   the theme's black ATC button styling. Shop Pay branded button
+   cannot be re-styled (branded third-party CTA), so we only
+   affect the unbranded fallback.
+   ============================================================ */
+
 .kt-product-form__dynamic-checkout {
   margin-bottom: 1rem;
 }
@@ -99,8 +106,41 @@
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__button {
-  border-radius: 4px;
   min-height: 3.25rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+}
+
+/* Unbranded fallback — paint it black to match the ATC button */
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
+  background-color: #1c1917;
+  color: #fff;
+  border: 1px solid #1c1917;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]) {
+  background-color: #000 !important;
+}
+
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+}
+
+.kt-product-form__dynamic-checkout .shopify-payment-button__more-options {
+  color: #78716c;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.kt-product-form__dynamic-checkout .shopify-payment-button__more-options:hover {
+  color: #1c1917;
 }
 
 /* Wishlist + Share: flex items-center gap-4 mb-8 */

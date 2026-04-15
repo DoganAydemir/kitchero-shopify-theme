@@ -114,7 +114,7 @@
           {%- render 'product-variant-picker', product: product -%}
 
           {%- comment -%} Product Form (qty + ATC + payment + actions) {%- endcomment -%}
-          {%- render 'product-form', product: product -%}
+          {%- render 'product-form', product: product, show_dynamic_checkout: section.settings.show_dynamic_checkout -%}
 
           {%- comment -%} Trust Badges {%- endcomment -%}
           <div class="kt-pdp__trust-badges">
@@ -193,6 +193,13 @@
         { "value": "h2", "label": "t:sections.main-product.settings.heading_tag.options__2.label" }
       ],
       "default": "h1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "t:sections.main-product.settings.show_dynamic_checkout.label",
+      "info": "t:sections.main-product.settings.show_dynamic_checkout.info",
+      "default": true
     }
   ],
   "blocks": [
