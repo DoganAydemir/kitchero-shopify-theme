@@ -1,0 +1,27 @@
+{{ 'section-main-404.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-404" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    <div class="kt-404__inner">
+      <span class="kt-404__code">404</span>
+      <h1 class="kt-404__title">{{ section.settings.heading | default: 'Page Not Found' }}</h1>
+      <p class="kt-404__desc">{{ section.settings.description | default: 'The page you were looking for does not exist.' }}</p>
+      <a href="{{ routes.root_url }}" class="kt-404__btn button">
+        {{ section.settings.button_text | default: 'Back to Home' }}
+      </a>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "404 page",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Page Not Found" },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "The page you were looking for does not exist." },
+    { "type": "text", "id": "button_text", "label": "Button text", "default": "Back to Home" }
+  ]
+}
+{% endschema %}
