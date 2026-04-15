@@ -67,17 +67,17 @@
 
         {%- comment -%} Lightbox (shared) {%- endcomment -%}
         <div class="kt-lightbox" data-lightbox aria-hidden="true" data-lenis-prevent="true">
-          <button class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+          <button type="button" class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
             <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
-          <button class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'sections.hero.previous_slide' | t | default: 'Previous' }}">
+          <button type="button" class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'sections.hero.previous_slide' | t | default: 'Previous' }}">
             <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
-          <button class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'sections.hero.next_slide' | t | default: 'Next' }}">
+          <button type="button" class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'sections.hero.next_slide' | t | default: 'Next' }}">
             <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
           </button>
           <div class="kt-lightbox__viewport" data-lightbox-viewport>
-            <img class="kt-lightbox__image" data-lightbox-image src="" alt="" width="1200" height="900" />
+            <img class="kt-lightbox__image" data-lightbox-image alt="" width="1200" height="900" />
           </div>
         </div>
       </div>
@@ -162,36 +162,36 @@
 
 {% schema %}
 {
-  "name": "Product showroom",
+  "name": "t:sections.main-product-showroom.name",
   "tag": "section",
   "class": "section",
   "settings": [
     {
       "type": "header",
-      "content": "Warranty banner"
+      "content": "t:sections.main-product-showroom.settings.header__warranty.content"
     },
-    { "type": "checkbox", "id": "show_warranty", "label": "Show warranty banner", "default": true },
-    { "type": "text", "id": "warranty_title", "label": "Warranty title", "default": "Limited Lifetime Warranty" },
-    { "type": "textarea", "id": "warranty_text", "label": "Warranty description", "default": "Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets." }
+    { "type": "checkbox", "id": "show_warranty", "label": "t:sections.main-product-showroom.settings.show_warranty.label", "default": true },
+    { "type": "text", "id": "warranty_title", "label": "t:sections.main-product-showroom.settings.warranty_title.label", "default": "Limited Lifetime Warranty" },
+    { "type": "textarea", "id": "warranty_text", "label": "t:sections.main-product-showroom.settings.warranty_text.label", "default": "Enjoy long-lasting confidence with our limited lifetime warranty on kitchen cabinets." }
   ],
   "blocks": [
     {
       "type": "tag",
-      "name": "Feature tag",
+      "name": "t:sections.main-product-showroom.blocks.tag.name",
       "limit": 8,
       "settings": [
-        { "type": "text", "id": "text", "label": "Text", "default": "5-Piece Shaker" }
+        { "type": "text", "id": "text", "label": "t:sections.main-product-showroom.blocks.tag.settings.text.label", "default": "5-Piece Shaker" }
       ]
     },
     {
       "type": "accordion",
-      "name": "Accordion tab",
+      "name": "t:sections.main-product-showroom.blocks.accordion.name",
       "limit": 6,
       "settings": [
-        { "type": "text", "id": "title", "label": "Title", "default": "About This Kitchen" },
-        { "type": "richtext", "id": "content", "label": "Content" },
-        { "type": "page", "id": "page", "label": "Or select a page" },
-        { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
+        { "type": "text", "id": "title", "label": "t:sections.main-product-showroom.blocks.accordion.settings.title.label", "default": "About This Kitchen" },
+        { "type": "richtext", "id": "content", "label": "t:sections.main-product-showroom.blocks.accordion.settings.content.label" },
+        { "type": "page", "id": "page", "label": "t:sections.main-product-showroom.blocks.accordion.settings.page.label" },
+        { "type": "checkbox", "id": "open", "label": "t:sections.main-product-showroom.blocks.accordion.settings.open.label", "default": false }
       ]
     },
     {
@@ -200,7 +200,7 @@
   ],
   "presets": [
     {
-      "name": "Product showroom",
+      "name": "t:sections.main-product-showroom.presets.name",
       "blocks": [
         { "type": "tag", "settings": { "text": "5-Piece Shaker" } },
         { "type": "tag", "settings": { "text": "Solid Maple" } },

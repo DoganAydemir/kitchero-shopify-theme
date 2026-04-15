@@ -30,6 +30,7 @@
             {{ block.shopify_attributes }}
           >
             <button
+              type="button"
               class="kt-shop-the-look__hotspot"
               data-hotspot-toggle="{{ block.id }}"
               aria-label="{{ block.settings.product_title | default: 'Product' }}"
@@ -64,7 +65,7 @@
     {%- comment -%} Mobile bottom sheet {%- endcomment -%}
     <div class="kt-shop-the-look__mobile-sheet" data-mobile-sheet>
       <div class="kt-shop-the-look__mobile-sheet-inner">
-        <button class="kt-shop-the-look__mobile-sheet-close" data-mobile-sheet-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+        <button type="button" class="kt-shop-the-look__mobile-sheet-close" data-mobile-sheet-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
         <div class="kt-shop-the-look__mobile-sheet-content">
@@ -87,50 +88,50 @@
 
 {% schema %}
 {
-  "name": "Hotspot image",
+  "name": "t:sections.shop-the-look.name",
   "tag": "section",
   "class": "section",
   "settings": [
     {
       "type": "text",
       "id": "label",
-      "label": "Label",
+      "label": "t:sections.shop-the-look.settings.label.label",
       "default": "Visual Commerce"
     },
     {
       "type": "inline_richtext",
       "id": "heading",
-      "label": "Heading",
+      "label": "t:sections.shop-the-look.settings.heading.label",
       "default": "Interactive <em>Kitchero</em> Environments"
     },
     {
       "type": "select",
       "id": "heading_tag",
-      "label": "Heading tag",
+      "label": "t:sections.shop-the-look.settings.heading_tag.label",
       "options": [
         {
           "value": "h1",
-          "label": "H1"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__1.label"
         },
         {
           "value": "h2",
-          "label": "H2"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__2.label"
         },
         {
           "value": "h3",
-          "label": "H3"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__3.label"
         },
         {
           "value": "h4",
-          "label": "H4"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__4.label"
         },
         {
           "value": "h5",
-          "label": "H5"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__5.label"
         },
         {
           "value": "h6",
-          "label": "H6"
+          "label": "t:sections.shop-the-look.settings.heading_tag.options__6.label"
         }
       ],
       "default": "h2"
@@ -138,13 +139,13 @@
     {
       "type": "image_picker",
       "id": "image",
-      "label": "Room image"
+      "label": "t:sections.shop-the-look.settings.image.label"
     }
   ],
   "blocks": [
     {
       "type": "hotspot",
-      "name": "Hotspot",
+      "name": "t:sections.shop-the-look.blocks.hotspot.name",
       "limit": 6,
       "settings": [
         {
@@ -154,7 +155,7 @@
           "max": 95,
           "step": 1,
           "unit": "%",
-          "label": "Horizontal position",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.horizontal_position.label",
           "default": 35
         },
         {
@@ -164,37 +165,37 @@
           "max": 95,
           "step": 1,
           "unit": "%",
-          "label": "Vertical position",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.vertical_position.label",
           "default": 25
         },
         {
           "type": "text",
           "id": "product_title",
-          "label": "Product name",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_title.label",
           "default": "Chelsea Navy Base"
         },
         {
           "type": "text",
           "id": "product_price",
-          "label": "Price",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.label",
           "default": "$450"
         },
         {
           "type": "image_picker",
           "id": "product_image",
-          "label": "Product image"
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_image.label"
         },
         {
           "type": "url",
           "id": "product_link",
-          "label": "Product link"
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_link.label"
         }
       ]
     }
   ],
   "presets": [
     {
-      "name": "Hotspot image",
+      "name": "t:sections.shop-the-look.presets.name",
       "blocks": [
         {
           "type": "hotspot",

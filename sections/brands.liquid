@@ -11,7 +11,7 @@
         {%- if block.type == 'logo' -%}
           <div class="kt-brands__item" {{ block.shopify_attributes }}>
             {%- if block.settings.image != blank -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', height: 40, alt: block.settings.alt | default: 'sections.brands.logo_alt' | t }}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: 'sections.brands.logo_alt' | t }}
             {%- else -%}
               <div class="kt-brands__placeholder">
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -29,25 +29,25 @@
 
 {% schema %}
 {
-  "name": "Logo list",
+  "name": "t:sections.brands.name",
   "tag": "section",
   "class": "section",
   "settings": [],
   "blocks": [
     {
       "type": "logo",
-      "name": "Logo",
+      "name": "t:sections.brands.blocks.logo.name",
       "limit": 12,
       "settings": [
         {
           "type": "image_picker",
           "id": "image",
-          "label": "Logo image"
+          "label": "t:sections.brands.blocks.logo.settings.image.label"
         },
         {
           "type": "text",
           "id": "alt",
-          "label": "Brand name (alt text)",
+          "label": "t:sections.brands.blocks.logo.settings.alt.label",
           "default": "Brand"
         }
       ]
@@ -55,7 +55,7 @@
   ],
   "presets": [
     {
-      "name": "Logo list",
+      "name": "t:sections.brands.presets.name",
       "blocks": [
         {
           "type": "logo",
