@@ -20,9 +20,16 @@
   </div>
 
   {%- comment -%} Layer 2: Spotlight reveal (mouse follow) {%- endcomment -%}
+  {%- comment -%}
+    Note: data-testimonials-spotlight has an explicit "" value so that the
+    {%- if -%} whitespace-strip below does NOT mash the boolean attribute
+    name together with `style=` on the next line. Without the `=""`, the
+    rendered HTML becomes `data-testimonials-spotlightstyle="..."` which
+    silently breaks both the selector and the inline background image.
+  {%- endcomment -%}
   <div
     class="kt-testimonials__spotlight"
-    data-testimonials-spotlight
+    data-testimonials-spotlight=""
     {%- if section.settings.background_image != blank -%}
       style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
     {%- endif -%}
