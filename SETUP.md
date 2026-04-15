@@ -130,3 +130,228 @@ The theme supports 6 languages out of the box:
 - Arabic (RTL)
 
 To enable additional languages, go to **Settings > Languages** and add the desired languages. Translation files are in the `locales/` directory.
+
+---
+
+## Per-Page Setup Walkthrough
+
+### Home page
+
+The home page template (`templates/index.json`) includes 14 default sections. Open **Customize > Home page** and configure each:
+
+1. **Slideshow (hero)** — Add up to 5 slide blocks. Each slide needs:
+   - Image (1920×1080 recommended)
+   - Subtitle (e.g., "Crafted in Italy")
+   - Heading line 1 + italic word + heading line 2
+   - Description
+   - Button text + button link
+   - Set autoplay speed (default 5s)
+
+2. **Stats counter** — Add 3–5 stat blocks. Each has:
+   - Number (e.g., `500`)
+   - Suffix (e.g., `+`, `%`, `k`)
+   - Label (e.g., `Happy Customers`)
+
+3. **Collection list (shop categories)** — Add category blocks. Each block links to a collection with a title and image.
+
+4. **Collection tabs (shop by colors)** — Category accordion with finish swatches. Each category has up to 3 finishes, each finish has name, code, image, 2 colors, and link.
+
+5. **Image with text (mid CTA)** — Add label, heading (supports `<em>italic</em>`), description, button, and image.
+
+6. **Image with features (ecosystem)** — Two-line heading, subtitle, sticky image, and up to 5 feature blocks (number + title + description).
+
+7. **Multicolumn steps (how it works)** — Heading + subtitle, add step blocks (number + title + description + image).
+
+8. **Before/after image** — Heading + subtitle, add before and after images.
+
+9. **Logo list (brands)** — Add up to 12 logo blocks. Each with image and alt text.
+
+10. **Rich text with image (why choose us)** — Two-line heading, description, image, 3 feature blocks (label + title + description).
+
+11. **Hotspot image (shop the look)** — Add up to 6 hotspot blocks. Each has horizontal/vertical position (%), product title, price, image, link.
+
+12. **Promotion banner (home financing)** — Label, two-line heading, description, button, background image. Add partner blocks for payment providers.
+
+13. **Blog posts (guide teaser)** — Choose a blog source and posts count, or add manual article blocks.
+
+14. **Testimonials** — Header + description + background image. Add testimonial blocks (quote + name + role + avatar). Optional CTA block with heading + button.
+
+---
+
+### Product pages
+
+**Two product templates available:**
+
+#### `product.json` (E-commerce style — default)
+
+Layout: 58% gallery (left) + 42% sticky info (right), with breadcrumb, rating, countdown, price, variant picker, and add-to-cart form.
+
+**To customize:**
+1. Go to **Customize > Products > Default product**.
+2. Edit the **Product information** section.
+3. Add blocks:
+   - **Trust badges** — Up to 4, each with icon (shipping/returns/warranty/package) and text.
+   - **Collapsible tabs** — Description, shipping, care instructions. Each with title + rich text content (or link to a page). Set `Open by default` for one.
+4. Optional: add any **app blocks** (e.g., reviews, upsell).
+
+#### `product.showroom.json` (Showroom style)
+
+Layout: 73% alternating gallery (full/pair pattern) + 27% sticky info. Premium visual feel.
+
+**To assign to a product:**
+1. Go to **Products > [your product]**.
+2. Under **Theme template**, select `product.showroom`.
+3. Save.
+4. Customize via **Customize > Products > Product showroom**.
+5. Add:
+   - **Feature tag blocks** — Short descriptive tags (e.g., "Hand-carved oak", "Custom finish").
+   - **Collapsible tab blocks** — About, materials, care.
+   - Configure warranty banner in section settings.
+
+---
+
+### Collection pages
+
+**Three collection templates available:**
+
+#### `collection.json` (Horizontal filter bar — default)
+
+Top-mounted filter dropdowns + grid toggle (2/3/4 cols) + sort. Includes dot-pattern hero.
+
+#### `collection.drawer.json` (Right-side drawer)
+
+Filters hidden by default, open via "Filters" button. Glassmorphic drawer on right.
+
+#### `collection.vertical.json` (Left sticky sidebar)
+
+Traditional e-commerce layout with always-visible filters on the left.
+
+**To assign:**
+1. **Collections > [your collection]**.
+2. Under **Theme template**, select the desired variant.
+
+**Filter setup:**
+Filters are configured in **Settings > Search and discovery > Filters**. The theme renders whatever filters are enabled there (price range, vendor, availability, product type, collection-specific options).
+
+**Customize via theme editor:**
+1. **Products per page** (default 12)
+2. **Show vendor** on product cards
+3. **Show second image on hover**
+4. **Show quote button**
+
+---
+
+### Blog and article pages
+
+#### Blog listing (`blog.json`)
+
+Dot-pattern hero with "The Journal" label + 3-column article grid + pagination.
+
+**Settings:**
+- Articles per page (default 9)
+- Show author / date / excerpt toggles
+
+#### Article detail (`article.json`)
+
+Full article with breadcrumb, meta, featured image, rich content, share links (Facebook + X), comment form (if enabled in blog settings).
+
+To enable comments: **Online Store > Blog posts > Manage blogs > [blog] > Comments > Comments are allowed, with moderation**.
+
+---
+
+### Cart (drawer or page)
+
+The theme supports two cart types, toggled in **Theme settings > Cart**:
+
+- **Drawer** (default) — AJAX slide-in from the right. Falls back to `/cart` when JS is off.
+- **Page** — Full-page cart at `/cart`.
+
+Both support `@app` blocks for upsells, rewards, and other cart apps.
+
+**Cart note:** Enable in **Theme settings > Cart > Enable cart note**.
+
+---
+
+### Search
+
+Configured via **Theme settings > Search behavior**:
+- Enable search suggestions (predictive search)
+- Show vendor in results
+- Show price in results
+
+The search overlay opens from the header icon. The search results page uses `/search?q=` and supports product, article, and page results.
+
+---
+
+### Customer account pages
+
+The theme includes custom layouts for:
+- **Login** (`templates/customers/login.json`) — with forgot password modal
+- **Register** (`templates/customers/register.json`)
+
+Other customer pages (account, order, addresses) use Shopify defaults and inherit the theme's typography and colors.
+
+---
+
+### 404 page
+
+Customize the heading, description, and button text via **Customize > 404**.
+
+---
+
+### Custom pages (About, Contact, Deals, Newsletter)
+
+The theme includes alternate page templates that you can assign to any page:
+
+1. **Create a page:** **Online Store > Pages > Add page**.
+2. **Assign a template:** Under **Theme template**, choose one of:
+   - `page.about` — About page with BeforeAfter + gallery
+   - `page.contact` — Contact page with showroom grid + contact form
+   - `page.deals` — Deals grid linking to collections
+   - `page.newsletter` — Newsletter signup landing page
+3. **Save** the page.
+4. **Customize:** In the theme editor, navigate to the page and edit the sections.
+
+---
+
+## Post-install checklist
+
+Before going live, verify:
+
+- [ ] Logo uploaded
+- [ ] Main menu assigned (with 2 or 3 levels as desired)
+- [ ] Footer menus assigned
+- [ ] Social media links configured
+- [ ] `custom.deal_ends_at` metafield created (if using countdowns)
+- [ ] `custom.rating` metafield created (if not using a review app)
+- [ ] All home page section blocks populated with real content (no Lorem ipsum)
+- [ ] At least one collection and one product tested on each page
+- [ ] Cart drawer/page tested with items added
+- [ ] Search tested with real queries
+- [ ] Contact form tested (check email receipt)
+- [ ] Newsletter form tested
+- [ ] Login / register flow tested
+- [ ] Checked on mobile (375px), tablet (768px), desktop (1440px)
+- [ ] Languages enabled (if using multi-language)
+
+---
+
+## Troubleshooting
+
+**Countdown not showing on a product card:**
+Verify `custom.deal_ends_at` metafield is set to a future date and the metafield definition is saved. The countdown hides automatically when the end date has passed.
+
+**Star ratings not showing:**
+If using a review app, ensure it populates `reviews.rating` (the Shopify native namespace). If using manual ratings, ensure `custom.rating` is set and its value is between 0 and 5.
+
+**Images not loading:**
+Check that all image settings have images uploaded. The theme shows Shopify's default SVG placeholders when a merchant hasn't selected an image — this is intentional for the theme editor.
+
+**Menu not showing as mega menu:**
+Mega menus activate only when a menu item has **grandchildren** (3 levels deep). 2-level menus render as flyout dropdowns. To convert a flyout to a mega menu, add child items to the second-level items.
+
+**Animations feel janky:**
+Disable scroll-reveal animations in **Theme settings > Animations > Reveal sections on scroll**. This disables GSAP/ScrollTrigger effects while keeping all content functional.
+
+**Theme editor shows "Liquid error":**
+Run `shopify theme check` from the command line to identify the issue. All sections should pass with 0 errors.
