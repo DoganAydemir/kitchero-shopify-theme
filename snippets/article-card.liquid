@@ -1,0 +1,43 @@
+{%- comment -%}
+  Article Card — used in blog listing grid.
+  Accepts:
+  - article: {Object} Shopify article
+  - show_author: {Boolean} (default: true)
+  - show_date: {Boolean} (default: true)
+  - show_excerpt: {Boolean} (default: true)
+{%- endcomment -%}
+
+{%- liquid
+  assign show_author = show_author | default: true
+  assign show_date = show_date | default: true
+  assign show_excerpt = show_excerpt | default: true
+-%}
+
+<a href="{{ article.url }}" class="kt-article-card">
+  <div class="kt-article-card__image-wrap">
+    {%- if article.image -%}
+      {{ article.image | image_url: width: 800 | image_tag: class: 'kt-article-card__image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
+    {%- else -%}
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-article-card__image' }}
+    {%- endif -%}
+  </div>
+  <div class="kt-article-card__content">
+    {%- if article.tags.size > 0 -%}
+      <span class="kt-article-card__category">{{ article.tags.first }}</span>
+    {%- endif -%}
+    <h3 class="kt-article-card__title">{{ article.title }}</h3>
+    {%- if show_excerpt and article.excerpt_or_content != blank -%}
+      <p class="kt-article-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 20 }}</p>
+    {%- endif -%}
+    <div class="kt-article-card__meta">
+      {%- if show_author -%}
+        <span class="kt-article-card__author">{{ article.author }}</span>
+      {%- endif -%}
+      {%- if show_date -%}
+        <time class="kt-article-card__date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+          {{ article.published_at | date: format: 'abbreviated_date' }}
+        </time>
+      {%- endif -%}
+    </div>
+  </div>
+</a>

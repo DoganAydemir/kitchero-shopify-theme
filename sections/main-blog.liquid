@@ -1,0 +1,61 @@
+{{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-blog" data-section-id="{{ section.id }}">
+  {%- comment -%} Hero {%- endcomment -%}
+  <div class="kt-blog__hero">
+    <div class="kt-blog__hero-pattern" aria-hidden="true">
+      <svg fill="none" width="100%" height="100%">
+        <defs>
+          <pattern id="blog-dots-{{ section.id }}" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1.2" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#blog-dots-{{ section.id }})" />
+      </svg>
+    </div>
+    <div class="page-width kt-blog__hero-inner">
+      <div>
+        <span class="kt-blog__label">{{ 'sections.blog.label' | t | default: 'The Journal' }}</span>
+        <h1 class="kt-blog__title">{{ blog.title }}</h1>
+      </div>
+      <span class="kt-blog__count">{{ blog.articles_count }} {{ 'sections.blog.articles' | t | default: 'Articles' }}</span>
+    </div>
+  </div>
+
+  {%- comment -%} Article Grid {%- endcomment -%}
+  <div class="page-width">
+    {%- paginate blog.articles by section.settings.articles_per_page -%}
+      {%- if blog.articles.size > 0 -%}
+        <div class="kt-blog__grid">
+          {%- for article in blog.articles -%}
+            {%- render 'article-card', article: article, show_author: section.settings.show_author, show_date: section.settings.show_date, show_excerpt: section.settings.show_excerpt -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <div class="kt-blog__pagination">
+            {%- render 'pagination', paginate: paginate -%}
+          </div>
+        {%- endif -%}
+      {%- else -%}
+        <div class="kt-blog__empty">
+          <p>{{ 'sections.blog.no_articles' | t | default: 'No articles yet.' }}</p>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog listing",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "range", "id": "articles_per_page", "min": 3, "max": 24, "step": 3, "default": 9, "label": "Articles per page" },
+    { "type": "checkbox", "id": "show_author", "label": "Show author", "default": true },
+    { "type": "checkbox", "id": "show_date", "label": "Show date", "default": true },
+    { "type": "checkbox", "id": "show_excerpt", "label": "Show excerpt", "default": true }
+  ]
+}
+{% endschema %}

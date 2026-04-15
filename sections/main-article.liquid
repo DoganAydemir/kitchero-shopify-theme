@@ -1,0 +1,110 @@
+{{ 'section-main-article.css' | asset_url | stylesheet_tag }}
+
+<article class="kt-article" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    {%- comment -%} Article Header {%- endcomment -%}
+    <header class="kt-article__header">
+      {%- if article.tags.size > 0 -%}
+        <span class="kt-article__category">{{ article.tags.first }}</span>
+      {%- endif -%}
+      <h1 class="kt-article__title">{{ article.title }}</h1>
+      <div class="kt-article__meta">
+        <span class="kt-article__author">{{ article.author }}</span>
+        <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'abbreviated_date' }}</time>
+        {%- if blog.comments_enabled? -%}
+          <span>{{ article.comments_count }} {{ 'blogs.article.comments' | t: count: article.comments_count }}</span>
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- comment -%} Featured Image {%- endcomment -%}
+    {%- if article.image -%}
+      <div class="kt-article__image-wrap">
+        {{ article.image | image_url: width: 1200 | image_tag: class: 'kt-article__image', loading: 'eager', widths: '550, 750, 1100', sizes: '(min-width: 750px) 75vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Article Content {%- endcomment -%}
+    <div class="kt-article__content rte">
+      {{ article.content }}
+    </div>
+
+    {%- comment -%} Share {%- endcomment -%}
+    <div class="kt-article__share">
+      <span class="kt-article__share-label">{{ 'general.share.title' | t | default: 'Share' }}</span>
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ article.url | prepend: request.origin | url_encode }}" target="_blank" rel="noopener" class="kt-article__share-link" aria-label="Facebook">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+      <a href="https://twitter.com/intent/tweet?url={{ article.url | prepend: request.origin | url_encode }}&text={{ article.title | url_encode }}" target="_blank" rel="noopener" class="kt-article__share-link" aria-label="X">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+    </div>
+
+    {%- comment -%} Comments {%- endcomment -%}
+    {%- if blog.comments_enabled? -%}
+      <div class="kt-article__comments" id="comments">
+        <h2 class="kt-article__comments-title">
+          {{ 'blogs.article.comments' | t: count: article.comments_count }}
+        </h2>
+
+        {%- if article.comments.size > 0 -%}
+          {%- paginate article.comments by 10 -%}
+            <div class="kt-article__comments-list">
+              {%- for comment in article.comments -%}
+                <div class="kt-article__comment">
+                  <div class="kt-article__comment-header">
+                    <span class="kt-article__comment-author">{{ comment.author }}</span>
+                    <time class="kt-article__comment-date" datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">
+                      {{ comment.created_at | date: format: 'abbreviated_date' }}
+                    </time>
+                  </div>
+                  <div class="kt-article__comment-body rte">{{ comment.content }}</div>
+                </div>
+              {%- endfor -%}
+            </div>
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate, anchor: '#comments' -%}
+            {%- endif -%}
+          {%- endpaginate -%}
+        {%- endif -%}
+
+        {%- comment -%} Comment Form {%- endcomment -%}
+        <div class="kt-article__comment-form-wrap">
+          <h3 class="kt-article__comment-form-title">{{ 'blogs.article.leave_comment' | t | default: 'Leave a comment' }}</h3>
+          {%- form 'new_comment', article -%}
+            <div class="kt-article__comment-form-row">
+              <div class="kt-article__comment-form-field">
+                <label for="comment-author" class="kt-article__comment-form-label">{{ 'blogs.article.name' | t | default: 'Name' }}</label>
+                <input type="text" id="comment-author" name="comment[author]" class="kt-article__comment-form-input" required autocomplete="name">
+              </div>
+              <div class="kt-article__comment-form-field">
+                <label for="comment-email" class="kt-article__comment-form-label">{{ 'blogs.article.email' | t | default: 'Email' }}</label>
+                <input type="email" id="comment-email" name="comment[email]" class="kt-article__comment-form-input" required autocomplete="email">
+              </div>
+            </div>
+            <div class="kt-article__comment-form-field">
+              <label for="comment-body" class="kt-article__comment-form-label">{{ 'blogs.article.comment' | t | default: 'Comment' }}</label>
+              <textarea id="comment-body" name="comment[body]" class="kt-article__comment-form-textarea" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="kt-article__comment-form-submit">
+              {{ 'blogs.article.post_comment' | t | default: 'Post comment' }}
+            </button>
+          {%- endform -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Back to blog {%- endcomment -%}
+    <div class="kt-article__back">
+      <a href="{{ blog.url }}">← {{ 'blogs.article.back_to_blog' | t: title: blog.title }}</a>
+    </div>
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Article content",
+  "tag": "section",
+  "class": "section"
+}
+{% endschema %}
