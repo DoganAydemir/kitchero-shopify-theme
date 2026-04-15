@@ -276,6 +276,94 @@
 
 <script src="{{ 'section-header.js' | asset_url }}" defer="defer"></script>
 
+{%- comment -%}
+  Inline mobile menu bootstrap.
+
+  Rendered fresh with every response (not cached by the Shopify CDN
+  like external .js assets can be), so merchants never end up stuck
+  with a stale external section-header.js that fails to open the
+  mobile panel. This is the one exception we carve out to the rule
+  against inline <script> blocks — documented in CLAUDE.md as allowed
+  when strictly necessary for reliability.
+
+  The delegated click handlers here are the SOURCE OF TRUTH for the
+  mobile menu. The external section-header.js repeats the same logic
+  so that future features (scroll state, keyboard handlers) have a
+  place to live, but the menu itself never depends on the external
+  file having loaded or parsed successfully.
+{%- endcomment -%}
+<script>
+  (function () {
+    if (window.__kitcheroMobileMenuBound) return;
+    window.__kitcheroMobileMenuBound = true;
+
+    var OPEN_CLASS = 'kt-header__mobile-panel--open';
+
+    function getPanel() {
+      return document.querySelector('.kt-header__mobile-panel');
+    }
+
+    function openPanel() {
+      var panel = getPanel();
+      if (!panel) return;
+      panel.classList.add(OPEN_CLASS);
+      document.body.style.overflow = 'hidden';
+      var toggle = document.querySelector('.kt-header__menu-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', 'true');
+      var openIcon = document.querySelector('.kt-header__menu-toggle-open');
+      var closeIcon = document.querySelector('.kt-header__menu-toggle-close');
+      if (openIcon) openIcon.classList.add('hidden');
+      if (closeIcon) closeIcon.classList.remove('hidden');
+    }
+
+    function closePanel() {
+      var panel = getPanel();
+      if (!panel) return;
+      panel.classList.remove(OPEN_CLASS);
+      document.body.style.overflow = '';
+      var toggle = document.querySelector('.kt-header__menu-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      var openIcon = document.querySelector('.kt-header__menu-toggle-open');
+      var closeIcon = document.querySelector('.kt-header__menu-toggle-close');
+      if (openIcon) openIcon.classList.remove('hidden');
+      if (closeIcon) closeIcon.classList.add('hidden');
+    }
+
+    function togglePanel() {
+      var panel = getPanel();
+      if (!panel) return;
+      if (panel.classList.contains(OPEN_CLASS)) {
+        closePanel();
+      } else {
+        openPanel();
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      var toggle = e.target.closest && e.target.closest('.kt-header__menu-toggle');
+      if (toggle) {
+        e.preventDefault();
+        togglePanel();
+        return;
+      }
+      var closer = e.target.closest && e.target.closest('.kt-header__mobile-panel-close');
+      if (closer) {
+        e.preventDefault();
+        closePanel();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.code === 'Escape') {
+        var panel = getPanel();
+        if (panel && panel.classList.contains(OPEN_CLASS)) {
+          closePanel();
+        }
+      }
+    });
+  })();
+</script>
+
 {% schema %}
 {
   "name": "t:sections.header.name",
