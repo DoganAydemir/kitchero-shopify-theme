@@ -1,0 +1,226 @@
+{{ 'section-testimonials-marquee.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign duration = section.settings.scroll_duration_seconds | default: 25
+  assign pause_on_hover = section.settings.pause_on_hover
+-%}
+
+<section
+  class="kt-testimonials-marquee"
+  data-section-id="{{ section.id }}"
+  data-section-type="testimonials-marquee"
+  data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
+  style="--kt-marquee-duration: {{ duration }}s;"
+>
+  {%- comment -%} Heading block {%- endcomment -%}
+  {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+    <div class="kt-testimonials-marquee__container">
+      <div class="kt-testimonials-marquee__heading-block">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-testimonials-marquee__eyebrow">{{ section.settings.eyebrow | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-testimonials-marquee__heading">
+            {{- section.settings.heading | escape -}}
+          </{{ heading_tag }}>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Marquee strip {%- endcomment -%}
+  <div
+    class="kt-testimonials-marquee__strip"
+    aria-label="{{ 'sections.testimonials-marquee.marquee_label' | t }}"
+  >
+    <div class="kt-testimonials-marquee__track" data-marquee-track>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'testimonial' -%}
+          <div class="kt-testimonials-marquee__item" {{ block.shopify_attributes }}>
+            <div class="kt-testimonials-marquee__stars" aria-hidden="true">
+              {%- for i in (1..5) -%}
+                <svg
+                  class="kt-testimonials-marquee__star"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="10"
+                  height="10"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1L12 2z" />
+                </svg>
+              {%- endfor -%}
+            </div>
+
+            {%- if block.settings.quote != blank -%}
+              <p class="kt-testimonials-marquee__quote">
+                &ldquo;{{ block.settings.quote | escape }}&rdquo;
+              </p>
+            {%- endif -%}
+
+            {%- if block.settings.author_name != blank or block.settings.author_role != blank or block.settings.author_brand != blank -%}
+              <div class="kt-testimonials-marquee__author">
+                {%- if block.settings.author_name != blank -%}
+                  <span class="kt-testimonials-marquee__author-name">
+                    {{- block.settings.author_name | escape -}}
+                  </span>
+                {%- endif -%}
+                {%- if block.settings.author_role != blank or block.settings.author_brand != blank -%}
+                  <span class="kt-testimonials-marquee__author-meta">
+                    {%- if block.settings.author_role != blank -%}
+                      {{- block.settings.author_role | escape -}}
+                    {%- endif -%}
+                    {%- if block.settings.author_role != blank and block.settings.author_brand != blank -%}
+                      {{ ' — ' }}
+                    {%- endif -%}
+                    {%- if block.settings.author_brand != blank -%}
+                      {{- block.settings.author_brand | escape -}}
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- else -%}
+          {%- comment -%} App blocks render as-is {%- endcomment -%}
+          <div class="kt-testimonials-marquee__item kt-testimonials-marquee__item--app" {{ block.shopify_attributes }}>
+            {% render block %}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'section-testimonials-marquee.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.testimonials-marquee.name",
+  "tag": "section",
+  "class": "section kt-testimonials-marquee-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.testimonials-marquee.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.testimonials-marquee.settings.eyebrow.label",
+      "default": "Style 01"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.testimonials-marquee.settings.heading.label",
+      "default": "Infinite Proof Marquee"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.testimonials-marquee.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials-marquee.settings.header_animation.content"
+    },
+    {
+      "type": "range",
+      "id": "scroll_duration_seconds",
+      "label": "t:sections.testimonials-marquee.settings.scroll_duration_seconds.label",
+      "info": "t:sections.testimonials-marquee.settings.scroll_duration_seconds.info",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "s",
+      "default": 25
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "t:sections.testimonials-marquee.settings.pause_on_hover.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "t:sections.testimonials-marquee.blocks.testimonial.name",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.quote.label",
+          "default": "Share a short, powerful quote from a happy customer."
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_name.label",
+          "default": "Author Name"
+        },
+        {
+          "type": "text",
+          "id": "author_role",
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_role.label",
+          "default": "Lead Architect"
+        },
+        {
+          "type": "text",
+          "id": "author_brand",
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_brand.label",
+          "default": "Brand & Co."
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials-marquee.presets.name",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The architectural precision of Kitchero is unmatched. Their team understood our vision for a zero-compromise minimalist space.",
+            "author_name": "Marcus Thompson",
+            "author_role": "Lead Architect",
+            "author_brand": "Thompson & Co."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Truly a legacy product. From the hand-finished walnut to the silent hardware, every detail screams quality.",
+            "author_name": "Sophia Lorenz",
+            "author_role": "Principal Designer",
+            "author_brand": "Lorenz Interiors"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Kitchero helped us scale our high-end residential projects without sacrificing the bespoke feel our clients demand.",
+            "author_name": "James Sterling",
+            "author_role": "Developer",
+            "author_brand": "Sterling Estates"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

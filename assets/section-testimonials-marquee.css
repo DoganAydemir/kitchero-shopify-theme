@@ -1,0 +1,178 @@
+/* =========================================================================
+   Testimonials Marquee — Style 01: Infinite Proof Marquee
+   BEM prefix: .kt-testimonials-marquee
+   ========================================================================= */
+
+.kt-testimonials-marquee {
+  --kt-marquee-duration: 25s;
+  background: #ffffff;
+  padding: 6rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------------------------------------------------------------- Heading */
+.kt-testimonials-marquee__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.kt-testimonials-marquee__heading-block {
+  border-left: 2px solid #1c1917; /* stone-900 */
+  padding-left: 1.5rem;
+}
+
+.kt-testimonials-marquee__eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a8a29e; /* stone-400 */
+  margin-bottom: 0.5rem;
+}
+
+.kt-testimonials-marquee__heading {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.875rem; /* text-3xl */
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #1c1917; /* stone-900 */
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------- Strip */
+.kt-testimonials-marquee__strip {
+  position: relative;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  padding: 3rem 0; /* py-12 */
+  background: #fafaf9; /* stone-50 */
+}
+
+/* ---------------------------------------------------------------- Track */
+.kt-testimonials-marquee__track {
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 2rem; /* gap-8 mobile */
+  animation: kt-testimonials-marquee-scroll var(--kt-marquee-duration, 25s) linear infinite;
+  will-change: transform;
+}
+
+.kt-testimonials-marquee--paused .kt-testimonials-marquee__track {
+  animation-play-state: paused;
+}
+
+@media (min-width: 640px) {
+  .kt-testimonials-marquee__track {
+    gap: 6rem; /* gap-24 desktop */
+  }
+}
+
+@keyframes kt-testimonials-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-testimonials-marquee__track {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- Item */
+.kt-testimonials-marquee__item {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .kt-testimonials-marquee__item {
+    min-width: 450px;
+  }
+}
+
+/* ---------------------------------------------------------------- Stars */
+.kt-testimonials-marquee__stars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #1c1917; /* stone-900 */
+}
+
+.kt-testimonials-marquee__star {
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------- Quote */
+.kt-testimonials-marquee__quote {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem; /* text-lg mobile */
+  line-height: 1.4;
+  color: #1c1917; /* stone-900 */
+  opacity: 0.8;
+  font-style: italic;
+  white-space: normal;
+  margin: 0;
+  font-weight: 400;
+
+  /* line-clamp 3 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .kt-testimonials-marquee__quote {
+    font-size: 1.5rem; /* text-2xl desktop */
+  }
+}
+
+/* ---------------------------------------------------------------- Author */
+.kt-testimonials-marquee__author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  white-space: normal;
+}
+
+.kt-testimonials-marquee__author-name {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1c1917; /* stone-900 */
+}
+
+.kt-testimonials-marquee__author-meta {
+  display: block;
+  font-size: 0.625rem; /* text-[10px] */
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8a29e; /* stone-400 */
+  margin-top: 0.25rem;
+}
+
+/* ---------------------------------------------------------------- App block fallback */
+.kt-testimonials-marquee__item--app {
+  min-width: auto;
+  white-space: normal;
+}

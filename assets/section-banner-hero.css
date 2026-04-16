@@ -1,0 +1,209 @@
+/* ==========================================================================
+   Banner Hero — Full-width hero with background image, dark gradient overlay,
+   left-aligned content block, pill CTA. BEM namespace: .kt-banner-hero
+   ========================================================================== */
+
+.kt-banner-hero {
+  --banner-hero-radius: 1rem;
+  --banner-hero-padding-x: 1.5rem;
+  --banner-hero-padding-y: 3rem;
+
+  display: block;
+  width: 100%;
+  padding: var(--banner-hero-padding-y) var(--banner-hero-padding-x);
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-hero {
+    --banner-hero-padding-x: 3rem;
+    --banner-hero-padding-y: 5rem;
+  }
+}
+
+.kt-banner-hero__frame {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: var(--banner-hero-min-height-mobile, 500px);
+  border-radius: var(--banner-hero-radius);
+  overflow: hidden;
+  background-color: #fafaf9;
+  isolation: isolate;
+}
+
+@media (min-width: 990px) {
+  .kt-banner-hero__frame {
+    min-height: var(--banner-hero-min-height-desktop, 600px);
+  }
+}
+
+.kt-banner-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.kt-banner-hero__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1);
+  transition: transform 2000ms ease;
+  will-change: transform;
+}
+
+.kt-banner-hero__frame:hover .kt-banner-hero__image,
+.kt-banner-hero__frame:focus-within .kt-banner-hero__image {
+  transform: scale(1.05);
+}
+
+.kt-banner-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.7),
+    rgba(0, 0, 0, 0.3),
+    rgba(0, 0, 0, 0)
+  );
+  pointer-events: none;
+}
+
+.kt-banner-hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  min-height: var(--banner-hero-min-height-mobile, 500px);
+  padding: 2rem 2rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-hero__content {
+    padding: 3rem 3.5rem;
+  }
+}
+
+@media (min-width: 990px) {
+  .kt-banner-hero__content {
+    padding: 4rem 5rem;
+    min-height: var(--banner-hero-min-height-desktop, 600px);
+  }
+}
+
+.kt-banner-hero__inner {
+  width: 100%;
+  max-width: 42rem;
+}
+
+.kt-banner-hero__eyebrow {
+  display: block;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.kt-banner-hero__heading {
+  margin: 0 0 1.5rem;
+  color: #ffffff;
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-weight: 400;
+  font-size: 1.875rem; /* 30px — mobile */
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-hero__heading {
+    font-size: 3rem; /* 48px */
+  }
+}
+
+@media (min-width: 990px) {
+  .kt-banner-hero__heading {
+    font-size: 3.75rem; /* 60px */
+  }
+}
+
+.kt-banner-hero__heading-line {
+  display: block;
+}
+
+.kt-banner-hero__heading-italic {
+  display: block;
+  font-style: italic;
+  font-weight: 300;
+  color: #d6d3d1; /* stone-300 */
+}
+
+.kt-banner-hero__desc {
+  margin: 0 0 2rem;
+  max-width: 28rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-hero__desc {
+    font-size: 1.125rem;
+  }
+}
+
+.kt-banner-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  color: #1c1917; /* stone-900 */
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+
+.kt-banner-hero__cta:hover {
+  background-color: #f5f5f4; /* stone-100 */
+}
+
+.kt-banner-hero__cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.kt-banner-hero__cta-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+/* Reduced motion: no hover zoom or transitions */
+@media (prefers-reduced-motion: reduce) {
+  .kt-banner-hero__image,
+  .kt-banner-hero__cta {
+    transition: none !important;
+  }
+
+  .kt-banner-hero__frame:hover .kt-banner-hero__image,
+  .kt-banner-hero__frame:focus-within .kt-banner-hero__image {
+    transform: none;
+  }
+}

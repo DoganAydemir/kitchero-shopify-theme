@@ -1,0 +1,171 @@
+{{ 'section-announcement-banner.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Announcement Banner — thin promotional strip with a badge, message, and CTA.
+  Merchant picks ONE color theme per section instance. Add multiple sections
+  for multiple strips.
+{%- endcomment -%}
+
+{%- liquid
+  assign color_theme = section.settings.color_theme | default: 'dark'
+  assign badge_text = section.settings.badge_text
+  assign message_main = section.settings.message_main
+  assign message_secondary = section.settings.message_secondary
+  assign cta_text = section.settings.cta_text
+  assign cta_link = section.settings.cta_link | default: routes.root_url
+-%}
+
+<section
+  class="kt-announcement-banner"
+  data-color-theme="{{ color_theme }}"
+  data-section-id="{{ section.id }}"
+  role="region"
+  aria-label="{{ 'sections.announcement-banner.aria_label' | t }}"
+>
+  <div class="kt-announcement-banner__content">
+    {%- if badge_text != blank -%}
+      <span class="kt-announcement-banner__badge">{{ badge_text }}</span>
+    {%- endif -%}
+
+    {%- if message_main != blank -%}
+      <span class="kt-announcement-banner__message">
+        {{ message_main }}
+        {%- if message_secondary != blank -%}
+          <span class="kt-announcement-banner__message-secondary">
+            | {{ message_secondary }}
+          </span>
+        {%- endif -%}
+      </span>
+    {%- endif -%}
+  </div>
+
+  {%- if cta_text != blank -%}
+    <a href="{{ cta_link }}" class="kt-announcement-banner__cta">
+      {{ cta_text }}
+      <svg
+        class="kt-announcement-banner__cta-icon"
+        aria-hidden="true"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </a>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.announcement-banner.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.announcement-banner.settings.header_appearance.content"
+    },
+    {
+      "type": "select",
+      "id": "color_theme",
+      "label": "t:sections.announcement-banner.settings.color_theme.label",
+      "options": [
+        {
+          "value": "dark",
+          "label": "t:sections.announcement-banner.settings.color_theme.options__1.label"
+        },
+        {
+          "value": "emerald-light",
+          "label": "t:sections.announcement-banner.settings.color_theme.options__2.label"
+        },
+        {
+          "value": "gradient-dark",
+          "label": "t:sections.announcement-banner.settings.color_theme.options__3.label"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement-banner.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "t:sections.announcement-banner.settings.badge_text.label",
+      "default": "SALE"
+    },
+    {
+      "type": "text",
+      "id": "message_main",
+      "label": "t:sections.announcement-banner.settings.message_main.label",
+      "default": "Spring Collection — 25% Off Sitewide"
+    },
+    {
+      "type": "text",
+      "id": "message_secondary",
+      "label": "t:sections.announcement-banner.settings.message_secondary.label",
+      "info": "t:sections.announcement-banner.settings.message_secondary.info",
+      "default": "Free shipping on all orders over $2,500"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement-banner.settings.header_cta.content"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.announcement-banner.settings.cta_text.label",
+      "default": "Shop"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.announcement-banner.settings.cta_link.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.announcement-banner.presets.preset_dark.name",
+      "settings": {
+        "color_theme": "dark",
+        "badge_text": "SALE",
+        "message_main": "Spring Collection — 25% Off Sitewide",
+        "message_secondary": "Free shipping on all orders over $2,500",
+        "cta_text": "Shop"
+      }
+    },
+    {
+      "name": "t:sections.announcement-banner.presets.preset_emerald.name",
+      "settings": {
+        "color_theme": "emerald-light",
+        "badge_text": "NEW",
+        "message_main": "0% APR Financing Now Available",
+        "message_secondary": "Pre-qualify in minutes",
+        "cta_text": "Learn More"
+      }
+    },
+    {
+      "name": "t:sections.announcement-banner.presets.preset_gradient.name",
+      "settings": {
+        "color_theme": "gradient-dark",
+        "badge_text": "VIP",
+        "message_main": "Members-Only Early Access",
+        "message_secondary": "Sign up for exclusive deals",
+        "cta_text": "Join"
+      }
+    }
+  ]
+}
+{% endschema %}

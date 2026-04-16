@@ -1,0 +1,143 @@
+{{ 'section-testimonials-pullquote.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%} Testimonials — Style 02: Large Editorial Pull-Quote {%- endcomment -%}
+{%- assign heading_tag = section.settings.heading_tag | default: 'h3' -%}
+{%- assign vertical_padding = section.settings.vertical_padding | default: 128 -%}
+
+<section
+  class="kt-testimonials-pullquote"
+  data-section-id="{{ section.id }}"
+  data-section-type="testimonials-pullquote"
+  style="--kt-pullquote-padding: {{ vertical_padding }}px;"
+>
+  <div class="page-width kt-testimonials-pullquote__inner">
+    {%- comment -%} Decorative quote icon {%- endcomment -%}
+    <div class="kt-testimonials-pullquote__icon" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        focusable="false"
+      >
+        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/>
+        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+      </svg>
+    </div>
+
+    {%- if section.settings.quote != blank -%}
+      {%- if heading_tag == 'blockquote' -%}
+        <blockquote class="kt-testimonials-pullquote__quote"{% if section.settings.author_name != blank %} cite="{{ section.settings.author_name | escape }}"{% endif %}>
+          &ldquo;{{ section.settings.quote }}&rdquo;
+        </blockquote>
+      {%- else -%}
+        <blockquote class="kt-testimonials-pullquote__quote-wrap"{% if section.settings.author_name != blank %} cite="{{ section.settings.author_name | escape }}"{% endif %}>
+          <{{ heading_tag }} class="kt-testimonials-pullquote__quote">
+            &ldquo;{{ section.settings.quote }}&rdquo;
+          </{{ heading_tag }}>
+        </blockquote>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if section.settings.author_name != blank or section.settings.author_title != blank -%}
+      <div class="kt-testimonials-pullquote__attribution">
+        <span class="kt-testimonials-pullquote__divider" aria-hidden="true"></span>
+        {%- if section.settings.author_name != blank -%}
+          <cite class="kt-testimonials-pullquote__author">{{ section.settings.author_name }}</cite>
+        {%- endif -%}
+        {%- if section.settings.author_title != blank -%}
+          <span class="kt-testimonials-pullquote__author-title">{{ section.settings.author_title }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.testimonials-pullquote.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.testimonials-pullquote.settings.header__content.content"
+    },
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "t:sections.testimonials-pullquote.settings.quote.label",
+      "default": "Our clients expect zero compromises. Kitchero is the only cabinetry brand that consistently delivers on both architectural vision and structural performance."
+    },
+    {
+      "type": "text",
+      "id": "author_name",
+      "label": "t:sections.testimonials-pullquote.settings.author_name.label",
+      "default": "Julianne Vanderbilt"
+    },
+    {
+      "type": "text",
+      "id": "author_title",
+      "label": "t:sections.testimonials-pullquote.settings.author_title.label",
+      "default": "Principal Designer, New York"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.testimonials-pullquote.settings.heading_tag.label",
+      "info": "t:sections.testimonials-pullquote.settings.heading_tag.info",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__2.label"
+        },
+        {
+          "value": "blockquote",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__3.label"
+        }
+      ],
+      "default": "h3"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials-pullquote.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:sections.testimonials-pullquote.settings.vertical_padding.label",
+      "min": 40,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "default": 128
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials-pullquote.presets.name",
+      "settings": {
+        "quote": "Our clients expect zero compromises. Kitchero is the only cabinetry brand that consistently delivers on both architectural vision and structural performance.",
+        "author_name": "Julianne Vanderbilt",
+        "author_title": "Principal Designer, New York",
+        "heading_tag": "h3",
+        "vertical_padding": 128
+      }
+    }
+  ]
+}
+{% endschema %}

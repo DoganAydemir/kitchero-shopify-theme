@@ -1,0 +1,438 @@
+/* Newsletter Popup Modal
+ * Ported from src/app/newsletter/page.tsx
+ * Full-screen modal overlay with left image / right content panes.
+ */
+
+/* ---------- Overlay root ---------- */
+.kt-newsletter-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-newsletter-popup[aria-hidden='false'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- Backdrop ---------- */
+.kt-newsletter-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+/* ---------- Dialog panel ---------- */
+.kt-newsletter-popup__dialog {
+  position: relative;
+  background: #ffffff;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 64px 128px -32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95) translateY(3rem);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.kt-newsletter-popup[aria-hidden='false'] .kt-newsletter-popup__dialog {
+  transform: scale(1) translateY(0);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__dialog {
+    flex-direction: row;
+    max-height: calc(100vh - 4rem);
+  }
+}
+
+/* ---------- Close button ---------- */
+.kt-newsletter-popup__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #78716c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.kt-newsletter-popup__close:hover {
+  color: #1c1917;
+  background: #ffffff;
+}
+
+.kt-newsletter-popup__close:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+}
+
+/* ---------- LEFT: Media pane ---------- */
+.kt-newsletter-popup__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__media {
+    width: 50%;
+    aspect-ratio: auto;
+  }
+}
+
+.kt-newsletter-popup__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-newsletter-popup__media-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 50%);
+  pointer-events: none;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__media-overlay {
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1));
+  }
+}
+
+.kt-newsletter-popup__badge {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__badge {
+    bottom: 2rem;
+    left: 2rem;
+  }
+}
+
+/* ---------- RIGHT: Content pane ---------- */
+.kt-newsletter-popup__content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__content {
+    width: 50%;
+    padding: 3rem;
+  }
+}
+
+.kt-newsletter-popup__form-wrap {
+  margin: 0;
+}
+
+/* ---------- Eyebrow (icon + Limited Time / 15% Off) ---------- */
+.kt-newsletter-popup__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.kt-newsletter-popup__eyebrow-icon {
+  width: 3rem;
+  height: 3rem;
+  background: #1c1917;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kt-newsletter-popup__eyebrow-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.kt-newsletter-popup__eyebrow-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a8a29e;
+}
+
+.kt-newsletter-popup__eyebrow-discount {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.5rem;
+  color: #1c1917;
+}
+
+/* ---------- Heading ---------- */
+.kt-newsletter-popup__heading {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.875rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin: 0 0 1rem;
+  font-weight: 400;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-popup__heading {
+    font-size: 2.25rem;
+  }
+}
+
+.kt-newsletter-popup__heading-italic {
+  font-style: italic;
+  color: #a8a29e;
+}
+
+/* ---------- Description ---------- */
+.kt-newsletter-popup__description {
+  color: #78716c;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  margin: 0 0 2rem;
+}
+
+/* ---------- Errors ---------- */
+.kt-newsletter-popup__errors {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  margin-bottom: 1rem;
+}
+
+.kt-newsletter-popup__errors ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+/* ---------- Email field ---------- */
+.kt-newsletter-popup__field {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.kt-newsletter-popup__field-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a8a29e;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kt-newsletter-popup__input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 0.75rem;
+  color: #1c1917;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kt-newsletter-popup__input::placeholder {
+  color: #a8a29e;
+}
+
+.kt-newsletter-popup__input:focus {
+  outline: none;
+  border-color: #a8a29e;
+  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.08);
+}
+
+.kt-newsletter-popup__input:focus-visible {
+  outline: none;
+}
+
+/* ---------- Submit button ---------- */
+.kt-newsletter-popup__submit {
+  width: 100%;
+  padding: 1rem;
+  background: #1c1917;
+  color: #ffffff;
+  border: 0;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  margin-bottom: 1.5rem;
+  font-family: inherit;
+}
+
+.kt-newsletter-popup__submit:hover {
+  background: #000000;
+}
+
+.kt-newsletter-popup__submit:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+}
+
+/* ---------- Privacy note ---------- */
+.kt-newsletter-popup__privacy {
+  color: #a8a29e;
+  font-size: 0.6875rem;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------- Success state ---------- */
+.kt-newsletter-popup__success {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.kt-newsletter-popup__success-icon {
+  width: 4rem;
+  height: 4rem;
+  background: #ecfdf5;
+  color: #059669;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.kt-newsletter-popup__success-title {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.875rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin: 0 0 1rem;
+  font-weight: 400;
+}
+
+.kt-newsletter-popup__success-desc {
+  color: #78716c;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  margin: 0 0 2rem;
+}
+
+.kt-newsletter-popup__code {
+  display: inline-block;
+  font-weight: 700;
+  color: #1c1917;
+  background: #f5f5f4;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.kt-newsletter-popup__success-btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: #1c1917;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kt-newsletter-popup__success-btn:hover {
+  background: #000000;
+}
+
+.kt-newsletter-popup__success-btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+}
+
+/* ---------- Visually hidden helper (in case base.css isn't present) ---------- */
+.kt-newsletter-popup .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Prefers reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .kt-newsletter-popup,
+  .kt-newsletter-popup__dialog {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+}

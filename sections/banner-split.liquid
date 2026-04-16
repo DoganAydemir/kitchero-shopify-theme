@@ -1,0 +1,207 @@
+{{ 'section-banner-split.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Banner Split 50/50 — two-column promotional banner with dark text pane and
+  full-height image pane. Mobile stacks; desktop (>=750px) is a 50/50 row.
+  Merchant can flip the image to the left side via the image_position setting.
+{%- endcomment -%}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign image_position = section.settings.image_position | default: 'right' -%}
+{%- assign modifier_class = 'kt-banner-split--image-' | append: image_position -%}
+{%- if section.settings.invert_colors -%}
+  {%- assign modifier_class = modifier_class | append: ' kt-banner-split--inverted' -%}
+{%- endif -%}
+
+<section
+  class="kt-banner-split {{ modifier_class }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="banner-split"
+>
+  <div class="kt-banner-split__inner">
+    {%- comment -%} Text pane {%- endcomment -%}
+    <div class="kt-banner-split__text">
+      {%- if section.settings.eyebrow != blank -%}
+        <span class="kt-banner-split__eyebrow">{{ section.settings.eyebrow }}</span>
+      {%- endif -%}
+
+      {%- if section.settings.heading_line1 != blank or section.settings.heading_line2_italic != blank -%}
+        <{{ heading_tag }} class="kt-banner-split__heading">
+          {%- if section.settings.heading_line1 != blank -%}
+            <span class="kt-banner-split__heading-line">{{ section.settings.heading_line1 }}</span>
+          {%- endif -%}
+          {%- if section.settings.heading_line2_italic != blank -%}
+            <span class="kt-banner-split__heading-italic">{{ section.settings.heading_line2_italic }}</span>
+          {%- endif -%}
+        </{{ heading_tag }}>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <p class="kt-banner-split__description">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.cta_text != blank -%}
+        <a
+          href="{{ section.settings.cta_link | default: routes.root_url }}"
+          class="kt-banner-split__cta"
+        >
+          <span class="kt-banner-split__cta-label">{{ section.settings.cta_text }}</span>
+          <svg
+            class="kt-banner-split__cta-icon"
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Image pane {%- endcomment -%}
+    <div class="kt-banner-split__media">
+      {%- if section.settings.image != blank -%}
+        {%- assign image_alt = section.settings.image.alt | default: section.settings.heading_line1 -%}
+        {{
+          section.settings.image
+          | image_url: width: 1600
+          | image_tag:
+            class: 'kt-banner-split__image',
+            loading: 'lazy',
+            widths: '375, 550, 750, 1100, 1500, 1800',
+            sizes: '(min-width: 750px) 50vw, 100vw',
+            width: section.settings.image.width,
+            height: section.settings.image.height,
+            alt: image_alt
+        }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-split__image' }}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.banner-split.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.banner-split.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.banner-split.settings.eyebrow.label",
+      "default": "Limited Time"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.banner-split.settings.heading_line1.label",
+      "default": "Up to 30% Off"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2_italic",
+      "label": "t:sections.banner-split.settings.heading_line2_italic.label",
+      "default": "Select Styles"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.banner-split.settings.heading_tag.label",
+      "options": [
+        {
+          "value": "h1",
+          "label": "t:sections.banner-split.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.banner-split.settings.heading_tag.options__2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.banner-split.settings.heading_tag.options__3.label"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.banner-split.settings.description.label",
+      "default": "Premium shaker and slab door styles at exceptional value. Design consultation included with every order."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-split.settings.header__cta.content"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.banner-split.settings.cta_text.label",
+      "default": "View Deals"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.banner-split.settings.cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-split.settings.header__media.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.banner-split.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.banner-split.settings.image_position.label",
+      "options": [
+        {
+          "value": "right",
+          "label": "t:sections.banner-split.settings.image_position.options__1.label"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.banner-split.settings.image_position.options__2.label"
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-split.settings.header__appearance.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "invert_colors",
+      "label": "t:sections.banner-split.settings.invert_colors.label",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner-split.presets.name"
+    }
+  ]
+}
+{% endschema %}

@@ -173,13 +173,32 @@
 
     {%- comment -%} Action Icons {%- endcomment -%}
     <div class="kt-header__icons">
-      {%- comment -%} Search {%- endcomment -%}
-      <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'general.search.search' | t }}">
+      {%- comment -%}
+        Search — opens the full-screen overlay modal. Fallback to the
+        /search page when JS is disabled via the <noscript> below.
+      {%- endcomment -%}
+      <button
+        type="button"
+        class="kt-header__icon"
+        data-search-open
+        aria-label="{{ 'general.search.search' | t }}"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="search-overlay"
+      >
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-      </a>
+      </button>
+      <noscript>
+        <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'general.search.search' | t }}">
+          <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </a>
+      </noscript>
 
       {%- comment -%} Account {%- endcomment -%}
       <a href="{{ routes.account_url }}" class="kt-header__icon" aria-label="{{ 'accessibility.account' | t }}">

@@ -1,0 +1,195 @@
+/* =============================================================
+   Banner Split 50/50
+   Two-column promotional banner. Mobile stacks; desktop is
+   a 50/50 flex row. Dark text pane + image pane.
+   ============================================================= */
+
+.kt-banner-split {
+  --kt-banner-split-bg: #0c0a09;
+  --kt-banner-split-fg: #ffffff;
+  --kt-banner-split-muted: #a8a29e;
+  --kt-banner-split-eyebrow: #34d399;
+  --kt-banner-split-btn-bg: #ffffff;
+  --kt-banner-split-btn-fg: #0c0a09;
+  --kt-banner-split-btn-hover-bg: #fafaf9;
+  --kt-banner-split-radius: 1rem;
+  --kt-banner-split-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  padding: 3rem 1.5rem;
+  background-color: #fafaf9;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split {
+    padding: 5rem 3rem;
+  }
+}
+
+.kt-banner-split--inverted {
+  --kt-banner-split-bg: #fafaf9;
+  --kt-banner-split-fg: #0c0a09;
+  --kt-banner-split-muted: #78716c;
+  --kt-banner-split-btn-bg: #0c0a09;
+  --kt-banner-split-btn-fg: #ffffff;
+  --kt-banner-split-btn-hover-bg: #1c1917;
+}
+
+.kt-banner-split__inner {
+  display: flex;
+  flex-direction: column;
+  max-width: 1280px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--kt-banner-split-radius);
+  box-shadow: var(--kt-banner-split-shadow);
+  background-color: var(--kt-banner-split-bg);
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split__inner {
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 28rem;
+  }
+
+  .kt-banner-split--image-left .kt-banner-split__inner {
+    flex-direction: row-reverse;
+  }
+}
+
+/* ------- Text pane ------- */
+.kt-banner-split__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--kt-banner-split-bg);
+  color: var(--kt-banner-split-fg);
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split__text {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 5rem;
+  }
+}
+
+.kt-banner-split__eyebrow {
+  display: block;
+  margin-bottom: 1.5rem;
+  color: var(--kt-banner-split-eyebrow);
+  font-size: 0.625rem; /* 10px */
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.kt-banner-split__heading {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-accent-family, 'Playfair Display', Georgia, 'Times New Roman', serif);
+  font-weight: 400;
+  font-size: 1.875rem; /* 30px mobile */
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--kt-banner-split-fg);
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split__heading {
+    font-size: 3rem; /* 48px desktop */
+  }
+}
+
+.kt-banner-split__heading-line {
+  display: block;
+}
+
+.kt-banner-split__heading-italic {
+  display: block;
+  font-style: italic;
+  color: var(--kt-banner-split-muted);
+}
+
+.kt-banner-split__description {
+  margin: 0 0 2.5rem;
+  max-width: 28rem;
+  color: var(--kt-banner-split-muted);
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split__description {
+    font-size: 1rem;
+  }
+}
+
+/* ------- CTA button ------- */
+.kt-banner-split__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 1rem 2rem;
+  background-color: var(--kt-banner-split-btn-bg);
+  color: var(--kt-banner-split-btn-fg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.kt-banner-split__cta:hover {
+  background-color: var(--kt-banner-split-btn-hover-bg);
+  color: var(--kt-banner-split-btn-fg);
+}
+
+.kt-banner-split__cta:focus-visible {
+  outline: 2px solid var(--kt-banner-split-eyebrow);
+  outline-offset: 3px;
+}
+
+.kt-banner-split__cta-label {
+  line-height: 1;
+}
+
+.kt-banner-split__cta-icon {
+  flex-shrink: 0;
+}
+
+/* ------- Image pane ------- */
+.kt-banner-split__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #e7e5e4;
+}
+
+@media (min-width: 750px) {
+  .kt-banner-split__media {
+    flex: 0 0 50%;
+    max-width: 50%;
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+}
+
+.kt-banner-split__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-banner-split__media .placeholder-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -1,0 +1,207 @@
+{{ 'section-banner-hero.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Banner Hero — Full-width hero banner with background image, dark gradient overlay,
+  left-aligned content block (eyebrow, split serif heading, description, pill CTA).
+  Ported from Next.js kitchen theme "Banner 01 — Full-Width Hero".
+{%- endcomment -%}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign min_h_mobile = section.settings.min_height_mobile | default: 500
+  assign min_h_desktop = section.settings.min_height_desktop | default: 600
+-%}
+
+<section
+  class="kt-banner-hero"
+  data-section-id="{{ section.id }}"
+  data-section-type="banner-hero"
+  style="--banner-hero-min-height-mobile: {{ min_h_mobile }}px; --banner-hero-min-height-desktop: {{ min_h_desktop }}px;"
+>
+  <div class="kt-banner-hero__frame">
+    <div class="kt-banner-hero__media">
+      {%- if section.settings.hero_image != blank -%}
+        {{
+          section.settings.hero_image
+          | image_url: width: 2000
+          | image_tag:
+            class: 'kt-banner-hero__image',
+            loading: 'eager',
+            fetchpriority: 'high',
+            widths: '500, 750, 1100, 1500, 2000',
+            sizes: '(min-width: 990px) 1400px, 100vw',
+            width: section.settings.hero_image.width,
+            height: section.settings.hero_image.height,
+            alt: section.settings.hero_image.alt | default: section.settings.heading_line1 | default: shop.name
+        }}
+      {%- else -%}
+        {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-hero__image' }}
+      {%- endif -%}
+    </div>
+
+    <div class="kt-banner-hero__overlay" aria-hidden="true"></div>
+
+    <div class="kt-banner-hero__content">
+      <div class="kt-banner-hero__inner">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-banner-hero__eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.heading_line1 != blank or section.settings.heading_line2_italic != blank -%}
+          <{{ heading_tag }} class="kt-banner-hero__heading">
+            {%- if section.settings.heading_line1 != blank -%}
+              <span class="kt-banner-hero__heading-line">{{ section.settings.heading_line1 }}</span>
+            {%- endif -%}
+            {%- if section.settings.heading_line2_italic != blank -%}
+              <span class="kt-banner-hero__heading-italic">{{ section.settings.heading_line2_italic }}</span>
+            {%- endif -%}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="kt-banner-hero__desc">{{ section.settings.description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.cta_text != blank -%}
+          <a
+            href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}"
+            class="kt-banner-hero__cta"
+          >
+            <span class="kt-banner-hero__cta-label">{{ section.settings.cta_text }}</span>
+            <svg
+              class="kt-banner-hero__cta-icon"
+              aria-hidden="true"
+              focusable="false"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.banner-hero.name",
+  "tag": "section",
+  "class": "section-banner-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.banner-hero.settings.header_content.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "t:sections.banner-hero.settings.hero_image.label"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.banner-hero.settings.eyebrow.label",
+      "default": "New Arrival"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.banner-hero.settings.heading_line1.label",
+      "default": "The Art of"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2_italic",
+      "label": "t:sections.banner-hero.settings.heading_line2_italic.label",
+      "info": "t:sections.banner-hero.settings.heading_line2_italic.info",
+      "default": "Fine Cabinetry"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.banner-hero.settings.description.label",
+      "default": "Discover our latest collection of handcrafted kitchen cabinets, designed for lifetime performance."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.banner-hero.settings.cta_text.label",
+      "default": "Shop Collection"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.banner-hero.settings.cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-hero.settings.header_typography.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.banner-hero.settings.heading_tag.label",
+      "info": "t:sections.banner-hero.settings.heading_tag.info",
+      "options": [
+        { "value": "h1", "label": "t:sections.banner-hero.settings.heading_tag.options.h1" },
+        { "value": "h2", "label": "t:sections.banner-hero.settings.heading_tag.options.h2" },
+        { "value": "h3", "label": "t:sections.banner-hero.settings.heading_tag.options.h3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-hero.settings.header_layout.content"
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "t:sections.banner-hero.settings.min_height_mobile.label",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "label": "t:sections.banner-hero.settings.min_height_desktop.label",
+      "min": 400,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 600
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner-hero.presets.name",
+      "settings": {
+        "eyebrow": "New Arrival",
+        "heading_line1": "The Art of",
+        "heading_line2_italic": "Fine Cabinetry",
+        "description": "Discover our latest collection of handcrafted kitchen cabinets, designed for lifetime performance.",
+        "cta_text": "Shop Collection",
+        "heading_tag": "h2",
+        "min_height_mobile": 500,
+        "min_height_desktop": 600
+      }
+    }
+  ]
+}
+{% endschema %}

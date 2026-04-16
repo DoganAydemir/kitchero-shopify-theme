@@ -1,0 +1,213 @@
+{%- comment -%}
+  Banner — Minimal Centered
+  Full-width banner with rounded corners, background image + overlay,
+  centered headline (word + italic word), description and two CTAs.
+{%- endcomment -%}
+
+{{ 'section-banner-minimal.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0 -%}
+{%- assign min_height_mobile = section.settings.min_height_mobile | default: 400 -%}
+{%- assign min_height_desktop = section.settings.min_height_desktop | default: 500 -%}
+
+<section
+  class="kt-banner-minimal"
+  data-section-id="{{ section.id }}"
+  style="--kt-banner-minimal-overlay-opacity: {{ overlay_opacity }}; --kt-banner-minimal-min-height-mobile: {{ min_height_mobile }}px; --kt-banner-minimal-min-height-desktop: {{ min_height_desktop }}px;"
+>
+  <div class="kt-banner-minimal__frame">
+    <div class="kt-banner-minimal__media">
+      {%- if section.settings.image != blank -%}
+        {{
+          section.settings.image
+          | image_url: width: 2000
+          | image_tag:
+            class: 'kt-banner-minimal__image',
+            loading: 'lazy',
+            widths: '375, 550, 750, 1100, 1500, 1780, 2000',
+            sizes: '100vw',
+            width: section.settings.image.width,
+            height: section.settings.image.height,
+            alt: section.settings.image.alt | default: section.settings.heading_line1
+        }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-minimal__image' }}
+      {%- endif -%}
+      <div class="kt-banner-minimal__overlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="kt-banner-minimal__content">
+      <div class="kt-banner-minimal__inner">
+        {%- if section.settings.heading_line1 != blank or section.settings.heading_line2_italic != blank -%}
+          <{{ heading_tag }} class="kt-banner-minimal__heading">
+            {%- if section.settings.heading_line1 != blank -%}
+              {{ section.settings.heading_line1 }}
+            {%- endif -%}
+            {%- if section.settings.heading_line2_italic != blank -%}
+              {%- if section.settings.heading_line1 != blank -%} {% endif -%}
+              <span class="kt-banner-minimal__heading-italic">{{ section.settings.heading_line2_italic }}</span>
+            {%- endif -%}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="kt-banner-minimal__desc">{{ section.settings.description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.primary_cta_text != blank or section.settings.secondary_cta_text != blank -%}
+          <div class="kt-banner-minimal__ctas">
+            {%- if section.settings.primary_cta_text != blank -%}
+              <a
+                href="{{ section.settings.primary_cta_link | default: routes.root_url }}"
+                class="kt-banner-minimal__btn kt-banner-minimal__btn--primary"
+              >
+                {{ section.settings.primary_cta_text }}
+              </a>
+            {%- endif -%}
+            {%- if section.settings.secondary_cta_text != blank -%}
+              <a
+                href="{{ section.settings.secondary_cta_link | default: routes.root_url }}"
+                class="kt-banner-minimal__btn kt-banner-minimal__btn--secondary"
+              >
+                {{ section.settings.secondary_cta_text }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.banner-minimal.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.banner-minimal.settings.image.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-minimal.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.banner-minimal.settings.heading_line1.label",
+      "default": "summer"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2_italic",
+      "label": "t:sections.banner-minimal.settings.heading_line2_italic.label",
+      "default": "sale"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.banner-minimal.settings.heading_tag.label",
+      "options": [
+        {
+          "value": "h1",
+          "label": "t:sections.banner-minimal.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.banner-minimal.settings.heading_tag.options__2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.banner-minimal.settings.heading_tag.options__3.label"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.banner-minimal.settings.description.label",
+      "default": "Save up to 40% on our most popular collections"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-minimal.settings.header__primary.content"
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_text",
+      "label": "t:sections.banner-minimal.settings.primary_cta_text.label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "primary_cta_link",
+      "label": "t:sections.banner-minimal.settings.primary_cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-minimal.settings.header__secondary.content"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_text",
+      "label": "t:sections.banner-minimal.settings.secondary_cta_text.label",
+      "info": "t:sections.banner-minimal.settings.secondary_cta_text.info",
+      "default": "See Deals"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_link",
+      "label": "t:sections.banner-minimal.settings.secondary_cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-minimal.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.banner-minimal.settings.overlay_opacity.label",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "t:sections.banner-minimal.settings.min_height_mobile.label",
+      "min": 240,
+      "max": 640,
+      "step": 20,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "label": "t:sections.banner-minimal.settings.min_height_desktop.label",
+      "min": 320,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 500
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner-minimal.presets.name"
+    }
+  ]
+}
+{% endschema %}
