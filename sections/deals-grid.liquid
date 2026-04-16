@@ -9,19 +9,6 @@
   Cards link to collections, NOT product detail (per PORT_PLAN).
 {%- endcomment -%}
 
-{%- if section.settings.show_header -%}
-  {%- comment %}theme-check-disable UnusedAssign{% endcomment -%}
-  {%- assign deal_blocks = section.blocks | where: 'type', 'deal' -%}
-  {%- comment %}theme-check-enable UnusedAssign{% endcomment -%}
-  {%- render 'page-header-dotted',
-    eyebrow: section.settings.label,
-    title: section.settings.heading,
-    description: section.settings.description,
-    count_text: deal_blocks.size | append: ' Packages',
-    heading_tag: section.settings.heading_tag | default: 'h1'
-  -%}
-{%- endif -%}
-
 <section class="kt-deals" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-deals__grid">
@@ -177,44 +164,6 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    {
-      "type": "header",
-      "content": "t:sections.deals-grid.settings.header__header.content"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_header",
-      "label": "t:sections.deals-grid.settings.show_header.label",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "label",
-      "label": "t:sections.deals-grid.settings.label.label",
-      "default": "Limited Time Offers"
-    },
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "t:sections.deals-grid.settings.heading.label",
-      "default": "Special Offers"
-    },
-    {
-      "type": "select",
-      "id": "heading_tag",
-      "label": "t:sections.deals-grid.settings.heading_tag.label",
-      "options": [
-        { "value": "h1", "label": "H1" },
-        { "value": "h2", "label": "H2" }
-      ],
-      "default": "h1"
-    },
-    {
-      "type": "textarea",
-      "id": "description",
-      "label": "t:sections.deals-grid.settings.description.label",
-      "default": "Premium kitchen packages at exceptional value. Every deal includes free design consultation and professional installation."
-    },
     {
       "type": "header",
       "content": "t:sections.deals-grid.settings.header__bottom.content"
