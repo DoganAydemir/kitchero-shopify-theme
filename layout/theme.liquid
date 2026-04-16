@@ -231,18 +231,28 @@
       {{ 'accessibility.skip_to_text' | t }}
     </a>
 
+    {%- comment -%}
+      Drawer/overlay CSS — only needed when the user opens them via a click.
+      Load them async with the media="print"→media="all" swap pattern so they
+      never block first render. noscript fallback ensures styling still works
+      when JavaScript is disabled.
+    {%- endcomment -%}
+
     {%- comment -%} Cart Drawer (loaded conditionally) {%- endcomment -%}
     {%- if settings.cart_type == 'drawer' -%}
-      {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'component-cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+      <noscript><link rel="stylesheet" href="{{ 'component-cart-drawer.css' | asset_url }}"></noscript>
       {%- render 'cart-drawer' -%}
     {%- endif -%}
 
     {%- comment -%} Search Overlay {%- endcomment -%}
-    {{ 'component-search-overlay.css' | asset_url | stylesheet_tag }}
+    <link rel="stylesheet" href="{{ 'component-search-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ 'component-search-overlay.css' | asset_url }}"></noscript>
     {%- render 'search-overlay' -%}
 
     {%- comment -%} Appointment Drawer {%- endcomment -%}
-    {{ 'component-appointment-drawer.css' | asset_url | stylesheet_tag }}
+    <link rel="stylesheet" href="{{ 'component-appointment-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ 'component-appointment-drawer.css' | asset_url }}"></noscript>
     {%- render 'appointment-drawer' -%}
     <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
 

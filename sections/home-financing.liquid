@@ -4,7 +4,7 @@
   {%- comment -%} Background image (right half only) {%- endcomment -%}
   <div class="kt-home-financing__bg">
     {%- if section.settings.background_image != blank -%}
-      {{ section.settings.background_image | image_url: width: 1200 | image_tag: class: 'kt-home-financing__bg-image', loading: 'lazy', alt: '' }}
+      {{ section.settings.background_image | image_url: width: 1200 | image_tag: class: 'kt-home-financing__bg-image', loading: 'lazy', widths: '550, 750, 1100, 1500, 1780', sizes: '(min-width: 990px) 50vw, 100vw', width: section.settings.background_image.width, height: section.settings.background_image.height, alt: '' }}
     {%- else -%}
       {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg kt-home-financing__bg-image' }}
     {%- endif -%}

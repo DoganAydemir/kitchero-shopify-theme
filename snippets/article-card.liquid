@@ -5,18 +5,30 @@
   - show_author: {Boolean} (default: true)
   - show_date: {Boolean} (default: true)
   - show_excerpt: {Boolean} (default: true)
+  - index: {Number} Zero-based index; first 3 get eager loading for LCP (default: 99)
 {%- endcomment -%}
 
 {%- liquid
   assign show_author = show_author | default: true
   assign show_date = show_date | default: true
   assign show_excerpt = show_excerpt | default: true
+  assign card_index = index | default: 99
+  if card_index < 3
+    assign img_loading = 'eager'
+  else
+    assign img_loading = 'lazy'
+  endif
+  if card_index == 0
+    assign img_fetchpriority = 'high'
+  else
+    assign img_fetchpriority = 'auto'
+  endif
 -%}
 
 <a href="{{ article.url }}" class="kt-article-card">
   <div class="kt-article-card__image-wrap">
     {%- if article.image -%}
-      {{ article.image | image_url: width: 800 | image_tag: class: 'kt-article-card__image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
+      {{ article.image | image_url: width: 800 | image_tag: class: 'kt-article-card__image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
     {%- else -%}
       {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-article-card__image' }}
     {%- endif -%}

@@ -2,7 +2,15 @@
  * Collection Filters — Section Rendering API for AJAX filtering
  * Updates product grid without full page reload.
  * Falls back to URL navigation when JS disabled (noscript button).
+ *
+ * Wrapped in a load-guard to avoid double-binding submit/popstate handlers
+ * if the same script ends up on the page more than once (edge cases: AJAX
+ * responses containing script tags, theme editor rehydration).
  */
+if (window.__kitcheroCollectionFiltersLoaded) {
+  /* already wired */
+} else {
+  window.__kitcheroCollectionFiltersLoaded = true;
 (function () {
   'use strict';
 
@@ -148,3 +156,4 @@
     window.location.reload();
   });
 })();
+}

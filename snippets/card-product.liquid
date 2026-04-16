@@ -7,6 +7,7 @@
   - show_vendor: {Boolean} Show vendor name on hover (default: true)
   - show_secondary_image: {Boolean} Show hover image swap (default: true)
   - show_quote_button: {Boolean} Show "Get Quote" button (default: true)
+  - index: {Number} Zero-based index of card in grid; first 3 get eager loading for LCP (default: 99)
 {%- endcomment -%}
 
 {%- liquid
@@ -14,6 +15,17 @@
   assign show_secondary_image = show_secondary_image | default: true
   assign show_quote_button = show_quote_button | default: true
   assign secondary_image = product.images[1] | default: nil
+  assign card_index = index | default: 99
+  if card_index < 3
+    assign primary_loading = 'eager'
+  else
+    assign primary_loading = 'lazy'
+  endif
+  if card_index == 0
+    assign primary_fetchpriority = 'high'
+  else
+    assign primary_fetchpriority = 'auto'
+  endif
 -%}
 
 <div class="kt-card-product">
@@ -39,7 +51,8 @@
         | image_url: width: 800
         | image_tag:
           class: 'kt-card-product__image-primary',
-          loading: 'lazy',
+          loading: primary_loading,
+          fetchpriority: primary_fetchpriority,
           widths: '375, 550, 800',
           sizes: '(min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
