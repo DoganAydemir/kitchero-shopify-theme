@@ -1,0 +1,497 @@
+/* ============================================================
+   Financing Panel — birebir from Next.js /financing.
+   Two variants: light (Affirm) and dark/inverted (BreadPay).
+   Layout: two-col grid, image on one side, copy on the other.
+   Sub-blocks:
+     - .kt-financing-panel__features    → checklist bullets
+     - .kt-financing-panel__steps       → 3-col how-it-works row
+     - .kt-financing-panel__highlights  → 2-col icon-box grid
+     - .kt-financing-panel__floating-card → card over image bottom-left
+   ============================================================ */
+
+.kt-financing-panel {
+  position: relative;
+  background-color: #fff;
+  color: #1c1917;
+  padding: 6rem 0;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel {
+    padding: 8rem 0;
+  }
+}
+
+/* ── Inverted (dark) variant ───────────────────────────── */
+
+.kt-financing-panel--inverted {
+  background-color: #0c0a09; /* stone-950 */
+  color: #fff;
+}
+
+.kt-financing-panel__bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kt-financing-panel__bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-financing-panel__wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Grid ──────────────────────────────────────────────── */
+
+.kt-financing-panel__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-financing-panel__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+  }
+}
+
+.kt-financing-panel--image-left .kt-financing-panel__media-col {
+  order: -1;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-financing-panel--image-left .kt-financing-panel__media-col {
+    order: 0;
+    grid-column: 1;
+  }
+  .kt-financing-panel--image-left .kt-financing-panel__text-col {
+    grid-column: 2;
+  }
+}
+
+/* ── Media + floating card ─────────────────────────────── */
+
+.kt-financing-panel__media-col {
+  position: relative;
+}
+
+.kt-financing-panel__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background-color: #1c1917;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__media {
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.kt-financing-panel__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.6;
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__image {
+  opacity: 1;
+}
+
+.kt-financing-panel__media-gradient {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to top, #1c1917 0%, transparent 60%);
+}
+
+.kt-financing-panel__floating-card {
+  position: absolute;
+  bottom: -2rem;
+  left: -1rem;
+  background-color: #fff;
+  padding: 1.75rem;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #f5f5f4;
+  max-width: 17rem;
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__floating-card {
+    bottom: -2.5rem;
+    left: -2.5rem;
+    padding: 2rem;
+    display: block;
+  }
+}
+
+.kt-financing-panel__floating-eyebrow {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a8a29e;
+  margin-bottom: 1rem;
+}
+
+.kt-financing-panel__floating-value {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 2.25rem;
+  font-weight: 400;
+  color: #1c1917;
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+
+.kt-financing-panel__floating-desc {
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: #78716c;
+  margin: 0;
+}
+
+/* ── Eyebrow row ───────────────────────────────────────── */
+
+.kt-financing-panel__eyebrow-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.kt-financing-panel__eyebrow-rule {
+  display: inline-block;
+  width: 3rem;
+  height: 1px;
+  background-color: #1c1917;
+}
+
+.kt-financing-panel__eyebrow {
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -0.04em;
+  color: #1c1917;
+  line-height: 1;
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__eyebrow {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.875rem;
+  letter-spacing: -0.025em;
+}
+
+.kt-financing-panel__eyebrow-mark sup {
+  font-size: 0.6em;
+  font-weight: 400;
+  margin-left: 0.15em;
+}
+
+/* ── Title ─────────────────────────────────────────────── */
+
+.kt-financing-panel__title {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 2.25rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #1c1917;
+  margin: 0 0 2rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__title {
+    font-size: 3rem;
+  }
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__title {
+  color: #fff;
+}
+
+.kt-financing-panel__title-line {
+  display: block;
+}
+
+.kt-financing-panel__title-line--accent {
+  font-weight: 300;
+}
+
+.kt-financing-panel__title-line--italic {
+  font-style: italic;
+  color: #15803d; /* emerald-700 */
+}
+
+.kt-financing-panel__title-line--muted {
+  color: #a8a29e; /* stone-400 */
+  font-style: normal;
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__title-line--italic {
+  color: #a8a29e;
+  font-style: normal;
+}
+
+/* ── Description ───────────────────────────────────────── */
+
+.kt-financing-panel__desc {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.625;
+  color: #78716c;
+  max-width: 32rem;
+  margin: 0 0 3rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__desc {
+    font-size: 1.125rem;
+  }
+}
+
+.kt-financing-panel--inverted .kt-financing-panel__desc {
+  color: #d6d3d1;
+}
+
+/* ── Features (checklist) ──────────────────────────────── */
+
+.kt-financing-panel__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.kt-financing-panel__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.kt-financing-panel__feature-icon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background-color: #ecfdf5; /* emerald-50 */
+  color: #15803d; /* emerald-700 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kt-financing-panel__feature-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kt-financing-panel__feature-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #44403c;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__feature-text {
+    font-size: 1rem;
+  }
+}
+
+/* ── Steps (3-col row) ─────────────────────────────────── */
+
+.kt-financing-panel__steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f5f5f4;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.kt-financing-panel__step-icon {
+  color: #a8a29e;
+  margin-bottom: 0.75rem;
+}
+
+.kt-financing-panel__step-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kt-financing-panel__step-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #1c1917;
+  margin: 0 0 0.25rem 0;
+}
+
+.kt-financing-panel__step-desc {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: #a8a29e;
+  margin: 0;
+}
+
+/* ── Highlights (2x2 icon grid, dark variant) ─────────── */
+
+.kt-financing-panel__highlights {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem 3rem;
+  margin-bottom: 3rem;
+}
+
+@media screen and (min-width: 640px) {
+  .kt-financing-panel__highlights {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kt-financing-panel__highlight {
+  display: flex;
+  gap: 1rem;
+}
+
+.kt-financing-panel__highlight-icon {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #d6d3d1;
+}
+
+.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-icon {
+  border-color: #e7e5e4;
+  color: #78716c;
+}
+
+.kt-financing-panel__highlight-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.kt-financing-panel__highlight-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.kt-financing-panel__highlight-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-title {
+  color: #1c1917;
+}
+
+.kt-financing-panel__highlight-desc {
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: #a8a29e;
+  margin: 0;
+}
+
+.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-desc {
+  color: #78716c;
+}
+
+/* ── CTA button ────────────────────────────────────────── */
+
+.kt-financing-panel__cta-row {
+  margin-top: 2rem;
+}
+
+.kt-financing-panel__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  background-color: #fff;
+  color: #0c0a09;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-panel__cta {
+    padding: 1.25rem 3rem;
+    font-size: 0.75rem;
+  }
+}
+
+.kt-financing-panel__cta:hover {
+  background-color: #e7e5e4;
+  transform: translateY(-1px);
+}
+
+.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta {
+  background-color: #1c1917;
+  color: #fff;
+}
+
+.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta:hover {
+  background-color: #000;
+}
+
+.kt-financing-panel__cta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kt-financing-panel__cta:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ── Reduced motion ───────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-financing-panel__cta {
+    transition: none;
+  }
+  .kt-financing-panel__cta:hover {
+    transform: none;
+  }
+}

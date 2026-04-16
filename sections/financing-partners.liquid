@@ -1,0 +1,134 @@
+{%- comment -%}
+  Financing Partners — minimalist centered intro used on the /financing
+  template. Two-line editorial headline + description + a row of partner
+  name-marks (logo_image optional; falls back to text wordmark) with
+  grayscale → color hover treatment. Ported from the "PARTNER INTRO"
+  block in the Next.js financing page.
+{%- endcomment -%}
+
+{{ 'section-financing-partners.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+
+<section
+  class="kt-financing-partners"
+  data-section-id="{{ section.id }}"
+  data-section-type="financing-partners"
+>
+  <div class="page-width">
+    <div class="kt-financing-partners__inner">
+      <{{ heading_tag }} class="kt-financing-partners__title">
+        {{- section.settings.heading -}}
+      </{{ heading_tag }}>
+
+      {%- if section.settings.description != blank -%}
+        <p class="kt-financing-partners__desc">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="kt-financing-partners__list" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'partner' -%}
+              <li class="kt-financing-partners__item" {{ block.shopify_attributes }}>
+                {%- if block.settings.logo_image != blank -%}
+                  {{
+                    block.settings.logo_image
+                    | image_url: height: 48
+                    | image_tag:
+                      class: 'kt-financing-partners__logo',
+                      loading: 'lazy',
+                      height: 24,
+                      alt: block.settings.name
+                  }}
+                {%- else -%}
+                  <span
+                    class="kt-financing-partners__wordmark kt-financing-partners__wordmark--{{ block.settings.style | default: 'default' }}"
+                  >
+                    {%- if block.settings.style == 'bread' -%}
+                      <span class="kt-financing-partners__wordmark-icon" aria-hidden="true"></span>
+                    {%- endif -%}
+                    {{ block.settings.name }}
+                  </span>
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.financing-partners.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.financing-partners.settings.heading.label",
+      "default": "World-Class Partners, Seamless Experiences"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.financing-partners.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.financing-partners.settings.description.label",
+      "default": "Kitchero integrates with the most trusted financial institutions to provide transparent, fixed-monthly payment plans."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "partner",
+      "name": "t:sections.financing-partners.blocks.partner.name",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "t:sections.financing-partners.blocks.partner.settings.name.label",
+          "default": "affirm"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_image",
+          "label": "t:sections.financing-partners.blocks.partner.settings.logo_image.label",
+          "info": "t:sections.financing-partners.blocks.partner.settings.logo_image.info"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "t:sections.financing-partners.blocks.partner.settings.style.label",
+          "options": [
+            { "value": "default", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__default.label" },
+            { "value": "bread", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__bread.label" },
+            { "value": "italic", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__italic.label" }
+          ],
+          "default": "default"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.financing-partners.presets.name",
+      "blocks": [
+        { "type": "partner", "settings": { "name": "affirm", "style": "default" } },
+        { "type": "partner", "settings": { "name": "bread pay", "style": "bread" } },
+        { "type": "partner", "settings": { "name": "KLARNA.", "style": "italic" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -15,58 +15,89 @@
       }
     },
     "partners": {
-      "type": "home-financing",
+      "type": "financing-partners",
       "blocks": {
-        "affirm": {
-          "type": "partner",
-          "settings": {
-            "name": "Affirm",
-            "description": "Simple monthly payments without hidden fees or surprises. See if you qualify in seconds.",
-            "badge": "0% APR Available"
-          }
-        },
-        "breadpay": {
-          "type": "partner",
-          "settings": {
-            "name": "Bread Pay",
-            "description": "Tailored financing solutions that work for your budget. Clear terms with no impact on credit score for pre-qualification.",
-            "badge": "Fast Pre-approval"
-          }
-        }
+        "affirm": { "type": "partner", "settings": { "name": "affirm", "style": "default" } },
+        "breadpay": { "type": "partner", "settings": { "name": "bread pay", "style": "bread" } },
+        "klarna": { "type": "partner", "settings": { "name": "KLARNA.", "style": "italic" } }
       },
-      "block_order": ["affirm", "breadpay"],
+      "block_order": ["affirm", "breadpay", "klarna"],
       "settings": {
-        "label": "World-Class Partners",
-        "heading_line1": "Seamless",
-        "heading_line2": "Experiences.",
-        "description": "Kitchero integrates with the most trusted financial institutions to provide transparent, fixed-monthly payment plans.",
-        "cta_text": "Explore Plans"
+        "heading": "World-Class Partners, Seamless Experiences",
+        "heading_tag": "h2",
+        "description": "Kitchero integrates with the most trusted financial institutions to provide transparent, fixed-monthly payment plans."
       }
     },
-    "affirm_detail": {
-      "type": "banner-split",
+    "affirm_panel": {
+      "type": "financing-panel",
+      "blocks": {
+        "f1": { "type": "feature", "settings": { "text": "Clear total upfront. Your balance will never increase." } },
+        "f2": { "type": "feature", "settings": { "text": "Custom schedules tailored to your monthly budget." } },
+        "f3": { "type": "feature", "settings": { "text": "Absolutely zero late fees or hidden service charges." } },
+        "s1": { "type": "step", "settings": { "icon": "card", "title": "Select Affirm", "description": "Choose at checkout" } },
+        "s2": { "type": "step", "settings": { "icon": "calculator", "title": "Transparent", "description": "Pick your term" } },
+        "s3": { "type": "step", "settings": { "icon": "clock", "title": "Pay Monthly", "description": "Predictable dues" } }
+      },
+      "block_order": ["f1", "f2", "f3", "s1", "s2", "s3"],
       "settings": {
-        "eyebrow": "Affirm",
-        "heading_line1": "Buy now,",
-        "heading_line2_italic": "pay over time.",
-        "description": "Starting at 0% APR with clear monthly dues. Your balance will never increase — no late fees, no hidden service charges, just a transparent path to the kitchen you've always envisioned.",
-        "cta_text": "Learn More",
-        "heading_tag": "h2",
+        "eyebrow": "affirm",
+        "eyebrow_style": "default",
+        "heading_line1": "Buy now, pay over time.",
+        "heading_line2": "Starting at 0% APR.",
+        "heading_accent_style": "italic",
+        "heading_tag": "h3",
+        "description": "Affirm keeps it simple. No hidden fees, no surprises. Just a clear path to the kitchen you've always envisioned.",
         "image_position": "right",
+        "show_floating_card": true,
+        "floating_eyebrow": "Prequalified",
+        "floating_value": "$30,000",
+        "floating_description": "Available to use instantly for your cabinetry project.",
         "invert_colors": false
       }
     },
-    "breadpay_detail": {
-      "type": "banner-split",
+    "bread_panel": {
+      "type": "financing-panel",
+      "blocks": {
+        "h1": { "type": "highlight", "settings": { "icon": "zap", "title": "Instant Prequalification", "description": "No impact on your credit score to see your options." } },
+        "h2": { "type": "highlight", "settings": { "icon": "check", "title": "Fixed Monthly dues", "description": "A transparent roadmap with no hidden costs." } },
+        "h3": { "type": "highlight", "settings": { "icon": "shield", "title": "Vault-Grade Security", "description": "Your data is protected by best-in-class encryption." } },
+        "h4": { "type": "highlight", "settings": { "icon": "clock", "title": "Flexible Terms", "description": "Customizable repayment terms from 12 to 48 months." } }
+      },
+      "block_order": ["h1", "h2", "h3", "h4"],
       "settings": {
-        "eyebrow": "Bread Pay",
-        "heading_line1": "Modern solutions",
-        "heading_line2_italic": "for modern homeowners.",
-        "description": "Instant prequalification with no impact on your credit score. Fixed monthly dues, vault-grade security, and flexible repayment terms from 12 to 48 months.",
-        "cta_text": "Learn More",
-        "heading_tag": "h2",
+        "eyebrow": "bread pay",
+        "eyebrow_style": "bread",
+        "heading_line1": "Modern solutions for",
+        "heading_line2": "modern homeowners.",
+        "heading_accent_style": "muted",
+        "heading_tag": "h3",
+        "description": "",
         "image_position": "left",
-        "invert_colors": true
+        "show_floating_card": false,
+        "invert_colors": true,
+        "cta_text": "Learn More About Bread"
+      }
+    },
+    "calculator": {
+      "type": "financing-calculator",
+      "blocks": {
+        "t1": { "type": "term", "settings": { "months": 12, "apr": 0, "apr_label": "0% APR", "accent_color": "emerald" } },
+        "t2": { "type": "term", "settings": { "months": 24, "apr": 15, "apr_label": "15.00% APR", "accent_color": "neutral" } },
+        "t3": { "type": "term", "settings": { "months": 36, "apr": 14.99, "apr_label": "14.99% APR", "accent_color": "neutral" } }
+      },
+      "block_order": ["t1", "t2", "t3"],
+      "settings": {
+        "eyebrow": "Financial Planner",
+        "heading": "Investment Calculator",
+        "heading_tag": "h2",
+        "description": "Plan your monthly investment with precision.",
+        "amount_label": "Estimated Loan Amount",
+        "months_label": "Months",
+        "default_amount": 8000,
+        "min_amount": 500,
+        "max_amount": 200000,
+        "cta_text": "Personalize Your Plan",
+        "trust_text": "NO impact on your credit score to check pre-approval."
       }
     },
     "faq": {
@@ -115,18 +146,20 @@
         "heading": "Commonly Asked Questions",
         "heading_tag": "h2",
         "allow_multiple_open": false,
-        "numbering_style": "padded_two"
+        "numbering_style": "none"
       }
     },
     "bottom_cta": {
-      "type": "mid-cta",
+      "type": "financing-cta",
       "settings": {
-        "label": "Start Today",
-        "heading": "Start your transformation today.",
-        "description": "Beautiful cabinetry shouldn't wait. Secure your financing and bring your vision to life.",
-        "cta_text": "Apply Now"
+        "heading_line1": "Start Your Transformation",
+        "heading_line2": "Today.",
+        "heading_tag": "h2",
+        "description": "Beautiful cabinetry shouldn't wait. Secure your financing and bring your vision to life today.",
+        "primary_text": "Apply Now",
+        "secondary_text": "Explore Collections"
       }
     }
   },
-  "order": ["hero", "partners", "affirm_detail", "breadpay_detail", "faq", "bottom_cta"]
+  "order": ["hero", "partners", "affirm_panel", "bread_panel", "calculator", "faq", "bottom_cta"]
 }

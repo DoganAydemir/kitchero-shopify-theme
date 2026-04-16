@@ -1,0 +1,147 @@
+{%- comment -%}
+  Banner Cover — full-bleed cover-photo hero with dark gradient overlay and
+  centered content (eyebrow + big serif title + lead paragraph). Ported
+  from the About page hero in the Next.js kitchen theme ("Style 2" variant
+  of banner-hero). Used for editorial page headers where the imagery is
+  the star.
+{%- endcomment -%}
+
+{{ 'section-banner-cover.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  assign min_h_mobile = section.settings.min_height_mobile | default: 480
+  assign min_h_desktop = section.settings.min_height_desktop | default: 640
+  assign overlay_opacity = section.settings.overlay_opacity | default: 60 | divided_by: 100.0
+-%}
+
+<section
+  class="kt-banner-cover"
+  data-section-id="{{ section.id }}"
+  data-section-type="banner-cover"
+  style="--kt-banner-cover-min-height-mobile: {{ min_h_mobile }}px; --kt-banner-cover-min-height-desktop: {{ min_h_desktop }}px; --kt-banner-cover-overlay-opacity: {{ overlay_opacity }};"
+>
+  <div class="kt-banner-cover__media" aria-hidden="true">
+    {%- if section.settings.image != blank -%}
+      {{
+        section.settings.image
+        | image_url: width: 2400
+        | image_tag:
+          loading: 'eager',
+          class: 'kt-banner-cover__image',
+          widths: '800, 1200, 1600, 2000, 2400',
+          sizes: '100vw',
+          width: section.settings.image.width,
+          height: section.settings.image.height,
+          alt: section.settings.image.alt | default: section.settings.heading
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-cover__image' }}
+    {%- endif -%}
+    <div class="kt-banner-cover__gradient"></div>
+  </div>
+
+  <div class="kt-banner-cover__inner page-width">
+    {%- if section.settings.eyebrow != blank -%}
+      <span class="kt-banner-cover__eyebrow">{{ section.settings.eyebrow }}</span>
+    {%- endif -%}
+
+    <{{ heading_tag }} class="kt-banner-cover__title">
+      {{- section.settings.heading -}}
+    </{{ heading_tag }}>
+
+    {%- if section.settings.description != blank -%}
+      <p class="kt-banner-cover__desc">{{ section.settings.description }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.banner-cover.name",
+  "tag": "section",
+  "class": "section section--flush",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.banner-cover.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.banner-cover.settings.eyebrow.label",
+      "default": "Est. 2001"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.banner-cover.settings.heading.label",
+      "default": "The Kitchero Legacy"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.banner-cover.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.banner-cover.settings.description.label",
+      "default": "Founded on the principles of architectural integrity and uncompromising craftsmanship, we believe cabinetry is the furniture of your home."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-cover.settings.header__media.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.banner-cover.settings.image.label"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.banner-cover.settings.overlay_opacity.label",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-cover.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "t:sections.banner-cover.settings.min_height_mobile.label",
+      "min": 320,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "label": "t:sections.banner-cover.settings.min_height_desktop.label",
+      "min": 400,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 640
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner-cover.presets.name"
+    }
+  ]
+}
+{% endschema %}

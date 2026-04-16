@@ -1,0 +1,147 @@
+/* ============================================================
+   Financing Partners — intro strip between page header and the
+   detail panels. Clean, centered, stone-50 background with top
+   and bottom rules. Logo row uses grayscale + hover-color trick
+   ported from the Next.js financing page.
+   ============================================================ */
+
+.kt-financing-partners {
+  background-color: #fafaf9; /* stone-50 */
+  border-top: 1px solid #e7e5e4;
+  border-bottom: 1px solid #e7e5e4;
+  padding: 5rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-partners {
+    padding: 6rem 0;
+  }
+}
+
+.kt-financing-partners__inner {
+  max-width: 56rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.kt-financing-partners__title {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #1c1917;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: 0 0 1rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-partners__title {
+    font-size: 1.875rem;
+  }
+}
+
+.kt-financing-partners__desc {
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.625;
+  color: #78716c; /* stone-500 */
+  max-width: 42rem;
+  margin: 0 auto 3rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-partners__desc {
+    font-size: 1rem;
+  }
+}
+
+/* ── Logo/wordmark row ────────────────────────────────── */
+
+.kt-financing-partners__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: 0.6;
+  filter: grayscale(1);
+  transition: opacity 0.7s ease, filter 0.7s ease;
+}
+
+.kt-financing-partners__list:hover {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-financing-partners__list {
+    gap: 3rem;
+  }
+}
+
+.kt-financing-partners__item {
+  display: inline-flex;
+  align-items: center;
+  color: #1c1917;
+}
+
+.kt-financing-partners__logo {
+  max-height: 1.75rem;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ── Text wordmarks (fallback when no logo uploaded) ──── */
+
+.kt-financing-partners__wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #1c1917;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.kt-financing-partners__wordmark--italic {
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+}
+
+.kt-financing-partners__wordmark--bread {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.kt-financing-partners__wordmark-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background-color: #1c1917;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.kt-financing-partners__wordmark-icon::before {
+  content: '';
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-financing-partners__list {
+    transition: none;
+  }
+}

@@ -1,0 +1,122 @@
+{%- comment -%}
+  Financing CTA — closing call-to-action band with a two-line serif
+  heading (second word italic stone-400), a muted description, and two
+  pill buttons side-by-side ("Apply Now" filled, "Explore Collections"
+  outlined). Ported from the bottom CTA in the Next.js /financing page.
+  Sits on a stone-100 band with a hairline top border.
+{%- endcomment -%}
+
+{{ 'section-financing-cta.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+
+<section
+  class="kt-financing-cta"
+  data-section-id="{{ section.id }}"
+  data-section-type="financing-cta"
+>
+  <div class="page-width kt-financing-cta__inner">
+    <{{ heading_tag }} class="kt-financing-cta__title">
+      {%- if section.settings.heading_line1 != blank -%}
+        <span>{{ section.settings.heading_line1 }}</span>
+      {%- endif -%}
+      {%- if section.settings.heading_line2 != blank -%}
+        <span class="kt-financing-cta__title-accent">{{ section.settings.heading_line2 }}</span>
+      {%- endif -%}
+    </{{ heading_tag }}>
+
+    {%- if section.settings.description != blank -%}
+      <p class="kt-financing-cta__desc">{{ section.settings.description }}</p>
+    {%- endif -%}
+
+    <div class="kt-financing-cta__buttons">
+      {%- if section.settings.primary_text != blank -%}
+        <a
+          href="{{ section.settings.primary_link | default: '#' }}"
+          class="kt-financing-cta__btn kt-financing-cta__btn--primary"
+        >
+          {{ section.settings.primary_text }}
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      {%- endif -%}
+
+      {%- if section.settings.secondary_text != blank -%}
+        <a
+          href="{{ section.settings.secondary_link | default: '#' }}"
+          class="kt-financing-cta__btn kt-financing-cta__btn--secondary"
+        >
+          {{ section.settings.secondary_text }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.financing-cta.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.financing-cta.settings.heading_line1.label",
+      "default": "Start Your Transformation"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2",
+      "label": "t:sections.financing-cta.settings.heading_line2.label",
+      "default": "Today."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.financing-cta.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.financing-cta.settings.description.label",
+      "default": "Beautiful cabinetry shouldn't wait. Secure your financing and bring your vision to life today."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.financing-cta.settings.header__buttons.content"
+    },
+    {
+      "type": "text",
+      "id": "primary_text",
+      "label": "t:sections.financing-cta.settings.primary_text.label",
+      "default": "Apply Now"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "t:sections.financing-cta.settings.primary_link.label"
+    },
+    {
+      "type": "text",
+      "id": "secondary_text",
+      "label": "t:sections.financing-cta.settings.secondary_text.label",
+      "default": "Explore Collections"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "t:sections.financing-cta.settings.secondary_link.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.financing-cta.presets.name"
+    }
+  ]
+}
+{% endschema %}

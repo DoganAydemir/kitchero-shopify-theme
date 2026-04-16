@@ -1,0 +1,130 @@
+/* ============================================================
+   Banner Cover — About "Style 2" hero.
+   Full-bleed cover image with a vertical dark gradient (bottom
+   heavy), centered editorial content block on top. Ported
+   birebir from About page hero in Next.js source:
+     <section h-[60vh] md:h-[70vh] bg-stone-900 overflow-hidden>
+       <img absolute inset-0 w-full h-full object-cover opacity-60>
+       <gradient from-stone-900 via-stone-900/40 to-transparent>
+       <container centered pt-20>
+         <h1 3xl md:7xl font-serif text-white>
+         <p stone-300 base md:xl>
+   ============================================================ */
+
+.kt-banner-cover {
+  position: relative;
+  width: 100%;
+  min-height: var(--kt-banner-cover-min-height-mobile, 480px);
+  background-color: #1c1917; /* stone-900 fallback while image loads */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #fff;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-banner-cover {
+    min-height: var(--kt-banner-cover-min-height-desktop, 640px);
+  }
+}
+
+/* ── Media + gradient ──────────────────────────────────── */
+
+.kt-banner-cover__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.kt-banner-cover__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: calc(1 - var(--kt-banner-cover-overlay-opacity, 0.6) * 0.4);
+  /* Image visibility is a function of overlay: darker overlay = slightly dimmer image */
+}
+
+.kt-banner-cover__gradient {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    to top,
+    rgba(28, 25, 23, 1) 0%,
+    rgba(28, 25, 23, 0.4) 45%,
+    rgba(28, 25, 23, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Content ───────────────────────────────────────────── */
+
+.kt-banner-cover__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 5rem;
+  padding-bottom: 3rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-banner-cover__inner {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
+}
+
+.kt-banner-cover__eyebrow {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #d6d3d1; /* stone-300 */
+  margin-bottom: 1.5rem;
+}
+
+.kt-banner-cover__title {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: clamp(1.875rem, 5vw + 1rem, 5.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: #fff;
+  margin: 0 0 1.5rem 0;
+  max-width: 20ch;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-banner-cover__title {
+    letter-spacing: -0.04em;
+  }
+}
+
+.kt-banner-cover__desc {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.625;
+  color: #d6d3d1; /* stone-300 */
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-banner-cover__desc {
+    font-size: 1.25rem;
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-banner-cover__image,
+  .kt-banner-cover__gradient {
+    transition: none;
+  }
+}
