@@ -23,7 +23,7 @@ Kitchero is a premium Shopify theme built for merchants selling high-end kitchen
 - **Star ratings + color swatches** — reads Shopify's native `reviews.rating` metafield or custom fallback
 - **AJAX collection filtering** — Shopify Section Rendering API, no full-page reload
 - **AJAX cart drawer** — variant switching, quantity updates, and add-to-cart without page reload
-- **6 languages out of the box** — English, Turkish, German, French, Spanish, Arabic (RTL)
+- **i18n-ready for 6 languages** — English translation complete; Turkish, German, French, Spanish, and Arabic (RTL) locale files scaffolded as empty stubs ready to translate
 - **4 color schemes** — Light Stone, Dark, Emerald, Midnight
 - **3-font system** — Inter (headings + body) + Playfair Display (serif accent)
 - **WCAG AA accessible** — keyboard-navigable, screen-reader-friendly, visible focus rings, 4.5:1 color contrast
@@ -187,18 +187,25 @@ Creates a `.zip` ready for upload to Shopify admin or Theme Store submission.
 
 ## Internationalization
 
-The theme ships with 6 locales:
+The theme's i18n structure supports 6 languages out of the gate:
 
-| Code | Language | Notes |
+| Code | Language | Translations |
 |---|---|---|
-| `en` | English | Default |
-| `tr` | Turkish | — |
-| `de` | German | — |
-| `fr` | French | — |
-| `es` | Spanish | — |
-| `ar` | Arabic | RTL (right-to-left) |
+| `en` | English | Complete (default) |
+| `tr` | Turkish | Stub (ready to translate) |
+| `de` | German | Stub |
+| `fr` | French | Stub |
+| `es` | Spanish | Stub |
+| `ar` | Arabic (RTL) | Stub |
 
-Enable additional languages in **Settings > Languages**. Storefront strings live in `locales/*.json`; theme editor labels live in `locales/*.schema.json`.
+Storefront strings live in `locales/*.json`; theme editor labels live in
+`locales/*.schema.json`. When a non-English key is missing, Shopify falls
+back to the English default automatically — so the theme is fully
+functional in every language, it just renders in English until a
+translator fills in the stub files. The `ar` files are flagged RTL so
+Arabic layouts flip correctly when populated.
+
+Enable languages in **Settings > Languages**.
 
 ---
 

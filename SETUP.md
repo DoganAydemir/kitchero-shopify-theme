@@ -144,15 +144,18 @@ The theme includes alternate templates for different layouts:
 
 ## Languages
 
-The theme supports 6 languages out of the box:
-- English (default)
-- Turkish
-- German
-- French
-- Spanish
-- Arabic (RTL)
+The theme's i18n structure supports 6 languages:
 
-To enable additional languages, go to **Settings > Languages** and add the desired languages. Translation files are in the `locales/` directory.
+- **English** — complete, default
+- **Turkish, German, French, Spanish, Arabic (RTL)** — locale files
+  exist but are currently empty stubs (`{}`). Shopify automatically
+  falls back to English for untranslated keys, so the theme renders
+  cleanly in any enabled language even before translation.
+
+To enable additional languages, go to **Settings > Languages** and add
+the desired languages. To translate, edit `locales/*.json` (storefront
+strings) and `locales/*.schema.json` (theme editor labels). The Shopify
+admin's built-in translation editor can also write into these files.
 
 ---
 
