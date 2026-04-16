@@ -1,0 +1,85 @@
+{%- comment -%}
+  Page Header — Dotted
+  Shared "architectural" page header with layered dotted grid + parallax
+  markers. Ported from PageHeader.tsx (used across the Next.js theme on
+  feature showcase pages).
+
+  Accepts:
+  - eyebrow: {String} tiny uppercase category label (optional; hides if blank)
+  - title: {String} main heading (required)
+  - description: {String} supporting paragraph (optional)
+  - count_text: {String} small pill badge on the right (optional, e.g. "4 Variants")
+  - heading_tag: {String} semantic tag — 'h1' (default) or 'h2'
+
+  Visual layers:
+    1. Base matrix grid (static 24px radial-gradient dots, opacity 0.18)
+    2. Major parallax dots (80px dots, opacity 0.22, drift 20%)
+    3. Scanlines (1px horizontal lines, opacity 0.05)
+    4. Technical `+` markers (opacity 0.3, drift 35%)
+
+  Animations: GSAP reveals the content (y:50 → 0, opacity 0 → 1) and
+  scrolls layers 2 + 4 on `window` scroll. Respects
+  `prefers-reduced-motion`. CSS on its own renders the static layout so
+  the header looks right even before JS runs.
+{%- endcomment -%}
+
+{{ 'component-page-header-dotted.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = heading_tag | default: 'h1' -%}
+
+<section
+  class="kt-page-header-dotted"
+  data-dotted-header
+  aria-labelledby="DottedHeaderTitle-{{ section.id | default: 'static' }}"
+>
+  {%- comment -%} Layer 1: Base matrix grid (static) {%- endcomment -%}
+  <div class="kt-page-header-dotted__dots-base" aria-hidden="true"></div>
+
+  {%- comment -%} Layer 2: Major parallax dots (JS drifts on scroll) {%- endcomment -%}
+  <div class="kt-page-header-dotted__dots-parallax" data-parallax-dots aria-hidden="true"></div>
+
+  {%- comment -%} Layer 3: Scanlines (static) {%- endcomment -%}
+  <div class="kt-page-header-dotted__scanlines" aria-hidden="true"></div>
+
+  {%- comment -%} Layer 4: Technical plus markers (parallax) {%- endcomment -%}
+  <div class="kt-page-header-dotted__markers" data-parallax-markers aria-hidden="true">
+    <span class="kt-page-header-dotted__marker" style="top: 2.5rem; left: 15%;">+</span>
+    <span class="kt-page-header-dotted__marker" style="top: 35%; right: 10%;">+</span>
+    <span class="kt-page-header-dotted__marker" style="bottom: 2.5rem; left: 40%;">+</span>
+    <span class="kt-page-header-dotted__marker" style="top: 13rem; right: 45%;">+</span>
+  </div>
+
+  <div class="page-width">
+    <div class="kt-page-header-dotted__inner">
+      <div class="kt-page-header-dotted__text">
+        {%- if eyebrow != blank -%}
+          <div class="kt-page-header-dotted__eyebrow-wrap">
+            <span class="kt-page-header-dotted__eyebrow" data-dotted-anim>{{ eyebrow }}</span>
+          </div>
+        {%- endif -%}
+
+        <div class="kt-page-header-dotted__title-wrap">
+          <{{ heading_tag }}
+            id="DottedHeaderTitle-{{ section.id | default: 'static' }}"
+            class="kt-page-header-dotted__title"
+            data-dotted-anim
+          >{{ title }}</{{ heading_tag }}>
+        </div>
+
+        {%- if description != blank -%}
+          <div class="kt-page-header-dotted__desc-wrap">
+            <p class="kt-page-header-dotted__desc" data-dotted-anim>{{ description }}</p>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if count_text != blank -%}
+        <div class="kt-page-header-dotted__count-wrap">
+          <span class="kt-page-header-dotted__count" data-dotted-anim>{{ count_text }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'component-page-header-dotted.js' | asset_url }}" defer="defer"></script>

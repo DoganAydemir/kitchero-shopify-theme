@@ -1,19 +1,127 @@
-<div class="kt-main-page page-width" data-section-id="{{ section.id }}">
-  <h1 class="kt-main-page__title">{{ page.title }}</h1>
-  <div class="kt-main-page__content rte">
-    {{ page.content }}
-  </div>
-</div>
+{{ 'section-main-page.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign show_header = section.settings.show_header
+  assign header_eyebrow = section.settings.header_eyebrow
+  assign header_description = section.settings.header_description
+  assign header_count_text = section.settings.header_count_text
+  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  assign content_max_width = section.settings.content_max_width | default: 800
+-%}
+
+<article
+  class="kt-main-page"
+  data-section-id="{{ section.id }}"
+  data-section-type="main-page"
+>
+  {%- if show_header -%}
+    {%- render 'page-header-dotted',
+      eyebrow: header_eyebrow,
+      title: page.title,
+      description: header_description,
+      count_text: header_count_text,
+      heading_tag: heading_tag
+    -%}
+  {%- else -%}
+    {%- comment -%}
+      Compact fallback header used when the dotted hero is disabled —
+      preserves the semantic h1 so the page still has a proper outline.
+    {%- endcomment -%}
+    <header class="kt-main-page__compact-header">
+      <div class="page-width">
+        <{{ heading_tag }} class="kt-main-page__compact-title">{{ page.title }}</{{ heading_tag }}>
+      </div>
+    </header>
+  {%- endif -%}
+
+  {%- if page.content != blank -%}
+    <div class="kt-main-page__body">
+      <div class="page-width">
+        <div class="kt-main-page__content rte" style="--kt-page-content-max-width: {{ content_max_width }}px;">
+          {{ page.content }}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} App-block render slot — sits BELOW the CMS content so
+     merchants can append review widgets, FAQs, custom galleries, etc. {%- endcomment -%}
+  {%- if section.blocks.size > 0 -%}
+    <div class="kt-main-page__app-blocks">
+      <div class="page-width">
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}
+            {% render block %}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</article>
 
 {% schema %}
 {
   "name": "t:sections.main-page.name",
   "tag": "section",
   "class": "section",
-  "blocks": [
+  "settings": [
     {
-      "type": "@app"
+      "type": "header",
+      "content": "t:sections.main-page.settings.header__dotted.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "t:sections.main-page.settings.show_header.label",
+      "info": "t:sections.main-page.settings.show_header.info",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "header_eyebrow",
+      "label": "t:sections.main-page.settings.header_eyebrow.label",
+      "info": "t:sections.main-page.settings.header_eyebrow.info"
+    },
+    {
+      "type": "textarea",
+      "id": "header_description",
+      "label": "t:sections.main-page.settings.header_description.label",
+      "info": "t:sections.main-page.settings.header_description.info"
+    },
+    {
+      "type": "text",
+      "id": "header_count_text",
+      "label": "t:sections.main-page.settings.header_count_text.label",
+      "info": "t:sections.main-page.settings.header_count_text.info"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.main-page.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-page.settings.header__content.content"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "t:sections.main-page.settings.content_max_width.label",
+      "info": "t:sections.main-page.settings.content_max_width.info",
+      "min": 560,
+      "max": 1200,
+      "step": 40,
+      "unit": "px",
+      "default": 800
     }
+  ],
+  "blocks": [
+    { "type": "@app" }
   ]
 }
 {% endschema %}

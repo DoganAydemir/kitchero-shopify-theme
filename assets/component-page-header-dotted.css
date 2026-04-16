@@ -1,0 +1,205 @@
+/* ============================================================
+   Page Header — Dotted
+   Shared header component with 4-layer decorative pattern:
+     1. Static 24px radial-gradient dot grid
+     2. Larger parallax dots
+     3. Scanlines
+     4. Technical "+" markers (parallax)
+   Ported from PageHeader.tsx. Matches the visual used on the
+   collection hero so all section-heading pages feel cohesive.
+   ============================================================ */
+
+.kt-page-header-dotted {
+  position: relative;
+  overflow: hidden;
+  background-color: #fafaf9;
+  border-bottom: 1px solid #e7e5e4;
+  padding-top: 4rem;
+  padding-bottom: 3rem;
+  isolation: isolate;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-page-header-dotted {
+    padding-top: 8rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* Layer 1 — static matrix grid */
+.kt-page-header-dotted__dots-base {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.18;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #000 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+/* Layer 2 — larger parallax dots (JS shifts Y on scroll) */
+.kt-page-header-dotted__dots-parallax {
+  position: absolute;
+  inset: 0;
+  top: -25%;
+  height: 150%;
+  z-index: 0;
+  opacity: 0.22;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #000 2px, transparent 2px);
+  background-size: 80px 80px;
+  will-change: transform;
+}
+
+/* Layer 3 — scanlines */
+.kt-page-header-dotted__scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+/* Layer 4 — technical plus markers (parallax) */
+.kt-page-header-dotted__markers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.kt-page-header-dotted__marker {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: #1c1917;
+  line-height: 1;
+}
+
+/* Content wrapper above all background layers */
+.kt-page-header-dotted .page-width {
+  position: relative;
+  z-index: 1;
+}
+
+.kt-page-header-dotted__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__inner {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 2rem;
+  }
+}
+
+.kt-page-header-dotted__text {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Reveal-animation wrappers — overflow hidden so the stagger looks like
+   the copy lifts from behind a mask. */
+.kt-page-header-dotted__eyebrow-wrap,
+.kt-page-header-dotted__title-wrap,
+.kt-page-header-dotted__desc-wrap,
+.kt-page-header-dotted__count-wrap {
+  overflow: hidden;
+}
+
+.kt-page-header-dotted__eyebrow-wrap {
+  margin-bottom: 1rem;
+}
+
+.kt-page-header-dotted__title-wrap {
+  margin-bottom: 1rem;
+}
+
+/* Eyebrow — small uppercase category */
+.kt-page-header-dotted__eyebrow {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #a8a29e;
+}
+
+/* Title — serif display */
+.kt-page-header-dotted__title {
+  display: block;
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 2rem;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: #1c1917;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__title {
+    font-size: 3rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-page-header-dotted__title {
+    font-size: 3.75rem;
+  }
+}
+
+/* Description */
+.kt-page-header-dotted__desc {
+  display: block;
+  max-width: 36rem;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #78716c;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__desc {
+    font-size: 1.125rem;
+  }
+}
+
+/* Count pill */
+.kt-page-header-dotted__count {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d6d3d1;
+  color: #78716c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* Reduced-motion: disable will-change + let JS skip the animation.
+   The component degrades to the static 4-layer composition. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-page-header-dotted__dots-parallax,
+  .kt-page-header-dotted__markers {
+    will-change: auto;
+    transform: none !important;
+  }
+}
