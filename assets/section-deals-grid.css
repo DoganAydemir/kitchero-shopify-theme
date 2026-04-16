@@ -1,20 +1,439 @@
-/* Deals Grid */
-.kt-deals { padding: 8rem 0; background-color: #fafaf9; }
-.kt-deals__header { text-align: center; margin-bottom: 4rem; }
-.kt-deals__label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; color: #78716c; margin-bottom: 1rem; display: block; }
-.kt-deals__title { font-family: var(--font-accent-family); font-size: 2.25rem; color: #1c1917; margin: 0 0 1rem; }
-@media screen and (min-width: 750px) { .kt-deals__title { font-size: 3rem; } }
-.kt-deals__desc { color: #78716c; font-size: 1.0625rem; max-width: 32rem; margin: 0 auto; }
-.kt-deals__grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
-@media screen and (min-width: 750px) { .kt-deals__grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; } }
-.kt-deals__card { display: flex; flex-direction: column; text-decoration: none; color: inherit; border: 1px solid #e7e5e4; border-radius: 0.75rem; overflow: hidden; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-.kt-deals__card:hover { border-color: #1c1917; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-.kt-deals__card-image-wrap { aspect-ratio: 4/3; overflow: hidden; position: relative; background: #f5f5f4; }
-.kt-deals__card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; }
-.kt-deals__card:hover .kt-deals__card-image { transform: scale(1.05); }
-.kt-deals__badge { position: absolute; top: 1rem; left: 1rem; padding: 0.25rem 0.75rem; background: #dc2626; color: #fff; font-size: 0.625rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; }
-[dir="rtl"] .kt-deals__badge { left: auto; right: 1rem; }
-.kt-deals__card-content { padding: 1.5rem; }
-.kt-deals__card-title { font-size: 1.25rem; font-weight: 600; color: #1c1917; margin: 0 0 0.5rem; }
-.kt-deals__card-desc { font-size: 0.875rem; color: #78716c; line-height: 1.5; margin: 0 0 1rem; }
-.kt-deals__card-link { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1c1917; }
+/* ============================================================
+   Deals Grid — full-page deals template (/pages/deals, etc.)
+   Birebir from Next.js /deals page. Premium package cards with
+   tier badge, popular flag, price + includes overlay on the
+   image, strikethrough original price in the body, accent line,
+   and a fill-on-hover CTA.
+
+   Section background stone-50 to separate the cards. The dotted
+   page header is rendered via the shared page-header-dotted
+   snippet, so this file only styles the grid + bottom CTA.
+   ============================================================ */
+
+.kt-deals {
+  background-color: #fafaf9;
+  padding: 5rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals {
+    padding: 7rem 0;
+  }
+}
+
+.kt-deals__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+
+.kt-deals__card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 1rem;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.3s ease, box-shadow 0.5s ease, transform 0.3s ease;
+  position: relative;
+}
+
+.kt-deals__card:hover {
+  border-color: #a8a29e;
+  box-shadow: 0 40px 60px -24px rgba(0, 0, 0, 0.25);
+}
+
+.kt-deals__card:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 3px;
+}
+
+/* ── Media (image + overlays) ───────────────────────────── */
+
+.kt-deals__card-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background-color: #f5f5f4;
+}
+
+.kt-deals__card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-deals__card:hover .kt-deals__card-image {
+  transform: scale(1.05);
+}
+
+.kt-deals__card-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Tier badge (top-left) ──────────────────────────────── */
+
+.kt-deals__card-tier {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #059669;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.35);
+}
+
+.kt-deals__card-tier[data-color-theme='dark'] {
+  background-color: #0c0a09;
+}
+
+.kt-deals__card-tier[data-color-theme='amber'] {
+  background-color: #f59e0b;
+}
+
+.kt-deals__card-tier[data-color-theme='red'] {
+  background-color: #dc2626;
+}
+
+/* ── Popular badge (top-right) ──────────────────────────── */
+
+.kt-deals__card-popular {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background-color: #f59e0b;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.35);
+}
+
+.kt-deals__card-popular svg {
+  flex-shrink: 0;
+}
+
+/* ── Price + includes overlay (bottom-left) ─────────────── */
+
+.kt-deals__card-overlay {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  z-index: 2;
+  color: #fff;
+}
+
+.kt-deals__card-price-big {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0 0 0.75rem 0;
+  color: #fff;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals__card-price-big {
+    font-size: 3.5rem;
+  }
+}
+
+.kt-deals__card-includes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kt-deals__card-includes li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+.kt-deals__card-include-bullet {
+  color: #34d399;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Card body (below image) ────────────────────────────── */
+
+.kt-deals__card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.5rem;
+  gap: 0.875rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals__card-body {
+    padding: 1.75rem;
+  }
+}
+
+.kt-deals__card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.kt-deals__card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1c1917;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals__card-title {
+    font-size: 1rem;
+  }
+}
+
+.kt-deals__card-original-price {
+  font-size: 0.875rem;
+  color: #a8a29e;
+  text-decoration-line: line-through;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.kt-deals__card-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #047857;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.kt-deals__card-accent svg {
+  color: #059669;
+  flex-shrink: 0;
+}
+
+.kt-deals__card-desc {
+  font-size: 0.875rem;
+  color: #78716c;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Fill-on-hover CTA ──────────────────────────────────── */
+
+.kt-deals__card-cta-wrap {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.kt-deals__card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #d6d3d1;
+  border-radius: 9999px;
+  background-color: transparent;
+  color: #1c1917;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.kt-deals__card-cta svg {
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.kt-deals__card:hover .kt-deals__card-cta {
+  background-color: #1c1917;
+  color: #fff;
+  border-color: #1c1917;
+}
+
+.kt-deals__card:hover .kt-deals__card-cta svg {
+  transform: translateX(4px);
+}
+
+/* ── Bottom CTA section ─────────────────────────────────── */
+
+.kt-deals-cta {
+  background-color: #fff;
+  border-top: 1px solid #e7e5e4;
+  padding: 5rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals-cta {
+    padding: 6rem 0;
+  }
+}
+
+.kt-deals-cta__inner {
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.kt-deals-cta__title {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #1c1917;
+  line-height: 1.15;
+  margin: 0 0 1rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals-cta__title {
+    font-size: 2.5rem;
+  }
+}
+
+.kt-deals-cta__desc {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #78716c;
+  margin: 0 auto 2.5rem auto;
+  max-width: 32rem;
+}
+
+.kt-deals-cta__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (min-width: 550px) {
+  .kt-deals-cta__buttons {
+    flex-direction: row;
+  }
+}
+
+.kt-deals-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  min-width: 14rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals-cta__btn {
+    padding: 1.125rem 2.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+.kt-deals-cta__btn--primary {
+  background-color: #0c0a09;
+  color: #fff;
+  border: 1px solid #0c0a09;
+  box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.35);
+}
+
+.kt-deals-cta__btn--primary:hover {
+  background-color: #000;
+  transform: translateY(-1px);
+}
+
+.kt-deals-cta__btn--secondary {
+  background-color: transparent;
+  color: #1c1917;
+  border: 1px solid #d6d3d1;
+}
+
+.kt-deals-cta__btn--secondary:hover {
+  border-color: #0c0a09;
+}
+
+.kt-deals-cta__btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-deals__card,
+  .kt-deals__card-image,
+  .kt-deals__card-cta,
+  .kt-deals__card-cta svg,
+  .kt-deals-cta__btn {
+    transition: none;
+  }
+  .kt-deals__card:hover .kt-deals__card-image,
+  .kt-deals__card:hover .kt-deals__card-cta svg,
+  .kt-deals-cta__btn--primary:hover {
+    transform: none;
+  }
+}

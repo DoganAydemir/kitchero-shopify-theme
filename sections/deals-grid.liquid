@@ -1,39 +1,136 @@
 {{ 'section-deals-grid.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
-  Deals Grid — deal cards linking to collections.
-  PORT_PLAN: "Deal cards link to collections, NOT product detail."
+  Deals Grid — birebir from Next.js /deals page. Dotted header +
+  premium package cards (tier badge, popular flag, price + includes
+  overlay, strikethrough original, "Free Design" accent, fill-on-
+  hover CTA) + bottom "Need a custom quote?" dual-CTA strip.
+
+  Cards link to collections, NOT product detail (per PORT_PLAN).
 {%- endcomment -%}
+
+{%- if section.settings.show_header -%}
+  {%- comment %}theme-check-disable UnusedAssign{% endcomment -%}
+  {%- assign deal_blocks = section.blocks | where: 'type', 'deal' -%}
+  {%- comment %}theme-check-enable UnusedAssign{% endcomment -%}
+  {%- render 'page-header-dotted',
+    eyebrow: section.settings.label,
+    title: section.settings.heading,
+    description: section.settings.description,
+    count_text: deal_blocks.size | append: ' Packages',
+    heading_tag: section.settings.heading_tag | default: 'h1'
+  -%}
+{%- endif -%}
 
 <section class="kt-deals" data-section-id="{{ section.id }}">
   <div class="page-width">
-    <div class="kt-deals__header">
-      <span class="kt-deals__label">{{ section.settings.label | default: 'Limited Time' }}</span>
-      {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
-      <{{ heading_tag }} class="kt-deals__title">{{ section.settings.heading | default: 'Special Deals' }}</{{ heading_tag }}>
-      <p class="kt-deals__desc">{{ section.settings.description | default: 'Explore our current promotions on premium kitchen collections.' }}</p>
-    </div>
-
     <div class="kt-deals__grid">
       {%- for block in section.blocks -%}
         {%- if block.type == 'deal' -%}
-          <a href="{{ block.settings.link | default: routes.collections_url }}" class="kt-deals__card" {{ block.shopify_attributes }}>
-            <div class="kt-deals__card-image-wrap">
+          {%- assign includes_list = block.settings.includes | newline_to_br | split: '<br />' -%}
+          {%- assign tier_text = block.settings.tier | default: block.settings.title -%}
+          {%- assign card_link = block.settings.link | default: routes.collections_url -%}
+
+          <a href="{{ card_link }}" class="kt-deals__card" {{ block.shopify_attributes }}>
+
+            {%- comment -%} Image + overlays {%- endcomment -%}
+            <div class="kt-deals__card-media">
               {%- if block.settings.image != blank -%}
-                {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-deals__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title }}
+                {{
+                  block.settings.image
+                  | image_url: width: 1600
+                  | image_tag:
+                    class: 'kt-deals__card-image',
+                    loading: 'lazy',
+                    widths: '550, 750, 1100, 1500',
+                    sizes: '(min-width: 750px) 50vw, 100vw',
+                    width: block.settings.image.width,
+                    height: block.settings.image.height,
+                    alt: tier_text
+                }}
               {%- else -%}
                 {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-deals__card-image' }}
               {%- endif -%}
-              {%- if block.settings.badge != blank -%}
-                <span class="kt-deals__badge">{{ block.settings.badge }}</span>
+
+              <div class="kt-deals__card-gradient" aria-hidden="true"></div>
+
+              {%- comment -%} Tier badge (top-left) {%- endcomment -%}
+              {%- if tier_text != blank -%}
+                <span
+                  class="kt-deals__card-tier"
+                  data-color-theme="{{ block.settings.badge_color | default: 'emerald' }}"
+                >
+                  {{- tier_text -}}
+                  {%- if block.settings.tier != blank %} {{ 'sections.deals.package_suffix' | t | default: 'Package' }}{% endif -%}
+                </span>
               {%- endif -%}
+
+              {%- comment -%} Popular badge (top-right) {%- endcomment -%}
+              {%- if block.settings.is_popular -%}
+                <span class="kt-deals__card-popular">
+                  <svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  {{ 'sections.deals.most_popular' | t | default: 'Most Popular' }}
+                </span>
+              {%- endif -%}
+
+              {%- comment -%} Price + includes overlay (bottom-left) {%- endcomment -%}
+              <div class="kt-deals__card-overlay">
+                {%- if block.settings.price != blank -%}
+                  <p class="kt-deals__card-price-big">{{ block.settings.price }}</p>
+                {%- endif -%}
+
+                {%- if block.settings.includes != blank -%}
+                  <ul class="kt-deals__card-includes" role="list">
+                    {%- for line in includes_list limit: 3 -%}
+                      {%- assign clean = line | strip_html | strip -%}
+                      {%- if clean != blank -%}
+                        <li>
+                          <span class="kt-deals__card-include-bullet" aria-hidden="true">+</span>
+                          {{ clean }}
+                        </li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </div>
             </div>
-            <div class="kt-deals__card-content">
-              <h3 class="kt-deals__card-title">{{ block.settings.title }}</h3>
+
+            {%- comment -%} Info block (below image) {%- endcomment -%}
+            <div class="kt-deals__card-body">
+              <div class="kt-deals__card-heading">
+                <h3 class="kt-deals__card-title">
+                  {{- tier_text -}}
+                  {%- if block.settings.price != blank %} : {{ block.settings.price }}{% endif -%}
+                </h3>
+                {%- if block.settings.original_price != blank -%}
+                  <s class="kt-deals__card-original-price">{{ block.settings.original_price }}</s>
+                {%- endif -%}
+              </div>
+
+              {%- if block.settings.accent_text != blank -%}
+                <div class="kt-deals__card-accent">
+                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l1.88 5.62L19.5 9.5l-5.62 1.88L12 17l-1.88-5.62L4.5 9.5l5.62-1.88z"/>
+                  </svg>
+                  <span>{{ block.settings.accent_text }}</span>
+                </div>
+              {%- endif -%}
+
               {%- if block.settings.description != blank -%}
                 <p class="kt-deals__card-desc">{{ block.settings.description }}</p>
               {%- endif -%}
-              <span class="kt-deals__card-link">{{ 'products.product.view_details' | t | default: 'View Details' }} →</span>
+
+              <div class="kt-deals__card-cta-wrap">
+                <span class="kt-deals__card-cta">
+                  {{ block.settings.cta_text | default: 'See Details' }}
+                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              </div>
             </div>
           </a>
         {%- endif -%}
@@ -42,38 +139,270 @@
   </div>
 </section>
 
+{%- comment -%} Bottom CTA section {%- endcomment -%}
+{%- if section.settings.show_bottom_cta -%}
+  <section class="kt-deals-cta">
+    <div class="page-width">
+      <div class="kt-deals-cta__inner">
+        {%- if section.settings.bottom_heading != blank -%}
+          <h2 class="kt-deals-cta__title">{{ section.settings.bottom_heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.bottom_description != blank -%}
+          <p class="kt-deals-cta__desc">{{ section.settings.bottom_description }}</p>
+        {%- endif -%}
+        <div class="kt-deals-cta__buttons">
+          {%- if section.settings.bottom_cta_primary_text != blank -%}
+            <a href="{{ section.settings.bottom_cta_primary_link | default: routes.root_url }}" class="kt-deals-cta__btn kt-deals-cta__btn--primary">
+              {{ section.settings.bottom_cta_primary_text }}
+              <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          {%- endif -%}
+          {%- if section.settings.bottom_cta_secondary_text != blank -%}
+            <a href="{{ section.settings.bottom_cta_secondary_link | default: routes.root_url }}" class="kt-deals-cta__btn kt-deals-cta__btn--secondary">
+              {{ section.settings.bottom_cta_secondary_text }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.deals-grid.name",
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "text", "id": "label", "label": "t:sections.deals-grid.settings.label.label", "default": "Limited Time" },
-    { "type": "text", "id": "heading", "label": "t:sections.deals-grid.settings.heading.label", "default": "Special Deals" },
-    { "type": "select", "id": "heading_tag", "label": "t:sections.deals-grid.settings.heading_tag.label", "options": [{"value":"h1","label":"t:sections.deals-grid.settings.heading_tag.options__1.label"},{"value":"h2","label":"t:sections.deals-grid.settings.heading_tag.options__2.label"}], "default": "h1" },
-    { "type": "textarea", "id": "description", "label": "t:sections.deals-grid.settings.description.label", "default": "Explore our current promotions on premium kitchen collections." }
+    {
+      "type": "header",
+      "content": "t:sections.deals-grid.settings.header__header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "t:sections.deals-grid.settings.show_header.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:sections.deals-grid.settings.label.label",
+      "default": "Limited Time Offers"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.deals-grid.settings.heading.label",
+      "default": "Special Offers"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.deals-grid.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.deals-grid.settings.description.label",
+      "default": "Premium kitchen packages at exceptional value. Every deal includes free design consultation and professional installation."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.deals-grid.settings.header__bottom.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_cta",
+      "label": "t:sections.deals-grid.settings.show_bottom_cta.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "bottom_heading",
+      "label": "t:sections.deals-grid.settings.bottom_heading.label",
+      "default": "Need a Custom Quote?"
+    },
+    {
+      "type": "textarea",
+      "id": "bottom_description",
+      "label": "t:sections.deals-grid.settings.bottom_description.label",
+      "default": "Our design experts can create a bespoke package tailored exactly to your kitchen dimensions and desired finishes."
+    },
+    {
+      "type": "text",
+      "id": "bottom_cta_primary_text",
+      "label": "t:sections.deals-grid.settings.bottom_cta_primary_text.label",
+      "default": "Get Custom Quote"
+    },
+    {
+      "type": "url",
+      "id": "bottom_cta_primary_link",
+      "label": "t:sections.deals-grid.settings.bottom_cta_primary_link.label"
+    },
+    {
+      "type": "text",
+      "id": "bottom_cta_secondary_text",
+      "label": "t:sections.deals-grid.settings.bottom_cta_secondary_text.label",
+      "default": "Explore Financing"
+    },
+    {
+      "type": "url",
+      "id": "bottom_cta_secondary_link",
+      "label": "t:sections.deals-grid.settings.bottom_cta_secondary_link.label"
+    }
   ],
   "blocks": [
     {
       "type": "deal",
       "name": "t:sections.deals-grid.blocks.deal.name",
-      "limit": 6,
+      "limit": 8,
       "settings": [
-        { "type": "text", "id": "title", "label": "t:sections.deals-grid.blocks.deal.settings.title.label", "default": "Summer Sale" },
-        { "type": "textarea", "id": "description", "label": "t:sections.deals-grid.blocks.deal.settings.description.label", "default": "Up to 40% off select kitchen collections." },
-        { "type": "text", "id": "badge", "label": "t:sections.deals-grid.blocks.deal.settings.badge.label", "default": "40% OFF" },
-        { "type": "image_picker", "id": "image", "label": "t:sections.deals-grid.blocks.deal.settings.image.label" },
-        { "type": "url", "id": "link", "label": "t:sections.deals-grid.blocks.deal.settings.link.label" }
+        {
+          "type": "header",
+          "content": "t:sections.deals-grid.blocks.deal.settings.header__badges.content"
+        },
+        {
+          "type": "text",
+          "id": "tier",
+          "label": "t:sections.deals-grid.blocks.deal.settings.tier.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.tier.info",
+          "default": "Signature"
+        },
+        {
+          "type": "select",
+          "id": "badge_color",
+          "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.label",
+          "options": [
+            { "value": "emerald", "label": "Emerald" },
+            { "value": "dark",    "label": "Dark" },
+            { "value": "amber",   "label": "Amber" },
+            { "value": "red",     "label": "Red" }
+          ],
+          "default": "emerald"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_popular",
+          "label": "t:sections.deals-grid.blocks.deal.settings.is_popular.label",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "t:sections.deals-grid.blocks.deal.settings.header__price.content"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "t:sections.deals-grid.blocks.deal.settings.price.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.price.info",
+          "default": "$8,900"
+        },
+        {
+          "type": "text",
+          "id": "original_price",
+          "label": "t:sections.deals-grid.blocks.deal.settings.original_price.label",
+          "default": "$12,400"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.deals-grid.blocks.deal.settings.header__content.content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.deals-grid.blocks.deal.settings.title.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.title.info"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.deals-grid.blocks.deal.settings.description.label",
+          "default": "Premium L-shape layout with soft-close hardware and basic installation included."
+        },
+        {
+          "type": "textarea",
+          "id": "includes",
+          "label": "t:sections.deals-grid.blocks.deal.settings.includes.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.includes.info",
+          "default": "Standard L-Shape\nSoft-Close Hardware\nBasic Installation"
+        },
+        {
+          "type": "text",
+          "id": "accent_text",
+          "label": "t:sections.deals-grid.blocks.deal.settings.accent_text.label",
+          "default": "Free Design"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.deals-grid.blocks.deal.settings.header__media.content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.deals-grid.blocks.deal.settings.image.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.deals-grid.blocks.deal.settings.header__cta.content"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "t:sections.deals-grid.blocks.deal.settings.cta_text.label",
+          "default": "See Details"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.deals-grid.blocks.deal.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "t:sections.deals-grid.blocks.deal.settings.badge.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.badge.info"
+        }
       ]
-    }
+    },
+    { "type": "@app" }
   ],
   "presets": [
     {
       "name": "t:sections.deals-grid.presets.name",
       "blocks": [
-        { "type": "deal", "settings": { "title": "Summer Sale", "description": "Up to 40% off select kitchen collections.", "badge": "40% OFF" } },
-        { "type": "deal", "settings": { "title": "Clearance Event", "description": "Last chance on discontinued styles.", "badge": "FINAL SALE" } },
-        { "type": "deal", "settings": { "title": "Bundle & Save", "description": "Save when you order cabinets + countertops together.", "badge": "BUNDLE" } }
+        {
+          "type": "deal",
+          "settings": {
+            "tier": "Signature",
+            "badge_color": "emerald",
+            "is_popular": true,
+            "price": "$8,900",
+            "original_price": "$12,400",
+            "includes": "Standard L-Shape\nSoft-Close Hardware\nBasic Installation",
+            "accent_text": "Free Design"
+          }
+        },
+        {
+          "type": "deal",
+          "settings": {
+            "tier": "Horizon",
+            "badge_color": "dark",
+            "is_popular": false,
+            "price": "$6,500",
+            "original_price": "$9,200",
+            "includes": "Galley Layout\nSelection of 4 Colors\nQuick-Ship Availability",
+            "accent_text": "Free Design"
+          }
+        }
       ]
     }
   ]
