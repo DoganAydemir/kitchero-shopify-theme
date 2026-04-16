@@ -93,13 +93,14 @@
   font-size: 1.5rem;
   font-style: italic;
   color: #fff;
-  outline: none; /* Focus indicated by parent border-color change */
+  outline: none;
 }
 
-.kt-search-overlay__input:focus-visible {
-  outline: 2px solid #1c1917;
-  outline-offset: 2px;
-}
+/* Focus is communicated by the parent .kt-search-overlay__input-wrap —
+   its bottom border shifts from stone-600 to white via :focus-within.
+   Adding a dark outline on top of the dark modal backdrop just paints a
+   subtle rectangle that looks like a UI glitch, so we intentionally
+   leave the input's own outline off. */
 
 @media screen and (min-width: 750px) {
   .kt-search-overlay__input {
