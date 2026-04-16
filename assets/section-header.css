@@ -105,9 +105,10 @@
   cursor: pointer;
   gap: 0.25rem;
   padding: 0.5rem 1rem;
+  /* text-sm / font-medium / tracking-wide — matches Next.js Navbar.tsx */
   font-size: 0.875rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.025em;
   color: rgba(214, 211, 209, 1);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -300,21 +301,25 @@
   transform: translateY(0);
 }
 
+/* Column title — text-xs / font-bold / tracking-widest / mb-6 / stone-400
+   matches Next.js `text-xs font-bold tracking-widest uppercase mb-6 text-stone-400` */
 .kt-header__mega-column-title {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #78716c;
-  margin-bottom: 1rem;
+  color: #a8a29e;
+  margin-bottom: 1.5rem;
 }
 
+/* Column list — gap-4 per Tailwind (= 1rem) */
 .kt-header__mega-list {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 1rem;
 }
 
+/* Links — text-[15px] / stone-600, widen tracking on hover to stone-900 */
 .kt-header__mega-link {
   font-size: 0.9375rem;
   color: #57534e;
@@ -356,21 +361,52 @@
   padding: 1.5rem;
 }
 
+/* Featured title — font-serif / text-xl / tracking-wide / leading-tight
+   matches Next.js `font-serif text-xl tracking-wide leading-tight` */
 .kt-header__mega-featured-title {
-  font-family: var(--font-heading-family);
-  font-size: 1.5rem;
+  font-family: var(--font-accent-family);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: 0.025em;
   color: #fff;
-  font-style: italic;
   margin-bottom: 0.5rem;
 }
 
+/* Featured description — text-sm / stone-300 (white/70 equiv)
+   matches Next.js `text-stone-500 text-sm leading-relaxed mb-4` but
+   lightened so it reads on the dark gradient overlay */
+.kt-header__mega-featured-desc {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 1rem 0;
+}
+
+/* Featured CTA — text-xs / font-bold / tracking-widest
+   matches Next.js `text-xs font-bold tracking-widest uppercase` */
 .kt-header__mega-featured-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #fff;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.kt-header__mega-featured-cta:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.kt-header__mega-featured-cta svg {
+  transition: transform 0.2s ease;
+}
+
+.kt-header__mega-featured-cta:hover svg {
+  transform: translateX(3px);
 }
 
 .kt-header__mega-featured-cta:hover {
