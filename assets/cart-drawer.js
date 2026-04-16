@@ -29,20 +29,22 @@
     bindEvents() {
       var self = this;
 
-      /* Close buttons */
-      this.closeButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
+      /* Event delegation on the drawer root so close + quantity buttons
+         keep working after product-form.js swaps in freshly-rendered
+         HTML on add-to-cart. Individual listeners on each button would
+         go stale because the buttons are re-created during the swap. */
+      this.drawer.addEventListener('click', function (event) {
+        if (event.target.closest('[data-cart-drawer-close]')) {
           self.close();
-        });
-      });
-
-      /* Quantity change buttons */
-      this.qtyButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var key = btn.dataset.lineKey;
-          var qty = parseInt(btn.dataset.qty, 10);
+          return;
+        }
+        var qtyBtn = event.target.closest('[data-qty-change]');
+        if (qtyBtn) {
+          var key = qtyBtn.dataset.lineKey;
+          var qty = parseInt(qtyBtn.dataset.qty, 10);
           self.updateQuantity(key, qty);
-        });
+          return;
+        }
       });
 
       /* Escape key */
@@ -53,12 +55,13 @@
       };
       document.addEventListener('keydown', this._keyHandler);
 
-      /* Listen for cart icon clicks */
-      document.querySelectorAll('.kt-header__cart-icon').forEach(function (icon) {
-        icon.addEventListener('click', function (event) {
-          event.preventDefault();
-          self.open();
-        });
+      /* Listen for cart icon clicks (delegated so multiple icons or
+         icons re-rendered by header-group updates still work) */
+      document.addEventListener('click', function (event) {
+        var icon = event.target.closest('.kt-header__cart-icon');
+        if (!icon) return;
+        event.preventDefault();
+        self.open();
       });
     }
 

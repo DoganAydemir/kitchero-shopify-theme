@@ -168,6 +168,22 @@
   display: inline-block;
 }
 
+/* Loading state — brief AJAX window between click and response.
+   Intentionally does NOT reuse :disabled (which carries the sold-out
+   red theme). Keeps the button's normal black appearance with a wait
+   cursor and a hint of progress via reduced opacity. */
+.kt-product-form__atc--loading {
+  cursor: wait;
+  opacity: 0.8;
+  pointer-events: none; /* blocks double-submits without toggling disabled */
+}
+
+.kt-product-form__atc--loading:hover {
+  /* Freeze hover style while loading so it doesn't flicker as the
+     pointer passes over the button between click and response. */
+  background-color: inherit;
+}
+
 /* Success state (Added to Cart) */
 .kt-product-form__atc--added,
 .kt-product-form__atc--added:hover:not(:disabled) {

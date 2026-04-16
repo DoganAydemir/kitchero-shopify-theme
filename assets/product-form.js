@@ -5,6 +5,53 @@
 (function () {
   'use strict';
 
+  /**
+   * Pull a fresh copy of the cart-drawer HTML from the server and swap
+   * it into the DOM in place of the current (stale) drawer contents.
+   *
+   * The cart drawer is a snippet rendered inside layout/theme.liquid,
+   * not a Shopify section — so Section Rendering API's `?sections=`
+   * query param doesn't target it directly. Instead, fetch the current
+   * page as HTML, find #cart-drawer, and replace our drawer's panel
+   * innards with the new markup. Also syncs the header cart count.
+   *
+   * Returns a Promise that resolves when the DOM has been updated, or
+   * rejects so the caller can fall back to a JSON-only count update.
+   */
+  function refreshCartDrawer() {
+    return fetch(window.location.pathname, {
+      headers: { 'Accept': 'text/html' },
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Cart drawer refresh: page fetch failed');
+        return response.text();
+      })
+      .then(function (html) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+
+        /* Swap the cart drawer panel (items + totals + CTA) */
+        var currentPanel = document.querySelector('#cart-drawer .kt-cart-drawer__panel');
+        var newPanel = doc.querySelector('#cart-drawer .kt-cart-drawer__panel');
+        if (currentPanel && newPanel) {
+          currentPanel.innerHTML = newPanel.innerHTML;
+        }
+
+        /* Sync the header cart count */
+        var newCount = doc.querySelector('.kt-header__cart-count');
+        document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+          if (newCount) {
+            el.textContent = newCount.textContent;
+            el.style.display = newCount.style.display || '';
+          }
+        });
+
+        /* No rebind needed — cart-drawer.js now uses event delegation
+           on the drawer root, so close + qty buttons keep working even
+           after innerHTML swap. */
+      });
+  }
+
   function initProductForm(container) {
     var form = container.querySelector('[data-product-form]');
     if (!form) return;
@@ -59,7 +106,14 @@
         quantity: parseInt(qtyInput ? qtyInput.value : 1, 10)
       };
 
-      if (atcBtn) atcBtn.disabled = true;
+      /* Loading state — use a dedicated `--loading` class + aria-busy
+         instead of `disabled`. The :disabled selector carries the
+         sold-out red styling in CSS, which would flash on every ATC
+         click if we reused it here. */
+      if (atcBtn) {
+        atcBtn.classList.add('kt-product-form__atc--loading');
+        atcBtn.setAttribute('aria-busy', 'true');
+      }
 
       fetch(window.routes.cart_add_url + '.js', {
         method: 'POST',
@@ -73,38 +127,51 @@
         .then(function () {
           /* Show success state */
           if (atcBtn) {
+            atcBtn.classList.remove('kt-product-form__atc--loading');
+            atcBtn.removeAttribute('aria-busy');
             atcBtn.classList.add('kt-product-form__atc--added');
             if (atcText) atcText.textContent = 'Added to Cart!';
             setTimeout(function () {
               atcBtn.classList.remove('kt-product-form__atc--added');
               if (atcText) atcText.textContent = window.variantStrings ? window.variantStrings.addToCart : 'Add to cart';
-              atcBtn.disabled = false;
             }, 2000);
           }
 
-          /* Update cart count in header */
-          fetch(window.routes.cart_url + '.js')
-            .then(function (r) { return r.json(); })
-            .then(function (cart) {
-              document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-                el.textContent = cart.item_count;
-                el.style.display = cart.item_count > 0 ? '' : 'none';
-              });
+          /* Refresh the cart drawer DOM (line items + totals) by
+             fetching the current page and replacing the drawer's inner
+             content with the freshly-rendered HTML. Also updates the
+             header cart count in the same pass. Falls back to a JSON
+             count-only update if the page fetch fails. */
+          refreshCartDrawer()
+            .catch(function () {
+              return fetch(window.routes.cart_url + '.js')
+                .then(function (r) { return r.json(); })
+                .then(function (cart) {
+                  document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+                    el.textContent = cart.item_count;
+                    el.style.display = cart.item_count > 0 ? '' : 'none';
+                  });
+                });
+            })
+            .then(function () {
+              /* Open the drawer AFTER it has fresh HTML so the visitor
+                 sees the item they just added. */
+              var cartDrawer = document.getElementById('cart-drawer');
+              if (cartDrawer) {
+                cartDrawer.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+              }
             });
-
-          /* Open cart drawer if exists */
-          var cartDrawer = document.getElementById('cart-drawer');
-          if (cartDrawer) {
-            cartDrawer.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-          }
 
           /* Publish event */
           if (typeof publish === 'function') publish('cart:update', formData);
         })
         .catch(function (error) {
           console.error('Add to cart error:', error);
-          if (atcBtn) atcBtn.disabled = false;
+          if (atcBtn) {
+            atcBtn.classList.remove('kt-product-form__atc--loading');
+            atcBtn.removeAttribute('aria-busy');
+          }
         });
     });
   }
