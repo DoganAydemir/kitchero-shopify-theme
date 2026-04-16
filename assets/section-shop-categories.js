@@ -13,6 +13,9 @@
     var section = container.querySelector('[data-section-type="shop-categories"]');
     if (!section || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return null;
 
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return null;
+
     gsap.registerPlugin(ScrollTrigger);
 
     var mm = gsap.matchMedia();

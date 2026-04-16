@@ -8,10 +8,25 @@
       <p class="kt-before-after__subtitle">{{ section.settings.subtitle | default: 'Drag to compare before and after' }}</p>
     </div>
 
+    {%- comment -%}
+      Pre-assign alt labels: Liquid parses inline pipe chains inside
+      image_tag's `alt:` param greedily, so we build them first.
+    {%- endcomment -%}
+    {%- assign before_label = 'sections.before_after.before' | t | default: 'Before' -%}
+    {%- assign after_label = 'sections.before_after.after' | t | default: 'After' -%}
+    {%- assign heading_text = section.settings.heading | default: '' -%}
+    {%- if heading_text != '' -%}
+      {%- assign alt_before = heading_text | append: ' — ' | append: before_label -%}
+      {%- assign alt_after = heading_text | append: ' — ' | append: after_label -%}
+    {%- else -%}
+      {%- assign alt_before = before_label -%}
+      {%- assign alt_after = after_label -%}
+    {%- endif -%}
+
     <div class="kt-before-after__slider" data-before-after>
       {%- comment -%} After image (full background) {%- endcomment -%}
       {%- if section.settings.after_image != blank -%}
-        {{ section.settings.after_image | image_url: width: 1600 | image_tag: class: 'kt-before-after__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.after_image.width, height: section.settings.after_image.height, alt: 'After' }}
+        {{ section.settings.after_image | image_url: width: 1600 | image_tag: class: 'kt-before-after__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.after_image.width, height: section.settings.after_image.height, alt: alt_after }}
       {%- else -%}
         {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-before-after__image' }}
       {%- endif -%}
@@ -19,7 +34,7 @@
       {%- comment -%} Before image (clipped left) {%- endcomment -%}
       <div class="kt-before-after__before-wrap" data-before-clip style="clip-path: inset(0 50% 0 0);">
         {%- if section.settings.before_image != blank -%}
-          {{ section.settings.before_image | image_url: width: 1600 | image_tag: class: 'kt-before-after__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.before_image.width, height: section.settings.before_image.height, alt: 'Before' }}
+          {{ section.settings.before_image | image_url: width: 1600 | image_tag: class: 'kt-before-after__image', loading: 'lazy', widths: '750, 1100, 1600', sizes: '100vw', width: section.settings.before_image.width, height: section.settings.before_image.height, alt: alt_before }}
         {%- else -%}
           {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg kt-before-after__image' }}
         {%- endif -%}

@@ -19,10 +19,12 @@
     this.timer = null;
     this.gsapCtx = null;
 
+    this.prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     if (this.total > 0) {
       this.bindEvents();
       this.animateText(0);
-      if (this.total > 1) this.startAutoplay();
+      if (this.total > 1 && !this.prefersReducedMotion && this.autoplaySpeed > 0) this.startAutoplay();
       this.initGSAP();
     }
   }
@@ -52,6 +54,7 @@
   };
 
   KitcheroHero.prototype.initGSAP = function () {
+    if (this.prefersReducedMotion) return;
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
     var section = this.section;
@@ -110,6 +113,7 @@
 
   KitcheroHero.prototype.resetAutoplay = function () {
     clearInterval(this.timer);
+    if (this.prefersReducedMotion || this.autoplaySpeed <= 0) return;
     this.startAutoplay();
   };
 
@@ -147,6 +151,6 @@
     var section = e.target.closest('[data-section-type="hero"]');
     if (!section) return;
     var instance = heroInstances[section.dataset.sectionId];
-    if (instance && instance.total > 1) instance.startAutoplay();
+    if (instance && instance.total > 1 && !instance.prefersReducedMotion && instance.autoplaySpeed > 0) instance.startAutoplay();
   });
 })();

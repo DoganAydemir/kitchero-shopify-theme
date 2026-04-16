@@ -52,7 +52,8 @@
     });
 
     /* GSAP parallax + reveal animations */
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
       gsap.registerPlugin(ScrollTrigger);
 
       var hero = section.querySelector('[data-collection-hero]');

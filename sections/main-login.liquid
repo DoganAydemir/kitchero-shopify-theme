@@ -31,11 +31,11 @@
     {%- comment -%} Forgot Password Modal {%- endcomment -%}
     <div class="kt-customer__modal" id="forgot-modal" aria-hidden="true">
       <div class="kt-customer__modal-overlay" data-close-forgot></div>
-      <div class="kt-customer__modal-panel">
-        <button class="kt-customer__modal-close" data-close-forgot aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <div class="kt-customer__modal-panel" role="dialog" aria-modal="true" aria-labelledby="forgot-modal-title">
+        <button type="button" class="kt-customer__modal-close" data-close-forgot aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <h2 class="kt-customer__modal-title">{{ 'customers.login.reset_password' | t }}</h2>
+        <h2 id="forgot-modal-title" class="kt-customer__modal-title">{{ 'customers.login.reset_password' | t }}</h2>
         <p class="kt-customer__modal-desc">{{ 'customers.login.reset_desc' | t | default: 'We will send you an email to reset your password.' }}</p>
         {%- form 'recover_customer_password', id: 'RecoverPasswordForm' -%}
           <div class="kt-customer__field">

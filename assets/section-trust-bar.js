@@ -7,7 +7,21 @@
 
   function initTrustBar(container) {
     var section = container.querySelector('[data-section-type="trust-bar"]');
-    if (!section || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (!section) return;
+
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      /* Set final numbers directly without counting up */
+      var staticNumbers = section.querySelectorAll('.kt-trust-bar__number');
+      staticNumbers.forEach(function (num) {
+        var val = parseInt(num.dataset.countTo, 10);
+        if (!isNaN(val)) num.textContent = val;
+      });
+      return;
+    }
+
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
     gsap.registerPlugin(ScrollTrigger);
 

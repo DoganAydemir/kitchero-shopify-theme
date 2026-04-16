@@ -26,13 +26,13 @@
 
           {%- comment -%} Breadcrumb {%- endcomment -%}
           <nav class="kt-pdp__breadcrumb" aria-label="{{ 'accessibility.breadcrumb' | t }}">
-            <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t | default: 'Home' }}</a>
-            <span aria-hidden="true">/</span>
-            {%- if product.collections.first -%}
-              <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
-              <span aria-hidden="true">/</span>
-            {%- endif -%}
-            <span>{{ product.title }}</span>
+            <ol class="kt-pdp__breadcrumb-list" role="list">
+              <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t | default: 'Home' }}</a></li>
+              {%- if product.collections.first -%}
+                <li><a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a></li>
+              {%- endif -%}
+              <li><span aria-current="page">{{ product.title }}</span></li>
+            </ol>
           </nav>
 
           {%- comment -%} Title {%- endcomment -%}

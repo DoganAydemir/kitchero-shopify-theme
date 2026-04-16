@@ -277,3 +277,23 @@ button[type="submit"]:hover {
 [dir="rtl"] .kt-pagination__item--next svg {
   transform: scaleX(-1);
 }
+
+/* ============================================================
+   Reduced Motion Support (WCAG 2.3.3)
+   Respects user's OS-level preference. Disables all theme
+   animations and transitions, keeps only essential instant
+   state changes. The few animations that are semantic (spinners,
+   live loading indicators) slow down instead of disabling so
+   they still communicate "loading" without vestibular triggers.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

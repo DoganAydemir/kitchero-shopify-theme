@@ -197,7 +197,12 @@
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
         {%- if cart.item_count > 0 -%}
-          <span class="kt-header__cart-count" aria-label="{{ 'general.cart.item_count' | t: count: cart.item_count }}">
+          <span
+            class="kt-header__cart-count"
+            aria-live="polite"
+            aria-atomic="true"
+            aria-label="{{ 'general.cart.item_count' | t: count: cart.item_count }}"
+          >
             {{ cart.item_count }}
           </span>
         {%- endif -%}

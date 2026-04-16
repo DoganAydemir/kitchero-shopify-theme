@@ -12,7 +12,8 @@
 (function () {
   'use strict';
 
-  if (typeof Lenis === 'undefined') return;
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 
   var lenis = new Lenis({
     duration: 1.2,

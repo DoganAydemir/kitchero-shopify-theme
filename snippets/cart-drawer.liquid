@@ -10,7 +10,7 @@
     {%- comment -%} Header {%- endcomment -%}
     <div class="kt-cart-drawer__header">
       <h2 class="kt-cart-drawer__title">{{ 'sections.cart.title' | t }}</h2>
-      <button class="kt-cart-drawer__close" data-cart-drawer-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <button type="button" class="kt-cart-drawer__close" data-cart-drawer-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -47,6 +47,7 @@
               <p class="kt-cart-drawer__item-price">{{ item.final_line_price | money }}</p>
               <div class="kt-cart-drawer__item-qty">
                 <button
+                  type="button"
                   class="kt-cart-drawer__qty-btn"
                   aria-label="{{ 'products.product.quantity.decrease' | t: title: item.product.title }}"
                   data-qty-change
@@ -57,6 +58,7 @@
                 </button>
                 <span class="kt-cart-drawer__qty-value">{{ item.quantity }}</span>
                 <button
+                  type="button"
                   class="kt-cart-drawer__qty-btn"
                   aria-label="{{ 'products.product.quantity.increase' | t: title: item.product.title }}"
                   data-qty-change
@@ -84,7 +86,7 @@
         <a href="{{ routes.cart_url }}" class="kt-cart-drawer__checkout button">
           {{ 'sections.cart.checkout' | t | default: 'Checkout' }}
         </a>
-        <button class="kt-cart-drawer__continue button button--secondary" data-cart-drawer-close>
+        <button type="button" class="kt-cart-drawer__continue button button--secondary" data-cart-drawer-close>
           {{ 'sections.cart.continue_shopping' | t | default: 'Continue shopping' }}
         </button>
       </div>
