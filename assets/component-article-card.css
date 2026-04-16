@@ -14,11 +14,9 @@
   color: inherit;
   background-color: transparent;
   height: 100%;
-  transition: transform 0.4s ease;
-}
-
-.kt-article-card:hover {
-  transform: translateY(-2px);
+  /* No whole-card hover transform — the source keeps copy stationary
+     and only moves the image zoom + CTA arrow + title color. Moving
+     the whole card makes text below the image "jitter" as users scan. */
 }
 
 .kt-article-card:focus-visible {
@@ -218,16 +216,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kt-article-card,
   .kt-article-card__image,
   .kt-article-card__title,
   .kt-article-card__cta-label-inner,
   .kt-article-card__cta-label-inner--ghost,
   .kt-article-card__cta-arrow {
     transition: none;
-  }
-  .kt-article-card:hover {
-    transform: none;
   }
   .kt-article-card:hover .kt-article-card__image {
     transform: none;
