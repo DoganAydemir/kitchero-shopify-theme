@@ -8,16 +8,17 @@
 
 .kt-main-page {
   background-color: #fff;
-  /* Merchant-tunable outer section padding. Values fall back to the
-     theme's default section spacing when the merchant hasn't overridden
-     them, so an empty CMS page still has breathing room above/below. */
-  padding-top: var(--kt-main-page-padding-top-mobile, 0);
+  /* Merchant-tunable outer section padding. Both axes get a meaningful
+     fallback (2.8rem mobile / 4rem desktop top, 4rem mobile / 6rem
+     desktop bottom) so even a CMS page that predates these settings
+     still has visible breathing room above and below. */
+  padding-top: var(--kt-main-page-padding-top-mobile, 2.8rem);
   padding-bottom: var(--kt-main-page-padding-bottom-mobile, 4rem);
 }
 
 @media screen and (min-width: 750px) {
   .kt-main-page {
-    padding-top: var(--kt-main-page-padding-top-desktop, 0);
+    padding-top: var(--kt-main-page-padding-top-desktop, 4rem);
     padding-bottom: var(--kt-main-page-padding-bottom-desktop, 6rem);
   }
 }

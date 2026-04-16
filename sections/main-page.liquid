@@ -8,10 +8,19 @@
   assign heading_tag = section.settings.heading_tag | default: 'h1'
   assign content_max_width = section.settings.content_max_width | default: 800
 
-  assign pt_desktop = section.settings.padding_top | default: 0
-  assign pb_desktop = section.settings.padding_bottom | default: 96
+  # `| default:` fires when the value is falsy (and 0 is falsy in Liquid)
+  # so we read the setting first and only fall back when it's truly nil.
+  # This keeps a merchant-chosen 0 respected.
+  assign pt_desktop = section.settings.padding_top
+  if pt_desktop == nil
+    assign pt_desktop = 64
+  endif
+  assign pb_desktop = section.settings.padding_bottom
+  if pb_desktop == nil
+    assign pb_desktop = 96
+  endif
   assign pt_mobile = pt_desktop | times: 0.7 | round | at_least: 0
-  assign pb_mobile = pb_desktop | times: 0.7 | round | at_least: 32
+  assign pb_mobile = pb_desktop | times: 0.7 | round | at_least: 0
 -%}
 
 <article
@@ -138,7 +147,7 @@
       "max": 160,
       "step": 4,
       "unit": "px",
-      "default": 0
+      "default": 64
     },
     {
       "type": "range",
