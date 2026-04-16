@@ -90,6 +90,11 @@
     updateQuantity(key, quantity) {
       var self = this;
 
+      /* Optimistic disable: freeze the clicked row while the server
+         catches up so rapid double-clicks don't fire two mutations */
+      var row = self.drawer.querySelector('[data-line-key="' + key + '"]');
+      if (row) row.style.opacity = '0.5';
+
       fetch(window.routes.cart_change_url + '.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,49 +104,66 @@
           return response.json();
         })
         .then(function () {
-          self.refreshDrawer();
+          return self.refreshDrawer();
         })
         .catch(function (error) {
           console.error('Cart update error:', error);
+          if (row) row.style.opacity = '';
         });
     }
 
+    /**
+     * Pull a fresh copy of the page and replace the drawer's inner
+     * panel HTML so the visitor sees the updated line items, subtotal
+     * footer, or the empty state — whatever the server rendered after
+     * the last mutation. Also syncs the header cart count.
+     *
+     * Returns a Promise so callers (updateQuantity, product-form.js)
+     * can await the refresh before they open or close the drawer.
+     */
     refreshDrawer() {
       var self = this;
 
-      fetch(window.location.pathname + '?sections=header-group')
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (data) {
-          /* Update cart count in header */
-          if (data['header-group']) {
-            var temp = document.createElement('div');
-            temp.innerHTML = data['header-group'];
-            var newCount = temp.querySelector('.kt-header__cart-count');
-            var oldCount = document.querySelector('.kt-header__cart-count');
-            if (newCount && oldCount) {
-              oldCount.textContent = newCount.textContent;
-            }
-          }
-        })
-        .catch(function () {
-          /* Fallback: reload */
-          window.location.reload();
-        });
-
-      /* Refresh cart drawer content */
-      fetch(window.routes.cart_url, {
-        headers: { 'Accept': 'application/json' },
+      return fetch(window.location.pathname, {
+        headers: { 'Accept': 'text/html' },
       })
         .then(function (response) {
-          return response.json();
+          if (!response.ok) throw new Error('refreshDrawer: page fetch failed');
+          return response.text();
         })
-        .then(function (cart) {
-          self.updateCartCount(cart.item_count);
-          if (cart.item_count === 0) {
-            self.close();
+        .then(function (html) {
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+
+          /* Swap the drawer panel (header + items + footer) */
+          var currentPanel = self.drawer.querySelector('.kt-cart-drawer__panel');
+          var newPanel = doc.querySelector('#cart-drawer .kt-cart-drawer__panel');
+          if (currentPanel && newPanel) {
+            currentPanel.innerHTML = newPanel.innerHTML;
           }
+
+          /* Sync the header cart count */
+          var newCount = doc.querySelector('.kt-header__cart-count');
+          document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+            if (newCount) {
+              el.textContent = newCount.textContent;
+              el.style.display = newCount.style.display || '';
+            } else {
+              el.textContent = '0';
+              el.style.display = 'none';
+            }
+          });
+        })
+        .catch(function (error) {
+          console.error(error);
+          /* Last-ditch fallback so the UI isn't left in a stale state */
+          return fetch(window.routes.cart_url, {
+            headers: { 'Accept': 'application/json' },
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (cart) {
+              self.updateCartCount(cart.item_count);
+              if (cart.item_count === 0) self.close();
+            });
         });
     }
 
@@ -166,12 +188,18 @@
   if (drawer) {
     var instance = new CartDrawer(drawer);
 
+    /* Expose the instance so other files (product-form.js when adding
+       to cart, apps binding to cart:update) can trigger a full refresh
+       without duplicating the fetch-and-swap logic. */
+    window.kitcheroCartDrawer = instance;
+
     /* Theme editor support */
     document.addEventListener('shopify:section:load', function () {
       instance.destroy();
       var newDrawer = document.getElementById('cart-drawer');
       if (newDrawer) {
         instance = new CartDrawer(newDrawer);
+        window.kitcheroCartDrawer = instance;
       }
     });
   }

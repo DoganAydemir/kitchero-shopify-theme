@@ -6,49 +6,21 @@
   'use strict';
 
   /**
-   * Pull a fresh copy of the cart-drawer HTML from the server and swap
-   * it into the DOM in place of the current (stale) drawer contents.
-   *
-   * The cart drawer is a snippet rendered inside layout/theme.liquid,
-   * not a Shopify section — so Section Rendering API's `?sections=`
-   * query param doesn't target it directly. Instead, fetch the current
-   * page as HTML, find #cart-drawer, and replace our drawer's panel
-   * innards with the new markup. Also syncs the header cart count.
-   *
-   * Returns a Promise that resolves when the DOM has been updated, or
-   * rejects so the caller can fall back to a JSON-only count update.
+   * Delegates to cart-drawer.js's refreshDrawer() so the fetch-and-swap
+   * logic lives in one place. Falls back to a JSON-only cart-count
+   * sync if no drawer is on the page (e.g. cart_type: page).
    */
   function refreshCartDrawer() {
-    return fetch(window.location.pathname, {
-      headers: { 'Accept': 'text/html' },
-    })
-      .then(function (response) {
-        if (!response.ok) throw new Error('Cart drawer refresh: page fetch failed');
-        return response.text();
-      })
-      .then(function (html) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, 'text/html');
-
-        /* Swap the cart drawer panel (items + totals + CTA) */
-        var currentPanel = document.querySelector('#cart-drawer .kt-cart-drawer__panel');
-        var newPanel = doc.querySelector('#cart-drawer .kt-cart-drawer__panel');
-        if (currentPanel && newPanel) {
-          currentPanel.innerHTML = newPanel.innerHTML;
-        }
-
-        /* Sync the header cart count */
-        var newCount = doc.querySelector('.kt-header__cart-count');
+    if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {
+      return window.kitcheroCartDrawer.refreshDrawer();
+    }
+    return fetch(window.routes.cart_url + '.js')
+      .then(function (r) { return r.json(); })
+      .then(function (cart) {
         document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-          if (newCount) {
-            el.textContent = newCount.textContent;
-            el.style.display = newCount.style.display || '';
-          }
+          el.textContent = cart.item_count;
+          el.style.display = cart.item_count > 0 ? '' : 'none';
         });
-
-        /* No rebind needed — cart-drawer.js now uses event delegation
-           on the drawer root, so close + qty buttons keep working even
-           after innerHTML swap. */
       });
   }
 
