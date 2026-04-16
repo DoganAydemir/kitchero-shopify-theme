@@ -1,102 +1,238 @@
 {{ 'section-main-article.css' | asset_url | stylesheet_tag }}
 
+{%- comment -%}
+  Main Article — individual journal entry template. Birebir from
+  Next.js /blog/[slug] page:
+
+    1. Hero header — centered meta row (category + rule + date),
+       editorial 5xl-7xl serif H1, lead excerpt
+    2. Full-bleed featured image (60vh mobile, 80vh desktop)
+    3. Rich-text article body (rte) — Shopify article.content with
+       editorial typography (serif h2/h3, large body)
+    4. Share row (Facebook + X)
+    5. Comments — list of approved comments, nested-reply-capable
+       visual structure, {% form 'new_comment' %} with floating
+       labels and a black submit button
+    6. Back-to-blog link
+{%- endcomment -%}
+
 <article class="kt-article" data-section-id="{{ section.id }}">
-  <div class="page-width">
-    {%- comment -%} Article Header {%- endcomment -%}
-    <header class="kt-article__header">
-      {%- if article.tags.size > 0 -%}
-        <span class="kt-article__category">{{ article.tags.first }}</span>
-      {%- endif -%}
-      <h1 class="kt-article__title">{{ article.title }}</h1>
-      <div class="kt-article__meta">
-        <span class="kt-article__author">{{ article.author }}</span>
-        <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'abbreviated_date' }}</time>
-        {%- if blog.comments_enabled? -%}
-          <span>{{ article.comments_count }} {{ 'blogs.article.comments' | t: count: article.comments_count }}</span>
+  {%- comment -%} Hero Header — centered, editorial {%- endcomment -%}
+  <header class="kt-article__header">
+    <div class="page-width">
+      <div class="kt-article__header-inner">
+        <div class="kt-article__meta">
+          {%- if article.tags.size > 0 -%}
+            <span class="kt-article__meta-item">{{ article.tags.first }}</span>
+            <span class="kt-article__meta-rule" aria-hidden="true"></span>
+          {%- endif -%}
+          <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+            {{ article.published_at | date: format: 'abbreviated_date' }}
+          </time>
+        </div>
+
+        <h1 class="kt-article__title">{{ article.title }}</h1>
+
+        {%- if article.excerpt != blank -%}
+          <p class="kt-article__excerpt">{{ article.excerpt | strip_html }}</p>
         {%- endif -%}
       </div>
-    </header>
+    </div>
+  </header>
 
-    {%- comment -%} Featured Image {%- endcomment -%}
-    {%- if article.image -%}
-      <div class="kt-article__image-wrap">
-        {{ article.image | image_url: width: 1200 | image_tag: class: 'kt-article__image', loading: 'eager', widths: '550, 750, 1100', sizes: '(min-width: 750px) 75vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
+  {%- comment -%} Full-bleed featured image {%- endcomment -%}
+  {%- if article.image -%}
+    <div class="kt-article__hero-image">
+      {{
+        article.image
+        | image_url: width: 2400
+        | image_tag:
+          class: 'kt-article__hero-img',
+          loading: 'eager',
+          fetchpriority: 'high',
+          widths: '750, 1100, 1500, 2000, 2400',
+          sizes: '100vw',
+          width: article.image.width,
+          height: article.image.height,
+          alt: article.title
+      }}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Body / rich-text content {%- endcomment -%}
+  <div class="kt-article__body">
+    <div class="page-width">
+      <div class="kt-article__content rte">
+        {{ article.content }}
       </div>
-    {%- endif -%}
 
-    {%- comment -%} Article Content {%- endcomment -%}
-    <div class="kt-article__content rte">
-      {{ article.content }}
-    </div>
-
-    {%- comment -%} Share {%- endcomment -%}
-    <div class="kt-article__share">
-      <span class="kt-article__share-label">{{ 'general.share.title' | t | default: 'Share' }}</span>
-      <a href="https://www.facebook.com/sharer/sharer.php?u={{ article.url | prepend: request.origin | url_encode }}" target="_blank" rel="noopener" class="kt-article__share-link" aria-label="{{ 'accessibility.social.facebook' | t }}">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-      </a>
-      <a href="https://twitter.com/intent/tweet?url={{ article.url | prepend: request.origin | url_encode }}&text={{ article.title | url_encode }}" target="_blank" rel="noopener" class="kt-article__share-link" aria-label="{{ 'accessibility.social.x' | t }}">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
-    </div>
-
-    {%- comment -%} Comments {%- endcomment -%}
-    {%- if blog.comments_enabled? -%}
-      <div class="kt-article__comments" id="comments">
-        <h2 class="kt-article__comments-title">
-          {{ 'blogs.article.comments' | t: count: article.comments_count }}
-        </h2>
-
-        {%- if article.comments.size > 0 -%}
-          {%- paginate article.comments by 10 -%}
-            <div class="kt-article__comments-list">
-              {%- for comment in article.comments -%}
-                <div class="kt-article__comment">
-                  <div class="kt-article__comment-header">
-                    <span class="kt-article__comment-author">{{ comment.author }}</span>
-                    <time class="kt-article__comment-date" datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">
-                      {{ comment.created_at | date: format: 'abbreviated_date' }}
-                    </time>
-                  </div>
-                  <div class="kt-article__comment-body rte">{{ comment.content }}</div>
-                </div>
-              {%- endfor -%}
-            </div>
-            {%- if paginate.pages > 1 -%}
-              {%- render 'pagination', paginate: paginate, anchor: '#comments' -%}
-            {%- endif -%}
-          {%- endpaginate -%}
-        {%- endif -%}
-
-        {%- comment -%} Comment Form {%- endcomment -%}
-        <div class="kt-article__comment-form-wrap">
-          <h3 class="kt-article__comment-form-title">{{ 'blogs.article.leave_comment' | t | default: 'Leave a comment' }}</h3>
-          {%- form 'new_comment', article -%}
-            <div class="kt-article__comment-form-row">
-              <div class="kt-article__comment-form-field">
-                <label for="comment-author" class="kt-article__comment-form-label">{{ 'blogs.article.name' | t | default: 'Name' }}</label>
-                <input type="text" id="comment-author" name="comment[author]" class="kt-article__comment-form-input" required autocomplete="name">
-              </div>
-              <div class="kt-article__comment-form-field">
-                <label for="comment-email" class="kt-article__comment-form-label">{{ 'blogs.article.email' | t | default: 'Email' }}</label>
-                <input type="email" id="comment-email" name="comment[email]" class="kt-article__comment-form-input" required autocomplete="email">
-              </div>
-            </div>
-            <div class="kt-article__comment-form-field">
-              <label for="comment-body" class="kt-article__comment-form-label">{{ 'blogs.article.comment' | t | default: 'Comment' }}</label>
-              <textarea id="comment-body" name="comment[body]" class="kt-article__comment-form-textarea" rows="4" required></textarea>
-            </div>
-            <button type="submit" class="kt-article__comment-form-submit">
-              {{ 'blogs.article.post_comment' | t | default: 'Post comment' }}
-            </button>
-          {%- endform -%}
+      {%- comment -%} Share row {%- endcomment -%}
+      <div class="kt-article__share">
+        <span class="kt-article__share-label">{{ 'general.share.title' | t | default: 'Share' }}</span>
+        <div class="kt-article__share-links">
+          <a
+            href="https://www.facebook.com/sharer/sharer.php?u={{ article.url | prepend: request.origin | url_encode }}"
+            target="_blank"
+            rel="noopener"
+            class="kt-article__share-link"
+            aria-label="{{ 'accessibility.social.facebook' | t | default: 'Share on Facebook' }}"
+          >
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a
+            href="https://twitter.com/intent/tweet?url={{ article.url | prepend: request.origin | url_encode }}&text={{ article.title | url_encode }}"
+            target="_blank"
+            rel="noopener"
+            class="kt-article__share-link"
+            aria-label="{{ 'accessibility.social.x' | t | default: 'Share on X' }}"
+          >
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
         </div>
       </div>
-    {%- endif -%}
+    </div>
+  </div>
 
-    {%- comment -%} Back to blog {%- endcomment -%}
-    <div class="kt-article__back">
-      <a href="{{ blog.url }}">← {{ 'blogs.article.back_to_blog' | t: title: blog.title }}</a>
+  {%- comment -%} Comments {%- endcomment -%}
+  {%- if blog.comments_enabled? -%}
+    <section class="kt-article__comments-section" id="comments">
+      <div class="page-width">
+        <div class="kt-article__comments-inner">
+          <div class="kt-article__comments-head">
+            <span class="kt-article__comments-eyebrow">
+              {{ 'blogs.article.discussion' | t | default: 'Discussion' }}
+            </span>
+            <h2 class="kt-article__comments-title">
+              {{ 'blogs.article.comments_label' | t | default: 'Comments' }}
+              <span class="kt-article__comments-count">({{ article.comments_count }})</span>
+            </h2>
+          </div>
+
+          {%- if article.comments.size > 0 -%}
+            {%- paginate article.comments by 10 -%}
+              <ol class="kt-article__comments-list" role="list">
+                {%- for comment in article.comments -%}
+                  <li class="kt-article__comment">
+                    <div class="kt-article__comment-avatar" aria-hidden="true">
+                      {{ comment.author | slice: 0, 1 | upcase }}
+                    </div>
+                    <div class="kt-article__comment-body">
+                      <div class="kt-article__comment-meta">
+                        <span class="kt-article__comment-author">{{ comment.author }}</span>
+                        <time class="kt-article__comment-date" datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">
+                          {{ comment.created_at | date: format: 'abbreviated_date' }}
+                        </time>
+                      </div>
+                      <div class="kt-article__comment-content rte">{{ comment.content }}</div>
+                    </div>
+                  </li>
+                {%- endfor -%}
+              </ol>
+              {%- if paginate.pages > 1 -%}
+                <div class="kt-article__comments-pagination">
+                  {%- render 'pagination', paginate: paginate, anchor: '#comments' -%}
+                </div>
+              {%- endif -%}
+            {%- endpaginate -%}
+          {%- else -%}
+            <p class="kt-article__comments-empty">
+              {{ 'blogs.article.no_comments' | t | default: 'No comments yet. Be the first to join the discussion.' }}
+            </p>
+          {%- endif -%}
+
+          {%- comment -%} Comment form — uses Shopify {% form 'new_comment' %} {%- endcomment -%}
+          <div class="kt-article__comment-form-card">
+            <h3 class="kt-article__comment-form-title">
+              {{ 'blogs.article.leave_comment' | t | default: 'Leave a comment' }}
+            </h3>
+
+            {%- form 'new_comment', article, id: 'CommentForm' -%}
+              {%- if form.errors -%}
+                <div class="kt-article__comment-form-error" role="alert">
+                  {{ form.errors | default_errors }}
+                </div>
+              {%- endif -%}
+              {%- if form.posted_successfully? -%}
+                <div class="kt-article__comment-form-success" role="status">
+                  {{ 'blogs.article.success' | t | default: 'Your comment was posted successfully! Thank you!' }}
+                </div>
+              {%- endif -%}
+
+              <div class="kt-article__comment-form-grid">
+                <div class="kt-article__comment-field">
+                  <input
+                    type="text"
+                    id="comment-author"
+                    name="comment[author]"
+                    class="kt-article__comment-input"
+                    required
+                    autocomplete="name"
+                    placeholder=" "
+                  >
+                  <label for="comment-author" class="kt-article__comment-label">
+                    {{ 'blogs.article.name' | t | default: 'Name' }}
+                  </label>
+                </div>
+                <div class="kt-article__comment-field">
+                  <input
+                    type="email"
+                    id="comment-email"
+                    name="comment[email]"
+                    class="kt-article__comment-input"
+                    required
+                    autocomplete="email"
+                    placeholder=" "
+                  >
+                  <label for="comment-email" class="kt-article__comment-label">
+                    {{ 'blogs.article.email' | t | default: 'Email' }}
+                  </label>
+                </div>
+              </div>
+
+              <div class="kt-article__comment-field kt-article__comment-field--full">
+                <textarea
+                  id="comment-body"
+                  name="comment[body]"
+                  class="kt-article__comment-textarea"
+                  rows="4"
+                  required
+                  placeholder=" "
+                ></textarea>
+                <label for="comment-body" class="kt-article__comment-label">
+                  {{ 'blogs.article.comment' | t | default: 'Your Comment' }}
+                </label>
+              </div>
+
+              {%- if blog.moderated? -%}
+                <p class="kt-article__comment-moderation-note">
+                  {{ 'blogs.article.moderated' | t | default: 'Please note, comments must be approved before they are published.' }}
+                </p>
+              {%- endif -%}
+
+              <button type="submit" class="kt-article__comment-submit">
+                {{ 'blogs.article.post_comment' | t | default: 'Post Comment' }}
+              </button>
+            {%- endform -%}
+          </div>
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} Back-to-blog link {%- endcomment -%}
+  <div class="kt-article__back-wrap">
+    <div class="page-width">
+      <a href="{{ blog.url }}" class="kt-article__back">
+        <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        {{ 'blogs.article.back_to_blog' | t: title: blog.title }}
+      </a>
     </div>
   </div>
 </article>
