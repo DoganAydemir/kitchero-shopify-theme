@@ -129,7 +129,7 @@ For collections and products, you can assign alternate templates in the admin:
 │   ├── page.newsletter.json      ← alternate page: newsletter
 │   └── customers/                ← login, register, account, order, addresses
 │
-├── sections/            ← 33 sections (home + template-bound)
+├── sections/            ← 57 sections (42 merchant-droppable + 13 main-* + header/footer)
 ├── snippets/            ← 40+ snippets (card-product, countdown, gallery, etc.)
 ├── assets/              ← CSS, JS, vendor libraries
 ├── config/
@@ -210,9 +210,10 @@ Graceful degradation for older browsers: animations disabled, but all content an
 
 ## Sections
 
-Kitchero ships with **58 sections** — 36 template-bound (`main-*`, etc.) plus 22
-merchant-droppable sections grouped into 9 categories (heroes, sliders, video,
-galleries, testimonials, image+text, collapsibles, commerce, newsletter).
+Kitchero ships with **57 sections** — 15 template-bound (13 `main-*` sections
+plus `header` and `footer`) and **42 merchant-droppable sections** grouped into
+10 categories (heroes + banners, sliders, video, galleries, testimonials,
+image + text, collapsibles, commerce + marketing, PDP-adjacent, newsletter + forms).
 
 See [`docs/SECTIONS.md`](./docs/SECTIONS.md) for the full catalogue, organized
 by intent, with use-when guidance for each section.

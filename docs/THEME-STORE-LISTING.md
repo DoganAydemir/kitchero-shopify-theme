@@ -23,7 +23,7 @@ Showroom-grade storefronts for premium home brands.
 ## Short description (max 160 characters — shown in the Theme Store grid)
 
 ```
-Cinematic animations, two PDP layouts, three collection styles, and 50+ merchant-droppable sections. Built for luxury kitchen, cabinetry, and home brands.
+Cinematic animations, two PDP layouts, three collection styles, and 40+ merchant-droppable sections. Built for luxury kitchen, cabinetry, and home brands.
 ```
 
 (159 characters.)
@@ -58,7 +58,7 @@ editable from the theme editor, with no developer required.
 - All three use Shopify's Section Rendering API for AJAX filtering — no
   full-page reloads.
 
-### 50+ merchant-droppable sections
+### 40+ merchant-droppable sections
 Including: cinematic hero slider with Ken Burns zoom, drag carousel, editorial
 split slider, full-viewport background video hero, YouTube/Vimeo modal players,
 infinite-marquee image wall, stacked-card gallery, bento-grid lightbox gallery,
@@ -91,7 +91,7 @@ three seconds of the storefront. If that's you, welcome home.
 ## Feature highlights (3-4 short bullets for the "Features" field)
 
 - Two PDP layouts (e-commerce + showroom) and three collection grids with AJAX filtering
-- 50+ drop-in sections including cinematic sliders, video heroes, galleries, and modal newsletter
+- 40+ drop-in sections including cinematic sliders, video heroes, galleries, and modal newsletter
 - GSAP-powered scroll animations, Ken Burns hero, bento lightbox, interactive hotspots
 - 6 languages out of the box (EN, TR, DE, FR, ES, AR RTL), WCAG AA, full @app block support
 
