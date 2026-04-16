@@ -208,6 +208,30 @@ Graceful degradation for older browsers: animations disabled, but all content an
 
 ---
 
+## Sections
+
+Kitchero ships with **58 sections** — 36 template-bound (`main-*`, etc.) plus 22
+merchant-droppable sections grouped into 9 categories (heroes, sliders, video,
+galleries, testimonials, image+text, collapsibles, commerce, newsletter).
+
+See [`docs/SECTIONS.md`](./docs/SECTIONS.md) for the full catalogue, organized
+by intent, with use-when guidance for each section.
+
+---
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| [`README.md`](./README.md) | This file — overview + install |
+| [`SETUP.md`](./SETUP.md) | Per-page setup walkthrough for merchants |
+| [`docs/SECTIONS.md`](./docs/SECTIONS.md) | Full sections catalogue |
+| [`docs/THEME-STORE-LISTING.md`](./docs/THEME-STORE-LISTING.md) | Copy-paste Theme Store submission content |
+| [`docs/PREVIEW-IMAGES.md`](./docs/PREVIEW-IMAGES.md) | Spec for preview images required by Shopify |
+| [`PORT_PLAN.md`](./PORT_PLAN.md) | Engineering plan + phase history |
+
+---
+
 ## Support
 
 - **Documentation:** [`SETUP.md`](./SETUP.md) for per-page setup walkthrough
