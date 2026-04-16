@@ -1,0 +1,292 @@
+{{ 'section-image-with-text-alternating.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Image with Text — Alternating Grid (Style 03)
+
+  Multiple rows, each image/text pair. Rows alternate image-left / image-right
+  via CSS :nth-child(even). Square imagery by default, selectable aspect ratio.
+  No JavaScript — pure CSS responsive layout.
+{%- endcomment -%}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign row_gap = section.settings.row_gap | default: 80 -%}
+{%- assign image_aspect = section.settings.image_aspect | default: '1 / 1' -%}
+
+{%- capture aspect_value -%}
+  {%- case image_aspect -%}
+    {%- when '4/5' -%}4 / 5
+    {%- when '16/10' -%}16 / 10
+    {%- else -%}1 / 1
+  {%- endcase -%}
+{%- endcapture -%}
+
+{%- assign has_header = false -%}
+{%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+  {%- assign has_header = true -%}
+{%- endif -%}
+
+{%- assign row_count = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == 'row' -%}
+    {%- assign row_count = row_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section
+  class="kt-iwt-alternating"
+  data-section-id="{{ section.id }}"
+  data-section-type="image-with-text-alternating"
+  style="--kt-row-gap: {{ row_gap }}px; --kt-image-aspect: {{ aspect_value | strip }};"
+>
+  <div class="kt-iwt-alternating__inner page-width">
+    {%- if has_header -%}
+      <header class="kt-iwt-alternating__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-iwt-alternating__eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-iwt-alternating__heading">{{ section.settings.heading }}</{{ heading_tag }}>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="kt-iwt-alternating__rows">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'row' -%}
+          {%- assign row_index = forloop.index -%}
+          {%- assign cta_text = block.settings.item_cta_text -%}
+          {%- assign cta_link = block.settings.item_cta_link -%}
+          {%- assign item_heading = block.settings.item_heading -%}
+          {%- assign item_eyebrow = block.settings.item_eyebrow -%}
+          {%- assign item_description = block.settings.item_description -%}
+
+          <article
+            class="kt-iwt-alternating__row"
+            {{ block.shopify_attributes }}
+          >
+            <div class="kt-iwt-alternating__media">
+              {%- if block.settings.image != blank -%}
+                {%- assign image_alt = block.settings.image.alt | default: item_heading -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 1400
+                  | image_tag:
+                    class: 'kt-iwt-alternating__image',
+                    loading: 'lazy',
+                    widths: '375, 550, 750, 1100, 1400',
+                    sizes: '(min-width: 750px) 50vw, 100vw',
+                    width: block.settings.image.width,
+                    height: block.settings.image.height,
+                    alt: image_alt
+                }}
+              {%- else -%}
+                {%- case row_index -%}
+                  {%- when 1 -%}
+                    {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-alternating__image' }}
+                  {%- when 2 -%}
+                    {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg kt-iwt-alternating__image' }}
+                  {%- when 3 -%}
+                    {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg kt-iwt-alternating__image' }}
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-alternating__image' }}
+                {%- endcase -%}
+              {%- endif -%}
+            </div>
+
+            <div class="kt-iwt-alternating__text">
+              {%- if item_eyebrow != blank -%}
+                <span class="kt-iwt-alternating__item-eyebrow">{{ item_eyebrow }}</span>
+              {%- endif -%}
+
+              {%- if item_heading != blank -%}
+                <h3 class="kt-iwt-alternating__item-heading">{{ item_heading }}</h3>
+              {%- endif -%}
+
+              {%- if item_description != blank -%}
+                <p class="kt-iwt-alternating__item-description">{{ item_description }}</p>
+              {%- endif -%}
+
+              {%- if cta_text != blank -%}
+                <a
+                  href="{{ cta_link | default: routes.root_url }}"
+                  class="kt-iwt-alternating__item-cta"
+                >
+                  <span class="kt-iwt-alternating__item-cta-label">{{ cta_text }}</span>
+                  <svg
+                    class="kt-iwt-alternating__item-cta-icon"
+                    aria-hidden="true"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+              {%- endif -%}
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if row_count == 0 -%}
+        <article class="kt-iwt-alternating__row">
+          <div class="kt-iwt-alternating__media">
+            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-alternating__image' }}
+          </div>
+          <div class="kt-iwt-alternating__text">
+            <span class="kt-iwt-alternating__item-eyebrow">{{ 'sections.image_with_text_alternating.placeholder.eyebrow' | t: default: 'Chapter 01' }}</span>
+            <h3 class="kt-iwt-alternating__item-heading">{{ 'sections.image_with_text_alternating.placeholder.heading' | t: default: 'Add rows to tell your story.' }}</h3>
+            <p class="kt-iwt-alternating__item-description">{{ 'sections.image_with_text_alternating.placeholder.description' | t: default: 'Use the theme editor to add alternating rows of imagery and copy — ideal for craftsmanship, process, or materials storytelling.' }}</p>
+          </div>
+        </article>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.image_with_text_alternating.name",
+  "tag": "section",
+  "class": "section-image-with-text-alternating",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.image_with_text_alternating.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.image_with_text_alternating.settings.eyebrow.label",
+      "default": "Style 03"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.image_with_text_alternating.settings.heading.label",
+      "default": "Alternating Grid"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.image_with_text_alternating.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.image_with_text_alternating.settings.heading_tag.options.h2" },
+        { "value": "h3", "label": "t:sections.image_with_text_alternating.settings.heading_tag.options.h3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image_with_text_alternating.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "label": "t:sections.image_with_text_alternating.settings.row_gap.label",
+      "min": 32,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "select",
+      "id": "image_aspect",
+      "label": "t:sections.image_with_text_alternating.settings.image_aspect.label",
+      "options": [
+        { "value": "1/1", "label": "t:sections.image_with_text_alternating.settings.image_aspect.options.square" },
+        { "value": "4/5", "label": "t:sections.image_with_text_alternating.settings.image_aspect.options.portrait" },
+        { "value": "16/10", "label": "t:sections.image_with_text_alternating.settings.image_aspect.options.landscape" }
+      ],
+      "default": "1/1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "row",
+      "name": "t:sections.image_with_text_alternating.blocks.row.name",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "item_eyebrow",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.item_eyebrow.label",
+          "default": "Chapter 01"
+        },
+        {
+          "type": "text",
+          "id": "item_heading",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.item_heading.label",
+          "default": "Dovetail Perfection."
+        },
+        {
+          "type": "textarea",
+          "id": "item_description",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.item_description.label",
+          "default": "Every drawer box is joined with traditional dovetail cuts for maximum strength and a lifetime of silent action."
+        },
+        {
+          "type": "text",
+          "id": "item_cta_text",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.item_cta_text.label",
+          "info": "t:sections.image_with_text_alternating.blocks.row.settings.item_cta_text.info"
+        },
+        {
+          "type": "url",
+          "id": "item_cta_link",
+          "label": "t:sections.image_with_text_alternating.blocks.row.settings.item_cta_link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image_with_text_alternating.presets.name",
+      "blocks": [
+        {
+          "type": "row",
+          "settings": {
+            "item_eyebrow": "Chapter 01",
+            "item_heading": "Materials.",
+            "item_description": "Hand-selected hardwoods sourced from certified sustainable forests. Every board is graded for grain consistency, color, and density before it reaches our shop floor.",
+            "item_cta_text": "Learn more"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "item_eyebrow": "Chapter 02",
+            "item_heading": "Engineering.",
+            "item_description": "Precision CNC machining paired with hand-finished joinery. Our eleven-step finishing process creates surfaces that are tactilely soft yet incredibly durable.",
+            "item_cta_text": "See the process"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "item_eyebrow": "Chapter 03",
+            "item_heading": "Install.",
+            "item_description": "White-glove installation backed by a lifetime structural warranty. Our certified technicians deliver showroom-quality fit and finish in every home.",
+            "item_cta_text": "Book install"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

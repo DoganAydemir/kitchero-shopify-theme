@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Image with Text — Editorial Overlay (Style 02)
+   Large hero image with a white card overlapping from a merchant-chosen
+   corner. Mobile stacks the card below the image.
+   ========================================================================== */
+
+.kt-iwt-overlay {
+  --kt-iwt-padding: 96px;
+  --kt-iwt-aspect: 16/10;
+  --kt-iwt-card-max: 26rem;
+  --kt-iwt-card-offset-x: 2rem;
+  --kt-iwt-card-offset-y: -2rem;
+  --kt-iwt-card-radius: 14px;
+  --kt-iwt-image-radius: 18px;
+
+  padding-block: var(--kt-iwt-padding);
+  background-color: #fafaf9;
+}
+
+.kt-iwt-overlay__inner {
+  max-width: var(--page-width, 1440px);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 48px);
+}
+
+/* ----- Stage (image + card positioning context) ------------------------- */
+
+.kt-iwt-overlay__stage {
+  position: relative;
+}
+
+/* ----- Hero image ------------------------------------------------------- */
+
+.kt-iwt-overlay__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--kt-iwt-aspect);
+  overflow: hidden;
+  border-radius: var(--kt-iwt-image-radius);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.18);
+  background-color: #f4f4f3;
+}
+
+.kt-iwt-overlay__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Mobile aspect override: the spec calls for 3/2 on mobile when 16/10
+   is the desktop choice. Narrower aspects stay as-configured. */
+@media (max-width: 749px) {
+  .kt-iwt-overlay__media {
+    aspect-ratio: 3/2;
+  }
+}
+
+/* ----- Overlay card ----------------------------------------------------- */
+
+.kt-iwt-overlay__card {
+  position: relative;
+  margin-top: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid #f0eeea;
+  border-radius: var(--kt-iwt-card-radius);
+  padding: 2rem;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.18);
+  max-width: 100%;
+}
+
+/* Desktop: absolute-position the card into the chosen corner */
+@media (min-width: 990px) {
+  .kt-iwt-overlay__card {
+    position: absolute;
+    margin-top: 0;
+    padding: 3rem;
+    max-width: var(--kt-iwt-card-max);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
+  }
+
+  .kt-iwt-overlay[data-corner="bottom-right"] .kt-iwt-overlay__card {
+    bottom: var(--kt-iwt-card-offset-y);
+    right: var(--kt-iwt-card-offset-x);
+  }
+
+  .kt-iwt-overlay[data-corner="bottom-left"] .kt-iwt-overlay__card {
+    bottom: var(--kt-iwt-card-offset-y);
+    left: var(--kt-iwt-card-offset-x);
+  }
+
+  .kt-iwt-overlay[data-corner="top-right"] .kt-iwt-overlay__card {
+    top: var(--kt-iwt-card-offset-y);
+    right: var(--kt-iwt-card-offset-x);
+  }
+
+  .kt-iwt-overlay[data-corner="top-left"] .kt-iwt-overlay__card {
+    top: var(--kt-iwt-card-offset-y);
+    left: var(--kt-iwt-card-offset-x);
+  }
+}
+
+/* ----- Card content ----------------------------------------------------- */
+
+.kt-iwt-overlay__eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #a8a29e;
+  margin-bottom: 1rem;
+}
+
+.kt-iwt-overlay__heading {
+  font-family: var(--font-accent-family, Georgia, "Times New Roman", serif);
+  font-weight: 400;
+  color: #1c1917;
+  font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+}
+
+.kt-iwt-overlay__description {
+  color: #78716c;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* ----- CTA arrow link --------------------------------------------------- */
+
+.kt-iwt-overlay__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 1.5rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1c1917;
+  text-decoration: none;
+  transition: gap 0.3s ease;
+}
+
+.kt-iwt-overlay__cta:hover,
+.kt-iwt-overlay__cta:focus-visible {
+  gap: 1.125rem;
+}
+
+.kt-iwt-overlay__cta:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.kt-iwt-overlay__cta-icon {
+  color: #a8a29e;
+  transition: color 0.3s ease, transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.kt-iwt-overlay__cta:hover .kt-iwt-overlay__cta-icon,
+.kt-iwt-overlay__cta:focus-visible .kt-iwt-overlay__cta-icon {
+  color: #1c1917;
+  transform: translateX(2px);
+}
+
+/* ----- Reduced motion --------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-iwt-overlay__cta,
+  .kt-iwt-overlay__cta-icon {
+    transition: none;
+  }
+}

@@ -1,0 +1,231 @@
+{{ 'section-image-with-text-overlay.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Image with Text — Editorial Overlay (Style 02)
+  Large hero image with an offset white card overlapping from a merchant-chosen
+  corner. Card contains eyebrow, serif heading, description, and optional arrow
+  CTA. On mobile the card stacks underneath the image.
+{%- endcomment -%}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign card_corner = section.settings.card_corner | default: 'bottom-right' -%}
+{%- assign image_aspect = section.settings.image_aspect | default: '16/10' -%}
+{%- assign vertical_padding = section.settings.vertical_padding | default: 96 -%}
+
+<section
+  class="kt-iwt-overlay"
+  data-section-id="{{ section.id }}"
+  data-section-type="image-with-text-overlay"
+  data-corner="{{ card_corner }}"
+  style="--kt-iwt-padding: {{ vertical_padding }}px; --kt-iwt-aspect: {{ image_aspect }};"
+>
+  <div class="kt-iwt-overlay__inner">
+    <div class="kt-iwt-overlay__stage">
+      {%- comment -%} Hero image {%- endcomment -%}
+      <div class="kt-iwt-overlay__media">
+        {%- if section.settings.image != blank -%}
+          {%- assign image_alt = section.settings.image.alt | default: section.settings.heading -%}
+          {{
+            section.settings.image
+            | image_url: width: 1800
+            | image_tag:
+              class: 'kt-iwt-overlay__image',
+              loading: 'lazy',
+              widths: '375, 550, 750, 1100, 1500, 1800',
+              sizes: '(min-width: 990px) 1200px, 100vw',
+              width: section.settings.image.width,
+              height: section.settings.image.height,
+              alt: image_alt
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-overlay__image' }}
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Overlay card {%- endcomment -%}
+      <div class="kt-iwt-overlay__card">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-iwt-overlay__eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-iwt-overlay__heading">
+            {{ section.settings.heading }}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="kt-iwt-overlay__description">{{ section.settings.description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.cta_text != blank -%}
+          <a
+            href="{{ section.settings.cta_link | default: routes.root_url }}"
+            class="kt-iwt-overlay__cta"
+          >
+            <span class="kt-iwt-overlay__cta-label">{{ section.settings.cta_text }}</span>
+            <svg
+              class="kt-iwt-overlay__cta-icon"
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.image-with-text-overlay.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-overlay.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.image-with-text-overlay.settings.eyebrow.label",
+      "default": "Sustainable Sourcing"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.image-with-text-overlay.settings.heading.label",
+      "default": "Responsibly sourced, masterfully built."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.image-with-text-overlay.settings.heading_tag.label",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.image-with-text-overlay.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.image-with-text-overlay.settings.heading_tag.options__2.label"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.image-with-text-overlay.settings.description.label",
+      "default": "We believe luxury shouldn't come at the expense of our planet. Every piece of lumber is FSC certified and sourced from sustainable North American forests."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-overlay.settings.header__cta.content"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.image-with-text-overlay.settings.cta_text.label",
+      "default": "Our stewardship"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.image-with-text-overlay.settings.cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-overlay.settings.header__media.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.image-with-text-overlay.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect",
+      "label": "t:sections.image-with-text-overlay.settings.image_aspect.label",
+      "options": [
+        {
+          "value": "16/10",
+          "label": "t:sections.image-with-text-overlay.settings.image_aspect.options__1.label"
+        },
+        {
+          "value": "3/2",
+          "label": "t:sections.image-with-text-overlay.settings.image_aspect.options__2.label"
+        },
+        {
+          "value": "1/1",
+          "label": "t:sections.image-with-text-overlay.settings.image_aspect.options__3.label"
+        },
+        {
+          "value": "4/5",
+          "label": "t:sections.image-with-text-overlay.settings.image_aspect.options__4.label"
+        }
+      ],
+      "default": "16/10"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-overlay.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "card_corner",
+      "label": "t:sections.image-with-text-overlay.settings.card_corner.label",
+      "options": [
+        {
+          "value": "bottom-right",
+          "label": "t:sections.image-with-text-overlay.settings.card_corner.options__1.label"
+        },
+        {
+          "value": "bottom-left",
+          "label": "t:sections.image-with-text-overlay.settings.card_corner.options__2.label"
+        },
+        {
+          "value": "top-right",
+          "label": "t:sections.image-with-text-overlay.settings.card_corner.options__3.label"
+        },
+        {
+          "value": "top-left",
+          "label": "t:sections.image-with-text-overlay.settings.card_corner.options__4.label"
+        }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:sections.image-with-text-overlay.settings.vertical_padding.label",
+      "min": 40,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 96
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-with-text-overlay.presets.name"
+    }
+  ]
+}
+{% endschema %}

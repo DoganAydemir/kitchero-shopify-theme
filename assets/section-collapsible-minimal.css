@@ -1,0 +1,194 @@
+/* ==========================================================================
+   Collapsible Content — Minimal Floating (Style 03)
+   Pure-CSS disclosures using <details>/<summary>.
+   Source: /kitchen theme/src/app/collapsible/page.tsx (STYLE 03)
+   ========================================================================== */
+
+.kt-collapsible-minimal {
+  background-color: #ffffff;
+  padding-block: 6rem; /* py-24 */
+}
+
+.kt-collapsible-minimal__inner {
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-minimal__inner {
+    padding-inline: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kt-collapsible-minimal__inner {
+    padding-inline: 6rem;
+  }
+}
+
+/* ---------- Header ---------- */
+.kt-collapsible-minimal__header {
+  margin-bottom: 5rem; /* mb-20 */
+  text-align: center;
+}
+
+.kt-collapsible-minimal__eyebrow {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #a8a29e; /* stone-400 */
+}
+
+.kt-collapsible-minimal__title {
+  margin: 0;
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 2.25rem; /* text-4xl */
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #1c1917; /* stone-900 */
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-minimal__title {
+    font-size: 3rem; /* text-5xl */
+  }
+}
+
+/* ---------- Grid ---------- */
+.kt-collapsible-minimal__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 2rem;      /* gap-x close to source (gap-x-12 -> 3rem; spec: 2rem) */
+  row-gap: 0.75rem;      /* gap-y 0.75rem per spec */
+}
+
+@media (min-width: 750px) {
+  .kt-collapsible-minimal__grid {
+    grid-template-columns: repeat(var(--kt-col-count, 2), minmax(0, 1fr));
+  }
+}
+
+/* ---------- Floating card ---------- */
+.kt-collapsible-minimal__item {
+  background-color: #ffffff;
+  border: 1px solid #e7e5e4; /* stone-200 */
+  border-radius: 0.75rem;    /* rounded-xl */
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%); /* shadow-sm */
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.kt-collapsible-minimal__item[open] {
+  border-color: #d6d3d1; /* stone-300 */
+  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 6%);
+}
+
+/* Hide the default disclosure marker across engines */
+.kt-collapsible-minimal__summary::-webkit-details-marker {
+  display: none;
+}
+
+.kt-collapsible-minimal__summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kt-collapsible-minimal__summary:focus {
+  outline: none;
+}
+
+.kt-collapsible-minimal__summary:focus-visible {
+  outline: 2px solid #1c1917; /* stone-900 */
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+
+.kt-collapsible-minimal__item-title {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #1c1917; /* stone-900 */
+  transition: color 300ms ease;
+}
+
+.kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__item-title {
+  color: #78716c; /* stone-500 */
+}
+
+/* ---------- Plus / minus icon (CSS-only, rotates 45deg when open) ---------- */
+.kt-collapsible-minimal__icon {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kt-collapsible-minimal__icon-h,
+.kt-collapsible-minimal__icon-v {
+  position: absolute;
+  background-color: #a8a29e; /* stone-400 */
+}
+
+.kt-collapsible-minimal__icon-h {
+  width: 100%;
+  height: 1px;
+}
+
+.kt-collapsible-minimal__icon-v {
+  width: 1px;
+  height: 100%;
+}
+
+.kt-collapsible-minimal__item[open] .kt-collapsible-minimal__icon {
+  transform: rotate(45deg);
+}
+
+/* ---------- Content panel ---------- */
+.kt-collapsible-minimal__panel {
+  padding-top: 0.75rem; /* pt-3 per spec */
+}
+
+.kt-collapsible-minimal__content {
+  font-size: 0.875rem;   /* text-sm */
+  line-height: 1.6;
+  color: #78716c;        /* stone-500 */
+  font-weight: 300;
+}
+
+.kt-collapsible-minimal__content > *:first-child {
+  margin-top: 0;
+}
+
+.kt-collapsible-minimal__content > *:last-child {
+  margin-bottom: 0;
+}
+
+.kt-collapsible-minimal__content a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .kt-collapsible-minimal__item,
+  .kt-collapsible-minimal__item-title,
+  .kt-collapsible-minimal__icon {
+    transition: none !important;
+  }
+}

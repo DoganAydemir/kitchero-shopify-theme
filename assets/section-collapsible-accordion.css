@@ -1,0 +1,276 @@
+/**
+ * Collapsible Content — Style 01 Bordered Accordion
+ * BEM: .kt-collapsible-accordion
+ *
+ * Vertical bordered list with numbered prefix, big serif titles,
+ * circular +/- toggle. Smooth expand via max-height transition.
+ */
+
+.kt-collapsible-accordion {
+  background: #ffffff;
+  color: #1c1917; /* stone-900 */
+  padding: 6rem 0;
+}
+
+.kt-collapsible-accordion__container {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__container {
+    padding: 0 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kt-collapsible-accordion__container {
+    padding: 0 6rem;
+  }
+}
+
+/* Header (eyebrow + heading) */
+.kt-collapsible-accordion__header {
+  margin-bottom: 4rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid #1c1917;
+}
+
+.kt-collapsible-accordion__eyebrow {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a8a29e; /* stone-400 */
+}
+
+.kt-collapsible-accordion__heading {
+  margin: 0;
+  font-family: var(--font-family-heading, 'Fraunces', 'Georgia', serif);
+  font-size: 1.875rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #1c1917;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__heading {
+    font-size: 2.25rem;
+  }
+}
+
+/* List */
+.kt-collapsible-accordion__list {
+  display: block;
+}
+
+/* Item */
+.kt-collapsible-accordion__item {
+  border-bottom: 1px solid #e7e5e4; /* stone-200 */
+  transition: background-color 0.5s ease;
+}
+
+.kt-collapsible-accordion__item:first-child {
+  border-top: 1px solid #e7e5e4;
+}
+
+.kt-collapsible-accordion__item[open] {
+  background-color: rgba(250, 250, 249, 0.5); /* stone-50/50 */
+}
+
+/* Summary — hide default marker */
+.kt-collapsible-accordion__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.kt-collapsible-accordion__summary::-webkit-details-marker {
+  display: none;
+}
+
+.kt-collapsible-accordion__summary::marker {
+  display: none;
+  content: '';
+}
+
+.kt-collapsible-accordion__summary:focus {
+  outline: none;
+}
+
+.kt-collapsible-accordion__summary:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Label (number + title) */
+.kt-collapsible-accordion__label {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__label {
+    gap: 1.5rem;
+  }
+}
+
+.kt-collapsible-accordion__number {
+  flex: 0 0 auto;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a8a29e;
+}
+
+.kt-collapsible-accordion__title {
+  font-family: var(--font-family-heading, 'Fraunces', 'Georgia', serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #1c1917;
+  transition: color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__title {
+    font-size: 1.875rem;
+  }
+}
+
+.kt-collapsible-accordion__summary:hover .kt-collapsible-accordion__title {
+  color: #78716c; /* stone-500 */
+}
+
+/* Toggle circle */
+.kt-collapsible-accordion__toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e7e5e4;
+  border-radius: 50%;
+  background-color: #fafaf9; /* stone-50 */
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.4s ease;
+}
+
+.kt-collapsible-accordion__summary:hover .kt-collapsible-accordion__toggle {
+  border-color: #a8a29e;
+}
+
+.kt-collapsible-accordion__item[open] .kt-collapsible-accordion__toggle {
+  background-color: #1c1917;
+  border-color: #1c1917;
+  transform: rotate(45deg);
+}
+
+.kt-collapsible-accordion__toggle-icon {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.kt-collapsible-accordion__toggle-bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #78716c;
+  transition: background-color 0.4s ease;
+}
+
+.kt-collapsible-accordion__toggle-bar--h {
+  width: 100%;
+  height: 1.5px;
+  transform: translate(-50%, -50%);
+}
+
+.kt-collapsible-accordion__toggle-bar--v {
+  width: 1.5px;
+  height: 100%;
+  transform: translate(-50%, -50%);
+}
+
+.kt-collapsible-accordion__item[open] .kt-collapsible-accordion__toggle-bar {
+  background-color: #ffffff;
+}
+
+/* Panel — JS-controlled height */
+.kt-collapsible-accordion__panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.4s ease,
+    opacity 0.4s ease,
+    padding 0.4s ease;
+}
+
+.kt-collapsible-accordion__item[open] .kt-collapsible-accordion__panel {
+  opacity: 1;
+}
+
+.kt-collapsible-accordion__content {
+  padding: 0 0 1.5rem 0;
+  padding-top: 1rem;
+  color: #78716c;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 44rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__content {
+    font-size: 1.125rem;
+    padding-left: 2.25rem; /* align with title indent after number */
+  }
+}
+
+.kt-collapsible-accordion__content > *:first-child {
+  margin-top: 0;
+}
+
+.kt-collapsible-accordion__content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* App block slot */
+.kt-collapsible-accordion__app-block {
+  padding: 1rem 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .kt-collapsible-accordion__item,
+  .kt-collapsible-accordion__title,
+  .kt-collapsible-accordion__toggle,
+  .kt-collapsible-accordion__toggle-bar,
+  .kt-collapsible-accordion__panel {
+    transition: none !important;
+  }
+
+  .kt-collapsible-accordion__item[open] .kt-collapsible-accordion__toggle {
+    transform: none;
+  }
+}
