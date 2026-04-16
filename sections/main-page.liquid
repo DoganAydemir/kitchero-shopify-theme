@@ -7,12 +7,18 @@
   assign header_count_text = section.settings.header_count_text
   assign heading_tag = section.settings.heading_tag | default: 'h1'
   assign content_max_width = section.settings.content_max_width | default: 800
+
+  assign pt_desktop = section.settings.padding_top | default: 0
+  assign pb_desktop = section.settings.padding_bottom | default: 96
+  assign pt_mobile = pt_desktop | times: 0.7 | round | at_least: 0
+  assign pb_mobile = pb_desktop | times: 0.7 | round | at_least: 32
 -%}
 
 <article
   class="kt-main-page"
   data-section-id="{{ section.id }}"
   data-section-type="main-page"
+  style="--kt-main-page-padding-top-mobile: {{ pt_mobile }}px; --kt-main-page-padding-bottom-mobile: {{ pb_mobile }}px; --kt-main-page-padding-top-desktop: {{ pt_desktop }}px; --kt-main-page-padding-bottom-desktop: {{ pb_desktop }}px;"
 >
   {%- if show_header -%}
     {%- render 'page-header-dotted',
@@ -118,6 +124,32 @@
       "step": 40,
       "unit": "px",
       "default": 800
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-page.settings.header__spacing.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.main-page.settings.padding_top.label",
+      "info": "t:sections.main-page.settings.padding_top.info",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.main-page.settings.padding_bottom.label",
+      "info": "t:sections.main-page.settings.padding_bottom.info",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
     }
   ],
   "blocks": [
