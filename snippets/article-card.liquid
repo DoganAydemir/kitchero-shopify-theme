@@ -1,15 +1,20 @@
 {%- comment -%}
-  Article Card — used in blog listing grid.
+  Article Card — used in blog listing grid, search results, and
+  related-articles. Birebir from Next.js /blog: portrait 3:4 thumb
+  with floating category pill, meta row (date + rule), big serif
+  title, 3-line clamped excerpt, and a "Read Article →" CTA with a
+  slide-up reveal on hover.
+
   Accepts:
-  - article: {Object} Shopify article
-  - show_author: {Boolean} (default: true)
+  - article: {Object} Shopify article (required)
+  - show_author: {Boolean} (default: false) — rarely used in editorial grids
   - show_date: {Boolean} (default: true)
   - show_excerpt: {Boolean} (default: true)
   - index: {Number} Zero-based index; first 3 get eager loading for LCP (default: 99)
 {%- endcomment -%}
 
 {%- liquid
-  assign show_author = show_author | default: true
+  assign show_author = show_author | default: false
   assign show_date = show_date | default: true
   assign show_excerpt = show_excerpt | default: true
   assign card_index = index | default: 99
@@ -28,28 +33,63 @@
 <a href="{{ article.url }}" class="kt-article-card">
   <div class="kt-article-card__image-wrap">
     {%- if article.image -%}
-      {{ article.image | image_url: width: 800 | image_tag: class: 'kt-article-card__image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: article.image.width, height: article.image.height, alt: article.title }}
+      {{
+        article.image
+        | image_url: width: 1200
+        | image_tag:
+          class: 'kt-article-card__image',
+          loading: img_loading,
+          fetchpriority: img_fetchpriority,
+          widths: '375, 550, 800, 1200',
+          sizes: '(min-width: 750px) 50vw, 100vw',
+          width: article.image.width,
+          height: article.image.height,
+          alt: article.title
+      }}
     {%- else -%}
       {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-article-card__image' }}
     {%- endif -%}
-  </div>
-  <div class="kt-article-card__content">
+
     {%- if article.tags.size > 0 -%}
       <span class="kt-article-card__category">{{ article.tags.first }}</span>
     {%- endif -%}
-    <h3 class="kt-article-card__title">{{ article.title }}</h3>
-    {%- if show_excerpt and article.excerpt_or_content != blank -%}
-      <p class="kt-article-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 20 }}</p>
+  </div>
+
+  <div class="kt-article-card__content">
+    {%- if show_date or show_author -%}
+      <div class="kt-article-card__meta">
+        {%- if show_date -%}
+          <time class="kt-article-card__date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+            {{ article.published_at | date: format: 'abbreviated_date' }}
+          </time>
+        {%- endif -%}
+        {%- if show_author -%}
+          <span class="kt-article-card__author">{{ article.author }}</span>
+        {%- endif -%}
+      </div>
     {%- endif -%}
-    <div class="kt-article-card__meta">
-      {%- if show_author -%}
-        <span class="kt-article-card__author">{{ article.author }}</span>
-      {%- endif -%}
-      {%- if show_date -%}
-        <time class="kt-article-card__date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
-          {{ article.published_at | date: format: 'abbreviated_date' }}
-        </time>
-      {%- endif -%}
-    </div>
+
+    <h2 class="kt-article-card__title">{{ article.title }}</h2>
+
+    {%- if show_excerpt and article.excerpt_or_content != blank -%}
+      <p class="kt-article-card__excerpt">
+        {{ article.excerpt_or_content | strip_html | truncatewords: 28 }}
+      </p>
+    {%- endif -%}
+
+    <span class="kt-article-card__cta">
+      <span class="kt-article-card__cta-label">
+        <span class="kt-article-card__cta-label-inner">
+          {{ 'sections.blog.read_article' | t | default: 'Read Article' }}
+        </span>
+        <span class="kt-article-card__cta-label-inner--ghost" aria-hidden="true">
+          {{ 'sections.blog.read_article' | t | default: 'Read Article' }}
+        </span>
+      </span>
+      <svg class="kt-article-card__cta-arrow" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </span>
   </div>
 </a>

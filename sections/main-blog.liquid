@@ -1,35 +1,42 @@
 {{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
 {{ 'component-article-card.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-blog" data-section-id="{{ section.id }}">
-  {%- comment -%} Hero {%- endcomment -%}
-  <div class="kt-blog__hero">
-    <div class="kt-blog__hero-pattern" aria-hidden="true">
-      <svg fill="none" width="100%" height="100%">
-        <defs>
-          <pattern id="blog-dots-{{ section.id }}" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1.2" fill="currentColor" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#blog-dots-{{ section.id }})" />
-      </svg>
-    </div>
-    <div class="page-width kt-blog__hero-inner">
-      <div>
-        <span class="kt-blog__label">{{ 'sections.blog.label' | t | default: 'The Journal' }}</span>
-        <h1 class="kt-blog__title">{{ blog.title }}</h1>
-      </div>
-      <span class="kt-blog__count">{{ blog.articles_count }} {{ 'sections.blog.articles' | t | default: 'Articles' }}</span>
-    </div>
-  </div>
+{%- comment -%}
+  Main Blog — listing template. Birebir from Next.js /blog page:
+  dotted editorial header + staggered 2-column masonry grid (odd
+  items get a vertical offset so the rhythm feels crafted, not
+  mechanical). Article thumbs are portrait 3:4 with a category pill
+  and a "Read Article →" slide reveal on hover.
 
-  {%- comment -%} Article Grid {%- endcomment -%}
-  <div class="page-width">
+  Pagination is standard Shopify {% paginate %}. Falls back cleanly
+  without JS.
+{%- endcomment -%}
+
+{%- if section.settings.show_header -%}
+  {%- render 'page-header-dotted',
+    eyebrow: section.settings.eyebrow | default: 'The Archives',
+    title: section.settings.heading | default: blog.title,
+    description: section.settings.description,
+    count_text: blog.articles_count | append: ' Articles',
+    heading_tag: section.settings.heading_tag | default: 'h1'
+  -%}
+{%- endif -%}
+
+<section class="kt-blog" data-section-id="{{ section.id }}">
+  <div class="page-width kt-blog__body">
     {%- paginate blog.articles by section.settings.articles_per_page -%}
       {%- if blog.articles.size > 0 -%}
         <div class="kt-blog__grid">
           {%- for article in blog.articles -%}
-            {%- render 'article-card', article: article, show_author: section.settings.show_author, show_date: section.settings.show_date, show_excerpt: section.settings.show_excerpt, index: forloop.index0 -%}
+            <div class="kt-blog__cell{% if forloop.index0 | modulo: 2 == 1 %} kt-blog__cell--offset{% endif %}">
+              {%- render 'article-card',
+                article: article,
+                show_author: section.settings.show_author,
+                show_date: section.settings.show_date,
+                show_excerpt: section.settings.show_excerpt,
+                index: forloop.index0
+              -%}
+            </div>
           {%- endfor -%}
         </div>
 
@@ -53,10 +60,75 @@
   "tag": "section",
   "class": "section",
   "settings": [
-    { "type": "range", "id": "articles_per_page", "min": 3, "max": 24, "step": 3, "default": 9, "label": "t:sections.main-blog.settings.articles_per_page.label" },
-    { "type": "checkbox", "id": "show_author", "label": "t:sections.main-blog.settings.show_author.label", "default": true },
-    { "type": "checkbox", "id": "show_date", "label": "t:sections.main-blog.settings.show_date.label", "default": true },
-    { "type": "checkbox", "id": "show_excerpt", "label": "t:sections.main-blog.settings.show_excerpt.label", "default": true }
+    {
+      "type": "header",
+      "content": "t:sections.main-blog.settings.header__header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "t:sections.main-blog.settings.show_header.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.main-blog.settings.eyebrow.label",
+      "default": "The Archives"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.main-blog.settings.heading.label",
+      "default": "The Journal."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.main-blog.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.main-blog.settings.description.label",
+      "default": "A curated record of architectural breakthroughs, design philosophies, and the evolution of the modern kitchen."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-blog.settings.header__grid.content"
+    },
+    {
+      "type": "range",
+      "id": "articles_per_page",
+      "min": 2,
+      "max": 24,
+      "step": 2,
+      "default": 8,
+      "label": "t:sections.main-blog.settings.articles_per_page.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:sections.main-blog.settings.show_author.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:sections.main-blog.settings.show_date.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "t:sections.main-blog.settings.show_excerpt.label",
+      "default": true
+    }
   ]
 }
 {% endschema %}

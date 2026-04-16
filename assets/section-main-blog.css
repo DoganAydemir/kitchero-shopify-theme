@@ -1,17 +1,67 @@
-/* Blog Listing — hero + grid container only.
-   Article card styles live in component-article-card.css so other
-   surfaces (search, related articles) can reuse them. */
+/* ============================================================
+   Blog Listing — /blog template.
+   Dotted header is rendered via the shared page-header-dotted
+   snippet (same vocabulary as collection / cart / deals). This
+   file styles the body grid + pagination + empty state.
 
-.kt-blog__hero { padding: 8rem 0 3rem; background: #fafaf9; border-bottom: 1px solid #e7e5e4; position: relative; overflow: hidden; }
-.kt-blog__hero-pattern { position: absolute; inset: 0; color: #78716c; opacity: 0.18; pointer-events: none; }
-.kt-blog__hero-pattern svg { width: 100%; height: 100%; }
-.kt-blog__hero-inner { display: flex; flex-direction: column; gap: 2rem; justify-content: space-between; position: relative; z-index: 1; }
-@media screen and (min-width: 750px) { .kt-blog__hero-inner { flex-direction: row; align-items: flex-end; } }
-.kt-blog__label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #78716c; margin-bottom: 1rem; display: block; }
-.kt-blog__title { font-family: var(--font-accent-family); font-size: 2.25rem; letter-spacing: -0.025em; color: #1c1917; margin: 0; }
-@media screen and (min-width: 750px) { .kt-blog__title { font-size: 3.75rem; } }
-.kt-blog__count { padding: 0.5rem 1rem; border: 1px solid #d6d3d1; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #78716c; white-space: nowrap; flex-shrink: 0; }
-.kt-blog__grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-top: 4rem; }
-@media screen and (min-width: 750px) { .kt-blog__grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; } }
-.kt-blog__pagination { margin-top: 4rem; display: flex; justify-content: center; }
-.kt-blog__empty { padding: 6rem 0; text-align: center; color: #78716c; }
+   Grid is a 2-column staggered masonry on desktop: every odd
+   card (0-indexed → second, fourth, …) is offset downward by
+   a generous margin-top, mirroring the Next.js /blog layout
+   where `idx % 2 !== 0 ? md:mt-32 : ''` gives the page its
+   editorial, hand-composed rhythm.
+
+   Card styles live in component-article-card.css so search
+   results and related-articles surfaces reuse them.
+   ============================================================ */
+
+.kt-blog {
+  background-color: #fafaf9;
+}
+
+.kt-blog__body {
+  padding: 4rem 1.5rem 6rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-blog__body {
+    padding: 5rem 2rem 8rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-blog__body {
+    padding: 6rem 2rem 10rem;
+  }
+}
+
+/* Mobile: single column, even gaps */
+.kt-blog__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+/* Desktop: 2 columns + staggered masonry offset */
+@media screen and (min-width: 750px) {
+  .kt-blog__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3rem;
+    row-gap: 6rem;
+  }
+
+  .kt-blog__cell--offset {
+    margin-top: 8rem;
+  }
+}
+
+.kt-blog__pagination {
+  margin-top: 6rem;
+  display: flex;
+  justify-content: center;
+}
+
+.kt-blog__empty {
+  padding: 6rem 0;
+  text-align: center;
+  color: #78716c;
+}
