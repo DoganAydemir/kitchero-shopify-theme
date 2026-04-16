@@ -1,0 +1,347 @@
+{{ 'section-gallery-marquee.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign duration = section.settings.scroll_duration_seconds | default: 40
+  assign pause_on_hover = section.settings.pause_on_hover
+-%}
+
+<section
+  class="kt-gallery-marquee"
+  data-section-id="{{ section.id }}"
+  data-section-type="gallery-marquee"
+  data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
+  style="--kt-marquee-duration: {{ duration }}s;"
+>
+  {%- comment -%} Heading block {%- endcomment -%}
+  {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+    <div class="kt-gallery-marquee__container">
+      <div class="kt-gallery-marquee__heading-block">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-gallery-marquee__eyebrow">{{ section.settings.eyebrow | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-gallery-marquee__heading">
+            {{- section.settings.heading | escape -}}
+          </{{ heading_tag }}>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Split blocks into top/bottom rows {%- endcomment -%}
+  {%- assign has_top = false -%}
+  {%- assign has_bottom = false -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'image' -%}
+      {%- if block.settings.row == 'bottom' -%}
+        {%- assign has_bottom = true -%}
+      {%- else -%}
+        {%- assign has_top = true -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%} Row 1 — scrolls LEFT (default direction) {%- endcomment -%}
+  <div
+    class="kt-gallery-marquee__row"
+    aria-label="{{ 'sections.gallery-marquee.row_top_label' | t }}"
+  >
+    <div class="kt-gallery-marquee__track" data-marquee-track>
+      {%- if has_top -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'image' and block.settings.row != 'bottom' -%}
+            {%- assign item_tag = 'figure' -%}
+            {%- if block.settings.url != blank -%}{%- assign item_tag = 'a' -%}{%- endif -%}
+            <{{ item_tag }}
+              class="kt-gallery-marquee__item"
+              {% if block.settings.url != blank %}href="{{ block.settings.url }}"{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <div class="kt-gallery-marquee__media">
+                {%- if block.settings.image != blank -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '320, 480, 640, 800, 1000',
+                      sizes: '(min-width: 1024px) 26vw, (min-width: 768px) 36vw, 68vw',
+                      class: 'kt-gallery-marquee__image',
+                      alt: block.settings.caption_title
+                  }}
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
+                {%- endif -%}
+              </div>
+              {%- if block.settings.caption_title != blank or block.settings.caption_subtitle != blank -%}
+                <div class="kt-gallery-marquee__overlay" aria-hidden="true"></div>
+                <figcaption class="kt-gallery-marquee__caption">
+                  {%- if block.settings.caption_subtitle != blank -%}
+                    <span class="kt-gallery-marquee__caption-eyebrow">
+                      {{- block.settings.caption_subtitle | escape -}}
+                    </span>
+                  {%- endif -%}
+                  {%- if block.settings.caption_title != blank -%}
+                    <span class="kt-gallery-marquee__caption-title">
+                      {{- block.settings.caption_title | escape -}}
+                    </span>
+                  {%- endif -%}
+                </figcaption>
+              {%- endif -%}
+            </{{ item_tag }}>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%} Placeholder items so the row never renders empty {%- endcomment -%}
+        {%- for i in (1..4) -%}
+          <figure class="kt-gallery-marquee__item kt-gallery-marquee__item--placeholder">
+            <div class="kt-gallery-marquee__media">
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
+            </div>
+          </figure>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Row 2 — scrolls RIGHT (reverse direction) {%- endcomment -%}
+  <div
+    class="kt-gallery-marquee__row kt-gallery-marquee__row--reverse"
+    aria-label="{{ 'sections.gallery-marquee.row_bottom_label' | t }}"
+  >
+    <div class="kt-gallery-marquee__track kt-gallery-marquee__track--reverse" data-marquee-track>
+      {%- if has_bottom -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'image' and block.settings.row == 'bottom' -%}
+            {%- assign item_tag = 'figure' -%}
+            {%- if block.settings.url != blank -%}{%- assign item_tag = 'a' -%}{%- endif -%}
+            <{{ item_tag }}
+              class="kt-gallery-marquee__item"
+              {% if block.settings.url != blank %}href="{{ block.settings.url }}"{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <div class="kt-gallery-marquee__media">
+                {%- if block.settings.image != blank -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '320, 480, 640, 800, 1000',
+                      sizes: '(min-width: 1024px) 22vw, (min-width: 768px) 32vw, 60vw',
+                      class: 'kt-gallery-marquee__image',
+                      alt: block.settings.caption_title
+                  }}
+                {%- else -%}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
+                {%- endif -%}
+              </div>
+              {%- if block.settings.caption_title != blank or block.settings.caption_subtitle != blank -%}
+                <div class="kt-gallery-marquee__overlay" aria-hidden="true"></div>
+                <figcaption class="kt-gallery-marquee__caption">
+                  {%- if block.settings.caption_subtitle != blank -%}
+                    <span class="kt-gallery-marquee__caption-eyebrow">
+                      {{- block.settings.caption_subtitle | escape -}}
+                    </span>
+                  {%- endif -%}
+                  {%- if block.settings.caption_title != blank -%}
+                    <span class="kt-gallery-marquee__caption-title">
+                      {{- block.settings.caption_title | escape -}}
+                    </span>
+                  {%- endif -%}
+                </figcaption>
+              {%- endif -%}
+            </{{ item_tag }}>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..4) -%}
+          <figure class="kt-gallery-marquee__item kt-gallery-marquee__item--placeholder">
+            <div class="kt-gallery-marquee__media">
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
+            </div>
+          </figure>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} App blocks render outside the marquee rows {%- endcomment -%}
+  {%- assign has_app_blocks = false -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type != 'image' -%}
+      {%- assign has_app_blocks = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if has_app_blocks -%}
+    <div class="kt-gallery-marquee__apps">
+      {%- for block in section.blocks -%}
+        {%- if block.type != 'image' -%}
+          <div class="kt-gallery-marquee__app-block" {{ block.shopify_attributes }}>
+            {% render block %}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+
+<script src="{{ 'section-gallery-marquee.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.gallery-marquee.name",
+  "tag": "section",
+  "class": "section kt-gallery-marquee-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.gallery-marquee.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.gallery-marquee.settings.eyebrow.label",
+      "default": "Gallery Style 01"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.gallery-marquee.settings.heading.label",
+      "default": "The Marquee Wall"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.gallery-marquee.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery-marquee.settings.header_animation.content"
+    },
+    {
+      "type": "range",
+      "id": "scroll_duration_seconds",
+      "label": "t:sections.gallery-marquee.settings.scroll_duration_seconds.label",
+      "info": "t:sections.gallery-marquee.settings.scroll_duration_seconds.info",
+      "min": 15,
+      "max": 120,
+      "step": 5,
+      "unit": "s",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "t:sections.gallery-marquee.settings.pause_on_hover.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.gallery-marquee.blocks.image.name",
+      "limit": 20,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.gallery-marquee.blocks.image.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "caption_title",
+          "label": "t:sections.gallery-marquee.blocks.image.settings.caption_title.label",
+          "default": "Case study title"
+        },
+        {
+          "type": "text",
+          "id": "caption_subtitle",
+          "label": "t:sections.gallery-marquee.blocks.image.settings.caption_subtitle.label",
+          "default": "Case Study"
+        },
+        {
+          "type": "select",
+          "id": "row",
+          "label": "t:sections.gallery-marquee.blocks.image.settings.row.label",
+          "options": [
+            { "value": "top", "label": "t:sections.gallery-marquee.blocks.image.settings.row.options__top.label" },
+            { "value": "bottom", "label": "t:sections.gallery-marquee.blocks.image.settings.row.options__bottom.label" }
+          ],
+          "default": "top"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "t:sections.gallery-marquee.blocks.image.settings.url.label"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.gallery-marquee.presets.name",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Soho Loft",
+            "caption_subtitle": "Kitchen · London",
+            "row": "top"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Ercan Concept",
+            "caption_subtitle": "Kitchen · Istanbul",
+            "row": "top"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Midnight Imperial",
+            "caption_subtitle": "Kitchen · New York",
+            "row": "top"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Nordic Slab",
+            "caption_subtitle": "Kitchen · Copenhagen",
+            "row": "bottom"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Carbon Shaker",
+            "caption_subtitle": "Kitchen · Toronto",
+            "row": "bottom"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Atelier Mono",
+            "caption_subtitle": "Kitchen · Paris",
+            "row": "bottom"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

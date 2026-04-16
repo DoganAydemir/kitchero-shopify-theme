@@ -1,0 +1,236 @@
+{{ 'section-image-with-text-parallax.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Image with Text — Standard Split Parallax (Style 01)
+  Two-column split on desktop (>=990px): one side hosts a tall image inside a
+  rounded card with a subtle parallax translate on scroll; the other side
+  carries an eyebrow, serif heading, description and an optional CTA link
+  with a widen-on-hover arrow.
+
+  The parallax translate is applied by JS via a CSS variable
+  (--kt-iwt-parallax-y) so merchants can disable it by setting the intensity
+  range to 0, and users with prefers-reduced-motion never receive it.
+{%- endcomment -%}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign image_position = section.settings.image_position | default: 'left' -%}
+{%- assign image_aspect = section.settings.image_aspect | default: '4/5' -%}
+{%- assign parallax_intensity = section.settings.parallax_intensity | default: 10 -%}
+{%- assign modifier_class = 'kt-iwt-parallax--image-' | append: image_position -%}
+
+<section
+  class="kt-iwt-parallax {{ modifier_class }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="image-with-text-parallax"
+  data-parallax-section
+  data-parallax-intensity="{{ parallax_intensity }}"
+  style="--kt-iwt-parallax-aspect: {{ image_aspect }}; --kt-iwt-parallax-intensity: {{ parallax_intensity }};"
+>
+  <div class="kt-iwt-parallax__inner">
+    <div class="kt-iwt-parallax__grid">
+      {%- comment -%} Image pane {%- endcomment -%}
+      <div class="kt-iwt-parallax__media">
+        <div class="kt-iwt-parallax__media-frame" data-parallax-image>
+          {%- if section.settings.image != blank -%}
+            {%- assign image_alt = section.settings.image.alt | default: section.settings.heading -%}
+            {{
+              section.settings.image
+              | image_url: width: 1600
+              | image_tag:
+                class: 'kt-iwt-parallax__image',
+                loading: 'lazy',
+                widths: '375, 550, 750, 1100, 1500, 1800',
+                sizes: '(min-width: 990px) 50vw, 100vw',
+                width: section.settings.image.width,
+                height: section.settings.image.height,
+                alt: image_alt
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-parallax__image' }}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} Text pane {%- endcomment -%}
+      <div class="kt-iwt-parallax__text">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-iwt-parallax__eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-iwt-parallax__heading">
+            {{ section.settings.heading }}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="kt-iwt-parallax__description">{{ section.settings.description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.cta_text != blank -%}
+          <a
+            href="{{ section.settings.cta_link | default: routes.root_url }}"
+            class="kt-iwt-parallax__cta"
+          >
+            <span class="kt-iwt-parallax__cta-label">{{ section.settings.cta_text }}</span>
+            <svg
+              class="kt-iwt-parallax__cta-icon"
+              aria-hidden="true"
+              focusable="false"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'section-image-with-text-parallax.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.image-with-text-parallax.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-parallax.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.image-with-text-parallax.settings.eyebrow.label",
+      "default": "Craftsmanship"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.image-with-text-parallax.settings.heading.label",
+      "default": "Engineering the soul of the home."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.image-with-text-parallax.settings.heading_tag.label",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.image-with-text-parallax.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.image-with-text-parallax.settings.heading_tag.options__2.label"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.image-with-text-parallax.settings.description.label",
+      "default": "Every Kitchero cabinet is a masterclass in precision. From hand-selected timber to precision CNC machining, we ensure that the centerpiece of your home is built for a lifetime of hard use."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-parallax.settings.header__cta.content"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.image-with-text-parallax.settings.cta_text.label",
+      "default": "Explore Process"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.image-with-text-parallax.settings.cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-parallax.settings.header__media.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.image-with-text-parallax.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.image-with-text-parallax.settings.image_position.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.image-with-text-parallax.settings.image_position.options__1.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.image-with-text-parallax.settings.image_position.options__2.label"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect",
+      "label": "t:sections.image-with-text-parallax.settings.image_aspect.label",
+      "options": [
+        {
+          "value": "4/5",
+          "label": "t:sections.image-with-text-parallax.settings.image_aspect.options__1.label"
+        },
+        {
+          "value": "1/1",
+          "label": "t:sections.image-with-text-parallax.settings.image_aspect.options__2.label"
+        },
+        {
+          "value": "3/2",
+          "label": "t:sections.image-with-text-parallax.settings.image_aspect.options__3.label"
+        },
+        {
+          "value": "16/10",
+          "label": "t:sections.image-with-text-parallax.settings.image_aspect.options__4.label"
+        }
+      ],
+      "default": "4/5"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-with-text-parallax.settings.header__motion.content"
+    },
+    {
+      "type": "range",
+      "id": "parallax_intensity",
+      "label": "t:sections.image-with-text-parallax.settings.parallax_intensity.label",
+      "info": "t:sections.image-with-text-parallax.settings.parallax_intensity.info",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "%",
+      "default": 10
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-with-text-parallax.presets.name"
+    }
+  ]
+}
+{% endschema %}

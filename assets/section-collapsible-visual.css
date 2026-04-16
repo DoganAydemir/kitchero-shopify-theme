@@ -1,0 +1,309 @@
+/**
+ * Collapsible Content — Style 02 Full-Width Visual Reveal
+ * BEM: .kt-collapsible-visual
+ *
+ * Dark two-column section. Left column is a single-open accordion
+ * of numbered feature items, right column cross-fades a stack of
+ * aspect-ratio locked images driven by the active item.
+ */
+
+.kt-collapsible-visual {
+  background: #0c0a09; /* stone-950 */
+  color: #fafaf9;
+  padding: 6rem 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual {
+    padding: 8rem 0;
+  }
+}
+
+.kt-collapsible-visual__container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual__container {
+    padding: 0 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kt-collapsible-visual__container {
+    padding: 0 4rem;
+  }
+}
+
+/* Header ------------------------------------------------------- */
+
+.kt-collapsible-visual__header {
+  margin-bottom: 3rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid #a8a29e; /* stone-400 */
+  max-width: 42rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual__header {
+    margin-bottom: 4rem;
+  }
+}
+
+.kt-collapsible-visual__eyebrow {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #78716c; /* stone-500 */
+}
+
+.kt-collapsible-visual__heading {
+  margin: 0;
+  font-family: var(--font-accent-family, 'Fraunces', 'Georgia', serif);
+  font-size: 1.875rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fafaf9;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual__heading {
+    font-size: 2.5rem;
+  }
+}
+
+.kt-collapsible-visual__description {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #a8a29e; /* stone-400 */
+  max-width: 36rem;
+}
+
+/* Grid --------------------------------------------------------- */
+
+.kt-collapsible-visual__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 1024px) {
+  .kt-collapsible-visual__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+/* Left column: items ------------------------------------------ */
+
+.kt-collapsible-visual__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.kt-collapsible-visual__item {
+  display: block;
+  width: 100%;
+  padding: 1.75rem 0 1.75rem 1.25rem;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.5s ease,
+    opacity 0.5s ease,
+    background-color 0.5s ease;
+  opacity: 0.5;
+}
+
+.kt-collapsible-visual__item + .kt-collapsible-visual__item {
+  border-top: 1px solid rgba(168, 162, 158, 0.15); /* stone-400 @15% */
+}
+
+.kt-collapsible-visual__item:hover {
+  opacity: 0.85;
+}
+
+.kt-collapsible-visual__item.is-active {
+  opacity: 1;
+  border-left-color: #fafaf9;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.kt-collapsible-visual__item:focus {
+  outline: none;
+}
+
+.kt-collapsible-visual__item:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Item head (eyebrow + title) */
+
+.kt-collapsible-visual__item-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kt-collapsible-visual__item-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #78716c; /* stone-500 */
+}
+
+.kt-collapsible-visual__item.is-active .kt-collapsible-visual__item-eyebrow {
+  color: #a8a29e; /* stone-400 */
+}
+
+.kt-collapsible-visual__item-title {
+  display: block;
+  font-family: var(--font-accent-family, 'Fraunces', 'Georgia', serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #fafaf9;
+  transition: color 0.35s ease;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual__item-title {
+    font-size: 1.75rem;
+  }
+}
+
+/* Panel (content) — JS controls max-height for smooth expand */
+
+.kt-collapsible-visual__panel {
+  display: block;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease;
+}
+
+.kt-collapsible-visual__item.is-active .kt-collapsible-visual__panel {
+  opacity: 1;
+}
+
+.kt-collapsible-visual__content {
+  display: block;
+  padding-top: 1rem;
+  color: #a8a29e; /* stone-400 */
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 32rem;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-visual__content {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Right column: visual stack ---------------------------------- */
+
+.kt-collapsible-visual__visual {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .kt-collapsible-visual__visual {
+    position: sticky;
+    top: 2.5rem;
+    align-self: start;
+  }
+}
+
+.kt-collapsible-visual__visual-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: #292524; /* stone-800 */
+}
+
+.kt-collapsible-visual__image {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.kt-collapsible-visual__image.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.kt-collapsible-visual__image img,
+.kt-collapsible-visual__image svg,
+.kt-collapsible-visual__placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-collapsible-visual__image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 10, 9, 0) 0%,
+    rgba(12, 10, 9, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+/* App block slot */
+.kt-collapsible-visual__app-block {
+  padding: 1rem 0;
+}
+
+/* Reduced motion ---------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-collapsible-visual__item,
+  .kt-collapsible-visual__item-title,
+  .kt-collapsible-visual__panel,
+  .kt-collapsible-visual__image {
+    transition: none !important;
+  }
+
+  .kt-collapsible-visual__image {
+    transform: none;
+  }
+}

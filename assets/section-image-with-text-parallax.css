@@ -1,0 +1,208 @@
+/* ==========================================================================
+   Image with Text — Standard Split Parallax (Style 01)
+   A refined two-column editorial split. Image pane carries a subtle parallax
+   translate applied via --kt-iwt-parallax-y (set by JS). Text pane carries
+   eyebrow, serif heading, description and an arrow CTA with widen-on-hover.
+   ========================================================================== */
+
+.kt-iwt-parallax {
+  --kt-iwt-parallax-aspect: 4/5;
+  --kt-iwt-parallax-intensity: 10;
+  --kt-iwt-parallax-radius: 16px;
+  --kt-iwt-parallax-y: 0px;
+
+  padding-block: 6rem;
+  background-color: #ffffff;
+}
+
+.kt-iwt-parallax__inner {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-iwt-parallax__inner {
+    padding-inline: 3rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-iwt-parallax__inner {
+    padding-inline: 6rem;
+  }
+}
+
+/* ----- Grid ------------------------------------------------------------- */
+
+.kt-iwt-parallax__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-iwt-parallax__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+  }
+}
+
+/* ----- Media pane ------------------------------------------------------- */
+
+.kt-iwt-parallax__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--kt-iwt-parallax-aspect);
+  overflow: hidden;
+  border-radius: var(--kt-iwt-parallax-radius);
+  background-color: #f4f4f3;
+}
+
+/*
+ * The frame is the element JS moves. It's slightly taller than the visible
+ * window so the translateY reveal/exit doesn't expose empty space, and we
+ * nudge it upward by half the range so the "neutral" position sits centered.
+ */
+.kt-iwt-parallax__media-frame {
+  position: absolute;
+  inset: calc(var(--kt-iwt-parallax-intensity) * -1%) 0 calc(var(--kt-iwt-parallax-intensity) * -1%) 0;
+  width: 100%;
+  will-change: transform;
+  transform: translate3d(0, var(--kt-iwt-parallax-y), 0);
+  transition: transform 60ms linear;
+}
+
+.kt-iwt-parallax__image,
+.kt-iwt-parallax .placeholder-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .kt-iwt-parallax__media:hover .kt-iwt-parallax__image {
+    transform: scale(1.03);
+  }
+}
+
+/* ----- Text pane -------------------------------------------------------- */
+
+.kt-iwt-parallax__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.kt-iwt-parallax__eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #a8a29e; /* stone-400 */
+  line-height: 1.4;
+}
+
+.kt-iwt-parallax__heading {
+  font-family: var(--font-accent-family, Georgia, "Times New Roman", serif);
+  font-weight: 400;
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: #1c1917; /* stone-900 */
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-iwt-parallax__heading {
+    font-size: clamp(2rem, 4vw, 3.25rem);
+  }
+}
+
+.kt-iwt-parallax__description {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: #78716c; /* stone-500 */
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-iwt-parallax__description {
+    font-size: 1.125rem;
+  }
+}
+
+/* ----- CTA -------------------------------------------------------------- */
+
+.kt-iwt-parallax__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  color: #1c1917;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: gap 250ms ease, color 250ms ease;
+  padding: 0.25rem 0;
+  border-radius: 2px;
+}
+
+.kt-iwt-parallax__cta-icon {
+  color: #a8a29e;
+  transition: color 250ms ease, transform 250ms ease;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .kt-iwt-parallax__cta:hover {
+    gap: 1.25rem;
+  }
+
+  .kt-iwt-parallax__cta:hover .kt-iwt-parallax__cta-icon {
+    color: #1c1917;
+  }
+}
+
+.kt-iwt-parallax__cta:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 4px;
+}
+
+/* ----- Image position modifiers ---------------------------------------- */
+
+@media screen and (min-width: 990px) {
+  .kt-iwt-parallax--image-right .kt-iwt-parallax__media {
+    order: 2;
+  }
+
+  .kt-iwt-parallax--image-right .kt-iwt-parallax__text {
+    order: 1;
+  }
+}
+
+/* ----- Reduced motion --------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-iwt-parallax__media-frame {
+    inset: 0;
+    transform: none;
+    transition: none;
+  }
+
+  .kt-iwt-parallax__image,
+  .kt-iwt-parallax__cta,
+  .kt-iwt-parallax__cta-icon {
+    transition: none;
+  }
+
+  .kt-iwt-parallax__media:hover .kt-iwt-parallax__image {
+    transform: none;
+  }
+}

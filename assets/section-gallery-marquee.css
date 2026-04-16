@@ -1,0 +1,249 @@
+/* =========================================================================
+   Gallery Marquee — Style 01: The Marquee Wall
+   BEM prefix: .kt-gallery-marquee
+   Two horizontal marquee rows scrolling in opposite directions, with
+   hover-reveal captions and pause-on-hover behavior.
+   ========================================================================= */
+
+.kt-gallery-marquee {
+  --kt-marquee-duration: 40s;
+  --kt-gallery-item-gap: 1rem;
+  --kt-gallery-item-radius: 0.75rem; /* rounded-xl */
+  background: #ffffff;
+  padding: 6rem 0; /* py-24 */
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------------------------------------------------------------- Heading */
+.kt-gallery-marquee__container {
+  max-width: 1280px;
+  margin: 0 auto 4rem;
+  padding: 0 1.5rem;
+}
+
+.kt-gallery-marquee__heading-block {
+  border-left: 2px solid #1c1917; /* stone-900 */
+  padding-left: 1.5rem;
+  max-width: 40rem;
+}
+
+.kt-gallery-marquee__eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a8a29e; /* stone-400 */
+  margin-bottom: 1rem;
+}
+
+.kt-gallery-marquee__heading {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 2.25rem; /* text-4xl */
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-style: italic;
+  font-weight: 400;
+  color: #1c1917; /* stone-900 */
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .kt-gallery-marquee__heading {
+    font-size: 3rem; /* text-5xl */
+  }
+}
+
+/* ---------------------------------------------------------------- Row */
+.kt-gallery-marquee__row {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 0.5rem 0;
+}
+
+.kt-gallery-marquee__row + .kt-gallery-marquee__row {
+  margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------------- Track */
+.kt-gallery-marquee__track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--kt-gallery-item-gap);
+  width: max-content;
+  animation: kt-gallery-marquee-scroll var(--kt-marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.kt-gallery-marquee__track--reverse {
+  animation-direction: reverse;
+}
+
+/* Pause on hover for entire row (section-level class toggled by JS for
+   keyboard focus, CSS hover for pointer users). */
+.kt-gallery-marquee__row:hover .kt-gallery-marquee__track,
+.kt-gallery-marquee__row:focus-within .kt-gallery-marquee__track,
+.kt-gallery-marquee--paused .kt-gallery-marquee__track {
+  animation-play-state: paused;
+}
+
+@keyframes kt-gallery-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ---------------------------------------------------------------- Item */
+.kt-gallery-marquee__item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 20rem; /* w-80 */
+  height: 20rem; /* h-80 */
+  border-radius: var(--kt-gallery-item-radius);
+  overflow: hidden;
+  background: #f5f5f4; /* stone-100 */
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .kt-gallery-marquee__item {
+    width: 16rem;
+    height: 16rem;
+  }
+}
+
+/* Focus ring for keyboard users on linkable tiles */
+.kt-gallery-marquee__item:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 4px;
+}
+
+/* ---------------------------------------------------------------- Media */
+.kt-gallery-marquee__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.kt-gallery-marquee__image,
+.kt-gallery-marquee__placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.5s ease-out;
+}
+
+.kt-gallery-marquee__item:hover .kt-gallery-marquee__image {
+  transform: scale(1.05);
+}
+
+/* ---------------------------------------------------------------- Overlay */
+.kt-gallery-marquee__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(12, 10, 9, 0.7) 0%,
+    rgba(12, 10, 9, 0) 60%,
+    rgba(12, 10, 9, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.kt-gallery-marquee__item:hover .kt-gallery-marquee__overlay,
+.kt-gallery-marquee__item:focus-visible .kt-gallery-marquee__overlay {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------- Caption */
+.kt-gallery-marquee__caption {
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  color: #ffffff;
+  transform: translateY(0.75rem);
+  opacity: 0;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
+  pointer-events: none;
+  margin: 0;
+}
+
+.kt-gallery-marquee__item:hover .kt-gallery-marquee__caption,
+.kt-gallery-marquee__item:focus-visible .kt-gallery-marquee__caption {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.kt-gallery-marquee__caption-eyebrow {
+  display: block;
+  font-size: 0.625rem; /* 10px */
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #d6d3d1; /* stone-300 */
+  margin-bottom: 0.5rem;
+}
+
+.kt-gallery-marquee__caption-title {
+  display: block;
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.25rem; /* text-xl */
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .kt-gallery-marquee__caption-title {
+    font-size: 1.5rem; /* text-2xl */
+  }
+}
+
+/* ---------------------------------------------------------------- App blocks */
+.kt-gallery-marquee__apps {
+  max-width: 1280px;
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.kt-gallery-marquee__app-block + .kt-gallery-marquee__app-block {
+  margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------------- Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .kt-gallery-marquee__track,
+  .kt-gallery-marquee__track--reverse {
+    animation: none;
+    transform: none;
+  }
+  .kt-gallery-marquee__image {
+    transition: none;
+  }
+  .kt-gallery-marquee__item:hover .kt-gallery-marquee__image {
+    transform: none;
+  }
+  .kt-gallery-marquee__overlay,
+  .kt-gallery-marquee__caption {
+    transition: none;
+  }
+}
