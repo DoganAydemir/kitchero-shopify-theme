@@ -328,10 +328,13 @@ The theme includes alternate page templates that you can assign to any page:
 
 1. **Create a page:** **Online Store > Pages > Add page**.
 2. **Assign a template:** Under **Theme template**, choose one of:
+   - `page` (default) — Dotted hero header + rich-text body. Merchant-configurable eyebrow, description, badge, and top/bottom padding sliders.
    - `page.about` — About page with BeforeAfter + gallery
    - `page.contact` — Contact page with showroom grid + contact form
    - `page.deals` — Deals grid linking to collections
+   - `page.financing` — Financing partners block over the default page body
    - `page.newsletter` — Newsletter signup landing page
+   - `page.testimonials` — Testimonials showcase landing page
 3. **Save** the page.
 4. **Customize:** In the theme editor, navigate to the page and edit the sections.
 

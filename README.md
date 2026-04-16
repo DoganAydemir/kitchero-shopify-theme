@@ -114,23 +114,29 @@ For collections and products, you can assign alternate templates in the admin:
 │   └── password.liquid           ← password page
 │
 ├── templates/
-│   ├── index.json                ← home (14 sections)
-│   ├── product.json              ← e-commerce product page
-│   ├── product.showroom.json     ← showroom product page (alternate)
-│   ├── collection.json           ← horizontal filter bar
-│   ├── collection.drawer.json    ← right-side drawer filters (alternate)
-│   ├── collection.vertical.json  ← left sidebar filters (alternate)
-│   ├── blog.json / article.json  ← journal listing + detail
-│   ├── cart.json / search.json   ← cart + search
-│   ├── 404.json                  ← not found
-│   ├── page.about.json           ← alternate page: about
-│   ├── page.contact.json         ← alternate page: contact with showrooms
-│   ├── page.deals.json           ← alternate page: deals
-│   ├── page.newsletter.json      ← alternate page: newsletter
-│   └── customers/                ← login, register, account, order, addresses
+│   ├── index.json                    ← home (14 sections)
+│   ├── product.json                  ← e-commerce product page
+│   ├── product.showroom.json         ← showroom product page (alternate)
+│   ├── collection.json               ← horizontal filter bar
+│   ├── collection.drawer.json        ← right-side drawer filters (alternate)
+│   ├── collection.vertical.json      ← left sidebar filters (alternate)
+│   ├── list-collections.json         ← catalog / all-collections landing
+│   ├── blog.json / article.json      ← journal listing + detail
+│   ├── cart.json / search.json       ← cart + search
+│   ├── 404.json                      ← not found
+│   ├── page.json                     ← default page (dotted hero + CMS body)
+│   ├── page.about.json               ← alternate: about
+│   ├── page.contact.json             ← alternate: contact with showrooms
+│   ├── page.deals.json               ← alternate: deals
+│   ├── page.financing.json           ← alternate: financing partners
+│   ├── page.newsletter.json          ← alternate: newsletter landing
+│   ├── page.testimonials.json        ← alternate: testimonials landing
+│   ├── password.json / gift_card     ← password gate + gift card
+│   └── customers/                    ← login, register, account, activate_account,
+│                                       reset_password, order, addresses
 │
 ├── sections/            ← 57 sections (42 merchant-droppable + 13 main-* + header/footer)
-├── snippets/            ← 40+ snippets (card-product, countdown, gallery, etc.)
+├── snippets/            ← 21 snippets (card-product, countdown, search-overlay, video-modal, etc.)
 ├── assets/              ← CSS, JS, vendor libraries
 ├── config/
 │   ├── settings_schema.json
@@ -237,7 +243,8 @@ by intent, with use-when guidance for each section.
 
 - **Documentation:** [`SETUP.md`](./SETUP.md) for per-page setup walkthrough
 - **Issues:** Report bugs via the repository issue tracker
-- **Theme Store:** [Support URL in settings_schema.json]
+- **Theme docs:** https://kitchero.com/theme-docs (from `config/settings_schema.json`)
+- **Theme support:** https://kitchero.com/support (update both URLs before Theme Store submission)
 
 ---
 
