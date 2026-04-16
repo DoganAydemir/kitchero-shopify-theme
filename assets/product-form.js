@@ -109,31 +109,52 @@
             }, 2000);
           }
 
-          /* Refresh the cart drawer DOM (line items + totals) by
-             fetching the current page and replacing the drawer's inner
-             content with the freshly-rendered HTML. Also updates the
-             header cart count in the same pass. Falls back to a JSON
-             count-only update if the page fetch fails. */
-          refreshCartDrawer()
-            .catch(function () {
-              return fetch(window.routes.cart_url + '.js')
-                .then(function (r) { return r.json(); })
-                .then(function (cart) {
-                  document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-                    el.textContent = cart.item_count;
-                    el.style.display = cart.item_count > 0 ? '' : 'none';
-                  });
+          var cartType = document.body.getAttribute('data-cart-type') || 'drawer';
+
+          if (cartType === 'page') {
+            /* Page mode — the merchant wants customers on the /cart
+               page after adding. Refresh header count first so it
+               blips visibly, then navigate. The delay keeps the
+               "Added to Cart!" success state on the button long
+               enough for the customer to register what happened. */
+            fetch(window.routes.cart_url + '.js')
+              .then(function (r) { return r.json(); })
+              .then(function (cart) {
+                document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+                  el.textContent = cart.item_count;
+                  el.style.display = cart.item_count > 0 ? '' : 'none';
                 });
-            })
-            .then(function () {
-              /* Open the drawer AFTER it has fresh HTML so the visitor
-                 sees the item they just added. */
-              var cartDrawer = document.getElementById('cart-drawer');
-              if (cartDrawer) {
-                cartDrawer.setAttribute('aria-hidden', 'false');
-                document.body.style.overflow = 'hidden';
-              }
-            });
+              })
+              .then(function () {
+                setTimeout(function () {
+                  window.location.href = window.routes.cart_url;
+                }, 700);
+              });
+          } else {
+            /* Drawer mode — refresh the drawer DOM (items + totals)
+               by fetching the current page and replacing the drawer's
+               inner content with the freshly-rendered HTML. Falls
+               back to a JSON count-only update if the page fetch
+               fails. Open the drawer only after the refresh resolves. */
+            refreshCartDrawer()
+              .catch(function () {
+                return fetch(window.routes.cart_url + '.js')
+                  .then(function (r) { return r.json(); })
+                  .then(function (cart) {
+                    document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+                      el.textContent = cart.item_count;
+                      el.style.display = cart.item_count > 0 ? '' : 'none';
+                    });
+                  });
+              })
+              .then(function () {
+                var cartDrawer = document.getElementById('cart-drawer');
+                if (cartDrawer) {
+                  cartDrawer.setAttribute('aria-hidden', 'false');
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+          }
 
           /* Publish event */
           if (typeof publish === 'function') publish('cart:update', formData);
