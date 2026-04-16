@@ -8,8 +8,13 @@
 .kt-search-page__submit { padding: 0.875rem 2rem; background: #1c1917; color: #fff; border: none; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
 .kt-search-page__submit:hover { background: #000; }
 .kt-search-page__results-count { font-size: 0.875rem; color: #78716c; margin-bottom: 2rem; }
-.kt-search-page__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+.kt-search-page__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; align-items: stretch; }
 @media screen and (min-width: 990px) { .kt-search-page__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Force every grid child (product card, article card, page result) to
+   fill its cell so the row height is consistent across mixed result
+   types. Without this, a product card with short content + an article
+   card with long content render at different heights in the same row. */
+.kt-search-page__grid > * { height: 100%; }
 .kt-search-page__no-results { font-size: 1.125rem; color: #78716c; padding: 4rem 0; }
 .kt-search-page__page-result { display: block; padding: 1.5rem; border: 1px solid #e7e5e4; border-radius: 0.5rem; text-decoration: none; color: inherit; transition: border-color 0.2s; }
 .kt-search-page__page-result:hover { border-color: #1c1917; }
