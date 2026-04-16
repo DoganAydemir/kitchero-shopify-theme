@@ -200,8 +200,27 @@
         </a>
       </noscript>
 
-      {%- comment -%} Account {%- endcomment -%}
-      <a href="{{ routes.account_url }}" class="kt-header__icon" aria-label="{{ 'accessibility.account' | t }}">
+      {%- comment -%}
+        Account — when the visitor isn't logged in, route explicitly to
+        /account/login so our `main-login.liquid` template renders.
+        Logged-in visitors land on the account dashboard.
+
+        Note: Shopify's newer "New customer accounts" setting (Settings →
+        Customer accounts) bypasses theme templates entirely and
+        redirects to Shopify's hosted account UI regardless of which
+        route we link to. For this link to use the theme's login page,
+        the store must be on "Classic customer accounts".
+      {%- endcomment -%}
+      {%- liquid
+        if customer
+          assign account_href = routes.account_url
+          assign account_label = 'accessibility.account' | t
+        else
+          assign account_href = routes.account_login_url
+          assign account_label = 'customers.login.title' | t | default: 'Log in'
+        endif
+      -%}
+      <a href="{{ account_href }}" class="kt-header__icon" aria-label="{{ account_label }}">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
