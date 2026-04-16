@@ -1,14 +1,14 @@
 {{ 'section-header.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  assign header_style = section.settings.header_style | default: 'transparent'
   comment
-    Transparent only on index (home) page. All other pages force solid.
-    Merchant can override via setting.
+    Header style is fully merchant-controlled. Pick "transparent" on
+    templates whose first section is a full-bleed hero that wants the
+    header to float over it (home, /about banner-cover, landing pages).
+    Pick "solid" everywhere else. We do NOT force a value based on
+    request.page_type — merchants own the call.
   endcomment
-  if header_style == 'transparent' and request.page_type != 'index'
-    assign header_style = 'solid'
-  endif
+  assign header_style = section.settings.header_style | default: 'solid'
 -%}
 
 {%- unless header_style == 'transparent' -%}
@@ -562,7 +562,7 @@
         { "value": "transparent", "label": "t:sections.header.settings.header_style.options__1.label" },
         { "value": "solid", "label": "t:sections.header.settings.header_style.options__2.label" }
       ],
-      "default": "transparent",
+      "default": "solid",
       "info": "t:sections.header.settings.header_style.info"
     },
     {

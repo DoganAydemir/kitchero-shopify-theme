@@ -26,9 +26,13 @@
 {{ 'component-page-header-dotted.css' | asset_url | stylesheet_tag }}
 
 {%- assign heading_tag = heading_tag | default: 'h1' -%}
+{%- assign compact_class = '' -%}
+{%- if compact -%}
+  {%- assign compact_class = ' kt-page-header-dotted--compact' -%}
+{%- endif -%}
 
 <section
-  class="kt-page-header-dotted"
+  class="kt-page-header-dotted{{ compact_class }}"
   data-dotted-header
   aria-labelledby="DottedHeaderTitle-{{ section.id | default: 'static' }}"
 >

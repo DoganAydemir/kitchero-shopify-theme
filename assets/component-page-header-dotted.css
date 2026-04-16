@@ -14,22 +14,50 @@
   overflow: hidden;
   background-color: #fafaf9;
   border-bottom: 1px solid #e7e5e4;
-  padding-top: 4rem;
-  padding-bottom: 3rem;
+  /* Top padding accounts for the fixed header; bottom leaves comfortable
+     breathing room before the page's first section. Merchants can tweak
+     the size of the headline and description via their section, but the
+     dotted frame itself is intentionally compact — when the page is
+     mostly a title we don't want a half-screen-tall band. */
+  padding-top: 7rem;
+  padding-bottom: 2.5rem;
   isolation: isolate;
 }
 
 @media screen and (min-width: 750px) {
   .kt-page-header-dotted {
-    padding-top: 6rem;
-    padding-bottom: 4rem;
+    padding-top: 8rem;
+    padding-bottom: 3rem;
   }
 }
 
 @media screen and (min-width: 990px) {
   .kt-page-header-dotted {
-    padding-top: 8rem;
-    padding-bottom: 5rem;
+    padding-top: 9rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+/* When the dotted header is followed by a body that has its own heading
+   (e.g. CMS /banners page whose content is just a title), we shrink the
+   dotted frame to stay visually lean. Main-page toggles this modifier
+   when show_header is true AND page.content is non-empty. */
+.kt-page-header-dotted--compact {
+  padding-top: 6.5rem;
+  padding-bottom: 2.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted--compact {
+    padding-top: 7rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-page-header-dotted--compact {
+    padding-top: 7.5rem;
+    padding-bottom: 2.75rem;
   }
 }
 

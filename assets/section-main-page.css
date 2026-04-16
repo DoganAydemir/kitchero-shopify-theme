@@ -8,19 +8,11 @@
 
 .kt-main-page {
   background-color: #fff;
-  /* Merchant-tunable outer section padding. Both axes get a meaningful
-     fallback (2.8rem mobile / 4rem desktop top, 4rem mobile / 6rem
-     desktop bottom) so even a CMS page that predates these settings
-     still has visible breathing room above and below. */
-  padding-top: var(--kt-main-page-padding-top-mobile, 2.8rem);
-  padding-bottom: var(--kt-main-page-padding-bottom-mobile, 4rem);
-}
-
-@media screen and (min-width: 750px) {
-  .kt-main-page {
-    padding-top: var(--kt-main-page-padding-top-desktop, 4rem);
-    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 6rem);
-  }
+  /* No wrapper padding. The dotted header owns its own vertical rhythm
+     and must sit flush against the fixed navbar; the compact header
+     and the body each have their own merchant-tunable padding below.
+     Putting padding on the wrapper inserted an empty band above the
+     dotted header on pages like /banners. */
 }
 
 /* ── Compact fallback header (dotted hero disabled) ───────── */
@@ -57,21 +49,26 @@
 /* ── Body / CMS content ───────────────────────────────────── */
 
 .kt-main-page__body {
-  padding-top: 3rem;
-  padding-bottom: 4rem;
+  /* Merchant-tunable vertical padding (set via main-page section
+     schema). Falls back to comfortable defaults so CMS pages that
+     predate the settings still breathe. Only applies to the body,
+     NOT the wrapper, so the dotted/compact header stays flush to
+     the top of the template. */
+  padding-top: var(--kt-main-page-padding-top-mobile, 3rem);
+  padding-bottom: var(--kt-main-page-padding-bottom-mobile, 4rem);
 }
 
 @media screen and (min-width: 750px) {
   .kt-main-page__body {
-    padding-top: 5rem;
-    padding-bottom: 6rem;
+    padding-top: var(--kt-main-page-padding-top-desktop, 5rem);
+    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 6rem);
   }
 }
 
 @media screen and (min-width: 990px) {
   .kt-main-page__body {
-    padding-top: 6rem;
-    padding-bottom: 8rem;
+    padding-top: var(--kt-main-page-padding-top-desktop, 6rem);
+    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 8rem);
   }
 }
 

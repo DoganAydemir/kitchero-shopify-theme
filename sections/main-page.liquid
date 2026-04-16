@@ -30,12 +30,22 @@
   style="--kt-main-page-padding-top-mobile: {{ pt_mobile }}px; --kt-main-page-padding-bottom-mobile: {{ pb_mobile }}px; --kt-main-page-padding-top-desktop: {{ pt_desktop }}px; --kt-main-page-padding-bottom-desktop: {{ pb_desktop }}px;"
 >
   {%- if show_header -%}
+    {%- comment -%}
+      If the page body has content below (raw CMS HTML), shrink the dotted
+      header a notch so the overall page rhythm stays lean. When the page
+      is pure header + app blocks, use the full-size variant.
+    {%- endcomment -%}
+    {%- assign is_compact = false -%}
+    {%- if page.content != blank -%}
+      {%- assign is_compact = true -%}
+    {%- endif -%}
     {%- render 'page-header-dotted',
       eyebrow: header_eyebrow,
       title: page.title,
       description: header_description,
       count_text: header_count_text,
-      heading_tag: heading_tag
+      heading_tag: heading_tag,
+      compact: is_compact
     -%}
   {%- else -%}
     {%- comment -%}

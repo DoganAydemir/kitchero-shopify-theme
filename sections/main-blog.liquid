@@ -13,12 +13,24 @@
 {%- endcomment -%}
 
 {%- if section.settings.show_header -%}
+  {%- liquid
+    assign blog_eyebrow = section.settings.eyebrow
+    if blog_eyebrow == blank
+      assign blog_eyebrow = 'The Archives'
+    endif
+    assign blog_heading = section.settings.heading
+    if blog_heading == blank
+      assign blog_heading = blog.title
+    endif
+    assign blog_heading_tag = section.settings.heading_tag | default: 'h1'
+    assign blog_count = blog.articles_count | append: ' Articles'
+  -%}
   {%- render 'page-header-dotted',
-    eyebrow: section.settings.eyebrow | default: 'The Archives',
-    title: section.settings.heading | default: blog.title,
+    eyebrow: blog_eyebrow,
+    title: blog_heading,
     description: section.settings.description,
-    count_text: blog.articles_count | append: ' Articles',
-    heading_tag: section.settings.heading_tag | default: 'h1'
+    count_text: blog_count,
+    heading_tag: blog_heading_tag
   -%}
 {%- endif -%}
 

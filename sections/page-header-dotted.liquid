@@ -1,0 +1,107 @@
+{%- comment -%}
+  Page Header — Dotted (standalone section)
+  Wraps the shared page-header-dotted snippet so merchants can drop the
+  editorial dotted header onto ANY JSON template (page.json, blog.json,
+  collection.json, product.json, etc.) from the theme editor's
+  "Add section" menu.
+
+  If the section is placed on a template that already has a built-in
+  dotted header (main-page, main-blog, etc.), the merchant should turn
+  off the built-in one to avoid stacking two headers.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  assign resolved_title = section.settings.title
+  if resolved_title == blank
+    case template.name
+      when 'page'
+        assign resolved_title = page.title
+      when 'blog'
+        assign resolved_title = blog.title
+      when 'article'
+        assign resolved_title = article.title
+      when 'collection'
+        assign resolved_title = collection.title
+      when 'product'
+        assign resolved_title = product.title
+      else
+        assign resolved_title = shop.name
+    endcase
+  endif
+-%}
+
+{%- render 'page-header-dotted',
+  eyebrow: section.settings.eyebrow,
+  title: resolved_title,
+  description: section.settings.description,
+  count_text: section.settings.count_text,
+  heading_tag: heading_tag,
+  compact: section.settings.compact
+-%}
+
+{% schema %}
+{
+  "name": "t:sections.page-header-dotted.name",
+  "tag": "section",
+  "class": "section section--flush",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.page-header-dotted.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.page-header-dotted.settings.eyebrow.label",
+      "info": "t:sections.page-header-dotted.settings.eyebrow.info"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.page-header-dotted.settings.title.label",
+      "info": "t:sections.page-header-dotted.settings.title.info"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.page-header-dotted.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "t:sections.page-header-dotted.settings.description.label"
+    },
+    {
+      "type": "text",
+      "id": "count_text",
+      "label": "t:sections.page-header-dotted.settings.count_text.label",
+      "info": "t:sections.page-header-dotted.settings.count_text.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.page-header-dotted.settings.header__layout.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "compact",
+      "label": "t:sections.page-header-dotted.settings.compact.label",
+      "info": "t:sections.page-header-dotted.settings.compact.info",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.page-header-dotted.presets.name"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["page", "blog", "article", "collection", "product", "index", "list-collections", "search", "404"]
+  }
+}
+{% endschema %}
