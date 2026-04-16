@@ -1,0 +1,248 @@
+{{ 'section-slider-drag-carousel.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign aspect = section.settings.item_aspect | default: '4/5'
+  case aspect
+    when '1/1'
+      assign aspect_ratio = '1 / 1'
+    when '16/9'
+      assign aspect_ratio = '16 / 9'
+    else
+      assign aspect_ratio = '4 / 5'
+  endcase
+-%}
+
+<section
+  class="kt-drag-carousel"
+  data-section-id="{{ section.id }}"
+  data-section-type="slider-drag-carousel"
+  style="--kt-dc-item-aspect: {{ aspect_ratio }};"
+>
+  <div class="kt-drag-carousel__header">
+    <div class="kt-drag-carousel__intro">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="kt-drag-carousel__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <{{ heading_tag }} class="kt-drag-carousel__heading">
+          {{ section.settings.heading | escape }}
+        </{{ heading_tag }}>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_arrows -%}
+      <div class="kt-drag-carousel__controls" data-carousel-controls>
+        <button
+          type="button"
+          class="kt-drag-carousel__arrow kt-drag-carousel__arrow--prev"
+          data-carousel-prev
+          aria-label="{{ 'sections.slider_drag_carousel.previous' | t }}"
+        >
+          <svg class="kt-drag-carousel__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="kt-drag-carousel__arrow kt-drag-carousel__arrow--next"
+          data-carousel-next
+          aria-label="{{ 'sections.slider_drag_carousel.next' | t }}"
+        >
+          <svg class="kt-drag-carousel__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    <div
+      class="kt-drag-carousel__track"
+      data-carousel-track
+      role="list"
+      aria-label="{{ 'sections.slider_drag_carousel.track_label' | t }}"
+    >
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'slide' -%}
+          {%- assign is_eager = false -%}
+          {%- if forloop.index0 < 2 -%}
+            {%- assign is_eager = true -%}
+          {%- endif -%}
+
+          {%- capture card_inner -%}
+            <div class="kt-drag-carousel__media">
+              {%- if block.settings.image != blank -%}
+                {%- if is_eager -%}
+                  {{ block.settings.image
+                    | image_url: width: 960
+                    | image_tag:
+                      class: 'kt-drag-carousel__image',
+                      widths: '360, 480, 600, 720, 960, 1200',
+                      sizes: '(min-width: 1200px) 30vw, (min-width: 750px) 40vw, 80vw',
+                      loading: 'eager',
+                      fetchpriority: 'high',
+                      draggable: 'false',
+                      alt: block.settings.caption_title | default: ''
+                  }}
+                {%- else -%}
+                  {{ block.settings.image
+                    | image_url: width: 960
+                    | image_tag:
+                      class: 'kt-drag-carousel__image',
+                      widths: '360, 480, 600, 720, 960, 1200',
+                      sizes: '(min-width: 1200px) 30vw, (min-width: 750px) 40vw, 80vw',
+                      loading: 'lazy',
+                      draggable: 'false',
+                      alt: block.settings.caption_title | default: ''
+                  }}
+                {%- endif -%}
+              {%- else -%}
+                <div class="kt-drag-carousel__placeholder">
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-drag-carousel__placeholder-svg' }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            {%- if block.settings.caption_title != blank or block.settings.caption_subtitle != blank -%}
+              <div class="kt-drag-carousel__overlay" aria-hidden="true"></div>
+              <div class="kt-drag-carousel__caption">
+                {%- if block.settings.caption_subtitle != blank -%}
+                  <span class="kt-drag-carousel__caption-subtitle">{{ block.settings.caption_subtitle | escape }}</span>
+                {%- endif -%}
+                {%- if block.settings.caption_title != blank -%}
+                  <h3 class="kt-drag-carousel__caption-title">{{ block.settings.caption_title | escape }}</h3>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- if block.settings.link != blank -%}
+            <a
+              href="{{ block.settings.link }}"
+              class="kt-drag-carousel__item kt-drag-carousel__item--link"
+              data-carousel-item
+              role="listitem"
+              {{ block.shopify_attributes }}
+            >
+              {{ card_inner }}
+            </a>
+          {%- else -%}
+            <article
+              class="kt-drag-carousel__item"
+              data-carousel-item
+              role="listitem"
+              {{ block.shopify_attributes }}
+            >
+              {{ card_inner }}
+            </article>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+
+<script src="{{ 'section-slider-drag-carousel.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.slider_drag_carousel.name",
+  "tag": "section",
+  "class": "section section--slider-drag-carousel",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.slider_drag_carousel.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.slider_drag_carousel.settings.eyebrow.label",
+      "default": "Style 02"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.slider_drag_carousel.settings.heading.label",
+      "default": "Drag Carousel"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.slider_drag_carousel.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.slider_drag_carousel.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.slider_drag_carousel.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.slider_drag_carousel.settings.header_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "item_aspect",
+      "label": "t:sections.slider_drag_carousel.settings.item_aspect.label",
+      "options": [
+        { "value": "4/5", "label": "t:sections.slider_drag_carousel.settings.item_aspect.options__1.label" },
+        { "value": "1/1", "label": "t:sections.slider_drag_carousel.settings.item_aspect.options__2.label" },
+        { "value": "16/9", "label": "t:sections.slider_drag_carousel.settings.item_aspect.options__3.label" }
+      ],
+      "default": "4/5"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "t:sections.slider_drag_carousel.settings.show_arrows.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.slider_drag_carousel.blocks.slide.name",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.slider_drag_carousel.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "caption_title",
+          "label": "t:sections.slider_drag_carousel.blocks.slide.settings.caption_title.label"
+        },
+        {
+          "type": "text",
+          "id": "caption_subtitle",
+          "label": "t:sections.slider_drag_carousel.blocks.slide.settings.caption_subtitle.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.slider_drag_carousel.blocks.slide.settings.link.label"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.slider_drag_carousel.presets.name",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

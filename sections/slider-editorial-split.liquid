@@ -1,0 +1,298 @@
+{{ 'section-slider-editorial-split.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign autoplay_interval = section.settings.autoplay_interval | default: 6 -%}
+{%- assign image_position = section.settings.image_position | default: 'right' -%}
+{%- assign show_progress = section.settings.show_progress_bar -%}
+{%- assign total_slides = section.blocks | size -%}
+
+{%- capture total_padded -%}{%- if total_slides < 10 -%}0{{ total_slides }}{%- else -%}{{ total_slides }}{%- endif -%}{%- endcapture -%}
+
+<section
+  class="kt-slider-editorial kt-slider-editorial--image-{{ image_position }}{% if show_progress %} kt-slider-editorial--progress{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="slider-editorial-split"
+  data-autoplay-interval="{{ autoplay_interval }}"
+  data-total-slides="{{ total_slides }}"
+  style="--kt-editorial-interval: {{ autoplay_interval }}s;"
+  aria-roledescription="carousel"
+  aria-label="{{ 'sections.slider_editorial_split.aria_label' | t }}"
+>
+  <div class="kt-slider-editorial__inner">
+    {%- comment -%} Image pane — cross-fades between slides {%- endcomment -%}
+    <div class="kt-slider-editorial__image-pane" data-editorial-image-pane>
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'slide' -%}
+            {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
+            <div
+              class="kt-slider-editorial__image-slide{% if forloop.first %} is-active{% endif %}"
+              data-editorial-image="{{ forloop.index0 }}"
+              aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+              role="group"
+              aria-roledescription="slide"
+              aria-label="{{ index_padded }} / {{ total_padded }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.image != blank -%}
+                {%- if forloop.first -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      class: 'kt-slider-editorial__image',
+                      loading: 'eager',
+                      fetchpriority: 'high',
+                      widths: '600, 900, 1200, 1600, 2000',
+                      sizes: '(min-width: 990px) 60vw, 100vw',
+                      width: block.settings.image.width,
+                      height: block.settings.image.height,
+                      alt: block.settings.heading | default: block.settings.eyebrow
+                  }}
+                {%- else -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      class: 'kt-slider-editorial__image',
+                      loading: 'lazy',
+                      widths: '600, 900, 1200, 1600, 2000',
+                      sizes: '(min-width: 990px) 60vw, 100vw',
+                      width: block.settings.image.width,
+                      height: block.settings.image.height,
+                      alt: block.settings.heading | default: block.settings.eyebrow
+                  }}
+                {%- endif -%}
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-slider-editorial__image' }}
+              {%- endif -%}
+              <span class="kt-slider-editorial__image-overlay" aria-hidden="true"></span>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        <div class="kt-slider-editorial__image-slide is-active">
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-slider-editorial__image' }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Copy pane — dark background, two-layer cross-fade {%- endcomment -%}
+    <div class="kt-slider-editorial__copy-pane">
+      <div class="kt-slider-editorial__copy-inner">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'slide' -%}
+            {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
+            <article
+              class="kt-slider-editorial__copy-slide{% if forloop.first %} is-active{% endif %}"
+              data-editorial-copy="{{ forloop.index0 }}"
+              aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            >
+              <span class="kt-slider-editorial__index" aria-hidden="true">{{ index_padded }}</span>
+
+              {%- if block.settings.eyebrow != blank -%}
+                <span class="kt-slider-editorial__eyebrow" data-editorial-anim data-delay="120">
+                  {{ block.settings.eyebrow | escape }}
+                </span>
+              {%- endif -%}
+
+              {%- if block.settings.heading != blank -%}
+                <{{ heading_tag }} class="kt-slider-editorial__heading" data-editorial-anim data-delay="240">
+                  {{ block.settings.heading | escape }}
+                </{{ heading_tag }}>
+              {%- endif -%}
+
+              {%- if block.settings.description != blank -%}
+                <p class="kt-slider-editorial__description" data-editorial-anim data-delay="360">
+                  {{ block.settings.description | escape | newline_to_br }}
+                </p>
+              {%- endif -%}
+
+              {%- if block.settings.cta_text != blank -%}
+                <div class="kt-slider-editorial__cta-wrap" data-editorial-anim data-delay="480">
+                  <a
+                    class="kt-slider-editorial__cta"
+                    href="{{ block.settings.cta_link | default: routes.root_url }}"
+                  >
+                    <span>{{ block.settings.cta_text | escape }}</span>
+                    <svg class="kt-slider-editorial__cta-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="7" y1="17" x2="17" y2="7"></line>
+                      <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              {%- endif -%}
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if total_slides == 0 -%}
+          <article class="kt-slider-editorial__copy-slide is-active">
+            <span class="kt-slider-editorial__index" aria-hidden="true">01</span>
+            <span class="kt-slider-editorial__eyebrow">{{ 'sections.slider_editorial_split.placeholder.eyebrow' | t }}</span>
+            <h2 class="kt-slider-editorial__heading">{{ 'sections.slider_editorial_split.placeholder.heading' | t }}</h2>
+            <p class="kt-slider-editorial__description">{{ 'sections.slider_editorial_split.placeholder.description' | t }}</p>
+          </article>
+        {%- endif -%}
+
+        {%- comment -%} Controls: numbered nav + progress bar {%- endcomment -%}
+        <div class="kt-slider-editorial__controls">
+          <div class="kt-slider-editorial__nav" role="tablist" aria-label="{{ 'sections.slider_editorial_split.nav_label' | t }}">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'slide' -%}
+                {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
+                <button
+                  type="button"
+                  class="kt-slider-editorial__nav-btn{% if forloop.first %} is-active{% endif %}"
+                  data-editorial-nav="{{ forloop.index0 }}"
+                  role="tab"
+                  aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                  aria-label="{{ 'sections.slider_editorial_split.go_to_slide' | t: number: index_padded }}"
+                >
+                  <span aria-hidden="true">{{ index_padded }}</span>
+                </button>
+                {%- unless forloop.last -%}
+                  <span class="kt-slider-editorial__nav-sep" aria-hidden="true">/</span>
+                {%- endunless -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if total_slides > 0 -%}
+              <span class="kt-slider-editorial__nav-total" aria-hidden="true">{{ 'sections.slider_editorial_split.of_total' | t: total: total_padded }}</span>
+            {%- endif -%}
+          </div>
+
+          {%- if show_progress and total_slides > 1 -%}
+            <div class="kt-slider-editorial__progress" aria-hidden="true">
+              <span class="kt-slider-editorial__progress-bar" data-editorial-progress></span>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'section-slider-editorial-split.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.slider_editorial_split.name",
+  "tag": "section",
+  "class": "section-slider-editorial-split",
+  "settings": [
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "t:sections.slider_editorial_split.settings.autoplay_interval.label",
+      "info": "t:sections.slider_editorial_split.settings.autoplay_interval.info",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "t:sections.slider_editorial_split.settings.show_progress_bar.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.slider_editorial_split.settings.image_position.label",
+      "options": [
+        { "value": "right", "label": "t:sections.slider_editorial_split.settings.image_position.options.right" },
+        { "value": "left", "label": "t:sections.slider_editorial_split.settings.image_position.options.left" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.slider_editorial_split.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h2" },
+        { "value": "h3", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h3" }
+      ],
+      "default": "h2"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.slider_editorial_split.blocks.slide.name",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.eyebrow.label",
+          "default": "Chapter"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.heading.label",
+          "default": "An editorial headline"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.description.label",
+          "default": "Use this space for long-form storytelling that complements the imagery on the right."
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.cta_text.label",
+          "default": "Discover the story"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "t:sections.slider_editorial_split.blocks.slide.settings.cta_link.label"
+        }
+      ]
+    },
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.slider_editorial_split.presets.name",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Chapter One",
+            "heading": "Material intelligence",
+            "description": "Stone, oak and brushed steel composed into surfaces that age with grace and tell their own story over time."
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Chapter Two",
+            "heading": "Quiet engineering",
+            "description": "Soft-close joinery, integrated lighting and hidden appliances keep the architecture calm while the craftsmanship does the talking."
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Chapter Three",
+            "heading": "The long view",
+            "description": "Each commission is built to outlast trend cycles, with finishes chosen for how they patinate, not just how they photograph."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

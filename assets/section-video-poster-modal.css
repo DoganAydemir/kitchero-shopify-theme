@@ -1,0 +1,156 @@
+/* ============================================================
+   Video Poster + Modal (Variant C)
+   Dark framed section with big poster image + centered play button.
+   Click anywhere on the play button to open the shared modal.
+   ============================================================ */
+
+.kt-video-poster {
+  background-color: #0c0a09;
+  color: #fff;
+  padding-top: var(--kt-video-poster-padding, 80px);
+  padding-bottom: var(--kt-video-poster-padding, 80px);
+}
+
+.kt-video-poster__inner {
+  max-width: 70rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.kt-video-poster__eyebrow {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #78716c;
+  margin-bottom: 2rem;
+}
+
+/* ── Poster frame ───────────────────────────────────────── */
+
+.kt-video-poster__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background-color: #1c1917;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-video-poster__frame {
+    border-radius: 1.5rem;
+  }
+}
+
+.kt-video-poster__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.kt-video-poster__frame-border {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Play button ────────────────────────────────────────── */
+
+.kt-video-poster__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 9999px;
+  background-color: #fff;
+  color: #0c0a09;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.55);
+  transition: transform 0.25s ease, background-color 0.2s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-video-poster__play {
+    width: 6rem;
+    height: 6rem;
+  }
+}
+
+.kt-video-poster__play:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+  background-color: #fafaf9;
+}
+
+.kt-video-poster__play:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.kt-video-poster__play-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 3px; /* Optically centers triangle */
+}
+
+/* Subtle zoom on the poster when play is hovered (frame is the parent) */
+.kt-video-poster__frame:hover .kt-video-poster__image {
+  transform: scale(1.02);
+}
+
+/* ── Heading + description below the frame ─────────────── */
+
+.kt-video-poster__heading {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin: 2.5rem 0 0.75rem 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-video-poster__heading {
+    font-size: 2.25rem;
+  }
+}
+
+.kt-video-poster__description {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 34rem;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-video-poster__play,
+  .kt-video-poster__image {
+    transition: none;
+  }
+  .kt-video-poster__play:hover {
+    transform: translate(-50%, -50%);
+  }
+  .kt-video-poster__frame:hover .kt-video-poster__image {
+    transform: none;
+  }
+}

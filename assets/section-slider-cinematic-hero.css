@@ -1,0 +1,346 @@
+/* ============================================================
+   Slider — Cinematic Hero
+   Cross-fade slider with Ken Burns zoom on active slide
+   ============================================================ */
+
+.kt-slider-cinematic {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0c0a09; /* stone-950 */
+  color: #ffffff;
+  isolation: isolate;
+}
+
+/* Height variants */
+.kt-slider-cinematic--full {
+  min-height: calc(100vh - var(--kt-header-height, 0px));
+  height: calc(100vh - var(--kt-header-height, 0px));
+}
+
+.kt-slider-cinematic--large {
+  min-height: 85vh;
+  height: 85vh;
+}
+
+.kt-slider-cinematic--medium {
+  min-height: 65vh;
+  height: 65vh;
+}
+
+/* ------------------------------------------------------------
+   Slide stack (cross-fade)
+   ------------------------------------------------------------ */
+.kt-slider-cinematic__slides {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.kt-slider-cinematic__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease-out;
+  pointer-events: none;
+}
+
+.kt-slider-cinematic__slide--active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.kt-slider-cinematic__slide-image-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.kt-slider-cinematic__slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 8s ease-out;
+  will-change: transform;
+}
+
+/* Ken Burns — slow zoom on active slide */
+.kt-slider-cinematic__slide--active .kt-slider-cinematic__slide-image {
+  transform: scale(1.08);
+}
+
+/* Dark overlay */
+.kt-slider-cinematic__slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------
+   Content layer
+   ------------------------------------------------------------ */
+.kt-slider-cinematic__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 4rem 1.5rem 8rem;
+  text-align: center;
+}
+
+.kt-slider-cinematic__text {
+  max-width: 56rem;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem 8rem;
+}
+
+.kt-slider-cinematic__text--active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
+  inset: auto;
+  padding: 0;
+}
+
+.kt-slider-cinematic__eyebrow {
+  display: block;
+  font-family: var(--font-body-family, inherit);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #d6d3d1; /* stone-300 */
+  margin-bottom: 1.5rem;
+}
+
+.kt-slider-cinematic__heading {
+  font-family: var(--font-accent-family, Georgia, 'Times New Roman', serif);
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0 0 2rem 0;
+  font-size: clamp(2.75rem, 7vw, 6rem);
+}
+
+@media (min-width: 768px) {
+  .kt-slider-cinematic__heading {
+    font-size: clamp(3.5rem, 8vw, 8rem);
+  }
+}
+
+.kt-slider-cinematic__description {
+  color: #e7e5e4; /* stone-200 */
+  font-weight: 300;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  max-width: 36rem;
+  margin: 0 auto 2.5rem auto;
+}
+
+@media (min-width: 768px) {
+  .kt-slider-cinematic__description {
+    font-size: 1.25rem;
+  }
+}
+
+.kt-slider-cinematic__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.25rem;
+  background-color: #ffffff;
+  color: #111827;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.kt-slider-cinematic__cta:hover {
+  background-color: #e7e5e4;
+  color: #111827;
+}
+
+.kt-slider-cinematic__cta svg {
+  transition: transform 0.3s ease;
+}
+
+.kt-slider-cinematic__cta:hover svg {
+  transform: translateX(4px);
+}
+
+/* ------------------------------------------------------------
+   Controls
+   ------------------------------------------------------------ */
+.kt-slider-cinematic__controls {
+  position: absolute;
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 3;
+}
+
+.kt-slider-cinematic__arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  padding: 0;
+}
+
+.kt-slider-cinematic__arrow:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.kt-slider-cinematic__dots {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kt-slider-cinematic__dot {
+  width: 1.75rem;
+  height: 0.1875rem;
+  background-color: rgba(255, 255, 255, 0.25);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: width 0.5s ease, background-color 0.5s ease;
+  border-radius: 2px;
+}
+
+.kt-slider-cinematic__dot--active {
+  width: 2.75rem;
+  background-color: #ffffff;
+}
+
+.kt-slider-cinematic__play-toggle {
+  position: absolute;
+  right: 2rem;
+  bottom: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  z-index: 3;
+  padding: 0;
+}
+
+.kt-slider-cinematic__play-toggle:hover {
+  color: #ffffff;
+}
+
+.kt-slider-cinematic__play-toggle .kt-slider-cinematic__icon--play {
+  display: none;
+}
+
+.kt-slider-cinematic__play-toggle[aria-pressed='false'] .kt-slider-cinematic__icon--play {
+  display: block;
+}
+
+.kt-slider-cinematic__play-toggle[aria-pressed='false'] .kt-slider-cinematic__icon--pause {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+   Focus rings (white on dark background)
+   ------------------------------------------------------------ */
+.kt-slider-cinematic__arrow:focus-visible,
+.kt-slider-cinematic__dot:focus-visible,
+.kt-slider-cinematic__play-toggle:focus-visible,
+.kt-slider-cinematic__cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------
+   Placeholder SVG styling
+   ------------------------------------------------------------ */
+.kt-slider-cinematic__slide-image.placeholder-svg {
+  background-color: #1c1917; /* stone-900 */
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .kt-slider-cinematic__slide {
+    transition: opacity 0s;
+  }
+
+  .kt-slider-cinematic__slide-image,
+  .kt-slider-cinematic__slide--active .kt-slider-cinematic__slide-image {
+    transition: none;
+    transform: scale(1);
+  }
+
+  .kt-slider-cinematic__text {
+    transition: opacity 0s, transform 0s;
+  }
+
+  .kt-slider-cinematic__dot,
+  .kt-slider-cinematic__cta,
+  .kt-slider-cinematic__cta svg,
+  .kt-slider-cinematic__arrow,
+  .kt-slider-cinematic__play-toggle {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Small screens
+   ------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .kt-slider-cinematic__controls {
+    bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .kt-slider-cinematic__play-toggle {
+    right: 1rem;
+    bottom: 1.5rem;
+  }
+
+  .kt-slider-cinematic__content {
+    padding: 3rem 1rem 6rem;
+  }
+}

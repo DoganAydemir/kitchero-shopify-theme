@@ -1,0 +1,360 @@
+{{ 'section-slider-cinematic-hero.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign height_class = 'kt-slider-cinematic--full'
+  case section.settings.height
+    when 'large'
+      assign height_class = 'kt-slider-cinematic--large'
+    when 'medium'
+      assign height_class = 'kt-slider-cinematic--medium'
+  endcase
+
+  assign heading_tag = section.settings.heading_tag | default: 'h1'
+-%}
+
+<section
+  class="kt-slider-cinematic {{ height_class }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="slider-cinematic-hero"
+  data-autoplay-interval="{{ section.settings.autoplay_interval }}"
+  data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+  aria-roledescription="carousel"
+  aria-label="{{ 'sections.slider_cinematic_hero.aria_label' | t | default: 'Cinematic hero slider' }}"
+>
+  {%- comment -%} Stacked slides — cross-fade between layers {%- endcomment -%}
+  <div class="kt-slider-cinematic__slides">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'slide' -%}
+        <div
+          class="kt-slider-cinematic__slide{% if forloop.first %} kt-slider-cinematic__slide--active{% endif %}"
+          data-slide-index="{{ forloop.index0 }}"
+          role="group"
+          aria-roledescription="slide"
+          aria-label="{{ forloop.index }} / {{ section.blocks.size }}"
+          aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="kt-slider-cinematic__slide-image-wrap">
+            {%- if block.settings.image != blank -%}
+              {%- if forloop.first -%}
+                {%- assign img_loading = 'eager' -%}
+                {%- assign img_priority = 'high' -%}
+              {%- else -%}
+                {%- assign img_loading = 'lazy' -%}
+                {%- assign img_priority = 'auto' -%}
+              {%- endif -%}
+              {{
+                block.settings.image
+                | image_url: width: 2400
+                | image_tag:
+                  class: 'kt-slider-cinematic__slide-image',
+                  loading: img_loading,
+                  fetchpriority: img_priority,
+                  widths: '750, 1100, 1500, 1800, 2400',
+                  sizes: '100vw',
+                  width: block.settings.image.width,
+                  height: block.settings.image.height,
+                  alt: block.settings.heading | default: shop.name
+              }}
+            {%- else -%}
+              {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-slider-cinematic__slide-image' }}
+            {%- endif -%}
+          </div>
+          {%- if block.settings.dim_overlay -%}
+            <div class="kt-slider-cinematic__slide-overlay" aria-hidden="true"></div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Content — shows the active slide's text, stacked and cross-faded {%- endcomment -%}
+  <div class="kt-slider-cinematic__content">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'slide' -%}
+        <div
+          class="kt-slider-cinematic__text{% if forloop.first %} kt-slider-cinematic__text--active{% endif %}"
+          data-slide-text="{{ forloop.index0 }}"
+        >
+          {%- if block.settings.eyebrow != blank -%}
+            <span class="kt-slider-cinematic__eyebrow">{{ block.settings.eyebrow }}</span>
+          {%- endif -%}
+
+          {%- if block.settings.heading != blank -%}
+            <{{ heading_tag }} class="kt-slider-cinematic__heading">{{ block.settings.heading }}</{{ heading_tag }}>
+          {%- endif -%}
+
+          {%- if block.settings.description != blank -%}
+            <p class="kt-slider-cinematic__description">{{ block.settings.description }}</p>
+          {%- endif -%}
+
+          {%- if block.settings.cta_text != blank -%}
+            <a
+              href="{{ block.settings.cta_link | default: routes.root_url }}"
+              class="kt-slider-cinematic__cta"
+            >
+              {{ block.settings.cta_text }}
+              <svg
+                aria-hidden="true"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Bottom controls — arrows + dot pagination {%- endcomment -%}
+  {%- if section.blocks.size > 1 and section.settings.show_arrows or section.settings.show_dots -%}
+    <div class="kt-slider-cinematic__controls">
+      {%- if section.settings.show_arrows -%}
+        <button
+          type="button"
+          class="kt-slider-cinematic__arrow"
+          data-slider-prev
+          aria-label="{{ 'sections.slider_cinematic_hero.previous_slide' | t | default: 'Previous slide' }}"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      {%- endif -%}
+
+      {%- if section.settings.show_dots -%}
+        <div class="kt-slider-cinematic__dots" role="tablist">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'slide' -%}
+              <button
+                type="button"
+                class="kt-slider-cinematic__dot{% if forloop.first %} kt-slider-cinematic__dot--active{% endif %}"
+                data-slide-dot="{{ forloop.index0 }}"
+                role="tab"
+                aria-label="{{ 'sections.slider_cinematic_hero.go_to_slide' | t: index: forloop.index | default: 'Go to slide' }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+              ></button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_arrows -%}
+        <button
+          type="button"
+          class="kt-slider-cinematic__arrow"
+          data-slider-next
+          aria-label="{{ 'sections.slider_cinematic_hero.next_slide' | t | default: 'Next slide' }}"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 6 15 12 9 18"></polyline>
+          </svg>
+        </button>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Play / Pause toggle {%- endcomment -%}
+  {%- if section.settings.show_play_toggle and section.settings.autoplay_interval > 0 and section.blocks.size > 1 -%}
+    <button
+      type="button"
+      class="kt-slider-cinematic__play-toggle"
+      data-slider-play-toggle
+      aria-pressed="true"
+      aria-label="{{ 'sections.slider_cinematic_hero.toggle_autoplay' | t | default: 'Toggle autoplay' }}"
+    >
+      <svg class="kt-slider-cinematic__icon kt-slider-cinematic__icon--pause" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+      <svg class="kt-slider-cinematic__icon kt-slider-cinematic__icon--play" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+    </button>
+  {%- endif -%}
+</section>
+
+<script src="{{ 'section-slider-cinematic-hero.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.slider_cinematic_hero.name",
+  "tag": "section",
+  "class": "section-slider-cinematic-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.slider_cinematic_hero.settings.layout_header.content"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "t:sections.slider_cinematic_hero.settings.height.label",
+      "options": [
+        {
+          "value": "full_viewport",
+          "label": "t:sections.slider_cinematic_hero.settings.height.options.full_viewport"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.slider_cinematic_hero.settings.height.options.large"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.slider_cinematic_hero.settings.height.options.medium"
+        }
+      ],
+      "default": "full_viewport"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.slider_cinematic_hero.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.slider_cinematic_hero.settings.autoplay_header.content"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "t:sections.slider_cinematic_hero.settings.autoplay_interval.label",
+      "info": "t:sections.slider_cinematic_hero.settings.autoplay_interval.info",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "t:sections.slider_cinematic_hero.settings.pause_on_hover.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.slider_cinematic_hero.settings.controls_header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "t:sections.slider_cinematic_hero.settings.show_arrows.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "t:sections.slider_cinematic_hero.settings.show_dots.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_play_toggle",
+      "label": "t:sections.slider_cinematic_hero.settings.show_play_toggle.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.slider_cinematic_hero.blocks.slide.name",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.eyebrow.label",
+          "default": "Featured Concept"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.heading.label",
+          "default": "Timeless Craft"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.description.label",
+          "default": "Hand-finished surfaces, engineered for a lifetime of daily ritual."
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.cta_text.label",
+          "default": "Explore Detail"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.cta_link.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "dim_overlay",
+          "label": "t:sections.slider_cinematic_hero.blocks.slide.settings.dim_overlay.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.slider_cinematic_hero.presets.name",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Featured Concept",
+            "heading": "Timeless Craft",
+            "description": "Hand-finished surfaces, engineered for a lifetime of daily ritual.",
+            "cta_text": "Explore Detail"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Modern Minimal",
+            "heading": "Quiet Luxury",
+            "description": "Where functionality meets timeless aesthetics. Precision in every joint.",
+            "cta_text": "Explore Styles"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Pure Materials",
+            "heading": "Beyond the Ordinary",
+            "description": "Uncompromising quality materials, sourced sustainably for generations to come.",
+            "cta_text": "Our Process"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

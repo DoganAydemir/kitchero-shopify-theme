@@ -1,0 +1,163 @@
+/* ============================================================
+   Video Background Hero
+   Full-viewport hero with muted looping background video or
+   poster-image fallback. Dark overlay behind centered content.
+   ============================================================ */
+
+.kt-video-bg-hero {
+  position: relative;
+  overflow: hidden;
+  background-color: #0c0a09;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  /* --kt-video-bg-hero-overlay is set on root inline (0..0.8) */
+}
+
+.kt-video-bg-hero--full {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.kt-video-bg-hero--large {
+  min-height: 85vh;
+  min-height: 85svh;
+}
+
+.kt-video-bg-hero--medium {
+  min-height: 65vh;
+  min-height: 65svh;
+}
+
+/* ── Media layer ────────────────────────────────────────── */
+
+.kt-video-bg-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.kt-video-bg-hero__video,
+.kt-video-bg-hero__poster,
+.kt-video-bg-hero__poster-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Poster behind the video fills during video load + acts as noscript fallback */
+.kt-video-bg-hero__poster-fallback {
+  z-index: -1;
+}
+
+.kt-video-bg-hero__video {
+  z-index: 0;
+}
+
+.kt-video-bg-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, var(--kt-video-bg-hero-overlay, 0.5));
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Content layer ──────────────────────────────────────── */
+
+.kt-video-bg-hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: 40rem;
+  padding: 0 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kt-video-bg-hero__eyebrow {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1.25rem;
+}
+
+.kt-video-bg-hero__heading {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: clamp(2.25rem, 6vw + 1rem, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0 0 1.25rem 0;
+}
+
+.kt-video-bg-hero__desc {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 2rem 0;
+  max-width: 32rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-video-bg-hero__desc {
+    font-size: 1.125rem;
+  }
+}
+
+/* ── CTA ─────────────────────────────────────────────────── */
+
+.kt-video-bg-hero__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.kt-video-bg-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  color: #1c1917;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.55);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.kt-video-bg-hero__cta:hover {
+  background-color: #fafaf9;
+  transform: translateY(-1px);
+}
+
+.kt-video-bg-hero__cta:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.kt-video-bg-hero__cta-icon {
+  flex-shrink: 0;
+}
+
+/* Reduced motion: pause autoplaying video (JS would be needed for
+   true pause, but hiding preserves layout). We just do nothing here —
+   native media respects the OS prefer-reduced-motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-video-bg-hero__cta {
+    transition: none;
+  }
+  .kt-video-bg-hero__cta:hover {
+    transform: none;
+  }
+}
