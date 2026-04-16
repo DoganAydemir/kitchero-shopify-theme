@@ -1,0 +1,379 @@
+{{ 'section-gallery-focus-wall.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign layout = section.settings.layout | default: 'bento_6'
+
+  comment
+    Collect image blocks in an ordered list. We build a parallel array of
+    indexes so each tile can map back to its block in the lightbox.
+  endcomment
+  assign image_block_count = 0
+  for block in section.blocks
+    if block.type == 'image'
+      assign image_block_count = image_block_count | plus: 1
+    endif
+  endfor
+-%}
+
+<section
+  class="kt-gallery-focus kt-gallery-focus--{{ layout }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="gallery-focus-wall"
+>
+  {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+    <div class="kt-gallery-focus__container">
+      <div class="kt-gallery-focus__heading-block">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="kt-gallery-focus__eyebrow">{{ section.settings.eyebrow | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-gallery-focus__heading">
+            {{- section.settings.heading | escape -}}
+          </{{ heading_tag }}>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if image_block_count > 0 -%}
+    <div class="kt-gallery-focus__container">
+      <div class="kt-gallery-focus__grid" data-focus-grid>
+        {%- assign tile_index = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'image' -%}
+            {%- liquid
+              comment
+                Bento auto-size pattern (only used when layout=bento_6 AND the
+                merchant has not explicitly chosen a size override).
+                Pattern: 0=large, 1=medium, 2=medium, 3=wide, 4=medium, 5=medium, …
+              endcomment
+              assign size = block.settings.size | default: 'auto'
+              if layout == 'bento_6' and size == 'auto'
+                assign bento_mod = tile_index | modulo: 6
+                case bento_mod
+                  when 0
+                    assign size = 'large'
+                  when 3
+                    assign size = 'wide'
+                  else
+                    assign size = 'medium'
+                endcase
+              elsif size == 'auto'
+                assign size = 'medium'
+              endif
+
+              assign tile_loading = 'lazy'
+              assign tile_fetchpriority = 'auto'
+              if tile_index == 0
+                assign tile_loading = 'eager'
+                assign tile_fetchpriority = 'high'
+              endif
+
+              comment
+                Placeholder SVG rotation keeps the editor preview looking full
+                even before the merchant picks images.
+              endcomment
+              assign ph_list = 'lifestyle-1,lifestyle-2,product-1,product-2,collection-1,collection-2' | split: ','
+              assign ph_index = tile_index | modulo: 6
+              assign ph_key = ph_list[ph_index]
+
+              assign alt_text = block.settings.caption_title
+              if alt_text == blank
+                assign alt_text = section.settings.heading
+              endif
+            -%}
+            <button
+              type="button"
+              class="kt-gallery-focus__tile kt-gallery-focus__tile--{{ size }}"
+              data-focus-tile
+              data-tile-index="{{ tile_index }}"
+              data-tile-image="{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 2000 }}{% endif %}"
+              data-tile-image-alt="{{ alt_text | escape }}"
+              data-tile-title="{{ block.settings.caption_title | escape }}"
+              data-tile-description="{{ block.settings.caption_description | escape }}"
+              aria-label="{{ 'sections.gallery-focus-wall.open_label' | t: title: alt_text }}"
+              {{ block.shopify_attributes }}
+            >
+              <span class="kt-gallery-focus__media">
+                {%- if block.settings.image != blank -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      loading: tile_loading,
+                      fetchpriority: tile_fetchpriority,
+                      widths: '360, 540, 720, 960, 1200, 1600',
+                      sizes: '(min-width: 1024px) 45vw, (min-width: 768px) 50vw, 100vw',
+                      class: 'kt-gallery-focus__image',
+                      alt: alt_text
+                  }}
+                {%- else -%}
+                  {{ ph_key | placeholder_svg_tag: 'kt-gallery-focus__placeholder-svg placeholder-svg' }}
+                {%- endif -%}
+              </span>
+
+              <span class="kt-gallery-focus__overlay" aria-hidden="true"></span>
+
+              <span class="kt-gallery-focus__zoom-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17L17 7"></path>
+                  <path d="M8 7h9v9"></path>
+                </svg>
+              </span>
+
+              {%- if block.settings.caption_title != blank or block.settings.caption_description != blank -%}
+                <span class="kt-gallery-focus__caption">
+                  {%- if block.settings.caption_description != blank -%}
+                    <span class="kt-gallery-focus__caption-eyebrow">
+                      {{- block.settings.caption_description | escape -}}
+                    </span>
+                  {%- endif -%}
+                  {%- if block.settings.caption_title != blank -%}
+                    <span class="kt-gallery-focus__caption-title">
+                      {{- block.settings.caption_title | escape -}}
+                    </span>
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+            </button>
+            {%- assign tile_index = tile_index | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} App blocks render below the grid {%- endcomment -%}
+  {%- assign has_app_blocks = false -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type != 'image' -%}
+      {%- assign has_app_blocks = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if has_app_blocks -%}
+    <div class="kt-gallery-focus__container kt-gallery-focus__apps">
+      {%- for block in section.blocks -%}
+        {%- if block.type != 'image' -%}
+          <div class="kt-gallery-focus__app-block" {{ block.shopify_attributes }}>
+            {% render block %}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Lightbox modal {%- endcomment -%}
+  <div
+    class="kt-gallery-focus-lightbox"
+    data-focus-lightbox
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-label="{{ 'sections.gallery-focus-wall.lightbox_label' | t }}"
+    tabindex="-1"
+  >
+    <div class="kt-gallery-focus-lightbox__backdrop" data-focus-close></div>
+
+    <button
+      type="button"
+      class="kt-gallery-focus-lightbox__close"
+      data-focus-close
+      aria-label="{{ 'sections.gallery-focus-wall.close_label' | t }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M18 6L6 18"></path>
+        <path d="M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="kt-gallery-focus-lightbox__nav kt-gallery-focus-lightbox__nav--prev"
+      data-focus-prev
+      aria-label="{{ 'sections.gallery-focus-wall.prev_label' | t }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="kt-gallery-focus-lightbox__nav kt-gallery-focus-lightbox__nav--next"
+      data-focus-next
+      aria-label="{{ 'sections.gallery-focus-wall.next_label' | t }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M9 6l6 6-6 6"></path>
+      </svg>
+    </button>
+
+    <figure class="kt-gallery-focus-lightbox__figure" data-focus-figure>
+      <div class="kt-gallery-focus-lightbox__image-wrap">
+        <img
+          class="kt-gallery-focus-lightbox__image"
+          data-focus-image
+          src=""
+          alt=""
+          width="1600"
+          height="1200"
+          loading="eager"
+          decoding="async"
+        >
+      </div>
+
+      <figcaption class="kt-gallery-focus-lightbox__caption">
+        <span class="kt-gallery-focus-lightbox__caption-eyebrow" data-focus-description></span>
+        <span class="kt-gallery-focus-lightbox__caption-title" data-focus-title></span>
+        <span class="kt-gallery-focus-lightbox__counter" data-focus-counter></span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script src="{{ 'section-gallery-focus-wall.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.gallery-focus-wall.name",
+  "tag": "section",
+  "class": "section kt-gallery-focus-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.gallery-focus-wall.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.gallery-focus-wall.settings.eyebrow.label",
+      "default": "Gallery Style 03"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.gallery-focus-wall.settings.heading.label",
+      "default": "The Focus Wall"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.gallery-focus-wall.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery-focus-wall.settings.header_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.gallery-focus-wall.settings.layout.label",
+      "info": "t:sections.gallery-focus-wall.settings.layout.info",
+      "options": [
+        { "value": "bento_6", "label": "t:sections.gallery-focus-wall.settings.layout.options__bento_6.label" },
+        { "value": "grid_3x2", "label": "t:sections.gallery-focus-wall.settings.layout.options__grid_3x2.label" }
+      ],
+      "default": "bento_6"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.gallery-focus-wall.blocks.image.name",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.gallery-focus-wall.blocks.image.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "caption_title",
+          "label": "t:sections.gallery-focus-wall.blocks.image.settings.caption_title.label",
+          "default": "Project title"
+        },
+        {
+          "type": "text",
+          "id": "caption_description",
+          "label": "t:sections.gallery-focus-wall.blocks.image.settings.caption_description.label",
+          "default": "Category"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.label",
+          "info": "t:sections.gallery-focus-wall.blocks.image.settings.size.info",
+          "options": [
+            { "value": "auto", "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.options__auto.label" },
+            { "value": "large", "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.options__large.label" },
+            { "value": "wide", "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.options__wide.label" },
+            { "value": "medium", "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.options__medium.label" },
+            { "value": "small", "label": "t:sections.gallery-focus-wall.blocks.image.settings.size.options__small.label" }
+          ],
+          "default": "auto"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.gallery-focus-wall.presets.name",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Soho Loft",
+            "caption_description": "Kitchen · London"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Ercan Concept",
+            "caption_description": "Kitchen · Istanbul"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Midnight Imperial",
+            "caption_description": "Kitchen · New York"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Nordic Slab",
+            "caption_description": "Kitchen · Copenhagen"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Carbon Shaker",
+            "caption_description": "Kitchen · Toronto"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "caption_title": "Atelier Mono",
+            "caption_description": "Kitchen · Paris"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

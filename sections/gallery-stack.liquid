@@ -1,0 +1,327 @@
+{{ 'section-gallery-stack.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign aspect = section.settings.card_aspect | default: '4/5'
+  case aspect
+    when '1/1'
+      assign aspect_ratio = '1 / 1'
+    when '3/4'
+      assign aspect_ratio = '3 / 4'
+    else
+      assign aspect_ratio = '4 / 5'
+  endcase
+
+  assign image_blocks_count = 0
+  for block in section.blocks
+    if block.type == 'image'
+      assign image_blocks_count = image_blocks_count | plus: 1
+    endif
+  endfor
+
+  assign autoplay = section.settings.autoplay
+  assign autoplay_interval = section.settings.autoplay_interval | default: 6
+-%}
+
+<section
+  class="kt-gallery-stack"
+  data-section-id="{{ section.id }}"
+  data-section-type="gallery-stack"
+  data-autoplay="{% if autoplay %}true{% else %}false{% endif %}"
+  data-autoplay-interval="{{ autoplay_interval }}"
+  data-total="{{ image_blocks_count }}"
+  style="--kt-stack-aspect: {{ aspect_ratio }};"
+>
+  <div class="kt-gallery-stack__container">
+    {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+      <header class="kt-gallery-stack__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="kt-gallery-stack__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }} class="kt-gallery-stack__heading">
+            {{ section.settings.heading | escape }}
+          </{{ heading_tag }}>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if image_blocks_count > 0 -%}
+      <div class="kt-gallery-stack__stage" data-stack-stage>
+        <div
+          class="kt-gallery-stack__deck"
+          data-stack-deck
+          role="group"
+          aria-roledescription="{{ 'sections.gallery_stack.a11y.roledescription' | t }}"
+          aria-label="{{ 'sections.gallery_stack.a11y.deck_label' | t }}"
+          aria-live="polite"
+        >
+          {%- assign card_index = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'image' -%}
+              {%- assign is_active = false -%}
+              {%- if card_index == 0 -%}
+                {%- assign is_active = true -%}
+              {%- endif -%}
+
+              {%- capture media_markup -%}
+                <span class="kt-gallery-stack__media">
+                  {%- if block.settings.image != blank -%}
+                    {%- if is_active -%}
+                      {{ block.settings.image
+                        | image_url: width: 1200
+                        | image_tag:
+                          class: 'kt-gallery-stack__image',
+                          widths: '400, 600, 800, 1000, 1200, 1600',
+                          sizes: '(min-width: 1200px) 560px, (min-width: 750px) 60vw, 88vw',
+                          loading: 'eager',
+                          fetchpriority: 'high',
+                          draggable: 'false',
+                          alt: block.settings.caption_title | default: section.settings.heading | default: ''
+                      }}
+                    {%- else -%}
+                      {{ block.settings.image
+                        | image_url: width: 1200
+                        | image_tag:
+                          class: 'kt-gallery-stack__image',
+                          widths: '400, 600, 800, 1000, 1200, 1600',
+                          sizes: '(min-width: 1200px) 560px, (min-width: 750px) 60vw, 88vw',
+                          loading: 'lazy',
+                          draggable: 'false',
+                          alt: block.settings.caption_title | default: section.settings.heading | default: ''
+                      }}
+                    {%- endif -%}
+                  {%- else -%}
+                    <span class="kt-gallery-stack__placeholder">
+                      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-gallery-stack__placeholder-svg' }}
+                    </span>
+                  {%- endif -%}
+                </span>
+              {%- endcapture -%}
+
+              <button
+                type="button"
+                class="kt-gallery-stack__card{% if is_active %} is-active{% endif %}"
+                data-stack-card
+                data-card-index="{{ card_index }}"
+                aria-label="{{ 'sections.gallery_stack.a11y.go_to_slide' | t: index: card_index | plus: 1 }}"
+                {% if is_active %}aria-current="true"{% endif %}
+                tabindex="{% if is_active %}0{% else %}-1{% endif %}"
+                {{ block.shopify_attributes }}
+              >
+                {{ media_markup }}
+              </button>
+
+              {%- assign card_index = card_index | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        <div class="kt-gallery-stack__caption" data-stack-caption aria-live="polite">
+          {%- assign caption_index = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'image' -%}
+              {%- assign caption_active = false -%}
+              {%- if caption_index == 0 -%}
+                {%- assign caption_active = true -%}
+              {%- endif -%}
+              <div
+                class="kt-gallery-stack__caption-item{% if caption_active %} is-active{% endif %}"
+                data-caption-item
+                data-caption-index="{{ caption_index }}"
+                {% unless caption_active %}aria-hidden="true"{% endunless %}
+              >
+                <span class="kt-gallery-stack__caption-frame">
+                  {{- 'sections.gallery_stack.frame_label' | t -}}
+                  <span data-stack-frame-number>{{ caption_index | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
+                </span>
+                {%- if block.settings.caption_title != blank -%}
+                  <h3 class="kt-gallery-stack__caption-title">{{ block.settings.caption_title | escape }}</h3>
+                {%- endif -%}
+                {%- if block.settings.caption_description != blank -%}
+                  <p class="kt-gallery-stack__caption-description">{{ block.settings.caption_description | escape }}</p>
+                {%- endif -%}
+              </div>
+              {%- assign caption_index = caption_index | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <div class="kt-gallery-stack__controls">
+        <div class="kt-gallery-stack__pager" data-stack-pager>
+          <span class="kt-gallery-stack__pager-current" data-stack-current>01</span>
+          <span class="kt-gallery-stack__pager-separator" aria-hidden="true">/</span>
+          <span class="kt-gallery-stack__pager-total">{{ image_blocks_count | prepend: '0' | slice: -2, 2 }}</span>
+        </div>
+
+        <ol class="kt-gallery-stack__index" data-stack-index role="list">
+          {%- assign idx = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'image' -%}
+              {%- assign idx_active = false -%}
+              {%- if idx == 0 -%}
+                {%- assign idx_active = true -%}
+              {%- endif -%}
+              <li class="kt-gallery-stack__index-item">
+                <button
+                  type="button"
+                  class="kt-gallery-stack__index-button{% if idx_active %} is-active{% endif %}"
+                  data-stack-index-button
+                  data-index="{{ idx }}"
+                  {% if idx_active %}aria-current="true"{% endif %}
+                >
+                  <span class="kt-gallery-stack__index-number">{{ idx | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
+                  <span class="kt-gallery-stack__index-rule" aria-hidden="true"></span>
+                  <span class="kt-gallery-stack__index-label">
+                    {%- if block.settings.caption_title != blank -%}
+                      {{ block.settings.caption_title | escape }}
+                    {%- else -%}
+                      {{ 'sections.gallery_stack.a11y.slide_fallback' | t: index: idx | plus: 1 }}
+                    {%- endif -%}
+                  </span>
+                </button>
+              </li>
+              {%- assign idx = idx | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </ol>
+
+        <div class="kt-gallery-stack__arrows" role="group" aria-label="{{ 'sections.gallery_stack.a11y.arrows_label' | t }}">
+          <button
+            type="button"
+            class="kt-gallery-stack__arrow kt-gallery-stack__arrow--prev"
+            data-stack-prev
+            aria-label="{{ 'sections.gallery_stack.previous' | t }}"
+          >
+            <svg class="kt-gallery-stack__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="kt-gallery-stack__arrow kt-gallery-stack__arrow--next"
+            data-stack-next
+            aria-label="{{ 'sections.gallery_stack.next' | t }}"
+          >
+            <svg class="kt-gallery-stack__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<script src="{{ 'section-gallery-stack.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.gallery_stack.name",
+  "tag": "section",
+  "class": "section section--gallery-stack",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.gallery_stack.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.gallery_stack.settings.eyebrow.label",
+      "default": "Gallery Style 02"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.gallery_stack.settings.heading.label",
+      "default": "The Stack Carousel"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.gallery_stack.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.gallery_stack.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.gallery_stack.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery_stack.settings.header_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "card_aspect",
+      "label": "t:sections.gallery_stack.settings.card_aspect.label",
+      "options": [
+        { "value": "4/5", "label": "t:sections.gallery_stack.settings.card_aspect.options__1.label" },
+        { "value": "3/4", "label": "t:sections.gallery_stack.settings.card_aspect.options__2.label" },
+        { "value": "1/1", "label": "t:sections.gallery_stack.settings.card_aspect.options__3.label" }
+      ],
+      "default": "4/5"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery_stack.settings.header_autoplay.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.gallery_stack.settings.autoplay.label",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "t:sections.gallery_stack.settings.autoplay_interval.label",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.gallery_stack.blocks.image.name",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.gallery_stack.blocks.image.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "caption_title",
+          "label": "t:sections.gallery_stack.blocks.image.settings.caption_title.label"
+        },
+        {
+          "type": "textarea",
+          "id": "caption_description",
+          "label": "t:sections.gallery_stack.blocks.image.settings.caption_description.label"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.gallery_stack.presets.name",
+      "blocks": [
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" }
+      ]
+    }
+  ]
+}
+{% endschema %}
