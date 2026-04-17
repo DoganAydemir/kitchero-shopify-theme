@@ -1,0 +1,234 @@
+{{ 'section-featured-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-price.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign product = all_products[section.settings.product]
+  assign current_variant = product.selected_or_first_available_variant
+  if product != blank and product.featured_media != blank
+    assign media_ratio = product.featured_media.preview_image.aspect_ratio | default: 1
+    assign media_height = 1200 | divided_by: media_ratio | round
+  endif
+-%}
+
+<section
+  class="kt-featured-product"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-product"
+  style="--section-bg: {{ section.settings.background_color }};"
+>
+  <div class="page-width">
+    <div class="kt-featured-product__layout">
+      {%- comment -%} Media {%- endcomment -%}
+      <div class="kt-featured-product__media">
+        {%- if product != blank and product.featured_media != blank -%}
+          {%- assign media_alt = product.featured_media.alt | default: product.title -%}
+          {{
+            product.featured_media
+            | image_url: width: 1200
+            | image_tag:
+              class: 'kt-featured-product__image',
+              widths: '400, 600, 900, 1200',
+              sizes: '(min-width: 1024px) 50vw, 100vw',
+              width: 1200,
+              height: media_height,
+              alt: media_alt,
+              loading: 'lazy'
+          }}
+        {%- else -%}
+          {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-featured-product__image' }}
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Info — block-driven {%- endcomment -%}
+      <div class="kt-featured-product__info">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="kt-featured-product__eyebrow">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+
+            {%- when 'title' -%}
+              {%- assign heading_tag = block.settings.heading_tag | default: 'h2' -%}
+              <{{ heading_tag }} class="kt-featured-product__title" {{ block.shopify_attributes }}>
+                {%- if product != blank -%}
+                  {{ product.title }}
+                {%- else -%}
+                  {{ 'onboarding.product_title' | t | default: 'Example product title' }}
+                {%- endif -%}
+              </{{ heading_tag }}>
+
+            {%- when 'price' -%}
+              <div class="kt-featured-product__price" {{ block.shopify_attributes }}>
+                {%- if product != blank -%}
+                  {%- render 'product-price', product: product, variant: current_variant -%}
+                {%- else -%}
+                  <span class="kt-price">$0.00</span>
+                {%- endif -%}
+              </div>
+
+            {%- when 'description' -%}
+              <div class="kt-featured-product__description rte" {{ block.shopify_attributes }}>
+                {%- if product != blank -%}
+                  {{ product.description | strip_html | truncatewords: block.settings.word_limit | default: product.description }}
+                {%- else -%}
+                  {{ 'onboarding.product_description' | t | default: 'Example product description goes here.' }}
+                {%- endif -%}
+              </div>
+
+            {%- when 'buy_button' -%}
+              <div class="kt-featured-product__form" {{ block.shopify_attributes }}>
+                {%- if product != blank -%}
+                  {%- form 'product', product, id: 'FeaturedProductForm-' | append: section.id -%}
+                    <input type="hidden" name="id" value="{{ current_variant.id }}">
+                    <button
+                      type="submit"
+                      name="add"
+                      class="kt-featured-product__submit button button--primary"
+                      {% unless current_variant.available %}disabled{% endunless %}
+                    >
+                      {%- if current_variant.available -%}
+                        {{ block.settings.button_text | default: 'Add to cart' }}
+                      {%- else -%}
+                        {{ 'products.product.sold_out' | t | default: 'Sold out' }}
+                      {%- endif -%}
+                    </button>
+                  {%- endform -%}
+                {%- else -%}
+                  <button type="button" class="kt-featured-product__submit button button--primary" disabled>
+                    {{ block.settings.button_text | default: 'Add to cart' }}
+                  </button>
+                {%- endif -%}
+              </div>
+
+            {%- when 'text' -%}
+              <div class="kt-featured-product__text rte" {{ block.shopify_attributes }}>
+                {{ block.settings.text }}
+              </div>
+
+            {%- when '@app' -%}
+              {%- render block -%}
+
+          {%- endcase -%}
+        {%- endfor -%}
+
+        {%- if section.settings.view_product_link and product != blank -%}
+          <a href="{{ product.url }}" class="kt-featured-product__view-link">
+            {{ 'products.product.view_details' | t | default: 'View full details' }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.featured-product.name",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.featured-product.settings.product.label"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.featured-product.settings.eyebrow.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.featured-product.settings.background_color.label",
+      "default": "#fafaf9"
+    },
+    {
+      "type": "checkbox",
+      "id": "view_product_link",
+      "label": "t:sections.featured-product.settings.view_product_link.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "t:sections.featured-product.blocks.title.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.featured-product.blocks.title.settings.heading_tag.label",
+          "options": [
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h2"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "t:sections.featured-product.blocks.price.name",
+      "limit": 1
+    },
+    {
+      "type": "description",
+      "name": "t:sections.featured-product.blocks.description.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "word_limit",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "default": 40,
+          "label": "t:sections.featured-product.blocks.description.settings.word_limit.label"
+        }
+      ]
+    },
+    {
+      "type": "buy_button",
+      "name": "t:sections.featured-product.blocks.buy_button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "t:sections.featured-product.blocks.buy_button.settings.button_text.label",
+          "default": "Add to cart"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.featured-product.blocks.text.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.featured-product.blocks.text.settings.text.label"
+        }
+      ]
+    },
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-product.presets.name",
+      "blocks": [
+        { "type": "title" },
+        { "type": "price" },
+        { "type": "description" },
+        { "type": "buy_button" }
+      ]
+    }
+  ]
+}
+{% endschema %}

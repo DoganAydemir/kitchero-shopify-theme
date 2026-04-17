@@ -1,0 +1,34 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    name: Lighthouse audit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lighthouse
+        uses: shopify/lighthouse-ci-action@v1
+        with:
+          # Store & theme tokens come from repo secrets. Required:
+          #   SHOP_STORE            — e.g. kitchero-dev.myshopify.com
+          #   SHOP_ACCESS_TOKEN     — theme access token (Theme Kit or API)
+          #   SHOP_STORE_PASSWORD   — storefront password if shop is pw-protected
+          store: ${{ secrets.SHOP_STORE }}
+          password: ${{ secrets.SHOP_STORE_PASSWORD }}
+          access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          # Minimum category scores (0-1 scale)
+          min_score_performance: 0.60
+          min_score_accessibility: 0.90
+          min_score_best_practices: 0.90
+          min_score_seo: 0.90
+          # Audit home + a representative product + collection + cart.
+          # The action fans out per URL automatically.
+          pull_request_comment: true

@@ -99,6 +99,11 @@
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-footer__block-image' }}
               {%- endif -%}
             </div>
+
+          {%- when '@app' -%}
+            <div class="kt-footer__column kt-footer__column--app" {{ block.shopify_attributes }}>
+              {% render block %}
+            </div>
         {%- endcase -%}
       {%- endfor -%}
     </div>

@@ -1,0 +1,78 @@
+{{ 'section-customer-forms.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-customer" data-section-id="{{ section.id }}">
+  <div class="kt-customer__container">
+    <h1 class="kt-customer__title">{{ 'customers.activate_account.title' | t }}</h1>
+    <p class="kt-customer__subtitle">{{ 'customers.activate_account.subtext' | t }}</p>
+
+    {%- form 'activate_customer_password', id: 'ActivateAccountForm' -%}
+      {%- if form.errors -%}
+        <div class="kt-customer__errors" role="alert" tabindex="-1" autofocus>
+          <h2 class="kt-customer__errors-title">{{ 'templates.contact.form.error_heading' | t }}</h2>
+          <ul class="kt-customer__errors-list">
+            {%- for field in form.errors -%}
+              <li>
+                {%- if field == 'form' -%}
+                  {{ form.errors.messages[field] }}
+                {%- else -%}
+                  <a href="#activate-{{ field }}">
+                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <div class="kt-customer__form">
+        <div class="kt-customer__field">
+          <label for="activate-password" class="kt-customer__label">
+            {{ 'customers.activate_account.password' | t }}
+          </label>
+          <input
+            type="password"
+            id="activate-password"
+            name="customer[password]"
+            class="kt-customer__input"
+            required
+            autocomplete="new-password"
+            aria-required="true"
+          >
+        </div>
+
+        <div class="kt-customer__field">
+          <label for="activate-password-confirm" class="kt-customer__label">
+            {{ 'customers.activate_account.password_confirm' | t }}
+          </label>
+          <input
+            type="password"
+            id="activate-password-confirm"
+            name="customer[password_confirmation]"
+            class="kt-customer__input"
+            required
+            autocomplete="new-password"
+            aria-required="true"
+          >
+        </div>
+
+        <button type="submit" class="kt-customer__submit">
+          {{ 'customers.activate_account.submit' | t }}
+        </button>
+
+        <button type="submit" name="decline" class="kt-customer__cancel">
+          {{ 'customers.activate_account.cancel' | t }}
+        </button>
+      </div>
+    {%- endform -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main-activate-account.name",
+  "tag": "section",
+  "class": "section",
+  "settings": []
+}
+{% endschema %}

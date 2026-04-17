@@ -281,6 +281,16 @@
       </button>
     </div>
   </div>
+
+  {%- comment -%} App block slot (required for Theme Store) {%- endcomment -%}
+  {%- assign header_app_blocks = section.blocks | where: 'type', '@app' -%}
+  {%- if header_app_blocks.size > 0 -%}
+    <div class="kt-header__app-blocks">
+      {%- for block in header_app_blocks -%}
+        {% render block %}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
 </header>
 
 {%- comment -%}

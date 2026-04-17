@@ -96,11 +96,13 @@
   outline: none;
 }
 
-/* Focus is communicated by the parent .kt-search-overlay__input-wrap —
+/* Mouse focus is communicated by the parent .kt-search-overlay__input-wrap —
    its bottom border shifts from stone-600 to white via :focus-within.
-   Adding a dark outline on top of the dark modal backdrop just paints a
-   subtle rectangle that looks like a UI glitch, so we intentionally
-   leave the input's own outline off. */
+   Keyboard users still get an explicit outline ring for WCAG. */
+.kt-search-overlay__input:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
 
 @media screen and (min-width: 750px) {
   .kt-search-overlay__input {
