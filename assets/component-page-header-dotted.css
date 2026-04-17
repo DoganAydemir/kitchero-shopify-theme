@@ -15,12 +15,11 @@
   background-color: #fafaf9;
   border-bottom: 1px solid #e7e5e4;
   /* Top padding accounts for the fixed header; bottom leaves comfortable
-     breathing room before the page's first section. Merchants can tweak
-     the size of the headline and description via their section, but the
-     dotted frame itself is intentionally compact — when the page is
-     mostly a title we don't want a half-screen-tall band. */
-  padding-top: 7rem;
-  padding-bottom: 2.5rem;
+     breathing room before the page's first section. Mobile keeps a tight
+     vertical rhythm because tall page headers waste screen real estate on
+     phones. Desktop breathes more. */
+  padding-top: 5.25rem;
+  padding-bottom: 1.75rem;
   isolation: isolate;
 }
 
@@ -43,8 +42,8 @@
    dotted frame to stay visually lean. Main-page toggles this modifier
    when show_header is true AND page.content is non-empty. */
 .kt-page-header-dotted--compact {
-  padding-top: 6.5rem;
-  padding-bottom: 2.25rem;
+  padding-top: 5rem;
+  padding-bottom: 1.5rem;
 }
 
 @media screen and (min-width: 750px) {
@@ -208,7 +207,21 @@
   }
 }
 
-/* Count pill */
+/* Count pill — the wrapper (reveal mask) is a full-width flex item on
+   mobile; we make sure only the pill itself sizes to its content instead
+   of stretching across the row. */
+.kt-page-header-dotted__count-wrap {
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__count-wrap {
+    align-self: flex-end;
+  }
+}
+
 .kt-page-header-dotted__count {
   display: inline-block;
   padding: 0.5rem 1rem;

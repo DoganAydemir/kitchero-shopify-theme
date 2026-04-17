@@ -51,6 +51,44 @@
       });
     });
 
+    /* Mobile filter drawer — open/close + scroll lock.
+       Backdrop, close button, and Escape all dismiss; Apply button
+       submits the form which navigates to the filtered URL. */
+    var drawer = section.querySelector('[data-filter-drawer]');
+    var openBtn = section.querySelector('[data-open-filter-drawer]');
+    var closeBtns = section.querySelectorAll('[data-close-filter-drawer]');
+
+    function openDrawer() {
+      if (!drawer) return;
+      drawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      /* Focus the close button so keyboard users can dismiss right away */
+      var closer = drawer.querySelector('.kt-filter-drawer__close');
+      if (closer && typeof closer.focus === 'function') {
+        window.setTimeout(function () { closer.focus(); }, 50);
+      }
+    }
+
+    function closeDrawer() {
+      if (!drawer) return;
+      drawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (openBtn && typeof openBtn.focus === 'function') openBtn.focus();
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openDrawer);
+    Array.prototype.forEach.call(closeBtns, function (btn) {
+      btn.addEventListener('click', closeDrawer);
+    });
+
+    if (drawer) {
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
+          closeDrawer();
+        }
+      });
+    }
+
     /* GSAP parallax + reveal animations */
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {

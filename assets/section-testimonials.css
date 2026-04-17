@@ -245,7 +245,12 @@
   }
 }
 
-/* h2: text-[13vw] leading-[0.85] font-bold tracking-tighter uppercase text-center bg-clip-text */
+/* h2: text-[13vw] leading-[0.85] font-bold tracking-tighter uppercase text-center bg-clip-text.
+   `background-attachment: fixed` is the "image shows through the text" effect, but it's
+   broken on iOS Safari + most mobile browsers — the background simply doesn't render.
+   So we use `scroll` by default (which works everywhere) and only upgrade to `fixed`
+   on a fine-pointer device with a large enough viewport where the parallax effect
+   is actually meaningful. */
 .kt-testimonials-cta__title {
   font-size: 13vw;
   line-height: 0.85;
@@ -257,16 +262,24 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  background-size: cover;
+  background-size: 180% auto;
   background-position: center;
-  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
   user-select: none;
   margin: 0;
 }
 
-@media screen and (min-width: 1280px) {
+@media screen and (min-width: 750px) {
+  .kt-testimonials-cta__title {
+    background-size: 140% auto;
+  }
+}
+
+@media (pointer: fine) and (min-width: 1280px) {
   .kt-testimonials-cta__title {
     background-size: cover;
+    background-attachment: fixed;
   }
 }
 

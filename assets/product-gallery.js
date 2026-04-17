@@ -169,6 +169,60 @@
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener('click', function () { goTo(currentIndex + 1); });
 
+    /* Touch swipe — swipe left/right on the lightbox viewport to advance
+       to the next/previous image. Threshold 50px; only triggers on a
+       mostly-horizontal gesture (dx > dy) so vertical scrolling / pinch
+       zoom don't accidentally switch images. Disabled while the image
+       is in the zoomed state because the user is then panning. */
+    if (lightboxViewport) {
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchStartTime = 0;
+      var touchActive = false;
+
+      lightboxViewport.addEventListener('touchstart', function (e) {
+        if (lightboxViewport.classList.contains('kt-lightbox__viewport--zoomed')) return;
+        if (!e.touches || e.touches.length !== 1) return;
+        touchActive = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+      }, { passive: true });
+
+      lightboxViewport.addEventListener('touchend', function (e) {
+        if (!touchActive) return;
+        touchActive = false;
+        if (lightboxViewport.classList.contains('kt-lightbox__viewport--zoomed')) return;
+
+        var touch = (e.changedTouches && e.changedTouches[0]) || null;
+        if (!touch) return;
+
+        var dx = touch.clientX - touchStartX;
+        var dy = touch.clientY - touchStartY;
+        var absDx = Math.abs(dx);
+        var absDy = Math.abs(dy);
+        var elapsed = Date.now() - touchStartTime;
+
+        /* Require a meaningful horizontal swing, mostly horizontal direction,
+           and a reasonable duration (flick = <600ms). Tapping to zoom
+           toggles is handled by the click event — this only fires on a
+           real swipe. */
+        if (absDx < 50) return;
+        if (absDx < absDy * 1.2) return;
+        if (elapsed > 600) return;
+
+        if (dx < 0) {
+          goTo(currentIndex + 1);
+        } else {
+          goTo(currentIndex - 1);
+        }
+      }, { passive: true });
+
+      lightboxViewport.addEventListener('touchcancel', function () {
+        touchActive = false;
+      }, { passive: true });
+    }
+
     /* Update the zoomed image's translate so the area under the
        cursor is what's visible. Called on click-to-zoom (using the
        click coordinates for the initial position) and on mousemove
