@@ -48,27 +48,45 @@
 
 /* ── Body / CMS content ───────────────────────────────────── */
 
+/* Body padding is merchant-controlled. Defaults are 0 — each section
+   (and the dotted header) owns its own vertical rhythm, which matches
+   the Dawn/Impulse/Palo-Alto pattern used by every Shopify Theme Store
+   theme. Merchants who want extra breathing room around raw CMS HTML
+   can dial it up via the main-page section's Spacing settings.
+
+   Only the body (CMS content) gets these vars — not the wrapper — so
+   the dotted/compact header stays flush to the top of the template
+   and the section below stays flush to its own top padding. */
 .kt-main-page__body {
-  /* Merchant-tunable vertical padding (set via main-page section
-     schema). Falls back to comfortable defaults so CMS pages that
-     predate the settings still breathe. Only applies to the body,
-     NOT the wrapper, so the dotted/compact header stays flush to
-     the top of the template. */
-  padding-top: var(--kt-main-page-padding-top-mobile, 3rem);
-  padding-bottom: var(--kt-main-page-padding-bottom-mobile, 4rem);
+  padding-top: var(--kt-main-page-padding-top-mobile, 0px);
+  padding-bottom: var(--kt-main-page-padding-bottom-mobile, 0px);
 }
 
 @media screen and (min-width: 750px) {
   .kt-main-page__body {
-    padding-top: var(--kt-main-page-padding-top-desktop, 5rem);
-    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 6rem);
+    padding-top: var(--kt-main-page-padding-top-desktop, 0px);
+    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 0px);
   }
 }
 
-@media screen and (min-width: 990px) {
-  .kt-main-page__body {
-    padding-top: var(--kt-main-page-padding-top-desktop, 6rem);
-    padding-bottom: var(--kt-main-page-padding-bottom-desktop, 8rem);
+/* When CMS content IS present but the merchant hasn't set any padding,
+   give it a polite editorial minimum so raw paragraphs don't jam into
+   the dotted header or the next section. Merchants who want flush
+   can still override to 0. */
+.kt-main-page__body:not(:empty) {
+  padding-top: clamp(2.5rem, 6vw, 5rem);
+  padding-bottom: clamp(3rem, 7vw, 6rem);
+}
+
+.kt-main-page__body:not(:empty) {
+  padding-top: var(--kt-main-page-padding-top-mobile, clamp(2.5rem, 6vw, 5rem));
+  padding-bottom: var(--kt-main-page-padding-bottom-mobile, clamp(3rem, 7vw, 6rem));
+}
+
+@media screen and (min-width: 750px) {
+  .kt-main-page__body:not(:empty) {
+    padding-top: var(--kt-main-page-padding-top-desktop, clamp(3rem, 6vw, 6rem));
+    padding-bottom: var(--kt-main-page-padding-bottom-desktop, clamp(4rem, 7vw, 8rem));
   }
 }
 

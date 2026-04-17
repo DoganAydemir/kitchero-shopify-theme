@@ -245,22 +245,39 @@
   outline-offset: 2px;
 }
 
-/* Submit button: w-full py-5 bg-white text-stone-900 font-bold tracking-widest uppercase text-sm */
+/* Submit button — pill-shaped, tight on mobile so the label stays on one
+   line even on narrow phones. Desktop gets a little more weight and
+   tracking to match the editorial tone of the surrounding form. */
 .kt-visualize-studio__submit {
   width: 100%;
   margin-top: 1rem;
-  padding: 1.25rem;
+  padding: 0.9rem 1.5rem;
   background-color: #fff;
   color: #1c1917;
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   border: none;
+  border-radius: 9999px;
   cursor: pointer;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
   transition: background-color 0.2s ease, transform 0.1s ease;
   font-family: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-visualize-studio__submit {
+    padding: 1.1rem 2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    min-height: 3.5rem;
+  }
 }
 
 .kt-visualize-studio__submit:hover {

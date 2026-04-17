@@ -23,10 +23,13 @@
   flex-shrink: 0;
   background-color: #fff;
   overflow: hidden;
+  min-height: 3.25rem;             /* align to ATC height for a clean side-by-side row */
 }
 
 .kt-product-form__qty-btn {
-  padding: 0.75rem 1rem;           /* px-4 py-3 = 16px 12px */
+  padding: 0 0.9rem;               /* horizontal only; parent min-height controls vertical */
+  align-self: stretch;
+  min-width: 2.75rem;
   background: transparent;
   border: none;
   color: #78716c;                  /* stone-500 */
@@ -102,12 +105,15 @@
 
 .kt-product-form__atc {
   flex: 1;
-  padding: 1rem;                   /* py-4 = 16px */
+  min-width: 0;                    /* allow shrinking next to a fixed-width qty stepper */
+  padding: 0 1rem;                 /* horizontal only; min-height controls vertical */
+  min-height: 3.25rem;
   font-family: inherit;
   font-weight: 700;
-  letter-spacing: 0.1em;           /* tracking-widest */
+  letter-spacing: 0.08em;          /* tighter on mobile so text fits one line */
   text-transform: uppercase;
   font-size: 0.75rem;              /* text-xs */
+  white-space: nowrap;             /* keep "ADD TO CART" on a single line */
   display: flex;
   align-items: center;
   justify-content: center;

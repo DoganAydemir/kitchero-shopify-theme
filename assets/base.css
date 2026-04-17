@@ -77,20 +77,14 @@ summary {
   }
 }
 
-/* Global bottom padding on the main content container so the last
-   section on any template (especially light-bodied pages where the
-   final section is a banner/announcement that ends flush against the
-   dark footer) always has breathing room before the footer. Individual
-   sections may still add their own internal padding on top of this. */
-main#MainContent {
-  padding-bottom: 4rem;
-}
-
-@media screen and (min-width: 750px) {
-  main#MainContent {
-    padding-bottom: 6rem;
-  }
-}
+/* No global padding on <main>. Every section (hero, grid, cta, footer
+   band, etc.) owns its own vertical rhythm via internal padding. This
+   matches the Dawn / Impulse / Palo Alto pattern used across the
+   Shopify Theme Store: sections are self-contained so merchants can
+   freely re-order or remove them without inheriting an empty band
+   from a wrapper they can't control. If a page ever needs extra air
+   before the footer, the last section should be configured with more
+   internal padding — not patched in base.css. */
 
 /* ============================================================
    Typography
