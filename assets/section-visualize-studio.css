@@ -248,36 +248,51 @@
 /* Submit button — pill-shaped, tight on mobile so the label stays on one
    line even on narrow phones. Desktop gets a little more weight and
    tracking to match the editorial tone of the surrounding form. */
+/* Pill button — not full-width, fits content. The form sits inside a
+   glassmorphic card; a slim pill reads much better here than a chunky
+   banner. Mobile stays compact; desktop is a touch wider for balance. */
 .kt-visualize-studio__submit {
-  width: 100%;
-  margin-top: 1rem;
-  padding: 0.9rem 1.5rem;
-  background-color: #fff;
-  color: #1c1917;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 9999px;
-  cursor: pointer;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  font-family: inherit;
-  white-space: nowrap;
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   justify-content: center;
-  min-height: 3rem;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1.75rem;
+  background-color: #fff;
+  color: #1c1917;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  min-height: 2.75rem;
+  width: auto;
+  max-width: 100%;
 }
 
 @media screen and (min-width: 750px) {
   .kt-visualize-studio__submit {
-    padding: 1.1rem 2rem;
+    padding: 1rem 2.25rem;
     font-size: 0.75rem;
-    letter-spacing: 0.25em;
-    min-height: 3.5rem;
+    letter-spacing: 0.24em;
+    min-height: 3rem;
   }
+}
+
+.kt-visualize-studio__submit:hover {
+  background-color: #f5f5f4;
+  transform: translateY(-1px);
+}
+
+.kt-visualize-studio__submit:active {
+  transform: scale(0.98);
 }
 
 .kt-visualize-studio__submit:hover {

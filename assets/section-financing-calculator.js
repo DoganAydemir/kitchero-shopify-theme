@@ -26,9 +26,19 @@
     return formatter.format(value);
   }
 
+  /* parseFloat that tolerates comma decimals — Shopify number inputs
+     in a localized (e.g. Turkish) admin sometimes persist as "14,99"
+     which parseFloat() truncates to 14, badly breaking the APR math. */
+  function parseNumber(value) {
+    if (typeof value !== 'string') value = String(value || '');
+    value = value.replace(/\s/g, '').replace(',', '.');
+    var n = parseFloat(value);
+    return isFinite(n) ? n : 0;
+  }
+
   function monthlyPayment(principal, apr, months) {
     if (!principal || principal <= 0 || !months || months <= 0) return 0;
-    if (!apr) return principal / months;
+    if (apr <= 0) return principal / months;
     var r = apr / 100 / 12;
     var pow = Math.pow(1 + r, months);
     return (principal * r * pow) / (pow - 1);
@@ -43,11 +53,11 @@
     if (!input || terms.length === 0) return;
 
     function recompute() {
-      var raw = parseFloat(input.value);
-      if (!isFinite(raw) || raw < 0) raw = 0;
+      var raw = parseNumber(input.value);
+      if (raw < 0) raw = 0;
       terms.forEach(function (btn) {
-        var months = parseInt(btn.getAttribute('data-months'), 10);
-        var apr = parseFloat(btn.getAttribute('data-apr'));
+        var months = parseInt(btn.getAttribute('data-months'), 10) || 0;
+        var apr = parseNumber(btn.getAttribute('data-apr'));
         var price = monthlyPayment(raw, apr, months);
         var target = btn.querySelector('[data-calc-price]');
         if (target) target.textContent = formatCurrency(price);

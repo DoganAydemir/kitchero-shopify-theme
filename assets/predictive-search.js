@@ -19,9 +19,18 @@
       return;
     }
 
+    /* Which resource types to ask Shopify for. Driven by theme settings
+       (Theme options → Search behavior → Include in results). Falls back
+       to a sane default if the globals haven't been exposed yet. */
+    var types = (window.searchSettings && window.searchSettings.types) || 'product,article,page';
+    if (!types) {
+      resultsContainer.innerHTML = '';
+      return;
+    }
+
     var url = window.routes.predictive_search_url
       + '?q=' + encodeURIComponent(query)
-      + '&resources[type]=product,article,page'
+      + '&resources[type]=' + encodeURIComponent(types)
       + '&resources[limit]=4'
       + '&section_id=predictive-search';
 

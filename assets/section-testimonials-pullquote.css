@@ -118,3 +118,99 @@
   color: rgba(255, 255, 255, 0.4); /* white/40 */
   padding-left: 0.2em;
 }
+
+/* ============================================================
+   Slider variant — prev/next + dots + auto-advance
+   ============================================================ */
+
+.kt-testimonials-pullquote--slider .kt-testimonials-pullquote__track {
+  position: relative;
+  min-height: 1rem;
+  display: grid;
+}
+
+.kt-testimonials-pullquote--slider .kt-testimonials-pullquote__slide {
+  grid-column: 1;
+  grid-row: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+.kt-testimonials-pullquote--slider .kt-testimonials-pullquote__slide--active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
+}
+
+.kt-testimonials-pullquote__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.kt-testimonials-pullquote__nav {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.kt-testimonials-pullquote__nav:hover {
+  background-color: #fff;
+  color: #1c1917;
+  border-color: #fff;
+}
+
+.kt-testimonials-pullquote__nav:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.kt-testimonials-pullquote__nav svg {
+  width: 16px;
+  height: 16px;
+}
+
+.kt-testimonials-pullquote__dots {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.kt-testimonials-pullquote__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  padding: 0;
+}
+
+.kt-testimonials-pullquote__dot--active {
+  background-color: #fff;
+  transform: scale(1.15);
+}
+
+.kt-testimonials-pullquote__dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-testimonials-pullquote--slider .kt-testimonials-pullquote__slide {
+    transition: none;
+  }
+}

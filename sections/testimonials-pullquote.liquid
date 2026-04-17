@@ -1,62 +1,119 @@
 {{ 'section-testimonials-pullquote.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%} Testimonials — Style 02: Large Editorial Pull-Quote {%- endcomment -%}
+{%- comment -%}
+  Testimonials Pullquote — single or multi-quote editorial band.
+  If blocks of type `quote` are present they take priority and render
+  as a slider (prev/next + dots). Otherwise the legacy single-quote
+  settings still work so merchants with existing data don't lose it.
+{%- endcomment -%}
+
 {%- assign heading_tag = section.settings.heading_tag | default: 'h3' -%}
 {%- assign vertical_padding = section.settings.vertical_padding | default: 128 -%}
+{%- assign quote_blocks = section.blocks | where: 'type', 'quote' -%}
 
 <section
-  class="kt-testimonials-pullquote"
+  class="kt-testimonials-pullquote{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-pullquote"
   style="--kt-pullquote-padding: {{ vertical_padding }}px;"
 >
   <div class="page-width kt-testimonials-pullquote__inner">
-    {%- comment -%} Decorative quote icon {%- endcomment -%}
     <div class="kt-testimonials-pullquote__icon" aria-hidden="true">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        focusable="false"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
         <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/>
         <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
       </svg>
     </div>
 
-    {%- if section.settings.quote != blank -%}
-      {%- if heading_tag == 'blockquote' -%}
-        <blockquote class="kt-testimonials-pullquote__quote"{% if section.settings.author_name != blank %} cite="{{ section.settings.author_name | escape }}"{% endif %}>
-          &ldquo;{{ section.settings.quote }}&rdquo;
-        </blockquote>
-      {%- else -%}
-        <blockquote class="kt-testimonials-pullquote__quote-wrap"{% if section.settings.author_name != blank %} cite="{{ section.settings.author_name | escape }}"{% endif %}>
-          <{{ heading_tag }} class="kt-testimonials-pullquote__quote">
-            &ldquo;{{ section.settings.quote }}&rdquo;
-          </{{ heading_tag }}>
-        </blockquote>
-      {%- endif -%}
-    {%- endif -%}
+    {%- if quote_blocks.size > 0 -%}
+      <div class="kt-testimonials-pullquote__track" data-pullquote-track>
+        {%- for block in quote_blocks -%}
+          <article
+            class="kt-testimonials-pullquote__slide{% if forloop.first %} kt-testimonials-pullquote__slide--active{% endif %}"
+            data-pullquote-slide="{{ forloop.index0 }}"
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.quote != blank -%}
+              <blockquote class="kt-testimonials-pullquote__quote-wrap">
+                <{{ heading_tag }} class="kt-testimonials-pullquote__quote">
+                  &ldquo;{{ block.settings.quote }}&rdquo;
+                </{{ heading_tag }}>
+              </blockquote>
+            {%- endif -%}
 
-    {%- if section.settings.author_name != blank or section.settings.author_title != blank -%}
-      <div class="kt-testimonials-pullquote__attribution">
-        <span class="kt-testimonials-pullquote__divider" aria-hidden="true"></span>
-        {%- if section.settings.author_name != blank -%}
-          <cite class="kt-testimonials-pullquote__author">{{ section.settings.author_name }}</cite>
-        {%- endif -%}
-        {%- if section.settings.author_title != blank -%}
-          <span class="kt-testimonials-pullquote__author-title">{{ section.settings.author_title }}</span>
-        {%- endif -%}
+            {%- if block.settings.author_name != blank or block.settings.author_title != blank -%}
+              <div class="kt-testimonials-pullquote__attribution">
+                <span class="kt-testimonials-pullquote__divider" aria-hidden="true"></span>
+                {%- if block.settings.author_name != blank -%}
+                  <cite class="kt-testimonials-pullquote__author">{{ block.settings.author_name }}</cite>
+                {%- endif -%}
+                {%- if block.settings.author_title != blank -%}
+                  <span class="kt-testimonials-pullquote__author-title">{{ block.settings.author_title }}</span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </article>
+        {%- endfor -%}
       </div>
+
+      {%- if quote_blocks.size > 1 -%}
+        <div class="kt-testimonials-pullquote__controls" role="tablist" aria-label="{{ 'sections.testimonials-pullquote.pagination' | t | default: 'Testimonials' }}">
+          <button
+            type="button"
+            class="kt-testimonials-pullquote__nav kt-testimonials-pullquote__nav--prev"
+            data-pullquote-prev
+            aria-label="{{ 'sections.testimonials-pullquote.previous' | t | default: 'Previous testimonial' }}"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+
+          <div class="kt-testimonials-pullquote__dots">
+            {%- for block in quote_blocks -%}
+              <button
+                type="button"
+                class="kt-testimonials-pullquote__dot{% if forloop.first %} kt-testimonials-pullquote__dot--active{% endif %}"
+                data-pullquote-dot="{{ forloop.index0 }}"
+                aria-label="{{ 'sections.testimonials-pullquote.go_to' | t: index: forloop.index | default: 'Go to testimonial' }}"
+                aria-controls="{{ section.id }}-{{ forloop.index0 }}"
+              ></button>
+            {%- endfor -%}
+          </div>
+
+          <button
+            type="button"
+            class="kt-testimonials-pullquote__nav kt-testimonials-pullquote__nav--next"
+            data-pullquote-next
+            aria-label="{{ 'sections.testimonials-pullquote.next' | t | default: 'Next testimonial' }}"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      {%- endif -%}
+    {%- elsif section.settings.quote != blank -%}
+      {%- comment -%} Legacy single-quote fallback {%- endcomment -%}
+      <blockquote class="kt-testimonials-pullquote__quote-wrap">
+        <{{ heading_tag }} class="kt-testimonials-pullquote__quote">
+          &ldquo;{{ section.settings.quote }}&rdquo;
+        </{{ heading_tag }}>
+      </blockquote>
+      {%- if section.settings.author_name != blank or section.settings.author_title != blank -%}
+        <div class="kt-testimonials-pullquote__attribution">
+          <span class="kt-testimonials-pullquote__divider" aria-hidden="true"></span>
+          {%- if section.settings.author_name != blank -%}
+            <cite class="kt-testimonials-pullquote__author">{{ section.settings.author_name }}</cite>
+          {%- endif -%}
+          {%- if section.settings.author_title != blank -%}
+            <span class="kt-testimonials-pullquote__author-title">{{ section.settings.author_title }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </section>
+
+{%- if quote_blocks.size > 1 -%}
+  <script src="{{ 'section-testimonials-pullquote.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -72,6 +129,7 @@
       "type": "textarea",
       "id": "quote",
       "label": "t:sections.testimonials-pullquote.settings.quote.label",
+      "info": "t:sections.testimonials-pullquote.settings.quote.info",
       "default": "Our clients expect zero compromises. Kitchero is the only cabinetry brand that consistently delivers on both architectural vision and structural performance."
     },
     {
@@ -92,18 +150,9 @@
       "label": "t:sections.testimonials-pullquote.settings.heading_tag.label",
       "info": "t:sections.testimonials-pullquote.settings.heading_tag.info",
       "options": [
-        {
-          "value": "h2",
-          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__1.label"
-        },
-        {
-          "value": "h3",
-          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__2.label"
-        },
-        {
-          "value": "blockquote",
-          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__3.label"
-        }
+        { "value": "h2", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__2.label" },
+        { "value": "blockquote", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__3.label" }
       ],
       "default": "h3"
     },
@@ -124,16 +173,34 @@
   ],
   "blocks": [
     {
-      "type": "@app"
-    }
+      "type": "quote",
+      "name": "t:sections.testimonials-pullquote.blocks.quote.name",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.quote.label",
+          "default": "Add a client testimonial here to showcase social proof."
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_name.label"
+        },
+        {
+          "type": "text",
+          "id": "author_title",
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_title.label"
+        }
+      ]
+    },
+    { "type": "@app" }
   ],
   "presets": [
     {
       "name": "t:sections.testimonials-pullquote.presets.name",
       "settings": {
-        "quote": "Our clients expect zero compromises. Kitchero is the only cabinetry brand that consistently delivers on both architectural vision and structural performance.",
-        "author_name": "Julianne Vanderbilt",
-        "author_title": "Principal Designer, New York",
         "heading_tag": "h3",
         "vertical_padding": 128
       }

@@ -25,23 +25,81 @@
         </legend>
 
         {%- if is_color -%}
-          {%- comment -%} Color/finish: round swatches {%- endcomment -%}
+          {%- comment -%}
+            Swatch resolution priority — matches the Shopify Online Store
+            2.0 pattern used by Dawn / Impulse:
+            1. Variant metafield `custom.swatch_color` (hex or CSS color)
+               — merchant can override any swatch per variant.
+            2. Variant metafield `custom.swatch_image` (image swatch) —
+               rendered as the background of the swatch chip.
+            3. CSS Named Colors on the option value (e.g. "Black" maps
+               natively to rgb(0,0,0) via background-color: valueName).
+            4. Hardcoded fallback palette below for brand-specific finish
+               names the browser wouldn't understand.
+          {%- endcomment -%}
           <div class="kt-variant-picker__swatches">
             {%- for value in option.values -%}
-              {%- assign color_lower = value | downcase | strip -%}
-              {%- case color_lower -%}
-                {%- when 'black' -%}{%- assign swatch_hex = '#1a1a1a' -%}
-                {%- when 'white' or 'arctic white' -%}{%- assign swatch_hex = '#faf9f6' -%}
-                {%- when 'gray' or 'grey' or 'pebble gray' -%}{%- assign swatch_hex = '#a8a29e' -%}
-                {%- when 'charcoal' -%}{%- assign swatch_hex = '#44403c' -%}
-                {%- when 'espresso' -%}{%- assign swatch_hex = '#3C2415' -%}
-                {%- when 'navy' or 'navy blue' -%}{%- assign swatch_hex = '#1e3a5f' -%}
-                {%- when 'walnut' -%}{%- assign swatch_hex = '#5D432C' -%}
-                {%- when 'oak' or 'natural oak' -%}{%- assign swatch_hex = '#d2b48c' -%}
-                {%- when 'brown' -%}{%- assign swatch_hex = '#6b4e31' -%}
-                {%- when 'beige' or 'ivory' -%}{%- assign swatch_hex = '#e8dccc' -%}
-                {%- else -%}{%- assign swatch_hex = '#a8a29e' -%}
-              {%- endcase -%}
+              {%- liquid
+                assign matching_variant = nil
+                for v in product.variants
+                  if v.options contains value
+                    assign matching_variant = v
+                    break
+                  endif
+                endfor
+
+                assign swatch_meta_color = nil
+                assign swatch_meta_image = nil
+                if matching_variant
+                  assign swatch_meta_color = matching_variant.metafields.custom.swatch_color
+                  assign swatch_meta_image = matching_variant.metafields.custom.swatch_image.value
+                endif
+
+                assign color_lower = value | downcase | strip
+                assign swatch_hex = ''
+                case color_lower
+                  when 'black'
+                    assign swatch_hex = '#1a1a1a'
+                  when 'white', 'arctic white'
+                    assign swatch_hex = '#faf9f6'
+                  when 'gray', 'grey', 'pebble gray'
+                    assign swatch_hex = '#a8a29e'
+                  when 'charcoal'
+                    assign swatch_hex = '#44403c'
+                  when 'espresso'
+                    assign swatch_hex = '#3C2415'
+                  when 'navy', 'navy blue'
+                    assign swatch_hex = '#1e3a5f'
+                  when 'walnut'
+                    assign swatch_hex = '#5D432C'
+                  when 'oak', 'natural oak'
+                    assign swatch_hex = '#d2b48c'
+                  when 'brown'
+                    assign swatch_hex = '#6b4e31'
+                  when 'beige', 'ivory'
+                    assign swatch_hex = '#e8dccc'
+                  when 'ice'
+                    assign swatch_hex = '#e6eef2'
+                  when 'dark'
+                    assign swatch_hex = '#1c1917'
+                  else
+                    assign swatch_hex = ''
+                endcase
+
+                assign swatch_style = ''
+                if swatch_meta_image != blank
+                  assign swatch_image_url = swatch_meta_image | image_url: width: 80
+                  assign swatch_style = 'background-image: url(' | append: swatch_image_url | append: '); background-size: cover; background-position: center;'
+                elsif swatch_meta_color != blank
+                  assign swatch_style = 'background-color: ' | append: swatch_meta_color | append: ';'
+                elsif swatch_hex != blank
+                  assign swatch_style = 'background-color: ' | append: swatch_hex | append: ';'
+                else
+                  # Fall back to the CSS color name — modern browsers accept
+                  # 140 named colors, which covers most generic palettes.
+                  assign swatch_style = 'background-color: ' | append: color_lower | append: ';'
+                endif
+              -%}
 
               <label class="kt-variant-picker__swatch-label">
                 <input
@@ -54,7 +112,7 @@
                 >
                 <span
                   class="kt-variant-picker__swatch"
-                  style="background-color: {{ swatch_hex }};"
+                  style="{{ swatch_style }}"
                   title="{{ value }}"
                 ></span>
               </label>

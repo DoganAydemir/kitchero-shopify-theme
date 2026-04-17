@@ -105,6 +105,17 @@
         "social_pinterest_link": { "label": "Pinterest", "info": "https://pinterest.com/shopify" }
       }
     },
+    "brand_information": {
+      "name": "Brand information",
+      "settings": {
+        "paragraph": {
+          "content": "Used in footer, emails, and SEO-structured data. Shared across the theme."
+        },
+        "brand_headline": { "label": "Brand headline" },
+        "brand_description": { "label": "Brand description" },
+        "brand_image": { "label": "Brand image" }
+      }
+    },
     "search_input": {
       "name": "Search behavior",
       "settings": {
@@ -120,6 +131,14 @@
         "search_popular_terms": {
           "label": "Popular search terms",
           "info": "Comma-separated list shown as suggestion pills in the search overlay. Leave blank to hide the row."
+        },
+        "header__types": { "content": "Include in results" },
+        "search_include_products": { "label": "Products" },
+        "search_include_pages": { "label": "Pages" },
+        "search_include_articles": { "label": "Journal articles" },
+        "search_include_collections": {
+          "label": "Collections",
+          "info": "Off by default. Some merchants prefer to hide collection matches from shopper-facing search."
         }
       }
     },
@@ -798,14 +817,60 @@
           "options__1": { "label": "H1" },
           "options__2": { "label": "H2" }
         },
+        "show_breadcrumb": { "label": "Show breadcrumb" },
         "show_dynamic_checkout": {
           "label": "Show dynamic checkout button",
           "info": "Renders Shop Pay / Buy it now below Add to Cart. Shopify recommends keeping this enabled for faster checkout. Disable for visual purity."
         }
       },
       "blocks": {
+        "title": {
+          "name": "Title",
+          "settings": {
+            "heading_tag": { "label": "Heading tag" }
+          }
+        },
+        "meta": {
+          "name": "Rating + stock",
+          "settings": {
+            "show_rating": { "label": "Show rating" },
+            "show_stock": { "label": "Show stock status" }
+          }
+        },
+        "countdown": {
+          "name": "Countdown",
+          "info": "Renders only if the product has a `custom.deal_ends_at` metafield set.",
+          "settings": {
+            "label": { "label": "Label above timer" },
+            "badge": { "label": "Badge text" },
+            "ending_label": { "label": "Ending label" }
+          }
+        },
+        "price": { "name": "Price" },
+        "description": {
+          "name": "Description",
+          "settings": {
+            "truncate": { "label": "Truncate description" },
+            "word_limit": { "label": "Word limit (when truncated)" }
+          }
+        },
+        "variant_picker": { "name": "Variant picker" },
+        "buy_buttons": { "name": "Buy buttons" },
+        "trust_badges": {
+          "name": "Trust badges",
+          "settings": {
+            "badge_1_icon": { "label": "Badge 1 \u2014 icon" },
+            "badge_1_text": { "label": "Badge 1 \u2014 text" },
+            "badge_2_icon": { "label": "Badge 2 \u2014 icon" },
+            "badge_2_text": { "label": "Badge 2 \u2014 text" },
+            "badge_3_icon": { "label": "Badge 3 \u2014 icon" },
+            "badge_3_text": { "label": "Badge 3 \u2014 text" },
+            "badge_4_icon": { "label": "Badge 4 \u2014 icon" },
+            "badge_4_text": { "label": "Badge 4 \u2014 text" }
+          }
+        },
         "trust_badge": {
-          "name": "Trust badge",
+          "name": "Trust badge (legacy)",
           "settings": {
             "icon": {
               "label": "Icon",
@@ -824,6 +889,35 @@
             "content": { "label": "Content" },
             "page": { "label": "Page content" },
             "open": { "label": "Open by default" }
+          }
+        },
+        "door_sample": {
+          "name": "Sample order box",
+          "settings": {
+            "sample_product": {
+              "label": "Sample product",
+              "info": "Leave blank to offer a sample of the current product."
+            },
+            "header_title": { "label": "Header title" },
+            "ships_badge": { "label": "Ships badge (small right-side pill)" },
+            "description": { "label": "Description" },
+            "button_text": { "label": "Button text" },
+            "refundable": { "label": "Show \"refundable\" tag" }
+          }
+        },
+        "concierge_box": {
+          "name": "Concierge box",
+          "settings": {
+            "heading": { "label": "Heading" },
+            "body": { "label": "Body" },
+            "cta_text": { "label": "CTA text" },
+            "cta_link": { "label": "CTA link" }
+          }
+        },
+        "spacer": {
+          "name": "Spacer",
+          "settings": {
+            "height": { "label": "Height" }
           }
         }
       },
@@ -1431,7 +1525,10 @@
       "settings": {
         "header__content": { "content": "Content" },
         "header__layout": { "content": "Layout" },
-        "quote": { "label": "Quote" },
+        "quote": {
+          "label": "Quote (legacy — single)",
+          "info": "Used only when no Quote blocks are added below. Add one or more Quote blocks to turn the section into a slider."
+        },
         "author_name": { "label": "Author name" },
         "author_title": { "label": "Author title" },
         "heading_tag": {
@@ -1442,6 +1539,16 @@
           "options__3": { "label": "Blockquote" }
         },
         "vertical_padding": { "label": "Vertical padding" }
+      },
+      "blocks": {
+        "quote": {
+          "name": "Quote",
+          "settings": {
+            "quote": { "label": "Quote" },
+            "author_name": { "label": "Author name" },
+            "author_title": { "label": "Author title / brand" }
+          }
+        }
       },
       "presets": {
         "name": "Testimonials — Pull Quote"
@@ -1862,7 +1969,10 @@
         "header__cta": { "content": "Call to action" },
         "header__media": { "content": "Media" },
         "header__motion": { "content": "Motion" },
-        "eyebrow": { "label": "Eyebrow" },
+        "eyebrow": {
+          "label": "Label above heading",
+          "info": "Small uppercase line that appears above the main heading (e.g. 'Our Philosophy')."
+        },
         "heading": { "label": "Heading" },
         "heading_tag": {
           "label": "Heading tag",
