@@ -21,9 +21,26 @@
     </div>
 
     <div class="kt-guide-teaser__grid">
+      {%- comment -%}
+        Resolve which data source to use. Priority:
+        1. Live blog articles (if a blog handle was picked AND it has posts)
+        2. Manual blocks (if any are configured)
+        3. Placeholder cards (never strand the merchant with an empty band)
+        This keeps the section visible no matter which combination of
+        settings/blocks the merchant has toggled in the editor — fixes the
+        "turning on a checkbox makes the whole section disappear" bug.
+      {%- endcomment -%}
+      {%- assign blog_obj = nil -%}
       {%- if section.settings.blog != blank -%}
         {%- assign blog_obj = blogs[section.settings.blog] -%}
-        {%- if blog_obj and blog_obj.articles_count > 0 -%}
+      {%- endif -%}
+      {%- assign has_live_articles = false -%}
+      {%- if blog_obj and blog_obj.articles_count > 0 -%}
+        {%- assign has_live_articles = true -%}
+      {%- endif -%}
+      {%- assign article_blocks = section.blocks | where: 'type', 'article' -%}
+
+      {%- if has_live_articles -%}
           {%- for article in blog_obj.articles limit: section.settings.posts_count -%}
             <a href="{{ article.url }}" class="kt-guide-teaser__card">
               <div class="kt-guide-teaser__card-image-wrap">
@@ -54,23 +71,9 @@
               </div>
             </a>
           {%- endfor -%}
-        {%- else -%}
-          {%- comment -%} Blog selected but no articles — show placeholders {%- endcomment -%}
-          {%- for i in (1..3) -%}
-            <div class="kt-guide-teaser__card">
-              <div class="kt-guide-teaser__card-image-wrap">
-                {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-guide-teaser__card-image' }}
-              </div>
-              <div class="kt-guide-teaser__card-content">
-                <p class="kt-guide-teaser__card-category">{{ 'onboarding.collection_title' | t }}</p>
-                <h3 class="kt-guide-teaser__card-title">{{ 'onboarding.product_title' | t }}</h3>
-              </div>
-            </div>
-          {%- endfor -%}
-        {%- endif -%}
-      {%- else -%}
-        {%- comment -%} No blog selected — use manual blocks {%- endcomment -%}
-        {%- for block in section.blocks -%}
+      {%- elsif article_blocks.size > 0 -%}
+        {%- comment -%} No live articles — use merchant-configured blocks {%- endcomment -%}
+        {%- for block in article_blocks -%}
           {%- if block.type == 'article' -%}
             <a href="{{ block.settings.link | default: '#' }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
               <div class="kt-guide-teaser__card-image-wrap">
@@ -101,6 +104,19 @@
               </div>
             </a>
           {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%} Nothing live and no blocks yet — onboarding placeholders {%- endcomment -%}
+        {%- for i in (1..3) -%}
+          <div class="kt-guide-teaser__card">
+            <div class="kt-guide-teaser__card-image-wrap">
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-guide-teaser__card-image' }}
+            </div>
+            <div class="kt-guide-teaser__card-content">
+              <p class="kt-guide-teaser__card-category">{{ 'onboarding.collection_title' | t }}</p>
+              <h3 class="kt-guide-teaser__card-title">{{ 'onboarding.product_title' | t }}</h3>
+            </div>
+          </div>
         {%- endfor -%}
       {%- endif -%}
     </div>

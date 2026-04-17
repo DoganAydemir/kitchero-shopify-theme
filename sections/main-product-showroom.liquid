@@ -237,7 +237,13 @@
 
           {%- comment -%} Order a Door Sample box — the ONLY place ATC happens in Showroom {%- endcomment -%}
           {%- if section.settings.show_door_sample -%}
-            {%- assign sample_product = section.settings.sample_product -%}
+            {%- comment -%}
+              Fall back to the current product if the merchant hasn't
+              linked a dedicated sample product yet. This keeps the
+              box visible on every showroom page — which is what the
+              Next.js source does — instead of silently disappearing.
+            {%- endcomment -%}
+            {%- assign sample_product = section.settings.sample_product | default: product -%}
             {%- if sample_product != blank -%}
               {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
               <div class="kt-showroom__sample-box">

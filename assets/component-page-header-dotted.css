@@ -149,11 +149,18 @@
   overflow: hidden;
 }
 
-.kt-page-header-dotted__eyebrow-wrap {
-  margin-bottom: 1rem;
+/* The title uses a serif display face with long descenders on letters
+   like g / y / p / italic tails. `overflow: hidden` on the reveal mask
+   was clipping those descenders, so we add a padding-bottom large
+   enough to contain a full descender (~0.25em on most serifs) and
+   compensate with a negative margin so the visual rhythm stays
+   unchanged. */
+.kt-page-header-dotted__title-wrap {
+  padding-bottom: 0.25em;
+  margin-bottom: calc(1rem - 0.25em);
 }
 
-.kt-page-header-dotted__title-wrap {
+.kt-page-header-dotted__eyebrow-wrap {
   margin-bottom: 1rem;
 }
 

@@ -20,7 +20,18 @@
       <div class="kt-ecosystem__text-col">
         <div class="kt-ecosystem__title-block">
           {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-          <{{ heading_tag }} class="kt-ecosystem__title">{{ section.settings.heading_line1 | default: 'High-Tech' }}<br>{{ section.settings.heading_line2 | default: 'Storage.' }}</{{ heading_tag }}>
+          {%- liquid
+            # Prefer the new unified `heading` (inline_richtext with <br>
+            # allowed). Fall back to the legacy two-field pair so we don't
+            # wipe existing merchant content.
+            assign resolved_heading = section.settings.heading
+            if resolved_heading == blank
+              assign part1 = section.settings.heading_line1 | default: 'High-Tech'
+              assign part2 = section.settings.heading_line2 | default: 'Storage.'
+              assign resolved_heading = part1 | append: '<br>' | append: part2
+            endif
+          -%}
+          <{{ heading_tag }} class="kt-ecosystem__title">{{ resolved_heading }}</{{ heading_tag }}>
           {%- if section.settings.subtitle != blank -%}
             <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
           {%- endif -%}
@@ -30,7 +41,18 @@
           {%- for block in section.blocks -%}
             {%- if block.type == 'feature' -%}
               <div class="kt-ecosystem__feature eco-item" {{ block.shopify_attributes }}>
-                <h3 class="kt-ecosystem__feature-title">{{ block.settings.number | default: forloop.index | prepend: '0' }} / {{ block.settings.title }}</h3>
+                {%- comment -%}
+                  Feature title is now a single string. Legacy entries that
+                  still have a separate `number` setting are stitched back
+                  together so existing merchant data doesn't break.
+                {%- endcomment -%}
+                {%- assign feature_title = block.settings.title -%}
+                {%- if block.settings.number != blank and feature_title != blank -%}
+                  {%- unless feature_title contains '/' -%}
+                    {%- assign feature_title = block.settings.number | append: ' / ' | append: feature_title -%}
+                  {%- endunless -%}
+                {%- endif -%}
+                <h3 class="kt-ecosystem__feature-title">{{ feature_title }}</h3>
                 <p class="kt-ecosystem__feature-desc">{{ block.settings.description }}</p>
               </div>
             {%- endif -%}
@@ -71,10 +93,11 @@
   "class": "section",
   "settings": [
     {
-      "type": "text",
-      "id": "heading_line1",
-      "label": "t:sections.ecosystem.settings.heading_line1.label",
-      "default": "High-Tech"
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:sections.ecosystem.settings.heading.label",
+      "info": "t:sections.ecosystem.settings.heading.info",
+      "default": "High-Tech<br>Storage."
     },
     {
       "type": "select",
@@ -109,12 +132,6 @@
       "default": "h2"
     },
     {
-      "type": "text",
-      "id": "heading_line2",
-      "label": "t:sections.ecosystem.settings.heading_line2.label",
-      "default": "Storage."
-    },
-    {
       "type": "textarea",
       "id": "subtitle",
       "label": "t:sections.ecosystem.settings.subtitle.label",
@@ -145,15 +162,9 @@
       "settings": [
         {
           "type": "text",
-          "id": "number",
-          "label": "t:sections.ecosystem.blocks.feature.settings.number.label",
-          "default": "01"
-        },
-        {
-          "type": "text",
           "id": "title",
           "label": "t:sections.ecosystem.blocks.feature.settings.title.label",
-          "default": "Feature title"
+          "default": "01 / Feature title"
         },
         {
           "type": "textarea",
@@ -171,24 +182,21 @@
         {
           "type": "feature",
           "settings": {
-            "number": "01",
-            "title": "Invisible Automation",
+            "title": "01 / Invisible Automation",
             "description": "Handle-less drawers that open with a gentle touch. Powered by whisper-quiet electric mechanisms hidden within the dark wood frame."
           }
         },
         {
           "type": "feature",
           "settings": {
-            "number": "02",
-            "title": "Integrated LED",
+            "title": "02 / Integrated LED",
             "description": "Motion-sensing ambient lighting embedded directly into the cabinetry, illuminating exactly what you need, exactly when you need it."
           }
         },
         {
           "type": "feature",
           "settings": {
-            "number": "03",
-            "title": "Perfect Organization",
+            "title": "03 / Perfect Organization",
             "description": "Custom laser-cut organizers designed precisely for your exact utensils, pans, and ingredients. No space is wasted."
           }
         }

@@ -188,6 +188,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    /* Sticky so the image stays anchored in view as the left-column
+       feature text scrolls past. Mirrors the Next.js source which uses
+       a sticky h-screen wrapper. Also fixes the Shopify theme-editor
+       "disappearing image on scroll" bug — without sticky, the 100vh
+       column scrolls out of view long before the text column finishes. */
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
   }
 }
 

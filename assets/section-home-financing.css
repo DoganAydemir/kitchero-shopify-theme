@@ -74,13 +74,19 @@
   display: block;
 }
 
-/* h2: text-4xl md:text-6xl font-serif tracking-tight mb-8 */
+/* h2: text-4xl md:text-6xl font-serif tracking-tight mb-8.
+   Section has a dark stone-800 background, so the heading is white
+   (inherits from parent .kt-home-financing). Previously the second
+   italic span used stone-500 which rendered almost invisible against
+   the dark bg. Now both lines read light so the editorial pairing
+   reads clearly. */
 .kt-home-financing__title {
   font-family: var(--font-accent-family);
   font-size: 2.25rem;
   letter-spacing: -0.025em;
   margin-bottom: 2rem;
   line-height: 1.1;
+  color: #fff;
 }
 
 @media screen and (min-width: 750px) {
@@ -89,12 +95,13 @@
   }
 }
 
-/* Second line: italic font-light text-stone-400 text-3xl md:text-5xl */
+/* Second line: italic light-toned against dark bg — muted white instead
+   of dark stone so it stays readable and feels like a "fade-in" accent. */
 .kt-home-financing__title-sub {
   display: block;
   font-style: italic;
   font-weight: 300;
-  color: #78716c;
+  color: rgba(255, 255, 255, 0.55);
   font-size: 1.875rem;
 }
 

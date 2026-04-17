@@ -1,0 +1,146 @@
+/* ============================================================
+   Ready to Begin — standalone CTA with text-masked serif heading.
+   Extracted from the old testimonials-cta block so the effect can
+   be used independently. The title uses `background-clip: text`
+   to show the background image through the letter shapes; on
+   mobile / touch we ship a static (scroll) background because
+   `fixed` doesn't render on iOS Safari.
+   ============================================================ */
+
+.kt-ready-to-begin {
+  position: relative;
+  padding: 6rem 0;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ready-to-begin {
+    padding: 10rem 0;
+  }
+}
+
+.kt-ready-to-begin__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.kt-ready-to-begin__title {
+  font-size: 16vw;
+  line-height: 0.9;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-size: 180% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  user-select: none;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ready-to-begin__title {
+    font-size: 13vw;
+    line-height: 0.85;
+    background-size: 140% auto;
+  }
+}
+
+@media (pointer: fine) and (min-width: 1280px) {
+  .kt-ready-to-begin__title {
+    background-size: cover;
+    background-attachment: fixed;
+  }
+}
+
+.kt-ready-to-begin__action {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ready-to-begin__action {
+    margin-top: 4rem;
+  }
+}
+
+.kt-ready-to-begin__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem 0.875rem 1.5rem;
+  background-color: #000;
+  color: #fff;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ready-to-begin__btn {
+    gap: 1.25rem;
+    padding: 1.1rem 1.5rem 1.1rem 2.25rem;
+    font-size: 1.125rem;
+  }
+}
+
+.kt-ready-to-begin__btn:hover {
+  background-color: #292524;
+  transform: translateY(-1px);
+}
+
+.kt-ready-to-begin__btn:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 3px;
+}
+
+.kt-ready-to-begin__btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ready-to-begin__btn-arrow {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.kt-ready-to-begin__btn:hover .kt-ready-to-begin__btn-arrow {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-ready-to-begin__btn,
+  .kt-ready-to-begin__btn-arrow {
+    transition: none;
+  }
+  .kt-ready-to-begin__btn:hover {
+    transform: none;
+  }
+  .kt-ready-to-begin__btn:hover .kt-ready-to-begin__btn-arrow {
+    transform: none;
+  }
+}

@@ -1,0 +1,109 @@
+{%- comment -%}
+  Ready to Begin — standalone CTA section with text-masked background
+  on a huge serif heading. Extracted from testimonials.liquid so it can
+  be dropped anywhere in a JSON template (home, about, finance, etc.)
+  independently from the testimonials band.
+
+  Reuses `component-ready-to-begin.css` so the style is owned by this
+  section alone (no dependency on section-testimonials.css).
+{%- endcomment -%}
+
+{{ 'component-ready-to-begin.css' | asset_url | stylesheet_tag }}
+
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+
+<section
+  class="kt-ready-to-begin"
+  data-section-id="{{ section.id }}"
+  data-section-type="ready-to-begin"
+>
+  <div class="page-width kt-ready-to-begin__inner">
+    <{{ heading_tag }}
+      class="kt-ready-to-begin__title"
+      {%- if section.settings.background_image != blank -%}
+        style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}');"
+      {%- else -%}
+        style="background-image: linear-gradient(135deg, #292524 0%, #a8a29e 40%, #d6d3d1 60%, #78716c 100%);"
+      {%- endif -%}
+    >
+      {{- section.settings.heading_line1 | default: 'READY TO' }}<br>{{ section.settings.heading_line2 | default: 'BEGIN?' -}}
+    </{{ heading_tag }}>
+
+    {%- if section.settings.cta_text != blank -%}
+      <div class="kt-ready-to-begin__action">
+        <a href="{{ section.settings.cta_link | default: routes.root_url }}" class="kt-ready-to-begin__btn">
+          <span>{{ section.settings.cta_text }}</span>
+          <span class="kt-ready-to-begin__btn-arrow" aria-hidden="true">
+            <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.ready-to-begin.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.ready-to-begin.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.ready-to-begin.settings.heading_line1.label",
+      "default": "READY TO"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2",
+      "label": "t:sections.ready-to-begin.settings.heading_line2.label",
+      "default": "BEGIN?"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.ready-to-begin.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ready-to-begin.settings.header__appearance.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:sections.ready-to-begin.settings.background_image.label",
+      "info": "t:sections.ready-to-begin.settings.background_image.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ready-to-begin.settings.header__cta.content"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "t:sections.ready-to-begin.settings.cta_text.label",
+      "default": "Reserve Your Design Slot"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "t:sections.ready-to-begin.settings.cta_link.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.ready-to-begin.presets.name"
+    }
+  ]
+}
+{% endschema %}
