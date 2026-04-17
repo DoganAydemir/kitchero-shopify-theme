@@ -1,0 +1,387 @@
+/* ============================================================
+   Gift Card — standalone template styles.
+   Editorial layout: dotted stone-50 background band + centered
+   white card containing the gift-card artwork, balance pill,
+   code field with copy button, and a pill CTA.
+   ============================================================ */
+
+.kt-gift-card-page {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #fafaf9; /* stone-50 */
+  color: #1c1917;
+  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif);
+  background-image: radial-gradient(circle, rgba(28, 25, 23, 0.1) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+.kt-gift-card {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-gift-card {
+    padding: 5rem 2rem 7rem;
+    gap: 4rem;
+  }
+}
+
+/* ── Logo ──────────────────────────────────────────────── */
+
+.kt-gift-card__logo {
+  display: inline-flex;
+  align-items: center;
+  color: #1c1917;
+  text-decoration: none;
+}
+
+.kt-gift-card__logo-image {
+  height: 1.75rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.kt-gift-card__wordmark {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+
+.kt-gift-card__header {
+  text-align: center;
+}
+
+.kt-gift-card__eyebrow {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #a8a29e;
+  margin-bottom: 1rem;
+}
+
+.kt-gift-card__title {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: clamp(2rem, 4vw + 1rem, 3.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #1c1917;
+  margin: 0;
+}
+
+/* ── Gift card visual ─────────────────────────────────── */
+
+.kt-gift-card__visual {
+  width: 100%;
+  max-width: 34rem;
+}
+
+.kt-gift-card__card {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: #1c1917;
+  box-shadow: 0 48px 96px -32px rgba(0, 0, 0, 0.25);
+}
+
+.kt-gift-card__card-media {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  overflow: hidden;
+}
+
+.kt-gift-card__card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-gift-card__card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(135deg, #44403c 0%, #1c1917 50%, #292524 100%);
+  color: rgba(255, 255, 255, 0.6);
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.kt-gift-card__card-icon {
+  width: 4rem;
+  height: 4rem;
+}
+
+.kt-gift-card__card-monogram {
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 3rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1;
+}
+
+.kt-gift-card__card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 55%);
+  color: #fff;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-gift-card__card-overlay {
+    padding: 2.25rem;
+  }
+}
+
+.kt-gift-card__card-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 0.5rem;
+}
+
+.kt-gift-card__card-value {
+  display: block;
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: clamp(1.75rem, 4vw + 0.5rem, 2.75rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+
+.kt-gift-card__card-total {
+  font-size: 0.6em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+  margin-left: 0.3em;
+}
+
+/* ── Meta (code + pills) ──────────────────────────────── */
+
+.kt-gift-card__meta {
+  width: 100%;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.kt-gift-card__code-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #a8a29e;
+  margin-bottom: 0.75rem;
+}
+
+.kt-gift-card__code-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  box-shadow: 0 10px 25px -18px rgba(0, 0, 0, 0.25);
+}
+
+.kt-gift-card__code {
+  flex: 1;
+  min-width: 0;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-accent-family, Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #1c1917;
+  text-align: center;
+}
+
+.kt-gift-card__code:focus {
+  outline: none;
+  background-color: #fafaf9;
+  border-radius: 0.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-gift-card__code {
+    font-size: 1.5rem;
+  }
+}
+
+.kt-gift-card__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: #1c1917;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.kt-gift-card__copy:hover {
+  background-color: #000;
+}
+
+.kt-gift-card__copy:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 3px;
+}
+
+.kt-gift-card__copy svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kt-gift-card__copy--success {
+  background-color: #047857;
+}
+
+.kt-gift-card__copy-text {
+  display: none;
+}
+
+@media screen and (min-width: 640px) {
+  .kt-gift-card__copy-text {
+    display: inline-block;
+  }
+}
+
+/* ── Pills ─────────────────────────────────────────────── */
+
+.kt-gift-card__pills {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kt-gift-card__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.kt-gift-card__pill--active {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.kt-gift-card__pill--expired {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* ── Actions ───────────────────────────────────────────── */
+
+.kt-gift-card__actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.kt-gift-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  background-color: #1c1917;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-gift-card__cta {
+    padding: 1.25rem 3rem;
+    font-size: 0.75rem;
+  }
+}
+
+.kt-gift-card__cta:hover {
+  background-color: #000;
+  transform: translateY(-1px);
+}
+
+.kt-gift-card__cta:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 3px;
+}
+
+.kt-gift-card__cta svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-gift-card__cta,
+  .kt-gift-card__copy {
+    transition: none;
+  }
+  .kt-gift-card__cta:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .kt-gift-card-page {
+    background-color: #fff;
+    background-image: none;
+  }
+  .kt-gift-card__copy,
+  .kt-gift-card__actions {
+    display: none;
+  }
+  .kt-gift-card__card {
+    box-shadow: none;
+  }
+}

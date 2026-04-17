@@ -1,67 +1,174 @@
+{%- comment -%}
+  Gift Card — standalone template.
+  Shopify does NOT allow JSON templates for gift_card. This is a full
+  HTML document (like the Dawn fallback) but styled in the Kitchero
+  design language: serif title, dotted background band, big editorial
+  gift-card card, code field with copy button, balance + expiry pills,
+  and a black "Continue shopping" CTA.
+{%- endcomment -%}
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}" dir="{{ request.locale.iso_code | handle | slice: 0, 2 | replace: 'ar', 'rtl' | replace: 'he', 'rtl' | default: 'ltr' }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{{ 'gift_cards.issued.title' | t }} - {{ shop.name }}</title>
+    <meta name="theme-color" content="#fafaf9">
+    <title>{{ 'gift_cards.issued.title' | t }} · {{ shop.name }}</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     {{ content_for_header }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'template-gift-card.css' | asset_url | stylesheet_tag }}
   </head>
-  <body>
-    <main class="gift-card page-width" role="main">
-      <header class="gift-card__header">
-        <h1 class="gift-card__heading">{{ 'gift_cards.issued.title' | t }}</h1>
-        <p class="gift-card__subtext">{{ 'gift_cards.issued.subtext' | t }}</p>
+  <body class="kt-gift-card-page">
+    <main class="kt-gift-card" role="main">
+      <a href="{{ shop.url | default: routes.root_url }}" class="kt-gift-card__logo" aria-label="{{ shop.name }}">
+        {%- if settings.logo_image != blank -%}
+          {{
+            settings.logo_image
+            | image_url: width: 400
+            | image_tag:
+              class: 'kt-gift-card__logo-image',
+              loading: 'eager',
+              widths: '160, 240, 320, 400',
+              height: 28,
+              width: 160,
+              alt: shop.name
+          }}
+        {%- else -%}
+          <span class="kt-gift-card__wordmark">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+
+      <header class="kt-gift-card__header">
+        <span class="kt-gift-card__eyebrow">{{ 'gift_cards.issued.subtext' | t }}</span>
+        <h1 class="kt-gift-card__title">{{ 'gift_cards.issued.title' | t }}</h1>
       </header>
 
-      <div class="gift-card__image-wrapper">
-        {%- if gift_card.image -%}
-          <img
-            src="{{ gift_card.image | image_url: width: 570 }}"
-            alt=""
-            width="570"
-            height="{{ 570 | divided_by: gift_card.image.aspect_ratio | ceil }}"
-            loading="lazy"
-          >
-        {%- else -%}
-          <img
-            src="{{ 'gift-card/card.svg' | shopify_asset_url }}"
-            alt=""
-            width="570"
-            height="360"
-          >
-        {%- endif -%}
-      </div>
-
-      <div class="gift-card__info">
+      <section class="kt-gift-card__visual" aria-label="{{ 'gift_cards.issued.title' | t }}">
         {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros -%}
         {%- assign formatted_current_balance = gift_card.balance | money_without_trailing_zeros -%}
 
-        {%- if gift_card.balance != gift_card.initial_value -%}
-          <p class="gift-card__balance">{{ formatted_current_balance }} / {{ formatted_initial_value }}</p>
-        {%- endif -%}
+        <div class="kt-gift-card__card">
+          <div class="kt-gift-card__card-media">
+            {%- if gift_card.image -%}
+              <img
+                src="{{ gift_card.image | image_url: width: 720 }}"
+                srcset="
+                  {{ gift_card.image | image_url: width: 400 }} 400w,
+                  {{ gift_card.image | image_url: width: 600 }} 600w,
+                  {{ gift_card.image | image_url: width: 900 }} 900w,
+                  {{ gift_card.image | image_url: width: 1200 }} 1200w
+                "
+                sizes="(min-width: 750px) 540px, 90vw"
+                width="720"
+                height="{{ 720 | divided_by: gift_card.image.aspect_ratio | ceil }}"
+                loading="eager"
+                alt=""
+                class="kt-gift-card__card-image"
+              >
+            {%- else -%}
+              {%- comment -%} Editorial placeholder — a luxe gradient with a serif monogram {%- endcomment -%}
+              <div class="kt-gift-card__card-placeholder">
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 120 120" class="kt-gift-card__card-icon">
+                  <path d="M20 40h80v60a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4V40z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M20 40h80" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path d="M60 40v64" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path d="M60 40s-14-20-24-12 4 12 24 12zm0 0s14-20 24-12-4 12-24 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="kt-gift-card__card-monogram">{{ shop.name | slice: 0 | upcase }}</span>
+              </div>
+            {%- endif -%}
 
-        <div class="gift-card__code-wrapper">
-          <input
-            type="text"
-            class="gift-card__code"
-            value="{{ gift_card.code | format_code }}"
-            aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
-            readonly
-          >
+            <div class="kt-gift-card__card-overlay">
+              <span class="kt-gift-card__card-label">{{ 'gift_cards.issued.title' | t }}</span>
+              <span class="kt-gift-card__card-value">
+                {%- if gift_card.balance != gift_card.initial_value -%}
+                  {{ formatted_current_balance }}
+                  <span class="kt-gift-card__card-total">/ {{ formatted_initial_value }}</span>
+                {%- else -%}
+                  {{ formatted_initial_value }}
+                {%- endif -%}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kt-gift-card__meta">
+        <div class="kt-gift-card__code-row">
+          <label for="GiftCardCode" class="kt-gift-card__code-label">
+            {{ 'gift_cards.issued.copy_code' | t | default: 'Gift card code' }}
+          </label>
+          <div class="kt-gift-card__code-wrap">
+            <input
+              id="GiftCardCode"
+              type="text"
+              class="kt-gift-card__code"
+              value="{{ gift_card.code | format_code }}"
+              readonly
+              aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
+            >
+            <button
+              type="button"
+              class="kt-gift-card__copy"
+              data-gift-card-copy="GiftCardCode"
+              aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span class="kt-gift-card__copy-text">{{ 'gift_cards.issued.copy_code' | t }}</span>
+            </button>
+          </div>
         </div>
 
-        {%- if gift_card.expired -%}
-          <p class="gift-card__expired badge badge--sold-out">{{ 'gift_cards.issued.expired' | t }}</p>
-        {%- elsif gift_card.enabled -%}
-          <p class="gift-card__active badge">{{ 'gift_cards.issued.active' | t: expiry: gift_card.expires_on | date: '%d/%m/%Y' }}</p>
-        {%- endif -%}
+        <div class="kt-gift-card__pills">
+          {%- if gift_card.expired -%}
+            <span class="kt-gift-card__pill kt-gift-card__pill--expired">
+              {{ 'gift_cards.issued.expired' | t }}
+            </span>
+          {%- elsif gift_card.enabled -%}
+            <span class="kt-gift-card__pill kt-gift-card__pill--active">
+              {{ 'gift_cards.issued.active' | t: expiry: gift_card.expires_on | date: '%B %-d, %Y' }}
+            </span>
+          {%- endif -%}
+        </div>
+      </section>
 
-        <a href="{{ shop.url }}" class="button" target="_blank" rel="noopener">
+      <div class="kt-gift-card__actions">
+        <a href="{{ shop.url | default: routes.root_url }}" class="kt-gift-card__cta">
           {{ 'gift_cards.issued.shop_link' | t | default: 'Continue shopping' }}
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
     </main>
+
+    <script>
+      (function () {
+        var button = document.querySelector('[data-gift-card-copy]');
+        if (!button) return;
+        var targetId = button.getAttribute('data-gift-card-copy');
+        var input = document.getElementById(targetId);
+        if (!input) return;
+        var label = button.querySelector('.kt-gift-card__copy-text');
+        var originalLabel = label ? label.textContent : '';
+        button.addEventListener('click', function () {
+          input.focus();
+          input.select();
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(input.value);
+            } else {
+              document.execCommand('copy');
+            }
+            if (label) label.textContent = {{ 'general.share.success_message' | t | json }};
+            button.classList.add('kt-gift-card__copy--success');
+            setTimeout(function () {
+              if (label) label.textContent = originalLabel;
+              button.classList.remove('kt-gift-card__copy--success');
+            }, 1800);
+          } catch (e) {}
+        });
+      })();
+    </script>
   </body>
 </html>

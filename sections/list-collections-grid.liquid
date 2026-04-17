@@ -1,0 +1,152 @@
+{%- comment -%}
+  List Collections Grid — displays every collection in the store as a
+  premium editorial card (large cover image, collection title serif,
+  product count). Powers the /collections (list-collections) template.
+
+  Pulls from Shopify's global `collections` object. Respects a
+  merchant-selectable "show" toggle between "all" and "featured only
+  (via metafield)". Empty state shown when no collections exist.
+{%- endcomment -%}
+
+{{ 'section-list-collections-grid.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign per_row_desktop = section.settings.columns_desktop | default: 3
+  assign sort_order = section.settings.sort_by | default: 'alphabetical'
+
+  assign collection_list = collections
+
+  case sort_order
+    when 'alphabetical'
+      assign collection_list = collection_list | sort: 'title'
+    when 'product_count'
+      assign collection_list = collection_list | sort: 'all_products_count' | reverse
+  endcase
+-%}
+
+<section
+  class="kt-list-collections"
+  data-section-id="{{ section.id }}"
+  data-section-type="list-collections-grid"
+  style="--kt-list-collections-columns: {{ per_row_desktop }};"
+>
+  <div class="page-width">
+    {%- if collection_list.size > 0 -%}
+      <ul class="kt-list-collections__grid" role="list">
+        {%- for collection in collection_list -%}
+          {%- if collection.handle == 'frontpage' -%}{% continue %}{%- endif -%}
+          <li class="kt-list-collections__cell">
+            <a
+              href="{{ collection.url }}"
+              class="kt-list-collections__card"
+              aria-label="{{ collection.title | escape }}"
+            >
+              <div class="kt-list-collections__media">
+                {%- if collection.image != blank -%}
+                  {{
+                    collection.image
+                    | image_url: width: 1200
+                    | image_tag:
+                      class: 'kt-list-collections__image',
+                      loading: 'lazy',
+                      widths: '480, 720, 960, 1200, 1600',
+                      sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+                      width: collection.image.width,
+                      height: collection.image.height,
+                      alt: collection.title
+                  }}
+                {%- elsif collection.products.first.featured_image != blank -%}
+                  {{
+                    collection.products.first.featured_image
+                    | image_url: width: 1200
+                    | image_tag:
+                      class: 'kt-list-collections__image',
+                      loading: 'lazy',
+                      widths: '480, 720, 960, 1200, 1600',
+                      sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+                      width: collection.products.first.featured_image.width,
+                      height: collection.products.first.featured_image.height,
+                      alt: collection.title
+                  }}
+                {%- else -%}
+                  {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-list-collections__image' }}
+                {%- endif -%}
+                <div class="kt-list-collections__overlay" aria-hidden="true"></div>
+              </div>
+
+              <div class="kt-list-collections__body">
+                <h2 class="kt-list-collections__title">{{ collection.title }}</h2>
+                {%- if collection.description != blank -%}
+                  <p class="kt-list-collections__desc">{{ collection.description | strip_html | truncate: 120 }}</p>
+                {%- endif -%}
+                <div class="kt-list-collections__footer">
+                  <span class="kt-list-collections__count">
+                    {{ collection.all_products_count }}
+                    {%- if collection.all_products_count == 1 %} {{ 'sections.list-collections.product_one' | t -}}
+                    {%- else %} {{ 'sections.list-collections.product_other' | t -}}
+                    {%- endif -%}
+                  </span>
+                  <span class="kt-list-collections__cta">
+                    {{ 'sections.list-collections.view_collection' | t | default: 'View collection' }}
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- else -%}
+      <div class="kt-list-collections__empty">
+        <h2 class="kt-list-collections__empty-title">
+          {{ 'sections.list-collections.empty_heading' | t | default: 'No collections yet' }}
+        </h2>
+        <p class="kt-list-collections__empty-desc">
+          {{ 'sections.list-collections.empty_description' | t | default: 'Collections you create in the Shopify admin will appear here automatically.' }}
+        </p>
+        <a href="{{ routes.all_products_collection_url }}" class="kt-list-collections__empty-link">
+          {{ 'sections.list-collections.empty_cta' | t | default: 'Browse all products' }}
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.list-collections-grid.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.list-collections-grid.settings.columns_desktop.label",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "sort_by",
+      "label": "t:sections.list-collections-grid.settings.sort_by.label",
+      "options": [
+        { "value": "alphabetical", "label": "t:sections.list-collections-grid.settings.sort_by.options__alpha.label" },
+        { "value": "product_count", "label": "t:sections.list-collections-grid.settings.sort_by.options__count.label" },
+        { "value": "admin_order", "label": "t:sections.list-collections-grid.settings.sort_by.options__admin.label" }
+      ],
+      "default": "alphabetical"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.list-collections-grid.presets.name"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["list-collections", "page", "index"]
+  }
+}
+{% endschema %}
