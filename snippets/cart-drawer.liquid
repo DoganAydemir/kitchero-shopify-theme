@@ -140,9 +140,17 @@
           <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money }}</span>
         </div>
         <p class="kt-cart-drawer__taxes">{{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}</p>
-        <a href="{{ routes.cart_url }}" class="kt-cart-drawer__checkout">
-          {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
-        </a>
+        {%- comment -%}
+          Real checkout submit — Shopify routes POST to /cart with
+          name="checkout" directly to /checkouts/..., bypassing the
+          /cart page. Wrapping only the submit button (not the whole
+          drawer) keeps the existing AJAX quantity update path intact.
+        {%- endcomment -%}
+        <form action="{{ routes.cart_url }}" method="post" class="kt-cart-drawer__checkout-form" novalidate>
+          <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
+            {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
+          </button>
+        </form>
         <button type="button" class="kt-cart-drawer__continue" data-cart-drawer-close>
           {{ 'kt.cart.continue_shopping' | t | default: 'Continue shopping' }}
         </button>
