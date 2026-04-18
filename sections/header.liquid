@@ -253,13 +253,9 @@
       </a>
 
       {%- comment -%}
-        Mobile menu toggle — only visible below 990px.
-        The inline onclick is the absolute source of truth: it bypasses
-        event delegation, CDN-cached external scripts, and any other
-        script on the page that might intercept document-level clicks.
-        The delegated handler in the <script> block below and the one
-        in section-header.js are both removed now; this onclick handles
-        100% of the open/close toggle.
+        Mobile menu toggle — only visible below 990px. The open/close
+        logic lives in assets/kt-section-header-mobile-nav.js via a
+        document-level delegated click handler.
       {%- endcomment -%}
       <button
         type="button"
@@ -267,7 +263,6 @@
         aria-label="{{ 'kt.a11y.navigation' | t }}"
         aria-expanded="false"
         aria-controls="kt-mobile-panel-{{ section.id }}"
-        onclick="(function(btn){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;var open=p.classList.toggle('kt-header__mobile-panel--open');btn.setAttribute('aria-expanded',open?'true':'false');document.body.style.overflow=open?'hidden':'';var oi=btn.querySelector('.kt-header__menu-toggle-open');var ci=btn.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.toggle('hidden',open);if(ci)ci.classList.toggle('hidden',!open);})(this);"
       >
         <svg class="kt-header__menu-toggle-open" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -318,7 +313,6 @@
       type="button"
       class="kt-header__mobile-panel-close"
       aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
-      onclick="(function(){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;p.classList.remove('kt-header__mobile-panel--open');document.body.style.overflow='';var t=document.querySelector('.kt-header__menu-toggle');if(t){t.setAttribute('aria-expanded','false');var oi=t.querySelector('.kt-header__menu-toggle-open');var ci=t.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.remove('hidden');if(ci)ci.classList.add('hidden');}})();"
     >
       <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -464,100 +458,8 @@
   </div>
 </div>
 
-{%- comment -%}
-  Mobile menu slide navigation script — tracks the panel stack,
-  updates data-state on each panel to drive the CSS transitions.
-  Inline so it's always fresh (no CDN cache risk). Idempotent via
-  window.__kitcheroMobileNavBound flag.
-{%- endcomment -%}
-<script>
-  (function () {
-    if (window.__kitcheroMobileNavBound) return;
-    window.__kitcheroMobileNavBound = true;
-
-    var stack = ['main'];
-
-    function updatePanels() {
-      var slider = document.querySelector('[data-mobile-slider]');
-      if (!slider) return;
-      var panels = slider.querySelectorAll('[data-panel]');
-      var currentId = stack[stack.length - 1];
-      panels.forEach(function (p) {
-        var id = p.dataset.panel;
-        var idx = stack.indexOf(id);
-        if (idx === stack.length - 1) {
-          p.dataset.state = 'current';
-        } else if (idx >= 0) {
-          p.dataset.state = 'behind';
-        } else {
-          p.dataset.state = 'ahead';
-        }
-      });
-    }
-
-    function resetStack() {
-      stack = ['main'];
-      updatePanels();
-    }
-
-    // Reset the panel stack whenever the mobile menu is closed so the
-    // user starts fresh next time. Runs via the same onclick attributes
-    // on the close button and toggle — this listener is a fallback.
-    document.addEventListener('click', function (e) {
-      var forward = e.target.closest('[data-mobile-forward]');
-      if (forward) {
-        e.preventDefault();
-        stack.push(forward.dataset.mobileForward);
-        updatePanels();
-        return;
-      }
-      var back = e.target.closest('[data-mobile-back]');
-      if (back) {
-        e.preventDefault();
-        if (stack.length > 1) {
-          stack.pop();
-          updatePanels();
-        }
-        return;
-      }
-      // Close → reset stack
-      var closer = e.target.closest('.kt-header__mobile-panel-close, .kt-header__menu-toggle');
-      if (closer) {
-        // Defer slightly so the close transition runs first
-        setTimeout(resetStack, 500);
-      }
-    });
-  })();
-</script>
-
 <script src="{{ 'kt-section-header.js' | asset_url }}" defer="defer"></script>
-
-{%- comment -%}
-  Mobile menu open/close is wired via inline `onclick` attributes on
-  the toggle button and the close button above. This is the absolute
-  simplest possible implementation — no event delegation, no external
-  asset timing, no CDN cache to stale out. This small <script> block
-  only adds Escape-key-to-close as a keyboard affordance.
-{%- endcomment -%}
-<script>
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' || e.code === 'Escape') {
-      var panel = document.querySelector('.kt-header__mobile-panel');
-      if (panel && panel.classList.contains('kt-header__mobile-panel--open')) {
-        panel.classList.remove('kt-header__mobile-panel--open');
-        document.body.style.overflow = '';
-        var t = document.querySelector('.kt-header__menu-toggle');
-        if (t) {
-          t.setAttribute('aria-expanded', 'false');
-          var oi = t.querySelector('.kt-header__menu-toggle-open');
-          var ci = t.querySelector('.kt-header__menu-toggle-close');
-          if (oi) oi.classList.remove('hidden');
-          if (ci) ci.classList.add('hidden');
-        }
-      }
-    }
-  });
-</script>
+<script src="{{ 'kt-section-header-mobile-nav.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
