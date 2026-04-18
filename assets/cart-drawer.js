@@ -73,8 +73,8 @@
       this.drawer.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
-      if (typeof trapFocus === 'function') {
-        trapFocus(this.panel);
+      if (window.Kitchero && Kitchero.focusTrap) {
+        Kitchero.focusTrap.enable(this.panel);
       }
     }
 
@@ -82,8 +82,8 @@
       this.drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
 
-      if (typeof removeTrapFocus === 'function') {
-        removeTrapFocus();
+      if (window.Kitchero && Kitchero.focusTrap) {
+        Kitchero.focusTrap.disable(this.panel);
       }
     }
 

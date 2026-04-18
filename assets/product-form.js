@@ -157,7 +157,7 @@
           }
 
           /* Publish event */
-          if (typeof publish === 'function') publish('cart:update', formData);
+          if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
         })
         .catch(function (error) {
           console.error('Add to cart error:', error);

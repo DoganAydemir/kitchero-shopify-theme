@@ -136,8 +136,8 @@ if (window.__kitcheroCollectionFiltersLoaded) {
         if (typeof initAll === 'function') initAll();
 
         /* Publish event for other scripts */
-        if (typeof publish === 'function') {
-          publish('collection:filtered', { url: newUrl });
+        if (window.Kitchero && Kitchero.bus) {
+          Kitchero.bus.emit('collection:filtered', { url: newUrl });
         }
       })
       .catch(function () {

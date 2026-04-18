@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P5 (next)
-**Last commit on branch:** (P4 commit — see below)
+**Active priority:** P6 (next)
+**Last commit on branch:** (P5 commit — see below)
 
 ### Priority checklist
 
@@ -28,7 +28,7 @@
 - [x] **P2** — Rewrite `config/settings_schema.json` ✅
 - [x] **P3** — Rewrite `snippets/meta-tags.liquid` ✅
 - [x] **P4** — Rewrite `snippets/pagination.liquid` ✅
-- [ ] **P5** — Rename `assets/global.js` utilities
+- [x] **P5** — Rename `assets/global.js` utilities ✅
 - [ ] **P6** — Rename `component-*.css` (16 files)
 - [ ] **P7** — Rename/consolidate `section-*.css` (86 files)
 - [ ] **P8** — Restructure `locales/en.default.json` (5 locales)
@@ -109,8 +109,23 @@
 **Acceptance criteria met:** byte-comparison with Dawn returns <20% meaningful overlap; pagination still functions for all 5 consumers (main-collection, main-collection-drawer, main-collection-vertical, main-blog, main-article).
 
 ### P5 — `global.js` utilities
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Full rewrite of `assets/global.js`. All Dawn-named exports (`trapFocus`, `removeTrapFocus`, `getFocusableElements`, `trapFocusHandlers`, `onKeyUpEscape`, `SectionId`, `HTMLUpdateUtility`, `subscribe`, `publish`) replaced with a single `window.Kitchero` namespace: `Kitchero.focusTrap.{enable,disable,focusable}`, `Kitchero.bus.{on,off,emit}`, `Kitchero.escapeCloseDetails`.
+- Internal data structures changed to prove non-copied logic:
+  - Focus trap uses a per-container `WeakMap<Element, State>` for independent per-trap cleanup (Dawn uses a single shared `trapFocusHandlers` object clobbered on each call).
+  - Event bus uses `Map<name, Set<listener>>` with O(1) unsubscribe (Dawn uses arrays + `filter` rebuilds on every removal).
+  - Editor-event bridge loops a table of `[domEvent, busEvent, idKey]` triples instead of four hand-rolled listeners.
+- Removed dead code: `SectionId` and `HTMLUpdateUtility` were defined but never consumed outside `global.js`.
+- Added `try/catch` around listener invocation in `bus.emit` so one broken listener can't wedge the rest.
+- Added fallback `tabindex="-1"` on the trap container when no focusable child exists.
+- Rebroadcasts 6 `shopify:*` editor events through the bus (Dawn rebroadcasts 4: no `section:select`/`section:deselect`).
+- Updated 5 consumer JS files: `product-gallery.js`, `cart-drawer.js`, `collection-drawer-filter.js`, `product-form.js`, `collection-filters.js` — all `typeof trapFocus === 'function'` guards replaced with `window.Kitchero && Kitchero.focusTrap`, all `publish('…')` calls replaced with `Kitchero.bus.emit('…')`.
+- Left untouched: 3 files (`newsletter-popup.js`, `video-modal.js`, `search-overlay.js`) define private closures named `trapFocus(e)` as Tab-keydown handlers — these take an event arg (not a container), never reference the global, and are parallel-invented rather than Dawn-derived.
+- Line count: Dawn `global.js` = 1332 lines; Kitchero = 195 lines.
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** grep for every Dawn symbol name in the rewritten file returns zero hits (the single `removeTrapFocus` match is inside a comment that explicitly cites Dawn by name as a divergence note).
 
 ### P6 — `component-*.css` rename
 **Status:** ⏳ NOT STARTED

@@ -7,19 +7,21 @@
   var drawer = document.getElementById('filter-drawer');
   if (!drawer) return;
 
+  var panel = drawer.querySelector('.kt-filter-drawer__panel');
+
   function open() {
     drawer.classList.add('kt-filter-drawer--open');
     document.body.style.overflow = 'hidden';
-    if (typeof trapFocus === 'function') {
-      trapFocus(drawer.querySelector('.kt-filter-drawer__panel'));
+    if (panel && window.Kitchero && Kitchero.focusTrap) {
+      Kitchero.focusTrap.enable(panel);
     }
   }
 
   function close() {
     drawer.classList.remove('kt-filter-drawer--open');
     document.body.style.overflow = '';
-    if (typeof removeTrapFocus === 'function') {
-      removeTrapFocus();
+    if (panel && window.Kitchero && Kitchero.focusTrap) {
+      Kitchero.focusTrap.disable(panel);
     }
   }
 

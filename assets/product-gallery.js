@@ -146,7 +146,7 @@
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
-      if (typeof trapFocus === 'function') trapFocus(lightbox);
+      if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.enable(lightbox);
     }
 
     /* Lightbox close */
@@ -162,7 +162,7 @@
         lightboxImage.classList.remove('is-loaded');
         lightboxImage.style.transform = '';
       }
-      if (typeof removeTrapFocus === 'function') removeTrapFocus();
+      if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.disable(lightbox);
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
