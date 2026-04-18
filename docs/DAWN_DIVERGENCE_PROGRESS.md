@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P10 (next — evaluation/decision-only)
-**Last commit on branch:** (P9 commit — see below)
+**Active priority:** Stretch (optional) → Verification
+**Last commit on branch:** (P10 commit — see below)
 
 ### Priority checklist
 
@@ -33,6 +33,7 @@
 - [x] **P7** — Rename `section-*.{css,js}` (86 files) ✅
 - [x] **P8** — Restructure `locales/*.json` (5 locales) ✅
 - [x] **P9** — Namespace JS globals under `window.Kitchero` ✅
+- [x] **P10** — Section filename convention — **keep `main-*`** ✅
 - [ ] **P10** — Section filename convention (decision-only)
 - [ ] **Stretch** — Adopt `blocks/` directory + Theme Blocks
 - [ ] **Verify** — `shopify theme check` → 0 offenses
@@ -181,8 +182,16 @@
 **Acceptance criteria met:** no bare `window.*` theme-injected globals remain; all runtime data is reachable via a single `window.Kitchero.*` root, removing a class of global-pollution overlap with Dawn.
 
 ### P10 — Section filename convention
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE (decision: keep `main-*`)
+**Commit:** (this tracker update)
+**Footprint:** 15 `sections/main-*.liquid` files, referenced from 13 template JSON files.
+**Decision:** **Retain the `main-*` prefix.**
+**Rationale:**
+- The `main-*` convention is not Dawn-exclusive — it is the de-facto Shopify ecosystem standard used by Impulse, Trade, Prestige, and virtually every published OS 2.0 theme. Shopify's own documentation and section-type matchers rely on it.
+- Renaming would not measurably reduce Dawn overlap (section filenames are universal convention, not a Dawn signature).
+- Renaming carries non-trivial risk: each template JSON references sections by name, and changing names in a pre-launch theme still risks breaking preview data and editor-saved layouts.
+- The Kitchero identity is already expressed through the *asset* layer (`kt-*`, `kt-section-*` — P6/P7), the *token* layer (`--kt-*` — P1), the *schema* layer (`kt_*` group/setting IDs — P2), the *locale* tree (`kt.*` — P8), and the *runtime* globals (`window.Kitchero.*` — P9). Section filenames remaining `main-*` doesn't add Dawn exposure.
+**No file changes required for this priority.**
 
 ### Stretch — Theme Blocks
 **Status:** ⏳ NOT STARTED
