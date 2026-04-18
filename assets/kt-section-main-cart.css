@@ -1,13 +1,19 @@
 /* ============================================================
    Cart Page — full template (/cart)
+
    Two-column layout (items + summary) on desktop, stacked on
-   mobile. Matches the drawer's visual vocabulary but with the
-   generous breathing room and dotted editorial header that the
-   rest of the theme uses on template pages.
+   mobile. Matches the drawer's visual vocabulary.
+
+   Scheme-aware: every surface, text tier, border, and the
+   primary checkout CTA pull from `--kt-c-*` so a merchant
+   toggling Ink↔Paper propagates everywhere. Danger red
+   (remove) and emerald (discount confirmation) stay fixed
+   because those are universal signals.
    ============================================================ */
 
 .kt-cart-page {
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
   padding: 2rem 0 5rem;
 }
 
@@ -59,12 +65,12 @@
     grid-template-columns: minmax(0, 1fr) auto 7rem;
     gap: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--kt-stone-200);
+    border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--kt-stone-400);
+    color: rgba(var(--kt-c-fg), 0.45);
   }
   .kt-cart-page__items-header span:last-child {
     text-align: right;
@@ -78,7 +84,7 @@
   grid-template-columns: 1fr;
   gap: 1.5rem;
   padding: 2rem 0;
-  border-bottom: 1px solid var(--kt-stone-200);
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
 @media screen and (min-width: 750px) {
@@ -103,7 +109,7 @@
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 6px;
-  background-color: var(--kt-stone-100);
+  background-color: rgba(var(--kt-c-fg), 0.06);
   display: block;
 }
 
@@ -134,7 +140,7 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 1.125rem;
   font-weight: 400;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   text-decoration: none;
   line-height: 1.25;
   letter-spacing: -0.01em;
@@ -148,7 +154,7 @@
 }
 
 .kt-cart-page__item-title:hover {
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg), 0.7);
 }
 
 .kt-cart-page__item-options {
@@ -156,7 +162,7 @@
   padding: 0;
   margin: 0.25rem 0 0 0;
   font-size: 0.8125rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   line-height: 1.5;
 }
 
@@ -166,13 +172,13 @@
 }
 
 .kt-cart-page__item-options span {
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
 }
 
 .kt-cart-page__item-unit-price {
   margin-top: 0.5rem;
   font-size: 0.8125rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   display: flex;
   gap: 0.375rem;
 }
@@ -183,7 +189,7 @@
 }
 
 .kt-cart-page__item-unit-value {
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg), 0.75);
   font-weight: 500;
 }
 
@@ -195,7 +201,7 @@
   border: 0;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -230,9 +236,9 @@
 .kt-cart-page__qty-stepper {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--kt-stone-200);
+  border: 1px solid rgba(var(--kt-c-fg), 0.12);
   border-radius: 4px;
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg));
   overflow: hidden;
 }
 
@@ -245,18 +251,18 @@
   padding: 0;
   background: transparent;
   border: 0;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
   cursor: pointer;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .kt-cart-page__qty-btn:hover:not(:disabled) {
-  color: var(--kt-stone-900);
-  background-color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg));
+  background-color: rgba(var(--kt-c-fg), 0.05);
 }
 
 .kt-cart-page__qty-btn:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: -2px;
 }
 
@@ -271,13 +277,13 @@
   padding: 0;
   text-align: center;
   border: 0;
-  border-left: 1px solid var(--kt-stone-200);
-  border-right: 1px solid var(--kt-stone-200);
+  border-left: 1px solid rgba(var(--kt-c-fg), 0.12);
+  border-right: 1px solid rgba(var(--kt-c-fg), 0.12);
   background: transparent;
   font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   font-variant-numeric: tabular-nums;
   -moz-appearance: textfield;
 }
@@ -290,11 +296,11 @@
 
 .kt-cart-page__qty-input:focus {
   outline: none;
-  background-color: var(--kt-stone-50);
+  background-color: rgba(var(--kt-c-fg), 0.035);
 }
 
 .kt-cart-page__qty-input:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
@@ -311,7 +317,7 @@
     height: 2.25rem;
     background: transparent;
     border: 0;
-    color: var(--kt-stone-400);
+    color: rgba(var(--kt-c-fg), 0.45);
     cursor: pointer;
     border-radius: 4px;
     transition: color 0.15s ease, background-color 0.15s ease;
@@ -335,7 +341,7 @@
   align-items: flex-start;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   font-variant-numeric: tabular-nums;
 }
 
@@ -349,7 +355,7 @@
 
 .kt-cart-page__item-total-was {
   font-size: 0.875rem;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
   font-weight: 400;
 }
 
@@ -367,7 +373,7 @@
 .kt-cart-page__note {
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: var(--kt-stone-50);
+  background-color: rgba(var(--kt-c-fg), 0.035);
   border-radius: 8px;
 }
 
@@ -377,7 +383,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.7);
   margin-bottom: 0.75rem;
 }
 
@@ -385,29 +391,29 @@
   width: 100%;
   min-height: 5rem;
   padding: 0.875rem;
-  background-color: var(--kt-white);
-  border: 1px solid var(--kt-stone-200);
+  background-color: rgb(var(--kt-c-bg));
+  border: 1px solid rgba(var(--kt-c-fg), 0.12);
   border-radius: 4px;
   font-family: inherit;
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   resize: vertical;
   transition: border-color 0.15s ease;
 }
 
 .kt-cart-page__note-textarea:focus {
   outline: none;
-  border-color: var(--kt-stone-900);
+  border-color: rgb(var(--kt-c-fg));
 }
 
 .kt-cart-page__note-textarea:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
 .kt-cart-page__note-textarea::placeholder {
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
 }
 
 /* ── Summary column ─────────────────────────────────────── */
@@ -425,8 +431,8 @@
 
 .kt-cart-page__summary-inner {
   padding: 2rem;
-  background-color: var(--kt-stone-50);
-  border: 1px solid var(--kt-stone-200);
+  background-color: rgba(var(--kt-c-fg), 0.035);
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -443,7 +449,7 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 1.375rem;
   font-weight: 400;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   margin: 0 0 0.5rem 0;
   letter-spacing: -0.01em;
 }
@@ -456,11 +462,11 @@
 }
 
 .kt-cart-page__summary-label {
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .kt-cart-page__summary-value {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -471,7 +477,7 @@
 
 .kt-cart-page__summary-divider {
   height: 1px;
-  background-color: var(--kt-stone-200);
+  background-color: rgba(var(--kt-c-fg), 0.1);
   margin: 0.5rem 0;
 }
 
@@ -480,7 +486,7 @@
 }
 
 .kt-cart-page__summary-row--total .kt-cart-page__summary-label {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   font-weight: 600;
 }
 
@@ -492,7 +498,7 @@
 
 .kt-cart-page__taxes-note {
   font-size: 0.75rem;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg), 0.45);
   margin: 0;
   line-height: 1.5;
 }
@@ -502,8 +508,8 @@
   width: 100%;
   padding: 1.125rem;
   margin-top: 0.5rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 700;
@@ -512,16 +518,16 @@
   border: 0;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .kt-cart-page__checkout:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
 .kt-cart-page__checkout:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-action));
   outline-offset: 3px;
 }
 
@@ -538,22 +544,22 @@
   margin-top: 0.25rem;
   align-self: center;
   font-size: 0.8125rem;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.65);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .kt-cart-page__continue:hover {
-  color: var(--kt-stone-900);
-  border-bottom-color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
+  border-bottom-color: rgb(var(--kt-c-fg));
 }
 
 .kt-cart-page__trust {
   list-style: none;
   padding: 1rem 0 0 0;
   margin: 1rem 0 0 0;
-  border-top: 1px solid var(--kt-stone-200);
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
@@ -564,11 +570,11 @@
   align-items: center;
   gap: 0.625rem;
   font-size: 0.8125rem;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .kt-cart-page__trust svg {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.5);
   flex-shrink: 0;
 }
 
@@ -593,14 +599,14 @@
 }
 
 .kt-cart-page__empty-icon {
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg), 0.25);
   margin-bottom: 1.5rem;
 }
 
 .kt-cart-page__empty-text {
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 1.75rem;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.65);
   margin: 0 0 2rem 0;
   letter-spacing: -0.01em;
 }
@@ -610,24 +616,24 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 2.5rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
   border-radius: 9999px;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .kt-cart-page__empty-cta:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
 .kt-cart-page__empty-cta:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-action));
   outline-offset: 3px;
 }
 

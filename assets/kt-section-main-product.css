@@ -1,15 +1,24 @@
-/* Main Product PDP — birebir from source product/[id]/page.tsx
-   Layout: left 58% gallery + right 42% info (sticky)
+/* ============================================================
+   Main Product PDP — /products/:handle
 
-   Note: the Next.js source uses `pt-20 md:pt-32` because the navbar
-   there is `position: fixed` and overlays the content, so the padding
-   has to absorb the navbar height (≈80px) plus the visual gap (≈48px).
-   Our Shopify header is in-flow on PDPs (solid mode pushes content
-   down), so we only need the ≈48px visual gap — the header's own
-   height already does the rest. */
+   Scheme-aware: page surface, title, breadcrumbs, trust badges,
+   accordions, concierge box, and the door-sample block pull from
+   `--kt-c-*` so they flip with the active scheme.
+
+   The premium countdown block stays intentionally dark (stone-950
+   + red accents) regardless of scheme — it is a brand-signature
+   "luxury promo strip" that needs to read the same whether the
+   surrounding scheme is Ink or Paper. Emerald and red stay fixed
+   as universal stock/discount signals.
+
+   Source note: Next.js uses `pt-20 md:pt-32` because its navbar
+   is `position: fixed`. Our Shopify header is in-flow on PDPs so
+   we only need the visual gap — header height adds the rest.
+   ============================================================ */
 
 .kt-pdp {
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
   padding-top: 45px;
   padding-bottom: 4rem;
 }
@@ -20,7 +29,6 @@
   }
 }
 
-/* flex flex-col lg:flex-row lg:gap-x-12 */
 .kt-pdp__layout {
   display: flex;
   flex-direction: column;
@@ -34,7 +42,6 @@
   }
 }
 
-/* w-full lg:w-[58%] */
 .kt-pdp__gallery-col {
   width: 100%;
 }
@@ -45,7 +52,6 @@
   }
 }
 
-/* w-full lg:w-[42%] */
 .kt-pdp__info-col {
   width: 100%;
 }
@@ -56,7 +62,6 @@
   }
 }
 
-/* lg:sticky lg:top-32 */
 .kt-pdp__info-sticky {
   display: flex;
   flex-direction: column;
@@ -70,13 +75,14 @@
   }
 }
 
-/* Breadcrumb: flex items-center gap-2 text-[11px] text-stone-400 mb-4 */
+/* ── Breadcrumb ─────────────────────────────────────────── */
+
 .kt-pdp__breadcrumb {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.6875rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   margin-bottom: 1rem;
 }
 
@@ -98,31 +104,32 @@
 
 .kt-pdp__breadcrumb-list li:not(:first-child)::before {
   content: '/';
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg), 0.3);
   speak: none;
 }
 
 .kt-pdp__breadcrumb a {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .kt-pdp__breadcrumb a:hover {
-  color: var(--kt-stone-700);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-pdp__breadcrumb-list li:last-child span {
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.7);
 }
 
-/* h1: text-3xl md:text-4xl font-serif tracking-tight leading-tight mb-3 */
+/* ── Title + meta ──────────────────────────────────────── */
+
 .kt-pdp__title {
   font-family: var(--kt-f-accent-family);
   font-size: 1.875rem;
   letter-spacing: -0.025em;
   line-height: 1.1;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   margin-bottom: 0.75rem;
 }
 
@@ -132,7 +139,6 @@
   }
 }
 
-/* Meta row: rating + review count + separator + availability inline */
 .kt-pdp__meta {
   display: flex;
   align-items: center;
@@ -146,7 +152,7 @@
 }
 
 .kt-pdp__meta-sep {
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg), 0.3);
   font-size: 0.875rem;
   line-height: 1;
 }
@@ -165,9 +171,8 @@
 }
 
 /* ============================================================
-   Premium Countdown Block — birebir from Next.js PDP source
-   bg-stone-950 p-6 rounded-sm border border-white/10 shadow-2xl
-   with red glow effect + pulsing dot + promo badge + progress bar
+   Premium Countdown Block — INTENTIONALLY dark-chrome regardless
+   of scheme. Birebir from Next.js PDP source.
    ============================================================ */
 
 .kt-pdp__countdown-block {
@@ -181,7 +186,6 @@
   overflow: hidden;
 }
 
-/* Subtle red glow in top-right corner */
 .kt-pdp__countdown-glow {
   position: absolute;
   top: -6rem;
@@ -198,7 +202,6 @@
   background-color: rgba(239, 68, 68, 0.2);
 }
 
-/* Top row: label + badge */
 .kt-pdp__countdown-top {
   position: relative;
   z-index: 1;
@@ -219,7 +222,6 @@
   letter-spacing: 0.3em;
 }
 
-/* Pulsing red dot with outer ring */
 .kt-pdp__countdown-dot {
   width: 0.5rem;
   height: 0.5rem;
@@ -238,7 +240,6 @@
   .kt-pdp__countdown-dot { animation: none; }
 }
 
-/* Promo Active badge */
 .kt-pdp__countdown-badge {
   font-size: 0.5625rem;
   font-weight: 700;
@@ -250,7 +251,6 @@
   border-radius: 2px;
 }
 
-/* Bottom row: timer + ends-soon indicator */
 .kt-pdp__countdown-bottom {
   position: relative;
   z-index: 1;
@@ -327,15 +327,17 @@
   width: 65%;
 }
 
-/* Short description: text-stone-600 text-sm leading-relaxed mb-6 */
+/* ── Short description ─────────────────────────────────── */
+
 .kt-pdp__short-desc {
   font-size: 0.875rem;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.7);
   line-height: 1.625;
   margin-bottom: 1.5rem;
 }
 
-/* Trust badges: grid grid-cols-3 gap-3 mb-8 */
+/* ── Trust badges ──────────────────────────────────────── */
+
 .kt-pdp__trust-badges {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -349,35 +351,36 @@
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-  border: 1px solid var(--kt-stone-200);
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
   border-radius: 0.5rem;
 }
 
 .kt-pdp__trust-badge svg {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   margin-bottom: 0.375rem;
 }
 
-/* text-[10px] font-bold text-stone-700 uppercase tracking-wider */
 .kt-pdp__trust-badge-text {
   font-size: 0.625rem;
   font-weight: 700;
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg), 0.75);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Accordions container */
+/* ── Accordions container ──────────────────────────────── */
+
 .kt-pdp__accordions {
   margin-top: 0;
 }
 
-/* ── Door sample block (ported from showroom) ─────────── */
+/* ── Door sample block ─────────────────────────────────── */
+
 .kt-pdp__door-sample {
-  border: 1px solid var(--kt-stone-200);
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
-  background-color: var(--kt-stone-50);
+  background-color: rgba(var(--kt-c-fg), 0.035);
   margin-top: 0.5rem;
 }
 
@@ -388,7 +391,7 @@
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--kt-stone-200);
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
 .kt-pdp__door-sample-title {
@@ -396,7 +399,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-pdp__door-sample-badge {
@@ -414,7 +417,7 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 1.125rem;
   font-weight: 400;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   margin: 0 0 0.5rem 0;
 }
 
@@ -425,7 +428,7 @@
   margin-bottom: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-pdp__door-sample-refundable {
@@ -433,21 +436,21 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
 }
 
 .kt-pdp__door-sample-desc {
   font-size: 0.8125rem;
   line-height: 1.55;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.7);
   margin: 0 0 1rem 0;
 }
 
 .kt-pdp__door-sample-btn {
   width: 100%;
   padding: 0.75rem 1rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   border: 0;
   border-radius: 0.5rem;
   font-family: inherit;
@@ -456,14 +459,15 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
-.kt-pdp__door-sample-btn:hover:not(:disabled) { background-color: var(--kt-black); }
+.kt-pdp__door-sample-btn:hover:not(:disabled) { opacity: 0.88; }
 .kt-pdp__door-sample-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Concierge box ──────────────────────────────────── */
+/* ── Concierge box ──────────────────────────────────────── */
+
 .kt-pdp__concierge {
-  border-top: 1px solid var(--kt-stone-200);
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
   padding-top: 1.5rem;
   margin-top: 0.5rem;
 }
@@ -471,13 +475,13 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 1.125rem;
   font-weight: 400;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   margin: 0 0 0.5rem 0;
 }
 .kt-pdp__concierge-body {
   font-size: 0.875rem;
   line-height: 1.55;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.7);
   margin: 0 0 1rem 0;
 }
 .kt-pdp__concierge-cta {
@@ -488,8 +492,8 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
-  border-bottom: 1px solid var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
+  border-bottom: 1px solid rgb(var(--kt-c-fg));
   padding-bottom: 3px;
   text-decoration: none;
 }

@@ -1,4 +1,11 @@
-/* Product Form — birebir from source PDP */
+/* ============================================================
+   Product Form — PDP add-to-cart + qty stepper + dynamic checkout
+
+   Scheme-aware: the qty stepper, inputs, and primary ATC button
+   pull from `--kt-c-*` so they flip with the active color scheme.
+   The sold-out red treatment and wishlist heart keep fixed
+   palette colours because those are universal signals.
+   ============================================================ */
 
 /* Quantity + ATC row: flex items-stretch gap-3 */
 .kt-product-form__row {
@@ -8,31 +15,26 @@
   margin-bottom: 1rem;
 }
 
-/* ============================================================
-   Quantity selector — matches Next.js source exactly:
-   border border-stone-300 rounded-[4px], minus/plus buttons with
-   px-4 py-3 hover:text-stone-900, center number is a readonly
-   input styled to look like a non-editable display.
-   ============================================================ */
+/* ── Quantity selector ──────────────────────────────────── */
 
 .kt-product-form__qty {
   display: flex;
   align-items: center;
-  border: 1px solid var(--kt-stone-300);
+  border: 1px solid rgba(var(--kt-c-fg), 0.18);
   border-radius: 4px;
   flex-shrink: 0;
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg));
   overflow: hidden;
   min-height: 3.25rem;             /* align to ATC height for a clean side-by-side row */
 }
 
 .kt-product-form__qty-btn {
-  padding: 0 0.9rem;               /* horizontal only; parent min-height controls vertical */
+  padding: 0 0.9rem;
   align-self: stretch;
   min-width: 2.75rem;
   background: transparent;
   border: none;
-  color: var(--kt-stone-500);                  /* stone-500 */
+  color: rgba(var(--kt-c-fg), 0.55);
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease;
   display: flex;
@@ -42,35 +44,31 @@
 }
 
 .kt-product-form__qty-btn:hover:not(:disabled) {
-  color: var(--kt-stone-900);                  /* stone-900 */
-  background-color: var(--kt-stone-100);       /* stone-100 — subtle hover feedback */
+  color: rgb(var(--kt-c-fg));
+  background-color: rgba(var(--kt-c-fg), 0.05);
 }
 
 .kt-product-form__qty-btn:active:not(:disabled) {
-  background-color: var(--kt-stone-200);       /* stone-200 */
+  background-color: rgba(var(--kt-c-fg), 0.08);
 }
 
 .kt-product-form__qty-btn:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: -2px;
 }
 
 .kt-product-form__qty-btn:disabled {
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg), 0.3);
   cursor: not-allowed;
 }
 
-/* Number display — readonly input styled like a span:
-   text-sm font-bold text-stone-900 w-8 text-center. Readonly
-   removes the text caret and prevents keyboard editing but keeps
-   the value in the form submission. */
 .kt-product-form__qty-input {
-  width: 2rem;                     /* w-8 = 32px — matches source */
+  width: 2rem;
   min-width: 2rem;
   text-align: center;
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   border: none;
   background: transparent;
   padding: 0;
@@ -79,10 +77,10 @@
   font-family: inherit;
   -moz-appearance: textfield;
   appearance: none;
-  caret-color: transparent;        /* hide blinking cursor */
+  caret-color: transparent;
   cursor: default;
   user-select: none;
-  pointer-events: none;            /* clicks fall through to the buttons */
+  pointer-events: none;
 }
 
 .kt-product-form__qty-input:focus {
@@ -90,7 +88,7 @@
 }
 
 .kt-product-form__qty-input:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
@@ -101,41 +99,34 @@
   margin: 0;
 }
 
-/* ============================================================
-   Add to Cart button — bg-stone-900 text-white py-4 uppercase
-   text-xs tracking-widest shadow-lg, hover:bg-black, active:scale.
-   Disabled state renders a clean sold-out styling (not opacity).
-   ============================================================ */
+/* ── Add to Cart button ─────────────────────────────────── */
 
 .kt-product-form__atc {
   flex: 1;
-  min-width: 0;                    /* allow shrinking next to a fixed-width qty stepper */
-  padding: 0 1rem;                 /* horizontal only; min-height controls vertical */
+  min-width: 0;
+  padding: 0 1rem;
   min-height: 3.25rem;
   font-family: inherit;
   font-weight: 700;
-  letter-spacing: 0.08em;          /* tighter on mobile so text fits one line */
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 0.75rem;              /* text-xs */
-  white-space: nowrap;             /* keep "ADD TO CART" on a single line */
+  font-size: 0.75rem;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border-radius: 4px;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
-  border: 1px solid var(--kt-stone-900);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  border: 1px solid rgb(var(--kt-c-action));
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 10px 15px -3px rgba(var(--kt-c-shadow), 0.15);
 }
 
-/* Hover and active only apply when the button is NOT disabled,
-   otherwise the sold-out state would mutate visually on hover. */
 .kt-product-form__atc:hover:not(:disabled) {
-  background-color: var(--kt-black);
-  border-color: var(--kt-black);
+  opacity: 0.88;
 }
 
 .kt-product-form__atc:active:not(:disabled) {
@@ -143,17 +134,15 @@
 }
 
 .kt-product-form__atc:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-action));
   outline-offset: 2px;
 }
 
-/* Sold out / disabled — light red card with red border + red text + X icon.
-   Designed to be clearly "unavailable" but visually warm rather than the
-   usual washed-out grey. Matches the price discount pill color family. */
+/* Sold out — fixed red regardless of scheme so the signal is universal */
 .kt-product-form__atc:disabled {
-  background-color: var(--kt-red-50);       /* red-50 — very light pink */
-  color: var(--kt-red-700);                  /* red-700 — WCAG AA compliant on red-50 */
-  border-color: var(--kt-red-600);           /* red-600 — better visibility */
+  background-color: var(--kt-red-50);
+  color: var(--kt-red-700);
+  border-color: var(--kt-red-600);
   box-shadow: none;
   cursor: not-allowed;
   opacity: 1;
@@ -164,8 +153,6 @@
   border-color: var(--kt-red-600);
 }
 
-/* Icon swap — show shopping bag when available, X-circle when sold out.
-   Both SVGs are rendered in the Liquid so no JS state is needed. */
 .kt-product-form__atc-icon--sold-out {
   display: none;
 }
@@ -178,37 +165,26 @@
   display: inline-block;
 }
 
-/* Loading state — brief AJAX window between click and response.
-   Intentionally does NOT reuse :disabled (which carries the sold-out
-   red theme). Keeps the button's normal black appearance with a wait
-   cursor and a hint of progress via reduced opacity. */
 .kt-product-form__atc--loading {
   cursor: wait;
   opacity: 0.8;
-  pointer-events: none; /* blocks double-submits without toggling disabled */
+  pointer-events: none;
 }
 
 .kt-product-form__atc--loading:hover {
-  /* Freeze hover style while loading so it doesn't flicker as the
-     pointer passes over the button between click and response. */
   background-color: inherit;
 }
 
-/* Success state (Added to Cart) */
+/* Success state — emerald confirmation, also scheme-independent */
 .kt-product-form__atc--added,
 .kt-product-form__atc--added:hover:not(:disabled) {
   background-color: var(--kt-emerald-600);
   border-color: var(--kt-emerald-600);
   color: var(--kt-white);
+  opacity: 1;
 }
 
-/* ============================================================
-   Dynamic Checkout Button (Shopify payment_button)
-   Override Shopify's default blue "Buy it now" button to match
-   the theme's black ATC button styling. Shop Pay branded button
-   cannot be re-styled (branded third-party CTA), so we only
-   affect the unbranded fallback.
-   ============================================================ */
+/* ── Dynamic Checkout Button (Shopify payment_button) ───── */
 
 .kt-product-form__dynamic-checkout {
   margin-bottom: 1rem;
@@ -226,37 +202,37 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: background-color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
-/* Unbranded fallback — paint it black to match the ATC button */
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
-  border: 1px solid var(--kt-stone-900);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  border: 1px solid rgb(var(--kt-c-action));
+  box-shadow: 0 10px 15px -3px rgba(var(--kt-c-shadow), 0.15);
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]) {
-  background-color: var(--kt-black) !important;
+  opacity: 0.88;
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-action));
   outline-offset: 2px;
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__more-options {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   font-size: 0.75rem;
   margin-top: 0.5rem;
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__more-options:hover {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
 }
 
-/* Wishlist + Share: flex items-center gap-4 mb-8 */
+/* ── Wishlist + Share row ───────────────────────────────── */
+
 .kt-product-form__actions {
   display: flex;
   align-items: center;
@@ -264,7 +240,6 @@
   margin-bottom: 2rem;
 }
 
-/* flex items-center gap-2 text-sm text-stone-500 hover:text-stone-900 */
 .kt-product-form__action-btn {
   display: flex;
   align-items: center;
@@ -272,7 +247,7 @@
   padding: 0;
   font-family: inherit;
   font-size: 0.875rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
   background: none;
   border: none;
   cursor: pointer;
@@ -280,16 +255,16 @@
 }
 
 .kt-product-form__action-btn:hover {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-product-form__action-btn:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* Wishlisted state — heart fills red */
+/* Wishlisted — red heart, scheme-independent */
 .kt-product-form__action-btn[aria-pressed="true"] svg,
 .kt-product-form__action-btn.is-wishlisted svg {
   fill: var(--kt-red-600);
