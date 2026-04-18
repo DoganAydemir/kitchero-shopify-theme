@@ -33,10 +33,27 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
     var autoCloseTimer = null;
     var openTimer = null;
 
+    function promoteSuccessSentinel(p) {
+      /* Liquid can only resolve `form.posted_successfully?` inside the
+       * {% form %} block, so the section renders a <span data-newsletter-
+       * posted-success> sentinel there. Promote that signal onto the
+       * popup root so the rest of this module can read a single flag. */
+      if (!p) return;
+      if (p.getAttribute('data-posted-successfully') === 'true') return;
+      var sid = p.getAttribute('data-section-id');
+      var selector = sid
+        ? '[data-newsletter-posted-success][data-section-id="' + sid + '"]'
+        : '[data-newsletter-posted-success]';
+      if (document.querySelector(selector)) {
+        p.setAttribute('data-posted-successfully', 'true');
+      }
+    }
+
     function getPopup() {
       if (!popup || !document.body.contains(popup)) {
         popup = document.querySelector('[data-newsletter-popup]');
         dialog = popup ? popup.querySelector('[role="dialog"]') : null;
+        promoteSuccessSentinel(popup);
       }
       return popup;
     }

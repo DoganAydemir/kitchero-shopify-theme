@@ -189,18 +189,20 @@
           {%- endif -%}
 
           {%- comment -%}
-            When Shopify rendered this template with a successful form
-            submission, pass that fact to the JS via a data attribute on
-            the popup root. Stays INSIDE the {% form %} block so
-            `form.posted_successfully?` resolves correctly.
+            When Shopify re-renders the page after a successful
+            submission, emit a sentinel element. `form.posted_successfully?`
+            only resolves inside the {% form %} block, so the sentinel
+            lives here. newsletter-popup.js reads its presence and
+            promotes the data-posted-successfully attribute onto the
+            popup root.
           {%- endcomment -%}
           {%- if form.posted_successfully? -%}
-            <script>
-              (function () {
-                var el = document.getElementById('NewsletterPopup-{{ section.id }}');
-                if (el) el.setAttribute('data-posted-successfully', 'true');
-              })();
-            </script>
+            <span
+              hidden
+              aria-hidden="true"
+              data-newsletter-posted-success
+              data-section-id="{{ section.id }}"
+            ></span>
           {%- endif -%}
         {%- endform -%}
 
