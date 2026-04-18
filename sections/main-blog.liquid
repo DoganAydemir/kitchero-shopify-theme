@@ -40,7 +40,8 @@
       {%- if blog.articles.size > 0 -%}
         <div class="kt-blog__grid">
           {%- for article in blog.articles -%}
-            <div class="kt-blog__cell{% if forloop.index0 | modulo: 2 == 1 %} kt-blog__cell--offset{% endif %}">
+            {%- assign cell_parity = forloop.index0 | modulo: 2 -%}
+            <div class="kt-blog__cell{% if cell_parity == 1 %} kt-blog__cell--offset{% endif %}">
               {%- render 'article-card',
                 article: article,
                 show_author: section.settings.show_author,
