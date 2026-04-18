@@ -19,13 +19,13 @@
 
 ## Current state
 
-**Active priority:** P2 (next)
-**Last commit on branch:** (P1 commit — see below)
+**Active priority:** P3 (next)
+**Last commit on branch:** (P2 commit — see below)
 
 ### Priority checklist
 
 - [x] **P1** — Rewrite `layout/theme.liquid` token block ✅
-- [ ] **P2** — Rewrite `config/settings_schema.json`
+- [x] **P2** — Rewrite `config/settings_schema.json` ✅
 - [ ] **P3** — Rewrite `snippets/meta-tags.liquid`
 - [ ] **P4** — Rewrite `snippets/pagination.liquid`
 - [ ] **P5** — Rename `assets/global.js` utilities
@@ -62,8 +62,18 @@
 **Acceptance criteria met:** grep for any Dawn token name (`--color-background`, `--buttons-radius`, `--page-width`, etc.) returns nothing in consumer files.
 
 ### P2 — `settings_schema.json`
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE (across 2 commits)
+**Commits:** `25d3c90 dawn için bişeyler yapıldı 2` (schema/data/consumers) + follow-up locale-schema commit.
+**Done:**
+- Renamed 16 settings groups: `logo`→`kt_brand`, `colors`→`kt_colors`, `typography`→`kt_typography`, `layout`→`kt_layout`, `animations`→`kt_motion`, `buttons`→`kt_buttons`, `inputs`→`kt_inputs`, `cards`→`kt_product_cards`, `collection_cards`→`kt_collection_cards`, `media`→`kt_media`, `drawers`→`kt_drawers`, `badges`→`kt_badges`, `brand_information`→`kt_brand_info`, `social-media`→`kt_social`, `search_input`→`kt_search`, `cart`→`kt_cart`.
+- Renamed ~60 setting IDs with `kt_` prefix (e.g. `buttons_radius`→`kt_btn_radius`, `page_width`→`kt_page_width`, `spacing_sections`→`kt_section_spacing`, `type_header_font`→`kt_heading_font`, `card_corner_radius`→`kt_pcard_radius`, `show_vendor`→`kt_pdp_show_vendor`, `color_schemes`→`kt_schemes` etc.).
+- Renamed scheme `definition` IDs: `background`→`surface`, `text`→`text_primary`, `button`→`action`, `button_label`→`action_text`, `secondary_button_label`→`link_text`, `shadow`→`shadow_color`, `background_gradient`→`surface_gradient`. `role` block updated to match.
+- Updated `config/settings_data.json` (pre-launch — no merchant data loss).
+- Updated `kt-css-variables.liquid` to read `scheme.settings.surface` / `.text_primary` / `.action` / etc.
+- Updated 12 Liquid/CSS/JS consumer files (theme.liquid, password.liquid, header, main-cart, main-collection{,-drawer,-vertical}, meta-tags, search-overlay, social-icons, structured-data).
+- Updated all 5 locale schema files (en.default, tr, de, fr, es) with new group keys and inner setting IDs.
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** grep for Dawn-identical setting IDs returns nothing in consumer files.
 
 ### P3 — `meta-tags.liquid`
 **Status:** ⏳ NOT STARTED
