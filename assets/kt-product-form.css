@@ -205,15 +205,22 @@
   transition: opacity 0.2s ease;
 }
 
+/* Unbranded "Buy It Now" button. Shopify ships an inline stylesheet
+   for this button that uses a default slate-blue accent; we must
+   override with !important since Shopify's own rules are sometimes
+   applied inline via the accelerated checkout runtime. We DO NOT
+   override branded buttons (Shop Pay purple, PayPal yellow) — those
+   are subject to brand-guideline enforcement. */
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
-  background-color: rgb(var(--kt-c-action));
-  color: rgb(var(--kt-c-action-text));
-  border: 1px solid rgb(var(--kt-c-action));
+  background-color: rgb(var(--kt-c-action)) !important;
+  color: rgb(var(--kt-c-action-text)) !important;
+  border: 1px solid rgb(var(--kt-c-action)) !important;
   box-shadow: 0 10px 15px -3px rgba(var(--kt-c-shadow), 0.15);
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]) {
   opacity: 0.88;
+  background-color: rgb(var(--kt-c-action)) !important;
 }
 
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:focus-visible {
