@@ -144,13 +144,13 @@ The theme includes alternate templates for different layouts:
 
 ## Languages
 
-The theme's i18n structure supports 6 languages:
+The theme's i18n structure supports 5 languages:
 
 - **English** — complete, default
-- **Turkish, German, French, Spanish, Arabic (RTL)** — locale files
-  exist but are currently empty stubs (`{}`). Shopify automatically
-  falls back to English for untranslated keys, so the theme renders
-  cleanly in any enabled language even before translation.
+- **Turkish, German, French, Spanish** — locale files exist but are
+  currently empty stubs (`{}`). Shopify automatically falls back to
+  English for untranslated keys, so the theme renders cleanly in any
+  enabled language even before translation.
 
 To enable additional languages, go to **Settings > Languages** and add
 the desired languages. To translate, edit `locales/*.json` (storefront

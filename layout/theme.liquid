@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.iso_code | handle | slice: 0, 2 | replace: 'ar', 'rtl' | replace: 'he', 'rtl' | default: 'ltr' }}">
+<html class="js" lang="{{ request.locale.iso_code }}" dir="ltr">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -109,11 +109,12 @@
       when JavaScript is disabled.
     {%- endcomment -%}
 
-    {%- comment -%} Cart Drawer (loaded conditionally) {%- endcomment -%}
+    {%- comment -%} Cart Drawer (loaded conditionally, registered as a
+        section so JS can refresh it via the Section Rendering API) {%- endcomment -%}
     {%- if settings.kt_cart_type == 'drawer' -%}
       <link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
       <noscript><link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}"></noscript>
-      {%- render 'cart-drawer' -%}
+      {% section 'cart-drawer' %}
     {%- endif -%}
 
     {%- comment -%} Search Overlay {%- endcomment -%}

@@ -279,7 +279,7 @@ Each priority is independently commitable. If we lose context mid-way, the TodoW
 
 ## Out of scope (separate tasks)
 
-- **AR (RTL) language support** — tracked in `PORT_PLAN.md`.
+- **RTL language support** — intentionally out of scope. Theme ships LTR-only for EN/TR/DE/FR/ES.
 - **Real merchant customization migration** — pre-launch, no existing merchant data to preserve.
 - **Dawn-derivative submission risk review** — post-divergence, consult Shopify Partner support if unsure.
 - **Build pipeline / TypeScript** — explicitly out per `CLAUDE.md`.

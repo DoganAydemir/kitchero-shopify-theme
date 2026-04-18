@@ -74,7 +74,7 @@ with merchant-configurable delay and cooldown.
   metafield — no deceptive UI.
 
 ### Out of the box
-- i18n-ready for 6 languages (EN complete; TR, DE, FR, ES, AR scaffolded). Shopify falls back to EN automatically for untranslated keys.
+- i18n-ready for 5 languages (EN complete; TR, DE, FR, ES scaffolded). Shopify falls back to EN automatically for untranslated keys.
 - 4 color schemes, 3-font system (Inter + Playfair Display by default,
   swappable via Shopify's font picker).
 - WCAG AA accessible. Keyboard-navigable. Visible focus rings. 4.5:1 contrast.
@@ -93,7 +93,7 @@ three seconds of the storefront. If that's you, welcome home.
 - Two PDP layouts (e-commerce + showroom) and three collection grids with AJAX filtering
 - 40+ drop-in sections including cinematic sliders, video heroes, galleries, and modal newsletter
 - GSAP-powered scroll animations, Ken Burns hero, bento lightbox, interactive hotspots
-- i18n for 6 languages (EN ready, TR/DE/FR/ES/AR-RTL scaffolded), WCAG AA, full @app block support
+- i18n for 5 languages (EN ready, TR/DE/FR/ES scaffolded), WCAG AA, full @app block support
 
 ---
 

@@ -399,7 +399,7 @@ Every phase, before committing:
 
 ## What's out of scope
 
-- ~~Multi-language translation content~~ **UPDATE: Multi-language IS in scope.** Theme ships with 6 languages: EN (default), TR, DE, FR, ES, AR (RTL). Locale structure from Phase 1, translations completed in Phase 9.
+- ~~Multi-language translation content~~ **UPDATE: Multi-language IS in scope.** Theme ships with 5 languages: EN (default), TR, DE, FR, ES. Locale structure from Phase 1, translations completed in Phase 9.
 - Custom apps (wishlist, reviews — these will be app blocks)
 - Payment customization (Shopify handles checkout)
 - Order tracking pages beyond Shopify defaults
