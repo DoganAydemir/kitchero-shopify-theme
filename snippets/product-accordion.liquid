@@ -9,6 +9,7 @@
   - content: {String}  HTML content (via capture)
   - style:   {String}  'default' (uppercase small, E-commerce PDP) or 'serif'
                        (large serif, Showroom PDP). Defaults to 'default'.
+  - shopify_attributes: {String} block.shopify_attributes (for theme editor)
 {%- endcomment -%}
 
 {%- liquid
@@ -19,7 +20,7 @@
   endif
 -%}
 
-<details class="{{ accordion_class }}" {% if open %}open{% endif %}>
+<details class="{{ accordion_class }}" {% if open %}open{% endif %} {{ shopify_attributes }}>
   <summary class="kt-accordion__header">
     <span class="kt-accordion__title">{{ title }}</span>
     <span class="kt-accordion__icon" aria-hidden="true">
