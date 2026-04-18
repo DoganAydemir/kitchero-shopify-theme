@@ -1,0 +1,80 @@
+{%- doc -%}
+  First-paint intro loader — "The Opening".
+
+  Awwwards-style multi-layer reveal:
+    · top horizontal line draws left→right
+    · corner meta text fades in
+    · shop.name center-stage, per-character slide-up with stagger
+    · rotating word cycler bottom-left
+    · 00 → 100 counter bottom-right
+    · full-width progress bar at bottom edge
+    · exit: characters slide up, clip-path splits vertically
+
+  The bootstrap script in theme.liquid toggles `kt-loader-skip` on
+  <html> before first paint to skip this block on repeat sessions
+  and inside the theme editor. The <noscript> fallback hides it
+  entirely when JS is off.
+{%- enddoc -%}
+<noscript>
+  <style>.kt-loader { display: none !important; }</style>
+</noscript>
+
+{%- liquid
+  assign brand_chars = shop.name | split: ''
+  assign brand_length = brand_chars | size
+  assign current_year = 'now' | date: '%Y'
+-%}
+
+<div
+  class="kt-loader"
+  id="kt-loader"
+  aria-hidden="true"
+  role="presentation"
+  style="--kt-loader-chars: {{ brand_length }};"
+>
+  <span class="kt-loader__noise" aria-hidden="true"></span>
+  <span class="kt-loader__topline" aria-hidden="true"></span>
+
+  <div class="kt-loader__meta kt-loader__meta--tl">
+    <span class="kt-loader__meta-dot"></span>
+    <span>{{ 'kt.loader.est' | t: year: current_year | default: 'EST.' }} {{ current_year }}</span>
+  </div>
+  <div class="kt-loader__meta kt-loader__meta--tr">
+    <span>&copy; {{ shop.name | upcase }}</span>
+  </div>
+
+  <div class="kt-loader__stage">
+    <h1 class="kt-loader__brand" aria-label="{{ shop.name }}">
+      {%- for char in brand_chars -%}
+        <span class="kt-loader__brand-char" style="--i: {{ forloop.index0 }};">
+          <span class="kt-loader__brand-char-inner">{%- if char == ' ' -%}&nbsp;{%- else -%}{{ char }}{%- endif -%}</span>
+        </span>
+      {%- endfor -%}
+    </h1>
+    <span class="kt-loader__underline" aria-hidden="true"></span>
+  </div>
+
+  <div class="kt-loader__footer">
+    <div class="kt-loader__words" aria-hidden="true">
+      <span class="kt-loader__words-prefix">{{ 'kt.loader.prefix' | t | default: '—' }}</span>
+      <span class="kt-loader__words-clip">
+        <span class="kt-loader__words-track">
+          <span class="kt-loader__word">{{ 'kt.loader.word_1' | t | default: 'Form.' }}</span>
+          <span class="kt-loader__word">{{ 'kt.loader.word_2' | t | default: 'Craft.' }}</span>
+          <span class="kt-loader__word">{{ 'kt.loader.word_3' | t | default: 'Light.' }}</span>
+          <span class="kt-loader__word">{{ 'kt.loader.word_4' | t | default: 'Story.' }}</span>
+        </span>
+      </span>
+    </div>
+
+    <div class="kt-loader__counter" aria-hidden="true">
+      <span class="kt-loader__counter-num">00</span>
+      <span class="kt-loader__counter-slash">/</span>
+      <span class="kt-loader__counter-max">100</span>
+    </div>
+  </div>
+
+  <div class="kt-loader__bar" aria-hidden="true">
+    <span class="kt-loader__bar-fill"></span>
+  </div>
+</div>

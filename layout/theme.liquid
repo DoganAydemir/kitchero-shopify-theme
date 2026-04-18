@@ -44,6 +44,7 @@
     {%- render 'kt-css-variables' -%}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'kt-loader.css' | asset_url | stylesheet_tag }}
 
     {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
@@ -71,9 +72,32 @@
         document.documentElement.classList.add('shopify-design-mode');
       }
     </script>
+
+    {%- comment -%}
+      Loader bootstrap: decides — before first paint — whether to skip
+      the intro loader. Added here (not in kt-loader.js) because the JS
+      file is deferred and by the time it runs the loader would already
+      have flashed visible. Adds a class to <html> so CSS can hide the
+      loader with `display: none` from the very first paint.
+    {%- endcomment -%}
+    <script>
+      (function () {
+        try {
+          if (sessionStorage.getItem('kitchero:loader-shown') ||
+              (window.Shopify && Shopify.designMode)) {
+            document.documentElement.classList.add('kt-loader-skip');
+          }
+        } catch (e) {
+          /* Private mode / storage blocked — show the loader anyway. */
+        }
+      })();
+    </script>
+    <script src="{{ 'kt-loader.js' | asset_url }}" defer="defer"></script>
   </head>
 
   <body class="gradient" data-kt-scheme="{{ settings.kt_schemes.first.id }}" data-cart-type="{{ settings.kt_cart_type | default: 'drawer' }}">
+    {%- render 'kt-loader' -%}
+
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'kt.a11y.skip_to_text' | t }}
     </a>

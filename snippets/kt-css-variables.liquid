@@ -74,6 +74,71 @@
   }
 
   :root {
+    /* ------------------------------------------------------------------
+       Brand palette — static design tokens.
+
+       These are the raw colour values the Kitchero visual system is
+       built on (Tailwind stone/emerald/red scales + a handful of warm
+       off-white neutrals the theme uses for backgrounds). They do NOT
+       change per scheme — merchants customise via `color_scheme`
+       settings which drive the `--kt-c-*` semantic tokens below.
+
+       Every hardcoded hex in `assets/*.css` is expected to reference
+       one of these tokens so the palette can be tuned from a single
+       place and reviewers see a consistent token-driven system.
+       ------------------------------------------------------------------ */
+
+    /* Neutrals — Tailwind stone scale */
+    --kt-stone-50:  #fafaf9;
+    --kt-stone-100: #f5f5f4;
+    --kt-stone-200: #e7e5e4;
+    --kt-stone-300: #d6d3d1;
+    --kt-stone-400: #a8a29e;
+    --kt-stone-500: #78716c;
+    --kt-stone-600: #57534e;
+    --kt-stone-700: #44403c;
+    --kt-stone-800: #292524;
+    --kt-stone-900: #1c1917;
+    --kt-stone-950: #0c0a09;
+
+    /* Warm off-whites the theme uses for paper-like backgrounds */
+    --kt-warm-50:   #f5f4f0;
+    --kt-warm-100:  #f4f4f3;
+    --kt-warm-200:  #f0eeea;
+
+    /* Ink — darker than stone-950, used for pure-black moments */
+    --kt-ink:       #0f0d0c;
+
+    /* Success / nature — Tailwind emerald */
+    --kt-emerald-50:  #ecfdf5;
+    --kt-emerald-200: #a7f3d0;
+    --kt-emerald-300: #6ee7b7;
+    --kt-emerald-400: #34d399;
+    --kt-emerald-500: #10b981;
+    --kt-emerald-600: #059669;
+    --kt-emerald-700: #047857;
+    --kt-emerald-800: #065f46;
+    --kt-emerald-900: #064e3b;
+
+    /* Danger / error — Tailwind red */
+    --kt-red-50:   #fef2f2;
+    --kt-red-200:  #fecaca;
+    --kt-red-400:  #f87171;
+    --kt-red-500:  #ef4444;
+    --kt-red-600:  #dc2626;
+    --kt-red-700:  #b91c1c;
+    --kt-red-800:  #991b1b;
+
+    /* One-offs used in specific section palettes */
+    --kt-green-200: #bbf7d0;
+    --kt-green-700: #15803d;
+    --kt-amber-500: #f59e0b;
+    --kt-gray-900:  #111827;
+
+    /* Pure endpoints */
+    --kt-white: #ffffff;
+    --kt-black: #000000;
+
     --kt-f-body-family: {{ body_font.family }}, {{ body_font.fallback_families }};
     --kt-f-body-style: {{ body_font.style }};
     --kt-f-body-weight: {{ body_font.weight }};

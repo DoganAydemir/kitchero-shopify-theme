@@ -1,0 +1,399 @@
+/**
+ * Kitchero First-Paint Loader — "The Opening"
+ *
+ * Editorial, awwwards-style multi-layer intro. Every visible element
+ * has its own reveal timing; the whole thing exits with a vertical
+ * curtain split (clip-path) that reveals the actual content below.
+ *
+ * Timing budget (no reduced-motion):
+ *    0 - 400ms   top line draws
+ *  150 - 700ms   corner meta fade in
+ *  200 - 900ms   brand characters slide up, staggered by --i
+ *  300 - 700ms   underline draws
+ *  200 - 2000ms  counter climbs 00 → 100 (capped at 95 until window.load)
+ *  200 - 2000ms  word cycler rotates 4 words
+ *  200 - 2000ms  bottom progress bar fills
+ * 2000 - 2200ms  hold
+ * 2200 - 3100ms  exit (chars slide up, clip-path opens)
+ *
+ * Reduced motion: collapses to a 500ms opacity fade.
+ */
+
+/* ---------- Container ---------- */
+
+.kt-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--kt-ink);
+  color: var(--kt-warm-50);
+  overflow: hidden;
+  font-family: var(--kt-f-body-family, system-ui, sans-serif);
+  transition: clip-path 0.9s cubic-bezier(0.76, 0, 0.24, 1),
+              opacity 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+  clip-path: inset(0 0 0 0);
+  will-change: clip-path;
+}
+
+.kt-loader-skip .kt-loader,
+.kt-loader[data-state="hidden"] {
+  display: none;
+}
+
+.kt-loader-active,
+.kt-loader-active body {
+  overflow: hidden;
+}
+
+.kt-loader[data-state="exiting"] {
+  clip-path: inset(50% 0 50% 0);
+  pointer-events: none;
+}
+
+/* ---------- Noise / grain overlay ---------- */
+
+.kt-loader__noise {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: kt-loader-grain 1s steps(4) infinite;
+}
+
+@keyframes kt-loader-grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 1%); }
+  50% { transform: translate(1%, -2%); }
+  75% { transform: translate(-1%, -1%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ---------- Top line ---------- */
+
+.kt-loader__topline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(245, 244, 240, 0.2);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: kt-loader-draw 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.1s forwards;
+}
+
+@keyframes kt-loader-draw {
+  to { transform: scaleX(1); }
+}
+
+/* ---------- Meta (corner text) ---------- */
+
+.kt-loader__meta {
+  position: absolute;
+  top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245, 244, 240, 0.55);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: kt-loader-fade-down 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.35s forwards;
+}
+
+.kt-loader__meta--tl { left: 2rem; }
+.kt-loader__meta--tr { right: 2rem; }
+
+.kt-loader__meta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kt-warm-50);
+  animation: kt-loader-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes kt-loader-fade-down {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes kt-loader-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.6); }
+}
+
+/* ---------- Center stage: brand ---------- */
+
+.kt-loader__stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  padding: 0 2rem;
+}
+
+.kt-loader__brand {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  font-family: var(--kt-f-heading-family, Georgia, serif);
+  font-weight: var(--kt-f-heading-weight, 400);
+  font-style: var(--kt-f-heading-style, normal);
+  font-size: clamp(2.5rem, calc(80vw / var(--kt-loader-chars, 10)), 9rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.kt-loader__brand-char {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+  padding: 0.12em 0;
+  margin: -0.12em 0;
+}
+
+.kt-loader__brand-char-inner {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: kt-loader-char-in 0.75s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  animation-delay: calc(0.25s + var(--i, 0) * 40ms);
+}
+
+@keyframes kt-loader-char-in {
+  to { transform: translateY(0); }
+}
+
+.kt-loader[data-state="exiting"] .kt-loader__brand-char-inner {
+  animation: kt-loader-char-out 0.55s cubic-bezier(0.64, 0, 0.78, 0) forwards;
+  animation-delay: calc(var(--i, 0) * 25ms);
+}
+
+@keyframes kt-loader-char-out {
+  to { transform: translateY(-110%); }
+}
+
+/* Underline directly under brand */
+.kt-loader__underline {
+  display: block;
+  width: min(22rem, 60vw);
+  height: 1px;
+  background: rgba(245, 244, 240, 0.35);
+  transform: scaleX(0);
+  transform-origin: center;
+  animation: kt-loader-draw 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.55s forwards;
+}
+
+/* ---------- Footer row ---------- */
+
+.kt-loader__footer {
+  position: absolute;
+  left: 2rem;
+  right: 2rem;
+  bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Rotating word cycler */
+.kt-loader__words {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-family: var(--kt-f-heading-family, Georgia, serif);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-style: italic;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: rgba(245, 244, 240, 0.75);
+  opacity: 0;
+  animation: kt-loader-fade-up 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
+}
+
+.kt-loader__words-prefix {
+  opacity: 0.5;
+}
+
+/* Clipping wrapper. Each slot is 1.4em tall so serif ascenders /
+   dotted "i" glyphs in the neighbouring word can't leak past the
+   overflow clip. Words are centered within their slot. */
+.kt-loader__words-clip {
+  display: inline-block;
+  height: 1.4em;
+  line-height: 1.4;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.kt-loader__words-track {
+  display: block;
+  /* 4 words × 400ms visible each = 1.6s cycle. Runs once, ends on word 4. */
+  animation: kt-loader-word-cycle 1.6s steps(3, end) 0.7s forwards;
+  will-change: transform;
+}
+
+.kt-loader__word {
+  display: flex;
+  align-items: center;
+  height: 1.4em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@keyframes kt-loader-word-cycle {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4.2em); }
+}
+
+/* Counter */
+.kt-loader__counter {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15em;
+  font-family: var(--kt-f-heading-family, Georgia, serif);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: var(--kt-f-heading-weight, 400);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--kt-warm-50);
+  opacity: 0;
+  transform: translateY(6px);
+  animation: kt-loader-fade-up 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.45s forwards;
+}
+
+.kt-loader__counter-num {
+  min-width: 2.2ch;
+  text-align: right;
+}
+
+.kt-loader__counter-slash {
+  opacity: 0.3;
+  font-size: 0.7em;
+  padding: 0 0.05em;
+  font-style: italic;
+}
+
+.kt-loader__counter-max {
+  opacity: 0.35;
+  font-size: 0.7em;
+}
+
+@keyframes kt-loader-fade-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Bottom progress bar ---------- */
+
+.kt-loader__bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(245, 244, 240, 0.1);
+  overflow: hidden;
+}
+
+.kt-loader__bar-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--kt-warm-50);
+  transform-origin: left center;
+  transition: width 0.08s linear;
+}
+
+/* ---------- Exit state additional fades ---------- */
+
+.kt-loader[data-state="exiting"] .kt-loader__topline,
+.kt-loader[data-state="exiting"] .kt-loader__underline,
+.kt-loader[data-state="exiting"] .kt-loader__bar,
+.kt-loader[data-state="exiting"] .kt-loader__meta,
+.kt-loader[data-state="exiting"] .kt-loader__footer,
+.kt-loader[data-state="exiting"] .kt-loader__noise {
+  transition: opacity 0.3s ease-out;
+  opacity: 0;
+}
+
+/* ---------- Mobile tweaks ---------- */
+
+@media (max-width: 640px) {
+  .kt-loader__meta {
+    top: 1.25rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+  }
+  .kt-loader__meta--tl { left: 1.25rem; }
+  .kt-loader__meta--tr { right: 1.25rem; }
+
+  .kt-loader__footer {
+    left: 1.25rem;
+    right: 1.25rem;
+    bottom: 1.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .kt-loader__brand {
+    font-size: clamp(2rem, calc(92vw / var(--kt-loader-chars, 10)), 5rem);
+  }
+
+  .kt-loader__counter {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-loader {
+    transition: opacity 0.25s ease;
+  }
+  .kt-loader__noise { animation: none; }
+  .kt-loader__meta-dot { animation: none; }
+  .kt-loader__topline,
+  .kt-loader__underline {
+    transform: none;
+    animation: kt-loader-fade-up 0.25s ease forwards;
+  }
+  .kt-loader__brand-char-inner {
+    transform: none;
+    animation: kt-loader-fade-up 0.25s ease forwards !important;
+  }
+  .kt-loader__words,
+  .kt-loader__counter {
+    animation-duration: 0.25s;
+  }
+  .kt-loader__words-track {
+    animation: none;
+    /* show only the final word — 3 slots × 1.4em = 4.2em */
+    transform: translateY(-4.2em);
+    will-change: auto;
+  }
+  .kt-loader[data-state="exiting"] {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+  .kt-loader[data-state="exiting"] .kt-loader__brand-char-inner {
+    animation: none;
+  }
+}
