@@ -255,13 +255,110 @@
     }
   }
 
+  /**
+   * Wishlist — localStorage-backed. No server, no cookies, no tracking.
+   * Persists an array of product handles under WISHLIST_KEY. The button's
+   * `aria-pressed` + `.is-wishlisted` class reflect the state on load so a
+   * customer returning to a PDP sees their saved state.
+   */
+  var WISHLIST_KEY = 'kitchero:wishlist';
+
+  function readWishlist() {
+    try {
+      var raw = localStorage.getItem(WISHLIST_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeWishlist(list) {
+    try {
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(list));
+    } catch (e) { /* quota exceeded / private mode — silently ignore */ }
+  }
+
+  function initWishlistButton(btn) {
+    if (!btn || btn.dataset.wishlistInit === '1') return;
+    btn.dataset.wishlistInit = '1';
+
+    var handle = btn.getAttribute('data-product-handle');
+    var labelEl = btn.querySelector('[data-wishlist-label]');
+    var labelAdd = btn.getAttribute('data-label-add') || 'Add to Wishlist';
+    var labelAdded = btn.getAttribute('data-label-added') || 'Saved';
+
+    function render(isSaved) {
+      btn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+      btn.classList.toggle('is-wishlisted', isSaved);
+      if (labelEl) labelEl.textContent = isSaved ? labelAdded : labelAdd;
+    }
+
+    render(readWishlist().indexOf(handle) !== -1);
+
+    btn.addEventListener('click', function () {
+      var list = readWishlist();
+      var idx = list.indexOf(handle);
+      if (idx === -1) {
+        list.push(handle);
+      } else {
+        list.splice(idx, 1);
+      }
+      writeWishlist(list);
+      render(list.indexOf(handle) !== -1);
+      if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('wishlist:update', { handle: handle, saved: list.indexOf(handle) !== -1 });
+    });
+  }
+
+  /**
+   * Share — Web Share API first, clipboard fallback. No external service.
+   */
+  function initShareButton(btn) {
+    if (!btn || btn.dataset.shareInit === '1') return;
+    btn.dataset.shareInit = '1';
+
+    var title = btn.getAttribute('data-share-title') || document.title;
+    var url = btn.getAttribute('data-share-url') || window.location.href;
+    var labelEl = btn.querySelector('[data-share-label]');
+    var labelDefault = btn.getAttribute('data-label-default') || 'Share';
+    var labelCopied = btn.getAttribute('data-label-copied') || 'Link copied';
+
+    btn.addEventListener('click', function () {
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function () { /* user dismissed — no-op */ });
+        return;
+      }
+      var restore = function () {
+        setTimeout(function () {
+          if (labelEl) labelEl.textContent = labelDefault;
+        }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          if (labelEl) labelEl.textContent = labelCopied;
+          restore();
+        }).catch(function () { /* clipboard blocked — no-op */ });
+      }
+    });
+  }
+
+  function initActions(container) {
+    container.querySelectorAll('[data-wishlist-toggle]').forEach(initWishlistButton);
+    container.querySelectorAll('[data-share-btn]').forEach(initShareButton);
+  }
+
   /* Init */
   document.querySelectorAll('[data-section-type="main-product"]').forEach(function (el) {
     initProductForm(el);
+    initActions(el);
   });
 
   document.addEventListener('shopify:section:load', function (e) {
     var section = e.target.querySelector('[data-section-type="main-product"]');
-    if (section) initProductForm(section);
+    if (section) {
+      initProductForm(section);
+      initActions(section);
+    }
   });
 })();

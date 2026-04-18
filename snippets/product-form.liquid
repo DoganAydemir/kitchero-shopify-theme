@@ -76,15 +76,36 @@
     </div>
   {%- endif -%}
 
-  {%- comment -%} Wishlist + Share (visual only — no real backend) {%- endcomment -%}
+  {%- comment -%}
+    Wishlist + Share — real, privacy-safe implementations.
+    Wishlist persists product handles in localStorage (no server, no cookies).
+    Share uses the Web Share API with a clipboard fallback. No tracking.
+  {%- endcomment -%}
   <div class="kt-product-form__actions">
-    <button type="button" class="kt-product-form__action-btn" data-wishlist-toggle>
+    <button
+      type="button"
+      class="kt-product-form__action-btn"
+      data-wishlist-toggle
+      data-product-handle="{{ product.handle }}"
+      data-product-title="{{ product.title | escape }}"
+      aria-pressed="false"
+      data-label-add="{{ 'kt.product.wishlist' | t }}"
+      data-label-added="{{ 'kt.product.wishlist_added' | t }}"
+    >
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
       </svg>
-      <span>{{ 'kt.product.wishlist' | t | default: 'Add to Wishlist' }}</span>
+      <span data-wishlist-label>{{ 'kt.product.wishlist' | t }}</span>
     </button>
-    <button type="button" class="kt-product-form__action-btn" data-share-btn>
+    <button
+      type="button"
+      class="kt-product-form__action-btn"
+      data-share-btn
+      data-share-title="{{ product.title | escape }}"
+      data-share-url="{{ shop.url }}{{ product.url }}"
+      data-label-default="{{ 'kt.product.share' | t }}"
+      data-label-copied="{{ 'kt.product.share_copied' | t }}"
+    >
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle>
         <circle cx="6" cy="12" r="3"></circle>
@@ -92,7 +113,7 @@
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
         <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
       </svg>
-      <span>{{ 'kt.product.share' | t | default: 'Share' }}</span>
+      <span data-share-label>{{ 'kt.product.share' | t }}</span>
     </button>
   </div>
 {%- endform -%}
