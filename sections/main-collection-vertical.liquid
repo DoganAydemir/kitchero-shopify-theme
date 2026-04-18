@@ -17,16 +17,16 @@
     <div class="page-width">
       <div class="kt-collection__hero-inner">
         <div>
-          <p class="kt-collection__label">{{ 'sections.collection.label' | t | default: 'The Archives' }}</p>
+          <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
           <h1 class="kt-collection__title">{{ collection.title }}</h1>
           {%- if collection.description != blank -%}
             <p class="kt-collection__desc">{{ collection.description }}</p>
           {%- else -%}
-            <p class="kt-collection__desc">{{ 'sections.collection.default_desc' | t }}</p>
+            <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t }}</p>
           {%- endif -%}
         </div>
         <span class="kt-collection__count">
-          {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+          {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
         </span>
       </div>
     </div>
@@ -37,14 +37,14 @@
     <div class="page-width">
       <div class="kt-collection__controls-inner">
         <p class="kt-collection__results-count">
-          {{ 'sections.collection.showing' | t | default: 'Showing' }}
+          {{ 'kt.section.collection.showing' | t | default: 'Showing' }}
           {{ collection.products.size }}
-          {{ 'sections.collection.of' | t | default: 'of' }}
+          {{ 'kt.section.collection.of' | t | default: 'of' }}
           {{ collection.products_count }}
         </p>
         <div class="kt-collection__sort">
           {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
-          <label for="SortBy" class="kt-collection__sort-label">{{ 'sections.collection.sort_by' | t | default: 'Sort by' }}</label>
+          <label for="SortBy" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
           <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
             {%- for option in collection.sort_options -%}
               <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
@@ -69,7 +69,7 @@
               </a>
             {%- endfor -%}
           {%- endfor -%}
-          <a href="{{ collection.url }}" class="kt-collection__clear-all">{{ 'sections.collection.clear_all' | t | default: 'Clear all' }}</a>
+          <a href="{{ collection.url }}" class="kt-collection__clear-all">{{ 'kt.section.collection.clear_all' | t | default: 'Clear all' }}</a>
         </div>
       {%- endif -%}
     </div>
@@ -81,7 +81,7 @@
 
       {%- comment -%} Left Sidebar — filters {%- endcomment -%}
       <aside class="kt-filter-sidebar">
-        <h3 class="kt-filter-sidebar__title">{{ 'sections.collection.filter' | t | default: 'Filter' }}</h3>
+        <h3 class="kt-filter-sidebar__title">{{ 'kt.section.collection.filter' | t | default: 'Filter' }}</h3>
         {%- render 'collection-filters', collection: collection -%}
       </aside>
 
@@ -101,8 +101,8 @@
             {%- endif -%}
           {%- else -%}
             <div class="kt-collection__empty">
-              <h3 class="kt-collection__empty-title">{{ 'sections.collection.no_products' | t | default: 'No products found' }}</h3>
-              <p class="kt-collection__empty-text">{{ 'sections.collection.no_products_desc' | t }}</p>
+              <h3 class="kt-collection__empty-title">{{ 'kt.section.collection.no_products' | t | default: 'No products found' }}</h3>
+              <p class="kt-collection__empty-text">{{ 'kt.section.collection.no_products_desc' | t }}</p>
             </div>
           {%- endif -%}
         {%- endpaginate -%}

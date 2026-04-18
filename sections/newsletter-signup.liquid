@@ -14,24 +14,24 @@
         {%- if form.posted_successfully? -%}
           <div class="kt-newsletter-page__success" role="status">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg>
-            <span>{{ 'newsletter.success' | t | default: 'Thanks for subscribing!' }}</span>
+            <span>{{ 'kt.newsletter.success' | t | default: 'Thanks for subscribing!' }}</span>
           </div>
         {%- else -%}
           <div class="kt-newsletter-page__form">
-            <label for="newsletter-page-email" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+            <label for="newsletter-page-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
             <input
               type="email"
               id="newsletter-page-email"
               name="contact[email]"
               class="kt-newsletter-page__input"
-              placeholder="{{ 'newsletter.label' | t | default: 'Email' }}"
+              placeholder="{{ 'kt.newsletter.label' | t | default: 'Email' }}"
               required
               autocomplete="email"
               aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
               aria-describedby="NewsletterPageForm-error"
             >
             <button type="submit" class="kt-newsletter-page__btn" name="commit">
-              {{ 'newsletter.button_label' | t | default: 'Subscribe' }}
+              {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
             </button>
           </div>
 

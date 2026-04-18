@@ -4,14 +4,14 @@
   <div class="kt-brands__fade-left" aria-hidden="true"></div>
   <div class="kt-brands__fade-right" aria-hidden="true"></div>
 
-  <div class="kt-brands__track" aria-label="{{ 'sections.brands.label' | t }}">
+  <div class="kt-brands__track" aria-label="{{ 'kt.section.brands.label' | t }}">
     {%- comment -%} Render blocks twice for seamless loop {%- endcomment -%}
     {%- for i in (1..2) -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'logo' -%}
           <div class="kt-brands__item" {{ block.shopify_attributes }}>
             {%- if block.settings.image != blank -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: 'sections.brands.logo_alt' | t }}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: 'kt.section.brands.logo_alt' | t }}
             {%- else -%}
               <div class="kt-brands__placeholder">
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}

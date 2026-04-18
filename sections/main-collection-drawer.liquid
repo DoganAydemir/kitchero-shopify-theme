@@ -17,16 +17,16 @@
     <div class="page-width">
       <div class="kt-collection__hero-inner">
         <div>
-          <p class="kt-collection__label">{{ 'sections.collection.label' | t | default: 'The Archives' }}</p>
+          <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
           <h1 class="kt-collection__title">{{ collection.title }}</h1>
           {%- if collection.description != blank -%}
             <p class="kt-collection__desc">{{ collection.description }}</p>
           {%- else -%}
-            <p class="kt-collection__desc">{{ 'sections.collection.default_desc' | t }}</p>
+            <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t }}</p>
           {%- endif -%}
         </div>
         <span class="kt-collection__count">
-          {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+          {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
         </span>
       </div>
     </div>
@@ -37,9 +37,9 @@
     <div class="page-width">
       <div class="kt-collection__controls-inner">
         <p class="kt-collection__results-count">
-          {{ 'sections.collection.showing' | t | default: 'Showing' }}
+          {{ 'kt.section.collection.showing' | t | default: 'Showing' }}
           {{ collection.products.size }}
-          {{ 'sections.collection.of' | t | default: 'of' }}
+          {{ 'kt.section.collection.of' | t | default: 'of' }}
           {{ collection.products_count }}
         </p>
 
@@ -50,7 +50,7 @@
 
         <button class="kt-collection__filter-btn" data-open-filter-drawer type="button">
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
-          <span>{{ 'sections.collection.filters' | t | default: 'Filters' }}{% if active_filters_count > 0 %} ({{ active_filters_count }}){% endif %}</span>
+          <span>{{ 'kt.section.collection.filters' | t | default: 'Filters' }}{% if active_filters_count > 0 %} ({{ active_filters_count }}){% endif %}</span>
         </button>
       </div>
 
@@ -65,7 +65,7 @@
               </a>
             {%- endfor -%}
           {%- endfor -%}
-          <a href="{{ collection.url }}" class="kt-collection__clear-all">{{ 'sections.collection.clear_all' | t | default: 'Clear all' }}</a>
+          <a href="{{ collection.url }}" class="kt-collection__clear-all">{{ 'kt.section.collection.clear_all' | t | default: 'Clear all' }}</a>
         </div>
       {%- endif -%}
     </div>
@@ -74,10 +74,10 @@
   {%- comment -%} Filter Drawer (glassmorphic right panel) {%- endcomment -%}
   <div class="kt-filter-drawer" id="filter-drawer" data-filter-drawer>
     <div class="kt-filter-drawer__overlay" data-close-filter-drawer></div>
-    <div class="kt-filter-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'sections.collection.refine' | t | default: 'Refine Search' }}">
+    <div class="kt-filter-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'kt.section.collection.refine' | t | default: 'Refine Search' }}">
       <div class="kt-filter-drawer__header">
-        <h3 class="kt-filter-drawer__title">{{ 'sections.collection.refine' | t | default: 'Refine Search' }}</h3>
-        <button type="button" class="kt-filter-drawer__close" data-close-filter-drawer aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+        <h3 class="kt-filter-drawer__title">{{ 'kt.section.collection.refine' | t | default: 'Refine Search' }}</h3>
+        <button type="button" class="kt-filter-drawer__close" data-close-filter-drawer aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
           <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
@@ -86,13 +86,13 @@
       </div>
       <div class="kt-filter-drawer__footer">
         <div class="kt-filter-drawer__footer-info">
-          <span class="kt-filter-drawer__footer-count">{{ collection.products_count }} {{ 'sections.collection.matches' | t | default: 'Matches Found' }}</span>
+          <span class="kt-filter-drawer__footer-count">{{ collection.products_count }} {{ 'kt.section.collection.matches' | t | default: 'Matches Found' }}</span>
           {%- if active_filters_count > 0 -%}
-            <a href="{{ collection.url }}" class="kt-filter__reset">{{ 'sections.collection.clear_all' | t | default: 'Clear All' }}</a>
+            <a href="{{ collection.url }}" class="kt-filter__reset">{{ 'kt.section.collection.clear_all' | t | default: 'Clear All' }}</a>
           {%- endif -%}
         </div>
         <button type="button" class="kt-filter-drawer__apply" data-close-filter-drawer>
-          {{ 'sections.collection.show_results' | t | default: 'Show Results' }}
+          {{ 'kt.section.collection.show_results' | t | default: 'Show Results' }}
         </button>
       </div>
     </div>
@@ -114,8 +114,8 @@
         {%- endif -%}
       {%- else -%}
         <div class="kt-collection__empty">
-          <h3 class="kt-collection__empty-title">{{ 'sections.collection.no_products' | t | default: 'No products found' }}</h3>
-          <p class="kt-collection__empty-text">{{ 'sections.collection.no_products_desc' | t }}</p>
+          <h3 class="kt-collection__empty-title">{{ 'kt.section.collection.no_products' | t | default: 'No products found' }}</h3>
+          <p class="kt-collection__empty-text">{{ 'kt.section.collection.no_products_desc' | t }}</p>
         </div>
       {%- endif -%}
     {%- endpaginate -%}

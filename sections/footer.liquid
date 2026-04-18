@@ -51,9 +51,9 @@
                 </ul>
               {%- else -%}
                 <ul class="kt-footer__link-list list-unstyled" role="list">
-                  <li><a href="#" class="kt-footer__link">{{ 'onboarding.collection_title' | t }}</a></li>
-                  <li><a href="#" class="kt-footer__link">{{ 'onboarding.collection_title' | t }}</a></li>
-                  <li><a href="#" class="kt-footer__link">{{ 'onboarding.collection_title' | t }}</a></li>
+                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
+                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
+                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
                 </ul>
               {%- endif -%}
             </div>
@@ -74,18 +74,18 @@
               {%- form 'customer', id: 'FooterNewsletter' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
                 <div class="kt-footer__newsletter">
-                  <label for="footer-newsletter-email" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+                  <label for="footer-newsletter-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
                   <input
                     type="email"
                     id="footer-newsletter-email"
                     name="contact[email]"
                     class="field__input kt-footer__newsletter-input"
-                    placeholder="{{ 'newsletter.label' | t }}"
+                    placeholder="{{ 'kt.newsletter.label' | t }}"
                     required
                     autocomplete="email"
                   >
                   <button type="submit" class="button kt-footer__newsletter-btn">
-                    {{ 'newsletter.button_label' | t }}
+                    {{ 'kt.newsletter.button_label' | t }}
                   </button>
                 </div>
               {%- endform -%}
@@ -117,7 +117,7 @@
         {%- comment -%} Copyright {%- endcomment -%}
         <div class="kt-footer__copyright">
           <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}.</span>
-          <a href="https://www.shopify.com" target="_blank" rel="noopener">{{ 'general.footer.powered_by_shopify' | t | default: 'Powered by Shopify' }}</a>
+          <a href="https://www.shopify.com" target="_blank" rel="noopener">{{ 'kt.general.footer.powered_by_shopify' | t | default: 'Powered by Shopify' }}</a>
         </div>
 
         {%- comment -%} Language/Country Selectors (Shopify native localization) {%- endcomment -%}
@@ -126,7 +126,7 @@
             {%- if localization.available_languages.size > 1 -%}
               {%- form 'localization', id: 'FooterLanguageForm', class: 'kt-footer__localization-form' -%}
                 <div class="localization-selector">
-                  <select name="locale_code" id="FooterLanguageSelector" aria-label="{{ 'localization.language_label' | t | default: 'Language' }}">
+                  <select name="locale_code" id="FooterLanguageSelector" aria-label="{{ 'kt.locale.language_label' | t | default: 'Language' }}">
                     {%- for language in localization.available_languages -%}
                       <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
                         {{ language.endonym_name | capitalize }}
@@ -134,7 +134,7 @@
                     {%- endfor -%}
                   </select>
                   <noscript>
-                    <button type="submit" class="button button--secondary">{{ 'localization.update' | t | default: 'Update' }}</button>
+                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                   </noscript>
                 </div>
               {%- endform -%}
@@ -143,7 +143,7 @@
             {%- if localization.available_countries.size > 1 -%}
               {%- form 'localization', id: 'FooterCountryForm', class: 'kt-footer__localization-form' -%}
                 <div class="localization-selector">
-                  <select name="country_code" id="FooterCountrySelector" aria-label="{{ 'localization.country_label' | t | default: 'Country/region' }}">
+                  <select name="country_code" id="FooterCountrySelector" aria-label="{{ 'kt.locale.country_label' | t | default: 'Country/region' }}">
                     {%- for country in localization.available_countries -%}
                       <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
                         {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
@@ -151,7 +151,7 @@
                     {%- endfor -%}
                   </select>
                   <noscript>
-                    <button type="submit" class="button button--secondary">{{ 'localization.update' | t | default: 'Update' }}</button>
+                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                   </noscript>
                 </div>
               {%- endform -%}
@@ -162,7 +162,7 @@
         {%- comment -%} Payment Icons (Shopify native) {%- endcomment -%}
         {%- if section.settings.show_payment_icons -%}
           <div class="kt-footer__payment">
-            <span class="visually-hidden">{{ 'general.footer.payment_methods' | t }}</span>
+            <span class="visually-hidden">{{ 'kt.general.footer.payment_methods' | t }}</span>
             <ul class="kt-footer__payment-list list-unstyled" role="list">
               {%- for type in shop.enabled_payment_types -%}
                 <li>{{ type | payment_type_svg_tag: class: 'kt-footer__payment-icon' }}</li>

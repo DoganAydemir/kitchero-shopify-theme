@@ -13,8 +13,8 @@
 
 <div class="kt-search-overlay" id="search-overlay" aria-hidden="true" data-search-overlay>
   <div class="kt-search-overlay__backdrop" data-search-close aria-hidden="true"></div>
-  <div class="kt-search-overlay__content" role="dialog" aria-modal="true" aria-label="{{ 'general.search.search' | t }}">
-    <button type="button" class="kt-search-overlay__close" data-search-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+  <div class="kt-search-overlay__content" role="dialog" aria-modal="true" aria-label="{{ 'kt.search.search' | t }}">
+    <button type="button" class="kt-search-overlay__close" data-search-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
       <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -23,7 +23,7 @@
 
     <div class="kt-search-overlay__form-wrapper">
       <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-overlay__form">
-        <label for="search-overlay-input" class="visually-hidden">{{ 'general.search.search' | t }}</label>
+        <label for="search-overlay-input" class="visually-hidden">{{ 'kt.search.search' | t }}</label>
         <div class="kt-search-overlay__input-wrap">
           <svg class="kt-search-overlay__icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
@@ -34,7 +34,7 @@
             id="search-overlay-input"
             name="q"
             class="kt-search-overlay__input"
-            placeholder="{{ 'general.search.placeholder' | t }}"
+            placeholder="{{ 'kt.search.placeholder' | t }}"
             autocomplete="off"
             autocorrect="off"
             autocapitalize="off"
@@ -52,7 +52,7 @@
       {%- assign popular_terms = settings.kt_search_popular | default: '' -%}
       {%- if popular_terms != blank -%}
         <div class="kt-search-overlay__suggestions">
-          <p class="kt-search-overlay__suggestions-label">{{ 'general.search.suggestions' | t | default: 'Popular searches' }}</p>
+          <p class="kt-search-overlay__suggestions-label">{{ 'kt.search.suggestions' | t | default: 'Popular searches' }}</p>
           <div class="kt-search-overlay__suggestions-list">
             {%- assign terms_array = popular_terms | split: ',' -%}
             {%- for raw_term in terms_array -%}

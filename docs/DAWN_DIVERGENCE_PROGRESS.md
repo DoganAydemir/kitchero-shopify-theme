@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P8 (next)
-**Last commit on branch:** (P7 commit — see below)
+**Active priority:** P9 (next)
+**Last commit on branch:** (P8 commit — see below)
 
 ### Priority checklist
 
@@ -31,7 +31,7 @@
 - [x] **P5** — Rename `assets/global.js` utilities ✅
 - [x] **P6** — Rename `component-*.css` (16 files) ✅
 - [x] **P7** — Rename `section-*.{css,js}` (86 files) ✅
-- [ ] **P8** — Restructure `locales/en.default.json` (5 locales)
+- [x] **P8** — Restructure `locales/*.json` (5 locales) ✅
 - [ ] **P9** — Namespace JS globals (`window.Kitchero`)
 - [ ] **P10** — Section filename convention (decision-only)
 - [ ] **Stretch** — Adopt `blocks/` directory + Theme Blocks
@@ -150,8 +150,22 @@
 **Acceptance criteria met:** 0% of asset files now use Dawn's bare `section-*` prefix (below the <30% plan target, which was a phased lower bound).
 
 ### P8 — Locale restructure
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Collapsed every Dawn-hierarchy top-level namespace into a Kitchero `kt.*` taxonomy across all 5 locales (`en.default`, `tr`, `de`, `fr`, `es`). Each locale has 295 keys — all rewritten.
+- Top-level remaps: `products` → `kt.product`, `sections` → `kt.section`, `accessibility` → `kt.a11y`, `localization` → `kt.locale`, `newsletter` → `kt.newsletter`, `blogs` → `kt.blog`, `onboarding` → `kt.onboarding`, `customers` → `kt.customer`, `gift_cards` → `kt.giftcard`, `templates` → `kt.template`, `general` → `kt.general`.
+- Special elevations/flattenings:
+  - `sections.cart.*` → `kt.cart.*`; `sections.header.*` → `kt.header.*`; `sections.footer.*` → `kt.footer.*`; `sections.newsletter_popup.*` → `kt.newsletter_popup.*`
+  - `products.product.*` (collapsed double nesting) → `kt.product.*`
+  - `general.pagination.*` → `kt.pagination.*`; `general.share.*` → `kt.share.*`; `general.search.*` → `kt.search.*`; `general.social.*` → `kt.social.*`; `general.meta.*` → `kt.meta.*`; `general.password_page.*` → `kt.password.*`; `general.cart.*` → `kt.header.cart.*`; `general.continue_shopping` → `kt.continue_shopping`
+  - `templates.contact.*` → `kt.contact.*`
+  - `accessibility.link_messages.*` → `kt.a11y.link.*`
+- Python rebuild script: flattened each locale (preserving JS-style comment headers), applied the translation rules with a longest-prefix-wins merge, and nested the resulting paths back into a fresh dict. 0 path collisions.
+- Consumer update: 60 Liquid/JS/JSON files touched in the first pass (379 string replacements), 1 additional file in the follow-up pass that added pluralization-parent paths (e.g. `general.cart.item_count` where the leaf is split into `one`/`other`) — 1 more replacement. Total: 61 files, 380 replacements.
+- `shopify theme check`: **0 offenses** across 134 files (TranslationKeyExists passed).
+- Dawn overlap audit: `Kitchero.paths ∩ Dawn.paths` = **0** (was 53, target was <10).
+**Acceptance criteria met:** 0 shared paths with Dawn's locale tree; every `| t` reference across the theme resolves correctly.
 
 ### P9 — JS globals namespace
 **Status:** ⏳ NOT STARTED

@@ -41,7 +41,7 @@
     </a>
 
     {%- comment -%} Desktop Navigation {%- endcomment -%}
-    <nav class="kt-header__nav" aria-label="{{ 'accessibility.navigation' | t }}">
+    <nav class="kt-header__nav" aria-label="{{ 'kt.a11y.navigation' | t }}">
       {%- if section.settings.main_menu != blank -%}
         <ul class="kt-header__menu list-unstyled" role="list">
           {%- for link in section.settings.main_menu.links -%}
@@ -187,7 +187,7 @@
         type="button"
         class="kt-header__icon"
         data-search-open
-        aria-label="{{ 'general.search.search' | t }}"
+        aria-label="{{ 'kt.search.search' | t }}"
         aria-haspopup="dialog"
         aria-expanded="false"
         aria-controls="search-overlay"
@@ -198,7 +198,7 @@
         </svg>
       </button>
       <noscript>
-        <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'general.search.search' | t }}">
+        <a href="{{ routes.search_url }}" class="kt-header__icon" aria-label="{{ 'kt.search.search' | t }}">
           <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -220,10 +220,10 @@
       {%- liquid
         if customer
           assign account_href = routes.account_url
-          assign account_label = 'accessibility.account' | t
+          assign account_label = 'kt.a11y.account' | t
         else
           assign account_href = routes.account_login_url
-          assign account_label = 'customers.login.title' | t | default: 'Log in'
+          assign account_label = 'kt.customer.login.title' | t | default: 'Log in'
         endif
       -%}
       <a href="{{ account_href }}" class="kt-header__icon" aria-label="{{ account_label }}">
@@ -234,7 +234,7 @@
       </a>
 
       {%- comment -%} Cart {%- endcomment -%}
-      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'sections.cart.title' | t }}">
+      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.cart.title' | t }}">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -245,7 +245,7 @@
             class="kt-header__cart-count"
             aria-live="polite"
             aria-atomic="true"
-            aria-label="{{ 'general.cart.item_count' | t: count: cart.item_count }}"
+            aria-label="{{ 'kt.header.cart.item_count' | t: count: cart.item_count }}"
           >
             {{ cart.item_count }}
           </span>
@@ -264,7 +264,7 @@
       <button
         type="button"
         class="kt-header__menu-toggle"
-        aria-label="{{ 'accessibility.navigation' | t }}"
+        aria-label="{{ 'kt.a11y.navigation' | t }}"
         aria-expanded="false"
         aria-controls="kt-mobile-panel-{{ section.id }}"
         onclick="(function(btn){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;var open=p.classList.toggle('kt-header__mobile-panel--open');btn.setAttribute('aria-expanded',open?'true':'false');document.body.style.overflow=open?'hidden':'';var oi=btn.querySelector('.kt-header__menu-toggle-open');var ci=btn.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.toggle('hidden',open);if(ci)ci.classList.toggle('hidden',!open);})(this);"
@@ -308,7 +308,7 @@
   class="kt-header__mobile-panel"
   role="dialog"
   aria-modal="true"
-  aria-label="{{ 'accessibility.navigation' | t }}"
+  aria-label="{{ 'kt.a11y.navigation' | t }}"
 >
   <div class="kt-header__mobile-panel-header">
     <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
@@ -317,7 +317,7 @@
     <button
       type="button"
       class="kt-header__mobile-panel-close"
-      aria-label="{{ 'accessibility.close' | t | default: 'Close' }}"
+      aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
       onclick="(function(){var p=document.querySelector('.kt-header__mobile-panel');if(!p)return;p.classList.remove('kt-header__mobile-panel--open');document.body.style.overflow='';var t=document.querySelector('.kt-header__menu-toggle');if(t){t.setAttribute('aria-expanded','false');var oi=t.querySelector('.kt-header__menu-toggle-open');var ci=t.querySelector('.kt-header__menu-toggle-close');if(oi)oi.classList.remove('hidden');if(ci)ci.classList.add('hidden');}})();"
     >
       <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -389,14 +389,14 @@
                   <line x1="19" y1="12" x2="5" y2="12"></line>
                   <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
-                <span class="kt-header__mobile-back-label">{{ 'general.back' | t | default: 'Back' }}</span>
+                <span class="kt-header__mobile-back-label">{{ 'kt.general.back' | t | default: 'Back' }}</span>
               </button>
               <h3 class="kt-header__mobile-view-title">{{ link.title }}</h3>
 
               {%- if link.url != blank and link.url != '#' -%}
                 <a href="{{ link.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
                   <span class="kt-header__mobile-link-label">
-                    {{ 'general.view_all' | t | default: 'View all' }} {{ link.title }}
+                    {{ 'kt.general.view_all' | t | default: 'View all' }} {{ link.title }}
                   </span>
                 </a>
               {%- endif -%}
@@ -437,14 +437,14 @@
                       <line x1="19" y1="12" x2="5" y2="12"></line>
                       <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
-                    <span class="kt-header__mobile-back-label">{{ 'general.back' | t | default: 'Back' }}</span>
+                    <span class="kt-header__mobile-back-label">{{ 'kt.general.back' | t | default: 'Back' }}</span>
                   </button>
                   <h3 class="kt-header__mobile-view-title">{{ child.title }}</h3>
 
                   {%- if child.url != blank and child.url != '#' -%}
                     <a href="{{ child.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
                       <span class="kt-header__mobile-link-label">
-                        {{ 'general.view_all' | t | default: 'View all' }} {{ child.title }}
+                        {{ 'kt.general.view_all' | t | default: 'View all' }} {{ child.title }}
                       </span>
                     </a>
                   {%- endif -%}

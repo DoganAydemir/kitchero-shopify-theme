@@ -2,28 +2,28 @@
 
 <section class="kt-customer" data-section-id="{{ section.id }}">
   <div class="kt-customer__container">
-    <h1 class="kt-customer__title">{{ 'customers.login.title' | t }}</h1>
+    <h1 class="kt-customer__title">{{ 'kt.customer.login.title' | t }}</h1>
 
     {%- comment -%} Login Form {%- endcomment -%}
     {%- form 'customer_login', id: 'CustomerLoginForm' -%}
       <div class="kt-customer__form">
         <div class="kt-customer__field">
-          <label for="login-email" class="visually-hidden">{{ 'customers.login.email' | t }}</label>
-          <input type="email" id="login-email" name="customer[email]" class="kt-customer__input" placeholder="{{ 'customers.login.email' | t }}" required autocomplete="email">
+          <label for="login-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
+          <input type="email" id="login-email" name="customer[email]" class="kt-customer__input" placeholder="{{ 'kt.customer.login.email' | t }}" required autocomplete="email">
         </div>
         <div class="kt-customer__field">
-          <label for="login-password" class="visually-hidden">{{ 'customers.login.password' | t }}</label>
-          <input type="password" id="login-password" name="customer[password]" class="kt-customer__input" placeholder="{{ 'customers.login.password' | t }}" required autocomplete="current-password">
+          <label for="login-password" class="visually-hidden">{{ 'kt.customer.login.password' | t }}</label>
+          <input type="password" id="login-password" name="customer[password]" class="kt-customer__input" placeholder="{{ 'kt.customer.login.password' | t }}" required autocomplete="current-password">
         </div>
-        <button type="submit" class="kt-customer__submit">{{ 'customers.login.sign_in' | t }}</button>
+        <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.sign_in' | t }}</button>
 
         <button type="button" class="kt-customer__forgot-link" data-toggle-forgot aria-expanded="false">
-          {{ 'customers.login.forgot_password' | t }}
+          {{ 'kt.customer.login.forgot_password' | t }}
         </button>
 
         <div class="kt-customer__alt">
-          {{ 'customers.login.guest_title' | t | default: 'New customer?' }}
-          <a href="{{ routes.account_register_url }}">{{ 'customers.register.title' | t }}</a>
+          {{ 'kt.customer.login.guest_title' | t | default: 'New customer?' }}
+          <a href="{{ routes.account_register_url }}">{{ 'kt.customer.register.title' | t }}</a>
         </div>
       </div>
     {%- endform -%}
@@ -32,18 +32,18 @@
     <div class="kt-customer__modal" id="forgot-modal" aria-hidden="true">
       <div class="kt-customer__modal-overlay" data-close-forgot></div>
       <div class="kt-customer__modal-panel" role="dialog" aria-modal="true" aria-labelledby="forgot-modal-title">
-        <button type="button" class="kt-customer__modal-close" data-close-forgot aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+        <button type="button" class="kt-customer__modal-close" data-close-forgot aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <h2 id="forgot-modal-title" class="kt-customer__modal-title">{{ 'customers.login.reset_password' | t }}</h2>
-        <p class="kt-customer__modal-desc">{{ 'customers.login.reset_desc' | t | default: 'We will send you an email to reset your password.' }}</p>
+        <h2 id="forgot-modal-title" class="kt-customer__modal-title">{{ 'kt.customer.login.reset_password' | t }}</h2>
+        <p class="kt-customer__modal-desc">{{ 'kt.customer.login.reset_desc' | t | default: 'We will send you an email to reset your password.' }}</p>
         {%- form 'recover_customer_password', id: 'RecoverPasswordForm' -%}
           <div class="kt-customer__field">
-            <label for="forgot-email" class="visually-hidden">{{ 'customers.login.email' | t }}</label>
-            <input type="email" id="forgot-email" name="email" class="kt-customer__input" placeholder="{{ 'customers.login.email' | t }}" required autocomplete="email">
+            <label for="forgot-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
+            <input type="email" id="forgot-email" name="email" class="kt-customer__input" placeholder="{{ 'kt.customer.login.email' | t }}" required autocomplete="email">
           </div>
-          <button type="submit" class="kt-customer__submit">{{ 'customers.login.reset_password' | t }}</button>
-          <button type="button" class="kt-customer__cancel" data-close-forgot>{{ 'customers.login.cancel' | t }}</button>
+          <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.reset_password' | t }}</button>
+          <button type="button" class="kt-customer__cancel" data-close-forgot>{{ 'kt.customer.login.cancel' | t }}</button>
         {%- endform -%}
       </div>
     </div>

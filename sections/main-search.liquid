@@ -4,19 +4,19 @@
 
 <section class="kt-search-page" data-section-id="{{ section.id }}">
   <div class="page-width">
-    <h1 class="kt-search-page__title">{{ 'general.search.search' | t }}</h1>
+    <h1 class="kt-search-page__title">{{ 'kt.search.search' | t }}</h1>
 
     <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-page__form">
-      <label for="search-page-input" class="visually-hidden">{{ 'general.search.search' | t }}</label>
-      <input type="search" id="search-page-input" name="q" value="{{ search.terms | escape }}" class="kt-search-page__input" placeholder="{{ 'general.search.placeholder' | t }}" autocomplete="off">
+      <label for="search-page-input" class="visually-hidden">{{ 'kt.search.search' | t }}</label>
+      <input type="search" id="search-page-input" name="q" value="{{ search.terms | escape }}" class="kt-search-page__input" placeholder="{{ 'kt.search.placeholder' | t }}" autocomplete="off">
       <input type="hidden" name="type" value="product,article,page">
-      <button type="submit" class="kt-search-page__submit">{{ 'general.search.search' | t }}</button>
+      <button type="submit" class="kt-search-page__submit">{{ 'kt.search.search' | t }}</button>
     </form>
 
     {%- if search.performed -%}
       {%- if search.results_count > 0 -%}
         <p class="kt-search-page__results-count">
-          {{ 'general.search.results_count' | t: count: search.results_count, terms: search.terms }}
+          {{ 'kt.search.results_count' | t: count: search.results_count, terms: search.terms }}
         </p>
         <div class="kt-search-page__grid">
           {%- for item in search.results -%}
@@ -33,7 +33,7 @@
           {%- endfor -%}
         </div>
       {%- else -%}
-        <p class="kt-search-page__no-results">{{ 'general.search.no_results' | t: terms: search.terms }}</p>
+        <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
       {%- endif -%}
     {%- endif -%}
   </div>

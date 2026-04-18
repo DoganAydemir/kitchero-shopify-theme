@@ -13,7 +13,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#fafaf9">
-    <title>{{ 'gift_cards.issued.title' | t }} · {{ shop.name }}</title>
+    <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name }}</title>
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     {{ content_for_header }}
@@ -41,11 +41,11 @@
       </a>
 
       <header class="kt-gift-card__header">
-        <span class="kt-gift-card__eyebrow">{{ 'gift_cards.issued.subtext' | t }}</span>
-        <h1 class="kt-gift-card__title">{{ 'gift_cards.issued.title' | t }}</h1>
+        <span class="kt-gift-card__eyebrow">{{ 'kt.giftcard.issued.subtext' | t }}</span>
+        <h1 class="kt-gift-card__title">{{ 'kt.giftcard.issued.title' | t }}</h1>
       </header>
 
-      <section class="kt-gift-card__visual" aria-label="{{ 'gift_cards.issued.title' | t }}">
+      <section class="kt-gift-card__visual" aria-label="{{ 'kt.giftcard.issued.title' | t }}">
         {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros -%}
         {%- assign formatted_current_balance = gift_card.balance | money_without_trailing_zeros -%}
 
@@ -81,7 +81,7 @@
             {%- endif -%}
 
             <div class="kt-gift-card__card-overlay">
-              <span class="kt-gift-card__card-label">{{ 'gift_cards.issued.title' | t }}</span>
+              <span class="kt-gift-card__card-label">{{ 'kt.giftcard.issued.title' | t }}</span>
               <span class="kt-gift-card__card-value">
                 {%- if gift_card.balance != gift_card.initial_value -%}
                   {{ formatted_current_balance }}
@@ -98,7 +98,7 @@
       <section class="kt-gift-card__meta">
         <div class="kt-gift-card__code-row">
           <label for="GiftCardCode" class="kt-gift-card__code-label">
-            {{ 'gift_cards.issued.copy_code' | t | default: 'Gift card code' }}
+            {{ 'kt.giftcard.issued.copy_code' | t | default: 'Gift card code' }}
           </label>
           <div class="kt-gift-card__code-wrap">
             <input
@@ -107,16 +107,16 @@
               class="kt-gift-card__code"
               value="{{ gift_card.code | format_code }}"
               readonly
-              aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
+              aria-label="{{ 'kt.giftcard.issued.copy_code' | t }}"
             >
             <button
               type="button"
               class="kt-gift-card__copy"
               data-gift-card-copy="GiftCardCode"
-              aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
+              aria-label="{{ 'kt.giftcard.issued.copy_code' | t }}"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span class="kt-gift-card__copy-text">{{ 'gift_cards.issued.copy_code' | t }}</span>
+              <span class="kt-gift-card__copy-text">{{ 'kt.giftcard.issued.copy_code' | t }}</span>
             </button>
           </div>
         </div>
@@ -124,11 +124,11 @@
         <div class="kt-gift-card__pills">
           {%- if gift_card.expired -%}
             <span class="kt-gift-card__pill kt-gift-card__pill--expired">
-              {{ 'gift_cards.issued.expired' | t }}
+              {{ 'kt.giftcard.issued.expired' | t }}
             </span>
           {%- elsif gift_card.enabled -%}
             <span class="kt-gift-card__pill kt-gift-card__pill--active">
-              {{ 'gift_cards.issued.active' | t: expiry: gift_card.expires_on | date: '%B %-d, %Y' }}
+              {{ 'kt.giftcard.issued.active' | t: expiry: gift_card.expires_on | date: '%B %-d, %Y' }}
             </span>
           {%- endif -%}
         </div>
@@ -136,7 +136,7 @@
 
       <div class="kt-gift-card__actions">
         <a href="{{ shop.url | default: routes.root_url }}" class="kt-gift-card__cta">
-          {{ 'gift_cards.issued.shop_link' | t | default: 'Continue shopping' }}
+          {{ 'kt.giftcard.issued.shop_link' | t | default: 'Continue shopping' }}
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
@@ -160,7 +160,7 @@
             } else {
               document.execCommand('copy');
             }
-            if (label) label.textContent = {{ 'general.share.success_message' | t | json }};
+            if (label) label.textContent = {{ 'kt.share.success_message' | t | json }};
             button.classList.add('kt-gift-card__copy--success');
             setTimeout(function () {
               if (label) label.textContent = originalLabel;

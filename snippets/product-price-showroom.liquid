@@ -33,20 +33,20 @@
 -%}
 
 <div class="kt-showroom-price" data-product-price>
-  <span class="kt-showroom-price__label">{{ 'products.product.price.now_only' | t | default: 'Now only' }}</span>
+  <span class="kt-showroom-price__label">{{ 'kt.product.price.now_only' | t | default: 'Now only' }}</span>
 
   <div class="kt-showroom-price__row">
     <span class="kt-showroom-price__current">{{ current_price | money }}</span>
     {%- if on_sale -%}
       <span class="kt-showroom-price__save">
-        {{ 'products.product.price.save_html' | t: amount: savings | money | default: 'Save' }}
+        {{ 'kt.product.price.save_html' | t: amount: savings | money | default: 'Save' }}
       </span>
     {%- endif -%}
   </div>
 
   {%- if on_sale -%}
     <span class="kt-showroom-price__was">
-      {{ 'products.product.price.was_html' | t: amount: compare_price | money | default: 'Was' }}
+      {{ 'kt.product.price.was_html' | t: amount: compare_price | money | default: 'Was' }}
     </span>
   {%- endif -%}
 
@@ -58,11 +58,11 @@
         {%- if financing_label != blank -%}
           {{ financing_label }}
         {%- else -%}
-          {{ monthly | money }} {{ 'products.product.price.per_month' | t | default: 'per month' }}
+          {{ monthly | money }} {{ 'kt.product.price.per_month' | t | default: 'per month' }}
           {%- if financing_apr and financing_apr == 0 -%}
             &nbsp;· 0% APR
           {%- endif -%}
-          &nbsp;· {{ financing_months | divided_by: 12 }} {{ 'products.product.price.years' | t | default: 'years' }}*
+          &nbsp;· {{ financing_months | divided_by: 12 }} {{ 'kt.product.price.years' | t | default: 'years' }}*
         {%- endif -%}
       </span>
     </p>

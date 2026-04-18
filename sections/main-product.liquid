@@ -35,9 +35,9 @@
 
           {%- comment -%} Breadcrumb always renders at top (nav, not a block) {%- endcomment -%}
           {%- if section.settings.show_breadcrumb -%}
-            <nav class="kt-pdp__breadcrumb" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+            <nav class="kt-pdp__breadcrumb" aria-label="{{ 'kt.a11y.breadcrumb' | t }}">
               <ol class="kt-pdp__breadcrumb-list" role="list">
-                <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t | default: 'Home' }}</a></li>
+                <li><a href="{{ routes.root_url }}">{{ 'kt.general.breadcrumbs.home' | t | default: 'Home' }}</a></li>
                 {%- if product.collections.first -%}
                   <li><a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a></li>
                 {%- endif -%}
@@ -63,9 +63,9 @@
                   {%- endif -%}
                   {%- if block.settings.show_stock -%}
                     {%- if current_variant.available -%}
-                      <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'products.product.in_stock' | t | default: 'In Stock' }}</span>
+                      <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'kt.product.in_stock' | t | default: 'In Stock' }}</span>
                     {%- else -%}
-                      <span class="kt-pdp__stock kt-pdp__stock--out">{{ 'products.product.sold_out' | t }}</span>
+                      <span class="kt-pdp__stock kt-pdp__stock--out">{{ 'kt.product.sold_out' | t }}</span>
                     {%- endif -%}
                   {%- endif -%}
                 </div>
@@ -187,7 +187,7 @@
                         <div class="kt-pdp__door-sample-price">
                           <span>{{ sample_variant.price | money }}</span>
                           {%- if block.settings.refundable -%}
-                            <span class="kt-pdp__door-sample-refundable">{{ 'products.product.sample.refundable' | t | default: 'Refundable' }}</span>
+                            <span class="kt-pdp__door-sample-refundable">{{ 'kt.product.sample.refundable' | t | default: 'Refundable' }}</span>
                           {%- endif -%}
                         </div>
                         {%- if block.settings.description != blank -%}
@@ -201,7 +201,7 @@
                           {%- if sample_variant.available -%}
                             {{ block.settings.button_text | default: 'Add Sample to Cart' }}
                           {%- else -%}
-                            {{ 'products.product.sold_out' | t }}
+                            {{ 'kt.product.sold_out' | t }}
                           {%- endif -%}
                         </button>
                       {%- endform -%}

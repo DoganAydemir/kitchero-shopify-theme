@@ -53,8 +53,8 @@
           class="kt-gallery-stack__deck"
           data-stack-deck
           role="group"
-          aria-roledescription="{{ 'sections.gallery_stack.a11y.roledescription' | t }}"
-          aria-label="{{ 'sections.gallery_stack.a11y.deck_label' | t }}"
+          aria-roledescription="{{ 'kt.section.gallery_stack.a11y.roledescription' | t }}"
+          aria-label="{{ 'kt.section.gallery_stack.a11y.deck_label' | t }}"
           aria-live="polite"
         >
           {%- assign card_index = 0 -%}
@@ -105,7 +105,7 @@
                 class="kt-gallery-stack__card{% if is_active %} is-active{% endif %}"
                 data-stack-card
                 data-card-index="{{ card_index }}"
-                aria-label="{{ 'sections.gallery_stack.a11y.go_to_slide' | t: index: card_index | plus: 1 }}"
+                aria-label="{{ 'kt.section.gallery_stack.a11y.go_to_slide' | t: index: card_index | plus: 1 }}"
                 {% if is_active %}aria-current="true"{% endif %}
                 tabindex="{% if is_active %}0{% else %}-1{% endif %}"
                 {{ block.shopify_attributes }}
@@ -133,7 +133,7 @@
                 {% unless caption_active %}aria-hidden="true"{% endunless %}
               >
                 <span class="kt-gallery-stack__caption-frame">
-                  {{- 'sections.gallery_stack.frame_label' | t -}}
+                  {{- 'kt.section.gallery_stack.frame_label' | t -}}
                   <span data-stack-frame-number>{{ caption_index | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
                 </span>
                 {%- if block.settings.caption_title != blank -%}
@@ -178,7 +178,7 @@
                     {%- if block.settings.caption_title != blank -%}
                       {{ block.settings.caption_title | escape }}
                     {%- else -%}
-                      {{ 'sections.gallery_stack.a11y.slide_fallback' | t: index: idx | plus: 1 }}
+                      {{ 'kt.section.gallery_stack.a11y.slide_fallback' | t: index: idx | plus: 1 }}
                     {%- endif -%}
                   </span>
                 </button>
@@ -188,12 +188,12 @@
           {%- endfor -%}
         </ol>
 
-        <div class="kt-gallery-stack__arrows" role="group" aria-label="{{ 'sections.gallery_stack.a11y.arrows_label' | t }}">
+        <div class="kt-gallery-stack__arrows" role="group" aria-label="{{ 'kt.section.gallery_stack.a11y.arrows_label' | t }}">
           <button
             type="button"
             class="kt-gallery-stack__arrow kt-gallery-stack__arrow--prev"
             data-stack-prev
-            aria-label="{{ 'sections.gallery_stack.previous' | t }}"
+            aria-label="{{ 'kt.section.gallery_stack.previous' | t }}"
           >
             <svg class="kt-gallery-stack__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
@@ -203,7 +203,7 @@
             type="button"
             class="kt-gallery-stack__arrow kt-gallery-stack__arrow--next"
             data-stack-next
-            aria-label="{{ 'sections.gallery_stack.next' | t }}"
+            aria-label="{{ 'kt.section.gallery_stack.next' | t }}"
           >
             <svg class="kt-gallery-stack__arrow-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>

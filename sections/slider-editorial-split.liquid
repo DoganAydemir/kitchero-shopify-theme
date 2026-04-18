@@ -16,7 +16,7 @@
   data-total-slides="{{ total_slides }}"
   style="--kt-editorial-interval: {{ autoplay_interval }}s;"
   aria-roledescription="carousel"
-  aria-label="{{ 'sections.slider_editorial_split.aria_label' | t }}"
+  aria-label="{{ 'kt.section.slider_editorial_split.aria_label' | t }}"
 >
   <div class="kt-slider-editorial__inner">
     {%- comment -%} Image pane — cross-fades between slides {%- endcomment -%}
@@ -129,15 +129,15 @@
         {%- if total_slides == 0 -%}
           <article class="kt-slider-editorial__copy-slide is-active">
             <span class="kt-slider-editorial__index" aria-hidden="true">01</span>
-            <span class="kt-slider-editorial__eyebrow">{{ 'sections.slider_editorial_split.placeholder.eyebrow' | t }}</span>
-            <h2 class="kt-slider-editorial__heading">{{ 'sections.slider_editorial_split.placeholder.heading' | t }}</h2>
-            <p class="kt-slider-editorial__description">{{ 'sections.slider_editorial_split.placeholder.description' | t }}</p>
+            <span class="kt-slider-editorial__eyebrow">{{ 'kt.section.slider_editorial_split.placeholder.eyebrow' | t }}</span>
+            <h2 class="kt-slider-editorial__heading">{{ 'kt.section.slider_editorial_split.placeholder.heading' | t }}</h2>
+            <p class="kt-slider-editorial__description">{{ 'kt.section.slider_editorial_split.placeholder.description' | t }}</p>
           </article>
         {%- endif -%}
 
         {%- comment -%} Controls: numbered nav + progress bar {%- endcomment -%}
         <div class="kt-slider-editorial__controls">
-          <div class="kt-slider-editorial__nav" role="tablist" aria-label="{{ 'sections.slider_editorial_split.nav_label' | t }}">
+          <div class="kt-slider-editorial__nav" role="tablist" aria-label="{{ 'kt.section.slider_editorial_split.nav_label' | t }}">
             {%- for block in section.blocks -%}
               {%- if block.type == 'slide' -%}
                 {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
@@ -147,7 +147,7 @@
                   data-editorial-nav="{{ forloop.index0 }}"
                   role="tab"
                   aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-                  aria-label="{{ 'sections.slider_editorial_split.go_to_slide' | t: number: index_padded }}"
+                  aria-label="{{ 'kt.section.slider_editorial_split.go_to_slide' | t: number: index_padded }}"
                 >
                   <span aria-hidden="true">{{ index_padded }}</span>
                 </button>
@@ -158,7 +158,7 @@
             {%- endfor -%}
 
             {%- if total_slides > 0 -%}
-              <span class="kt-slider-editorial__nav-total" aria-hidden="true">{{ 'sections.slider_editorial_split.of_total' | t: total: total_padded }}</span>
+              <span class="kt-slider-editorial__nav-total" aria-hidden="true">{{ 'kt.section.slider_editorial_split.of_total' | t: total: total_padded }}</span>
             {%- endif -%}
           </div>
 

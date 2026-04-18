@@ -54,7 +54,7 @@
                 {%- if product != blank -%}
                   {{ product.title }}
                 {%- else -%}
-                  {{ 'onboarding.product_title' | t | default: 'Example product title' }}
+                  {{ 'kt.onboarding.product_title' | t | default: 'Example product title' }}
                 {%- endif -%}
               </{{ heading_tag }}>
 
@@ -72,7 +72,7 @@
                 {%- if product != blank -%}
                   {{ product.description | strip_html | truncatewords: block.settings.word_limit | default: product.description }}
                 {%- else -%}
-                  {{ 'onboarding.product_description' | t | default: 'Example product description goes here.' }}
+                  {{ 'kt.onboarding.product_description' | t | default: 'Example product description goes here.' }}
                 {%- endif -%}
               </div>
 
@@ -90,7 +90,7 @@
                       {%- if current_variant.available -%}
                         {{ block.settings.button_text | default: 'Add to cart' }}
                       {%- else -%}
-                        {{ 'products.product.sold_out' | t | default: 'Sold out' }}
+                        {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
                       {%- endif -%}
                     </button>
                   {%- endform -%}
@@ -114,7 +114,7 @@
 
         {%- if section.settings.view_product_link and product != blank -%}
           <a href="{{ product.url }}" class="kt-featured-product__view-link">
-            {{ 'products.product.view_details' | t | default: 'View full details' }}
+            {{ 'kt.product.view_details' | t | default: 'View full details' }}
           </a>
         {%- endif -%}
       </div>

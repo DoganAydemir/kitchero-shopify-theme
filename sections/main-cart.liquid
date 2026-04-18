@@ -28,9 +28,9 @@
           {%- comment -%} ── Items column ─────────────────────────────── {%- endcomment -%}
           <div class="kt-cart-page__items">
             <div class="kt-cart-page__items-header" aria-hidden="true">
-              <span>{{ 'sections.cart.headers.product' | t | default: 'Product' }}</span>
-              <span>{{ 'sections.cart.headers.quantity' | t | default: 'Quantity' }}</span>
-              <span>{{ 'sections.cart.headers.total' | t | default: 'Total' }}</span>
+              <span>{{ 'kt.cart.headers.product' | t | default: 'Product' }}</span>
+              <span>{{ 'kt.cart.headers.quantity' | t | default: 'Quantity' }}</span>
+              <span>{{ 'kt.cart.headers.total' | t | default: 'Total' }}</span>
             </div>
 
             {%- for item in cart.items -%}
@@ -84,7 +84,7 @@
                     {%- endif -%}
 
                     <div class="kt-cart-page__item-unit-price">
-                      <span class="kt-cart-page__item-unit-label">{{ 'sections.cart.headers.unit_price' | t | default: 'Unit price' }}</span>
+                      <span class="kt-cart-page__item-unit-label">{{ 'kt.cart.headers.unit_price' | t | default: 'Unit price' }}</span>
                       <span class="kt-cart-page__item-unit-value">{{ item.original_price | money }}</span>
                     </div>
 
@@ -95,7 +95,7 @@
                       data-cart-remove
                       data-line-key="{{ item.key }}"
                     >
-                      {{ 'sections.cart.remove_action' | t | default: 'Remove' }}
+                      {{ 'kt.cart.remove_action' | t | default: 'Remove' }}
                     </button>
                   </div>
                 </div>
@@ -103,13 +103,13 @@
                 {%- comment -%} Quantity stepper {%- endcomment -%}
                 <div class="kt-cart-page__item-qty">
                   <label for="updates_{{ item.key }}" class="visually-hidden">
-                    {{ 'products.product.quantity.label' | t }}
+                    {{ 'kt.product.quantity.label' | t }}
                   </label>
                   <div class="kt-cart-page__qty-stepper">
                     <button
                       type="button"
                       class="kt-cart-page__qty-btn"
-                      aria-label="{{ 'products.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ item.quantity | minus: 1 }}"
@@ -125,12 +125,12 @@
                       class="kt-cart-page__qty-input"
                       data-cart-qty-input
                       data-line-key="{{ item.key }}"
-                      aria-label="{{ 'products.product.quantity.label' | t }}"
+                      aria-label="{{ 'kt.product.quantity.label' | t }}"
                     >
                     <button
                       type="button"
                       class="kt-cart-page__qty-btn"
-                      aria-label="{{ 'products.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ item.quantity | plus: 1 }}"
@@ -145,7 +145,7 @@
                     class="kt-cart-page__item-remove"
                     data-cart-remove
                     data-line-key="{{ item.key }}"
-                    aria-label="{{ 'sections.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
+                    aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
                   >
                     <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3 6 5 6 21 6"></polyline>
@@ -177,28 +177,28 @@
             {%- if settings.kt_cart_show_note -%}
               <div class="kt-cart-page__note">
                 <label for="cart-note" class="kt-cart-page__note-label">
-                  {{ 'sections.cart.note' | t | default: 'Order note' }}
+                  {{ 'kt.cart.note' | t | default: 'Order note' }}
                 </label>
                 <textarea
                   id="cart-note"
                   name="note"
                   class="kt-cart-page__note-textarea"
                   rows="3"
-                  placeholder="{{ 'sections.cart.note_placeholder' | t | default: 'How can we help? Special instructions, delivery date preferences…' }}"
+                  placeholder="{{ 'kt.cart.note_placeholder' | t | default: 'How can we help? Special instructions, delivery date preferences…' }}"
                 >{{ cart.note }}</textarea>
               </div>
             {%- endif -%}
           </div>
 
           {%- comment -%} ── Summary column ──────────────────────────── {%- endcomment -%}
-          <aside class="kt-cart-page__summary" aria-label="{{ 'sections.cart.summary' | t | default: 'Order summary' }}">
+          <aside class="kt-cart-page__summary" aria-label="{{ 'kt.cart.summary' | t | default: 'Order summary' }}">
             <div class="kt-cart-page__summary-inner">
               <h2 class="kt-cart-page__summary-title">
-                {{ 'sections.cart.summary' | t | default: 'Order summary' }}
+                {{ 'kt.cart.summary' | t | default: 'Order summary' }}
               </h2>
 
               <div class="kt-cart-page__summary-row">
-                <span class="kt-cart-page__summary-label">{{ 'sections.cart.subtotal' | t }}</span>
+                <span class="kt-cart-page__summary-label">{{ 'kt.cart.subtotal' | t }}</span>
                 <span class="kt-cart-page__summary-value">{{ cart.items_subtotal_price | money }}</span>
               </div>
 
@@ -214,16 +214,16 @@
               <div class="kt-cart-page__summary-divider" aria-hidden="true"></div>
 
               <div class="kt-cart-page__summary-row kt-cart-page__summary-row--total">
-                <span class="kt-cart-page__summary-label">{{ 'sections.cart.total' | t | default: 'Total' }}</span>
+                <span class="kt-cart-page__summary-label">{{ 'kt.cart.total' | t | default: 'Total' }}</span>
                 <span class="kt-cart-page__summary-value">{{ cart.total_price | money }}</span>
               </div>
 
               <p class="kt-cart-page__taxes-note">
-                {{ 'sections.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}
+                {{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}
               </p>
 
               <button type="submit" name="checkout" class="kt-cart-page__checkout">
-                {{ 'sections.cart.checkout' | t }}
+                {{ 'kt.cart.checkout' | t }}
               </button>
 
               {%- if additional_checkout_buttons -%}
@@ -233,7 +233,7 @@
               {%- endif -%}
 
               <a href="{{ routes.all_products_collection_url }}" class="kt-cart-page__continue">
-                ← {{ 'sections.cart.continue_shopping' | t }}
+                ← {{ 'kt.cart.continue_shopping' | t }}
               </a>
 
               {%- comment -%} Trust strip (reassurance below CTA) {%- endcomment -%}
@@ -243,7 +243,7 @@
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
-                  <span>{{ 'sections.cart.trust.secure' | t | default: 'Secure checkout' }}</span>
+                  <span>{{ 'kt.cart.trust.secure' | t | default: 'Secure checkout' }}</span>
                 </li>
                 <li>
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -252,14 +252,14 @@
                     <circle cx="5.5" cy="18.5" r="2.5"></circle>
                     <circle cx="18.5" cy="18.5" r="2.5"></circle>
                   </svg>
-                  <span>{{ 'sections.cart.trust.shipping' | t | default: 'Free delivery on orders over $2,500' }}</span>
+                  <span>{{ 'kt.cart.trust.shipping' | t | default: 'Free delivery on orders over $2,500' }}</span>
                 </li>
                 <li>
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="1 4 1 10 7 10"></polyline>
                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                   </svg>
-                  <span>{{ 'sections.cart.trust.returns' | t | default: '30-day easy returns' }}</span>
+                  <span>{{ 'kt.cart.trust.returns' | t | default: '30-day easy returns' }}</span>
                 </li>
               </ul>
             </div>
@@ -287,10 +287,10 @@
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
         <p class="kt-cart-page__empty-text">
-          {{ 'sections.cart.empty' | t }}
+          {{ 'kt.cart.empty' | t }}
         </p>
         <a href="{{ routes.all_products_collection_url }}" class="kt-cart-page__empty-cta">
-          {{ 'sections.cart.empty_cta' | t | default: 'Start shopping' }}
+          {{ 'kt.cart.empty_cta' | t | default: 'Start shopping' }}
         </a>
       </div>
     {%- endif -%}

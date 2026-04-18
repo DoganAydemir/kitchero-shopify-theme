@@ -88,7 +88,7 @@
     {%- if product.compare_at_price > product.price -%}
       {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
       <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
-        {{ 'products.product.discount_badge' | t: amount: discount_pct }}
+        {{ 'kt.product.discount_badge' | t: amount: discount_pct }}
       </span>
     {%- endif -%}
 
@@ -125,14 +125,14 @@
       </div>
 
       <a href="{{ product.url }}" class="kt-card-product__view-link">
-        {{ 'products.product.view_details' | t | default: 'View Details' }}
+        {{ 'kt.product.view_details' | t | default: 'View Details' }}
       </a>
     </div>
 
     {%- if show_quote_button -%}
       <div>
         <a href="{{ product.url }}" class="kt-card-product__quote-btn">
-          {{ 'products.product.get_quote' | t | default: 'Get Quote' }}
+          {{ 'kt.product.get_quote' | t | default: 'Get Quote' }}
         </a>
       </div>
     {%- endif -%}

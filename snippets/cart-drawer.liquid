@@ -7,11 +7,11 @@
 
 <cart-drawer class="kt-cart-drawer" id="cart-drawer" aria-hidden="true">
   <div class="kt-cart-drawer__overlay" data-cart-drawer-close></div>
-  <div class="kt-cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'sections.cart.title' | t }}">
+  <div class="kt-cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'kt.cart.title' | t }}">
     {%- comment -%} Header {%- endcomment -%}
     <div class="kt-cart-drawer__header">
-      <h2 class="kt-cart-drawer__title">{{ 'sections.cart.title_full' | t | default: 'Your Cart' }}</h2>
-      <button type="button" class="kt-cart-drawer__close" data-cart-drawer-close aria-label="{{ 'accessibility.close' | t | default: 'Close' }}">
+      <h2 class="kt-cart-drawer__title">{{ 'kt.cart.title_full' | t | default: 'Your Cart' }}</h2>
+      <button type="button" class="kt-cart-drawer__close" data-cart-drawer-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -86,7 +86,7 @@
                   <button
                     type="button"
                     class="kt-cart-drawer__qty-btn"
-                    aria-label="{{ 'products.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
+                    aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
                     data-qty="{{ item.quantity | minus: 1 }}"
@@ -97,7 +97,7 @@
                   <button
                     type="button"
                     class="kt-cart-drawer__qty-btn"
-                    aria-label="{{ 'products.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
+                    aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
                     data-qty="{{ item.quantity | plus: 1 }}"
@@ -110,7 +110,7 @@
                 <button
                   type="button"
                   class="kt-cart-drawer__remove"
-                  aria-label="{{ 'sections.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
+                  aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
                   data-qty-change
                   data-line-key="{{ item.key }}"
                   data-qty="0"
@@ -128,7 +128,7 @@
           </div>
         {%- endfor -%}
       {%- else -%}
-        <p class="kt-cart-drawer__empty">{{ 'sections.cart.empty' | t | default: 'Your cart is empty' }}</p>
+        <p class="kt-cart-drawer__empty">{{ 'kt.cart.empty' | t | default: 'Your cart is empty' }}</p>
       {%- endif -%}
     </div>
 
@@ -136,15 +136,15 @@
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">
         <div class="kt-cart-drawer__subtotal">
-          <span class="kt-cart-drawer__subtotal-label">{{ 'sections.cart.subtotal' | t | default: 'Subtotal' }}</span>
+          <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
           <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money }}</span>
         </div>
-        <p class="kt-cart-drawer__taxes">{{ 'sections.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}</p>
+        <p class="kt-cart-drawer__taxes">{{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}</p>
         <a href="{{ routes.cart_url }}" class="kt-cart-drawer__checkout">
-          {{ 'sections.cart.checkout' | t | default: 'Checkout' }}
+          {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
         </a>
         <button type="button" class="kt-cart-drawer__continue" data-cart-drawer-close>
-          {{ 'sections.cart.continue_shopping' | t | default: 'Continue shopping' }}
+          {{ 'kt.cart.continue_shopping' | t | default: 'Continue shopping' }}
         </button>
       </div>
     {%- endif -%}

@@ -17,8 +17,8 @@
 
     <title>
       {{ page_title }}
-      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
-      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- if current_tags %} &ndash; {{ 'kt.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'kt.meta.page' | t: page: current_page }}{% endif -%}
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
@@ -75,7 +75,7 @@
 
   <body class="gradient" data-kt-scheme="{{ settings.kt_schemes.first.id }}" data-cart-type="{{ settings.kt_cart_type | default: 'drawer' }}">
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
-      {{ 'accessibility.skip_to_text' | t }}
+      {{ 'kt.a11y.skip_to_text' | t }}
     </a>
 
     {%- comment -%}
@@ -116,8 +116,8 @@
     {%- render 'structured-data' -%}
 
     <ul hidden>
-      <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
-      <li id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</li>
+      <li id="a11y-refresh-page-message">{{ 'kt.a11y.refresh_page' | t }}</li>
+      <li id="a11y-new-window-message">{{ 'kt.a11y.link.new_window' | t }}</li>
     </ul>
 
     <script>
@@ -151,19 +151,19 @@
       };
 
       window.cartStrings = {
-        error: `{{ 'sections.cart.cart_error' | t }}`,
-        quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+        error: `{{ 'kt.cart.cart_error' | t }}`,
+        quantityError: `{{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
       };
 
       window.variantStrings = {
-        addToCart: `{{ 'products.product.add_to_cart' | t }}`,
-        soldOut: `{{ 'products.product.sold_out' | t }}`,
-        unavailable: `{{ 'products.product.unavailable' | t }}`,
+        addToCart: `{{ 'kt.product.add_to_cart' | t }}`,
+        soldOut: `{{ 'kt.product.sold_out' | t }}`,
+        unavailable: `{{ 'kt.product.unavailable' | t }}`,
       };
 
       window.accessibilityStrings = {
-        imageAvailable: `{{ 'products.product.media.image_available' | t: index: '[index]' }}`,
-        shareSuccess: `{{ 'general.share.success_message' | t }}`,
+        imageAvailable: `{{ 'kt.product.media.image_available' | t: index: '[index]' }}`,
+        shareSuccess: `{{ 'kt.share.success_message' | t }}`,
       };
     </script>
 

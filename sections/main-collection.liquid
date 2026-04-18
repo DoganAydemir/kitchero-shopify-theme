@@ -24,17 +24,17 @@
     <div class="page-width">
       <div class="kt-collection__hero-inner">
         <div>
-          <p class="kt-collection__label">{{ 'sections.collection.label' | t | default: 'The Archives' }}</p>
+          <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
           {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
           <{{ heading_tag }} class="kt-collection__title">{{ collection.title }}</{{ heading_tag }}>
           {%- if collection.description != blank -%}
             <p class="kt-collection__desc">{{ collection.description }}</p>
           {%- else -%}
-            <p class="kt-collection__desc">{{ 'sections.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
+            <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
           {%- endif -%}
         </div>
         <span class="kt-collection__count">
-          {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+          {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
         </span>
       </div>
     </div>
@@ -46,7 +46,7 @@
       <div class="kt-collection__controls-inner">
         {%- comment -%} Desktop: horizontal filter dropdowns {%- endcomment -%}
         <div class="kt-filter-bar">
-          <span class="kt-filter-bar__label">{{ 'sections.collection.filter' | t | default: 'Filter:' }}</span>
+          <span class="kt-filter-bar__label">{{ 'kt.section.collection.filter' | t | default: 'Filter:' }}</span>
           {%- for filter in collection.filters -%}
             {%- if filter.type == 'list' -%}
               <div class="kt-filter-bar__dropdown">
@@ -60,9 +60,9 @@
                 <div class="kt-filter-bar__panel">
                   <div class="kt-filter-bar__panel-inner">
                     <div class="kt-filter-bar__panel-header">
-                      <span class="kt-filter-bar__panel-count">{{ filter.active_values.size }} {{ 'sections.collection.selected' | t | default: 'selected' }}</span>
+                      <span class="kt-filter-bar__panel-count">{{ filter.active_values.size }} {{ 'kt.section.collection.selected' | t | default: 'selected' }}</span>
                       {%- if filter.active_values.size > 0 -%}
-                        <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">{{ 'sections.collection.reset' | t | default: 'Reset' }}</a>
+                        <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">{{ 'kt.section.collection.reset' | t | default: 'Reset' }}</a>
                       {%- endif -%}
                     </div>
                     <form id="FilterBar-{{ filter.param_name }}" data-collection-filters-form>
@@ -101,11 +101,11 @@
         {%- comment -%} Mobile: filter button (opens drawer) {%- endcomment -%}
         <div class="kt-collection__mobile-filter-bar">
           <p class="kt-collection__results-count">
-            {{ collection.products.size }} {{ 'sections.collection.of' | t | default: 'of' }} {{ collection.products_count }}
+            {{ collection.products.size }} {{ 'kt.section.collection.of' | t | default: 'of' }} {{ collection.products_count }}
           </p>
           <button class="kt-collection__filter-btn" data-open-filter-drawer type="button">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
-            <span>{{ 'sections.collection.filters' | t | default: 'Filters' }}</span>
+            <span>{{ 'kt.section.collection.filters' | t | default: 'Filters' }}</span>
           </button>
         </div>
 
@@ -113,7 +113,7 @@
         <div class="kt-collection__controls-right">
           <div class="kt-collection__sort">
             {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
-            <label for="SortBy" class="kt-collection__sort-label">{{ 'sections.collection.sort_by' | t | default: 'Sort by:' }}</label>
+            <label for="SortBy" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by:' }}</label>
             <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
               {%- for option in collection.sort_options -%}
                 <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
@@ -123,16 +123,16 @@
             </select>
           </div>
 
-          <div class="kt-collection__grid-toggle" aria-label="{{ 'sections.collection.grid_view' | t | default: 'Grid view' }}">
+          <div class="kt-collection__grid-toggle" aria-label="{{ 'kt.section.collection.grid_view' | t | default: 'Grid view' }}">
             {%- comment -%} 2-col: two tall rectangles side by side {%- endcomment -%}
-            <button class="kt-collection__grid-btn kt-collection__grid-btn--active" data-grid-cols="2" title="{{ 'accessibility.grid_columns.two' | t }}" type="button">
+            <button class="kt-collection__grid-btn kt-collection__grid-btn--active" data-grid-cols="2" title="{{ 'kt.a11y.grid_columns.two' | t }}" type="button">
               <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <rect x="1" y="1" width="7" height="16" rx="1" fill="currentColor"/>
                 <rect x="10" y="1" width="7" height="16" rx="1" fill="currentColor"/>
               </svg>
             </button>
             {%- comment -%} 3-col: three vertical bars (from source) {%- endcomment -%}
-            <button class="kt-collection__grid-btn" data-grid-cols="3" title="{{ 'accessibility.grid_columns.three' | t }}" type="button">
+            <button class="kt-collection__grid-btn" data-grid-cols="3" title="{{ 'kt.a11y.grid_columns.three' | t }}" type="button">
               <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <rect x="1" y="1" width="4" height="16" rx="1" fill="currentColor"/>
                 <rect x="7" y="1" width="4" height="16" rx="1" fill="currentColor"/>
@@ -140,7 +140,7 @@
               </svg>
             </button>
             {%- comment -%} 4-col: four narrow bars {%- endcomment -%}
-            <button class="kt-collection__grid-btn" data-grid-cols="4" title="{{ 'accessibility.grid_columns.four' | t }}" type="button">
+            <button class="kt-collection__grid-btn" data-grid-cols="4" title="{{ 'kt.a11y.grid_columns.four' | t }}" type="button">
               <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <rect x="1" y="1" width="3" height="16" rx="0.5" fill="currentColor"/>
                 <rect x="5.5" y="1" width="3" height="16" rx="0.5" fill="currentColor"/>
@@ -151,7 +151,7 @@
           </div>
 
           <span class="kt-collection__bar-count">
-            {{ collection.products_count }} {{ 'sections.collection.products' | t | default: 'Products' }}
+            {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
           </span>
         </div>
       </div>
@@ -174,7 +174,7 @@
               {%- endfor -%}
             {%- endfor -%}
             <a href="{{ collection.url }}" class="kt-collection__clear-all">
-              {{ 'sections.collection.clear_all' | t | default: 'Clear all' }}
+              {{ 'kt.section.collection.clear_all' | t | default: 'Clear all' }}
             </a>
           </div>
         {%- endif -%}
@@ -202,13 +202,13 @@
       <aside class="kt-filter-drawer__panel">
         <header class="kt-filter-drawer__header">
           <h3 id="FilterDrawerTitle" class="kt-filter-drawer__title">
-            {{ 'sections.collection.refine' | t | default: 'Refine Search' }}
+            {{ 'kt.section.collection.refine' | t | default: 'Refine Search' }}
           </h3>
           <button
             type="button"
             class="kt-filter-drawer__close"
             data-close-filter-drawer
-            aria-label="{{ 'accessibility.close' | t | default: 'Close' }}"
+            aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -257,7 +257,7 @@
 
         <footer class="kt-filter-drawer__footer">
           <a href="{{ collection.url }}" class="kt-filter-drawer__clear">
-            {{ 'sections.collection.clear_all' | t | default: 'Clear all' }}
+            {{ 'kt.section.collection.clear_all' | t | default: 'Clear all' }}
           </a>
           <button
             type="submit"
@@ -265,7 +265,7 @@
             class="kt-filter-drawer__apply"
             data-filter-drawer-apply
           >
-            {{ 'sections.collection.show_results' | t | default: 'Show results' }}
+            {{ 'kt.section.collection.show_results' | t | default: 'Show results' }}
           </button>
         </footer>
       </aside>
@@ -289,11 +289,11 @@
         {%- endif -%}
       {%- else -%}
         <div class="kt-collection__empty">
-          <h3 class="kt-collection__empty-title">{{ 'sections.collection.no_products' | t | default: 'No products found' }}</h3>
-          <p class="kt-collection__empty-text">{{ 'sections.collection.no_products_desc' | t | default: 'Try adjusting your filters to discover more products.' }}</p>
+          <h3 class="kt-collection__empty-title">{{ 'kt.section.collection.no_products' | t | default: 'No products found' }}</h3>
+          <p class="kt-collection__empty-text">{{ 'kt.section.collection.no_products_desc' | t | default: 'Try adjusting your filters to discover more products.' }}</p>
           {%- if active_filters_count > 0 -%}
             <a href="{{ collection.url }}" class="kt-collection__clear-all">
-              {{ 'sections.collection.clear_all' | t | default: 'Clear all filters' }}
+              {{ 'kt.section.collection.clear_all' | t | default: 'Clear all filters' }}
             </a>
           {%- endif -%}
         </div>
