@@ -124,34 +124,54 @@
     refreshDrawer() {
       var self = this;
 
-      return fetch(window.location.pathname, {
-        headers: { 'Accept': 'text/html' },
+      /* Shopify Section Rendering API — fetches just the cart-drawer
+       * section markup, no full page. Much lighter than a full-page
+       * fetch: responses are ~5–10 KB vs 100+ KB for a page. */
+      return fetch('/?sections=cart-drawer,header-cart-icon', {
+        headers: { 'Accept': 'application/json' },
       })
         .then(function (response) {
-          if (!response.ok) throw new Error('refreshDrawer: page fetch failed');
-          return response.text();
+          if (!response.ok) throw new Error('refreshDrawer: section fetch failed');
+          return response.json();
         })
-        .then(function (html) {
-          var doc = new DOMParser().parseFromString(html, 'text/html');
-
-          /* Swap the drawer panel (header + items + footer) */
-          var currentPanel = self.drawer.querySelector('.kt-cart-drawer__panel');
-          var newPanel = doc.querySelector('#cart-drawer .kt-cart-drawer__panel');
-          if (currentPanel && newPanel) {
-            currentPanel.innerHTML = newPanel.innerHTML;
+        .then(function (sections) {
+          /* Swap the drawer panel (header + items + footer). The API
+           * returns the raw section HTML — the outer section wrapper
+           * is included, so we parse it and pick just the panel. */
+          if (sections['cart-drawer']) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = sections['cart-drawer'];
+            var newPanel = tmp.querySelector('.kt-cart-drawer__panel');
+            var currentPanel = self.drawer.querySelector('.kt-cart-drawer__panel');
+            if (currentPanel && newPanel) {
+              currentPanel.innerHTML = newPanel.innerHTML;
+            }
           }
 
-          /* Sync the header cart count */
-          var newCount = doc.querySelector('.kt-header__cart-count');
-          document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-            if (newCount) {
-              el.textContent = newCount.textContent;
-              el.style.display = newCount.style.display || '';
-            } else {
-              el.textContent = '0';
-              el.style.display = 'none';
-            }
-          });
+          /* Sync the header cart count. The `header-cart-icon` section
+           * key only exists if the theme exposes one; fall back to a
+           * plain cart.js lookup otherwise. */
+          if (sections['header-cart-icon']) {
+            var tmp2 = document.createElement('div');
+            tmp2.innerHTML = sections['header-cart-icon'];
+            var newCount = tmp2.querySelector('.kt-header__cart-count');
+            document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+              if (newCount) {
+                el.textContent = newCount.textContent;
+                el.style.display = newCount.style.display || '';
+              } else {
+                el.textContent = '0';
+                el.style.display = 'none';
+              }
+            });
+          } else {
+            /* No dedicated header-cart-icon section — query cart.js. */
+            return fetch(Kitchero.routes.cart, {
+              headers: { 'Accept': 'application/json' },
+            })
+              .then(function (r) { return r.json(); })
+              .then(function (cart) { self.updateCartCount(cart.item_count); });
+          }
         })
         .catch(function (error) {
           console.error(error);

@@ -1,0 +1,21 @@
+{%- comment -%}
+  Cart Drawer — slide-in from right. Registered as a SECTION (not a
+  snippet) so it can be refreshed via Shopify's Section Rendering API
+  from cart-drawer.js: `fetch('/?sections=cart-drawer')`.
+
+  Works without JS: the cart icon falls back to {{ routes.cart_url }}.
+
+  All markup lives in snippets/cart-drawer.liquid so the schema-free
+  snippet form is still renderable from templates/other layouts if
+  ever needed.
+{%- endcomment -%}
+
+{%- render 'cart-drawer' -%}
+
+{% schema %}
+{
+  "name": "t:sections.cart-drawer.name",
+  "tag": "aside",
+  "class": "kt-cart-drawer-section"
+}
+{% endschema %}
