@@ -1,65 +1,16 @@
 {%- comment -%}
   Outputs JSON-LD structured data for SEO.
-  Supports: Organization, Product, Article, BreadcrumbList.
-  Must be rendered in theme.liquid or per-template sections.
+  Scope: Organization (always) + BreadcrumbList (non-homepage).
+
+  Product and Article JSON-LD are intentionally NOT handled here —
+  they are emitted by snippets/meta-tags.liquid using Shopify's
+  native `| structured_data` filter, which produces a richer,
+  always-up-to-date payload than hand-rolled JSON. Duplicating them
+  would produce two <script type="application/ld+json"> blocks of
+  the same type on the page, which Google flags as a schema issue.
 {%- endcomment -%}
 
-{%- if request.page_type == 'product' -%}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": {{ product.title | json }},
-      "url": {{ request.origin | append: product.url | json }},
-      "image": [
-        {{ product.featured_image | image_url: width: 1024 | prepend: 'https:' | json }}
-      ],
-      "description": {{ product.description | strip_html | truncatewords: 100 | json }},
-      {%- if product.vendor != blank -%}
-        "brand": {
-          "@type": "Brand",
-          "name": {{ product.vendor | json }}
-        },
-      {%- endif -%}
-      "sku": {{ product.selected_or_first_available_variant.sku | json }},
-      "offers": {
-        "@type": "Offer",
-        "url": {{ request.origin | append: product.url | json }},
-        "priceCurrency": {{ cart.currency.iso_code | json }},
-        "price": {{ product.price | money_without_currency | strip_html | json }},
-        {%- if product.compare_at_price > product.price -%}
-          "priceValidUntil": "{{ 'now' | date: '%Y' | plus: 1 }}-12-31",
-        {%- endif -%}
-        "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}"
-      }
-    }
-  </script>
-
-{%- elsif request.page_type == 'article' -%}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": {{ article.title | json }},
-      "url": {{ request.origin | append: article.url | json }},
-      {%- if article.image -%}
-        "image": {{ article.image | image_url: width: 1024 | prepend: 'https:' | json }},
-      {%- endif -%}
-      "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
-      "dateModified": {{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
-      "author": {
-        "@type": "Person",
-        "name": {{ article.author | json }}
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": {{ shop.name | json }}
-      },
-      "description": {{ article.excerpt_or_content | strip_html | truncatewords: 100 | json }}
-    }
-  </script>
-
-{%- else -%}
+{%- unless request.page_type == 'product' or request.page_type == 'article' -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -75,9 +26,9 @@
       {%- endif -%}
     }
   </script>
-{%- endif -%}
+{%- endunless -%}
 
-{%- comment -%} BreadcrumbList — always output if not homepage {%- endcomment -%}
+{%- comment -%} BreadcrumbList — output on every non-homepage template. {%- endcomment -%}
 {%- unless request.page_type == 'index' -%}
   <script type="application/ld+json">
     {
