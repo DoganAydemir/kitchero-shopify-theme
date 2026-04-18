@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P7 (next)
-**Last commit on branch:** (P6 commit — see below)
+**Active priority:** P8 (next)
+**Last commit on branch:** (P7 commit — see below)
 
 ### Priority checklist
 
@@ -30,7 +30,7 @@
 - [x] **P4** — Rewrite `snippets/pagination.liquid` ✅
 - [x] **P5** — Rename `assets/global.js` utilities ✅
 - [x] **P6** — Rename `component-*.css` (16 files) ✅
-- [ ] **P7** — Rename/consolidate `section-*.css` (86 files)
+- [x] **P7** — Rename `section-*.{css,js}` (86 files) ✅
 - [ ] **P8** — Restructure `locales/en.default.json` (5 locales)
 - [ ] **P9** — Namespace JS globals (`window.Kitchero`)
 - [ ] **P10** — Section filename convention (decision-only)
@@ -137,9 +137,17 @@
 - `shopify theme check`: **0 offenses** across 134 files.
 **Acceptance criteria met:** Dawn's `component-*.css` filename prefix eliminated from the theme; all asset references use the `kt-*` convention.
 
-### P7 — `section-*.css` rename
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+### P7 — `section-*.{css,js}` rename
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Renamed 86 asset files (61 `.css` + 25 `.js`) from `section-*` → `kt-section-*` via `git mv` (rename history preserved). The `section-` word is retained in the new name to keep the semantic distinction from `kt-*` (general component) files introduced in P6.
+- Updated 66 consumer Liquid files via `sed` replacing `'section-` → `'kt-section-`.
+- Verified no stragglers: `grep -rn "'section-"` returns zero matches across assets/sections/snippets/layout/templates.
+- Pre-check confirmed every `'section-` occurrence was inside an `asset_url` stylesheet/script call — no false-positive string matches.
+- Consolidation note: did **not** inline any tiny section CSS into `{% stylesheet %}` blocks this pass. Several candidates (<30 lines) are still loose files. Follow-up welcome but not required for the <5% Dawn overlap goal.
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** 0% of asset files now use Dawn's bare `section-*` prefix (below the <30% plan target, which was a phased lower bound).
 
 ### P8 — Locale restructure
 **Status:** ⏳ NOT STARTED
