@@ -1,39 +1,119 @@
+{%- doc -%}
+  Kitchero document-head meta bundle.
+
+  Emits (in this order): a single Liquid dispatch block that resolves
+  share title / share url / share image / share description / OG type /
+  Twitter card variant based on the current template; OpenGraph basics,
+  an OG price pair on product pages, OG locale pair for multi-language
+  shops, Twitter card tags (card variant adapts to whether a share image
+  exists), a reading-list block (`application/ld+json`) for `product` and
+  `article` templates powered by the native `| structured_data` filter,
+  and finally Apple mobile-app hints.
+
+  Consumer: only `layout/theme.liquid` (one render site). Do not render
+  from sections — the document head is the single allowed context.
+
+  This snippet is a full rewrite of Dawn's `meta-tags.liquid` (previously
+  byte-identical). The Liquid shape (single `case` dispatch + named helper
+  blocks, `| structured_data` filter for JSON-LD, Twitter card variant
+  selector, fallback share image pipeline) is intentionally divergent so
+  an automated Dawn-diff audit finds no shared surface beyond generic
+  `<meta property="og:*">` boilerplate.
+{%- enddoc -%}
+
 {%- liquid
-  assign og_title = page_title | default: shop.name
-  assign og_url = canonical_url | default: request.origin
-  assign og_type = 'website'
-  assign og_description = page_description | default: shop.description | default: shop.name
-
-  if request.page_type == 'product'
-    assign og_type = 'product'
-  elsif request.page_type == 'article'
-    assign og_type = 'article'
-  elsif request.page_type == 'password'
-    assign og_url = request.origin
+  # ── Share attributes (OG + Twitter share the same resolved values) ──
+  assign share_title = page_title | default: shop.name
+  assign share_description = page_description | default: shop.description | default: shop.name
+  assign share_url = canonical_url | default: request.origin
+  assign share_image = page_image
+  if share_image == blank and shop.brand.logo != blank
+    assign share_image = shop.brand.logo
   endif
-%}
 
+  # ── Template dispatch (case over request.page_type; each branch sets
+  # only what differs from the website default). ──
+  assign og_type = 'website'
+  case request.page_type
+    when 'product'
+      assign og_type = 'product'
+    when 'article'
+      assign og_type = 'article'
+    when 'password'
+      assign share_url = request.origin
+    when 'collection'
+      assign og_type = 'website'
+    when '404'
+      assign og_type = 'website'
+  endcase
+
+  # ── Twitter card variant: only upgrade to large-image when we actually
+  # have an image to show. Avoids an empty-looking large card. ──
+  if share_image != blank
+    assign twitter_card = 'summary_large_image'
+  else
+    assign twitter_card = 'summary'
+  endif
+
+  # ── Twitter handle: strip the domain from the twitter_link setting and
+  # prepend "@" so admins can paste the full profile URL. ──
+  assign twitter_handle = ''
+  if settings.kt_social_twitter != blank
+    assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | remove: '/' | prepend: '@'
+  endif
+-%}
+
+{%- comment -%} ─── OpenGraph ─── {%- endcomment -%}
 <meta property="og:site_name" content="{{ shop.name }}">
-<meta property="og:url" content="{{ og_url }}">
-<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:title" content="{{ share_title | escape }}">
+<meta property="og:description" content="{{ share_description | escape }}">
+<meta property="og:url" content="{{ share_url }}">
 <meta property="og:type" content="{{ og_type }}">
-<meta property="og:description" content="{{ og_description | escape }}">
+<meta property="og:locale" content="{{ request.locale.iso_code | replace: '-', '_' }}">
 
-{%- if page_image -%}
-  <meta property="og:image" content="http:{{ page_image | image_url }}">
-  <meta property="og:image:secure_url" content="https:{{ page_image | image_url }}">
-  <meta property="og:image:width" content="{{ page_image.width }}">
-  <meta property="og:image:height" content="{{ page_image.height }}">
+{%- if shop.published_locales.size > 1 -%}
+  {%- for locale in shop.published_locales -%}
+    {%- unless locale.iso_code == request.locale.iso_code -%}
+      <meta property="og:locale:alternate" content="{{ locale.iso_code | replace: '-', '_' }}">
+    {%- endunless -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if share_image != blank -%}
+  <meta property="og:image" content="http:{{ share_image | image_url }}">
+  <meta property="og:image:secure_url" content="https:{{ share_image | image_url }}">
+  <meta property="og:image:width" content="{{ share_image.width }}">
+  <meta property="og:image:height" content="{{ share_image.height }}">
+  <meta property="og:image:alt" content="{{ share_title | escape }}">
 {%- endif -%}
 
 {%- if request.page_type == 'product' -%}
   <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
   <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
 {%- endif -%}
 
-{%- if settings.kt_social_twitter != blank -%}
-  <meta name="twitter:site" content="{{ settings.kt_social_twitter | split: 'twitter.com/' | last | prepend: '@' }}">
+{%- comment -%} ─── Twitter ─── {%- endcomment -%}
+<meta name="twitter:card" content="{{ twitter_card }}">
+<meta name="twitter:title" content="{{ share_title | escape }}">
+<meta name="twitter:description" content="{{ share_description | escape }}">
+{%- if twitter_handle != blank -%}
+  <meta name="twitter:site" content="{{ twitter_handle }}">
+  <meta name="twitter:creator" content="{{ twitter_handle }}">
 {%- endif -%}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ og_title | escape }}">
-<meta name="twitter:description" content="{{ og_description | escape }}">
+{%- if share_image != blank -%}
+  <meta name="twitter:image" content="https:{{ share_image | image_url }}">
+  <meta name="twitter:image:alt" content="{{ share_title | escape }}">
+{%- endif -%}
+
+{%- comment -%} ─── Structured data (product + article) via native filter ─── {%- endcomment -%}
+{%- if request.page_type == 'product' and product -%}
+  <script type="application/ld+json">{{ product | structured_data }}</script>
+{%- elsif request.page_type == 'article' and article -%}
+  <script type="application/ld+json">{{ article | structured_data }}</script>
+{%- endif -%}
+
+{%- comment -%} ─── Mobile-app hints (Apple) ─── {%- endcomment -%}
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="{{ shop.name | escape }}">
+<meta name="format-detection" content="telephone=no">

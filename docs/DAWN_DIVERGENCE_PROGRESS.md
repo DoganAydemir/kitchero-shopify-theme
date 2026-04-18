@@ -19,14 +19,14 @@
 
 ## Current state
 
-**Active priority:** P3 (next)
-**Last commit on branch:** (P2 commit — see below)
+**Active priority:** P4 (next)
+**Last commit on branch:** (P3 commit — see below)
 
 ### Priority checklist
 
 - [x] **P1** — Rewrite `layout/theme.liquid` token block ✅
 - [x] **P2** — Rewrite `config/settings_schema.json` ✅
-- [ ] **P3** — Rewrite `snippets/meta-tags.liquid`
+- [x] **P3** — Rewrite `snippets/meta-tags.liquid` ✅
 - [ ] **P4** — Rewrite `snippets/pagination.liquid`
 - [ ] **P5** — Rename `assets/global.js` utilities
 - [ ] **P6** — Rename `component-*.css` (16 files)
@@ -76,8 +76,21 @@
 **Acceptance criteria met:** grep for Dawn-identical setting IDs returns nothing in consumer files.
 
 ### P3 — `meta-tags.liquid`
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Full rewrite. Previously byte-identical to Dawn; now shares only ~9 generic OG boilerplate lines (`og:site_name`, `og:type`, `og:price:*`) — well under the 20% overlap threshold.
+- Added `{% doc %}` header (Skeleton convention) documenting render site + divergence intent.
+- Replaced `if/elsif` chain with `case` dispatch over `request.page_type` (5 branches incl. collection + 404 defaults).
+- Reorganized into clear comment-delimited sections: OpenGraph → Twitter → Structured Data → Mobile hints.
+- Added: `og:locale` + `og:locale:alternate` for multi-lang shops; `og:image:alt`; `product:availability` for product pages; `twitter:creator` + `twitter:image[:alt]`; Apple mobile-app hints (`apple-mobile-web-app-capable`, `apple-mobile-web-app-title`, `format-detection`).
+- Twitter card variant auto-selects `summary_large_image` vs `summary` based on `share_image` presence.
+- Fallback `share_image` to `shop.brand.logo` when `page_image` is blank.
+- Uses `| structured_data` filter for product + article JSON-LD (Skeleton pattern) instead of hand-rolling JSON.
+- Twitter handle normalized from full URL via `split/remove/prepend` pipeline.
+- Settings reference updated: `settings.kt_social_twitter` (new P2 ID).
+- `shopify theme check`: **0 offenses**.
+**Acceptance criteria met:** byte-comparison with Dawn returns <20% overlap.
 
 ### P4 — `pagination.liquid`
 **Status:** ⏳ NOT STARTED
