@@ -45,8 +45,12 @@
   flex-direction: column;
   transform: scale(0.95) translateY(3rem);
   transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Use dvh so iOS/Android browser chrome (URL bar, toolbar) doesn't
+     push the dialog off-screen. vh fallback for older browsers. */
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .kt-newsletter-popup[aria-hidden='false'] .kt-newsletter-popup__dialog {
@@ -57,6 +61,7 @@
   .kt-newsletter-popup__dialog {
     flex-direction: row;
     max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 4rem);
   }
 }
 

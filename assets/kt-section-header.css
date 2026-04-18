@@ -18,12 +18,21 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Transparent mode: no background until scrolled — floats over hero */
+/* Transparent mode: no background until scrolled — floats over hero.
+   Adds a subtle text-shadow on the logo + nav links so they stay
+   legible over light backgrounds too (not just dark heroes). The
+   shadow disappears once the header becomes solid on scroll. */
 .kt-header--transparent {
   background-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
+}
+
+.kt-header--transparent:not(.kt-header--scrolled) .kt-header__logo-text,
+.kt-header--transparent:not(.kt-header--scrolled) .kt-header__menu-link,
+.kt-header--transparent:not(.kt-header--scrolled) .kt-header__action-btn {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 /* When scrolled (both modes get solid background) */
@@ -236,8 +245,11 @@
   left: 50%;
   transform: translateX(-50%) translateY(-0.5rem);
   width: auto;
-  min-width: 600px;
-  max-width: 1100px;
+  /* Constrain to viewport so 990-1100px displays don't clip the mega menu.
+     min() keeps the 1100px cap on wide screens but shrinks to the
+     available width (minus 3rem gutter) when the viewport is narrower. */
+  min-width: min(600px, calc(100vw - 3rem));
+  max-width: min(1100px, calc(100vw - 3rem));
   padding: 2.5rem;
   background-color: var(--kt-white);
   border: 1px solid var(--kt-stone-200);
