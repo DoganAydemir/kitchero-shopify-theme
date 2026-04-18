@@ -34,8 +34,21 @@
     var plusBtn = form.querySelector('[data-qty-plus]');
     var atcBtn = form.querySelector('[data-add-to-cart]');
     var atcText = form.querySelector('[data-add-to-cart-text]');
+    var errorEl = form.querySelector('[data-product-form-error]');
     var variantSelect = container.querySelector('[data-variant-select]');
     var optionInputs = container.querySelectorAll('[data-option-value]');
+
+    function clearError() {
+      if (!errorEl) return;
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+    }
+
+    function showError(message) {
+      if (!errorEl) return;
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+    }
 
     /* Quantity buttons */
     if (minusBtn && qtyInput) {
@@ -49,6 +62,17 @@
       plusBtn.addEventListener('click', function () {
         var val = parseInt(qtyInput.value, 10) || 1;
         qtyInput.value = val + 1;
+      });
+    }
+
+    /* Sanitize manual typed input — clamp to integers >= 1 on blur.
+       Customers can now edit the quantity directly; keep the field
+       honest so we never POST "0" or "abc" to /cart/add.js. */
+    if (qtyInput) {
+      qtyInput.addEventListener('blur', function () {
+        var val = parseInt(qtyInput.value, 10);
+        if (!val || val < 1) qtyInput.value = 1;
+        else qtyInput.value = val;
       });
     }
 
@@ -72,6 +96,7 @@
     /* AJAX Add to Cart */
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      clearError();
 
       var formData = {
         id: parseInt(variantIdInput ? variantIdInput.value : form.querySelector('[name="id"]').value, 10),
@@ -89,12 +114,24 @@
 
       fetch(Kitchero.routes.cartAdd + '.js', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(formData)
       })
         .then(function (response) {
-          if (!response.ok) throw new Error('Add to cart failed');
-          return response.json();
+          /* Shopify returns a JSON body with `description` on 422
+             (quantity/stock errors) — surface it to the customer
+             verbatim since it's already localized by Shopify. */
+          return response.json().then(function (data) {
+            if (!response.ok) {
+              var msg = (data && (data.description || data.message))
+                || (Kitchero.variantStrings && Kitchero.variantStrings.addToCartError)
+                || 'Something went wrong. Please try again.';
+              var err = new Error(msg);
+              err.handled = true;
+              throw err;
+            }
+            return data;
+          });
         })
         .then(function () {
           /* Show success state */
@@ -102,7 +139,8 @@
             atcBtn.classList.remove('kt-product-form__atc--loading');
             atcBtn.removeAttribute('aria-busy');
             atcBtn.classList.add('kt-product-form__atc--added');
-            if (atcText) atcText.textContent = 'Added to Cart!';
+            var addedLabel = (Kitchero.variantStrings && Kitchero.variantStrings.addedToCart) || 'Added to cart!';
+            if (atcText) atcText.textContent = addedLabel;
             setTimeout(function () {
               atcBtn.classList.remove('kt-product-form__atc--added');
               if (atcText) atcText.textContent = Kitchero.variantStrings ? Kitchero.variantStrings.addToCart : 'Add to cart';
@@ -160,11 +198,14 @@
           if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
         })
         .catch(function (error) {
-          console.error('Add to cart error:', error);
+          if (!error || !error.handled) console.error('Add to cart error:', error);
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
             atcBtn.removeAttribute('aria-busy');
           }
+          var fallback = (Kitchero.variantStrings && Kitchero.variantStrings.addToCartError)
+            || 'Something went wrong. Please try again.';
+          showError((error && error.message) || fallback);
         });
     });
   }

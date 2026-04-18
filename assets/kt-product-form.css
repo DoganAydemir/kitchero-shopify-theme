@@ -270,3 +270,20 @@
   fill: var(--kt-red-600);
   color: var(--kt-red-600);
 }
+
+/* ATC error sentinel — populated by JS on /cart/add.js failures
+   (out of stock, quantity limit, network). role="alert" ensures
+   screen readers announce the message when it becomes visible. */
+.kt-product-form__error {
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--kt-red-600);
+  background: rgba(220, 38, 38, 0.05);
+  color: var(--kt-red-600);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  border-radius: 0.25rem;
+}
+.kt-product-form__error[hidden] {
+  display: none;
+}

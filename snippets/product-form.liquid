@@ -30,7 +30,9 @@
         id="Quantity-{{ product.id }}"
         value="1"
         min="1"
-        readonly
+        step="1"
+        inputmode="numeric"
+        pattern="[0-9]*"
         class="kt-product-form__qty-input"
         data-qty-input
         aria-label="{{ 'kt.product.quantity.label' | t }}"
@@ -68,6 +70,13 @@
       </span>
     </button>
   </div>
+
+  {%- comment -%}
+    Error sentinel — populated by product-form.js when /cart/add.js
+    responds with an error (out of stock, quantity limit, network).
+    Hidden by default; JS toggles [hidden] and fills textContent.
+  {%- endcomment -%}
+  <div class="kt-product-form__error" data-product-form-error role="alert" hidden></div>
 
   {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) {%- endcomment -%}
   {%- if show_dynamic_checkout -%}

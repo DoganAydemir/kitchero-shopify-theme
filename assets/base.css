@@ -225,6 +225,32 @@ button[type="submit"]:hover {
 }
 
 /* ============================================================
+   iOS Safari auto-zoom prevention
+   ============================================================
+   iOS Safari zooms the viewport whenever a text-input smaller than
+   16px receives focus. This breaks our fixed header and forces
+   manual zoom-out. Enforce >=16px for every text-entry control on
+   mobile (<750px). Desktop keeps component-specific sizes. */
+@media (max-width: 749px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  input[type="time"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* ============================================================
    Utilities
    ============================================================ */
 

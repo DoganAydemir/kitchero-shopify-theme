@@ -101,7 +101,34 @@
   color: rgb(var(--kt-c-bg));
 }
 
-.kt-variant-picker__btn-input:disabled + .kt-variant-picker__btn {
-  opacity: 0.3;
+.kt-variant-picker__btn-input:disabled + .kt-variant-picker__btn,
+.kt-variant-picker__btn-label--soldout .kt-variant-picker__btn {
+  opacity: 0.35;
   cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* Sold-out swatch — grayscale + diagonal strike so it reads as
+   unavailable at a glance without hiding the chosen finish color. */
+.kt-variant-picker__swatch-input:disabled + .kt-variant-picker__swatch,
+.kt-variant-picker__swatch-label--soldout .kt-variant-picker__swatch {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(1);
+  position: relative;
+}
+.kt-variant-picker__swatch-input:disabled + .kt-variant-picker__swatch::after,
+.kt-variant-picker__swatch-label--soldout .kt-variant-picker__swatch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top right,
+    transparent 0%,
+    transparent calc(50% - 1px),
+    rgba(var(--kt-c-fg), 0.6) 50%,
+    transparent calc(50% + 1px),
+    transparent 100%
+  );
+  pointer-events: none;
 }

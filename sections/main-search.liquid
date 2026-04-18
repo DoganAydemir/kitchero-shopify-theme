@@ -18,20 +18,25 @@
         <p class="kt-search-page__results-count">
           {{ 'kt.search.results_count' | t: count: search.results_count, terms: search.terms }}
         </p>
-        <div class="kt-search-page__grid">
-          {%- for item in search.results -%}
-            {%- if item.object_type == 'product' -%}
-              {%- render 'card-product', product: item, show_vendor: false, show_secondary_image: false, show_quote_button: false, index: forloop.index0 -%}
-            {%- elsif item.object_type == 'article' -%}
-              {%- render 'article-card', article: item, show_author: false, show_date: true, show_excerpt: true, index: forloop.index0 -%}
-            {%- else -%}
-              <a href="{{ item.url }}" class="kt-search-page__page-result">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
-              </a>
-            {%- endif -%}
-          {%- endfor -%}
-        </div>
+        {%- paginate search.results by 24 -%}
+          <div class="kt-search-page__grid">
+            {%- for item in search.results -%}
+              {%- if item.object_type == 'product' -%}
+                {%- render 'card-product', product: item, show_vendor: false, show_secondary_image: false, show_quote_button: false, index: forloop.index0 -%}
+              {%- elsif item.object_type == 'article' -%}
+                {%- render 'article-card', article: item, show_author: false, show_date: true, show_excerpt: true, index: forloop.index0 -%}
+              {%- else -%}
+                <a href="{{ item.url }}" class="kt-search-page__page-result">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+          {%- if paginate.pages > 1 -%}
+            {%- render 'pagination', paginate: paginate -%}
+          {%- endif -%}
+        {%- endpaginate -%}
       {%- else -%}
         <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
       {%- endif -%}
