@@ -170,7 +170,7 @@
 
 ### P9 — JS globals namespace
 **Status:** ✅ DONE
-**Commit:** (pending — see `git log`)
+**Commit:** `e889bf5`
 **Done:**
 - Consolidated every theme-injected browser global (previously on `window.*` as in Dawn: `window.shopUrl`, `window.routes`, `window.searchSettings`, `window.cartStrings`, `window.variantStrings`, `window.accessibilityStrings`) under the single `window.Kitchero` namespace established in P5.
 - Inline bootstrap script in `layout/theme.liquid` rewritten to use `Object.assign(window.Kitchero, {...})` with a `|| {}` guard so initialisation is safe whether the inline block or `global.js` runs first.
@@ -183,7 +183,7 @@
 
 ### P10 — Section filename convention
 **Status:** ✅ DONE (decision: keep `main-*`)
-**Commit:** (this tracker update)
+**Commit:** `2605b38`
 **Footprint:** 15 `sections/main-*.liquid` files, referenced from 13 template JSON files.
 **Decision:** **Retain the `main-*` prefix.**
 **Rationale:**
@@ -194,8 +194,32 @@
 **No file changes required for this priority.**
 
 ### Stretch — Theme Blocks
-**Status:** ⏳ NOT STARTED
+**Status:** ⏳ NOT STARTED (optional — see note below)
 **Commit:** —
+**Note:** All 10 core priorities are complete. The Stretch goal (adopt Skeleton-style `blocks/` directory with `{% content_for 'blocks' %}`) is an architectural pattern adoption, not a Dawn-overlap reducer — Dawn itself does not use Theme Blocks. Leave for a dedicated branch once the core refactor ships.
+
+---
+
+## Final verification (2026-04-18)
+
+- `shopify theme check`: **0 offenses across 134 files** after every priority commit.
+- Branch `refactor/dawn-divergence` is 9 commits ahead of `origin/refactor/dawn-divergence`, working tree clean.
+- Commit ladder:
+  | Priority | Commit | Summary |
+  |---|---|---|
+  | P2 | `85cefe7` | schema translation keys → `kt_*` |
+  | P3 | `05ad9e1` | meta-tags.liquid full rewrite |
+  | P4 | `bf1a22c` | pagination.liquid numeric-window rewrite |
+  | P5 | `e4c6fb6` | `window.Kitchero` runtime API |
+  | P6 | `dd10729` | `component-*.css` → `kt-*.css` (16 files) |
+  | P7 | `5661803` | `section-*.{css,js}` → `kt-section-*` (86 files) |
+  | P8 | `71f1fd5` | locale tree → `kt.*` (5 locales, 0 Dawn path overlap) |
+  | P9 | `e889bf5` | theme-injected globals under `window.Kitchero.*` |
+  | P10 | `2605b38` | decision — retain `main-*` section naming |
+
+**Remaining before merge:**
+- Manual visual regression pass (theme editor + storefront for every template).
+- `git push` to `origin/refactor/dawn-divergence` and open PR against `main`.
 
 ---
 
