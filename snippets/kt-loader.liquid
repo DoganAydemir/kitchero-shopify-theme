@@ -4,23 +4,34 @@
   Awwwards-style multi-layer reveal:
     · top horizontal line draws left→right
     · corner meta text fades in
-    · shop.name center-stage, per-character slide-up with stagger
+    · brand text center-stage, per-character slide-up with stagger
     · rotating word cycler bottom-left
     · 00 → 100 counter bottom-right
     · full-width progress bar at bottom edge
     · exit: characters slide up, clip-path splits vertically
 
+  Fully merchant-controllable via theme settings (Intro loader group):
+    · enable / disable entirely
+    · brand text (defaults to shop.name when blank)
+    · four rotating words + on/off
+    · background, text and accent colors
+
   The bootstrap script in theme.liquid toggles `kt-loader-skip` on
-  <html> before first paint to skip this block on repeat sessions
-  and inside the theme editor. The <noscript> fallback hides it
-  entirely when JS is off.
+  <html> before first paint to skip this block on repeat sessions,
+  inside the theme editor, or when the merchant has disabled the
+  loader entirely. The <noscript> fallback hides it when JS is off.
 {%- enddoc -%}
+
+{%- unless settings.kt_loader_enable -%}
+  {%- comment -%} Merchant turned the loader off — render nothing. {%- endcomment -%}
+{%- else -%}
 <noscript>
   <style>.kt-loader { display: none !important; }</style>
 </noscript>
 
 {%- liquid
-  assign brand_chars = shop.name | split: ''
+  assign brand_raw = settings.kt_loader_brand | default: shop.name
+  assign brand_chars = brand_raw | split: ''
   assign brand_length = brand_chars | size
   assign current_year = 'now' | date: '%Y'
 -%}
@@ -30,7 +41,7 @@
   id="kt-loader"
   aria-hidden="true"
   role="presentation"
-  style="--kt-loader-chars: {{ brand_length }};"
+  style="--kt-loader-chars: {{ brand_length }}; --kt-loader-bg: {{ settings.kt_loader_bg }}; --kt-loader-text: {{ settings.kt_loader_text }}; --kt-loader-accent: {{ settings.kt_loader_accent }};"
 >
   <span class="kt-loader__noise" aria-hidden="true"></span>
   <span class="kt-loader__topline" aria-hidden="true"></span>
@@ -44,7 +55,7 @@
   </div>
 
   <div class="kt-loader__stage">
-    <h1 class="kt-loader__brand" aria-label="{{ shop.name }}">
+    <h1 class="kt-loader__brand" aria-label="{{ brand_raw }}">
       {%- for char in brand_chars -%}
         <span class="kt-loader__brand-char" style="--i: {{ forloop.index0 }};">
           <span class="kt-loader__brand-char-inner">{%- if char == ' ' -%}&nbsp;{%- else -%}{{ char }}{%- endif -%}</span>
@@ -55,17 +66,21 @@
   </div>
 
   <div class="kt-loader__footer">
-    <div class="kt-loader__words" aria-hidden="true">
-      <span class="kt-loader__words-prefix">{{ 'kt.loader.prefix' | t | default: '—' }}</span>
-      <span class="kt-loader__words-clip">
-        <span class="kt-loader__words-track">
-          <span class="kt-loader__word">{{ 'kt.loader.word_1' | t | default: 'Form.' }}</span>
-          <span class="kt-loader__word">{{ 'kt.loader.word_2' | t | default: 'Craft.' }}</span>
-          <span class="kt-loader__word">{{ 'kt.loader.word_3' | t | default: 'Light.' }}</span>
-          <span class="kt-loader__word">{{ 'kt.loader.word_4' | t | default: 'Story.' }}</span>
+    {%- if settings.kt_loader_words_enable -%}
+      <div class="kt-loader__words" aria-hidden="true">
+        <span class="kt-loader__words-prefix">{{ 'kt.loader.prefix' | t | default: '—' }}</span>
+        <span class="kt-loader__words-clip">
+          <span class="kt-loader__words-track">
+            <span class="kt-loader__word">{{ settings.kt_loader_word_1 | default: 'Form.' }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_2 | default: 'Craft.' }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_3 | default: 'Light.' }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_4 | default: 'Story.' }}</span>
+          </span>
         </span>
-      </span>
-    </div>
+      </div>
+    {%- else -%}
+      <div></div>
+    {%- endif -%}
 
     <div class="kt-loader__counter" aria-hidden="true">
       <span class="kt-loader__counter-num">00</span>
@@ -78,3 +93,4 @@
     <span class="kt-loader__bar-fill"></span>
   </div>
 </div>
+{%- endunless -%}

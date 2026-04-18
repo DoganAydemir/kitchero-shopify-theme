@@ -25,8 +25,11 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--kt-ink);
-  color: var(--kt-warm-50);
+  /* Colors are driven by theme settings via inline style on the
+     loader element (--kt-loader-bg / text / accent). Fallbacks make
+     the loader usable even if the variables are missing. */
+  background: var(--kt-loader-bg, #0f0d0c);
+  color: var(--kt-loader-text, #ffffff);
   overflow: hidden;
   font-family: var(--kt-f-body-family, system-ui, sans-serif);
   transition: clip-path 0.9s cubic-bezier(0.76, 0, 0.24, 1),
@@ -78,7 +81,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(245, 244, 240, 0.2);
+  background: color-mix(in srgb, var(--kt-loader-accent, #ffffff) 25%, transparent);
   transform: scaleX(0);
   transform-origin: left center;
   animation: kt-loader-draw 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.1s forwards;
@@ -99,7 +102,7 @@
   font-size: 0.6875rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(245, 244, 240, 0.55);
+  color: color-mix(in srgb, var(--kt-loader-text, #ffffff) 55%, transparent);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   opacity: 0;
@@ -114,7 +117,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--kt-warm-50);
+  background: var(--kt-loader-accent, #ffffff);
   animation: kt-loader-pulse 1.2s ease-in-out infinite;
 }
 
@@ -190,7 +193,7 @@
   display: block;
   width: min(22rem, 60vw);
   height: 1px;
-  background: rgba(245, 244, 240, 0.35);
+  background: color-mix(in srgb, var(--kt-loader-accent, #ffffff) 35%, transparent);
   transform: scaleX(0);
   transform-origin: center;
   animation: kt-loader-draw 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.55s forwards;
@@ -222,7 +225,7 @@
   font-style: italic;
   letter-spacing: -0.01em;
   text-transform: none;
-  color: rgba(245, 244, 240, 0.75);
+  color: color-mix(in srgb, var(--kt-loader-text, #ffffff) 75%, transparent);
   opacity: 0;
   animation: kt-loader-fade-up 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
 }
@@ -273,7 +276,7 @@
   line-height: 1;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
-  color: var(--kt-warm-50);
+  color: var(--kt-loader-text, #ffffff);
   opacity: 0;
   transform: translateY(6px);
   animation: kt-loader-fade-up 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.45s forwards;
@@ -308,7 +311,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(245, 244, 240, 0.1);
+  background: color-mix(in srgb, var(--kt-loader-accent, #ffffff) 10%, transparent);
   overflow: hidden;
 }
 
@@ -316,7 +319,7 @@
   display: block;
   height: 100%;
   width: 0%;
-  background: var(--kt-warm-50);
+  background: var(--kt-loader-accent, #ffffff);
   transform-origin: left center;
   transition: width 0.08s linear;
 }

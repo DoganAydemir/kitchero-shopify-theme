@@ -83,7 +83,9 @@
     <script>
       (function () {
         try {
-          if (sessionStorage.getItem('kitchero:loader-shown') ||
+          var loaderEnabled = {{ settings.kt_loader_enable | json }};
+          if (!loaderEnabled ||
+              sessionStorage.getItem('kitchero:loader-shown') ||
               (window.Shopify && Shopify.designMode)) {
             document.documentElement.classList.add('kt-loader-skip');
           }
