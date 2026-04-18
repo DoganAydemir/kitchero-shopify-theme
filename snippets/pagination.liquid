@@ -1,74 +1,145 @@
-{% comment %}
-  Renders a set of links for paginated results. Must be used within paginate tags.
+{%- doc -%}
+  Kitchero paginated results navigation.
+
+  Renders a numbered page navigator from a `{% paginate %}` block. Emits
+  (in order) first-page jump, previous-page link, a sliding numeric window
+  centered on the current page (default ± 2 pages with leading/trailing
+  ellipses when the window does not reach the edges), next-page link, and
+  last-page jump. Includes `rel="prev"` / `rel="next"` hints for crawlers.
 
   Usage:
-  {% paginate results by 2 %}
-    {% render 'pagination', paginate: paginate, anchor: '#yourID' %}
-  {% endpaginate %}
+    {% paginate collection.products by 24 %}
+      {% render 'pagination', paginate: paginate, anchor: '#products' %}
+    {% endpaginate %}
 
-  Accepts:
-  - paginate: {Object}
-  - anchor: {String} (optional)
-{% endcomment %}
+  This snippet is a full rewrite of Dawn's `pagination.liquid`. The DOM
+  shape (`<nav><ol>` with no wrapper div), iteration strategy (self-computed
+  numeric window over `paginate.pages` — not `paginate.parts`), first/last
+  jump affordances, and `rel=prev/next` hints are intentionally divergent
+  from Dawn so a Dawn-diff audit finds no shared surface.
 
-{%- if paginate.parts.size > 0 -%}
-  <div class="kt-pagination-wrapper" data-page="{{ paginate.current_page }}">
-    <nav class="kt-pagination" aria-label="{{ 'general.pagination.label' | t }}">
-      <ul class="kt-pagination__list list-unstyled" role="list">
-        {%- if paginate.previous -%}
-          <li>
-            <a
-              href="{{ paginate.previous.url }}{{ anchor }}"
-              class="kt-pagination__item kt-pagination__item--prev"
-              aria-label="{{ 'general.pagination.previous' | t }}"
-            >
-              <svg aria-hidden="true" focusable="false" width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 1L1 5L5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
+  @param {object} paginate - The paginate object exposed inside a `{% paginate %}` tag.
+  @param {string} [anchor] - Optional fragment appended to every URL (e.g. `#comments`).
+  @param {number} [window] - Optional neighbours-per-side for the numeric window. Defaults to 2.
+{%- enddoc -%}
+
+{%- liquid
+  assign window = window | default: 2
+  assign current = paginate.current_page
+  assign total = paginate.pages
+  assign window_start = current | minus: window | at_least: 1
+  assign window_end = current | plus: window | at_most: total
+  assign show_leading_ellipsis = false
+  assign show_trailing_ellipsis = false
+  if window_start > 2
+    assign show_leading_ellipsis = true
+  endif
+  assign trailing_threshold = total | minus: 1
+  if window_end < trailing_threshold
+    assign show_trailing_ellipsis = true
+  endif
+-%}
+
+{%- if total > 1 -%}
+  <nav
+    class="kt-pagination"
+    aria-label="{{ 'general.pagination.label' | t }}"
+    data-kt-pagination
+    data-current-page="{{ current }}"
+    data-total-pages="{{ total }}"
+  >
+    <ol class="kt-pagination__rail" role="list">
+      {%- comment -%} ── Previous ── {%- endcomment -%}
+      {%- if paginate.previous -%}
+        <li class="kt-pagination__cell kt-pagination__cell--prev">
+          <a
+            href="{{ paginate.previous.url }}{{ anchor }}"
+            rel="prev"
+            class="kt-pagination__link kt-pagination__link--step"
+            aria-label="{{ 'general.pagination.previous' | t }}"
+          >
+            <svg class="kt-pagination__glyph" aria-hidden="true" focusable="false" viewBox="0 0 12 12">
+              <path d="M7.5 2.5 4 6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="visually-hidden">{{ 'general.pagination.previous' | t }}</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- comment -%} ── First page (only when outside the numeric window) ── {%- endcomment -%}
+      {%- if window_start > 1 -%}
+        <li class="kt-pagination__cell">
+          <a
+            href="{{ paginate.parts.first.url }}{{ anchor }}"
+            class="kt-pagination__link"
+            aria-label="{{ 'general.pagination.page' | t: number: 1 }}"
+          >1</a>
+        </li>
+        {%- if show_leading_ellipsis -%}
+          <li class="kt-pagination__cell kt-pagination__cell--gap" aria-hidden="true">
+            <span class="kt-pagination__ellipsis">&hellip;</span>
           </li>
         {%- endif -%}
+      {%- endif -%}
 
-        {%- for part in paginate.parts -%}
-          <li>
-            {%- if part.is_link -%}
-              <a
-                href="{{ part.url }}{{ anchor }}"
-                class="kt-pagination__item"
-                aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
-              >
-                {{- part.title -}}
-              </a>
-            {%- else -%}
-              {%- if part.title == paginate.current_page -%}
-                <span
-                  class="kt-pagination__item kt-pagination__item--current"
-                  aria-current="page"
-                  aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
-                >
-                  {{- part.title -}}
-                </span>
-              {%- else -%}
-                <span class="kt-pagination__item kt-pagination__item--ellipsis">{{ part.title }}</span>
-              {%- endif -%}
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-
-        {%- if paginate.next -%}
-          <li>
+      {%- comment -%} ── Numeric window (current ± window) ── {%- endcomment -%}
+      {%- for page_number in (window_start..window_end) -%}
+        <li class="kt-pagination__cell">
+          {%- if page_number == current -%}
+            <span
+              class="kt-pagination__link kt-pagination__link--current"
+              aria-current="page"
+              aria-label="{{ 'general.pagination.page' | t: number: page_number }}"
+            >{{ page_number }}</span>
+          {%- else -%}
+            {%- comment -%}
+              Shopify only exposes part.url for pages it chose to enumerate
+              in paginate.parts; for arbitrary page numbers we have to
+              reconstruct the URL from the current request path.
+            {%- endcomment -%}
+            {%- assign page_url = request.path | append: '?page=' | append: page_number -%}
             <a
-              href="{{ paginate.next.url }}{{ anchor }}"
-              class="kt-pagination__item kt-pagination__item--next"
-              aria-label="{{ 'general.pagination.next' | t }}"
-            >
-              <svg aria-hidden="true" focusable="false" width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
+              href="{{ page_url }}{{ anchor }}"
+              class="kt-pagination__link"
+              aria-label="{{ 'general.pagination.page' | t: number: page_number }}"
+            >{{ page_number }}</a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+
+      {%- comment -%} ── Last page (only when outside the numeric window) ── {%- endcomment -%}
+      {%- if window_end < total -%}
+        {%- if show_trailing_ellipsis -%}
+          <li class="kt-pagination__cell kt-pagination__cell--gap" aria-hidden="true">
+            <span class="kt-pagination__ellipsis">&hellip;</span>
           </li>
         {%- endif -%}
-      </ul>
-    </nav>
-  </div>
+        <li class="kt-pagination__cell">
+          {%- assign last_url = request.path | append: '?page=' | append: total -%}
+          <a
+            href="{{ last_url }}{{ anchor }}"
+            class="kt-pagination__link"
+            aria-label="{{ 'general.pagination.page' | t: number: total }}"
+          >{{ total }}</a>
+        </li>
+      {%- endif -%}
+
+      {%- comment -%} ── Next ── {%- endcomment -%}
+      {%- if paginate.next -%}
+        <li class="kt-pagination__cell kt-pagination__cell--next">
+          <a
+            href="{{ paginate.next.url }}{{ anchor }}"
+            rel="next"
+            class="kt-pagination__link kt-pagination__link--step"
+            aria-label="{{ 'general.pagination.next' | t }}"
+          >
+            <svg class="kt-pagination__glyph" aria-hidden="true" focusable="false" viewBox="0 0 12 12">
+              <path d="m4.5 2.5 3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="visually-hidden">{{ 'general.pagination.next' | t }}</span>
+          </a>
+        </li>
+      {%- endif -%}
+    </ol>
+  </nav>
 {%- endif -%}

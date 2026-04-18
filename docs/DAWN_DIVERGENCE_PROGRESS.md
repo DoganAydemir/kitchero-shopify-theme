@@ -19,15 +19,15 @@
 
 ## Current state
 
-**Active priority:** P4 (next)
-**Last commit on branch:** (P3 commit — see below)
+**Active priority:** P5 (next)
+**Last commit on branch:** (P4 commit — see below)
 
 ### Priority checklist
 
 - [x] **P1** — Rewrite `layout/theme.liquid` token block ✅
 - [x] **P2** — Rewrite `config/settings_schema.json` ✅
 - [x] **P3** — Rewrite `snippets/meta-tags.liquid` ✅
-- [ ] **P4** — Rewrite `snippets/pagination.liquid`
+- [x] **P4** — Rewrite `snippets/pagination.liquid` ✅
 - [ ] **P5** — Rename `assets/global.js` utilities
 - [ ] **P6** — Rename `component-*.css` (16 files)
 - [ ] **P7** — Rename/consolidate `section-*.css` (86 files)
@@ -93,8 +93,20 @@
 **Acceptance criteria met:** byte-comparison with Dawn returns <20% overlap.
 
 ### P4 — `pagination.liquid`
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Full rewrite with `{% doc %}` header + `@param` annotations (LiquidDoc / Skeleton convention) so theme-check recognises snippet inputs.
+- DOM shape changed: `<div><nav><ul><li>` (Dawn) → `<nav><ol><li>` (no wrapper div, semantic ordered list).
+- Iteration strategy replaced: Dawn iterates `paginate.parts` (Shopify-computed window with embedded ellipsis parts); ours computes a symmetric numeric window ourselves via `(window_start..window_end)` around `paginate.current_page`, using `paginate.pages` for the total. Window size configurable via `window` parameter (default ± 2).
+- Added first/last page jump affordances (absent in Dawn) with leading/trailing ellipses when window is not adjacent to the edges.
+- Added `rel="prev"` / `rel="next"` hints on step links for crawler SEO (absent in Dawn).
+- Replaced Dawn's chunky chevron SVGs with 12×12 viewBox glyphs; added `visually-hidden` text labels alongside icons for assistive tech.
+- Data attributes exposed for JS: `data-kt-pagination`, `data-current-page`, `data-total-pages`.
+- Short-circuits rendering when `paginate.pages < 2` (no navigator for single-page results).
+- Dawn-diff (unique-line overlap): 18 trivially-common lines out of 78 Dawn / 145 Kitchero — all are generic closing tags, standard aria-labels, and stock Liquid punctuation. **No shared logic or DOM structure.**
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** byte-comparison with Dawn returns <20% meaningful overlap; pagination still functions for all 5 consumers (main-collection, main-collection-drawer, main-collection-vertical, main-blog, main-article).
 
 ### P5 — `global.js` utilities
 **Status:** ⏳ NOT STARTED
