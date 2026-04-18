@@ -1,0 +1,162 @@
+{%- doc -%}
+  Kitchero inline CSS variables.
+
+  Emits @font-face declarations, per-scheme design tokens, and global tokens
+  (typography, layout, spacing, buttons, inputs, cards, media, drawer, badge)
+  as a single `{% style %}` block rendered from `layout/theme.liquid`.
+
+  Token naming convention: all custom properties use the `--kt-*` prefix
+  and are grouped by concern (`--kt-c-*` color, `--kt-f-*` font,
+  `--kt-btn-*`, `--kt-pcard-*`, etc.). Scheme selectors use the attribute
+  form `[data-kt-scheme="<id>"]` applied on `<body>`.
+
+  Consumers: `assets/base.css`, `assets/component-*.css`, and every
+  `assets/section-*.css` file. When renaming a token, update every
+  `var(--kt-*)` consumer in lockstep.
+{%- enddoc -%}
+{%- liquid
+  assign body_font = settings.type_body_font
+  assign body_font_bold = body_font | font_modify: 'weight', 'bold'
+  assign body_font_italic = body_font | font_modify: 'style', 'italic'
+  assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+  assign heading_font = settings.type_header_font
+  assign accent_font = settings.type_accent_font
+  assign accent_font_italic = accent_font | font_modify: 'style', 'italic'
+  assign accent_font_bold = accent_font | font_modify: 'weight', 'bold'
+-%}
+{% style %}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
+  {{ body_font_bold_italic | font_face: font_display: 'swap' }}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ accent_font | font_face: font_display: 'swap' }}
+  {{ accent_font_italic | font_face: font_display: 'swap' }}
+  {{ accent_font_bold | font_face: font_display: 'swap' }}
+
+  {%- for scheme in settings.color_schemes -%}
+    {%- liquid
+      assign bg = scheme.settings.background
+      assign bg_brightness = bg | color_brightness
+      if bg_brightness <= 26
+        assign bg_contrast = bg | color_lighten: 50
+      elsif bg_brightness <= 65
+        assign bg_contrast = bg | color_lighten: 5
+      else
+        assign bg_contrast = bg | color_darken: 25
+      endif
+    -%}
+    {%- if forloop.first -%}
+      :root,
+      body,
+    {%- endif -%}
+    [data-kt-scheme="{{ scheme.id }}"] {
+      --kt-c-bg: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
+      --kt-c-bg-gradient: {% if scheme.settings.background_gradient != empty %}{{ scheme.settings.background_gradient }}{% else %}{{ bg }}{% endif %};
+      --kt-c-bg-contrast: {{ bg_contrast.red }},{{ bg_contrast.green }},{{ bg_contrast.blue }};
+      --kt-c-fg: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+      --kt-c-shadow: {{ scheme.settings.shadow.red }},{{ scheme.settings.shadow.green }},{{ scheme.settings.shadow.blue }};
+      --kt-c-action: {{ scheme.settings.button.red }},{{ scheme.settings.button.green }},{{ scheme.settings.button.blue }};
+      --kt-c-action-text: {{ scheme.settings.button_label.red }},{{ scheme.settings.button_label.green }},{{ scheme.settings.button_label.blue }};
+      --kt-c-action-alt: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
+      --kt-c-action-alt-text: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+      --kt-c-link: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+      --kt-c-badge-text: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+      --kt-c-badge-bg: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
+      --kt-c-badge-border: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+      --kt-c-payment-terms-bg: rgb({{ bg.rgb }});
+    }
+  {%- endfor -%}
+
+  body {
+    color: rgba(var(--kt-c-fg), 0.75);
+    background-color: rgb(var(--kt-c-bg));
+  }
+
+  :root {
+    --kt-f-body-family: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --kt-f-body-style: {{ body_font.style }};
+    --kt-f-body-weight: {{ body_font.weight }};
+    --kt-f-body-weight-bold: {{ body_font.weight | plus: 300 | at_most: 1000 }};
+    --kt-f-heading-family: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --kt-f-heading-style: {{ heading_font.style }};
+    --kt-f-heading-weight: {{ heading_font.weight }};
+    --kt-f-accent-family: {{ accent_font.family }}, {{ accent_font.fallback_families }};
+    --kt-f-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+    --kt-f-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+
+    --kt-page-max: {{ settings.page_width | divided_by: 10 }}rem;
+
+    --kt-gap-sections-d: {{ settings.spacing_sections }}px;
+    --kt-gap-sections-m: {% if settings.spacing_sections < 24 %}{{ settings.spacing_sections }}{% else %}{{ settings.spacing_sections | times: 0.7 | round | at_least: 20 }}{% endif %}px;
+    --kt-gap-grid-y-d: {{ settings.spacing_grid_vertical }}px;
+    --kt-gap-grid-x-d: {{ settings.spacing_grid_horizontal }}px;
+    --kt-gap-grid-y-m: {{ settings.spacing_grid_vertical | divided_by: 2 }}px;
+    --kt-gap-grid-x-m: {{ settings.spacing_grid_horizontal | divided_by: 2 }}px;
+
+    --kt-btn-radius: {{ settings.buttons_radius }}px;
+    --kt-btn-border-w: {% if settings.buttons_border_opacity > 0 %}{{ settings.buttons_border_thickness }}{% else %}0{% endif %}px;
+    --kt-btn-border-op: {{ settings.buttons_border_opacity | divided_by: 100.0 }};
+    --kt-btn-shadow-op: {{ settings.buttons_shadow_opacity | divided_by: 100.0 }};
+    --kt-btn-shadow-x: {{ settings.buttons_shadow_horizontal_offset }}px;
+    --kt-btn-shadow-y: {{ settings.buttons_shadow_vertical_offset }}px;
+    --kt-btn-shadow-blur: {{ settings.buttons_shadow_blur }}px;
+
+    --kt-input-radius: {{ settings.inputs_radius }}px;
+    --kt-input-border-w: {{ settings.inputs_border_thickness }}px;
+    --kt-input-border-op: {{ settings.inputs_border_opacity | divided_by: 100.0 }};
+
+    --kt-badge-radius: {{ settings.badge_corner_radius | divided_by: 10.0 }}rem;
+
+    --kt-pcard-img-pad: {{ settings.card_image_padding | divided_by: 10.0 }}rem;
+    --kt-pcard-radius: {{ settings.card_corner_radius | divided_by: 10.0 }}rem;
+    --kt-pcard-text-align: {{ settings.card_text_alignment }};
+    --kt-pcard-border-w: {{ settings.card_border_thickness | divided_by: 10.0 }}rem;
+    --kt-pcard-border-op: {{ settings.card_border_opacity | divided_by: 100.0 }};
+    --kt-pcard-shadow-op: {{ settings.card_shadow_opacity | divided_by: 100.0 }};
+
+    --kt-ccard-img-pad: {{ settings.collection_card_image_padding | divided_by: 10.0 }}rem;
+    --kt-ccard-radius: {{ settings.collection_card_corner_radius | divided_by: 10.0 }}rem;
+
+    --kt-media-pad: {{ settings.media_padding }}px;
+    --kt-media-border-op: {{ settings.media_border_opacity | divided_by: 100.0 }};
+    --kt-media-border-w: {{ settings.media_border_thickness }}px;
+    --kt-media-radius: {{ settings.media_radius }}px;
+
+    --kt-drawer-border-w: {{ settings.drawer_border_thickness }}px;
+    --kt-drawer-border-op: {{ settings.drawer_border_opacity | divided_by: 100.0 }};
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  html {
+    box-sizing: border-box;
+    font-size: calc(var(--kt-f-body-scale) * 100%);
+    height: 100%;
+  }
+
+  body {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-columns: 100%;
+    min-height: 100%;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: 0.02rem;
+    line-height: 1.6;
+    font-family: var(--kt-f-body-family);
+    font-style: var(--kt-f-body-style);
+    font-weight: var(--kt-f-body-weight);
+  }
+
+  @media screen and (min-width: 750px) {
+    body {
+      font-size: 1rem;
+    }
+  }
+{% endstyle %}
+{%- comment -%} Expose the active scheme id for the body tag in theme.liquid. {%- endcomment -%}

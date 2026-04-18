@@ -68,12 +68,12 @@ summary {
 }
 
 .section + .section {
-  margin-top: var(--spacing-sections-mobile);
+  margin-top: var(--kt-gap-sections-m);
 }
 
 @media screen and (min-width: 750px) {
   .section + .section {
-    margin-top: var(--spacing-sections-desktop);
+    margin-top: var(--kt-gap-sections-d);
   }
 }
 
@@ -92,34 +92,34 @@ summary {
 
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: var(--font-heading-family);
-  font-style: var(--font-heading-style);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--kt-f-heading-family);
+  font-style: var(--kt-f-heading-style);
+  font-weight: var(--kt-f-heading-weight);
   letter-spacing: -0.02em;
   line-height: 1.2;
-  color: rgb(var(--color-foreground));
+  color: rgb(var(--kt-c-fg));
 }
 
-h1, .h1 { font-size: calc(var(--font-heading-scale) * 3.2rem); }
-h2, .h2 { font-size: calc(var(--font-heading-scale) * 2.4rem); }
-h3, .h3 { font-size: calc(var(--font-heading-scale) * 2rem); }
-h4, .h4 { font-size: calc(var(--font-heading-scale) * 1.8rem); }
-h5, .h5 { font-size: calc(var(--font-heading-scale) * 1.6rem); }
-h6, .h6 { font-size: calc(var(--font-heading-scale) * 1.4rem); }
+h1, .h1 { font-size: calc(var(--kt-f-heading-scale) * 3.2rem); }
+h2, .h2 { font-size: calc(var(--kt-f-heading-scale) * 2.4rem); }
+h3, .h3 { font-size: calc(var(--kt-f-heading-scale) * 2rem); }
+h4, .h4 { font-size: calc(var(--kt-f-heading-scale) * 1.8rem); }
+h5, .h5 { font-size: calc(var(--kt-f-heading-scale) * 1.6rem); }
+h6, .h6 { font-size: calc(var(--kt-f-heading-scale) * 1.4rem); }
 
 @media screen and (min-width: 750px) {
-  h1, .h1 { font-size: calc(var(--font-heading-scale) * 4.8rem); }
-  h2, .h2 { font-size: calc(var(--font-heading-scale) * 3.2rem); }
-  h3, .h3 { font-size: calc(var(--font-heading-scale) * 2.4rem); }
+  h1, .h1 { font-size: calc(var(--kt-f-heading-scale) * 4.8rem); }
+  h2, .h2 { font-size: calc(var(--kt-f-heading-scale) * 3.2rem); }
+  h3, .h3 { font-size: calc(var(--kt-f-heading-scale) * 2.4rem); }
 }
 
 a {
-  color: rgb(var(--color-link));
+  color: rgb(var(--kt-c-link));
   text-underline-offset: 0.3rem;
 }
 
 .rte a {
-  color: rgb(var(--color-link));
+  color: rgb(var(--kt-c-link));
 }
 
 /* ============================================================
@@ -133,16 +133,16 @@ button[type="submit"] {
   justify-content: center;
   gap: 0.8rem;
   padding: 1.2rem 2.4rem;
-  font-family: var(--font-body-family);
+  font-family: var(--kt-f-body-family);
   font-size: 1.4rem;
-  font-weight: var(--font-body-weight-bold, 700);
+  font-weight: var(--kt-f-body-weight-bold, 700);
   letter-spacing: 0.06rem;
   text-decoration: none;
   cursor: pointer;
-  border: var(--buttons-border-width) solid rgba(var(--color-button), var(--buttons-border-opacity));
-  border-radius: var(--buttons-radius);
-  background-color: rgb(var(--color-button));
-  color: rgb(var(--color-button-text));
+  border: var(--kt-btn-border-w) solid rgba(var(--kt-c-action), var(--kt-btn-border-op));
+  border-radius: var(--kt-btn-radius);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   transition: opacity 0.2s ease;
 }
 
@@ -152,9 +152,9 @@ button[type="submit"]:hover {
 }
 
 .button--secondary {
-  background-color: rgb(var(--color-secondary-button));
-  color: rgb(var(--color-secondary-button-text));
-  border-color: rgba(var(--color-secondary-button-text), var(--buttons-border-opacity));
+  background-color: rgb(var(--kt-c-action-alt));
+  color: rgb(var(--kt-c-action-alt-text));
+  border-color: rgba(var(--kt-c-action-alt-text), var(--kt-btn-border-op));
 }
 
 /* ============================================================
@@ -166,16 +166,16 @@ button[type="submit"]:hover {
   width: 100%;
   padding: 1rem 1.2rem;
   font-size: 1.4rem;
-  border: var(--inputs-border-width) solid rgba(var(--color-foreground), var(--inputs-border-opacity));
-  border-radius: var(--inputs-radius);
-  background-color: rgb(var(--color-background));
-  color: rgb(var(--color-foreground));
+  border: var(--kt-input-border-w) solid rgba(var(--kt-c-fg), var(--kt-input-border-op));
+  border-radius: var(--kt-input-radius);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
   appearance: none;
 }
 
 .field__input:focus,
 .field__textarea:focus {
-  outline: 2px solid rgb(var(--color-foreground));
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
@@ -183,8 +183,8 @@ button[type="submit"]:hover {
   display: block;
   margin-bottom: 0.4rem;
   font-size: 1.4rem;
-  font-weight: var(--font-body-weight-bold, 700);
-  color: rgb(var(--color-foreground));
+  font-weight: var(--kt-f-body-weight-bold, 700);
+  color: rgb(var(--kt-c-fg));
 }
 
 /* ============================================================
@@ -220,7 +220,7 @@ button[type="submit"]:hover {
 }
 
 :focus-visible {
-  outline: 2px solid rgb(var(--color-foreground));
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
@@ -239,19 +239,19 @@ button[type="submit"]:hover {
 }
 
 .gradient {
-  background: var(--gradient-background);
+  background: var(--kt-c-bg-gradient);
 }
 
 /* Color scheme application — reserved for future use when
    hardcoded colors are converted to CSS variables */
 .color-scheme {
-  background-color: rgb(var(--color-background));
-  color: rgba(var(--color-foreground), 0.75);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgba(var(--kt-c-fg), 0.75);
 }
 
 /* Font utility — accent/serif font for decorative headings */
 .font-serif {
-  font-family: var(--font-accent-family);
+  font-family: var(--kt-f-accent-family);
 }
 
 /* Rich text content */
@@ -269,8 +269,8 @@ button[type="submit"]:hover {
 
 /* Placeholder SVGs */
 .placeholder-svg {
-  fill: rgba(var(--color-foreground), 0.08);
-  background-color: rgba(var(--color-foreground), 0.04);
+  fill: rgba(var(--kt-c-fg), 0.08);
+  background-color: rgba(var(--kt-c-fg), 0.04);
   width: 100%;
   height: 100%;
 }
