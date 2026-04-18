@@ -14,7 +14,7 @@
     if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {
       return window.kitcheroCartDrawer.refreshDrawer();
     }
-    return fetch(window.routes.cart_url + '.js')
+    return fetch(Kitchero.routes.cart + '.js')
       .then(function (r) { return r.json(); })
       .then(function (cart) {
         document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
@@ -87,7 +87,7 @@
         atcBtn.setAttribute('aria-busy', 'true');
       }
 
-      fetch(window.routes.cart_add_url + '.js', {
+      fetch(Kitchero.routes.cartAdd + '.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -105,7 +105,7 @@
             if (atcText) atcText.textContent = 'Added to Cart!';
             setTimeout(function () {
               atcBtn.classList.remove('kt-product-form__atc--added');
-              if (atcText) atcText.textContent = window.variantStrings ? window.variantStrings.addToCart : 'Add to cart';
+              if (atcText) atcText.textContent = Kitchero.variantStrings ? Kitchero.variantStrings.addToCart : 'Add to cart';
             }, 2000);
           }
 
@@ -117,7 +117,7 @@
                blips visibly, then navigate. The delay keeps the
                "Added to Cart!" success state on the button long
                enough for the customer to register what happened. */
-            fetch(window.routes.cart_url + '.js')
+            fetch(Kitchero.routes.cart + '.js')
               .then(function (r) { return r.json(); })
               .then(function (cart) {
                 document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
@@ -127,7 +127,7 @@
               })
               .then(function () {
                 setTimeout(function () {
-                  window.location.href = window.routes.cart_url;
+                  window.location.href = Kitchero.routes.cart;
                 }, 700);
               });
           } else {
@@ -138,7 +138,7 @@
                fails. Open the drawer only after the refresh resolves. */
             refreshCartDrawer()
               .catch(function () {
-                return fetch(window.routes.cart_url + '.js')
+                return fetch(Kitchero.routes.cart + '.js')
                   .then(function (r) { return r.json(); })
                   .then(function (cart) {
                     document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
@@ -233,8 +233,8 @@
         atcBtn.disabled = !matchedVariant.available;
         if (atcText) {
           atcText.textContent = matchedVariant.available
-            ? (window.variantStrings ? window.variantStrings.addToCart : 'Add to cart')
-            : (window.variantStrings ? window.variantStrings.soldOut : 'Sold out');
+            ? (Kitchero.variantStrings ? Kitchero.variantStrings.addToCart : 'Add to cart')
+            : (Kitchero.variantStrings ? Kitchero.variantStrings.soldOut : 'Sold out');
         }
       }
 

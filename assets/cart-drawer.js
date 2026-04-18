@@ -95,7 +95,7 @@
       var row = self.drawer.querySelector('[data-line-key="' + key + '"]');
       if (row) row.style.opacity = '0.5';
 
-      fetch(window.routes.cart_change_url + '.js', {
+      fetch(Kitchero.routes.cartChange + '.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: key, quantity: quantity }),
@@ -156,7 +156,7 @@
         .catch(function (error) {
           console.error(error);
           /* Last-ditch fallback so the UI isn't left in a stale state */
-          return fetch(window.routes.cart_url, {
+          return fetch(Kitchero.routes.cart, {
             headers: { 'Accept': 'application/json' },
           })
             .then(function (r) { return r.json(); })

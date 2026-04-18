@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P9 (next)
-**Last commit on branch:** (P8 commit — see below)
+**Active priority:** P10 (next — evaluation/decision-only)
+**Last commit on branch:** (P9 commit — see below)
 
 ### Priority checklist
 
@@ -32,7 +32,7 @@
 - [x] **P6** — Rename `component-*.css` (16 files) ✅
 - [x] **P7** — Rename `section-*.{css,js}` (86 files) ✅
 - [x] **P8** — Restructure `locales/*.json` (5 locales) ✅
-- [ ] **P9** — Namespace JS globals (`window.Kitchero`)
+- [x] **P9** — Namespace JS globals under `window.Kitchero` ✅
 - [ ] **P10** — Section filename convention (decision-only)
 - [ ] **Stretch** — Adopt `blocks/` directory + Theme Blocks
 - [ ] **Verify** — `shopify theme check` → 0 offenses
@@ -168,8 +168,17 @@
 **Acceptance criteria met:** 0 shared paths with Dawn's locale tree; every `| t` reference across the theme resolves correctly.
 
 ### P9 — JS globals namespace
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Consolidated every theme-injected browser global (previously on `window.*` as in Dawn: `window.shopUrl`, `window.routes`, `window.searchSettings`, `window.cartStrings`, `window.variantStrings`, `window.accessibilityStrings`) under the single `window.Kitchero` namespace established in P5.
+- Inline bootstrap script in `layout/theme.liquid` rewritten to use `Object.assign(window.Kitchero, {...})` with a `|| {}` guard so initialisation is safe whether the inline block or `global.js` runs first.
+- Route keys additionally remapped from Shopify's underscore form to JS-idiomatic camelCase: `cart_add_url` → `cartAdd`, `cart_change_url` → `cartChange`, `cart_update_url` → `cartUpdate`, `cart_url` → `cart`, `predictive_search_url` → `predictiveSearch`.
+- Accessibility strings bucket renamed `accessibilityStrings` → `a11yStrings` to match the `kt.a11y.*` locale taxonomy from P8.
+- Updated 4 JS consumer files via Python replace (longest-first ordering so `window.routes.cart_url` resolves before bare `window.routes`): `product-form.js`, `predictive-search.js`, `cart-drawer.js`, `main-cart.js`.
+- Sanity grep: `window\.(routes|cartStrings|variantStrings|accessibilityStrings|searchSettings|shopUrl)` returns zero matches across `assets/`.
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** no bare `window.*` theme-injected globals remain; all runtime data is reachable via a single `window.Kitchero.*` root, removing a class of global-pollution overlap with Dawn.
 
 ### P10 — Section filename convention
 **Status:** ⏳ NOT STARTED

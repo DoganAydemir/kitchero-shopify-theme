@@ -26,7 +26,7 @@ if (!window.__kitcheroMainCartLoaded) {
       var row = document.querySelector('[data-line-key="' + key + '"]');
       if (row) row.style.opacity = '0.5';
 
-      return fetch(window.routes.cart_change_url + '.js', {
+      return fetch(Kitchero.routes.cartChange + '.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ id: key, quantity: quantity }),

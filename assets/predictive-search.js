@@ -11,7 +11,7 @@
   var debounceTimer;
 
   if (!searchInput || !resultsContainer) return;
-  if (!window.routes || !window.routes.predictive_search_url) return;
+  if (!Kitchero.routes || !Kitchero.routes.predictiveSearch) return;
 
   function fetchResults(query) {
     if (query.length < 2) {
@@ -22,13 +22,13 @@
     /* Which resource types to ask Shopify for. Driven by theme settings
        (Theme options → Search behavior → Include in results). Falls back
        to a sane default if the globals haven't been exposed yet. */
-    var types = (window.searchSettings && window.searchSettings.types) || 'product,article,page';
+    var types = (Kitchero.searchSettings && Kitchero.searchSettings.types) || 'product,article,page';
     if (!types) {
       resultsContainer.innerHTML = '';
       return;
     }
 
-    var url = window.routes.predictive_search_url
+    var url = Kitchero.routes.predictiveSearch
       + '?q=' + encodeURIComponent(query)
       + '&resources[type]=' + encodeURIComponent(types)
       + '&resources[limit]=4'
