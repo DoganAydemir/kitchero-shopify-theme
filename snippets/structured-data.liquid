@@ -66,11 +66,11 @@
       "@type": "Organization",
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
-      {%- if settings.social_facebook_link != blank or settings.social_instagram_link != blank or settings.social_twitter_link != blank -%}
+      {%- if settings.kt_social_facebook != blank or settings.kt_social_instagram != blank or settings.kt_social_twitter != blank -%}
         ,"sameAs": [
-          {%- if settings.social_facebook_link != blank -%}{{ settings.social_facebook_link | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
-          {%- if settings.social_instagram_link != blank -%}{{ settings.social_instagram_link | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
-          {%- if settings.social_twitter_link != blank -%}{{ settings.social_twitter_link | json }}{%- endif -%}
+          {%- if settings.kt_social_facebook != blank -%}{{ settings.kt_social_facebook | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
+          {%- if settings.kt_social_instagram != blank -%}{{ settings.kt_social_instagram | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
+          {%- if settings.kt_social_twitter != blank -%}{{ settings.kt_social_twitter | json }}{%- endif -%}
         ]
       {%- endif -%}
     }

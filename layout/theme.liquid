@@ -7,11 +7,11 @@
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
 
-    {%- if settings.favicon != blank -%}
-      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- if settings.kt_favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
 
-    {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
+    {%- unless settings.kt_heading_font.system? and settings.kt_body_font.system? -%}
       <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
     {%- endunless -%}
 
@@ -31,7 +31,7 @@
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
 
     {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
-    {%- if settings.animations_reveal_on_scroll -%}
+    {%- if settings.kt_motion_reveal -%}
       <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'vendor-lenis.js' | asset_url }}" defer="defer"></script>
@@ -45,19 +45,19 @@
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
 
-    {%- unless settings.type_body_font.system? -%}
+    {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
+      <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
-    {%- unless settings.type_header_font.system? -%}
+    {%- unless settings.kt_heading_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+      <link rel="preload" as="font" href="{{ settings.kt_heading_font | font_url }}" type="font/woff2" crossorigin>
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
-    {%- unless settings.type_accent_font.system? -%}
+    {%- unless settings.kt_accent_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.type_accent_font | font_url }}" type="font/woff2" crossorigin>
+      <link rel="preload" as="font" href="{{ settings.kt_accent_font | font_url }}" type="font/woff2" crossorigin>
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
 
@@ -73,7 +73,7 @@
     </script>
   </head>
 
-  <body class="gradient" data-kt-scheme="{{ settings.color_schemes.first.id }}" data-cart-type="{{ settings.cart_type | default: 'drawer' }}">
+  <body class="gradient" data-kt-scheme="{{ settings.kt_schemes.first.id }}" data-cart-type="{{ settings.kt_cart_type | default: 'drawer' }}">
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
@@ -86,7 +86,7 @@
     {%- endcomment -%}
 
     {%- comment -%} Cart Drawer (loaded conditionally) {%- endcomment -%}
-    {%- if settings.cart_type == 'drawer' -%}
+    {%- if settings.kt_cart_type == 'drawer' -%}
       <link rel="stylesheet" href="{{ 'component-cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
       <noscript><link rel="stylesheet" href="{{ 'component-cart-drawer.css' | asset_url }}"></noscript>
       {%- render 'cart-drawer' -%}
@@ -132,16 +132,16 @@
 
       {%- liquid
         assign search_types = ''
-        if settings.search_include_products
+        if settings.kt_search_inc_products
           assign search_types = search_types | append: 'product,'
         endif
-        if settings.search_include_pages
+        if settings.kt_search_inc_pages
           assign search_types = search_types | append: 'page,'
         endif
-        if settings.search_include_articles
+        if settings.kt_search_inc_articles
           assign search_types = search_types | append: 'article,'
         endif
-        if settings.search_include_collections
+        if settings.kt_search_inc_collections
           assign search_types = search_types | append: 'collection,'
         endif
         assign search_types = search_types | split: ',' | join: ','
@@ -167,11 +167,11 @@
       };
     </script>
 
-    {%- if settings.cart_type == 'drawer' -%}
+    {%- if settings.kt_cart_type == 'drawer' -%}
       <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
-    {%- if settings.predictive_search_enabled -%}
+    {%- if settings.kt_search_predictive -%}
       <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
   </body>

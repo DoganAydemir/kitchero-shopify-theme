@@ -44,7 +44,7 @@
 
 ### P1 — `theme.liquid` token block
 **Status:** ✅ DONE
-**Commit:** (pending — see `git log`)
+**Commit:** `e5676ef refactor(theme-liquid): replace Dawn token block with Kitchero tokens [P1]`
 **Done:**
 - Created `snippets/kt-css-variables.liquid` (Skeleton-style single render snippet with `{% doc %}` header).
 - Moved font `@font-face`, color-scheme loop, `:root` tokens, `*`/`html`/`body` base rules out of `theme.liquid` into the new snippet.

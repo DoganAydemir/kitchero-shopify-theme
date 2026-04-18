@@ -15,12 +15,12 @@
   `var(--kt-*)` consumer in lockstep.
 {%- enddoc -%}
 {%- liquid
-  assign body_font = settings.type_body_font
+  assign body_font = settings.kt_body_font
   assign body_font_bold = body_font | font_modify: 'weight', 'bold'
   assign body_font_italic = body_font | font_modify: 'style', 'italic'
   assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
-  assign heading_font = settings.type_header_font
-  assign accent_font = settings.type_accent_font
+  assign heading_font = settings.kt_heading_font
+  assign accent_font = settings.kt_accent_font
   assign accent_font_italic = accent_font | font_modify: 'style', 'italic'
   assign accent_font_bold = accent_font | font_modify: 'weight', 'bold'
 -%}
@@ -34,9 +34,9 @@
   {{ accent_font_italic | font_face: font_display: 'swap' }}
   {{ accent_font_bold | font_face: font_display: 'swap' }}
 
-  {%- for scheme in settings.color_schemes -%}
+  {%- for scheme in settings.kt_schemes -%}
     {%- liquid
-      assign bg = scheme.settings.background
+      assign bg = scheme.settings.surface
       assign bg_brightness = bg | color_brightness
       if bg_brightness <= 26
         assign bg_contrast = bg | color_lighten: 50
@@ -52,18 +52,18 @@
     {%- endif -%}
     [data-kt-scheme="{{ scheme.id }}"] {
       --kt-c-bg: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
-      --kt-c-bg-gradient: {% if scheme.settings.background_gradient != empty %}{{ scheme.settings.background_gradient }}{% else %}{{ bg }}{% endif %};
+      --kt-c-bg-gradient: {% if scheme.settings.surface_gradient != empty %}{{ scheme.settings.surface_gradient }}{% else %}{{ bg }}{% endif %};
       --kt-c-bg-contrast: {{ bg_contrast.red }},{{ bg_contrast.green }},{{ bg_contrast.blue }};
-      --kt-c-fg: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
-      --kt-c-shadow: {{ scheme.settings.shadow.red }},{{ scheme.settings.shadow.green }},{{ scheme.settings.shadow.blue }};
-      --kt-c-action: {{ scheme.settings.button.red }},{{ scheme.settings.button.green }},{{ scheme.settings.button.blue }};
-      --kt-c-action-text: {{ scheme.settings.button_label.red }},{{ scheme.settings.button_label.green }},{{ scheme.settings.button_label.blue }};
+      --kt-c-fg: {{ scheme.settings.text_primary.red }},{{ scheme.settings.text_primary.green }},{{ scheme.settings.text_primary.blue }};
+      --kt-c-shadow: {{ scheme.settings.shadow_color.red }},{{ scheme.settings.shadow_color.green }},{{ scheme.settings.shadow_color.blue }};
+      --kt-c-action: {{ scheme.settings.action.red }},{{ scheme.settings.action.green }},{{ scheme.settings.action.blue }};
+      --kt-c-action-text: {{ scheme.settings.action_text.red }},{{ scheme.settings.action_text.green }},{{ scheme.settings.action_text.blue }};
       --kt-c-action-alt: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
-      --kt-c-action-alt-text: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
-      --kt-c-link: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
-      --kt-c-badge-text: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+      --kt-c-action-alt-text: {{ scheme.settings.link_text.red }},{{ scheme.settings.link_text.green }},{{ scheme.settings.link_text.blue }};
+      --kt-c-link: {{ scheme.settings.link_text.red }},{{ scheme.settings.link_text.green }},{{ scheme.settings.link_text.blue }};
+      --kt-c-badge-text: {{ scheme.settings.text_primary.red }},{{ scheme.settings.text_primary.green }},{{ scheme.settings.text_primary.blue }};
       --kt-c-badge-bg: {{ bg.red }},{{ bg.green }},{{ bg.blue }};
-      --kt-c-badge-border: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+      --kt-c-badge-border: {{ scheme.settings.text_primary.red }},{{ scheme.settings.text_primary.green }},{{ scheme.settings.text_primary.blue }};
       --kt-c-payment-terms-bg: rgb({{ bg.rgb }});
     }
   {%- endfor -%}
@@ -82,49 +82,49 @@
     --kt-f-heading-style: {{ heading_font.style }};
     --kt-f-heading-weight: {{ heading_font.weight }};
     --kt-f-accent-family: {{ accent_font.family }}, {{ accent_font.fallback_families }};
-    --kt-f-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
-    --kt-f-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+    --kt-f-body-scale: {{ settings.kt_body_scale | divided_by: 100.0 }};
+    --kt-f-heading-scale: {{ settings.kt_heading_scale | times: 1.0 | divided_by: settings.kt_body_scale }};
 
-    --kt-page-max: {{ settings.page_width | divided_by: 10 }}rem;
+    --kt-page-max: {{ settings.kt_page_width | divided_by: 10 }}rem;
 
-    --kt-gap-sections-d: {{ settings.spacing_sections }}px;
-    --kt-gap-sections-m: {% if settings.spacing_sections < 24 %}{{ settings.spacing_sections }}{% else %}{{ settings.spacing_sections | times: 0.7 | round | at_least: 20 }}{% endif %}px;
-    --kt-gap-grid-y-d: {{ settings.spacing_grid_vertical }}px;
-    --kt-gap-grid-x-d: {{ settings.spacing_grid_horizontal }}px;
-    --kt-gap-grid-y-m: {{ settings.spacing_grid_vertical | divided_by: 2 }}px;
-    --kt-gap-grid-x-m: {{ settings.spacing_grid_horizontal | divided_by: 2 }}px;
+    --kt-gap-sections-d: {{ settings.kt_section_spacing }}px;
+    --kt-gap-sections-m: {% if settings.kt_section_spacing < 24 %}{{ settings.kt_section_spacing }}{% else %}{{ settings.kt_section_spacing | times: 0.7 | round | at_least: 20 }}{% endif %}px;
+    --kt-gap-grid-y-d: {{ settings.kt_grid_spacing_y }}px;
+    --kt-gap-grid-x-d: {{ settings.kt_grid_spacing_x }}px;
+    --kt-gap-grid-y-m: {{ settings.kt_grid_spacing_y | divided_by: 2 }}px;
+    --kt-gap-grid-x-m: {{ settings.kt_grid_spacing_x | divided_by: 2 }}px;
 
-    --kt-btn-radius: {{ settings.buttons_radius }}px;
-    --kt-btn-border-w: {% if settings.buttons_border_opacity > 0 %}{{ settings.buttons_border_thickness }}{% else %}0{% endif %}px;
-    --kt-btn-border-op: {{ settings.buttons_border_opacity | divided_by: 100.0 }};
-    --kt-btn-shadow-op: {{ settings.buttons_shadow_opacity | divided_by: 100.0 }};
-    --kt-btn-shadow-x: {{ settings.buttons_shadow_horizontal_offset }}px;
-    --kt-btn-shadow-y: {{ settings.buttons_shadow_vertical_offset }}px;
-    --kt-btn-shadow-blur: {{ settings.buttons_shadow_blur }}px;
+    --kt-btn-radius: {{ settings.kt_btn_radius }}px;
+    --kt-btn-border-w: {% if settings.kt_btn_border_op > 0 %}{{ settings.kt_btn_border_w }}{% else %}0{% endif %}px;
+    --kt-btn-border-op: {{ settings.kt_btn_border_op | divided_by: 100.0 }};
+    --kt-btn-shadow-op: {{ settings.kt_btn_shadow_op | divided_by: 100.0 }};
+    --kt-btn-shadow-x: {{ settings.kt_btn_shadow_x }}px;
+    --kt-btn-shadow-y: {{ settings.kt_btn_shadow_y }}px;
+    --kt-btn-shadow-blur: {{ settings.kt_btn_shadow_blur }}px;
 
-    --kt-input-radius: {{ settings.inputs_radius }}px;
-    --kt-input-border-w: {{ settings.inputs_border_thickness }}px;
-    --kt-input-border-op: {{ settings.inputs_border_opacity | divided_by: 100.0 }};
+    --kt-input-radius: {{ settings.kt_input_radius }}px;
+    --kt-input-border-w: {{ settings.kt_input_border_w }}px;
+    --kt-input-border-op: {{ settings.kt_input_border_op | divided_by: 100.0 }};
 
-    --kt-badge-radius: {{ settings.badge_corner_radius | divided_by: 10.0 }}rem;
+    --kt-badge-radius: {{ settings.kt_badge_radius | divided_by: 10.0 }}rem;
 
-    --kt-pcard-img-pad: {{ settings.card_image_padding | divided_by: 10.0 }}rem;
-    --kt-pcard-radius: {{ settings.card_corner_radius | divided_by: 10.0 }}rem;
-    --kt-pcard-text-align: {{ settings.card_text_alignment }};
-    --kt-pcard-border-w: {{ settings.card_border_thickness | divided_by: 10.0 }}rem;
-    --kt-pcard-border-op: {{ settings.card_border_opacity | divided_by: 100.0 }};
-    --kt-pcard-shadow-op: {{ settings.card_shadow_opacity | divided_by: 100.0 }};
+    --kt-pcard-img-pad: {{ settings.kt_pcard_img_pad | divided_by: 10.0 }}rem;
+    --kt-pcard-radius: {{ settings.kt_pcard_radius | divided_by: 10.0 }}rem;
+    --kt-pcard-text-align: {{ settings.kt_pcard_text_align }};
+    --kt-pcard-border-w: {{ settings.kt_pcard_border_w | divided_by: 10.0 }}rem;
+    --kt-pcard-border-op: {{ settings.kt_pcard_border_op | divided_by: 100.0 }};
+    --kt-pcard-shadow-op: {{ settings.kt_pcard_shadow_op | divided_by: 100.0 }};
 
-    --kt-ccard-img-pad: {{ settings.collection_card_image_padding | divided_by: 10.0 }}rem;
-    --kt-ccard-radius: {{ settings.collection_card_corner_radius | divided_by: 10.0 }}rem;
+    --kt-ccard-img-pad: {{ settings.kt_ccard_img_pad | divided_by: 10.0 }}rem;
+    --kt-ccard-radius: {{ settings.kt_ccard_radius | divided_by: 10.0 }}rem;
 
-    --kt-media-pad: {{ settings.media_padding }}px;
-    --kt-media-border-op: {{ settings.media_border_opacity | divided_by: 100.0 }};
-    --kt-media-border-w: {{ settings.media_border_thickness }}px;
-    --kt-media-radius: {{ settings.media_radius }}px;
+    --kt-media-pad: {{ settings.kt_media_pad }}px;
+    --kt-media-border-op: {{ settings.kt_media_border_op | divided_by: 100.0 }};
+    --kt-media-border-w: {{ settings.kt_media_border_w }}px;
+    --kt-media-radius: {{ settings.kt_media_radius }}px;
 
-    --kt-drawer-border-w: {{ settings.drawer_border_thickness }}px;
-    --kt-drawer-border-op: {{ settings.drawer_border_opacity | divided_by: 100.0 }};
+    --kt-drawer-border-w: {{ settings.kt_drawer_border_w }}px;
+    --kt-drawer-border-op: {{ settings.kt_drawer_border_op | divided_by: 100.0 }};
   }
 
   *,

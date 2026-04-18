@@ -5,7 +5,7 @@
   - Form submits to /search (routes.search_url) as a regular GET request
     so the modal works without JavaScript.
   - Popular search term pills come from theme setting
-    `settings.search_popular_terms` (comma-separated). When empty, the
+    `settings.kt_search_popular` (comma-separated). When empty, the
     suggestions row is hidden entirely.
   - JS (assets/search-overlay.js) handles open/close, body scroll lock,
     focus trap, Escape-to-close, and pill → input fill.
@@ -49,7 +49,7 @@
       <div class="kt-search-overlay__results" id="predictive-search-results" aria-live="polite"></div>
 
       {%- comment -%} Popular search term pills (from theme settings) {%- endcomment -%}
-      {%- assign popular_terms = settings.search_popular_terms | default: '' -%}
+      {%- assign popular_terms = settings.kt_search_popular | default: '' -%}
       {%- if popular_terms != blank -%}
         <div class="kt-search-overlay__suggestions">
           <p class="kt-search-overlay__suggestions-label">{{ 'general.search.suggestions' | t | default: 'Popular searches' }}</p>
