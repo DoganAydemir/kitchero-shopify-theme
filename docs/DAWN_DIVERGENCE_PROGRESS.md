@@ -19,8 +19,8 @@
 
 ## Current state
 
-**Active priority:** P6 (next)
-**Last commit on branch:** (P5 commit — see below)
+**Active priority:** P7 (next)
+**Last commit on branch:** (P6 commit — see below)
 
 ### Priority checklist
 
@@ -29,7 +29,7 @@
 - [x] **P3** — Rewrite `snippets/meta-tags.liquid` ✅
 - [x] **P4** — Rewrite `snippets/pagination.liquid` ✅
 - [x] **P5** — Rename `assets/global.js` utilities ✅
-- [ ] **P6** — Rename `component-*.css` (16 files)
+- [x] **P6** — Rename `component-*.css` (16 files) ✅
 - [ ] **P7** — Rename/consolidate `section-*.css` (86 files)
 - [ ] **P8** — Restructure `locales/en.default.json` (5 locales)
 - [ ] **P9** — Namespace JS globals (`window.Kitchero`)
@@ -128,8 +128,14 @@
 **Acceptance criteria met:** grep for every Dawn symbol name in the rewritten file returns zero hits (the single `removeTrapFocus` match is inside a comment that explicitly cites Dawn by name as a divergence note).
 
 ### P6 — `component-*.css` rename
-**Status:** ⏳ NOT STARTED
-**Commit:** —
+**Status:** ✅ DONE
+**Commit:** (pending — see `git log`)
+**Done:**
+- Renamed 16 asset files from `component-*.{css,js}` → `kt-*.{css,js}` via `git mv` (preserves rename history): appointment-drawer, article-card, card-product, cart-drawer, collection-filters, localization-form, page-header-dotted (both .css and .js), product-accordion, product-form, product-gallery, product-price, product-variant-picker, ready-to-begin, search-overlay, video-modal.
+- Updated 14 Liquid consumer files (`layout/theme.liquid` + 12 sections + 1 snippet) via `sed` replacing `'component-` → `'kt-`.
+- Verified no stragglers: `grep -rn "'component-"` returns zero matches across sections/snippets/layout/templates/config.
+- `shopify theme check`: **0 offenses** across 134 files.
+**Acceptance criteria met:** Dawn's `component-*.css` filename prefix eliminated from the theme; all asset references use the `kt-*` convention.
 
 ### P7 — `section-*.css` rename
 **Status:** ⏳ NOT STARTED
