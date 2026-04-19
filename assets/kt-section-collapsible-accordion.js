@@ -147,5 +147,26 @@ if (!window.__kitcheroCollapsibleAccordionLoaded) {
         });
       });
     });
+
+    /* Theme editor: when the merchant selects an accordion item block
+       in the sidebar, open that <details> and close siblings when
+       allow-multiple is false. event.target is the <details> element
+       itself (has [data-kt-accordion-item]). */
+    document.addEventListener('shopify:block:select', function (event) {
+      var item = event.target;
+      if (!item || !item.matches || !item.matches(ITEM_SELECTOR)) return;
+      var section = item.closest(SECTION_SELECTOR);
+      if (!section) return;
+      if (!item.open) {
+        item.open = true;
+        /* Toggle handler will fire from the .open setter and animate the panel */
+      }
+      /* Scroll the opened item into view so the merchant can see their edits */
+      try {
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (e) {
+        item.scrollIntoView();
+      }
+    });
   })();
 }

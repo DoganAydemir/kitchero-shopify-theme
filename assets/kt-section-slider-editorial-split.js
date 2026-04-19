@@ -173,6 +173,10 @@ if (!window.__kitcheroSliderEditorialLoaded) {
       instances.set(sectionId, {
         section: section,
         timer: function () { return timer; },
+        /* Exposed so the shopify:block:select handler can jump to the
+           slide the merchant clicked in the theme editor. */
+        setActive: setActive,
+        stopAutoplay: stopAutoplay,
         cleanup: function () {
           stopAutoplay();
           if (observer) {
@@ -211,6 +215,24 @@ if (!window.__kitcheroSliderEditorialLoaded) {
 
     document.addEventListener('shopify:section:unload', function (e) {
       destroySection(e.detail.sectionId);
+    });
+
+    /* Theme editor: when merchant clicks a slide block in the sidebar,
+       jump to that slide so they can see what they're editing. The
+       block element itself is event.target and carries either
+       data-editorial-image or data-editorial-copy with its index. */
+    document.addEventListener('shopify:block:select', function (e) {
+      var sectionId = e.detail && e.detail.sectionId;
+      if (!sectionId) return;
+      var inst = instances.get(sectionId);
+      if (!inst) return;
+      var block = e.target;
+      if (!block) return;
+      var raw = block.getAttribute('data-editorial-copy') || block.getAttribute('data-editorial-image');
+      var idx = parseInt(raw, 10);
+      if (isNaN(idx)) return;
+      inst.stopAutoplay();
+      inst.setActive(idx);
     });
   })();
 }

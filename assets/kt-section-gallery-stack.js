@@ -312,5 +312,30 @@ if (!window.__kitcheroGalleryStackLoaded) {
       var instance = sectionId && instances.get(sectionId);
       if (instance) startAutoplay(instance);
     });
+
+    /* Theme editor: when the merchant selects an image block in the
+       sidebar, pull that card to center. event.target is the block
+       element (the <button data-stack-card data-card-index>). */
+    document.addEventListener('shopify:block:select', function (event) {
+      var sectionId = event.detail && event.detail.sectionId;
+      var instance = sectionId && instances.get(sectionId);
+      if (!instance) return;
+      var block = event.target;
+      if (!block) return;
+      var card = block.matches && block.matches('[data-stack-card]')
+        ? block
+        : block.querySelector && block.querySelector('[data-stack-card]');
+      if (!card) return;
+      var idx = parseInt(card.dataset.cardIndex, 10);
+      if (isNaN(idx)) return;
+      stopAutoplay(instance);
+      goTo(instance, idx);
+    });
+
+    document.addEventListener('shopify:block:deselect', function (event) {
+      var sectionId = event.detail && event.detail.sectionId;
+      var instance = sectionId && instances.get(sectionId);
+      if (instance) startAutoplay(instance);
+    });
   })();
 }

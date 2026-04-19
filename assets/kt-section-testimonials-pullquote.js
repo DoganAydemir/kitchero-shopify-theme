@@ -7,6 +7,10 @@
 (function () {
   'use strict';
 
+  /* Map<rootElement, goToFn> so the shopify:block:select handler can
+     call into a bound slider instance to jump to a specific slide. */
+  var boundSliders = new WeakMap();
+
   function initSlider(root) {
     if (!root || root.dataset.pullquoteBound === 'true') return;
     var track = root.querySelector('[data-pullquote-track]');
@@ -104,6 +108,10 @@
       stopAuto();
     }, { passive: true });
 
+    /* Expose goTo + stopAuto so the theme editor block:select handler
+       can jump to a specific slide when the merchant clicks a block. */
+    boundSliders.set(root, { goTo: goTo, stopAuto: stopAuto });
+
     startAuto();
   }
 
@@ -118,4 +126,19 @@
     initAll();
   }
   document.addEventListener('shopify:section:load', function (e) { initAll(e.target); });
+
+  /* Theme editor: when merchant selects a quote block in the sidebar,
+     jump to that slide. event.target is the <article data-pullquote-slide>. */
+  document.addEventListener('shopify:block:select', function (e) {
+    var slide = e.target;
+    if (!slide || !slide.matches || !slide.matches('[data-pullquote-slide]')) return;
+    var root = slide.closest('.kt-testimonials-pullquote--slider');
+    if (!root) return;
+    var ctrl = boundSliders.get(root);
+    if (!ctrl) return;
+    var idx = parseInt(slide.getAttribute('data-pullquote-slide'), 10);
+    if (isNaN(idx)) return;
+    ctrl.stopAuto();
+    ctrl.goTo(idx);
+  });
 })();

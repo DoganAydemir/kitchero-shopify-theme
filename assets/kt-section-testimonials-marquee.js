@@ -107,5 +107,38 @@ if (!window.__kitcheroTestimonialsMarqueeLoaded) {
       }
       delete section.dataset.kitcheroMarqueePauseBound;
     });
+
+    /* Theme editor: when the merchant selects a testimonial block in
+       the sidebar, pause the marquee and scroll the original (non-
+       cloned) card into view so they can see what they're editing.
+       event.target is the block element itself. */
+    var PAUSE_CLASS = 'kt-testimonials-marquee--paused';
+    document.addEventListener('shopify:block:select', function (event) {
+      var block = event.target;
+      if (!block || !block.classList) return;
+      if (!block.classList.contains('kt-testimonials-marquee__item')) return;
+      /* Ignore clones — they have aria-hidden="true" and are not what
+         the merchant meant to edit. */
+      if (block.getAttribute('aria-hidden') === 'true') return;
+      var section = block.closest('[data-section-type="testimonials-marquee"]');
+      if (!section) return;
+      section.classList.add(PAUSE_CLASS);
+      try {
+        block.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      } catch (e) {
+        block.scrollIntoView();
+      }
+    });
+
+    document.addEventListener('shopify:block:deselect', function (event) {
+      var block = event.target;
+      if (!block || !block.classList) return;
+      if (!block.classList.contains('kt-testimonials-marquee__item')) return;
+      var section = block.closest('[data-section-type="testimonials-marquee"]');
+      if (!section) return;
+      /* Only resume if pause-on-hover isn't permanently true — the
+         hover handlers will re-toggle on real mouse events. */
+      section.classList.remove(PAUSE_CLASS);
+    });
   })();
 }

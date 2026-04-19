@@ -125,4 +125,23 @@
       delete destroyers[e.detail.sectionId];
     }
   });
+
+  /* Theme editor: when the merchant clicks a testimonial block in the
+     sidebar, scroll that card into view. event.target is the block
+     element (the .kt-testimonials__card div). */
+  document.addEventListener('shopify:block:select', function (e) {
+    var card = e.target;
+    if (!card || !card.classList || !card.classList.contains('kt-testimonials__card')) return;
+    try {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      card.scrollIntoView();
+    }
+    /* Temporary highlight ring so the merchant can see which card is
+       selected — clears itself after 1.5s. */
+    card.classList.add('kt-testimonials__card--editor-selected');
+    window.setTimeout(function () {
+      card.classList.remove('kt-testimonials__card--editor-selected');
+    }, 1500);
+  });
 })();

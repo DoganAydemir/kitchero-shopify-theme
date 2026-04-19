@@ -215,5 +215,22 @@ if (!window.__kitcheroSliderDragLoaded) {
       var sectionId = event.detail && event.detail.sectionId;
       if (sectionId) teardownSection(sectionId);
     });
+
+    /* Theme editor: when the merchant clicks a carousel item block in
+       the sidebar, smooth-scroll the track so that block is in view.
+       event.target is the block element itself (has [data-carousel-item]). */
+    document.addEventListener('shopify:block:select', function (event) {
+      var block = event.target;
+      if (!block || !block.matches || !block.matches('[data-carousel-item]')) return;
+      var track = block.closest('[data-carousel-track]');
+      if (!track) return;
+      /* Use scrollTo with an offset calculation rather than scrollIntoView
+         — scrollIntoView scrolls the page vertically, which is jarring. */
+      var trackRect = track.getBoundingClientRect();
+      var blockRect = block.getBoundingClientRect();
+      var currentScroll = track.scrollLeft;
+      var delta = blockRect.left - trackRect.left;
+      track.scrollTo({ left: currentScroll + delta, behavior: 'smooth' });
+    });
   })();
 }
