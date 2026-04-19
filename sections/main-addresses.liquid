@@ -1,0 +1,250 @@
+{{ 'kt-section-customer-forms.css' | asset_url | stylesheet_tag }}
+{{ 'kt-section-customer-account.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-customer kt-customer--wide" data-section-id="{{ section.id }}">
+  <div class="kt-customer__container kt-customer__container--wide">
+    <header class="kt-account__header">
+      <h1 class="kt-customer__title">{{ 'kt.customer.addresses.title' | t }}</h1>
+    </header>
+
+    <div class="kt-account__layout">
+      <aside class="kt-account__nav" aria-label="{{ 'kt.customer.account.nav_label' | t }}">
+        <a href="{{ routes.account_url }}" class="kt-account__nav-link">
+          {{ 'kt.customer.account.details' | t }}
+        </a>
+        <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
+          {{ 'kt.customer.account.addresses' | t }}
+          <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
+        </a>
+        <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
+          {{ 'kt.customer.account.log_out' | t }}
+        </a>
+      </aside>
+
+      <div class="kt-account__content">
+        <div class="kt-addresses__actions">
+          <h2 class="kt-account__section-title">{{ 'kt.customer.addresses.title' | t }}</h2>
+          <button type="button" class="kt-addresses__btn" data-addresses-toggle-new aria-expanded="false" aria-controls="AddressNewForm">
+            {{ 'kt.customer.addresses.add_new' | t }}
+          </button>
+        </div>
+
+        {%- comment -%} New address form {%- endcomment -%}
+        <div id="AddressNewForm" class="kt-addresses__form" hidden data-new-form>
+          <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_add_title' | t }}</h3>
+          {%- form 'customer_address', customer.new_address -%}
+            {%- if form.errors -%}
+              <div class="kt-customer__errors" role="alert" tabindex="-1">
+                <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
+                <ul class="kt-customer__errors-list">
+                  {%- for field in form.errors -%}
+                    <li>
+                      {%- if field == 'form' -%}
+                        {{ form.errors.messages[field] }}
+                      {%- else -%}
+                        {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+
+            <div class="kt-addresses__row">
+              <div class="kt-addresses__field">
+                <label for="AddressFirstNameNew" class="kt-addresses__label">{{ 'kt.customer.addresses.first_name' | t }}</label>
+                <input type="text" id="AddressFirstNameNew" name="address[first_name]" class="kt-customer__input" value="{{ form.first_name }}" autocomplete="given-name">
+              </div>
+              <div class="kt-addresses__field">
+                <label for="AddressLastNameNew" class="kt-addresses__label">{{ 'kt.customer.addresses.last_name' | t }}</label>
+                <input type="text" id="AddressLastNameNew" name="address[last_name]" class="kt-customer__input" value="{{ form.last_name }}" autocomplete="family-name">
+              </div>
+            </div>
+
+            <div class="kt-addresses__field">
+              <label for="AddressCompanyNew" class="kt-addresses__label">{{ 'kt.customer.addresses.company' | t }}</label>
+              <input type="text" id="AddressCompanyNew" name="address[company]" class="kt-customer__input" value="{{ form.company }}" autocomplete="organization">
+            </div>
+
+            <div class="kt-addresses__field">
+              <label for="AddressAddress1New" class="kt-addresses__label">{{ 'kt.customer.addresses.address1' | t }}</label>
+              <input type="text" id="AddressAddress1New" name="address[address1]" class="kt-customer__input" value="{{ form.address1 }}" autocomplete="address-line1">
+            </div>
+
+            <div class="kt-addresses__field">
+              <label for="AddressAddress2New" class="kt-addresses__label">{{ 'kt.customer.addresses.address2' | t }}</label>
+              <input type="text" id="AddressAddress2New" name="address[address2]" class="kt-customer__input" value="{{ form.address2 }}" autocomplete="address-line2">
+            </div>
+
+            <div class="kt-addresses__row">
+              <div class="kt-addresses__field">
+                <label for="AddressCityNew" class="kt-addresses__label">{{ 'kt.customer.addresses.city' | t }}</label>
+                <input type="text" id="AddressCityNew" name="address[city]" class="kt-customer__input" value="{{ form.city }}" autocomplete="address-level2">
+              </div>
+              <div class="kt-addresses__field">
+                <label for="AddressZipNew" class="kt-addresses__label">{{ 'kt.customer.addresses.zip' | t }}</label>
+                <input type="text" id="AddressZipNew" name="address[zip]" class="kt-customer__input" value="{{ form.zip }}" autocomplete="postal-code">
+              </div>
+            </div>
+
+            <div class="kt-addresses__row">
+              <div class="kt-addresses__field">
+                <label for="AddressCountryNew" class="kt-addresses__label">{{ 'kt.customer.addresses.country' | t }}</label>
+                <select id="AddressCountryNew" name="address[country]" class="kt-customer__input" data-default="{{ form.country }}" autocomplete="country">
+                  {{ country_option_tags }}
+                </select>
+              </div>
+              <div class="kt-addresses__field" data-province-field>
+                <label for="AddressProvinceNew" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
+                <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province }}" autocomplete="address-level1"></select>
+              </div>
+            </div>
+
+            <div class="kt-addresses__field">
+              <label for="AddressPhoneNew" class="kt-addresses__label">{{ 'kt.customer.addresses.phone' | t }}</label>
+              <input type="tel" id="AddressPhoneNew" name="address[phone]" class="kt-customer__input" value="{{ form.phone }}" autocomplete="tel">
+            </div>
+
+            <div class="kt-addresses__checkbox-row">
+              <input type="checkbox" id="AddressDefaultNew" name="address[default]" value="1">
+              <label for="AddressDefaultNew">{{ 'kt.customer.addresses.set_default' | t }}</label>
+            </div>
+
+            <div class="kt-addresses__form-actions">
+              <button type="submit" class="kt-customer__submit">{{ 'kt.customer.addresses.save' | t }}</button>
+              <button type="button" class="kt-addresses__btn" data-addresses-cancel-new>{{ 'kt.customer.addresses.cancel' | t }}</button>
+            </div>
+          {%- endform -%}
+        </div>
+
+        {%- comment -%} Existing addresses {%- endcomment -%}
+        {%- paginate customer.addresses by 6 -%}
+          {%- if customer.addresses.size > 0 -%}
+            <div class="kt-addresses__list">
+              {%- for address in customer.addresses -%}
+                <div class="kt-addresses__card" id="AddressCard{{ address.id }}">
+                  {%- if address == customer.default_address -%}
+                    <span class="kt-addresses__default">{{ 'kt.customer.addresses.default' | t }}</span>
+                  {%- endif -%}
+                  <address class="kt-addresses__address">{{ address | format_address }}</address>
+                  <div class="kt-addresses__card-actions">
+                    <button type="button" class="kt-addresses__btn" data-addresses-toggle-edit="{{ address.id }}" aria-expanded="false" aria-controls="AddressEditForm{{ address.id }}">
+                      {{ 'kt.customer.addresses.edit' | t }}
+                    </button>
+                    <button type="button" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t }}">
+                      {{ 'kt.customer.addresses.delete' | t }}
+                    </button>
+                  </div>
+
+                  <div id="AddressEditForm{{ address.id }}" class="kt-addresses__form" hidden data-edit-form="{{ address.id }}">
+                    <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_edit_title' | t }}</h3>
+                    {%- form 'customer_address', address -%}
+                      {%- if form.errors -%}
+                        <div class="kt-customer__errors" role="alert" tabindex="-1">
+                          <ul class="kt-customer__errors-list">
+                            {%- for field in form.errors -%}
+                              <li>
+                                {%- if field == 'form' -%}
+                                  {{ form.errors.messages[field] }}
+                                {%- else -%}
+                                  {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                                {%- endif -%}
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        </div>
+                      {%- endif -%}
+
+                      <div class="kt-addresses__row">
+                        <div class="kt-addresses__field">
+                          <label for="AddressFirstName{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.first_name' | t }}</label>
+                          <input type="text" id="AddressFirstName{{ address.id }}" name="address[first_name]" class="kt-customer__input" value="{{ form.first_name | default: address.first_name }}" autocomplete="given-name">
+                        </div>
+                        <div class="kt-addresses__field">
+                          <label for="AddressLastName{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.last_name' | t }}</label>
+                          <input type="text" id="AddressLastName{{ address.id }}" name="address[last_name]" class="kt-customer__input" value="{{ form.last_name | default: address.last_name }}" autocomplete="family-name">
+                        </div>
+                      </div>
+
+                      <div class="kt-addresses__field">
+                        <label for="AddressCompany{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.company' | t }}</label>
+                        <input type="text" id="AddressCompany{{ address.id }}" name="address[company]" class="kt-customer__input" value="{{ form.company | default: address.company }}" autocomplete="organization">
+                      </div>
+
+                      <div class="kt-addresses__field">
+                        <label for="AddressAddress1{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.address1' | t }}</label>
+                        <input type="text" id="AddressAddress1{{ address.id }}" name="address[address1]" class="kt-customer__input" value="{{ form.address1 | default: address.address1 }}" autocomplete="address-line1">
+                      </div>
+
+                      <div class="kt-addresses__field">
+                        <label for="AddressAddress2{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.address2' | t }}</label>
+                        <input type="text" id="AddressAddress2{{ address.id }}" name="address[address2]" class="kt-customer__input" value="{{ form.address2 | default: address.address2 }}" autocomplete="address-line2">
+                      </div>
+
+                      <div class="kt-addresses__row">
+                        <div class="kt-addresses__field">
+                          <label for="AddressCity{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.city' | t }}</label>
+                          <input type="text" id="AddressCity{{ address.id }}" name="address[city]" class="kt-customer__input" value="{{ form.city | default: address.city }}" autocomplete="address-level2">
+                        </div>
+                        <div class="kt-addresses__field">
+                          <label for="AddressZip{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.zip' | t }}</label>
+                          <input type="text" id="AddressZip{{ address.id }}" name="address[zip]" class="kt-customer__input" value="{{ form.zip | default: address.zip }}" autocomplete="postal-code">
+                        </div>
+                      </div>
+
+                      <div class="kt-addresses__row">
+                        <div class="kt-addresses__field">
+                          <label for="AddressCountry{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.country' | t }}</label>
+                          <select id="AddressCountry{{ address.id }}" name="address[country]" class="kt-customer__input" data-default="{{ form.country | default: address.country }}" autocomplete="country">
+                            {{ country_option_tags }}
+                          </select>
+                        </div>
+                        <div class="kt-addresses__field" data-province-field>
+                          <label for="AddressProvince{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
+                          <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province }}" autocomplete="address-level1"></select>
+                        </div>
+                      </div>
+
+                      <div class="kt-addresses__field">
+                        <label for="AddressPhone{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.phone' | t }}</label>
+                        <input type="tel" id="AddressPhone{{ address.id }}" name="address[phone]" class="kt-customer__input" value="{{ form.phone | default: address.phone }}" autocomplete="tel">
+                      </div>
+
+                      <div class="kt-addresses__checkbox-row">
+                        <input type="checkbox" id="AddressDefault{{ address.id }}" name="address[default]" value="1"{% if address.default %} checked{% endif %}>
+                        <label for="AddressDefault{{ address.id }}">{{ 'kt.customer.addresses.set_default' | t }}</label>
+                      </div>
+
+                      <div class="kt-addresses__form-actions">
+                        <button type="submit" class="kt-customer__submit">{{ 'kt.customer.addresses.save' | t }}</button>
+                        <button type="button" class="kt-addresses__btn" data-addresses-cancel-edit="{{ address.id }}">{{ 'kt.customer.addresses.cancel' | t }}</button>
+                      </div>
+                    {%- endform -%}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          {%- else -%}
+            <div class="kt-account__empty">
+              <p>{{ 'kt.customer.addresses.no_addresses' | t }}</p>
+            </div>
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'customer-addresses.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.main-addresses.name",
+  "tag": "section",
+  "class": "section"
+}
+{% endschema %}
