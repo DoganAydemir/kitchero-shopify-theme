@@ -63,7 +63,8 @@
                 {%- if product != blank -%}
                   {%- render 'product-price', product: product, variant: current_variant -%}
                 {%- else -%}
-                  <span class="kt-price">$0.00</span>
+                  {%- comment -%} Currency-neutral placeholder — uses the store's money format. {%- endcomment -%}
+                  <span class="kt-price">{{ 0 | money }}</span>
                 {%- endif -%}
               </div>
 
