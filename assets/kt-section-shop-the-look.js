@@ -57,7 +57,17 @@
           if (mobilePrice && priceEl) mobilePrice.textContent = priceEl.textContent;
           if (mobileLink && linkEl) mobileLink.href = linkEl.href;
           if (mobileImg && imgEl) {
-            mobileImg.innerHTML = '<img src="' + imgEl.src + '" alt="' + (imgEl.alt || '') + '" style="width:100%;height:100%;object-fit:cover;">';
+            /* Build the <img> via DOM nodes (not innerHTML interpolation)
+               so an alt attribute containing HTML-active characters can
+               never be parsed as markup. Clear existing children first. */
+            while (mobileImg.firstChild) mobileImg.removeChild(mobileImg.firstChild);
+            var cloneImg = document.createElement('img');
+            cloneImg.src = imgEl.src;
+            cloneImg.alt = imgEl.alt || '';
+            cloneImg.style.width = '100%';
+            cloneImg.style.height = '100%';
+            cloneImg.style.objectFit = 'cover';
+            mobileImg.appendChild(cloneImg);
           }
         }
 
