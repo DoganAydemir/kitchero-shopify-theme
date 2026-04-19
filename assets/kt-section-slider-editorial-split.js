@@ -69,7 +69,11 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         navBtns.forEach(function (btn, i) {
           var on = i === nextIndex;
           btn.classList.toggle('is-active', on);
+          /* role="tab" ARIA pattern — aria-selected + roving tabindex so
+             only the active tab is reachable by a single Tab press. Arrow
+             keys move between tabs (see tablist keydown handler below). */
           btn.setAttribute('aria-selected', on ? 'true' : 'false');
+          btn.setAttribute('tabindex', on ? '0' : '-1');
         });
 
         activeIndex = nextIndex;
@@ -119,6 +123,32 @@ if (!window.__kitcheroSliderEditorialLoaded) {
           }
         });
       });
+
+      /* Keyboard nav on the tablist — WAI-ARIA Authoring Practices tab
+         pattern: ArrowLeft/Right cycle, Home/End jump to ends. Activates
+         the target tab (automatic activation) and moves DOM focus so the
+         roving tabindex follows the user. */
+      var tablist = section.querySelector('[role="tablist"]');
+      if (tablist) {
+        tablist.addEventListener('keydown', function (event) {
+          var key = event.key;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' &&
+              key !== 'Home' && key !== 'End') return;
+          if (total < 2) return;
+          event.preventDefault();
+          var next = activeIndex;
+          if (key === 'ArrowLeft')  next = (activeIndex - 1 + total) % total;
+          if (key === 'ArrowRight') next = (activeIndex + 1) % total;
+          if (key === 'Home')       next = 0;
+          if (key === 'End')        next = total - 1;
+          setActive(next);
+          if (!prefersReducedMotion && interval > 0 && total > 1) {
+            startAutoplay();
+          }
+          var target = section.querySelector('[data-editorial-nav="' + next + '"]');
+          if (target) target.focus();
+        });
+      }
 
       /* Pause autoplay when the section is off-screen (saves CPU) */
       var observer = null;

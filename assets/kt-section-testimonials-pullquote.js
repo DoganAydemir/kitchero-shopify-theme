@@ -27,11 +27,20 @@
       if (i >= total) i = 0;
       index = i;
       slides.forEach(function (slide, n) {
-        slide.classList.toggle('kt-testimonials-pullquote__slide--active', n === index);
+        var on = n === index;
+        slide.classList.toggle('kt-testimonials-pullquote__slide--active', on);
+        /* tabpanel visibility for assistive tech — hide inactive slides
+           so screen readers don't announce every quote at once. */
+        slide.setAttribute('aria-hidden', on ? 'false' : 'true');
       });
       dots.forEach(function (dot, n) {
-        dot.classList.toggle('kt-testimonials-pullquote__dot--active', n === index);
-        dot.setAttribute('aria-selected', n === index ? 'true' : 'false');
+        var on = n === index;
+        dot.classList.toggle('kt-testimonials-pullquote__dot--active', on);
+        /* role="tab" pattern — aria-selected + roving tabindex so only
+           the active tab is in the sequential focus order. Arrow keys
+           move between tabs (tablist keydown handler below). */
+        dot.setAttribute('aria-selected', on ? 'true' : 'false');
+        dot.setAttribute('tabindex', on ? '0' : '-1');
       });
     }
 
@@ -49,10 +58,27 @@
       dot.addEventListener('click', function () { goTo(n); stopAuto(); });
     });
 
-    root.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowLeft') { goTo(index - 1); stopAuto(); }
-      if (e.key === 'ArrowRight') { goTo(index + 1); stopAuto(); }
-    });
+    /* Keyboard nav scoped to the tablist — WAI-ARIA Authoring Practices
+       tab pattern: ArrowLeft/Right cycle, Home/End jump to ends. Focus
+       follows selection so the roving tabindex stays coherent. */
+    var tablist = root.querySelector('[role="tablist"]');
+    if (tablist) {
+      tablist.addEventListener('keydown', function (e) {
+        var key = e.key;
+        if (key !== 'ArrowLeft' && key !== 'ArrowRight' &&
+            key !== 'Home' && key !== 'End') return;
+        e.preventDefault();
+        var nextIdx = index;
+        if (key === 'ArrowLeft')  nextIdx = (index - 1 + total) % total;
+        if (key === 'ArrowRight') nextIdx = (index + 1) % total;
+        if (key === 'Home')       nextIdx = 0;
+        if (key === 'End')        nextIdx = total - 1;
+        goTo(nextIdx);
+        stopAuto();
+        var target = root.querySelector('[data-pullquote-dot="' + nextIdx + '"]');
+        if (target) target.focus();
+      });
+    }
 
     root.addEventListener('mouseenter', stopAuto);
     root.addEventListener('focusin', stopAuto);

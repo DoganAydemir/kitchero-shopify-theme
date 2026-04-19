@@ -42,7 +42,10 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       dots.forEach(function (el) {
         var isActive = Number(el.dataset.slideDot) === index;
         el.classList.toggle('kt-slider-cinematic__dot--active', isActive);
-        el.setAttribute('aria-current', isActive ? 'true' : 'false');
+        /* role="tab" ARIA pattern — use aria-selected (not aria-current) and
+           roving tabindex so only the active tab is in the tab sequence. */
+        el.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        el.setAttribute('tabindex', isActive ? '0' : '-1');
       });
     }
 
@@ -136,12 +139,36 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         });
       }
 
-      root.querySelectorAll('[data-slide-dot]').forEach(function (dot) {
+      var dotList = root.querySelectorAll('[data-slide-dot]');
+      dotList.forEach(function (dot) {
         dot.addEventListener('click', function () {
           controller.go(Number(dot.dataset.slideDot));
           controller.reset();
         });
       });
+
+      /* Keyboard navigation for the tablist — ArrowLeft/Right cycles tabs,
+         Home/End jumps to first/last. Roving tabindex (set in setActive)
+         means only the selected tab is focusable; arrows then move focus
+         AND select the next tab (automatic activation). */
+      var tablist = root.querySelector('[role="tablist"]');
+      if (tablist) {
+        tablist.addEventListener('keydown', function (event) {
+          var key = event.key;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' &&
+              key !== 'Home' && key !== 'End') return;
+          event.preventDefault();
+          var next = current;
+          if (key === 'ArrowLeft')  next = (current - 1 + length) % length;
+          if (key === 'ArrowRight') next = (current + 1) % length;
+          if (key === 'Home')       next = 0;
+          if (key === 'End')        next = length - 1;
+          controller.go(next);
+          controller.reset();
+          var target = root.querySelector('[data-slide-dot="' + next + '"]');
+          if (target) target.focus();
+        });
+      }
 
       if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {

@@ -85,8 +85,15 @@
             {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
             <article
               class="kt-slider-editorial__copy-slide{% if forloop.first %} is-active{% endif %}"
+              id="{{ section.id }}-editorial-slide-{{ forloop.index0 }}"
               data-editorial-copy="{{ forloop.index0 }}"
+              role="tabpanel"
+              aria-labelledby="{{ section.id }}-editorial-nav-{{ forloop.index0 }}"
+              aria-roledescription="slide"
+              aria-label="{{ index_padded }} / {{ total_padded }}"
               aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+              tabindex="0"
+              {{ block.shopify_attributes }}
             >
               <span class="kt-slider-editorial__index" aria-hidden="true">{{ index_padded }}</span>
 
@@ -144,10 +151,13 @@
                 <button
                   type="button"
                   class="kt-slider-editorial__nav-btn{% if forloop.first %} is-active{% endif %}"
+                  id="{{ section.id }}-editorial-nav-{{ forloop.index0 }}"
                   data-editorial-nav="{{ forloop.index0 }}"
                   role="tab"
                   aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                  aria-controls="{{ section.id }}-editorial-slide-{{ forloop.index0 }}"
                   aria-label="{{ 'kt.section.slider_editorial_split.go_to_slide' | t: number: index_padded }}"
+                  tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
                 >
                   <span aria-hidden="true">{{ index_padded }}</span>
                 </button>

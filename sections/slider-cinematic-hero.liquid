@@ -27,11 +27,14 @@
       {%- if block.type == 'slide' -%}
         <div
           class="kt-slider-cinematic__slide{% if forloop.first %} kt-slider-cinematic__slide--active{% endif %}"
+          id="{{ section.id }}-slide-{{ forloop.index0 }}"
           data-slide-index="{{ forloop.index0 }}"
-          role="group"
+          role="tabpanel"
+          aria-labelledby="{{ section.id }}-dot-{{ forloop.index0 }}"
           aria-roledescription="slide"
           aria-label="{{ forloop.index }} / {{ section.blocks.size }}"
           aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+          tabindex="0"
           {{ block.shopify_attributes }}
         >
           <div class="kt-slider-cinematic__slide-image-wrap">
@@ -132,16 +135,19 @@
       {%- endif -%}
 
       {%- if section.settings.show_dots -%}
-        <div class="kt-slider-cinematic__dots" role="tablist">
+        <div class="kt-slider-cinematic__dots" role="tablist" aria-label="{{ 'kt.section.slider_cinematic_hero.pagination' | t | default: 'Slide pagination' }}">
           {%- for block in section.blocks -%}
             {%- if block.type == 'slide' -%}
               <button
                 type="button"
                 class="kt-slider-cinematic__dot{% if forloop.first %} kt-slider-cinematic__dot--active{% endif %}"
+                id="{{ section.id }}-dot-{{ forloop.index0 }}"
                 data-slide-dot="{{ forloop.index0 }}"
                 role="tab"
                 aria-label="{{ 'kt.section.slider_cinematic_hero.go_to_slide' | t: index: forloop.index | default: 'Go to slide' }}"
-                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-controls="{{ section.id }}-slide-{{ forloop.index0 }}"
+                tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
               ></button>
             {%- endif -%}
           {%- endfor -%}
