@@ -1,0 +1,139 @@
+{{ 'kt-section-customer-forms.css' | asset_url | stylesheet_tag }}
+{{ 'kt-section-customer-account.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-customer kt-customer--wide" data-section-id="{{ section.id }}">
+  <div class="kt-customer__container kt-customer__container--wide">
+    <a href="{{ routes.account_url }}" class="kt-order__back">
+      &larr; {{ 'kt.customer.order.back_to_account' | t }}
+    </a>
+
+    <header class="kt-account__header" style="text-align: left; margin-bottom: 1rem;">
+      <h1 class="kt-customer__title" style="text-align: left; margin-bottom: 0.5rem;">
+        {{ 'kt.customer.order.title' | t: name: order.name }}
+      </h1>
+      <p class="kt-account__greeting">
+        {{ 'kt.customer.order.date_html' | t: date: order.created_at | date: format: 'date' }}
+      </p>
+    </header>
+
+    <div class="kt-order__meta" role="group" aria-label="{{ 'kt.customer.order.title' | t: name: order.name }}">
+      <div class="kt-order__meta-item">
+        <span class="kt-order__meta-label">{{ 'kt.customer.order.payment_status' | t }}</span>
+        <span class="kt-order__meta-value">
+          <span class="kt-account__pill kt-account__pill--{{ order.financial_status }}">
+            {{ order.financial_status_label }}
+          </span>
+        </span>
+      </div>
+      <div class="kt-order__meta-item">
+        <span class="kt-order__meta-label">{{ 'kt.customer.order.fulfillment_status' | t }}</span>
+        <span class="kt-order__meta-value">
+          <span class="kt-account__pill kt-account__pill--{{ order.fulfillment_status | default: 'unfulfilled' }}">
+            {{ order.fulfillment_status_label }}
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="kt-order__layout">
+      {%- comment -%} Line items {%- endcomment -%}
+      <div class="kt-order__items" role="table" aria-label="{{ 'kt.customer.order.product' | t }}">
+        {%- for line_item in order.line_items -%}
+          <div class="kt-order__item" role="row">
+            {%- if line_item.image -%}
+              {{ line_item.image | image_url: width: 160 | image_tag:
+                loading: 'lazy',
+                width: 80,
+                height: 80,
+                class: 'kt-order__item-image',
+                alt: line_item.image.alt | default: line_item.title
+              }}
+            {%- else -%}
+              <div class="kt-order__item-image"></div>
+            {%- endif -%}
+
+            <div>
+              <p class="kt-order__item-title">
+                {%- if line_item.url != blank -%}
+                  <a href="{{ line_item.url }}">{{ line_item.product.title | default: line_item.title }}</a>
+                {%- else -%}
+                  {{ line_item.product.title | default: line_item.title }}
+                {%- endif -%}
+              </p>
+              {%- unless line_item.product.has_only_default_variant -%}
+                <p class="kt-order__item-variant">{{ line_item.variant.title }}</p>
+              {%- endunless -%}
+              {%- if line_item.sku != blank -%}
+                <p class="kt-order__item-sku">{{ 'kt.customer.order.sku' | t: sku: line_item.sku }}</p>
+              {%- endif -%}
+              <p class="kt-order__item-qty">{{ 'kt.customer.order.qty' | t: qty: line_item.quantity }}</p>
+            </div>
+
+            <div class="kt-order__item-price">
+              {{ line_item.final_line_price | money }}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Totals {%- endcomment -%}
+      <aside class="kt-order__totals" aria-label="{{ 'kt.customer.order.total' | t }}">
+        <div class="kt-order__totals-row">
+          <span>{{ 'kt.customer.order.subtotal' | t }}</span>
+          <span>{{ order.line_items_subtotal_price | money }}</span>
+        </div>
+
+        {%- if order.total_discounts > 0 -%}
+          <div class="kt-order__totals-row">
+            <span>{{ 'kt.customer.order.discount' | t }}</span>
+            <span>-{{ order.total_discounts | money }}</span>
+          </div>
+        {%- endif -%}
+
+        {%- for shipping_method in order.shipping_methods -%}
+          <div class="kt-order__totals-row">
+            <span>{{ 'kt.customer.order.shipping' | t }}{% if shipping_method.title %} ({{ shipping_method.title }}){% endif %}</span>
+            <span>{{ shipping_method.price | money }}</span>
+          </div>
+        {%- endfor -%}
+
+        {%- for tax_line in order.tax_lines -%}
+          <div class="kt-order__totals-row">
+            <span>{{ 'kt.customer.order.tax' | t }}{% if tax_line.title %} ({{ tax_line.title }}){% endif %}</span>
+            <span>{{ tax_line.price | money }}</span>
+          </div>
+        {%- endfor -%}
+
+        <div class="kt-order__totals-row kt-order__totals-row--grand">
+          <span>{{ 'kt.customer.order.total' | t }}</span>
+          <span>{{ order.total_price | money_with_currency }}</span>
+        </div>
+      </aside>
+    </div>
+
+    {%- comment -%} Addresses {%- endcomment -%}
+    <div class="kt-order__addresses">
+      {%- if order.shipping_address -%}
+        <div class="kt-order__address-card">
+          <h3 class="kt-order__address-title">{{ 'kt.customer.order.shipping_address' | t }}</h3>
+          <address class="kt-order__address-body">{{ order.shipping_address | format_address }}</address>
+        </div>
+      {%- endif -%}
+
+      {%- if order.billing_address -%}
+        <div class="kt-order__address-card">
+          <h3 class="kt-order__address-title">{{ 'kt.customer.order.billing_address' | t }}</h3>
+          <address class="kt-order__address-body">{{ order.billing_address | format_address }}</address>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main-order.name",
+  "tag": "section",
+  "class": "section"
+}
+{% endschema %}
