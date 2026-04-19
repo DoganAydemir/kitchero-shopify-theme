@@ -54,7 +54,11 @@
               >
                 <summary class="kt-collapsible-minimal__summary">
                   <span class="kt-collapsible-minimal__item-title">
-                    {{- block.settings.title | default: 'block.item.title.default' | t -}}
+                    {%- if block.settings.title != blank -%}
+                      {{- block.settings.title -}}
+                    {%- else -%}
+                      {{- 'kt.general.untitled' | t -}}
+                    {%- endif -%}
                   </span>
                   <span class="kt-collapsible-minimal__icon" aria-hidden="true">
                     <span class="kt-collapsible-minimal__icon-h"></span>
