@@ -1,0 +1,153 @@
+{%- comment -%}
+  Predictive Search — renders search-as-you-type results for the overlay.
+
+  Hit via the Section Rendering API from assets/predictive-search.js:
+    /search/suggest?q=<term>&resources[type]=product,article,page&section_id=predictive-search
+
+  Shopify exposes the results via the `predictive_search` global so this
+  section has no schema-driven settings — it is purely a render target.
+  We still expose a `{% schema %}` block because Shopify requires every
+  file in `sections/` to declare one; the section is not meant to be added
+  manually by merchants, so `enabled_on` is empty.
+{%- endcomment -%}
+
+<div class="kt-predictive-search" data-predictive-search-root>
+  {%- if predictive_search.performed -%}
+    {%- assign results_count = predictive_search.resources.results_count -%}
+
+    {%- if results_count > 0 -%}
+      {%- comment -%} Products group {%- endcomment -%}
+      {%- if predictive_search.resources.results.products.size > 0 -%}
+        <div class="kt-predictive-search__group" data-group="products">
+          <h2 class="kt-predictive-search__group-title">
+            {{ 'kt.predictive_search.products' | t | default: 'Products' }}
+          </h2>
+          <ul class="kt-predictive-search__list" role="list">
+            {%- for product in predictive_search.resources.results.products -%}
+              <li class="predictive-search__item kt-predictive-search__item">
+                <a
+                  class="kt-predictive-search__link"
+                  href="{{ product.url }}"
+                  role="option"
+                  aria-label="{{ product.title | escape }}"
+                >
+                  {%- if product.featured_media != blank -%}
+                    {{
+                      product.featured_media
+                      | image_url: width: 120
+                      | image_tag:
+                          loading: 'lazy',
+                          widths: '60,120,180',
+                          width: 60,
+                          height: 60,
+                          class: 'kt-predictive-search__thumb',
+                          alt: product.featured_media.alt | default: product.title
+                    }}
+                  {%- else -%}
+                    <span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true">
+                      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    </span>
+                  {%- endif -%}
+                  <span class="kt-predictive-search__text">
+                    <span class="kt-predictive-search__title">{{ product.title }}</span>
+                    {%- if product.price_varies -%}
+                      <span class="kt-predictive-search__price">
+                        {{ 'kt.predictive_search.from_price' | t: price: product.price_min | money }}
+                      </span>
+                    {%- else -%}
+                      <span class="kt-predictive-search__price">{{ product.price | money }}</span>
+                    {%- endif -%}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Collections group {%- endcomment -%}
+      {%- if predictive_search.resources.results.collections.size > 0 -%}
+        <div class="kt-predictive-search__group" data-group="collections">
+          <h2 class="kt-predictive-search__group-title">
+            {{ 'kt.predictive_search.collections' | t | default: 'Collections' }}
+          </h2>
+          <ul class="kt-predictive-search__list" role="list">
+            {%- for collection in predictive_search.resources.results.collections -%}
+              <li class="predictive-search__item kt-predictive-search__item">
+                <a class="kt-predictive-search__link" href="{{ collection.url }}" role="option">
+                  <span class="kt-predictive-search__text">
+                    <span class="kt-predictive-search__title">{{ collection.title }}</span>
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Articles group {%- endcomment -%}
+      {%- if predictive_search.resources.results.articles.size > 0 -%}
+        <div class="kt-predictive-search__group" data-group="articles">
+          <h2 class="kt-predictive-search__group-title">
+            {{ 'kt.predictive_search.articles' | t | default: 'Articles' }}
+          </h2>
+          <ul class="kt-predictive-search__list" role="list">
+            {%- for article in predictive_search.resources.results.articles -%}
+              <li class="predictive-search__item kt-predictive-search__item">
+                <a class="kt-predictive-search__link" href="{{ article.url }}" role="option">
+                  <span class="kt-predictive-search__text">
+                    <span class="kt-predictive-search__title">{{ article.title }}</span>
+                    {%- if article.excerpt != blank -%}
+                      <span class="kt-predictive-search__excerpt">{{ article.excerpt | strip_html | truncate: 80 }}</span>
+                    {%- endif -%}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Pages group {%- endcomment -%}
+      {%- if predictive_search.resources.results.pages.size > 0 -%}
+        <div class="kt-predictive-search__group" data-group="pages">
+          <h2 class="kt-predictive-search__group-title">
+            {{ 'kt.predictive_search.pages' | t | default: 'Pages' }}
+          </h2>
+          <ul class="kt-predictive-search__list" role="list">
+            {%- for page in predictive_search.resources.results.pages -%}
+              <li class="predictive-search__item kt-predictive-search__item">
+                <a class="kt-predictive-search__link" href="{{ page.url }}" role="option">
+                  <span class="kt-predictive-search__text">
+                    <span class="kt-predictive-search__title">{{ page.title }}</span>
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} View-all link {%- endcomment -%}
+      <div class="kt-predictive-search__footer">
+        <a href="{{ routes.search_url }}?q={{ predictive_search.terms | escape }}" class="kt-predictive-search__view-all">
+          {{ 'kt.predictive_search.view_all' | t | default: 'View all results' }}
+        </a>
+      </div>
+    {%- else -%}
+      <p class="kt-predictive-search__empty" role="status">
+        {{ 'kt.predictive_search.no_results' | t: terms: predictive_search.terms | default: predictive_search.terms }}
+      </p>
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.predictive-search.name",
+  "enabled_on": {
+    "templates": []
+  },
+  "settings": []
+}
+{% endschema %}
