@@ -7,6 +7,23 @@
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
 
+    {%- comment -%}
+      hreflang alternates — one <link> per published locale so Google
+      serves the right translation per user locale. Emitted only when
+      the shop has more than one published locale; x-default falls back
+      to the primary locale.
+    {%- endcomment -%}
+    {%- if shop.published_locales.size > 1 -%}
+      {%- for locale in shop.published_locales -%}
+        {%- if locale.primary -%}
+          <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ request.origin }}{{ request.path }}">
+        {%- else -%}
+          <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ request.origin }}/{{ locale.iso_code }}{{ request.path }}">
+        {%- endif -%}
+      {%- endfor -%}
+      <link rel="alternate" hreflang="x-default" href="{{ request.origin }}{{ request.path }}">
+    {%- endif -%}
+
     {%- if settings.kt_favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
