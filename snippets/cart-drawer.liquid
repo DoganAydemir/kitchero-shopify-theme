@@ -132,6 +132,18 @@
       {%- endif -%}
     </div>
 
+    {%- comment -%} App blocks (e.g. cart upsells, discount widgets) {%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="kt-cart-drawer__app-blocks">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
     {%- comment -%} Footer {%- endcomment -%}
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">

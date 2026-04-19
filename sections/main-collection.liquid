@@ -65,7 +65,7 @@
                         <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">{{ 'kt.section.collection.reset' | t | default: 'Reset' }}</a>
                       {%- endif -%}
                     </div>
-                    <form id="FilterBar-{{ filter.param_name }}" data-collection-filters-form>
+                    <form id="FilterBar-{{ filter.param_name }}" action="{{ collection.url }}" method="get" data-collection-filters-form>
                       <ul class="kt-filter__list list-unstyled" role="list">
                         {%- for value in filter.values -%}
                           <li>

@@ -8,7 +8,7 @@
 {%- endcomment -%}
 
 {%- if collection.filters.size > 0 -%}
-  <form id="CollectionFiltersForm" data-collection-filters-form>
+  <form id="CollectionFiltersForm" action="{{ collection.url }}" method="get" data-collection-filters-form>
     {%- for filter in collection.filters -%}
       <div class="kt-filter" data-filter-group>
         {%- case filter.type -%}
