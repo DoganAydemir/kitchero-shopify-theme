@@ -1,0 +1,103 @@
+{{ 'kt-section-customer-forms.css' | asset_url | stylesheet_tag }}
+{{ 'kt-section-customer-account.css' | asset_url | stylesheet_tag }}
+
+<section class="kt-customer kt-customer--wide" data-section-id="{{ section.id }}">
+  <div class="kt-customer__container kt-customer__container--wide">
+    <header class="kt-account__header">
+      <h1 class="kt-customer__title">{{ 'kt.customer.account.title' | t }}</h1>
+      {%- if customer.first_name != blank -%}
+        <p class="kt-account__greeting">
+          {{ 'kt.customer.account.greeting_html' | t: name: customer.first_name }}
+        </p>
+      {%- endif -%}
+    </header>
+
+    <div class="kt-account__layout">
+      {%- comment -%} Sidebar / nav {%- endcomment -%}
+      <aside class="kt-account__nav" aria-label="{{ 'kt.customer.account.nav_label' | t }}">
+        <a href="{{ routes.account_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
+          {{ 'kt.customer.account.details' | t }}
+        </a>
+        <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link">
+          {{ 'kt.customer.account.addresses' | t }}
+          <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
+        </a>
+        <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
+          {{ 'kt.customer.account.log_out' | t }}
+        </a>
+      </aside>
+
+      {%- comment -%} Main content: orders list {%- endcomment -%}
+      <div class="kt-account__content">
+        <h2 class="kt-account__section-title">{{ 'kt.customer.account.orders' | t }}</h2>
+
+        {%- paginate customer.orders by 20 -%}
+          {%- if customer.orders.size > 0 -%}
+            <div class="kt-account__orders-wrap">
+              <table class="kt-account__orders" role="table">
+                <caption class="visually-hidden">{{ 'kt.customer.orders.caption' | t }}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'kt.customer.orders.order_number' | t }}</th>
+                    <th scope="col">{{ 'kt.customer.orders.date' | t }}</th>
+                    <th scope="col">{{ 'kt.customer.orders.payment_status' | t }}</th>
+                    <th scope="col">{{ 'kt.customer.orders.fulfillment_status' | t }}</th>
+                    <th scope="col" class="kt-account__col-right">{{ 'kt.customer.orders.total' | t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- for order in customer.orders -%}
+                    <tr>
+                      <th scope="row" data-label="{{ 'kt.customer.orders.order_number' | t }}">
+                        <a href="{{ order.customer_url }}" class="kt-account__order-link">
+                          {{ order.name }}
+                        </a>
+                      </th>
+                      <td data-label="{{ 'kt.customer.orders.date' | t }}">
+                        <time datetime="{{ order.created_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+                          {{ order.created_at | date: format: 'date' }}
+                        </time>
+                      </td>
+                      <td data-label="{{ 'kt.customer.orders.payment_status' | t }}">
+                        <span class="kt-account__pill kt-account__pill--{{ order.financial_status }}">
+                          {{ order.financial_status_label }}
+                        </span>
+                      </td>
+                      <td data-label="{{ 'kt.customer.orders.fulfillment_status' | t }}">
+                        <span class="kt-account__pill kt-account__pill--{{ order.fulfillment_status | default: 'unfulfilled' }}">
+                          {{ order.fulfillment_status_label }}
+                        </span>
+                      </td>
+                      <td data-label="{{ 'kt.customer.orders.total' | t }}" class="kt-account__col-right">
+                        {{ order.total_price | money }}
+                      </td>
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          {%- else -%}
+            <div class="kt-account__empty">
+              <p>{{ 'kt.customer.orders.none' | t }}</p>
+              <a href="{{ routes.all_products_collection_url }}" class="kt-account__cta">
+                {{ 'kt.customer.orders.start_shopping' | t }}
+              </a>
+            </div>
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main-account.name",
+  "tag": "section",
+  "class": "section"
+}
+{% endschema %}

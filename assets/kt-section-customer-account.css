@@ -1,0 +1,681 @@
+/* ============================================================
+   Customer Account — Account Overview / Addresses / Order Detail
+
+   Scheme-aware. Reuses tokens from kt-section-customer-forms.css
+   where applicable, then layers wide-layout table/grid styles.
+   ============================================================ */
+
+.kt-customer--wide {
+  padding: 6rem 1.5rem 5rem;
+  min-height: auto;
+  display: block;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-customer--wide {
+    padding: 8rem 2rem 6rem;
+  }
+}
+
+.kt-customer__container--wide {
+  max-width: 72rem;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+
+.kt-account__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.kt-account__greeting {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+
+.kt-account__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-account__layout {
+    grid-template-columns: 16rem 1fr;
+    gap: 4rem;
+  }
+}
+
+/* ── Sidebar nav ───────────────────────────────────────── */
+
+.kt-account__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  padding: 1rem;
+  align-self: start;
+  background: rgb(var(--kt-c-bg));
+}
+
+.kt-account__nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: rgba(var(--kt-c-fg), 0.7);
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.kt-account__nav-link:hover {
+  color: rgb(var(--kt-c-fg));
+  background-color: rgba(var(--kt-c-fg), 0.04);
+}
+
+.kt-account__nav-link--active {
+  color: rgb(var(--kt-c-fg));
+  border-left-color: rgb(var(--kt-c-action));
+  font-weight: 600;
+}
+
+.kt-account__nav-link--logout {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
+  border-left: 2px solid transparent;
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+.kt-account__nav-count {
+  font-size: 0.75rem;
+  color: rgba(var(--kt-c-fg), 0.5);
+  background: rgba(var(--kt-c-fg), 0.06);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* ── Content area ──────────────────────────────────────── */
+
+.kt-account__content {
+  min-width: 0;
+}
+
+.kt-account__section-title {
+  font-family: var(--kt-f-accent-family);
+  font-size: 1.5rem;
+  letter-spacing: -0.015em;
+  margin: 0 0 1.5rem;
+  color: rgb(var(--kt-c-fg));
+}
+
+/* ── Orders table ──────────────────────────────────────── */
+
+.kt-account__orders-wrap {
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  overflow-x: auto;
+}
+
+.kt-account__orders {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.kt-account__orders thead {
+  background: rgba(var(--kt-c-fg), 0.04);
+}
+
+.kt-account__orders th,
+.kt-account__orders td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.08);
+  color: rgb(var(--kt-c-fg));
+  vertical-align: middle;
+}
+
+.kt-account__orders th {
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+.kt-account__orders tbody tr:last-child th,
+.kt-account__orders tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.kt-account__col-right {
+  text-align: right;
+}
+
+.kt-account__order-link {
+  color: rgb(var(--kt-c-fg));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+.kt-account__pill {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(var(--kt-c-fg), 0.08);
+  color: rgb(var(--kt-c-fg));
+  border-radius: 999px;
+}
+
+.kt-account__pill--paid,
+.kt-account__pill--fulfilled {
+  background: rgba(5, 150, 105, 0.12);
+  color: rgb(4, 120, 87);
+}
+
+.kt-account__pill--pending,
+.kt-account__pill--partial,
+.kt-account__pill--partially_fulfilled {
+  background: rgba(217, 119, 6, 0.12);
+  color: rgb(180, 83, 9);
+}
+
+.kt-account__pill--refunded,
+.kt-account__pill--voided {
+  background: rgba(185, 28, 28, 0.1);
+  color: rgb(153, 27, 27);
+}
+
+/* Mobile-stacked table ------------------------------------ */
+
+@media screen and (max-width: 749px) {
+  .kt-account__orders thead {
+    display: none;
+  }
+
+  .kt-account__orders,
+  .kt-account__orders tbody,
+  .kt-account__orders tr {
+    display: block;
+    width: 100%;
+  }
+
+  .kt-account__orders tr {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(var(--kt-c-fg), 0.08);
+  }
+
+  .kt-account__orders tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .kt-account__orders th,
+  .kt-account__orders td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    border: none;
+  }
+
+  .kt-account__orders th::before,
+  .kt-account__orders td::before {
+    content: attr(data-label);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(var(--kt-c-fg), 0.55);
+  }
+
+  .kt-account__col-right {
+    text-align: left;
+  }
+}
+
+/* ── Empty state ───────────────────────────────────────── */
+
+.kt-account__empty {
+  border: 1px dashed rgba(var(--kt-c-fg), 0.15);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+.kt-account__cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.9rem 2rem;
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.kt-account__cta:hover {
+  opacity: 0.88;
+}
+
+.kt-account__cta:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   Addresses page
+   ============================================================ */
+
+.kt-addresses__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.kt-addresses__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-addresses__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kt-addresses__card {
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  padding: 1.5rem;
+  background: rgb(var(--kt-c-bg));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kt-addresses__default {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--kt-c-action));
+  border: 1px solid rgba(var(--kt-c-action), 0.4);
+  padding: 0.15rem 0.55rem;
+  align-self: flex-start;
+}
+
+.kt-addresses__address {
+  font-style: normal;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-addresses__card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
+}
+
+.kt-addresses__btn {
+  background: none;
+  border: 1px solid rgba(var(--kt-c-fg), 0.2);
+  color: rgb(var(--kt-c-fg));
+  padding: 0.5rem 0.9rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+
+.kt-addresses__btn:hover {
+  background-color: rgba(var(--kt-c-fg), 0.04);
+}
+
+.kt-addresses__btn--danger {
+  color: rgb(153, 27, 27);
+  border-color: rgba(153, 27, 27, 0.3);
+}
+
+.kt-addresses__btn--danger:hover {
+  background-color: rgba(153, 27, 27, 0.06);
+}
+
+.kt-addresses__form {
+  margin-top: 2rem;
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  padding: 2rem;
+  background: rgb(var(--kt-c-bg));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kt-addresses__form[hidden] {
+  display: none;
+}
+
+.kt-addresses__form-title {
+  font-family: var(--kt-f-accent-family);
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-addresses__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-addresses__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kt-addresses__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.kt-addresses__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+.kt-addresses__checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-addresses__form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   Order detail page
+   ============================================================ */
+
+.kt-order__back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: rgba(var(--kt-c-fg), 0.65);
+  text-decoration: none;
+}
+
+.kt-order__back:hover {
+  color: rgb(var(--kt-c-fg));
+  text-decoration: underline;
+}
+
+.kt-order__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  background: rgba(var(--kt-c-fg), 0.02);
+}
+
+.kt-order__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kt-order__meta-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+.kt-order__meta-value {
+  font-size: 0.9375rem;
+  color: rgb(var(--kt-c-fg));
+  font-weight: 500;
+}
+
+.kt-order__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-order__layout {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.kt-order__items {
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+}
+
+.kt-order__item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.08);
+  align-items: center;
+}
+
+.kt-order__item:last-child {
+  border-bottom: none;
+}
+
+.kt-order__item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  background: rgba(var(--kt-c-fg), 0.04);
+}
+
+.kt-order__item-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: rgb(var(--kt-c-fg));
+  margin: 0;
+}
+
+.kt-order__item-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kt-order__item-title a:hover {
+  text-decoration: underline;
+}
+
+.kt-order__item-variant,
+.kt-order__item-sku,
+.kt-order__item-qty {
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg), 0.65);
+  margin: 0.15rem 0 0;
+}
+
+.kt-order__item-price {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: rgb(var(--kt-c-fg));
+  text-align: right;
+}
+
+.kt-order__totals {
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+  padding: 1.5rem;
+  background: rgba(var(--kt-c-fg), 0.02);
+  align-self: start;
+}
+
+.kt-order__totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: rgba(var(--kt-c-fg), 0.75);
+}
+
+.kt-order__totals-row--grand {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.15);
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-order__addresses {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-order__addresses {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kt-order__address-card {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(var(--kt-c-fg), 0.1);
+}
+
+.kt-order__address-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.65);
+  margin: 0 0 0.75rem;
+}
+
+.kt-order__address-body {
+  font-style: normal;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgb(var(--kt-c-fg));
+}
+
+/* ============================================================
+   Password page (storefront gate)
+   ============================================================ */
+
+.kt-password {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-password__shop-name {
+  font-family: var(--kt-f-accent-family);
+  font-size: 2.5rem;
+  letter-spacing: -0.025em;
+  margin: 0 0 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-password__shop-name {
+    font-size: 3.5rem;
+  }
+}
+
+.kt-password__message {
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(var(--kt-c-fg), 0.7);
+  margin: 0 0 2.5rem;
+}
+
+.kt-password__form {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kt-password__input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 0.9375rem;
+  background: transparent;
+  color: rgb(var(--kt-c-fg));
+  border: 1px solid rgba(var(--kt-c-fg), 0.2);
+  transition: border-color 0.2s ease;
+}
+
+.kt-password__input:focus {
+  outline: none;
+  border-color: rgb(var(--kt-c-fg));
+}
+
+.kt-password__input:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+.kt-password__errors {
+  padding: 0.75rem 1rem;
+  background: rgba(185, 28, 28, 0.08);
+  color: rgb(153, 27, 27);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.kt-password__footer {
+  margin-top: 3rem;
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+.kt-password__footer a {
+  color: rgb(var(--kt-c-fg));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
