@@ -33,6 +33,7 @@
   search-box treatment in SERPs by pointing at /search?q={term}.
 {%- endcomment -%}
 {%- if request.page_type == 'index' -%}
+  {%- capture search_action_url_template -%}{{ request.origin }}{{ routes.search_url }}?q={search_term_string}{%- endcapture -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -43,7 +44,7 @@
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": {{ request.origin | append: routes.search_url | append: '?q={search_term_string}' | json }}
+          "urlTemplate": {{ search_action_url_template | json }}
         },
         "query-input": "required name=search_term_string"
       }
