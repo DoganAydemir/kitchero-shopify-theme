@@ -126,5 +126,23 @@ if (!window.__kitcheroMainCartLoaded) {
         delete debounceTimers[key];
       }, DEBOUNCE_MS);
     });
+
+    /* Theme editor lifecycle:
+       - on section:unload (merchant removed/replaced the cart section in
+         the editor preview), clear any outstanding debounce timers so we
+         don't fire an AJAX update for a line that no longer exists.
+       - section:load does not need to re-init anything: the click/input
+         handlers are document-level delegates and survive re-renders.
+       - event.target is the <div id="shopify-section-{id}"> wrapper; the
+         inner [data-section-type="main-cart"] confirms it's the cart
+         section (not some other section unloading).
+    */
+    document.addEventListener('shopify:section:unload', function (event) {
+      if (!event.target || !event.target.querySelector('[data-section-type="main-cart"]')) return;
+      Object.keys(debounceTimers).forEach(function (key) {
+        window.clearTimeout(debounceTimers[key]);
+        delete debounceTimers[key];
+      });
+    });
   })();
 }
