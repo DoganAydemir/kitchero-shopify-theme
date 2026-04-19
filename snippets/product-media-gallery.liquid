@@ -105,9 +105,21 @@
     </button>
     <div class="kt-lightbox__viewport" data-lightbox-viewport>
       <div class="kt-lightbox__spinner" data-lightbox-spinner aria-hidden="true"></div>
-      {%- comment -%} theme-check-disable RemoteAsset {%- endcomment -%}
-      <img class="kt-lightbox__image" data-lightbox-image src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" width="1200" height="900" />
-      {%- comment -%} theme-check-enable RemoteAsset {%- endcomment -%}
+      {%- comment -%}
+        Lightbox image — src is populated by assets/product-gallery.js when
+        the user clicks a gallery thumbnail. We intentionally do not render
+        a placeholder src: the lightbox container is aria-hidden until
+        opened, so the empty <img> never paints and no network request is
+        made on page load.
+      {%- endcomment -%}
+      <img
+        class="kt-lightbox__image"
+        data-lightbox-image
+        alt=""
+        width="1200"
+        height="900"
+        loading="lazy"
+      >
     </div>
   </div>
 </div>
