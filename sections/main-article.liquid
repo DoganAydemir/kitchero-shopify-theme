@@ -172,10 +172,12 @@
                     required
                     autocomplete="name"
                     placeholder=" "
+                    {% if form.errors contains 'author' %}aria-invalid="true" aria-describedby="comment-author-error"{% endif %}
                   >
                   <label for="comment-author" class="kt-article__comment-label">
                     {{ 'kt.blog.article.name' | t | default: 'Name' }}
                   </label>
+                  {%- render 'form-field-error', form: form, field: 'author', describedby_id: 'comment-author-error' -%}
                 </div>
                 <div class="kt-article__comment-field">
                   <input
@@ -186,10 +188,12 @@
                     required
                     autocomplete="email"
                     placeholder=" "
+                    {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="comment-email-error"{% endif %}
                   >
                   <label for="comment-email" class="kt-article__comment-label">
                     {{ 'kt.blog.article.email' | t | default: 'Email' }}
                   </label>
+                  {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'comment-email-error' -%}
                 </div>
               </div>
 
@@ -201,10 +205,12 @@
                   rows="4"
                   required
                   placeholder=" "
+                  {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="comment-body-error"{% endif %}
                 ></textarea>
                 <label for="comment-body" class="kt-article__comment-label">
                   {{ 'kt.blog.article.comment' | t | default: 'Your Comment' }}
                 </label>
+                {%- render 'form-field-error', form: form, field: 'body', describedby_id: 'comment-body-error' -%}
               </div>
 
               {%- if blog.moderated? -%}

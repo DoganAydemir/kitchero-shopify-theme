@@ -38,7 +38,9 @@
             required
             autocomplete="new-password"
             aria-required="true"
+            {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="activate-password-error"{% endif %}
           >
+          {%- render 'form-field-error', form: form, field: 'password', describedby_id: 'activate-password-error' -%}
         </div>
 
         <div class="kt-customer__field">
@@ -53,7 +55,9 @@
             required
             autocomplete="new-password"
             aria-required="true"
+            {% if form.errors contains 'password_confirmation' %}aria-invalid="true" aria-describedby="activate-password-confirm-error"{% endif %}
           >
+          {%- render 'form-field-error', form: form, field: 'password_confirmation', describedby_id: 'activate-password-confirm-error' -%}
         </div>
 
         <button type="submit" class="kt-customer__submit">

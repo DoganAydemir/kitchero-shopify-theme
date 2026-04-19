@@ -1,0 +1,32 @@
+{%- comment -%}
+  Renders an inline per-field error message, visible below the input and
+  wired to the input via aria-describedby. Use in combination with
+  `aria-invalid` and `aria-describedby` set conditionally on the input
+  itself, e.g.
+
+    <input
+      id="login-email"
+      ...
+      {% if form.errors contains 'email' %}
+        aria-invalid="true"
+        aria-describedby="login-email-error"
+      {% endif %}
+    >
+    {%- render 'form-field-error',
+        form: form,
+        field: 'email',
+        describedby_id: 'login-email-error' -%}
+
+  Accepts:
+    form           — the {% form %} context (required)
+    field          — the field key in form.errors (required, e.g. 'email')
+    describedby_id — the DOM id the input points to (required)
+{%- endcomment -%}
+{%- if form.errors and form.errors contains field -%}
+  <p id="{{ describedby_id }}" class="kt-form__field-error" role="alert">
+    {%- if form.errors.translated_fields[field] != blank -%}
+      <span class="visually-hidden">{{ form.errors.translated_fields[field] }}:</span>
+    {%- endif -%}
+    {{ form.errors.messages[field] }}
+  </p>
+{%- endif -%}

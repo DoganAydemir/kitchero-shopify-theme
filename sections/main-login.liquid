@@ -28,11 +28,31 @@
       <div class="kt-customer__form">
         <div class="kt-customer__field">
           <label for="login-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
-          <input type="email" id="login-email" name="customer[email]" class="kt-customer__input" placeholder="{{ 'kt.customer.login.email' | t }}" required autocomplete="email">
+          <input
+            type="email"
+            id="login-email"
+            name="customer[email]"
+            class="kt-customer__input"
+            placeholder="{{ 'kt.customer.login.email' | t }}"
+            required
+            autocomplete="email"
+            {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="login-email-error"{% endif %}
+          >
+          {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'login-email-error' -%}
         </div>
         <div class="kt-customer__field">
           <label for="login-password" class="visually-hidden">{{ 'kt.customer.login.password' | t }}</label>
-          <input type="password" id="login-password" name="customer[password]" class="kt-customer__input" placeholder="{{ 'kt.customer.login.password' | t }}" required autocomplete="current-password">
+          <input
+            type="password"
+            id="login-password"
+            name="customer[password]"
+            class="kt-customer__input"
+            placeholder="{{ 'kt.customer.login.password' | t }}"
+            required
+            autocomplete="current-password"
+            {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="login-password-error"{% endif %}
+          >
+          {%- render 'form-field-error', form: form, field: 'password', describedby_id: 'login-password-error' -%}
         </div>
         <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.sign_in' | t }}</button>
 
@@ -57,9 +77,32 @@
         <h2 id="forgot-modal-title" class="kt-customer__modal-title">{{ 'kt.customer.login.reset_password' | t }}</h2>
         <p class="kt-customer__modal-desc">{{ 'kt.customer.login.reset_desc' | t | default: 'We will send you an email to reset your password.' }}</p>
         {%- form 'recover_customer_password', id: 'RecoverPasswordForm' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="kt-customer__form-success" role="status">
+              {{ 'kt.customer.login.reset_sent' | t | default: 'We’ve sent you an email with a link to update your password.' }}
+            </p>
+          {%- elsif form.errors -%}
+            <div class="kt-customer__errors" role="alert" tabindex="-1">
+              <ul class="kt-customer__errors-list">
+                {%- for field in form.errors -%}
+                  <li>{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}</li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
           <div class="kt-customer__field">
             <label for="forgot-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
-            <input type="email" id="forgot-email" name="email" class="kt-customer__input" placeholder="{{ 'kt.customer.login.email' | t }}" required autocomplete="email">
+            <input
+              type="email"
+              id="forgot-email"
+              name="email"
+              class="kt-customer__input"
+              placeholder="{{ 'kt.customer.login.email' | t }}"
+              required
+              autocomplete="email"
+              {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="forgot-email-error"{% endif %}
+            >
+            {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'forgot-email-error' -%}
           </div>
           <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.reset_password' | t }}</button>
           <button type="button" class="kt-customer__cancel" data-close-forgot>{{ 'kt.customer.login.cancel' | t }}</button>
