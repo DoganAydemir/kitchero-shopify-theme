@@ -320,11 +320,62 @@
   border: 1px solid var(--kt-red-200);
 }
 
+/* ── QR code ───────────────────────────────────────────── */
+
+.kt-gift-card__qr-section {
+  width: 100%;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  background-color: var(--kt-white);
+  border: 1px solid var(--kt-stone-200);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 25px -18px rgba(0, 0, 0, 0.25);
+}
+
+.kt-gift-card__qr-caption {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--kt-stone-500);
+}
+
+.kt-gift-card__qr {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--kt-white);
+}
+
+.kt-gift-card__qr img,
+.kt-gift-card__qr canvas,
+.kt-gift-card__qr table {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.kt-gift-card__qr-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--kt-stone-500);
+  text-align: center;
+}
+
 /* ── Actions ───────────────────────────────────────────── */
 
 .kt-gift-card__actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
   width: 100%;
 }
 
@@ -367,12 +418,82 @@
   height: 14px;
 }
 
+/* ── Secondary actions (print + Apple Wallet) ──────────── */
+
+.kt-gift-card__secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kt-gift-card__secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--kt-stone-700);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--kt-stone-300);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.kt-gift-card__secondary-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kt-gift-card__secondary-btn:hover {
+  background-color: var(--kt-stone-900);
+  color: var(--kt-white);
+  border-color: var(--kt-stone-900);
+}
+
+.kt-gift-card__secondary-btn:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 3px;
+}
+
+.kt-gift-card__wallet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.kt-gift-card__wallet:hover {
+  transform: translateY(-1px);
+}
+
+.kt-gift-card__wallet:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 3px;
+}
+
+.kt-gift-card__wallet img {
+  display: block;
+  height: 40px;
+  width: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kt-gift-card__cta,
-  .kt-gift-card__copy {
+  .kt-gift-card__copy,
+  .kt-gift-card__secondary-btn,
+  .kt-gift-card__wallet {
     transition: none;
   }
-  .kt-gift-card__cta:hover {
+  .kt-gift-card__cta:hover,
+  .kt-gift-card__wallet:hover {
     transform: none;
   }
 }
@@ -382,11 +503,18 @@
     background-color: var(--kt-white);
     background-image: none;
   }
+  /* Hide interactive UI that doesn't make sense on paper. Keep the card,
+     the code, and the QR so the customer can redeem in-store. */
   .kt-gift-card__copy,
-  .kt-gift-card__actions {
+  .kt-gift-card__secondary-actions,
+  .kt-gift-card__cta {
     display: none;
   }
-  .kt-gift-card__card {
+  .kt-gift-card__card,
+  .kt-gift-card__qr-section {
     box-shadow: none;
+  }
+  .kt-gift-card__qr-section {
+    border-color: var(--kt-stone-200);
   }
 }

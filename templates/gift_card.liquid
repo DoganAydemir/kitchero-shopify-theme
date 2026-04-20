@@ -19,6 +19,13 @@
     {{ content_for_header }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {{ 'template-gift-card.css' | asset_url | stylesheet_tag }}
+    {%- comment -%}
+      Shopify-hosted QR generator — same vendor bundle Dawn uses. This is
+      NOT an external CDN; `shopify_asset_url` serves from Shopify's own
+      CDN and ships with every theme. Required so we can render the
+      `gift_card.qr_identifier` as a scannable QR code for in-store redemption.
+    {%- endcomment -%}
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
   </head>
   <body class="kt-gift-card-page">
     <main class="kt-gift-card" role="main">
@@ -135,11 +142,52 @@
         </div>
       </section>
 
+      <section class="kt-gift-card__qr-section" aria-label="{{ 'kt.giftcard.issued.qr_heading' | t }}">
+        <span class="kt-gift-card__qr-caption">{{ 'kt.giftcard.issued.qr_heading' | t }}</span>
+        <div
+          class="kt-gift-card__qr"
+          data-gift-card-qr
+          data-identifier="{{ gift_card.qr_identifier }}"
+          data-alt-text="{{ 'kt.giftcard.issued.qr_image_alt' | t | escape }}"
+          role="img"
+          aria-label="{{ 'kt.giftcard.issued.qr_image_alt' | t }}"
+        ></div>
+        <p class="kt-gift-card__qr-hint">{{ 'kt.giftcard.issued.qr_hint' | t }}</p>
+      </section>
+
       <div class="kt-gift-card__actions">
         <a href="{{ shop.url | default: routes.root_url }}" class="kt-gift-card__cta">
           {{ 'kt.giftcard.issued.shop_link' | t | default: 'Continue shopping' }}
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
+
+        <div class="kt-gift-card__secondary-actions">
+          <button
+            type="button"
+            class="kt-gift-card__secondary-btn"
+            data-gift-card-print
+            aria-label="{{ 'kt.giftcard.issued.print_aria' | t }}"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>{{ 'kt.giftcard.issued.print' | t }}</span>
+          </button>
+
+          {%- if gift_card.pass_url != blank -%}
+            <a
+              href="{{ gift_card.pass_url }}"
+              class="kt-gift-card__wallet"
+              aria-label="{{ 'kt.giftcard.issued.add_to_apple_wallet' | t }}"
+            >
+              <img
+                src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}"
+                width="120"
+                height="40"
+                loading="lazy"
+                alt="{{ 'kt.giftcard.issued.add_to_apple_wallet' | t }}"
+              >
+            </a>
+          {%- endif -%}
+        </div>
       </div>
     </main>
 
