@@ -1,6 +1,10 @@
 {%- comment -%}
   Collection Filters — renders Shopify native storefront filters.
-  Shared by main-collection variants (drawer, vertical) and main-search.
+
+  Active call sites (keep in sync when adding new consumers):
+    • sections/main-collection-drawer.liquid   → mobile drawer variant
+    • sections/main-collection-vertical.liquid → desktop sidebar variant
+    • sections/main-search.liquid              → /search product-only scope
 
   Accepts:
   - layout: 'horizontal' | 'drawer' | 'vertical'  (visual only — no logic today)
@@ -11,6 +15,11 @@
   - hidden_terms: {String} emits <input name="q" value="…"> when set (for /search)
   - hidden_type: {String} emits <input name="type" value="…"> when set (for /search)
   - hidden_options_prefix: {String} emits <input name="options[prefix]" value="…"> when set (for /search — typically "last")
+
+  NOT used by sections/main-collection.liquid — that template ships a
+  bespoke horizontal pill/dropdown filter bar with a separate mobile
+  drawer that uses a different DOM (kt-filter-drawer__*). Intentional;
+  don't try to consolidate without a visual-design pass.
 {%- endcomment -%}
 
 {%- liquid
