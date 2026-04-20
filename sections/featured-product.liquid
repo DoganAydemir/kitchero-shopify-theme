@@ -77,27 +77,59 @@
                 {%- endif -%}
               </div>
 
+            {%- when 'variant_picker' -%}
+              {%- if product != blank -%}
+                <div class="kt-featured-product__variants" {{ block.shopify_attributes }}>
+                  {%- render 'product-variant-picker', product: product -%}
+                </div>
+              {%- endif -%}
+
             {%- when 'buy_button' -%}
-              <div class="kt-featured-product__form" {{ block.shopify_attributes }}>
+              {%- comment -%}
+                `data-product-form` on the wrapper is the hook
+                assets/product-form.js uses to find the form (it avoids
+                hyphenated {% form %} kwargs for robustness — see
+                snippets/product-form.liquid). The hidden variant input
+                gets `data-variant-id` so the JS can rewrite it when the
+                customer picks a variant, and the submit button exposes
+                `data-add-to-cart` + `data-add-to-cart-text` so the JS
+                can toggle loading / sold-out / success labels without
+                hand-querying by class name.
+
+                `{{ form | payment_button }}` emits Shopify's Dynamic
+                Checkout Buttons (Shop Pay, PayPal, Google Pay, Apple
+                Pay) — Theme Store explicitly requires these on any
+                section that sells a product, and they only render when
+                the merchant has express-checkout methods enabled, so
+                the gate below hides the entire block if the merchant
+                has opted out.
+              {%- endcomment -%}
+              <div class="kt-featured-product__form" data-product-form data-product-id="{{ product.id }}" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
                   {%- form 'product', product, id: 'FeaturedProductForm-' | append: section.id -%}
-                    <input type="hidden" name="id" value="{{ current_variant.id }}">
+                    <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
                     <button
                       type="submit"
                       name="add"
                       class="kt-featured-product__submit button button--primary"
+                      data-add-to-cart
                       {% unless current_variant.available %}disabled{% endunless %}
                     >
-                      {%- if current_variant.available -%}
-                        {{ block.settings.button_text | default: 'Add to cart' }}
-                      {%- else -%}
-                        {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
-                      {%- endif -%}
+                      <span data-add-to-cart-text>
+                        {%- if current_variant.available -%}
+                          {{ block.settings.button_text | default: 'Add to cart' }}
+                        {%- else -%}
+                          {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
+                        {%- endif -%}
+                      </span>
                     </button>
+                    {%- if block.settings.show_dynamic_checkout -%}
+                      {{ form | payment_button }}
+                    {%- endif -%}
                   {%- endform -%}
                 {%- else -%}
                   <button type="button" class="kt-featured-product__submit button button--primary" disabled>
-                    {{ block.settings.button_text | default: 'Add to cart' }}
+                    <span>{{ block.settings.button_text | default: 'Add to cart' }}</span>
                   </button>
                 {%- endif -%}
               </div>
@@ -195,6 +227,11 @@
       ]
     },
     {
+      "type": "variant_picker",
+      "name": "t:sections.featured-product.blocks.variant_picker.name",
+      "limit": 1
+    },
+    {
       "type": "buy_button",
       "name": "t:sections.featured-product.blocks.buy_button.name",
       "limit": 1,
@@ -204,6 +241,13 @@
           "id": "button_text",
           "label": "t:sections.featured-product.blocks.buy_button.settings.button_text.label",
           "default": "Add to cart"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "t:sections.featured-product.blocks.buy_button.settings.show_dynamic_checkout.label",
+          "info": "t:sections.featured-product.blocks.buy_button.settings.show_dynamic_checkout.info",
+          "default": true
         }
       ]
     },
@@ -227,6 +271,7 @@
         { "type": "title" },
         { "type": "price" },
         { "type": "description" },
+        { "type": "variant_picker" },
         { "type": "buy_button" }
       ]
     }

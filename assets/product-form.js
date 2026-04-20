@@ -423,14 +423,22 @@
     container.querySelectorAll('[data-share-btn]').forEach(initShareButton);
   }
 
-  /* Init */
-  document.querySelectorAll('[data-section-type="main-product"]').forEach(function (el) {
+  /* Init — both the full PDP (`main-product`) and the homepage
+     featured-product section share the same form contract:
+     `[data-product-form]` wrapper + variant picker with `[data-option-value]`
+     radios + `[data-variant-select]` JSON registry. Handling both with
+     one set of selectors means a merchant-placed featured-product on
+     the homepage gets Ajax add-to-cart, live price updates, and
+     dynamic checkout behavior for free. */
+  var PRODUCT_SECTION_SELECTOR = '[data-section-type="main-product"], [data-section-type="featured-product"]';
+
+  document.querySelectorAll(PRODUCT_SECTION_SELECTOR).forEach(function (el) {
     initProductForm(el);
     initActions(el);
   });
 
   document.addEventListener('shopify:section:load', function (e) {
-    var section = e.target.querySelector('[data-section-type="main-product"]');
+    var section = e.target.querySelector(PRODUCT_SECTION_SELECTOR);
     if (section) {
       initProductForm(section);
       initActions(section);
