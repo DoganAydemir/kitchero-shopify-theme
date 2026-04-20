@@ -86,8 +86,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  /* WCAG 2.5.5: interactive targets must be >=44×44 CSS px. The inner
+     SVG stays visually at 20px — we just expand the hit area. */
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
   background: transparent;
   border: 0;
   border-radius: 9999px;
@@ -242,7 +246,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
+  /* WCAG 2.5.5 — 44×44 min hit target, even though the visual cap
+     above the quantity pill keeps the +/- glyphs compact. */
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.375rem 0.75rem;
   background: transparent;
   border: 0;

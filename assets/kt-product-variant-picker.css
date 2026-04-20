@@ -42,7 +42,16 @@
 }
 
 .kt-variant-picker__swatch-label {
+  /* Expand the hit area to WCAG 2.5.5's 44×44 floor. Keeping the
+     visible swatch disc at 40px preserves the tight chain layout but
+     adding padding to the <label> gives a compliant clickable radius. */
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 2px;
 }
 
 .kt-variant-picker__swatch {
