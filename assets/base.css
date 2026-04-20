@@ -332,3 +332,49 @@ button[type="submit"]:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Form a11y utilities (shared) ───────────────────────
+   Used by any form across the theme that needs an error
+   summary + per-field error display + success status.
+   The .kt-form__field-error rule is defined per-scope in
+   kt-section-customer-forms.css (rich styling for the
+   customer pages); the utilities below are the broader
+   defaults loaded everywhere via base.css so they apply
+   on marketing forms (appointment drawer, newsletter
+   popup, visualize-studio contact, etc.) without each
+   section having to re-declare them. */
+.kt-form__error-summary {
+  margin: 0 0 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--kt-red-50, #fef2f2);
+  border: 1px solid var(--kt-red-200, #fecaca);
+  color: var(--kt-red-800, #991b1b);
+}
+
+.kt-form__error-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.kt-form__error-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.kt-form__error-list li {
+  list-style: disc;
+}
+
+.kt-form__success {
+  margin: 0 0 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--kt-emerald-50, #ecfdf5);
+  border: 1px solid var(--kt-green-200, #bbf7d0);
+  color: var(--kt-emerald-800, #065f46);
+  font-size: 0.875rem;
+}

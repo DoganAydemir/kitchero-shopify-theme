@@ -152,6 +152,7 @@
               </div>
             {%- endif -%}
 
+            {%- assign popup_email_err = 'NewsletterPopupEmail-' | append: section.id | append: '-error' -%}
             <div class="kt-newsletter-popup__field">
               <label for="NewsletterPopupEmail-{{ section.id }}" class="visually-hidden">
                 {{ 'kt.section.newsletter-popup.email_label' | t | default: 'Email address' }}
@@ -172,8 +173,10 @@
                 autocomplete="email"
                 value=""
                 data-popup-email
+                {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ popup_email_err }}"{% endif %}
               >
             </div>
+            {%- render 'form-field-error', form: form, field: 'email', describedby_id: popup_email_err -%}
 
             <button type="submit" class="kt-newsletter-popup__submit">
               <span>{{ section.settings.submit_button_text | default: 'Get 15% Off' }}</span>

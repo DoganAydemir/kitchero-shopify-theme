@@ -22,6 +22,29 @@
     {%- comment -%} Form Body {%- endcomment -%}
     <div class="kt-appointment-drawer__body">
       {% form 'contact', id: 'appointment-form' %}
+        {%- if form.posted_successfully? -%}
+          <p class="kt-form__success" role="status">
+            {{ 'kt.section.appointment.success' | t | default: 'Thanks — we will be in touch shortly.' }}
+          </p>
+        {%- endif -%}
+
+        {%- if form.errors -%}
+          <div class="kt-form__error-summary" role="alert" tabindex="-1">
+            <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
+            <ul class="kt-form__error-list">
+              {%- for field in form.errors -%}
+                <li>
+                  {%- if field == 'form' -%}
+                    {{ form.errors.messages[field] }}
+                  {%- else -%}
+                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
         {%- comment -%} Name Row {%- endcomment -%}
         <div class="kt-appointment-drawer__row kt-appointment-drawer__row--split">
           <div class="kt-appointment-drawer__field">
@@ -35,7 +58,9 @@
               class="field__input"
               required
               autocomplete="given-name"
+              {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="appointment-first-name-error"{% endif %}
             >
+            {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: 'appointment-first-name-error' -%}
           </div>
           <div class="kt-appointment-drawer__field">
             <label for="appointment-last-name" class="field__label">
@@ -48,7 +73,9 @@
               class="field__input"
               required
               autocomplete="family-name"
+              {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="appointment-last-name-error"{% endif %}
             >
+            {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: 'appointment-last-name-error' -%}
           </div>
         </div>
 
@@ -64,7 +91,9 @@
             class="field__input"
             required
             autocomplete="email"
+            {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="appointment-email-error"{% endif %}
           >
+          {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'appointment-email-error' -%}
         </div>
 
         {%- comment -%} Phone {%- endcomment -%}
@@ -79,7 +108,9 @@
             class="field__input"
             required
             autocomplete="tel"
+            {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="appointment-phone-error"{% endif %}
           >
+          {%- render 'form-field-error', form: form, field: 'phone', describedby_id: 'appointment-phone-error' -%}
         </div>
 
         {%- comment -%} Interested In {%- endcomment -%}

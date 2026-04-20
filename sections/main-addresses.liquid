@@ -8,17 +8,24 @@
     </header>
 
     <div class="kt-account__layout">
-      <aside class="kt-account__nav" aria-label="{{ 'kt.customer.account.nav_label' | t }}">
-        <a href="{{ routes.account_url }}" class="kt-account__nav-link">
-          {{ 'kt.customer.account.details' | t }}
-        </a>
-        <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
-          {{ 'kt.customer.account.addresses' | t }}
-          <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
-        </a>
-        <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
-          {{ 'kt.customer.account.log_out' | t }}
-        </a>
+      {%- comment -%}
+        Sidebar landmark: <aside> carries "complementary" semantics,
+        inner <nav> announces "navigation" for the link group.
+      {%- endcomment -%}
+      <aside class="kt-account__nav" aria-labelledby="AddressesNavHeading">
+        <h2 id="AddressesNavHeading" class="visually-hidden">{{ 'kt.customer.account.nav_label' | t }}</h2>
+        <nav aria-label="{{ 'kt.customer.account.nav_label' | t }}">
+          <a href="{{ routes.account_url }}" class="kt-account__nav-link">
+            {{ 'kt.customer.account.details' | t }}
+          </a>
+          <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
+            {{ 'kt.customer.account.addresses' | t }}
+            <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
+          </a>
+          <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
+            {{ 'kt.customer.account.log_out' | t }}
+          </a>
+        </nav>
       </aside>
 
       <div class="kt-account__content">

@@ -13,18 +13,28 @@
     </header>
 
     <div class="kt-account__layout">
-      {%- comment -%} Sidebar / nav {%- endcomment -%}
-      <aside class="kt-account__nav" aria-label="{{ 'kt.customer.account.nav_label' | t }}">
-        <a href="{{ routes.account_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
-          {{ 'kt.customer.account.details' | t }}
-        </a>
-        <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link">
-          {{ 'kt.customer.account.addresses' | t }}
-          <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
-        </a>
-        <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
-          {{ 'kt.customer.account.log_out' | t }}
-        </a>
+      {%- comment -%}
+        Sidebar / nav. Outer <aside> carries the landmark semantics
+        for the entire side column; a <nav> inside wraps the actual
+        link group so screen readers announce "navigation" when the
+        user lands on the links and "complementary" for the aside
+        itself (required by WCAG 1.3.1 — lists of navigational links
+        belong inside a <nav>).
+      {%- endcomment -%}
+      <aside class="kt-account__nav" aria-labelledby="AccountNavHeading">
+        <h2 id="AccountNavHeading" class="visually-hidden">{{ 'kt.customer.account.nav_label' | t }}</h2>
+        <nav aria-label="{{ 'kt.customer.account.nav_label' | t }}">
+          <a href="{{ routes.account_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
+            {{ 'kt.customer.account.details' | t }}
+          </a>
+          <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link">
+            {{ 'kt.customer.account.addresses' | t }}
+            <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
+          </a>
+          <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
+            {{ 'kt.customer.account.log_out' | t }}
+          </a>
+        </nav>
       </aside>
 
       {%- comment -%} Main content: orders list {%- endcomment -%}
