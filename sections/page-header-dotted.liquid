@@ -14,7 +14,14 @@
   assign heading_tag = section.settings.heading_tag | default: 'h1'
   assign resolved_title = section.settings.title
   if resolved_title == blank
-    case template.name
+    comment
+      Use request.page_type — it's stable across template suffixes
+      (page.contact.json, page.about.json, etc. all still return
+      'page'), which template.name isn't. Matches the rest of the
+      theme (meta-tags, structured-data) which all key off
+      request.page_type for page-type dispatch.
+    endcomment
+    case request.page_type
       when 'page'
         assign resolved_title = page.title
       when 'blog'

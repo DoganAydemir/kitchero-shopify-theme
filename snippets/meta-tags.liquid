@@ -159,6 +159,19 @@
 {%- endif -%}
 
 {%- comment -%}
+  Blog RSS/Atom link — lets RSS readers, podcast catchers, and
+  Google Discover's feed backbone discover the blog's feed. Shopify
+  auto-generates /<blog>.atom from every blog's articles. Gate on
+  `blog` page-type so we only emit the link on blog / article pages
+  where the `blog` object is populated.
+{%- endcomment -%}
+{%- if request.page_type == 'blog' or request.page_type == 'article' -%}
+  {%- if blog != blank -%}
+    <link rel="alternate" type="application/atom+xml" title="{{ blog.title | escape }}" href="{{ blog.url }}.atom">
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%}
   Article meta for FB/LinkedIn article share cards + social-graph
   indexing. The modern `article:*` namespace is scraped by both
   Facebook and LinkedIn; Twitter doesn't use them but does no harm.
