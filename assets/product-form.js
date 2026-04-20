@@ -25,7 +25,14 @@
   }
 
   function initProductForm(container) {
-    var form = container.querySelector('[data-product-form]');
+    /* `[data-product-form]` is on the wrapper <div>, not the <form>
+       itself — hyphenated kwargs inside a `{% form %}` tag are fragile
+       (see snippets/product-form.liquid). We grab the wrapper first,
+       then locate the real <form> element inside it for the submit
+       listener. */
+    var wrapper = container.querySelector('[data-product-form]');
+    if (!wrapper) return;
+    var form = wrapper.querySelector('form');
     if (!form) return;
     /* Guard against double-binding. shopify:section:load fires whenever
        the merchant changes a product-section setting in the editor,
