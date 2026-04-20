@@ -5,7 +5,13 @@
 
 .kt-hero {
   position: relative;
+  /* 100vh on iOS Safari includes the collapsing address bar, so the
+     hero height jumps 80-100px between scroll-idle and scroll-active.
+     100svh (small viewport height) locks to the minimum visible area,
+     eliminating the jump. 100vh remains as a fallback for browsers
+     that don't implement dvh/svh/lvh (pre-Safari 15.4, pre-Chrome 108). */
   height: 100vh;
+  height: 100svh;
   width: 100%;
   overflow: hidden;
   background-color: var(--kt-black);

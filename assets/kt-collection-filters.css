@@ -551,6 +551,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
+  /* Respect iPhone home-indicator safe area — max() keeps the
+     standard 1.25rem on devices without a bottom inset. */
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--kt-stone-100);
   background-color: rgba(250, 250, 249, 0.9);
 }
