@@ -61,6 +61,29 @@
   if settings.kt_social_twitter != blank
     assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | remove: '/' | prepend: '@'
   endif
+
+  # ── Share-image sizing ─────────────────────────────────────────────
+  # Facebook/LinkedIn/Slack all score and lay out share cards against a
+  # 1200 px-wide reference (the official OG recommendation is 1200×630).
+  # Previously we emitted the raw source URL with whatever dimensions
+  # the merchant happened to upload, which on tiny logo images looks
+  # like a broken thumbnail and on huge product hero shots forces every
+  # scraper to pull several MB. We cap the request at 1200 via
+  # `image_url: width: 1200` so Shopify's CDN resizes on our behalf,
+  # then compute a matching height so og:image:width/height stay
+  # consistent with the pixels the scraper actually downloads. For
+  # source images narrower than 1200 we pass the native width through
+  # unchanged — `image_url` never upscales, so lying about the width
+  # would mismatch the scraper's actual download.
+  if share_image != blank
+    if share_image.width >= 1200
+      assign og_image_width = 1200
+      assign og_image_height = share_image.height | times: 1200 | divided_by: share_image.width
+    else
+      assign og_image_width = share_image.width
+      assign og_image_height = share_image.height
+    endif
+  endif
 -%}
 
 {%- comment -%} ─── OpenGraph ─── {%- endcomment -%}
@@ -80,10 +103,10 @@
 {%- endif -%}
 
 {%- if share_image != blank -%}
-  <meta property="og:image" content="http:{{ share_image | image_url }}">
-  <meta property="og:image:secure_url" content="https:{{ share_image | image_url }}">
-  <meta property="og:image:width" content="{{ share_image.width }}">
-  <meta property="og:image:height" content="{{ share_image.height }}">
+  <meta property="og:image" content="http:{{ share_image | image_url: width: og_image_width }}">
+  <meta property="og:image:secure_url" content="https:{{ share_image | image_url: width: og_image_width }}">
+  <meta property="og:image:width" content="{{ og_image_width }}">
+  <meta property="og:image:height" content="{{ og_image_height }}">
   <meta property="og:image:alt" content="{{ share_title | escape }}">
 {%- endif -%}
 
@@ -102,7 +125,9 @@
   <meta name="twitter:creator" content="{{ twitter_handle }}">
 {%- endif -%}
 {%- if share_image != blank -%}
-  <meta name="twitter:image" content="https:{{ share_image | image_url }}">
+  <meta name="twitter:image" content="https:{{ share_image | image_url: width: og_image_width }}">
+  <meta name="twitter:image:width" content="{{ og_image_width }}">
+  <meta name="twitter:image:height" content="{{ og_image_height }}">
   <meta name="twitter:image:alt" content="{{ share_title | escape }}">
 {%- endif -%}
 
