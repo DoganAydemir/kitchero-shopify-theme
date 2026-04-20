@@ -164,8 +164,16 @@
       </fieldset>
     {%- endfor -%}
 
-    {%- comment -%} Hidden select for variant ID (JS updates this) {%- endcomment -%}
-    <select name="id" class="visually-hidden" data-variant-select aria-label="{{ 'kt.product.variant' | t | default: 'Variant' }}">
+    {%- comment -%}
+      Hidden select used purely as a variant-JSON registry and change
+      target for product-form.js. It is NOT a form field — we deliberately
+      omit `name="id"` so it cannot collide with the real hidden input
+      inside `{%- form 'product' -%}` (see snippets/product-form.liquid).
+      That hidden input is the single source of truth for the variant id
+      sent to /cart/add; product-form.js rewrites its value whenever this
+      select changes (data-variant-select listener).
+    {%- endcomment -%}
+    <select class="visually-hidden" data-variant-select aria-label="{{ 'kt.product.variant' | t | default: 'Variant' }}" tabindex="-1" aria-hidden="true">
       {%- for variant in product.variants -%}
         <option
           value="{{ variant.id }}"
