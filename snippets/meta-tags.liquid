@@ -86,6 +86,25 @@
   endif
 -%}
 
+{%- comment -%}
+  ─── Robots ───
+  Search results, 404s, and every customer-account page are not
+  meant to be indexed by Google. Shopify's default robots.txt covers
+  /account + /search at the path level, but Search Console can still
+  surface these URLs if they're linked from elsewhere — the meta tag
+  belt-and-braces the robots exclusion at the document level so bots
+  that honour meta-robots (Googlebot, Bingbot, etc.) drop the page
+  from the index regardless of path.
+
+  We match on `request.page_type` rather than `template.name`
+  because page_type is stable across template suffixes
+  (customers/login.suffix vs customers/login).
+{%- endcomment -%}
+{%- assign hidden_page_types = 'search,404,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
+{%- if hidden_page_types contains request.page_type -%}
+  <meta name="robots" content="noindex">
+{%- endif -%}
+
 {%- comment -%} ─── OpenGraph ─── {%- endcomment -%}
 <meta property="og:site_name" content="{{ shop.name }}">
 <meta property="og:title" content="{{ share_title | escape }}">
@@ -103,17 +122,57 @@
 {%- endif -%}
 
 {%- if share_image != blank -%}
-  <meta property="og:image" content="http:{{ share_image | image_url: width: og_image_width }}">
+  {%- comment -%}
+    Emit both og:image and og:image:secure_url as https. Old Facebook
+    scrapers preferred protocol-relative http:, but modern scrapers
+    (FB/LinkedIn/Slack/Twitter/Discord) all honour https: and a handful
+    now reject mixed-content references from https origins. Having
+    og:image itself be http caused "not secure" warnings in Slack's
+    link preview renderer.
+  {%- endcomment -%}
+  <meta property="og:image" content="https:{{ share_image | image_url: width: og_image_width }}">
   <meta property="og:image:secure_url" content="https:{{ share_image | image_url: width: og_image_width }}">
   <meta property="og:image:width" content="{{ og_image_width }}">
   <meta property="og:image:height" content="{{ og_image_height }}">
   <meta property="og:image:alt" content="{{ share_title | escape }}">
 {%- endif -%}
 
-{%- if request.page_type == 'product' -%}
+{%- if request.page_type == 'product' and product -%}
   <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
   <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  {%- comment -%}
+    Emit both the modern product:availability key AND the legacy
+    og:availability key — FB Business and some product-catalog
+    scrapers still expect og:availability with "instock"/"oos" form.
+    product:brand + product:retailer_item_id (SKU) are required by
+    Facebook Catalog / Shop feed ingestion.
+  {%- endcomment -%}
   <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+  <meta property="og:availability" content="{% if product.available %}instock{% else %}oos{% endif %}">
+  {%- if product.vendor != blank -%}
+    <meta property="product:brand" content="{{ product.vendor | escape }}">
+  {%- endif -%}
+  {%- assign active_variant = product.selected_or_first_available_variant -%}
+  {%- if active_variant.sku != blank -%}
+    <meta property="product:retailer_item_id" content="{{ active_variant.sku | escape }}">
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%}
+  Article meta for FB/LinkedIn article share cards + social-graph
+  indexing. The modern `article:*` namespace is scraped by both
+  Facebook and LinkedIn; Twitter doesn't use them but does no harm.
+  Gate on `article` to avoid emitting on non-article pages.
+{%- endcomment -%}
+{%- if request.page_type == 'article' and article -%}
+  <meta property="article:published_time" content="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+  <meta property="article:modified_time" content="{{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+  {%- if article.author != blank -%}
+    <meta property="article:author" content="{{ article.author | escape }}">
+  {%- endif -%}
+  {%- for tag in article.tags -%}
+    <meta property="article:tag" content="{{ tag | escape }}">
+  {%- endfor -%}
 {%- endif -%}
 
 {%- comment -%} ─── Twitter ─── {%- endcomment -%}
