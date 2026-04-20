@@ -343,6 +343,8 @@
                 type="button"
                 class="kt-header__mobile-link kt-header__mobile-link--parent"
                 data-mobile-forward="p-{{ forloop.index0 }}"
+                aria-expanded="false"
+                aria-controls="mobile-panel-p-{{ forloop.index0 }}"
               >
                 <span class="kt-header__mobile-link-label">{{ link.title }}</span>
                 <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -372,7 +374,7 @@
         {%- if link.links.size > 0 -%}
           {%- assign l1_id = 'p-' | append: forloop.index0 -%}
           {%- assign l1_index = forloop.index0 -%}
-          <div class="kt-header__mobile-view" data-panel="{{ l1_id }}" data-state="ahead">
+          <div class="kt-header__mobile-view" data-panel="{{ l1_id }}" data-state="ahead" id="mobile-panel-{{ l1_id }}">
             <div class="kt-header__mobile-view-inner">
               <button
                 type="button"
@@ -401,6 +403,8 @@
                     type="button"
                     class="kt-header__mobile-link kt-header__mobile-link--parent"
                     data-mobile-forward="p-{{ l1_index }}-{{ forloop.index0 }}"
+                    aria-expanded="false"
+                    aria-controls="mobile-panel-p-{{ l1_index }}-{{ forloop.index0 }}"
                   >
                     <span class="kt-header__mobile-link-label">{{ child.title }}</span>
                     <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -420,7 +424,7 @@
           {%- for child in link.links -%}
             {%- if child.links.size > 0 -%}
               {%- assign l2_id = 'p-' | append: l1_index | append: '-' | append: forloop.index0 -%}
-              <div class="kt-header__mobile-view" data-panel="{{ l2_id }}" data-state="ahead">
+              <div class="kt-header__mobile-view" data-panel="{{ l2_id }}" data-state="ahead" id="mobile-panel-{{ l2_id }}">
                 <div class="kt-header__mobile-view-inner">
                   <button
                     type="button"

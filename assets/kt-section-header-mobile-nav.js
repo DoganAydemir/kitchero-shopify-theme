@@ -21,8 +21,16 @@
 
   var BOUND_FLAG = '__kitcheroMobileNavBound';
 
+  /* Track the trigger element that opened the panel so we can return
+     focus there on close. Without this, closing the drawer leaves the
+     user's focus on <body> and the next Tab jumps to the first
+     focusable element on the page — disorienting for keyboard-only
+     and screen-reader users. */
+  var lastTrigger = null;
+
   function openPanel(panel, toggle) {
     if (!panel) return;
+    lastTrigger = toggle || document.activeElement;
     panel.classList.add('kt-header__mobile-panel--open');
     document.body.style.overflow = 'hidden';
     if (toggle) {
@@ -31,6 +39,24 @@
       var ci = toggle.querySelector('.kt-header__menu-toggle-close');
       if (oi) oi.classList.add('hidden');
       if (ci) ci.classList.remove('hidden');
+    }
+
+    /* Focus trap — shared utility on window.Kitchero from global.js.
+       Keeps Tab/Shift+Tab cycling inside the open drawer so keyboard
+       users can't accidentally reach page content hidden behind the
+       overlay. Matches the pattern used by cart-drawer,
+       appointment-drawer, search-overlay, video-modal. */
+    if (window.Kitchero && window.Kitchero.focusTrap && typeof window.Kitchero.focusTrap.enable === 'function') {
+      window.Kitchero.focusTrap.enable(panel);
+    }
+
+    /* Move focus into the drawer so screen readers announce the new
+       context (the close button is a safe, recognizable first focus
+       target inside the drawer). */
+    var focusTarget = panel.querySelector('.kt-header__mobile-panel-close') ||
+                      panel.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusTarget) {
+      setTimeout(function () { focusTarget.focus(); }, 50);
     }
   }
 
@@ -45,6 +71,17 @@
       if (oi) oi.classList.remove('hidden');
       if (ci) ci.classList.add('hidden');
     }
+
+    /* Release focus trap and restore focus to whatever opened the
+       drawer (guarded against detached nodes from theme-editor
+       section-unload). */
+    if (window.Kitchero && window.Kitchero.focusTrap && typeof window.Kitchero.focusTrap.disable === 'function') {
+      window.Kitchero.focusTrap.disable(panel);
+    }
+    if (lastTrigger && typeof lastTrigger.focus === 'function' && document.contains(lastTrigger)) {
+      lastTrigger.focus();
+    }
+    lastTrigger = null;
   }
 
   function getElements() {
@@ -111,8 +148,13 @@
     var forward = e.target.closest('[data-mobile-forward]');
     if (forward) {
       e.preventDefault();
+      forward.setAttribute('aria-expanded', 'true');
       stack.push(forward.dataset.mobileForward);
       updatePanels();
+      /* Move focus into the newly surfaced sub-panel so screen readers
+         announce it. Without this focus stays on the now-hidden
+         forward button — users lose context. */
+      focusCurrentPanel();
       return;
     }
 
@@ -121,10 +163,27 @@
     if (back) {
       e.preventDefault();
       if (stack.length > 1) {
+        var leavingId = stack[stack.length - 1];
         stack.pop();
         updatePanels();
+        /* Flip aria-expanded on the forward button that opened the
+           now-closed sub-panel, so the state reflects reality. */
+        var trigger = document.querySelector('[data-mobile-forward="' + leavingId + '"]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        focusCurrentPanel();
       }
       return;
+    }
+  }
+
+  function focusCurrentPanel() {
+    var slider = document.querySelector('[data-mobile-slider]');
+    if (!slider) return;
+    var current = slider.querySelector('[data-panel][data-state="current"]');
+    if (!current) return;
+    var focusTarget = current.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusTarget) {
+      setTimeout(function () { focusTarget.focus(); }, 350); /* after CSS slide transition */
     }
   }
 
