@@ -6,6 +6,20 @@
 
     {%- comment -%} Login Form {%- endcomment -%}
     {%- form 'customer_login', id: 'CustomerLoginForm' -%}
+      {%- comment -%}
+        Preserve the redirect target across the login POST. Shopify's
+        customer_login form reads `checkout_url` (prioritized) or
+        `return_to` as hidden inputs and redirects there on success.
+        Without these, every successful login lands on /account —
+        breaking the "click Sign in while shopping → return to the
+        previous page" flow and the checkout-gated-login flow.
+      {%- endcomment -%}
+      {%- if checkout_url != blank -%}
+        <input type="hidden" name="checkout_url" value="{{ checkout_url | escape }}">
+      {%- elsif return_to != blank -%}
+        <input type="hidden" name="return_to" value="{{ return_to | escape }}">
+      {%- endif -%}
+
       {%- if form.errors -%}
         <div class="kt-customer__errors" role="alert" tabindex="-1">
           <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>

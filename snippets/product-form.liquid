@@ -144,6 +144,21 @@
   {%- endif -%}
 
   {%- comment -%}
+    Pre-order badge — shown when the variant is out of stock BUT the
+    merchant has `inventory_policy: 'continue'` (keep selling when
+    out of stock). Without this badge the customer can't distinguish
+    "available now" from "ordered, ships when restocked" — both show
+    the default Add-to-Cart button. Gated on both Shopify-tracked
+    inventory and out-of-stock state to avoid false-positive badging
+    on products whose merchant doesn't track stock at all.
+  {%- endcomment -%}
+  {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
+    <p class="kt-product-form__preorder" role="note">
+      {{ 'kt.product.preorder' | t }}
+    </p>
+  {%- endif -%}
+
+  {%- comment -%}
     Error sentinel — populated by product-form.js when /cart/add.js
     responds with an error (out of stock, quantity limit, network).
     Hidden by default; JS toggles [hidden] and fills textContent.

@@ -100,6 +100,21 @@
       <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.discount_badge' | t: amount: discount_pct }}
       </span>
+    {%- comment -%}
+      Tag-driven badges — merchants tag a product `Bestseller` or `New`
+      in admin and the theme surfaces a corresponding badge. Only one
+      tag badge renders at a time (Bestseller takes priority over New)
+      and neither renders when the sale badge is already claiming the
+      corner. Matches the Next.js source's CollectionsGrid behaviour.
+    {%- endcomment -%}
+    {%- elsif product.tags contains 'Bestseller' -%}
+      <span class="kt-card-product__badge kt-card-product__badge--bestseller" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+        {{ 'kt.product.bestseller' | t }}
+      </span>
+    {%- elsif product.tags contains 'New' -%}
+      <span class="kt-card-product__badge kt-card-product__badge--new" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+        {{ 'kt.product.new' | t }}
+      </span>
     {%- endif -%}
 
     {%- comment -%} Countdown pill (if deal_ends_at metafield set) {%- endcomment -%}
