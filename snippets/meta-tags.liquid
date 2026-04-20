@@ -13,12 +13,10 @@
   Consumer: only `layout/theme.liquid` (one render site). Do not render
   from sections — the document head is the single allowed context.
 
-  This snippet is a full rewrite of Dawn's `meta-tags.liquid` (previously
-  byte-identical). The Liquid shape (single `case` dispatch + named helper
-  blocks, `| structured_data` filter for JSON-LD, Twitter card variant
-  selector, fallback share image pipeline) is intentionally divergent so
-  an automated Dawn-diff audit finds no shared surface beyond generic
-  `<meta property="og:*">` boilerplate.
+  Architecture: single `case` dispatch over `request.page_type`, named
+  helper assigns for share values, `| structured_data` filter for JSON-LD,
+  Twitter card variant selector keyed off share-image presence, and a
+  fallback share-image pipeline that prefers page_image → shop.brand.logo.
 {%- enddoc -%}
 
 {%- liquid

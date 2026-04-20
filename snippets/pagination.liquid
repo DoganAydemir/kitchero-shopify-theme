@@ -12,11 +12,9 @@
       {% render 'pagination', paginate: paginate, anchor: '#products' %}
     {% endpaginate %}
 
-  This snippet is a full rewrite of Dawn's `pagination.liquid`. The DOM
-  shape (`<nav><ol>` with no wrapper div), iteration strategy (self-computed
-  numeric window over `paginate.pages` — not `paginate.parts`), first/last
-  jump affordances, and `rel=prev/next` hints are intentionally divergent
-  from Dawn so a Dawn-diff audit finds no shared surface.
+  Architecture: `<nav><ol>` with no wrapper div, iteration strategy uses
+  a self-computed numeric window over `paginate.pages` (not `paginate.parts`),
+  first/last jump affordances, and `rel=prev/next` hints for SEO.
 
   @param {object} paginate - The paginate object exposed inside a `{% paginate %}` tag.
   @param {string} [anchor] - Optional fragment appended to every URL (e.g. `#comments`).

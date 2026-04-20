@@ -85,8 +85,7 @@
     /* Keyboard navigation through predictive results. ArrowDown moves
        the highlight down, ArrowUp moves it up, Enter follows the
        highlighted link. Without this, keyboard-only users have to
-       Tab through every result individually to pick one — below the
-       parity bar Dawn sets. */
+       Tab through every result individually to pick one. */
     input.addEventListener('keydown', function (event) {
       var links = resultsContainer.querySelectorAll('.kt-predictive-search__link');
       if (!links.length) return;

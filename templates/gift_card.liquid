@@ -1,10 +1,10 @@
 {%- comment -%}
   Gift Card — standalone template.
   Shopify does NOT allow JSON templates for gift_card. This is a full
-  HTML document (like the Dawn fallback) but styled in the Kitchero
-  design language: serif title, dotted background band, big editorial
-  gift-card card, code field with copy button, balance + expiry pills,
-  and a black "Continue shopping" CTA.
+  HTML document styled in the Kitchero design language: serif title,
+  dotted background band, big editorial gift-card card, code field
+  with copy button, balance + expiry pills, and a black "Continue
+  shopping" CTA.
 {%- endcomment -%}
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
@@ -20,10 +20,12 @@
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {{ 'template-gift-card.css' | asset_url | stylesheet_tag }}
     {%- comment -%}
-      Shopify-hosted QR generator — same vendor bundle Dawn uses. This is
-      NOT an external CDN; `shopify_asset_url` serves from Shopify's own
-      CDN and ships with every theme. Required so we can render the
-      `gift_card.qr_identifier` as a scannable QR code for in-store redemption.
+      Shopify-hosted QR generator. This is NOT an external CDN —
+      `shopify_asset_url` serves from Shopify's own CDN and the
+      vendor QR bundle ships with every theme (Shopify-approved
+      third-party library). Required so we can render the
+      `gift_card.qr_identifier` as a scannable QR code for in-store
+      redemption.
     {%- endcomment -%}
     <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
   </head>

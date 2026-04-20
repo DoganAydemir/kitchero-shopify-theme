@@ -8,13 +8,14 @@
  *   Kitchero.bus              minimal event bus with `.on` / `.off` / `.emit`
  *   Kitchero.escapeCloseDetails  keydown handler that closes an open <details> on Esc
  *
- * This file is a ground-up rewrite of the helpers Dawn ships in its
- * `global.js`. No function names, class names, internal data structures,
- * or public signatures are kept from Dawn — the focus trap uses a
- * per-container WeakMap for cleanup (Dawn uses a shared module-level
- * handler object that is destroyed on each call), and the event bus uses
- * a Set of listeners with an unsubscribe return (Dawn uses arrays + a
- * `filter` on each unsubscribe). Behaviour is equivalent; surface is not.
+ * Architecture:
+ *   - Focus trap: per-container WeakMap for cleanup so multiple traps
+ *     can coexist and be torn down independently.
+ *   - Event bus: Map<eventName, Set<listener>> for O(1) unsubscribe
+ *     without rebuilding the listener collection on each removal.
+ *   - escapeCloseDetails: document-level keydown that closes the
+ *     nearest open <details> on Escape, so dropdowns/disclosures
+ *     don't require per-component Escape wiring.
  */
 
 (function (global) {
@@ -41,8 +42,9 @@
     return Array.prototype.slice.call(root.querySelectorAll(FOCUSABLE_SELECTOR));
   }
 
-  // Per-container state so multiple traps can coexist and be torn down
-  // independently. Dawn uses a single shared handler object.
+  // Per-container state so multiple traps can coexist and be torn
+  // down independently — each container keeps its own keydown and
+  // focusin handlers; teardown only removes its own listeners.
   var activeTraps = new WeakMap();
 
   function enableFocusTrap(container, focusTarget) {

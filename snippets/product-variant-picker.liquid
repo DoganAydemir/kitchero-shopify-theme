@@ -33,8 +33,7 @@
 
         {%- if is_color -%}
           {%- comment -%}
-            Swatch resolution priority — matches the Shopify Online Store
-            2.0 pattern used by Dawn / Impulse:
+            Swatch resolution priority (Shopify OS 2.0 metafield-first):
             1. Variant metafield `custom.swatch_color` (hex or CSS color)
                — merchant can override any swatch per variant.
             2. Variant metafield `custom.swatch_image` (image swatch) —
@@ -242,11 +241,11 @@
     customer is stuck on whichever variant happened to be active at page
     load. The pattern below — a visible-only-when-JS-is-off native
     <select name="id"> that posts to /cart/add directly via its own
-    form — is the same shape Dawn ships. The picker itself is wrapped in
-    <noscript> so it is *hidden when JS is on*, preventing duplicate
-    controls from conflicting. The form's submit button is labeled
-    "Select variant" and relies on the browser's native form POST to the
-    cart — no JS needed.
+    form — is the standard OS 2.0 progressive-enhancement pattern.
+    The picker itself is wrapped in <noscript> so it is *hidden when
+    JS is on*, preventing duplicate controls from conflicting. The
+    form's submit button is labeled "Select variant" and relies on
+    the browser's native form POST to the cart — no JS needed.
   {%- endcomment -%}
   <noscript>
     <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="kt-variant-picker__nojs">
