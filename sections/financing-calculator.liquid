@@ -84,12 +84,19 @@
                     </span>
                     <span class="kt-financing-calculator__term-price">
                       <span class="kt-financing-calculator__term-amount" data-calc-price>0</span>
-                      <span class="kt-financing-calculator__term-per">/mo</span>
+                      <span class="kt-financing-calculator__term-per">{{ 'kt.product.price.per_month_short' | t }}</span>
                     </span>
                     <span
                       class="kt-financing-calculator__term-apr kt-financing-calculator__term-apr--{{ block.settings.accent_color | default: 'neutral' }}"
                     >
-                      {{- block.settings.apr_label | default: block.settings.apr | append: '% APR' -}}
+                      {%- comment -%}
+                        When the merchant fills `apr_label`, display it verbatim
+                        so they can put "0,00% TAEG" / "0 % Zinsen" / etc. When
+                        they leave it blank, fall back to a localized suffix so
+                        shoppers never see an untranslated "% APR" string.
+                      {%- endcomment -%}
+                      {%- assign apr_fallback = 'kt.product.price.apr_suffix_html' | t: rate: block.settings.apr -%}
+                      {{- block.settings.apr_label | default: apr_fallback -}}
                     </span>
                   </button>
                 {%- endif -%}
