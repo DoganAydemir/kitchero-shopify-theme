@@ -7,12 +7,25 @@
       &larr; {{ 'kt.customer.order.back_to_account' | t }}
     </a>
 
-    <header class="kt-account__header" style="text-align: left; margin-bottom: 1rem;">
-      <h1 class="kt-customer__title" style="text-align: left; margin-bottom: 0.5rem;">
+    {%- comment -%}
+      Preformat the order date BEFORE handing it to the translation
+      filter. Previously the line read
+        {{ 'kt.customer.order.date_html' | t: date: order.created_at | date: format: 'date' }}
+      which parses as
+        (('...' | t: date: order.created_at) | date: format: 'date')
+      — i.e. the `| date` filter runs on the already-interpolated
+      translation STRING ("Placed on 2026-01-01…"), not the
+      order.created_at timestamp. Output was garbled or unchanged
+      depending on locale. Split the pipeline so `date` filter runs
+      on the raw timestamp first.
+    {%- endcomment -%}
+    {%- assign order_date_formatted = order.created_at | date: format: 'date' -%}
+    <header class="kt-account__header kt-order__title-block">
+      <h1 class="kt-customer__title kt-order__title-heading">
         {{ 'kt.customer.order.title' | t: name: order.name }}
       </h1>
       <p class="kt-account__greeting">
-        {{ 'kt.customer.order.date_html' | t: date: order.created_at | date: format: 'date' }}
+        {{ 'kt.customer.order.date_html' | t: date: order_date_formatted }}
       </p>
     </header>
 

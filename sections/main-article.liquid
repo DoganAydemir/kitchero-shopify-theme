@@ -29,6 +29,20 @@
           <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
             {{ article.published_at | date: format: 'abbreviated_date' }}
           </time>
+          {%- comment -%}
+            Author byline — Google's NewsArticle/BlogPosting rich result
+            heavily weights a visible author string; without it, Search
+            Console reports "Missing field 'author'" on every article.
+            Shopify's native `article | structured_data` filter already
+            populates the JSON-LD author — this adds the human-visible
+            byline so the page itself matches the structured data.
+          {%- endcomment -%}
+          {%- if article.author != blank -%}
+            <span class="kt-article__meta-rule" aria-hidden="true"></span>
+            <span class="kt-article__meta-item kt-article__meta-author">
+              {{ 'kt.blog.article.by_author_html' | t: author: article.author }}
+            </span>
+          {%- endif -%}
         </div>
 
         <h1 class="kt-article__title">{{ article.title }}</h1>
