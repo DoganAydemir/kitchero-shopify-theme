@@ -8,83 +8,153 @@
 {%- endcomment -%}
 
 <div class="kt-gallery" data-product-gallery>
-  {%- comment -%} Vertical Thumbnail Column (desktop) / Horizontal strip (mobile) {%- endcomment -%}
+  {%- comment -%}
+    Vertical Thumbnail Column (desktop) / Horizontal strip (mobile).
+    Thumbs iterate ALL media types (image / video / external_video /
+    model) so merchants who add a product-demo video or a 3D model
+    get a matching thumbnail. We use each media's `preview_image` for
+    video/model thumbs (Shopify generates a poster frame) and overlay
+    a small type-indicator icon so customers can tell at a glance
+    that the thumb represents a non-image medium.
+  {%- endcomment -%}
   <div class="kt-gallery__thumbs" data-gallery-thumbs>
     {%- for media in product.media -%}
-      {%- if media.media_type == 'image' -%}
-        <button
-          type="button"
-          class="kt-gallery__thumb{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
-          data-gallery-thumb-btn
-          data-media-index="{{ forloop.index0 }}"
-          data-media-id="{{ media.id }}"
-          aria-label="{{ 'kt.product.media.image_available' | t: index: forloop.index }}"
-        >
-          {%- assign thumb_alt = media.alt | default: product.title -%}
-          {{
-            media
-            | image_url: width: 368
-            | image_tag:
-              class: 'kt-gallery__thumb-image',
-              loading: 'lazy',
-              widths: '184, 276, 368, 552',
-              sizes: '92px',
-              width: 92,
-              height: 92,
-              alt: thumb_alt
-          }}
-        </button>
-      {%- endif -%}
+      {%- assign thumb_alt = media.alt | default: product.title -%}
+      {%- assign thumb_source = media.preview_image | default: media -%}
+      {%- assign thumb_aria = 'kt.product.media.image_available' | t: index: forloop.index -%}
+      {%- case media.media_type -%}
+        {%- when 'video' or 'external_video' -%}
+          {%- assign thumb_aria = 'kt.product.media.video_available' | t: index: forloop.index -%}
+        {%- when 'model' -%}
+          {%- assign thumb_aria = 'kt.product.media.model_available' | t: index: forloop.index -%}
+      {%- endcase -%}
+      <button
+        type="button"
+        class="kt-gallery__thumb kt-gallery__thumb--{{ media.media_type }}{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
+        data-gallery-thumb-btn
+        data-media-index="{{ forloop.index0 }}"
+        data-media-id="{{ media.id }}"
+        data-media-type="{{ media.media_type }}"
+        aria-label="{{ thumb_aria }}"
+      >
+        {{
+          thumb_source
+          | image_url: width: 368
+          | image_tag:
+            class: 'kt-gallery__thumb-image',
+            loading: 'lazy',
+            widths: '184, 276, 368, 552',
+            sizes: '92px',
+            width: 92,
+            height: 92,
+            alt: thumb_alt
+        }}
+        {%- case media.media_type -%}
+          {%- when 'video' or 'external_video' -%}
+            <span class="kt-gallery__thumb-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>
+            </span>
+          {%- when 'model' -%}
+            <span class="kt-gallery__thumb-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M12 3l9 4.5-9 4.5-9-4.5L12 3zM3 7.5v9l9 4.5 9-4.5v-9M12 12v9"/></svg>
+            </span>
+        {%- endcase -%}
+      </button>
     {%- endfor -%}
   </div>
 
-  {%- comment -%} Main Image {%- endcomment -%}
+  {%- comment -%}
+    Main media column. Dispatches on media_type:
+      image          — existing eager/lazy image path
+      video          — native Shopify-hosted video (video_tag filter)
+      external_video — YouTube/Vimeo embed (external_video_tag filter)
+      model          — 3D product model (model_viewer_tag filter,
+                       wrapped in <product-model> custom element so
+                       Shopify's model-viewer component can lazy-load).
+    Previously the gallery silently dropped non-image media — a merchant
+    who uploaded a 360° turntable or a product demo video saw nothing on
+    the storefront. Missing media causes visibly broken product pages
+    and was a Theme Store rejection risk.
+  {%- endcomment -%}
   <div class="kt-gallery__main" data-gallery-main>
     {%- for media in product.media -%}
-      {%- if media.media_type == 'image' -%}
-        <div
-          class="kt-gallery__slide{% if forloop.first %} kt-gallery__slide--active{% endif %}"
-          data-gallery-slide="{{ forloop.index0 }}"
-          data-media-id="{{ media.id }}"
-        >
-          {%- comment -%}
-            Pre-assign alt to a variable. Liquid parses `alt: media.alt |
-            default: product.title` inside image_tag as a pipe chain that
-            eats all subsequent params (class, loading, widths, ...), so
-            the img ships without our class and all the layout CSS that
-            depends on it goes missing.
-          {%- endcomment -%}
-          {%- assign media_alt = media.alt | default: product.title -%}
-          {%- if forloop.first -%}
+      {%- assign media_alt = media.alt | default: product.title -%}
+      <div
+        class="kt-gallery__slide kt-gallery__slide--{{ media.media_type }}{% if forloop.first %} kt-gallery__slide--active{% endif %}"
+        data-gallery-slide="{{ forloop.index0 }}"
+        data-media-id="{{ media.id }}"
+        data-media-type="{{ media.media_type }}"
+      >
+        {%- case media.media_type -%}
+          {%- when 'image' -%}
+            {%- if forloop.first -%}
+              {{
+                media
+                | image_url: width: 1200
+                | image_tag:
+                  class: 'kt-gallery__image',
+                  loading: 'eager',
+                  fetchpriority: 'high',
+                  widths: '375, 550, 750, 1100',
+                  sizes: '(min-width: 990px) 58vw, 100vw',
+                  width: media.width,
+                  height: media.height,
+                  alt: media_alt
+              }}
+            {%- else -%}
+              {{
+                media
+                | image_url: width: 1200
+                | image_tag:
+                  class: 'kt-gallery__image',
+                  loading: 'lazy',
+                  widths: '375, 550, 750, 1100',
+                  sizes: '(min-width: 990px) 58vw, 100vw',
+                  width: media.width,
+                  height: media.height,
+                  alt: media_alt
+              }}
+            {%- endif -%}
+          {%- when 'video' -%}
             {{
               media
-              | image_url: width: 1200
-              | image_tag:
-                class: 'kt-gallery__image',
-                loading: 'eager',
-                fetchpriority: 'high',
-                widths: '375, 550, 750, 1100',
-                sizes: '(min-width: 990px) 58vw, 100vw',
-                width: media.width,
-                height: media.height,
-                alt: media_alt
+              | video_tag:
+                class: 'kt-gallery__video',
+                controls: true,
+                preload: 'metadata',
+                loop: false,
+                image_size: '1200x'
             }}
+          {%- when 'external_video' -%}
+            {%- comment -%}
+              External video provider needs its iframe wrapped so we can
+              constrain aspect ratio. Shopify's external_video_tag emits
+              a raw <iframe>; we wrap to preserve kt-gallery layout.
+            {%- endcomment -%}
+            <div class="kt-gallery__external-video">
+              {{
+                media
+                | external_video_tag:
+                  class: 'kt-gallery__video',
+                  loading: 'lazy'
+              }}
+            </div>
+          {%- when 'model' -%}
+            <product-model class="kt-gallery__model" data-media-id="{{ media.id }}">
+              {{
+                media
+                | model_viewer_tag:
+                  image_size: '1200x',
+                  reveal: 'interaction',
+                  toggleable: true,
+                  class: 'kt-gallery__model-viewer'
+              }}
+            </product-model>
           {%- else -%}
-            {{
-              media
-              | image_url: width: 1200
-              | image_tag:
-                class: 'kt-gallery__image',
-                loading: 'lazy',
-                widths: '375, 550, 750, 1100',
-                sizes: '(min-width: 990px) 58vw, 100vw',
-                width: media.width,
-                height: media.height,
-                alt: media_alt
-            }}
-          {%- endif -%}
-        </div>
-      {%- endif -%}
+            {%- comment -%} Fall-through for any future media type. {%- endcomment -%}
+            {{ media | media_tag: class: 'kt-gallery__image', image_size: '1200x' }}
+        {%- endcase -%}
+      </div>
     {%- endfor -%}
 
     {%- if product.media.size == 0 -%}
