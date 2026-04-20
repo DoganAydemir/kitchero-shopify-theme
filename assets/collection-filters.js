@@ -14,27 +14,43 @@ if (window.__kitcheroCollectionFiltersLoaded) {
 (function () {
   'use strict';
 
+  /* Delegated listener state. We hang the `change`/`input` listeners
+     on the document once and filter via `closest([data-filter-*])`
+     so every re-render of the grid / sidebar keeps filters working
+     without re-binding. The prior per-node binding died the moment
+     applyFilters() swapped the `.kt-collection__active-filters` HTML
+     with `outerHTML`: new checkboxes had no listener, so a second
+     click would full-page reload instead of AJAX-refining. */
+  var priceTimer;
+
+  function onChange(event) {
+    var cb = event.target.closest && event.target.closest('[data-filter-checkbox]');
+    if (cb) {
+      applyFilters();
+      return;
+    }
+  }
+
+  function onInput(event) {
+    var price = event.target.closest && event.target.closest('[data-filter-price]');
+    if (price) {
+      clearTimeout(priceTimer);
+      priceTimer = setTimeout(applyFilters, 800);
+    }
+  }
+
   function init() {
+    /* Only bind when a filter form is present — avoids wiring on
+       non-collection templates. The listeners themselves are
+       idempotent via `document.__ktFiltersBound`. */
     var forms = document.querySelectorAll('[data-collection-filters-form]');
     if (forms.length === 0) return;
 
-    /* Checkbox change → AJAX filter update */
-    document.querySelectorAll('[data-filter-checkbox]').forEach(function (checkbox) {
-      checkbox.addEventListener('change', function () {
-        applyFilters();
-      });
-    });
-
-    /* Price input → debounced AJAX */
-    var priceTimer;
-    document.querySelectorAll('[data-filter-price]').forEach(function (input) {
-      input.addEventListener('input', function () {
-        clearTimeout(priceTimer);
-        priceTimer = setTimeout(function () {
-          applyFilters();
-        }, 800);
-      });
-    });
+    if (!document.__ktFiltersBound) {
+      document.__ktFiltersBound = true;
+      document.addEventListener('change', onChange);
+      document.addEventListener('input', onInput);
+    }
   }
 
   function buildFilterUrl() {

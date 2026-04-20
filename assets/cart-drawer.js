@@ -74,6 +74,14 @@
     }
 
     open() {
+      /* Remember the element the customer was on when they opened the
+         drawer so we can restore focus there on close. Without this the
+         closed drawer leaves focus on <body> and the next Tab jumps to
+         the first focusable element on the page — disorienting for
+         keyboard-only users who expected focus to return to the cart
+         icon they just clicked. */
+      this.lastTrigger = document.activeElement;
+
       this.drawer.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
@@ -89,6 +97,15 @@
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.disable(this.panel);
       }
+
+      /* Restore focus to the element that opened the drawer (usually
+         the header cart icon). Guard against detached nodes — if the
+         trigger was inside a section that got unloaded in the theme
+         editor while the drawer was open, skip the restore. */
+      if (this.lastTrigger && typeof this.lastTrigger.focus === 'function' && document.contains(this.lastTrigger)) {
+        this.lastTrigger.focus();
+      }
+      this.lastTrigger = null;
     }
 
     updateQuantity(key, quantity) {

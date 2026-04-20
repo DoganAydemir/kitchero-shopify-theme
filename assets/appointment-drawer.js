@@ -38,6 +38,15 @@
     if (firstInput) {
       setTimeout(function () { firstInput.focus(); }, 400);
     }
+
+    /* Focus trap — shared utility on window.Kitchero from global.js.
+       Keeps Tab/Shift+Tab cycling inside the drawer panel so keyboard
+       users can't accidentally reach page content hidden behind the
+       overlay. Previously absent: Tab would walk off the last field
+       into the masked page below. */
+    if (window.Kitchero && window.Kitchero.focusTrap && typeof window.Kitchero.focusTrap.enable === 'function') {
+      window.Kitchero.focusTrap.enable(d);
+    }
   }
 
   function closeDrawer(e) {
@@ -47,6 +56,12 @@
 
     d.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+
+    // Release the focus trap BEFORE restoring focus — otherwise the
+    // trap's last active element may block the restoration.
+    if (window.Kitchero && window.Kitchero.focusTrap && typeof window.Kitchero.focusTrap.disable === 'function') {
+      window.Kitchero.focusTrap.disable(d);
+    }
 
     // Restore focus to whatever opened the drawer
     if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
