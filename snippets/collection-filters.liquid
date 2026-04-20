@@ -12,7 +12,15 @@
     {%- for filter in collection.filters -%}
       <div class="kt-filter" data-filter-group>
         {%- case filter.type -%}
-          {%- when 'list' -%}
+          {%- comment -%}
+            `boolean` filters (merchants marking a product metafield as
+            filterable with a boolean type) share the same shape as
+            `list` — they expose `filter.values` with a checked flag per
+            value — so we dispatch them through the same checkbox
+            renderer. Without this branch, any boolean-typed filter the
+            merchant set up silently disappears from the sidebar.
+          {%- endcomment -%}
+          {%- when 'list' or 'boolean' -%}
             <details class="kt-filter__details"{% if filter.active_values.size > 0 %} open{% endif %}>
               <summary class="kt-filter__summary">
                 <span class="kt-filter__title">{{ filter.label }}</span>
