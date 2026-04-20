@@ -222,6 +222,26 @@
                 {{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}
               </p>
 
+              {%- comment -%}
+                Progressive-enhancement fallback for JS-off users.
+                With JS on, main-cart.js AJAX-updates line quantities
+                on input blur/debounce, so the Update button is never
+                needed. With JS off there is no other way to apply the
+                new `updates[{key}]` values the shopper typed into the
+                number inputs — or to remove a line (set qty 0 + submit).
+                The <noscript> tag hides this entire block the moment JS
+                is available, so it never double-renders next to the
+                live stepper UI.
+              {%- endcomment -%}
+              <noscript>
+                <button type="submit" name="update" class="kt-cart-page__update">
+                  {{ 'kt.cart.update_cart' | t | default: 'Update cart' }}
+                </button>
+                <p class="kt-cart-page__js-off-hint">
+                  {{ 'kt.cart.js_off_hint' | t | default: 'Set quantity to 0 and update the cart to remove an item.' }}
+                </p>
+              </noscript>
+
               <button type="submit" name="checkout" class="kt-cart-page__checkout">
                 {{ 'kt.cart.checkout' | t }}
               </button>
