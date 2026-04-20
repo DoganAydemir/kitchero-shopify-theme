@@ -72,12 +72,9 @@
 /* When CMS content IS present but the merchant hasn't set any padding,
    give it a polite editorial minimum so raw paragraphs don't jam into
    the dotted header or the next section. Merchants who want flush
-   can still override to 0. */
-.kt-main-page__body:not(:empty) {
-  padding-top: clamp(2.5rem, 6vw, 5rem);
-  padding-bottom: clamp(3rem, 7vw, 6rem);
-}
-
+   can still override to 0. The var() fallback is the clamp so either
+   the merchant-controlled custom property OR the built-in minimum
+   applies — no duplicate rule required. */
 .kt-main-page__body:not(:empty) {
   padding-top: var(--kt-main-page-padding-top-mobile, clamp(2.5rem, 6vw, 5rem));
   padding-bottom: var(--kt-main-page-padding-bottom-mobile, clamp(3rem, 7vw, 6rem));
