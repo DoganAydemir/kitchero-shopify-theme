@@ -384,3 +384,31 @@
   50% { transform: translateY(200%); }
   100% { transform: translateY(200%); }
 }
+
+/* ── Reduced motion ──────────────────────────────────────
+   The hero is the first thing a shopper sees and uses a lot of
+   motion: fade-up text, slide-up headings, scale-in CTA, and a
+   looping scroll-bar ping. For shoppers with vestibular disorders
+   or who just prefer calmer interfaces, collapse all of this to
+   static state — text is fully readable, CTA is clickable, the
+   hero is visually intact. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-hero__anim,
+  .kt-hero__anim--scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .kt-hero__anim-slide {
+    transform: none;
+    transition: none;
+  }
+
+  .kt-hero__scroll-bar-indicator {
+    animation: none;
+    height: 33%;
+    /* Leave the indicator visible at its rest position so the scroll
+       affordance is still communicated — just without the ping loop. */
+  }
+}

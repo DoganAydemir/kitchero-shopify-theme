@@ -161,6 +161,24 @@
   75%, 100% { transform: scale(1.5); opacity: 0; }
 }
 
+/* ── Reduced motion ──────────────────────────────────────
+   The looping ping halo around every hotspot is deliberately
+   attention-grabbing; for shoppers who prefer less motion it becomes
+   a distracting strobe. Swap the infinite animation for a static
+   ring at rest so the hotspot is still visibly clickable. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-shop-the-look__hotspot::after {
+    animation: none;
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  .kt-shop-the-look__hotspot svg,
+  .kt-shop-the-look__hotspot--active svg {
+    transition: none;
+  }
+}
+
 /* Desktop Popup: hidden md:block absolute w-72 bg-white p-5 rounded-2xl shadow */
 .kt-shop-the-look__popup {
   display: none;
