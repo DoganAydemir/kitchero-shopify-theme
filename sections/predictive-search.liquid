@@ -7,8 +7,12 @@
   Shopify exposes the results via the `predictive_search` global so this
   section has no schema-driven settings — it is purely a render target.
   We still expose a `{% schema %}` block because Shopify requires every
-  file in `sections/` to declare one; the section is not meant to be added
-  manually by merchants, so `enabled_on` is empty.
+  file in `sections/` to declare one; `disabled_on` with wildcard
+  templates+groups keeps the section out of the theme editor's "Add
+  section" UI so merchants can't accidentally drop a bare render target
+  onto a page. (`enabled_on.templates: []` is invalid per Shopify spec —
+  the field can't be blank; `disabled_on` is the correct utility-section
+  pattern.)
 {%- endcomment -%}
 
 <div class="kt-predictive-search" data-predictive-search-root>
@@ -145,8 +149,9 @@
 {% schema %}
 {
   "name": "t:sections.predictive-search.name",
-  "enabled_on": {
-    "templates": []
+  "disabled_on": {
+    "templates": ["*"],
+    "groups": ["*"]
   },
   "settings": []
 }
