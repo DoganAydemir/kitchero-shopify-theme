@@ -186,4 +186,41 @@
       {%- endfor -%}
     </select>
   </div>
+
+  {%- comment -%}
+    JS-off fallback. Our primary variant UI above is a set of radio/swatch
+    fieldsets that talk to product-form.js; with JS disabled they do not
+    update the hidden `name="id"` input inside the product form and the
+    customer is stuck on whichever variant happened to be active at page
+    load. The pattern below — a visible-only-when-JS-is-off native
+    <select name="id"> that posts to /cart/add directly via its own
+    form — is the same shape Dawn ships. The picker itself is wrapped in
+    <noscript> so it is *hidden when JS is on*, preventing duplicate
+    controls from conflicting. The form's submit button is labeled
+    "Select variant" and relies on the browser's native form POST to the
+    cart — no JS needed.
+  {%- endcomment -%}
+  <noscript>
+    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="kt-variant-picker__nojs">
+      <label for="VariantNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
+        {{ 'kt.product.variant' | t | default: 'Variant' }}
+      </label>
+      <select id="VariantNoJs-{{ product.id }}" name="id" class="kt-variant-picker__nojs-select">
+        {%- for variant in product.variants -%}
+          <option
+            value="{{ variant.id }}"
+            {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
+            {% unless variant.available %}disabled{% endunless %}
+          >
+            {{ variant.title }}
+            {%- unless variant.available %} — {{ 'kt.product.sold_out' | t | default: 'sold out' }}{% endunless -%}
+            {%- if variant.available %} — {{ variant.price | money }}{% endif -%}
+          </option>
+        {%- endfor -%}
+      </select>
+      <button type="submit" class="kt-variant-picker__nojs-submit">
+        {{ 'kt.product.add_to_cart' | t | default: 'Add to cart' }}
+      </button>
+    </form>
+  </noscript>
 {%- endunless -%}
