@@ -118,9 +118,28 @@
 
       {%- comment -%} Price {%- endcomment -%}
       <div class="kt-card-product__price-row">
-        <span class="kt-card-product__price">{{ product.price | money }}</span>
+        {%- if product.price_varies -%}
+          <span class="kt-card-product__price-from">{{ 'kt.product.from_price_label' | t }}</span>
+          <span class="kt-card-product__price">{{ product.price_min | money }}</span>
+        {%- else -%}
+          <span class="kt-card-product__price">
+            {%- if product.compare_at_price > product.price -%}
+              <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
+            {%- endif -%}
+            {{ product.price | money }}
+          </span>
+        {%- endif -%}
         {%- if product.compare_at_price > product.price -%}
-          <span class="kt-card-product__compare-price">{{ product.compare_at_price | money }}</span>
+          {%- comment -%}
+            <s> makes the strikethrough semantic so screen readers
+            announce the "no-longer-valid" meaning of the price.
+            Visually-hidden prefix supplies the textual label so AT
+            reads "Regular price $80" instead of just "$80".
+          {%- endcomment -%}
+          <s class="kt-card-product__compare-price">
+            <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
+            {{ product.compare_at_price | money }}
+          </s>
         {%- endif -%}
       </div>
 

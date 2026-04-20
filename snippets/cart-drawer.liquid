@@ -49,7 +49,20 @@
                 <a href="{{ item.url }}" class="kt-cart-drawer__item-title">
                   {{- item.product.title -}}
                 </a>
-                <span class="kt-cart-drawer__item-price">{{ item.final_line_price | money }}</span>
+                <div class="kt-cart-drawer__item-price-stack">
+                  <span class="kt-cart-drawer__item-price">{{ item.final_line_price | money }}</span>
+                  {%- comment -%}
+                    EU unit pricing mirror of the main cart page — when
+                    the variant has a unit_price_measurement, show the
+                    per-reference-unit price in muted text beneath the
+                    line total.
+                  {%- endcomment -%}
+                  {%- if item.variant.unit_price_measurement -%}
+                    <span class="kt-cart-drawer__item-unit-measure">
+                      {{ item.variant.unit_price | money }}/{% if item.variant.unit_price_measurement.reference_value != 1 %}{{ item.variant.unit_price_measurement.reference_value }}&nbsp;{% endif %}{{ item.variant.unit_price_measurement.reference_unit }}
+                    </span>
+                  {%- endif -%}
+                </div>
               </div>
 
               {%- comment -%} Row 2: variant / properties {%- endcomment -%}

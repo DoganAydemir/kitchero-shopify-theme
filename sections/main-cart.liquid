@@ -86,6 +86,19 @@
                     <div class="kt-cart-page__item-unit-price">
                       <span class="kt-cart-page__item-unit-label">{{ 'kt.cart.headers.unit_price' | t | default: 'Unit price' }}</span>
                       <span class="kt-cart-page__item-unit-value">{{ item.original_price | money }}</span>
+                      {%- comment -%}
+                        EU unit pricing — when the variant is sold by
+                        weight/volume (e.g. per 100 g, per litre),
+                        render the reference-unit price alongside.
+                        Required in EU markets by consumer-protection
+                        directives; cart is one of the pages where
+                        price-transparency law inspects display.
+                      {%- endcomment -%}
+                      {%- if item.variant.unit_price_measurement -%}
+                        <span class="kt-cart-page__item-unit-measure">
+                          {{ item.variant.unit_price | money }}/{% if item.variant.unit_price_measurement.reference_value != 1 %}{{ item.variant.unit_price_measurement.reference_value }}&nbsp;{% endif %}{{ item.variant.unit_price_measurement.reference_unit }}
+                        </span>
+                      {%- endif -%}
                     </div>
 
                     {%- comment -%} Mobile-only: inline remove link under info {%- endcomment -%}
