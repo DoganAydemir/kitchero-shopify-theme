@@ -42,17 +42,41 @@
           {{ 'kt.section.collection.of' | t | default: 'of' }}
           {{ collection.products_count }}
         </p>
-        <div class="kt-collection__sort">
+        {%- comment -%}
+          Sort is wrapped in its own GET form so it works with JS off
+          (the select's change handler is a JS enhancement). Active
+          filter values are echoed as hidden inputs so picking a new
+          sort order doesn't drop the shopper's current filters.
+        {%- endcomment -%}
+        <form action="{{ collection.url }}" method="get" class="kt-collection__sort" data-collection-sort-form>
           {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+          {%- for filter in collection.filters -%}
+            {%- for active_value in filter.active_values -%}
+              <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value }}">
+            {%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value != blank -%}
+                <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}">
+              {%- endif -%}
+              {%- if filter.max_value.value != blank -%}
+                <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}">
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
           <label for="SortBy" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
-          <select id="SortBy" class="kt-collection__sort-select" data-collection-sort>
+          <select id="SortBy" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
             {%- for option in collection.sort_options -%}
               <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
                 {{ option.name }}
               </option>
             {%- endfor -%}
           </select>
-        </div>
+          <noscript>
+            <button type="submit" class="kt-collection__sort-apply button">
+              {{ 'kt.section.collection.apply' | t | default: 'Apply' }}
+            </button>
+          </noscript>
+        </form>
       </div>
 
       {%- assign active_filters_count = 0 -%}
