@@ -285,6 +285,22 @@
           {%- else -%}
             <div class="kt-account__empty">
               <p>{{ 'kt.customer.addresses.no_addresses' | t }}</p>
+              {%- comment -%}
+                Give brand-new customers a direct CTA instead of a
+                flat paragraph. The data-addresses-toggle-new hook
+                is the same handler that the "+ Add new address"
+                header button uses, so clicking this reveals the
+                inline new-address form below.
+              {%- endcomment -%}
+              <button
+                type="button"
+                class="kt-account__cta"
+                data-addresses-toggle-new
+                aria-expanded="false"
+                aria-controls="AddressNewForm"
+              >
+                {{ 'kt.customer.addresses.add_new' | t }}
+              </button>
             </div>
           {%- endif -%}
         {%- endpaginate -%}

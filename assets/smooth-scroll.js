@@ -12,6 +12,15 @@
 (function () {
   'use strict';
 
+  /* Double-init guard. The Section Rendering API can re-inject
+     deferred scripts (merchant-editor section reload, or a section
+     fetching its own HTML that happens to include our script tag).
+     Without this guard each re-injection starts a NEW Lenis instance
+     + a NEW gsap.ticker.add — two tickers then advance the same
+     lenis.raf twice per frame, doubling scroll velocity and
+     corrupting the scroll state. */
+  if (window.kitcheroLenis) return;
+
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 

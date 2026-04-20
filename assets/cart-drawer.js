@@ -111,10 +111,34 @@
     updateQuantity(key, quantity) {
       var self = this;
 
-      /* Optimistic disable: freeze the clicked row while the server
-         catches up so rapid double-clicks don't fire two mutations */
+      /* Per-line request lock — coalesces rapid +/- clicks on the
+         same row. Without this, tapping `+` five times in 500 ms
+         fires five concurrent POST /cart/change.js requests; responses
+         arrive out of order and the last-arriving response (not the
+         last-clicked quantity) becomes the cart state. With the lock,
+         the LAST desired quantity is always what lands on the
+         server — intermediate clicks collapse into a queued value
+         that fires as soon as the inflight request completes. */
+      self._pendingQty = self._pendingQty || Object.create(null);
+      self._inflight = self._inflight || Object.create(null);
+
+      if (self._inflight[key]) {
+        /* An update is in flight for this line. Record the latest
+           requested quantity; it will flush when the current POST
+           resolves. */
+        self._pendingQty[key] = quantity;
+        return;
+      }
+
+      /* Optimistic disable: freeze the clicked row visually + stop
+         pointer events on it so no additional clicks race through
+         between the lock check and the fetch kickoff. */
       var row = self.drawer.querySelector('[data-line-key="' + key + '"]');
-      if (row) row.style.opacity = '0.5';
+      if (row) {
+        row.style.opacity = '0.5';
+        row.style.pointerEvents = 'none';
+      }
+      self._inflight[key] = true;
 
       fetch(Kitchero.routes.cartChange + '.js', {
         method: 'POST',
@@ -129,7 +153,25 @@
         })
         .catch(function (error) {
           console.error('Cart update error:', error);
-          if (row) row.style.opacity = '';
+        })
+        .then(function () {
+          /* Release the lock regardless of success/failure. If a new
+             quantity was requested while the fetch was in flight,
+             flush it now — recursion depth is bounded by the user's
+             click rate, and each recursion starts a real request so
+             we don't busy-loop. */
+          self._inflight[key] = false;
+          if (row) {
+            row.style.opacity = '';
+            row.style.pointerEvents = '';
+          }
+          if (self._pendingQty && self._pendingQty[key] !== undefined) {
+            var pending = self._pendingQty[key];
+            delete self._pendingQty[key];
+            if (pending !== quantity) {
+              self.updateQuantity(key, pending);
+            }
+          }
         });
     }
 

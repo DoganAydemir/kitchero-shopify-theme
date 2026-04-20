@@ -91,4 +91,15 @@
       closeDrawer();
     }
   });
+
+  /* Safety net: if the drawer (or a containing section) is removed
+     from the page while the drawer is open (theme editor section
+     unload), the body-overflow lock stays engaged and the customer
+     can't scroll. Restore overflow on any section:unload event —
+     harmless no-op when the drawer wasn't open. */
+  document.addEventListener('shopify:section:unload', function () {
+    if (document.body.style.overflow === 'hidden' && !isOpen()) {
+      document.body.style.overflow = '';
+    }
+  });
 })();

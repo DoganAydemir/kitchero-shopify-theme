@@ -21,10 +21,30 @@ if (!window.__kitcheroMainCartLoaded) {
     var DEBOUNCE_MS = 500;
     var debounceTimers = {};
 
+    /* Per-line request lock state. Prevents rapid +/- clicks from
+       firing concurrent POST /cart/change.js requests whose
+       responses race each other — the final cart state becomes
+       whichever response arrives last, not whichever click
+       was last (those are often different). */
+    var inflight = Object.create(null);
+    var pendingQty = Object.create(null);
+
     function updateLine(key, quantity, triggerEl) {
+      if (inflight[key]) {
+        /* Coalesce: remember the latest requested quantity; it will
+           fire as soon as the inflight request resolves. Don't queue
+           multiple — only the latest wins. */
+        pendingQty[key] = quantity;
+        return Promise.resolve();
+      }
+      inflight[key] = true;
+
       if (triggerEl) triggerEl.setAttribute('aria-busy', 'true');
       var row = document.querySelector('[data-line-key="' + key + '"]');
-      if (row) row.style.opacity = '0.5';
+      if (row) {
+        row.style.opacity = '0.5';
+        row.style.pointerEvents = 'none';
+      }
 
       return fetch(Kitchero.routes.cartChange + '.js', {
         method: 'POST',
@@ -43,6 +63,20 @@ if (!window.__kitcheroMainCartLoaded) {
           if (row) row.style.opacity = '';
           /* Fallback: reload the page so the UI isn't stuck in a stale state */
           window.location.reload();
+        })
+        .then(function () {
+          /* Release lock; flush pending queue. */
+          inflight[key] = false;
+          if (row) {
+            row.style.opacity = '';
+            row.style.pointerEvents = '';
+          }
+          if (triggerEl) triggerEl.removeAttribute('aria-busy');
+          if (pendingQty[key] !== undefined) {
+            var pending = pendingQty[key];
+            delete pendingQty[key];
+            if (pending !== quantity) updateLine(key, pending, triggerEl);
+          }
         });
     }
 

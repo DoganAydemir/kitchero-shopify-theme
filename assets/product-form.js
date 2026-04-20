@@ -109,8 +109,17 @@
     }
 
     /* AJAX Add to Cart */
+    var atcInflight = false;
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+
+      /* Inflight guard — prevents a rapid double-tap from submitting
+         two /cart/add.js requests. Shopify's add endpoint is NOT
+         idempotent: two identical POSTs within 100 ms add the item
+         twice. Reject the second submit until the first finishes. */
+      if (atcInflight) return;
+      atcInflight = true;
+
       clearError();
 
       var formData = {
@@ -125,6 +134,10 @@
       if (atcBtn) {
         atcBtn.classList.add('kt-product-form__atc--loading');
         atcBtn.setAttribute('aria-busy', 'true');
+        /* inert/aria-disabled keep the button non-interactive for
+           keyboard and screen-reader users without inheriting the
+           sold-out red scheme from :disabled. */
+        atcBtn.setAttribute('aria-disabled', 'true');
       }
 
       fetch(Kitchero.routes.cartAdd + '.js', {
@@ -169,7 +182,11 @@
                page after adding. Refresh header count first so it
                blips visibly, then navigate. The delay keeps the
                "Added to Cart!" success state on the button long
-               enough for the customer to register what happened. */
+               enough for the customer to register what happened.
+               The .catch belt-and-braces the navigation: if the
+               header-count fetch fails (offline, blocked) we still
+               navigate to /cart so the customer isn't stranded on
+               the success state forever. */
             fetch(Kitchero.routes.cart + '.js')
               .then(function (r) { return r.json(); })
               .then(function (cart) {
@@ -177,6 +194,9 @@
                   el.textContent = cart.item_count;
                   el.style.display = cart.item_count > 0 ? '' : 'none';
                 });
+              })
+              .catch(function () {
+                /* header count refresh failed; still navigate. */
               })
               .then(function () {
                 setTimeout(function () {
@@ -217,10 +237,23 @@
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
             atcBtn.removeAttribute('aria-busy');
+            atcBtn.removeAttribute('aria-disabled');
           }
           var fallback = (Kitchero.variantStrings && Kitchero.variantStrings.addToCartError)
             || 'Something went wrong. Please try again.';
           showError((error && error.message) || fallback);
+        })
+        .then(function () {
+          /* Release inflight lock regardless of path. On success the
+             aria-disabled is released here (not in the success branch
+             because that branch continues to refresh + navigate after
+             a 700ms delay). Page-mode re-enables the button briefly
+             before the navigation actually happens; that's cosmetic
+             and harmless. */
+          atcInflight = false;
+          if (atcBtn && atcBtn.hasAttribute('aria-disabled')) {
+            atcBtn.removeAttribute('aria-disabled');
+          }
         });
     });
   }
@@ -413,7 +446,42 @@
         navigator.clipboard.writeText(url).then(function () {
           if (labelEl) labelEl.textContent = labelCopied;
           restore();
-        }).catch(function () { /* clipboard blocked — no-op */ });
+        }).catch(function () {
+          legacyCopyFallback();
+        });
+        return;
+      }
+
+      /* Last-resort fallback for browsers without Web Share API AND
+         without Clipboard API (or with both blocked — permission
+         policy, insecure context, etc.). Fill a hidden textarea with
+         the share URL, select it, execCommand('copy'), and toast
+         "Link copied" if it succeeded. If even that fails, select
+         the text so the customer can press Ctrl+C manually. */
+      legacyCopyFallback();
+
+      function legacyCopyFallback() {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = url;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          ta.style.left = '-9999px';
+          ta.setAttribute('readonly', '');
+          document.body.appendChild(ta);
+          ta.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          document.body.removeChild(ta);
+          if (ok && labelEl) {
+            labelEl.textContent = labelCopied;
+            restore();
+          }
+        } catch (e) {
+          /* Give up silently. The <a href> fallback on the button
+             element's own `href` attribute (when present) is the
+             customer's remaining recourse. */
+        }
       }
     });
   }

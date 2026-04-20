@@ -7,6 +7,29 @@
   - product: {Object} Shopify product
 {%- endcomment -%}
 
+{%- comment -%}
+  Resolve the initial active media. When the customer lands via
+  `?variant=N`, Shopify already sets product.selected_or_first_available_variant
+  to variant N and that variant carries its own featured_media. The
+  gallery must start on THAT media, not on product.media.first.
+  Previously the `{% if forloop.first %}` check hardcoded index 0,
+  so deep-links painted the wrong active slide + thumb even though
+  the buy form was correctly wired to variant N.
+
+  Fall through: variant.featured_media.id → product.featured_media.id
+  → product.media.first.id. If none exist (product has zero media),
+  active_media_id stays nil and the placeholder branch renders.
+{%- endcomment -%}
+{%- liquid
+  assign active_media_id = product.selected_or_first_available_variant.featured_media.id
+  if active_media_id == nil
+    assign active_media_id = product.featured_media.id
+  endif
+  if active_media_id == nil and product.media.first
+    assign active_media_id = product.media.first.id
+  endif
+-%}
+
 <div class="kt-gallery" data-product-gallery>
   {%- comment -%}
     Vertical Thumbnail Column (desktop) / Horizontal strip (mobile).
@@ -30,7 +53,7 @@
       {%- endcase -%}
       <button
         type="button"
-        class="kt-gallery__thumb kt-gallery__thumb--{{ media.media_type }}{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
+        class="kt-gallery__thumb kt-gallery__thumb--{{ media.media_type }}{% if media.id == active_media_id %} kt-gallery__thumb--active{% endif %}"
         data-gallery-thumb-btn
         data-media-index="{{ forloop.index0 }}"
         data-media-id="{{ media.id }}"
@@ -80,14 +103,22 @@
     {%- for media in product.media -%}
       {%- assign media_alt = media.alt | default: product.title -%}
       <div
-        class="kt-gallery__slide kt-gallery__slide--{{ media.media_type }}{% if forloop.first %} kt-gallery__slide--active{% endif %}"
+        class="kt-gallery__slide kt-gallery__slide--{{ media.media_type }}{% if media.id == active_media_id %} kt-gallery__slide--active{% endif %}"
         data-gallery-slide="{{ forloop.index0 }}"
         data-media-id="{{ media.id }}"
         data-media-type="{{ media.media_type }}"
       >
         {%- case media.media_type -%}
           {%- when 'image' -%}
-            {%- if forloop.first -%}
+            {%- comment -%}
+              Eager-load the ACTIVE image (not just the first-indexed
+              one) so the LCP resource matches what the customer
+              actually sees. When they land via `?variant=N` the
+              variant's featured_media is the one painted above the
+              fold; preloading the index-0 image would cost bytes
+              for an image the viewer won't see.
+            {%- endcomment -%}
+            {%- if media.id == active_media_id -%}
               {{
                 media
                 | image_url: width: 1200
