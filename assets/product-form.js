@@ -163,16 +163,26 @@
         })
         .then(function () {
           /* Show success state */
+          var addedLabel = (Kitchero.variantStrings && Kitchero.variantStrings.addedToCart) || 'Added to cart!';
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
             atcBtn.removeAttribute('aria-busy');
             atcBtn.classList.add('kt-product-form__atc--added');
-            var addedLabel = (Kitchero.variantStrings && Kitchero.variantStrings.addedToCart) || 'Added to cart!';
             if (atcText) atcText.textContent = addedLabel;
             setTimeout(function () {
               atcBtn.classList.remove('kt-product-form__atc--added');
               if (atcText) atcText.textContent = Kitchero.variantStrings ? Kitchero.variantStrings.addToCart : 'Add to cart';
             }, 2000);
+          }
+          /* SR announcement — cart-count span only covers the case
+             where the visible count changed. For blind users on a
+             single-quantity PDP we want an explicit "Added to cart"
+             even though the count going 0→1 already implies it. The
+             visual button state reverts after 2s, so leaning on the
+             button's textContent for announcement would miss readers
+             who arrive at it after the revert. */
+          if (window.Kitchero && typeof Kitchero.announce === 'function') {
+            Kitchero.announce(addedLabel);
           }
 
           var cartType = document.body.getAttribute('data-cart-type') || 'drawer';
@@ -250,7 +260,14 @@
           }
           var fallback = (Kitchero.variantStrings && Kitchero.variantStrings.addToCartError)
             || 'Something went wrong. Please try again.';
-          showError((error && error.message) || fallback);
+          var errorMessage = (error && error.message) || fallback;
+          showError(errorMessage);
+          /* Announce the error assertively — blind users otherwise
+             only discover the failure after pressing ATC again and
+             wondering why the cart count didn't advance. */
+          if (window.Kitchero && typeof Kitchero.announce === 'function') {
+            Kitchero.announce(errorMessage, 'assertive');
+          }
         })
         .then(function () {
           /* Release inflight lock regardless of path. On success the

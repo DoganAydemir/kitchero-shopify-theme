@@ -171,6 +171,36 @@
     </a>
 
     {%- comment -%}
+      Global assertive + polite announcer regions. Any part of the
+      theme can push a message by writing to `#ktAnnouncer` (polite,
+      non-interrupting: filter/sort updates, ATC success, wishlist
+      saved) or `#ktAnnouncerAlert` (assertive: validation errors,
+      destructive-action confirmations). Hidden visually but read
+      out to assistive tech.
+
+      Why a GLOBAL live region and not per-section ones: SRs don't
+      reliably announce newly-inserted aria-live regions — the region
+      has to pre-exist and only its textContent change. Keeping two
+      persistent regions (polite + assertive) means a drawer or
+      section that swaps its DOM out can still emit announcements
+      without losing them in the transition.
+    {%- endcomment -%}
+    <div
+      id="ktAnnouncer"
+      class="visually-hidden"
+      aria-live="polite"
+      aria-atomic="true"
+      role="status"
+    ></div>
+    <div
+      id="ktAnnouncerAlert"
+      class="visually-hidden"
+      aria-live="assertive"
+      aria-atomic="true"
+      role="alert"
+    ></div>
+
+    {%- comment -%}
       Drawer/overlay CSS — only needed when the user opens them via a click.
       Load them async with the media="print"→media="all" swap pattern so they
       never block first render. noscript fallback ensures styling still works

@@ -66,6 +66,29 @@ summary {
   cursor: pointer !important;
 }
 
+/* Kill the 300ms tap-delay on touch devices for every element
+   the customer can interact with. Without this, every link/button
+   tap feels slightly laggy on mobile — the browser waits that long
+   to disambiguate a single-tap from a double-tap-to-zoom gesture.
+   Since we set viewport `width=device-width` and never rely on
+   double-tap-to-zoom inside our interactive controls, disabling
+   gesture-based tap-delay is safe and perceptibly snappier. */
+a,
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+select,
+summary,
+[data-cart-drawer-close],
+[data-search-close],
+[data-close-filter-drawer],
+[data-appointment-close] {
+  touch-action: manipulation;
+}
+
 /* ============================================================
    Layout Utilities
    ============================================================ */

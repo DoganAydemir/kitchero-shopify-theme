@@ -159,6 +159,35 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Global SR announcer — writes to the persistent #ktAnnouncer(Alert) */
+  /* regions in layout/theme.liquid. Call as                            */
+  /*   Kitchero.announce('Added to cart')                               */
+  /*   Kitchero.announce('Out of stock', 'assertive')                   */
+  /* "polite" (default) waits for a break in SR speech; "assertive"     */
+  /* interrupts. Don't pick "assertive" lightly — it's for destructive  */
+  /* or blocking messages only.                                         */
+  /*                                                                    */
+  /* Why reset textContent to '' first: SRs are finicky about announcing*/
+  /* when the textContent goes from `A` to `A` (same string, real       */
+  /* cause). Clearing to '' then setting the new value on the next      */
+  /* frame forces the read.                                             */
+  /* ------------------------------------------------------------------ */
+
+  function announce(message, urgency) {
+    if (!message) return;
+    var id = urgency === 'assertive' ? 'ktAnnouncerAlert' : 'ktAnnouncer';
+    var node = document.getElementById(id);
+    if (!node) return;
+    node.textContent = '';
+    /* rAF + short timeout to give the SR time to observe the reset
+       before we push the new value. Some SRs debounce rapid textContent
+       swaps and miss the announcement otherwise. */
+    requestAnimationFrame(function () {
+      setTimeout(function () { node.textContent = message; }, 50);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Theme-editor bridge: rebroadcast shopify:* events through our bus. */
   /* ------------------------------------------------------------------ */
 
@@ -194,4 +223,5 @@
   };
   global.Kitchero.bus = { on: on, off: off, emit: emit };
   global.Kitchero.escapeCloseDetails = escapeCloseDetails;
+  global.Kitchero.announce = announce;
 })(window);
