@@ -7,9 +7,18 @@
 (function () {
   'use strict';
 
+  /* WeakMap<slider, { onMouseUp, onTouchEnd }> — window-level listeners
+     we attached per instance. We need to be able to remove them on
+     shopify:section:unload to keep the editor from accumulating a
+     stranded mouseup/touchend listener every time the section is
+     removed or re-added. */
+  var windowHandlers = new WeakMap();
+
   function initSlider(container) {
     var slider = container.querySelector('[data-before-after]');
     if (!slider) return;
+    if (slider.dataset.beforeAfterBound === 'true') return;
+    slider.dataset.beforeAfterBound = 'true';
 
     var clip = slider.querySelector('[data-before-clip]');
     var line = slider.querySelector('[data-before-line]');
@@ -42,7 +51,8 @@
       dragging = true;
       updateFromX(e.clientX);
     });
-    window.addEventListener('mouseup', function () { dragging = false; });
+    var onMouseUp = function () { dragging = false; };
+    window.addEventListener('mouseup', onMouseUp);
     slider.addEventListener('mousemove', function (e) {
       if (dragging) updateFromX(e.clientX);
     });
@@ -52,10 +62,13 @@
       dragging = true;
       if (e.touches[0]) updateFromX(e.touches[0].clientX);
     }, { passive: true });
-    window.addEventListener('touchend', function () { dragging = false; });
+    var onTouchEnd = function () { dragging = false; };
+    window.addEventListener('touchend', onTouchEnd);
     slider.addEventListener('touchmove', function (e) {
       if (dragging && e.touches[0]) updateFromX(e.touches[0].clientX);
     }, { passive: true });
+
+    windowHandlers.set(slider, { onMouseUp: onMouseUp, onTouchEnd: onTouchEnd });
 
     /* Click — jump to position */
     slider.addEventListener('click', function (e) { updateFromX(e.clientX); });
@@ -94,5 +107,19 @@
   document.addEventListener('shopify:section:load', function (e) {
     var ba = e.target.querySelector('[data-section-type="before-after"]');
     if (ba) initSlider(ba);
+  });
+
+  /* Detach window-level mouseup/touchend listeners when the section
+     is removed so we don't hold on to closures over a dead DOM tree. */
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e.target || !e.target.querySelector) return;
+    var slider = e.target.querySelector('[data-before-after]');
+    if (!slider) return;
+    var handlers = windowHandlers.get(slider);
+    if (handlers) {
+      window.removeEventListener('mouseup', handlers.onMouseUp);
+      window.removeEventListener('touchend', handlers.onTouchEnd);
+      windowHandlers.delete(slider);
+    }
   });
 })();

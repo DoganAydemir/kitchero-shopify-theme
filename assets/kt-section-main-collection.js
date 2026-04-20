@@ -5,9 +5,20 @@
 (function () {
   'use strict';
 
+  /* WeakMap<section, { onScroll, onKeydown, ctx }> — handles and gsap
+     context we attached per section, stored so shopify:section:unload
+     can detach them. Without this, every re-render in the editor leaks
+     a scroll listener, a keydown listener, and a live ScrollTrigger. */
+  var sectionState = new WeakMap();
+
   function init(container) {
     var section = container.querySelector('[data-section-type="main-collection"]');
     if (!section) return;
+    if (section.dataset.mainCollectionBound === 'true') return;
+    section.dataset.mainCollectionBound = 'true';
+
+    var state = { onScroll: null, onKeydown: null, ctx: null };
+    sectionState.set(section, state);
 
     /* Sort select → navigate to sorted URL */
     var sortSelect = section.querySelector('[data-collection-sort]');
@@ -27,6 +38,7 @@
         controls.classList.toggle('kt-collection__controls--scrolled', top <= 1);
       };
       window.addEventListener('scroll', onScroll, { passive: true });
+      state.onScroll = onScroll;
     }
 
     /* Grid column toggle — uses CSS classes, not inline styles */
@@ -82,11 +94,13 @@
     });
 
     if (drawer) {
-      document.addEventListener('keydown', function (e) {
+      var onKeydown = function (e) {
         if (e.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
           closeDrawer();
         }
-      });
+      };
+      document.addEventListener('keydown', onKeydown);
+      state.onKeydown = onKeydown;
     }
 
     /* GSAP parallax + reveal animations */
@@ -97,7 +111,7 @@
       var hero = section.querySelector('[data-collection-hero]');
       if (!hero) return;
 
-      gsap.context(function () {
+      state.ctx = gsap.context(function () {
         /* Text reveal animation */
         gsap.fromTo(
           '.kt-collection__label, .kt-collection__title, .kt-collection__desc, .kt-collection__count',
@@ -156,5 +170,22 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     init(e.target);
+  });
+
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e.target || !e.target.querySelector) return;
+    var section = e.target.querySelector('[data-section-type="main-collection"]');
+    if (!section) return;
+    var state = sectionState.get(section);
+    if (!state) return;
+    if (state.onScroll) window.removeEventListener('scroll', state.onScroll);
+    if (state.onKeydown) document.removeEventListener('keydown', state.onKeydown);
+    /* gsap.context().revert() kills every tween and ScrollTrigger the
+       context owns — essential, otherwise ScrollTriggers keep firing
+       against a detached DOM until GSAP's internal list is flushed. */
+    if (state.ctx && typeof state.ctx.revert === 'function') state.ctx.revert();
+    /* Re-enable body scroll in case the drawer was open at unload. */
+    if (document.body) document.body.style.overflow = '';
+    sectionState.delete(section);
   });
 })();

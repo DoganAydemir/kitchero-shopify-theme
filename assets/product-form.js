@@ -27,6 +27,14 @@
   function initProductForm(container) {
     var form = container.querySelector('[data-product-form]');
     if (!form) return;
+    /* Guard against double-binding. shopify:section:load fires whenever
+       the merchant changes a product-section setting in the editor,
+       and our listeners are all on scoped elements (form, buttons,
+       inputs) that GC with the section, so no unload cleanup is
+       needed — but we must not stack a second submit handler on the
+       same form or add-to-cart would fire twice. */
+    if (form.dataset.productFormBound === 'true') return;
+    form.dataset.productFormBound = 'true';
 
     var variantIdInput = form.querySelector('[data-variant-id]');
     var qtyInput = form.querySelector('[data-qty-input]');

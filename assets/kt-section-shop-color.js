@@ -8,6 +8,12 @@
   function initShopColor(container) {
     var section = container.querySelector('[data-section-type="shop-color"]');
     if (!section) return;
+    /* Guard against double-binding when shopify:section:load fires on a
+       section whose listeners were already wired. All listeners are on
+       scoped elements inside the section, so they GC with the DOM when
+       the section is removed — no explicit unload handler needed. */
+    if (section.dataset.shopColorBound === 'true') return;
+    section.dataset.shopColorBound = 'true';
 
     var categories = section.querySelectorAll('[data-category-id]');
     var allImages = section.querySelectorAll('[data-finish-image]');

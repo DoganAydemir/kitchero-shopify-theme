@@ -56,13 +56,17 @@
       document.addEventListener('keydown', this._keyHandler);
 
       /* Listen for cart icon clicks (delegated so multiple icons or
-         icons re-rendered by header-group updates still work) */
-      document.addEventListener('click', function (event) {
+         icons re-rendered by header-group updates still work). Stored
+         on `self` so destroy() can remove it — otherwise each
+         shopify:section:load stacks another document-level click
+         listener that keeps firing against a dead drawer instance. */
+      this._clickHandler = function (event) {
         var icon = event.target.closest('.kt-header__cart-icon');
         if (!icon) return;
         event.preventDefault();
         self.open();
-      });
+      };
+      document.addEventListener('click', this._clickHandler);
     }
 
     isOpen() {
@@ -199,7 +203,12 @@
     }
 
     destroy() {
-      document.removeEventListener('keydown', this._keyHandler);
+      if (this._keyHandler) document.removeEventListener('keydown', this._keyHandler);
+      if (this._clickHandler) document.removeEventListener('click', this._clickHandler);
+      /* Restore body scroll in case the drawer was open when the
+         section was unloaded — without this the storefront would boot
+         into a locked-scroll state after the editor re-renders. */
+      if (document.body) document.body.style.overflow = '';
     }
   }
 
@@ -213,13 +222,30 @@
        without duplicating the fetch-and-swap logic. */
     window.kitcheroCartDrawer = instance;
 
-    /* Theme editor support */
-    document.addEventListener('shopify:section:load', function () {
-      instance.destroy();
+    /* Theme editor support. We tear down + re-create on any section
+       load to survive header/cart re-renders, and fully tear down on
+       unload so a merchant who deletes the cart-drawer section from
+       a template doesn't leave stray listeners attached to document. */
+    document.addEventListener('shopify:section:load', function (e) {
+      /* Only rebuild if the event touches the cart-drawer wrapper. */
+      if (e.target && e.target.querySelector && !e.target.querySelector('#cart-drawer')) {
+        return;
+      }
+      if (instance) instance.destroy();
       var newDrawer = document.getElementById('cart-drawer');
       if (newDrawer) {
         instance = new CartDrawer(newDrawer);
         window.kitcheroCartDrawer = instance;
+      }
+    });
+
+    document.addEventListener('shopify:section:unload', function (e) {
+      if (!e.target || !e.target.querySelector) return;
+      if (!e.target.querySelector('#cart-drawer')) return;
+      if (instance) {
+        instance.destroy();
+        instance = null;
+        window.kitcheroCartDrawer = null;
       }
     });
   }

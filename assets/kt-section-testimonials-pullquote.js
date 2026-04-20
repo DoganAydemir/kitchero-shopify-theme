@@ -127,6 +127,21 @@
   }
   document.addEventListener('shopify:section:load', function (e) { initAll(e.target); });
 
+  /* Theme editor: stop the autoplay interval when a section is removed
+     so we don't leak a 7s timer for every deleted/re-added section. The
+     DOM listeners GC with the nodes, but setInterval keeps firing. */
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e.target) return;
+    var nodes = e.target.querySelectorAll
+      ? e.target.querySelectorAll('.kt-testimonials-pullquote--slider')
+      : [];
+    Array.prototype.forEach.call(nodes, function (root) {
+      var ctrl = boundSliders.get(root);
+      if (ctrl) ctrl.stopAuto();
+      boundSliders.delete(root);
+    });
+  });
+
   /* Theme editor: when merchant selects a quote block in the sidebar,
      jump to that slide. event.target is the <article data-pullquote-slide>. */
   document.addEventListener('shopify:block:select', function (e) {

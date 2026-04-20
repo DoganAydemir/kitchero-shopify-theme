@@ -5,9 +5,17 @@
 (function () {
   'use strict';
 
+  /* Map<section, keydownHandler> so shopify:section:unload can detach
+     the document-level Escape listener we attached on init. Without
+     this, each re-render leaves a stranded listener referencing a
+     stale `section` closure. */
+  var keydownHandlers = new WeakMap();
+
   function init(container) {
     var section = container.querySelector('[data-section-type="shop-the-look"]');
     if (!section) return;
+    if (section.dataset.shopTheLookBound === 'true') return;
+    section.dataset.shopTheLookBound = 'true';
 
     var activeId = null;
     var mobileSheet = section.querySelector('[data-mobile-sheet]');
@@ -92,10 +100,12 @@
       mobileClose.addEventListener('click', closeAll);
     }
 
-    /* Escape key */
-    document.addEventListener('keydown', function (e) {
+    /* Escape key — stored in a WeakMap so unload can remove it. */
+    var onKeydown = function (e) {
       if (e.code === 'Escape' && activeId) closeAll();
-    });
+    };
+    document.addEventListener('keydown', onKeydown);
+    keydownHandlers.set(section, onKeydown);
   }
 
   document.querySelectorAll('[data-section-type="shop-the-look"]').forEach(function (el) {
@@ -103,4 +113,15 @@
   });
 
   document.addEventListener('shopify:section:load', function (e) { init(e.target); });
+
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e.target || !e.target.querySelector) return;
+    var section = e.target.querySelector('[data-section-type="shop-the-look"]');
+    if (!section) return;
+    var handler = keydownHandlers.get(section);
+    if (handler) {
+      document.removeEventListener('keydown', handler);
+      keydownHandlers.delete(section);
+    }
+  });
 })();
