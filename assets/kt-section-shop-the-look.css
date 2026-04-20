@@ -285,6 +285,19 @@
   transform: translateX(4px);
 }
 
+/* Design-mode-only hint shown in a hotspot popup when the merchant
+   has left the product URL blank. We keep the visual weight low
+   (italic, small, muted) so it reads as an editorial note rather
+   than storefront copy. Liquid wraps this in a
+   {% if request.design_mode %} guard so live shoppers never see it. */
+.kt-shop-the-look__popup-empty {
+  margin: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--kt-stone-500);
+  line-height: 1.5;
+}
+
 /* Mobile bottom sheet */
 .kt-shop-the-look__mobile-sheet {
   display: none;

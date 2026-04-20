@@ -63,7 +63,21 @@
 
           if (mobileName && nameEl) mobileName.textContent = nameEl.textContent;
           if (mobilePrice && priceEl) mobilePrice.textContent = priceEl.textContent;
-          if (mobileLink && linkEl) mobileLink.href = linkEl.href;
+          /* Mirror the desktop popup link into the mobile sheet. When the
+             merchant has not configured a product URL for this hotspot,
+             the desktop popup link is absent — hide the mobile CTA too so
+             shoppers never tap a "View Product" button that does nothing
+             useful. `hidden` is the cleanest toggle: it zeroes rendering,
+             removes the element from the tab order, and is trivially
+             overridden by CSS when we need custom animation later. */
+          if (mobileLink) {
+            if (linkEl) {
+              mobileLink.href = linkEl.href;
+              mobileLink.removeAttribute('hidden');
+            } else {
+              mobileLink.setAttribute('hidden', '');
+            }
+          }
           if (mobileImg && imgEl) {
             /* Build the <img> via DOM nodes (not innerHTML interpolation)
                so an alt attribute containing HTML-active characters can

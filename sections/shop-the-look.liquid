@@ -52,10 +52,24 @@
                 <h4 class="kt-shop-the-look__popup-name">{{ block.settings.product_title }}</h4>
                 <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
               </div>
-              <a href="{{ block.settings.product_link | default: '#' }}" class="kt-shop-the-look__popup-link">
-                {{ 'kt.section.shop_the_look.view_details' | t | default: 'View Details' }}
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-              </a>
+              {%- comment -%}
+                Only emit the CTA when the merchant actually supplied a
+                product URL for this hotspot. Falling back to `href="#"`
+                looks functional but scrolls to page top — misleading for
+                shoppers and a Theme Store "broken link" red flag. In the
+                theme editor we surface a hint so merchants notice the
+                gap; on the live storefront we render nothing.
+              {%- endcomment -%}
+              {%- if block.settings.product_link != blank -%}
+                <a href="{{ block.settings.product_link }}" class="kt-shop-the-look__popup-link">
+                  {{ 'kt.section.shop_the_look.view_details' | t | default: 'View Details' }}
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+              {%- elsif request.design_mode -%}
+                <p class="kt-shop-the-look__popup-empty">
+                  {{ 'kt.section.shop_the_look.empty_link_notice' | t }}
+                </p>
+              {%- endif -%}
             </div>
           </div>
         {%- endif -%}
@@ -73,7 +87,17 @@
           <div>
             <h4 class="kt-shop-the-look__mobile-sheet-name" data-mobile-sheet-name></h4>
             <p class="kt-shop-the-look__mobile-sheet-price" data-mobile-sheet-price></p>
-            <a href="#" class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link>
+            {%- comment -%}
+              Mobile sheet "View Product" link is a JS-populated template:
+              kt-section-shop-the-look.js copies the active hotspot's
+              product URL onto this anchor each time the sheet opens.
+              Default href points at the shop root so a premature click
+              (JS still loading, or a hotspot without product_link) lands
+              on a real page instead of scrolling to the top. JS also
+              hides this link outright when the active hotspot has no
+              product link configured.
+            {%- endcomment -%}
+            <a href="{{ routes.root_url }}" class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link>
               {{ 'kt.section.shop_the_look.view_product' | t | default: 'View Product' }}
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
