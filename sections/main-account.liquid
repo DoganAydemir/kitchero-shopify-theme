@@ -10,6 +10,27 @@
           {{ 'kt.customer.account.greeting_html' | t: name: customer.first_name }}
         </p>
       {%- endif -%}
+
+      {%- comment -%}
+        B2B customer hint. `customer.b2b?` is true when the signed-in
+        customer is a Shopify B2B (wholesale) buyer. When they're
+        logged in on behalf of a company, `customer.current_location`
+        exposes the active company/location. Without this surface,
+        a B2B buyer has no visual confirmation which company they're
+        placing orders for — a real concern for anyone with purchasing
+        rights at multiple legal entities. Gated on the presence of
+        the B2B object so the pill never renders for retail customers.
+      {%- endcomment -%}
+      {%- if customer.b2b? -%}
+        <div class="kt-account__b2b" role="note">
+          <span class="kt-account__b2b-badge">{{ 'kt.customer.account.b2b_badge' | t | default: 'Business account' }}</span>
+          {%- if customer.current_location and customer.current_location.company.name != blank -%}
+            <span class="kt-account__b2b-company">
+              {{ 'kt.customer.account.b2b_company' | t: name: customer.current_location.company.name | default: customer.current_location.company.name }}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
     </header>
 
     <div class="kt-account__layout">

@@ -438,3 +438,146 @@
   border-left: 3px solid var(--kt-stone-400, #a8a29e);
   border-radius: 0.25rem;
 }
+
+/* ── Pre-order badge ─────────────────────────────────────
+   Shown when the variant is out of stock but the merchant's
+   inventory_policy is 'continue' (backorder enabled). Tells
+   the customer "you can order now, we'll ship when it lands"
+   without them having to guess from the available ATC. */
+.kt-product-form__preorder {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kt-amber-900, #78350f);
+  background-color: var(--kt-amber-50, #fffbeb);
+  border-left: 3px solid var(--kt-amber-500, #f59e0b);
+  border-radius: 0.25rem;
+}
+
+/* ── Pickup availability (BOPIS) ─────────────────────────
+   Rendered beneath the Add to Cart row on the PDP when the
+   selected variant has pickup enabled at a physical location.
+   Matches the "Available now" + time-to-ready compact format
+   most Shopify PDPs use, but scheme-aware via tokens. */
+.kt-pickup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0.875rem 1rem;
+  background-color: var(--kt-stone-100, #f5f5f4);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.kt-pickup--unavailable {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--kt-stone-600, #57534e);
+}
+
+.kt-pickup__summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.kt-pickup__icon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+}
+
+.kt-pickup__icon--available {
+  color: var(--kt-emerald-700, #047857);
+}
+
+.kt-pickup__icon--unavailable {
+  color: var(--kt-stone-500, #78716c);
+}
+
+.kt-pickup__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.kt-pickup__status {
+  margin: 0;
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-pickup__status--unavailable {
+  color: var(--kt-stone-600, #57534e);
+  margin: 0;
+}
+
+.kt-pickup__time {
+  margin: 0;
+  color: var(--kt-stone-600, #57534e);
+  font-size: 0.8125rem;
+}
+
+.kt-pickup__details {
+  margin-top: 0.5rem;
+}
+
+.kt-pickup__more {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--kt-stone-900, #1c1917);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  list-style: none;
+  padding: 0.25rem 0;
+}
+
+.kt-pickup__more::-webkit-details-marker {
+  display: none;
+}
+
+.kt-pickup__more:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.kt-pickup__list {
+  list-style: none;
+  padding: 0.75rem 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kt-pickup__location {
+  padding: 0.625rem 0.75rem;
+  background-color: var(--kt-white, #fff);
+  border-radius: 0.25rem;
+}
+
+.kt-pickup__location-name {
+  margin: 0 0 0.125rem;
+  font-weight: 600;
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-pickup__location-time {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--kt-stone-600, #57534e);
+}
+
+.kt-pickup__location-address {
+  font-size: 0.75rem;
+  color: var(--kt-stone-600, #57534e);
+  font-style: normal;
+  line-height: 1.4;
+}

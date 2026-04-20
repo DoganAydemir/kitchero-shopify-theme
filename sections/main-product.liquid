@@ -129,6 +129,17 @@
               {%- when 'buy_buttons' -%}
                 <div {{ block.shopify_attributes }}>
                   {%- render 'product-form', product: product, show_dynamic_checkout: block.settings.show_dynamic_checkout -%}
+                  {%- comment -%}
+                    Pickup availability — rendered directly beneath the
+                    Add-to-Cart so merchants running a retail shopfront
+                    alongside their online store surface BOPIS before
+                    the customer scrolls past checkout. Only renders
+                    when the variant has at least one pick-up-enabled
+                    location; the snippet handles its own empty state.
+                  {%- endcomment -%}
+                  {%- if block.settings.show_pickup_availability -%}
+                    {%- render 'pickup-availability', variant: product.selected_or_first_available_variant, product: product -%}
+                  {%- endif -%}
                 </div>
 
               {%- when 'trust_badges' -%}
@@ -354,7 +365,8 @@
       "name": "t:sections.main-product.blocks.buy_buttons.name",
       "limit": 1,
       "settings": [
-        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "t:sections.main-product.settings.show_dynamic_checkout.label", "info": "t:sections.main-product.settings.show_dynamic_checkout.info", "default": true }
+        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "t:sections.main-product.settings.show_dynamic_checkout.label", "info": "t:sections.main-product.settings.show_dynamic_checkout.info", "default": true },
+        { "type": "checkbox", "id": "show_pickup_availability", "label": "t:sections.main-product.settings.show_pickup_availability.label", "info": "t:sections.main-product.settings.show_pickup_availability.info", "default": true }
       ]
     },
     {

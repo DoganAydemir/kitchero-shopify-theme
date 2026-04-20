@@ -1,0 +1,99 @@
+{%- comment -%}
+  Pickup availability — BOPIS (Buy-Online-Pick-up-In-Store) snippet.
+
+  Renders local pickup info beneath the ATC on the PDP when:
+  - The merchant has at least one physical location configured in
+    Admin → Settings → Locations
+  - The currently-selected variant has pickup enabled at one or more
+    of those locations (`variant.store_availabilities`)
+  - The merchant hasn't disabled the feature via the product-template
+    setting `show_pickup_availability` (defaults to true)
+
+  Without this snippet, customers of a retail store with a shopfront
+  have no in-PDP signal that same-day pickup is even an option. Shopify
+  automated Theme Store audits call this a commerce-parity requirement
+  for any theme that targets merchants running physical stores.
+
+  Accepts:
+  - variant:  {Object} The selected_or_first_available_variant
+  - product:  {Object} Parent product (used for localized strings)
+{%- endcomment -%}
+
+{%- liquid
+  assign pickup_availabilities = variant.store_availabilities | where: 'pick_up_enabled', true
+  assign pickup_count = pickup_availabilities.size
+-%}
+
+{%- if pickup_count > 0 -%}
+  {%- assign primary = pickup_availabilities | first -%}
+  <div class="kt-pickup" data-pickup-availability>
+    <div class="kt-pickup__summary">
+      <svg class="kt-pickup__icon kt-pickup__icon--available" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <div class="kt-pickup__text">
+        <p class="kt-pickup__status">
+          <strong>{{ 'kt.product.pickup.available_at' | t: location_name: primary.location.name | default: primary.location.name }}</strong>
+        </p>
+        <p class="kt-pickup__time">
+          {{ primary.pick_up_time }}
+        </p>
+      </div>
+    </div>
+
+    {%- if pickup_count > 1 -%}
+      {%- comment -%}
+        More than one location has pickup enabled. Expose a disclosure
+        so customers on multi-location stores can see the full list
+        without the snippet dominating the PDP layout. The <details>
+        element is keyboard-accessible by default and works without JS.
+      {%- endcomment -%}
+      <details class="kt-pickup__details">
+        <summary class="kt-pickup__more">
+          {{ 'kt.product.pickup.view_all' | t: count: pickup_count | default: 'View store availability' }}
+        </summary>
+        <ul class="kt-pickup__list" role="list">
+          {%- for availability in pickup_availabilities -%}
+            <li class="kt-pickup__location">
+              <p class="kt-pickup__location-name">{{ availability.location.name }}</p>
+              <p class="kt-pickup__location-time">{{ availability.pick_up_time }}</p>
+              {%- if availability.location.address -%}
+                <address class="kt-pickup__location-address">
+                  {{ availability.location.address | format_address }}
+                </address>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </details>
+    {%- endif -%}
+  </div>
+{%- else -%}
+  {%- comment -%}
+    Pickup not enabled for this variant at any location. Render a
+    muted "ships only" hint — this is explicitly more useful than
+    silence when the customer is shopping on a store that usually
+    DOES offer pickup (different variant, different seasonality).
+    Only renders when the store has at least one physical location
+    configured so we don't pester purely-online stores with an
+    irrelevant ship-only note.
+  {%- endcomment -%}
+  {%- if shop.metafields.locations != blank or request.page_type == 'product' -%}
+    {%- assign any_location = false -%}
+    {%- for av in variant.store_availabilities -%}
+      {%- assign any_location = true -%}
+      {%- break -%}
+    {%- endfor -%}
+    {%- if any_location -%}
+      <div class="kt-pickup kt-pickup--unavailable" data-pickup-availability>
+        <svg class="kt-pickup__icon kt-pickup__icon--unavailable" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+        <p class="kt-pickup__status kt-pickup__status--unavailable">
+          {{ 'kt.product.pickup.unavailable' | t | default: 'Pickup currently unavailable' }}
+        </p>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
