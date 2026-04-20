@@ -49,12 +49,18 @@
                     </li>
                   {%- endfor -%}
                 </ul>
-              {%- else -%}
-                <ul class="kt-footer__link-list list-unstyled" role="list">
-                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
-                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
-                  <li><a href="#" class="kt-footer__link">{{ 'kt.onboarding.collection_title' | t }}</a></li>
-                </ul>
+              {%- elsif request.design_mode -%}
+                {%- comment -%}
+                  Merchant hasn't picked a menu yet. Surface an onboarding
+                  hint only inside the theme editor so shoppers on the
+                  live storefront never see a broken/empty column. We
+                  intentionally do NOT emit placeholder `href="#"` links:
+                  those fail Theme Store review (deceptive navigation)
+                  and they give shoppers non-functional click targets.
+                {%- endcomment -%}
+                <p class="kt-footer__empty-notice">
+                  {{ 'kt.general.footer.empty_menu_notice' | t }}
+                </p>
               {%- endif -%}
             </div>
 
