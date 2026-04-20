@@ -18,17 +18,30 @@ jobs:
         uses: shopify/lighthouse-ci-action@v1
         with:
           # Store & theme tokens come from repo secrets. Required:
-          #   SHOP_STORE            — e.g. kitchero-dev.myshopify.com
-          #   SHOP_ACCESS_TOKEN     — theme access token (Theme Kit or API)
-          #   SHOP_STORE_PASSWORD   — storefront password if shop is pw-protected
+          #   SHOP_STORE                    — e.g. kitchero-dev.myshopify.com
+          #   SHOP_ACCESS_TOKEN             — theme access token (Theme Kit or API)
+          #   SHOP_STORE_PASSWORD           — storefront password if shop is pw-protected
+          # Optional — override the handles the action uses to build the
+          # product/collection URLs (defaults rely on shop fixtures which
+          # may not exist on a development store):
+          #   SHOP_PRODUCT_HANDLE           — e.g. stellar-oak-island
+          #   SHOP_COLLECTION_HANDLE        — e.g. kitchens
           store: ${{ secrets.SHOP_STORE }}
           password: ${{ secrets.SHOP_STORE_PASSWORD }}
           access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          product_handle: ${{ secrets.SHOP_PRODUCT_HANDLE }}
+          collection_handle: ${{ secrets.SHOP_COLLECTION_HANDLE }}
+          # Explicitly audit the four Theme-Store-required URLs. The
+          # action auto-generates /, /products/<handle>, /collections/<handle>
+          # and /cart from these inputs, then fans out one Lighthouse
+          # run per URL and averages the scores.
+          #   - /                           (home / template "index")
+          #   - /products/<handle>          (template "product")
+          #   - /collections/<handle>       (template "collection")
+          #   - /cart                       (template "cart")
           # Minimum category scores (0-1 scale)
           min_score_performance: 0.60
           min_score_accessibility: 0.90
           min_score_best_practices: 0.90
           min_score_seo: 0.90
-          # Audit home + a representative product + collection + cart.
-          # The action fans out per URL automatically.
           pull_request_comment: true

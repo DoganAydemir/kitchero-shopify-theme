@@ -4,8 +4,30 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="">
+    {%- comment -%}
+      theme-color — pulls the default color-scheme's surface colour so
+      Chrome/Safari paint the address-bar and PWA chrome in the brand
+      background instead of defaulting to browser chrome. Falls back
+      to the Kitchero brand ivory when the scheme is not yet saved.
+    {%- endcomment -%}
+    {%- liquid
+      assign default_scheme = settings.kt_schemes | default: settings.color_schemes
+      assign theme_color = '#FAFAF9'
+      if default_scheme and default_scheme['scheme-1'] and default_scheme['scheme-1'].settings.surface
+        assign theme_color = default_scheme['scheme-1'].settings.surface
+      endif
+    -%}
+    <meta name="theme-color" content="{{ theme_color }}">
     <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- comment -%}
+      cdn.shopify.com hosts product and section images — the critical
+      LCP resource on every storefront page. Pre-connecting here saves
+      the DNS + TLS round-trip (~150–300 ms on mobile) before the HTML
+      parser discovers the <img>. crossorigin is required because
+      Shopify serves image assets as CORS-enabled responses.
+    {%- endcomment -%}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
     {%- comment -%}
       hreflang alternates — one <link> per published locale so Google
