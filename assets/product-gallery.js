@@ -117,6 +117,27 @@
       });
     });
 
+    /* External variant-swap sync — product-form.js dispatches
+       `gallery:goto` with the newly selected variant's media ID when
+       the customer picks an option. We look up the matching slide by
+       `data-media-id` and delegate to `goTo(index)` so slide, thumb,
+       and lightbox `currentIndex` all stay in step. Decoupling via a
+       CustomEvent means product-form.js never reaches into gallery
+       internals, and the gallery never cares why the index changed. */
+    gallery.addEventListener('gallery:goto', function (e) {
+      var mediaId = e.detail && e.detail.mediaId;
+      if (!mediaId) return;
+      /* Coerce both sides to strings — CSS attribute selectors are
+         string-typed, and `variant.featured_media.id` arrives as a
+         number from the variant JSON. */
+      var targetSlide = gallery.querySelector(
+        '[data-gallery-slide][data-media-id="' + String(mediaId) + '"]'
+      );
+      if (!targetSlide) return;
+      var targetIndex = parseInt(targetSlide.dataset.gallerySlide, 10);
+      if (!isNaN(targetIndex)) goTo(targetIndex);
+    });
+
     /* Main image area click → open lightbox (E-commerce PDP wrapper) */
     if (mainArea) {
       mainArea.addEventListener('click', function () {

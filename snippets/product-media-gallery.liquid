@@ -17,6 +17,7 @@
           class="kt-gallery__thumb{% if forloop.first %} kt-gallery__thumb--active{% endif %}"
           data-gallery-thumb-btn
           data-media-index="{{ forloop.index0 }}"
+          data-media-id="{{ media.id }}"
           aria-label="{{ 'kt.product.media.image_available' | t: index: forloop.index }}"
         >
           {%- assign thumb_alt = media.alt | default: product.title -%}
@@ -44,6 +45,7 @@
         <div
           class="kt-gallery__slide{% if forloop.first %} kt-gallery__slide--active{% endif %}"
           data-gallery-slide="{{ forloop.index0 }}"
+          data-media-id="{{ media.id }}"
         >
           {%- comment -%}
             Pre-assign alt to a variable. Liquid parses `alt: media.alt |

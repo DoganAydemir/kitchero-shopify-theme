@@ -294,19 +294,38 @@
         }
       }
 
-      /* Update gallery to variant image if available */
-      if (matchedVariant.featured_image) {
-        var gallerySlides = container.querySelectorAll('[data-gallery-slide]');
-        var galleryThumbs = container.querySelectorAll('[data-gallery-thumb-btn]');
-        gallerySlides.forEach(function (slide, idx) {
-          var img = slide.querySelector('img');
-          if (img && img.src.includes(matchedVariant.featured_image.src.split('?')[0].split('/').pop())) {
-            gallerySlides.forEach(function (s) { s.classList.remove('kt-gallery__slide--active'); });
-            galleryThumbs.forEach(function (t) { t.classList.remove('kt-gallery__thumb--active'); });
-            slide.classList.add('kt-gallery__slide--active');
-            if (galleryThumbs[idx]) galleryThumbs[idx].classList.add('kt-gallery__thumb--active');
-          }
-        });
+      /* Update gallery to variant's featured media.
+
+         We used to match by URL path segment (img.src.includes(…)),
+         which broke any time Shopify changed CDN transforms or the
+         variant's `featured_image.src` differed from what was rendered
+         via `image_url: width: 1200`. The stable identifier is the
+         media ID, which both sides of the handshake agree on:
+
+           • Liquid writes `data-media-id="{{ media.id }}"` on each
+             slide/thumb.
+           • `variant.featured_media.id` is the same numeric ID.
+
+         We dispatch a decoupled `gallery:goto` CustomEvent on the
+         gallery root so product-gallery.js remains the single owner
+         of slide/thumb/lightbox state — this is the only file that
+         calls `goTo(index)`, so sync issues with the lightbox's
+         `currentIndex` cannot occur. Falls back to `featured_image.id`
+         on the off-chance a legacy store ships without media. */
+      var targetMediaId = null;
+      if (matchedVariant.featured_media && matchedVariant.featured_media.id) {
+        targetMediaId = matchedVariant.featured_media.id;
+      } else if (matchedVariant.featured_image && matchedVariant.featured_image.id) {
+        targetMediaId = matchedVariant.featured_image.id;
+      }
+
+      if (targetMediaId) {
+        var gallery = container.querySelector('[data-product-gallery]');
+        if (gallery) {
+          gallery.dispatchEvent(new CustomEvent('gallery:goto', {
+            detail: { mediaId: targetMediaId }
+          }));
+        }
       }
     }
   }
