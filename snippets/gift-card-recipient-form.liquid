@@ -1,0 +1,169 @@
+{%- comment -%}
+  Gift card recipient form — when the product being viewed is a gift
+  card (product.gift_card? == true), Shopify lets the customer send
+  the issued card directly to a recipient by email on a chosen date.
+  This snippet renders:
+
+    [x] Send as a gift
+        ├── Recipient email
+        ├── Recipient name (optional)
+        ├── Send on  (date — defaults to "now")
+        ├── Message (textarea, optional)
+        └── Hidden __shopify_offset carrying the client timezone
+            offset in minutes, so the merchant's admin dashboard can
+            display the scheduled send time in the customer's local
+            time rather than UTC.
+
+  The control checkbox posts
+  `properties[__shopify_send_gift_card_to_recipient]=on`; Shopify's
+  order-processing pipeline reads that flag and, if set, emails the
+  gift card to `properties[Recipient email]` on the requested date
+  with the supplied message. All recipient fields are disabled by
+  default so customers who don't want to use this feature aren't
+  forced to fill out extra inputs; the accompanying JS toggles
+  `disabled` in sync with the checkbox state.
+
+  Accepts:
+    - product: {Object} the gift card product
+    - form:    {Object} the enclosing {% form 'product' %} context
+    - section: {Object} the section rendering this form (for
+                        per-section unique DOM ids so two instances
+                        on the same page don't collide)
+{%- endcomment -%}
+
+{%- assign uid = section.id | default: 'gc' -%}
+
+<div class="kt-gift-recipient" data-gift-recipient>
+  <label class="kt-gift-recipient__toggle" for="GiftRecipientToggle-{{ uid }}">
+    <input
+      type="checkbox"
+      id="GiftRecipientToggle-{{ uid }}"
+      name="properties[__shopify_send_gift_card_to_recipient]"
+      value="on"
+      class="kt-gift-recipient__toggle-input"
+      data-gift-recipient-toggle
+    >
+    <span class="kt-gift-recipient__toggle-box" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </span>
+    <span class="kt-gift-recipient__toggle-label">
+      {{ 'kt.giftcard.recipient.toggle' | t }}
+    </span>
+  </label>
+
+  <div class="kt-gift-recipient__fields" data-gift-recipient-fields hidden>
+    {%- if form.errors -%}
+      <div class="kt-form__error-summary" role="alert" tabindex="-1">
+        <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t }}</p>
+        <ul class="kt-form__error-list">
+          {%- for field in form.errors -%}
+            <li>
+              {%- if field == 'form' -%}
+                {{ form.errors.messages[field] }}
+              {%- else -%}
+                {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    <div class="kt-gift-recipient__field">
+      <label for="GiftRecipientEmail-{{ uid }}" class="kt-gift-recipient__label">
+        {{ 'kt.giftcard.recipient.email' | t }}
+      </label>
+      <input
+        type="email"
+        id="GiftRecipientEmail-{{ uid }}"
+        name="properties[Recipient email]"
+        class="kt-gift-recipient__input"
+        autocomplete="email"
+        disabled
+        {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="GiftRecipientEmail-{{ uid }}-error"{% endif %}
+        value="{{ form.email }}"
+      >
+      {%- render 'form-field-error',
+        form: form,
+        field: 'email',
+        describedby_id: 'GiftRecipientEmail-' | append: uid | append: '-error'
+      -%}
+    </div>
+
+    <div class="kt-gift-recipient__field">
+      <label for="GiftRecipientName-{{ uid }}" class="kt-gift-recipient__label">
+        {{ 'kt.giftcard.recipient.name' | t }}
+      </label>
+      <input
+        type="text"
+        id="GiftRecipientName-{{ uid }}"
+        name="properties[Recipient name]"
+        class="kt-gift-recipient__input"
+        autocomplete="name"
+        disabled
+        {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="GiftRecipientName-{{ uid }}-error"{% endif %}
+        value="{{ form.name }}"
+      >
+      {%- render 'form-field-error',
+        form: form,
+        field: 'name',
+        describedby_id: 'GiftRecipientName-' | append: uid | append: '-error'
+      -%}
+    </div>
+
+    <div class="kt-gift-recipient__field">
+      <label for="GiftRecipientSendOn-{{ uid }}" class="kt-gift-recipient__label">
+        {{ 'kt.giftcard.recipient.send_on' | t }}
+      </label>
+      <input
+        type="date"
+        id="GiftRecipientSendOn-{{ uid }}"
+        name="properties[Send on]"
+        class="kt-gift-recipient__input"
+        disabled
+        {% if form.errors contains 'send_on' %}aria-invalid="true" aria-describedby="GiftRecipientSendOn-{{ uid }}-error"{% endif %}
+        value="{{ form.send_on }}"
+      >
+      {%- render 'form-field-error',
+        form: form,
+        field: 'send_on',
+        describedby_id: 'GiftRecipientSendOn-' | append: uid | append: '-error'
+      -%}
+    </div>
+
+    <div class="kt-gift-recipient__field">
+      <label for="GiftRecipientMessage-{{ uid }}" class="kt-gift-recipient__label">
+        {{ 'kt.giftcard.recipient.message' | t }}
+      </label>
+      <textarea
+        id="GiftRecipientMessage-{{ uid }}"
+        name="properties[Message]"
+        class="kt-gift-recipient__textarea"
+        rows="3"
+        maxlength="200"
+        disabled
+        {% if form.errors contains 'message' %}aria-invalid="true" aria-describedby="GiftRecipientMessage-{{ uid }}-error"{% endif %}
+      >{{ form.message }}</textarea>
+      {%- render 'form-field-error',
+        form: form,
+        field: 'message',
+        describedby_id: 'GiftRecipientMessage-' | append: uid | append: '-error'
+      -%}
+    </div>
+
+    {%- comment -%}
+      Shopify-reserved hidden input. The runtime checks this against
+      the server clock when emailing the gift card so "Send on" dates
+      are interpreted in the customer's local timezone, not UTC. JS
+      populates it at form-submit time via
+      `new Date().getTimezoneOffset()`.
+    {%- endcomment -%}
+    <input
+      type="hidden"
+      name="properties[__shopify_offset]"
+      value=""
+      data-gift-recipient-offset
+      disabled
+    >
+  </div>
+</div>

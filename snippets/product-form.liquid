@@ -27,6 +27,19 @@
 {%- form 'product', product, id: 'ProductForm' -%}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
+  {%- comment -%}
+    Gift card recipient form — only rendered when the product being
+    purchased is itself a gift card (Shopify's product.gift_card?
+    object). When set, the customer can opt in to emailing the
+    issued card directly to a recipient on a scheduled date.
+    Required for any store that sells digital gift cards — Theme
+    Store flags the absence as a missing mandatory feature.
+  {%- endcomment -%}
+  {%- if product.gift_card? -%}
+    {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+    <script src="{{ 'gift-card-recipient.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
+
   {%- comment -%} Quantity + Add to Cart row {%- endcomment -%}
   <div class="kt-product-form__row">
     {%- comment -%} Quantity selector {%- endcomment -%}

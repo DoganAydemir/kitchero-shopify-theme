@@ -294,3 +294,131 @@
 .kt-product-form__error[hidden] {
   display: none;
 }
+
+/* ── Gift card recipient form ─────────────────────────────
+   Only rendered on gift-card products. Appears above the
+   quantity/ATC row; hidden fields-block becomes visible
+   when the customer toggles "Send as a gift". */
+.kt-gift-recipient {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--kt-stone-50, #fafaf9);
+  border: 1px solid var(--kt-stone-200, #e7e5e4);
+  border-radius: 0.75rem;
+}
+
+.kt-gift-recipient__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kt-gift-recipient__toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.kt-gift-recipient__toggle-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1.5px solid var(--kt-stone-400, #a8a29e);
+  border-radius: 0.25rem;
+  background-color: var(--kt-white, #ffffff);
+  color: transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.kt-gift-recipient__toggle-box svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.kt-gift-recipient__toggle-input:checked + .kt-gift-recipient__toggle-box {
+  background-color: var(--kt-stone-900, #1c1917);
+  border-color: var(--kt-stone-900, #1c1917);
+  color: var(--kt-white, #ffffff);
+}
+
+.kt-gift-recipient__toggle-input:focus-visible + .kt-gift-recipient__toggle-box {
+  outline: 2px solid var(--kt-stone-900, #1c1917);
+  outline-offset: 2px;
+}
+
+.kt-gift-recipient__toggle-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-gift-recipient__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--kt-stone-200, #e7e5e4);
+}
+
+.kt-gift-recipient__fields[hidden] {
+  display: none;
+}
+
+.kt-gift-recipient__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kt-gift-recipient__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--kt-stone-600, #57534e);
+}
+
+.kt-gift-recipient__input,
+.kt-gift-recipient__textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--kt-white, #ffffff);
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--kt-stone-900, #1c1917);
+  transition: border-color 0.15s ease;
+}
+
+.kt-gift-recipient__textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.kt-gift-recipient__input:focus,
+.kt-gift-recipient__textarea:focus {
+  outline: none;
+  border-color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-gift-recipient__input:focus-visible,
+.kt-gift-recipient__textarea:focus-visible {
+  outline: 2px solid var(--kt-stone-900, #1c1917);
+  outline-offset: 2px;
+}
+
+.kt-gift-recipient__input:disabled,
+.kt-gift-recipient__textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
