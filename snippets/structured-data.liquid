@@ -66,11 +66,30 @@
           "item": {{ request.origin | json }}
         }
         {%- if request.page_type == 'product' -%}
+          {%- comment -%}
+            Pick the first collection this product lives in — that's the
+            breadcrumb's "category" rung. When the product is orphan
+            (no collection associated), fall back to the locale-aware
+            all-products route and a translated label so Google gets a
+            valid breadcrumb either way.
+
+            Aside: do NOT chain `| default: ...` after `request.origin
+            | append: product.collections.first.url` — `append` on a nil
+            value still produces `request.origin`, which is a non-empty
+            string, so the default never fires.
+          {%- endcomment -%}
+          {%- if product.collections.first != blank -%}
+            {%- assign breadcrumb_collection_title = product.collections.first.title -%}
+            {%- assign breadcrumb_collection_url = product.collections.first.url -%}
+          {%- else -%}
+            {%- assign breadcrumb_collection_title = 'kt.general.breadcrumbs.products' | t -%}
+            {%- assign breadcrumb_collection_url = routes.all_products_collection_url -%}
+          {%- endif -%}
           ,{
             "@type": "ListItem",
             "position": 2,
-            "name": {{ product.collections.first.title | default: 'Products' | json }},
-            "item": {{ request.origin | append: product.collections.first.url | default: '/collections/all' | json }}
+            "name": {{ breadcrumb_collection_title | json }},
+            "item": {{ request.origin | append: breadcrumb_collection_url | json }}
           }
           ,{
             "@type": "ListItem",
