@@ -69,14 +69,25 @@
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
 
-    {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
-    {%- if settings.kt_motion_reveal -%}
+    {%- comment -%}
+      Motion bundle is ~100 KB unminified (GSAP + ScrollTrigger + Lenis +
+      smooth-scroll). Only the marketing-heavy templates actually use it
+      — the cart, search, 404, gift-card, customers/*, and policies
+      templates do zero scroll animation, so we gate the load behind a
+      template whitelist. Shrinks TTI and mobile data usage on the pages
+      shoppers hit during the conversion funnel. `request.page_type`
+      also covers custom JSON templates the merchant adds later, where
+      `template.name` may be a sub-template string like `page.custom`.
+    {%- endcomment -%}
+    {%- assign motion_templates = 'index,product,collection,list-collections,page,article,blog' | split: ',' -%}
+    {%- if settings.kt_motion_reveal and motion_templates contains request.page_type -%}
+      {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
       <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'vendor-lenis.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'smooth-scroll.js' | asset_url }}" defer="defer"></script>
+      {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
     {%- endif -%}
-    {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
 
     {{ content_for_header }}
 
