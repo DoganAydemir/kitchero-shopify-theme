@@ -113,6 +113,7 @@
               type="button"
               class="kt-gift-card__copy"
               data-gift-card-copy="GiftCardCode"
+              data-success-label="{{ 'kt.share.success_message' | t | escape }}"
               aria-label="{{ 'kt.giftcard.issued.copy_code' | t }}"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -142,33 +143,6 @@
       </div>
     </main>
 
-    <script>
-      (function () {
-        var button = document.querySelector('[data-gift-card-copy]');
-        if (!button) return;
-        var targetId = button.getAttribute('data-gift-card-copy');
-        var input = document.getElementById(targetId);
-        if (!input) return;
-        var label = button.querySelector('.kt-gift-card__copy-text');
-        var originalLabel = label ? label.textContent : '';
-        button.addEventListener('click', function () {
-          input.focus();
-          input.select();
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(input.value);
-            } else {
-              document.execCommand('copy');
-            }
-            if (label) label.textContent = {{ 'kt.share.success_message' | t | json }};
-            button.classList.add('kt-gift-card__copy--success');
-            setTimeout(function () {
-              if (label) label.textContent = originalLabel;
-              button.classList.remove('kt-gift-card__copy--success');
-            }, 1800);
-          } catch (e) {}
-        });
-      })();
-    </script>
+    <script src="{{ 'gift-card.js' | asset_url }}" defer="defer"></script>
   </body>
 </html>
