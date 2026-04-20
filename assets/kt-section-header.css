@@ -313,14 +313,16 @@
   transform: translateY(0);
 }
 
-/* Column title — text-xs / font-bold / tracking-widest / mb-6 / stone-400
-   matches Next.js `text-xs font-bold tracking-widest uppercase mb-6 text-stone-400` */
+/* Column title — text-xs / font-bold / tracking-widest / mb-6
+   Next.js source uses text-stone-400 but that fails WCAG AA on the
+   white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
+   4.8:1 contrast — still muted, still reads as an eyebrow label. */
 .kt-header__mega-column-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--kt-stone-400);
+  color: var(--kt-stone-500);
   margin-bottom: 1.5rem;
 }
 
