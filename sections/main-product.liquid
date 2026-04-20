@@ -210,6 +210,21 @@
                 {%- endif -%}
 
               {%- when 'concierge_box' -%}
+                {%- comment -%}
+                  CTA link resolution, in order of preference:
+                    1. Merchant-picked `cta_link` (url type) — wins.
+                    2. Store's Contact page via `pages.contact.url` —
+                       carries the locale prefix for multi-language
+                       stores and never 404s when the page doesn't
+                       exist (resolves to blank, caught below).
+                  We DO NOT hard-code '/pages/contact' as a fallback —
+                  that path skips the routes object entirely, breaks
+                  under localized URLs, and sends shoppers to a 404 on
+                  any store whose contact page lives under a different
+                  handle. If no URL can be resolved the link is hidden
+                  instead of rendering a broken anchor.
+                {%- endcomment -%}
+                {%- assign concierge_cta_url = block.settings.cta_link | default: pages.contact.url -%}
                 <div class="kt-pdp__concierge" {{ block.shopify_attributes }}>
                   {%- if block.settings.heading != blank -%}
                     <h4 class="kt-pdp__concierge-heading">{{ block.settings.heading }}</h4>
@@ -217,8 +232,8 @@
                   {%- if block.settings.body != blank -%}
                     <p class="kt-pdp__concierge-body">{{ block.settings.body }}</p>
                   {%- endif -%}
-                  {%- if block.settings.cta_text != blank -%}
-                    <a href="{{ block.settings.cta_link | default: '/pages/contact' }}" class="kt-pdp__concierge-cta">
+                  {%- if block.settings.cta_text != blank and concierge_cta_url != blank -%}
+                    <a href="{{ concierge_cta_url }}" class="kt-pdp__concierge-cta">
                       {{ block.settings.cta_text }}
                       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
