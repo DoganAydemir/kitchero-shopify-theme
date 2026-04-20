@@ -40,6 +40,25 @@
     <script src="{{ 'gift-card-recipient.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
 
+  {%- comment -%}
+    Quantity-rule resolution. Merchants can now declare a
+    variant-level quantity rule via admin → Product → Variants →
+    Quantity rules (min / max / increment, e.g. "sold in packs of 6").
+    Shopify exposes these via `variant.quantity_rule.{min,max,increment}`
+    — all three default to sensible integers (1/nil/1) when the
+    merchant hasn't configured them, so this logic is safe for every
+    product.
+
+    Without respecting the rule:
+      - A case-of-6 item renders `min=1 step=1 value=1` and every
+        add-to-cart fails with "Quantity must be a multiple of 6."
+      - A max-500 bulk variant can be over-ordered; Shopify rejects
+        silently at checkout.
+  {%- endcomment -%}
+  {%- assign qty_min = current_variant.quantity_rule.min | default: 1 -%}
+  {%- assign qty_step = current_variant.quantity_rule.increment | default: 1 -%}
+  {%- assign qty_max = current_variant.quantity_rule.max -%}
+
   {%- comment -%} Quantity + Add to Cart row {%- endcomment -%}
   <div class="kt-product-form__row">
     {%- comment -%} Quantity selector {%- endcomment -%}
@@ -51,13 +70,17 @@
         type="number"
         name="quantity"
         id="Quantity-{{ product.id }}"
-        value="1"
-        min="1"
-        step="1"
+        value="{{ qty_min }}"
+        min="{{ qty_min }}"
+        step="{{ qty_step }}"
+        {% if qty_max != blank %}max="{{ qty_max }}"{% endif %}
         inputmode="numeric"
         pattern="[0-9]*"
         class="kt-product-form__qty-input"
         data-qty-input
+        data-qty-min="{{ qty_min }}"
+        data-qty-step="{{ qty_step }}"
+        {% if qty_max != blank %}data-qty-max="{{ qty_max }}"{% endif %}
         aria-label="{{ 'kt.product.quantity.label' | t }}"
       >
       <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'kt.product.quantity.increase' | t: title: product.title }}">
@@ -65,11 +88,23 @@
       </button>
     </div>
 
-    {%- comment -%} Add to Cart button — two icons rendered, CSS swaps based on :disabled {%- endcomment -%}
+    {%- comment -%}
+      Add to Cart button — two icons rendered, CSS swaps based on :disabled.
+
+      Also disabled when the product REQUIRES a selling plan
+      (subscription-only item with no one-time-purchase path). Without
+      this gate, the ATC posts to /cart/add without a `selling_plan`
+      param and Shopify rejects with a generic error. Gate here so the
+      customer sees a clear disabled state + localised "Subscription
+      required" copy instead.
+    {%- endcomment -%}
+    {%- assign atc_disabled = false -%}
+    {%- unless current_variant.available -%}{%- assign atc_disabled = true -%}{%- endunless -%}
+    {%- if product.requires_selling_plan -%}{%- assign atc_disabled = true -%}{%- endif -%}
     <button
       type="submit"
       class="kt-product-form__atc"
-      {% unless current_variant.available %}disabled{% endunless %}
+      {% if atc_disabled %}disabled{% endif %}
       data-add-to-cart
     >
       {%- comment -%} Available: shopping bag icon {%- endcomment -%}
@@ -85,7 +120,9 @@
         <line x1="9" y1="9" x2="15" y2="15"></line>
       </svg>
       <span data-add-to-cart-text>
-        {%- if current_variant.available -%}
+        {%- if product.requires_selling_plan -%}
+          {{ 'kt.product.subscription_required' | t }}
+        {%- elsif current_variant.available -%}
           {{ 'kt.product.add_to_cart' | t }}
         {%- else -%}
           {{ 'kt.product.sold_out' | t }}
@@ -93,6 +130,18 @@
       </span>
     </button>
   </div>
+
+  {%- if product.requires_selling_plan -%}
+    {%- comment -%}
+      Subscription-only products can't be bought one-time. Render a
+      short explanatory hint so the customer understands why the ATC
+      is disabled. Full selling-plan picker UX is deferred — when it
+      ships, this block will render the picker instead of the hint.
+    {%- endcomment -%}
+    <p class="kt-product-form__subscription-hint" role="note">
+      {{ 'kt.product.subscription_required_hint' | t }}
+    </p>
+  {%- endif -%}
 
   {%- comment -%}
     Error sentinel — populated by product-form.js when /cart/add.js

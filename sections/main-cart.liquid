@@ -143,15 +143,29 @@
                     >
                       <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
+                    {%- comment -%}
+                      Honour per-variant quantity rules on the cart
+                      input too. Customers can still set 0 to remove
+                      the line, but otherwise the stepper enforces
+                      the merchant's configured min/step/max so the
+                      cart AJAX update doesn't bounce with "quantity
+                      must be a multiple of N" from Shopify's server.
+                    {%- endcomment -%}
+                    {%- assign cart_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
+                    {%- assign cart_qty_max = item.variant.quantity_rule.max -%}
                     <input
                       type="number"
                       id="updates_{{ item.key }}"
                       name="updates[{{ item.key }}]"
                       value="{{ item.quantity }}"
                       min="0"
+                      step="{{ cart_qty_step }}"
+                      {% if cart_qty_max != blank %}max="{{ cart_qty_max }}"{% endif %}
                       class="kt-cart-page__qty-input"
                       data-cart-qty-input
                       data-line-key="{{ item.key }}"
+                      data-qty-step="{{ cart_qty_step }}"
+                      {% if cart_qty_max != blank %}data-qty-max="{{ cart_qty_max }}"{% endif %}
                       aria-label="{{ 'kt.product.quantity.label' | t }}"
                     >
                     <button
