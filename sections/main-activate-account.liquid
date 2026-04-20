@@ -1,4 +1,5 @@
 {{ 'kt-section-customer-forms.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'password-match.js' | asset_url }}" defer="defer"></script>
 
 <section class="kt-customer" data-section-id="{{ section.id }}">
   <div class="kt-customer__container">
@@ -55,6 +56,8 @@
             required
             autocomplete="new-password"
             aria-required="true"
+            data-password-match="activate-password"
+            data-mismatch-message="{{ 'kt.customer.reset_password.password_mismatch' | t | escape }}"
             {% if form.errors contains 'password_confirmation' %}aria-invalid="true" aria-describedby="activate-password-confirm-error"{% endif %}
           >
           {%- render 'form-field-error', form: form, field: 'password_confirmation', describedby_id: 'activate-password-confirm-error' -%}
@@ -64,8 +67,19 @@
           {{ 'kt.customer.activate_account.submit' | t }}
         </button>
 
-        <button type="submit" name="decline" class="kt-customer__cancel">
-          {{ 'kt.customer.activate_account.cancel' | t }}
+        <button type="submit" name="decline" class="kt-customer__cancel" formnovalidate>
+          {{- 'kt.customer.activate_account.cancel' | t -}}
+          {%- comment -%}
+            formnovalidate is required because the password + confirm
+            inputs above carry HTML5 `required` attrs. Without it,
+            clicking Decline triggers browser validation on the
+            required password fields (which are still empty because
+            the customer is declining activation entirely) and the
+            form never POSTs. With formnovalidate, Decline submits
+            the `decline` parameter bare — Shopify interprets that
+            as "refuse account activation" and the customer is
+            released back to the login flow.
+          {%- endcomment -%}
         </button>
       </div>
     {%- endform -%}

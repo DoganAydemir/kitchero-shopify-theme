@@ -80,6 +80,25 @@
         {{ article.content }}
       </div>
 
+      {%- comment -%}
+        App blocks — merchants can drop in review-widget /
+        related-post / post-comment-reaction apps just below the
+        article body. `block.shopify_attributes` is required so the
+        theme editor highlights the block when selected.
+      {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        <div class="kt-article__app-blocks">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                <div class="kt-article__app-block" {{ block.shopify_attributes }}>
+                  {%- render block -%}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
       {%- comment -%} Share row {%- endcomment -%}
       <div class="kt-article__share">
         <span class="kt-article__share-label">{{ 'kt.share.title' | t | default: 'Share' }}</span>
@@ -261,6 +280,11 @@
 {
   "name": "t:sections.main-article.name",
   "tag": "section",
-  "class": "section"
+  "class": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
 }
 {% endschema %}

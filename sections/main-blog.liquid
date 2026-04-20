@@ -64,6 +64,24 @@
         </div>
       {%- endif -%}
     {%- endpaginate -%}
+
+    {%- comment -%}
+      App-block slot. Merchants can drop in newsletter-signup apps,
+      related-topics apps, etc. below the article grid. block.shopify_attributes
+      is required so the theme editor highlights the block when selected.
+    {%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="kt-blog__app-blocks">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              <div class="kt-blog__app-block" {{ block.shopify_attributes }}>
+                {%- render block -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
   </div>
 </section>
 
@@ -141,6 +159,11 @@
       "id": "show_excerpt",
       "label": "t:sections.main-blog.settings.show_excerpt.label",
       "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
     }
   ]
 }
