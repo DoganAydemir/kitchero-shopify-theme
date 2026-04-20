@@ -23,7 +23,12 @@
       assign blog_heading = blog.title
     endif
     assign blog_heading_tag = section.settings.heading_tag | default: 'h1'
-    assign blog_count = blog.articles_count | append: ' Articles'
+    comment
+      Use the pluralized locale key so TR/DE/ES/FR shoppers see the
+      correct singular/plural noun. `append: ' Articles'` hardcoded
+      English regardless of request locale.
+    endcomment
+    assign blog_count = 'kt.blog.count' | t: count: blog.articles_count
   -%}
   {%- render 'page-header-dotted',
     eyebrow: blog_eyebrow,

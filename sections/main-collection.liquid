@@ -45,7 +45,7 @@
           {%- endif -%}
         </div>
         <span class="kt-collection__count">
-          {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
+          {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
         </span>
       </div>
     </div>
@@ -150,7 +150,7 @@
         {%- comment -%} Mobile: filter button (opens drawer) {%- endcomment -%}
         <div class="kt-collection__mobile-filter-bar">
           <p class="kt-collection__results-count">
-            {{ collection.products.size }} {{ 'kt.section.collection.of' | t | default: 'of' }} {{ collection.products_count }}
+            {{ 'kt.section.collection.showing_of' | t: showing: collection.products.size, total: collection.products_count }}
           </p>
           <button class="kt-collection__filter-btn" data-open-filter-drawer type="button">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
@@ -227,7 +227,7 @@
           </div>
 
           <span class="kt-collection__bar-count">
-            {{ collection.products_count }} {{ 'kt.section.collection.products' | t | default: 'Products' }}
+            {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
           </span>
         </div>
       </div>

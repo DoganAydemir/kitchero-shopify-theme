@@ -181,7 +181,13 @@
           <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
           <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money }}</span>
         </div>
-        <p class="kt-cart-drawer__taxes">{{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}</p>
+        <p class="kt-cart-drawer__taxes">
+          {%- if cart.requires_shipping -%}
+            {{ 'kt.cart.taxes_note' | t }}
+          {%- else -%}
+            {{ 'kt.cart.taxes_note_digital' | t }}
+          {%- endif -%}
+        </p>
         {%- comment -%}
           Real checkout submit — Shopify routes POST to /cart with
           name="checkout" directly to /checkouts/..., bypassing the

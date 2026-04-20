@@ -12,11 +12,25 @@
   submit via the cart page JS (see assets/main-cart.js).
 {%- endcomment -%}
 
+{%- comment -%}
+  Render the item-count through the pluralized header locale key.
+  `cart.item_count | append: ' items'` hardcoded English regardless
+  of locale (TR shoppers saw "1 items"; DE "3 items"). The
+  `kt.header.cart.item_count` key carries one/other plurals for
+  all 5 locales; `| t: count:` resolves the right branch.
+
+  theme-check's UnusedAssign can't track variables through render-
+  tag keyword arguments — silence the false positive around the
+  variable that IS used in the render call below.
+{%- endcomment -%}
+{% # theme-check-disable UnusedAssign %}
+{%- assign cart_count_label = 'kt.header.cart.item_count' | t: count: cart.item_count -%}
+{% # theme-check-enable UnusedAssign %}
 {%- render 'page-header-dotted',
   eyebrow: section.settings.eyebrow | default: 'Your order',
   title: section.settings.heading | default: 'Cart',
   description: section.settings.description,
-  count_text: cart.item_count | append: ' ' | append: 'items',
+  count_text: cart_count_label,
   heading_tag: section.settings.heading_tag | default: 'h1'
 -%}
 
@@ -232,7 +246,18 @@
               </div>
 
               <p class="kt-cart-page__taxes-note">
-                {{ 'kt.cart.taxes_note' | t | default: 'Taxes and shipping calculated at checkout.' }}
+                {%- comment -%}
+                  Gift-card-only carts and cart contents flagged as
+                  digital skip the shipping step at checkout. Showing
+                  "and shipping" there is misleading; fall through to
+                  a digital-only message so the cart page matches the
+                  checkout experience.
+                {%- endcomment -%}
+                {%- if cart.requires_shipping -%}
+                  {{ 'kt.cart.taxes_note' | t }}
+                {%- else -%}
+                  {{ 'kt.cart.taxes_note_digital' | t }}
+                {%- endif -%}
               </p>
 
               {%- comment -%}
