@@ -240,16 +240,22 @@
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
-        {%- if cart.item_count > 0 -%}
-          <span
-            class="kt-header__cart-count"
-            aria-live="polite"
-            aria-atomic="true"
-            aria-label="{{ 'kt.header.cart.item_count' | t: count: cart.item_count }}"
-          >
-            {{ cart.item_count }}
-          </span>
-        {%- endif -%}
+        {%- comment -%}
+          Cart count pill — rendered on every paint so the aria-live
+          region is in the DOM from first load. If we only rendered it
+          when cart.item_count > 0, screen readers would miss the
+          initial add-to-cart announcement on an empty cart: SRs need
+          the live region to pre-exist to notice its textContent
+          changing. Hidden visually + from SR when count is 0.
+        {%- endcomment -%}
+        <span
+          class="kt-header__cart-count"
+          aria-live="polite"
+          aria-atomic="true"
+          {% if cart.item_count == 0 %}style="display: none;"{% endif %}
+        >
+          {{ cart.item_count }}
+        </span>
       </a>
 
       {%- comment -%}

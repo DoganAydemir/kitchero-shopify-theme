@@ -221,9 +221,18 @@
                   });
               })
               .then(function () {
-                var cartDrawer = document.getElementById('cart-drawer');
-                if (cartDrawer) {
-                  cartDrawer.setAttribute('aria-hidden', 'false');
+                /* Prefer the custom element's open() — moves focus into
+                   the drawer (close button) so SR users hear the drawer
+                   announced instead of staying on the ATC button they
+                   just clicked, which no longer represents the primary
+                   action. Falls back to raw aria-hidden toggle for the
+                   rare case where the custom element hasn't upgraded
+                   yet (script eval race). */
+                var drawerEl = window.kitcheroCartDrawer || document.querySelector('cart-drawer') || document.getElementById('cart-drawer');
+                if (drawerEl && typeof drawerEl.open === 'function') {
+                  drawerEl.open();
+                } else if (drawerEl) {
+                  drawerEl.setAttribute('aria-hidden', 'false');
                   document.body.style.overflow = 'hidden';
                 }
               });

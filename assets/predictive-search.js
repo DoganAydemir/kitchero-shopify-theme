@@ -29,8 +29,13 @@
 
     /* Which resource types to ask Shopify for. Driven by theme settings
        (Theme options → Search behavior → Include in results). Falls back
-       to a sane default if the globals haven't been exposed yet. */
-    var types = (window.Kitchero && Kitchero.searchSettings && Kitchero.searchSettings.types) || 'product,article,page';
+       to a sane default including collection so merchants who land on a
+       store with no explicit setting still get category matches (e.g.
+       typing "sofa" surfaces the /collections/sofas page, not just
+       individual sofa products). Previously omitted collection, which
+       hid a navigation shortcut customers expected from every other
+       Shopify store. */
+    var types = (window.Kitchero && Kitchero.searchSettings && Kitchero.searchSettings.types) || 'product,collection,article,page';
     if (!types) {
       resultsContainer.innerHTML = '';
       return;

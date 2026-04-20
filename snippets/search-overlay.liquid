@@ -43,7 +43,15 @@
             enterkeyhint="search"
             data-search-input
           >
-          <input type="hidden" name="type" value="product,article,page">
+          {%- comment -%}
+            Include `collection` so hitting Enter on the overlay lands
+            on a /search results page whose scope matches what the
+            predictive-search dropdown surfaced. Without it, a customer
+            who sees "Shop the Sofas collection" in the live suggestions
+            and presses Enter gets only product results — the collection
+            link disappears, which reads as a broken expectation.
+          {%- endcomment -%}
+          <input type="hidden" name="type" value="product,collection,article,page">
         </div>
       </form>
 

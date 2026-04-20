@@ -259,6 +259,23 @@
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+{%- comment -%}
+  Only load the product-model custom element registration when the
+  product actually has 3D model media — avoids a no-op script request
+  on products that only have 2D images. The <product-model> tag is
+  only emitted by product-media-gallery.liquid when media.media_type
+  equals 'model', so the registration is moot otherwise.
+{%- endcomment -%}
+{%- assign has_3d_model = false -%}
+{%- for media in product.media -%}
+  {%- if media.media_type == 'model' -%}
+    {%- assign has_3d_model = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- if has_3d_model -%}
+  <script src="{{ 'product-model.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {% schema %}
 {

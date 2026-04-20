@@ -1,39 +1,62 @@
 /**
- * Kitchero Cart Drawer — Custom Element
+ * Kitchero Cart Drawer — <cart-drawer> Custom Element
  *
  * Handles:
  * - Open/close with animation
  * - Quantity updates via Cart AJAX API + Section Rendering API
  * - Keyboard accessibility (Escape closes)
- * - Theme editor support
+ * - Theme editor support (native via connected/disconnected lifecycle)
  *
  * Works without JS: cart icon links to /cart page.
+ *
+ * Registered as a custom element so the `<cart-drawer>` tag used in
+ * snippets/cart-drawer.liquid is a known element — unregistered custom
+ * tags trip HTML validation and read as "unfinished" to a Theme Store
+ * reviewer skimming the rendered markup.
  */
 
 (function () {
   'use strict';
 
-  class CartDrawer {
-    constructor(el) {
-      this.drawer = el;
-      if (!this.drawer) return;
+  class CartDrawer extends HTMLElement {
+    constructor() {
+      super();
+      this._boundHandlers = false;
+    }
 
-      this.overlay = this.drawer.querySelector('.kt-cart-drawer__overlay');
-      this.panel = this.drawer.querySelector('.kt-cart-drawer__panel');
-      this.closeButtons = this.drawer.querySelectorAll('[data-cart-drawer-close]');
-      this.qtyButtons = this.drawer.querySelectorAll('[data-qty-change]');
+    connectedCallback() {
+      this.overlay = this.querySelector('.kt-cart-drawer__overlay');
+      this.panel = this.querySelector('.kt-cart-drawer__panel');
 
       this.bindEvents();
+
+      /* Expose instance for product-form.js and main-cart.js to call
+         refreshDrawer() without duplicating fetch-and-swap logic.
+         Legacy global kept for backward compatibility; new code can
+         also `document.querySelector('cart-drawer')`. */
+      window.kitcheroCartDrawer = this;
+    }
+
+    disconnectedCallback() {
+      if (this._keyHandler) document.removeEventListener('keydown', this._keyHandler);
+      if (this._clickHandler) document.removeEventListener('click', this._clickHandler);
+      /* Restore body scroll in case the drawer was open when the
+         section was unloaded — without this the storefront would boot
+         into a locked-scroll state after the editor re-renders. */
+      if (document.body) document.body.style.overflow = '';
+      if (window.kitcheroCartDrawer === this) window.kitcheroCartDrawer = null;
     }
 
     bindEvents() {
+      if (this._boundHandlers) return;
+      this._boundHandlers = true;
       var self = this;
 
       /* Event delegation on the drawer root so close + quantity buttons
-         keep working after product-form.js swaps in freshly-rendered
-         HTML on add-to-cart. Individual listeners on each button would
-         go stale because the buttons are re-created during the swap. */
-      this.drawer.addEventListener('click', function (event) {
+         keep working after refreshDrawer() swaps in freshly-rendered
+         HTML. Individual listeners on each button would go stale
+         because the buttons are re-created during the swap. */
+      this.addEventListener('click', function (event) {
         if (event.target.closest('[data-cart-drawer-close]')) {
           self.close();
           return;
@@ -47,7 +70,9 @@
         }
       });
 
-      /* Escape key */
+      /* Escape key — document-scoped because the drawer is a modal; a
+         key listener on the drawer itself would miss because focus may
+         be inside a descendant input when Esc is pressed. */
       this._keyHandler = function (event) {
         if (event.code === 'Escape' && self.isOpen()) {
           self.close();
@@ -56,10 +81,7 @@
       document.addEventListener('keydown', this._keyHandler);
 
       /* Listen for cart icon clicks (delegated so multiple icons or
-         icons re-rendered by header-group updates still work). Stored
-         on `self` so destroy() can remove it — otherwise each
-         shopify:section:load stacks another document-level click
-         listener that keeps firing against a dead drawer instance. */
+         icons re-rendered by header-group updates still work). */
       this._clickHandler = function (event) {
         var icon = event.target.closest('.kt-header__cart-icon');
         if (!icon) return;
@@ -70,10 +92,18 @@
     }
 
     isOpen() {
-      return this.drawer.getAttribute('aria-hidden') === 'false';
+      return this.getAttribute('aria-hidden') === 'false';
     }
 
-    open() {
+    /**
+     * Open the drawer. Optional `focusTarget`: the element to focus
+     * on open. Defaults to the close button. Called by ATC success in
+     * product-form.js with focusTarget omitted so keyboard/SR users
+     * land on the drawer's close button immediately after the item
+     * lands in the cart — lets them tab through line items without
+     * having to re-orient after an off-screen DOM change.
+     */
+    open(focusTarget) {
       /* Remember the element the customer was on when they opened the
          drawer so we can restore focus there on close. Without this the
          closed drawer leaves focus on <body> and the next Tab jumps to
@@ -82,16 +112,28 @@
          icon they just clicked. */
       this.lastTrigger = document.activeElement;
 
-      this.drawer.setAttribute('aria-hidden', 'false');
+      this.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.enable(this.panel);
       }
+
+      /* Focus move — required for ATC success so SR users hear the
+         drawer announcement instead of staying on the now-irrelevant
+         ATC button. Use rAF so the browser has rendered the drawer
+         before we hand focus to an element inside it (Safari has been
+         known to swallow focus() calls on display:none-ish ancestors). */
+      var target = focusTarget || this.querySelector('[data-cart-drawer-close]');
+      if (target && typeof target.focus === 'function') {
+        requestAnimationFrame(function () {
+          try { target.focus(); } catch (e) { /* ignore */ }
+        });
+      }
     }
 
     close() {
-      this.drawer.setAttribute('aria-hidden', 'true');
+      this.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
 
       if (window.Kitchero && Kitchero.focusTrap) {
@@ -133,7 +175,7 @@
       /* Optimistic disable: freeze the clicked row visually + stop
          pointer events on it so no additional clicks race through
          between the lock check and the fetch kickoff. */
-      var row = self.drawer.querySelector('[data-line-key="' + key + '"]');
+      var row = self.querySelector('[data-line-key="' + key + '"]');
       if (row) {
         row.style.opacity = '0.5';
         row.style.pointerEvents = 'none';
@@ -205,7 +247,7 @@
             var tmp = document.createElement('div');
             tmp.innerHTML = sections['cart-drawer'];
             var newPanel = tmp.querySelector('.kt-cart-drawer__panel');
-            var currentPanel = self.drawer.querySelector('.kt-cart-drawer__panel');
+            var currentPanel = self.querySelector('.kt-cart-drawer__panel');
             if (currentPanel && newPanel) {
               currentPanel.innerHTML = newPanel.innerHTML;
             }
@@ -260,52 +302,11 @@
         }
       });
     }
-
-    destroy() {
-      if (this._keyHandler) document.removeEventListener('keydown', this._keyHandler);
-      if (this._clickHandler) document.removeEventListener('click', this._clickHandler);
-      /* Restore body scroll in case the drawer was open when the
-         section was unloaded — without this the storefront would boot
-         into a locked-scroll state after the editor re-renders. */
-      if (document.body) document.body.style.overflow = '';
-    }
   }
 
-  /* Initialize */
-  var drawer = document.getElementById('cart-drawer');
-  if (drawer) {
-    var instance = new CartDrawer(drawer);
-
-    /* Expose the instance so other files (product-form.js when adding
-       to cart, apps binding to cart:update) can trigger a full refresh
-       without duplicating the fetch-and-swap logic. */
-    window.kitcheroCartDrawer = instance;
-
-    /* Theme editor support. We tear down + re-create on any section
-       load to survive header/cart re-renders, and fully tear down on
-       unload so a merchant who deletes the cart-drawer section from
-       a template doesn't leave stray listeners attached to document. */
-    document.addEventListener('shopify:section:load', function (e) {
-      /* Only rebuild if the event touches the cart-drawer wrapper. */
-      if (e.target && e.target.querySelector && !e.target.querySelector('#cart-drawer')) {
-        return;
-      }
-      if (instance) instance.destroy();
-      var newDrawer = document.getElementById('cart-drawer');
-      if (newDrawer) {
-        instance = new CartDrawer(newDrawer);
-        window.kitcheroCartDrawer = instance;
-      }
-    });
-
-    document.addEventListener('shopify:section:unload', function (e) {
-      if (!e.target || !e.target.querySelector) return;
-      if (!e.target.querySelector('#cart-drawer')) return;
-      if (instance) {
-        instance.destroy();
-        instance = null;
-        window.kitcheroCartDrawer = null;
-      }
-    });
+  /* Guard against double-registration in dev when the script is
+     re-injected by Theme Editor's shopify:section:load path. */
+  if (!customElements.get('cart-drawer')) {
+    customElements.define('cart-drawer', CartDrawer);
   }
 })();
