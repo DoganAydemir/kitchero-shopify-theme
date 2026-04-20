@@ -2,6 +2,7 @@
 
 .kt-product-price {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
@@ -29,4 +30,32 @@
   background-color: var(--kt-red-50);
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
+}
+
+/* EU unit-pricing row (e.g. €3.99 / 100 g) — rendered as a full-width
+   block underneath the headline price so consumables sold by weight
+   or volume meet price-transparency rules. `flex-basis: 100%` forces
+   a line break inside the flex container so the unit price never
+   wraps mid-line next to the discount pill. */
+.kt-product-price__unit {
+  flex-basis: 100%;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--kt-stone-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.kt-product-price__unit-value {
+  font-weight: 500;
+}
+
+.kt-product-price__unit-separator {
+  color: var(--kt-stone-400);
+}
+
+.kt-product-price__unit-qty {
+  margin-left: 0.25rem;
+  color: var(--kt-stone-400);
 }

@@ -33,4 +33,34 @@
       -{{ discount_pct }}%
     </span>
   {%- endif -%}
+
+  {%- comment -%}
+    Unit pricing — mandatory in the EU for consumables sold by weight
+    or volume (e.g. \u20AC3.99 per 100 g). Shopify populates
+    `variant.unit_price` only when the merchant sets a reference value
+    on the variant, so this block renders nothing on a store that
+    doesn't need it. Format mirrors Shopify's own reference example:
+    unit price + reference unit, with the measured quantity disclosed
+    in parentheses when it differs from the reference quantity
+    (e.g. \"250 g per 1 kg\"), which is what German price-transparency
+    law requires.
+  {%- endcomment -%}
+  {%- if variant.unit_price_measurement -%}
+    {%- assign upm = variant.unit_price_measurement -%}
+    <span class="kt-product-price__unit" data-unit-price>
+      <span class="kt-product-price__unit-value">{{ variant.unit_price | money }}</span>
+      <span class="kt-product-price__unit-separator" aria-hidden="true">/</span>
+      <span class="kt-product-price__unit-ref">
+        {%- if upm.reference_value != 1 -%}
+          {{ upm.reference_value }}&nbsp;
+        {%- endif -%}
+        {{ upm.reference_unit }}
+      </span>
+      {%- if upm.quantity_value != upm.reference_value -%}
+        <span class="kt-product-price__unit-qty">
+          ({{ 'kt.product.unit_price_per_html' | t: quantity_value: upm.quantity_value, quantity_unit: upm.quantity_unit, reference_value: upm.reference_value, reference_unit: upm.reference_unit }})
+        </span>
+      {%- endif -%}
+    </span>
+  {%- endif -%}
 </div>
