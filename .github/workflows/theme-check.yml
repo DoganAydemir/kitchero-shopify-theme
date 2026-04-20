@@ -1,0 +1,53 @@
+name: Theme Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  theme-check:
+    runs-on: ubuntu-latest
+    name: Shopify theme-check lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Ruby + Node are both used by the Shopify CLI. Ruby is used by
+      # theme-check itself; Node hosts the CLI wrapper.
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      # Run theme-check at error level — the theme MUST pass before any PR
+      # lands on main. Warnings are surfaced in the log (so the author can
+      # see them and decide whether to address) but don't fail the build.
+      # The `.theme-check.yml` in the repo root opts into
+      # `theme-check:recommended` + keeps MatchingTranslations enabled, so
+      # this catches the common Theme Store rejection triggers:
+      #   - RemoteAsset
+      #   - ParserBlockingJavaScript
+      #   - HardcodedRoutes
+      #   - DeprecatedTag ({% include %})
+      #   - JSONSyntaxError / LiquidHTMLSyntaxError / ValidSchema
+      #   - ContentForHeaderModification
+      #   - MatchingTranslations (locale drift between en.default and tr/de/es/fr)
+      - name: Run theme-check (error level)
+        run: shopify theme check --fail-level=error
+
+      # Suggestion-level check is advisory — the output is logged for
+      # reviewer visibility but does NOT fail the build. Helps catch
+      # style/consistency issues before they compound.
+      - name: Run theme-check (suggestion level, advisory)
+        continue-on-error: true
+        run: shopify theme check --fail-level=suggestion
