@@ -679,3 +679,104 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Optional tagline between the logo and the password form. Smaller
+   than .kt-password__shop-name on purpose — it's a sub-headline, not
+   the primary title. Replaces the old inline
+   `style="font-size: 1.75rem; margin-top: 1.5rem;"` so all typography
+   lives in this file. */
+.kt-password__heading {
+  font-family: var(--kt-f-accent-family);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 0.75rem;
+  color: rgb(var(--kt-c-fg));
+}
+
+/* Newsletter block — visually separated from the password form so
+   the two calls-to-action don't compete. Centered to match the rest
+   of the password page layout. */
+.kt-password__newsletter {
+  width: 100%;
+  max-width: 24rem;
+  margin: 2.5rem 0 0;
+  text-align: center;
+}
+
+.kt-password__newsletter-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.7);
+  margin: 0 0 0.75rem;
+}
+
+.kt-password__newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kt-password__newsletter-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.kt-password__newsletter-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.kt-password__newsletter-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.kt-password__newsletter-success {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-password__newsletter-error {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: rgb(153, 27, 27);
+}
+
+/* Social icon row — inherits visual design from the footer social
+   list (shared snippet) but recenters under the password form. */
+.kt-password__social {
+  margin: 2.5rem 0 0;
+}
+
+.kt-password__social .kt-footer__social-list {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.kt-password__social .kt-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: rgba(var(--kt-c-fg), 0.05);
+  color: rgb(var(--kt-c-fg));
+  transition: background-color 0.2s ease;
+}
+
+.kt-password__social .kt-footer__social-link:hover,
+.kt-password__social .kt-footer__social-link:focus-visible {
+  background: rgba(var(--kt-c-fg), 0.12);
+}
