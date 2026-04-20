@@ -44,17 +44,27 @@
       {%- assign has_hover_swap = true -%}
     {%- endif -%}
 
-    {%- comment -%} Primary image {%- endcomment -%}
+    {%- comment -%}
+      Primary image. `sizes` is tuned to the actual grid layouts:
+      collection grid is 3 cols at ≥990px (~33vw), 2 cols at 750-989px
+      (~50vw), 1 col below 750px (100vw). Previously declared
+      `50vw` across the 990px threshold, forcing the browser to pull
+      ~800w candidates on a 1440px viewport (needed ~475w) — estimated
+      ~500-900KB wasted per first-fold on a 12-card collection page.
+      Width ladder also extended upward (1100) so 2-col tablet
+      DPR 2 gets a sharp candidate (previously capped at 800 →
+      blurry on retina tablets).
+    {%- endcomment -%}
     {%- if product.featured_image -%}
       {{
         product.featured_image
-        | image_url: width: 800
+        | image_url: width: 1100
         | image_tag:
           class: 'kt-card-product__image-primary',
           loading: primary_loading,
           fetchpriority: primary_fetchpriority,
-          widths: '375, 550, 800',
-          sizes: '(min-width: 750px) 50vw, 100vw',
+          widths: '275, 375, 550, 750, 1100',
+          sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
           height: product.featured_image.height,
           alt: product.title
@@ -67,12 +77,12 @@
     {%- if has_hover_swap -%}
       {{
         secondary_image
-        | image_url: width: 800
+        | image_url: width: 1100
         | image_tag:
           class: 'kt-card-product__image-secondary',
           loading: 'lazy',
-          widths: '375, 550, 800',
-          sizes: '(min-width: 750px) 50vw, 100vw',
+          widths: '275, 375, 550, 750, 1100',
+          sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: secondary_image.width,
           height: secondary_image.height,
           alt: 'kt.product.card.image_alt_detail' | t: title: product.title
