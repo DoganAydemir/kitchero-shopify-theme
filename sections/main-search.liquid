@@ -1,53 +1,260 @@
+{%- comment -%}
+  Search results page.
+
+  Pulls in the shared filter + card-product + article-card CSS. Adds a
+  search-specific layout with:
+    • A big hero title + centered search form (always present)
+    • Type tabs that scope results to all / products / articles / pages via
+      the `type` query param (URL-persisted so merchants can link directly
+      to e.g. `/search?q=…&type=product`)
+    • When `type=product`, native Shopify storefront filters rendered in a
+      sidebar via the shared `collection-filters` snippet, plus a sort
+      dropdown wired to the same form
+    • Results grid with mixed result-card rendering (product / article /
+      page), paginated at 24 per page
+    • Popular searches panel shown in two empty states: on the bare /search
+      landing (no query), and when a query returned zero results. The panel
+      is merchant-editable via schema blocks.
+{%- endcomment -%}
+
 {{ 'kt-section-main-search.css' | asset_url | stylesheet_tag }}
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-article-card.css' | asset_url | stylesheet_tag }}
+{{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  comment
+    We key off `search.types` to scope results. Shopify only populates
+    `search.filters` when the search is product-only, so the scope
+    switch is what unlocks the filter sidebar.
+  endcomment
+  assign search_type = 'product,article,page'
+  assign active_scope = 'all'
+  if search.performed and search.types.size == 1
+    assign only_type = search.types | first
+    if only_type == 'product'
+      assign active_scope = 'product'
+      assign search_type = 'product'
+    elsif only_type == 'article'
+      assign active_scope = 'article'
+      assign search_type = 'article'
+    elsif only_type == 'page'
+      assign active_scope = 'page'
+      assign search_type = 'page'
+    endif
+  endif
+-%}
 
 <section class="kt-search-page" data-section-id="{{ section.id }}">
   <div class="page-width">
-    <h1 class="kt-search-page__title">{{ 'kt.search.search' | t }}</h1>
+    <header class="kt-search-page__header">
+      <span class="kt-search-page__eyebrow">{{ 'kt.search.eyebrow' | t }}</span>
+      <h1 class="kt-search-page__title">
+        {%- if search.performed -%}
+          {{ 'kt.search.results_for' | t: terms: search.terms }}
+        {%- else -%}
+          {{ 'kt.search.search' | t }}
+        {%- endif -%}
+      </h1>
+    </header>
 
     <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-page__form">
       <label for="search-page-input" class="visually-hidden">{{ 'kt.search.search' | t }}</label>
-      <input type="search" id="search-page-input" name="q" value="{{ search.terms | escape }}" class="kt-search-page__input" placeholder="{{ 'kt.search.placeholder' | t }}" autocomplete="off">
-      <input type="hidden" name="type" value="product,article,page">
+      <svg class="kt-search-page__input-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        type="search"
+        id="search-page-input"
+        name="q"
+        value="{{ search.terms | escape }}"
+        class="kt-search-page__input"
+        placeholder="{{ 'kt.search.placeholder' | t }}"
+        autocomplete="off"
+      >
+      <input type="hidden" name="type" value="{{ search_type }}">
+      <input type="hidden" name="options[prefix]" value="last">
       <button type="submit" class="kt-search-page__submit">{{ 'kt.search.search' | t }}</button>
     </form>
 
     {%- if search.performed -%}
+      <nav class="kt-search-page__tabs" aria-label="{{ 'kt.search.scope_aria' | t }}">
+        {%- assign terms_param = search.terms | url_encode -%}
+        <a
+          href="{{ routes.search_url }}?q={{ terms_param }}&type=product,article,page"
+          class="kt-search-page__tab{% if active_scope == 'all' %} kt-search-page__tab--active{% endif %}"
+          {% if active_scope == 'all' %}aria-current="page"{% endif %}
+        >{{ 'kt.search.scope_all' | t }}</a>
+        <a
+          href="{{ routes.search_url }}?q={{ terms_param }}&type=product"
+          class="kt-search-page__tab{% if active_scope == 'product' %} kt-search-page__tab--active{% endif %}"
+          {% if active_scope == 'product' %}aria-current="page"{% endif %}
+        >{{ 'kt.search.scope_products' | t }}</a>
+        <a
+          href="{{ routes.search_url }}?q={{ terms_param }}&type=article"
+          class="kt-search-page__tab{% if active_scope == 'article' %} kt-search-page__tab--active{% endif %}"
+          {% if active_scope == 'article' %}aria-current="page"{% endif %}
+        >{{ 'kt.search.scope_articles' | t }}</a>
+        <a
+          href="{{ routes.search_url }}?q={{ terms_param }}&type=page"
+          class="kt-search-page__tab{% if active_scope == 'page' %} kt-search-page__tab--active{% endif %}"
+          {% if active_scope == 'page' %}aria-current="page"{% endif %}
+        >{{ 'kt.search.scope_pages' | t }}</a>
+      </nav>
+    {%- endif -%}
+
+    {%- if search.performed -%}
       {%- if search.results_count > 0 -%}
-        <p class="kt-search-page__results-count">
-          {{ 'kt.search.results_count' | t: count: search.results_count, terms: search.terms }}
-        </p>
-        {%- paginate search.results by 24 -%}
-          <div class="kt-search-page__grid">
-            {%- for item in search.results -%}
-              {%- if item.object_type == 'product' -%}
-                {%- render 'card-product', product: item, show_vendor: false, show_secondary_image: false, show_quote_button: false, index: forloop.index0 -%}
-              {%- elsif item.object_type == 'article' -%}
-                {%- render 'article-card', article: item, show_author: false, show_date: true, show_excerpt: true, index: forloop.index0 -%}
-              {%- else -%}
-                <a href="{{ item.url }}" class="kt-search-page__page-result">
-                  <h3>{{ item.title }}</h3>
-                  <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
-                </a>
-              {%- endif -%}
-            {%- endfor -%}
-          </div>
-          {%- if paginate.pages > 1 -%}
-            {%- render 'pagination', paginate: paginate -%}
+        {%- comment -%}
+          Filter + results two-column layout. Sidebar appears only when we're
+          scoped to products (Shopify populates `search.filters` on product-
+          only searches). On mobile the sidebar collapses above the grid.
+        {%- endcomment -%}
+        <div class="kt-search-page__layout{% if active_scope == 'product' and search.filters.size > 0 %} kt-search-page__layout--with-sidebar{% endif %}">
+          {%- if active_scope == 'product' and search.filters.size > 0 -%}
+            <aside class="kt-search-page__sidebar" aria-label="{{ 'kt.section.collection.filter' | t }}">
+              {%- comment -%}
+                Hidden inputs (q, type, options[prefix]) preserve the search
+                query when the filter form submits — otherwise applying any
+                filter would wipe the query back to a bare /search page.
+              {%- endcomment -%}
+              {%- render 'collection-filters',
+                filters: search.filters,
+                action_url: routes.search_url,
+                form_id: 'SearchFiltersForm',
+                hidden_terms: search.terms,
+                hidden_type: 'product',
+                hidden_options_prefix: 'last',
+                layout: 'vertical'
+              -%}
+            </aside>
           {%- endif -%}
-        {%- endpaginate -%}
+
+          <div class="kt-search-page__main">
+            <div class="kt-search-page__meta-bar">
+              <p class="kt-search-page__results-count">
+                {{ 'kt.search.results_count' | t: count: search.results_count, terms: search.terms }}
+              </p>
+
+              {%- if active_scope == 'product' and search.sort_options.size > 0 -%}
+                <form class="kt-search-page__sort" action="{{ routes.search_url }}" method="get" data-search-sort-form>
+                  <input type="hidden" name="q" value="{{ search.terms | escape }}">
+                  <input type="hidden" name="type" value="product">
+                  <input type="hidden" name="options[prefix]" value="last">
+                  <label for="SearchSortBy" class="kt-search-page__sort-label">{{ 'kt.section.collection.sort_by' | t }}</label>
+                  <select id="SearchSortBy" name="sort_by" class="kt-search-page__sort-select" data-search-sort-select>
+                    {%- for option in search.sort_options -%}
+                      <option value="{{ option.value }}"{% if option.value == search.sort_by %} selected{% endif %}>{{ option.name }}</option>
+                    {%- endfor -%}
+                  </select>
+                  <noscript>
+                    <button type="submit" class="kt-search-page__sort-submit">{{ 'kt.section.collection.apply' | t }}</button>
+                  </noscript>
+                </form>
+              {%- endif -%}
+            </div>
+
+            {%- paginate search.results by 24 -%}
+              <div class="kt-search-page__grid">
+                {%- for item in search.results -%}
+                  {%- if item.object_type == 'product' -%}
+                    {%- render 'card-product', product: item, show_vendor: false, show_secondary_image: false, show_quote_button: false, index: forloop.index0 -%}
+                  {%- elsif item.object_type == 'article' -%}
+                    {%- render 'article-card', article: item, show_author: false, show_date: true, show_excerpt: true, index: forloop.index0 -%}
+                  {%- else -%}
+                    <a href="{{ item.url }}" class="kt-search-page__page-result">
+                      <span class="kt-search-page__page-kind">{{ 'kt.search.scope_pages' | t }}</span>
+                      <h3>{{ item.title }}</h3>
+                      <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
+                    </a>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+              {%- if paginate.pages > 1 -%}
+                {%- render 'pagination', paginate: paginate -%}
+              {%- endif -%}
+            {%- endpaginate -%}
+          </div>
+        </div>
       {%- else -%}
-        <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
+        <div class="kt-search-page__empty">
+          <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
+          {%- render 'search-popular-queries', section: section -%}
+        </div>
       {%- endif -%}
+    {%- else -%}
+      {%- render 'search-popular-queries', section: section -%}
     {%- endif -%}
   </div>
 </section>
+
+{%- comment -%}
+  Client JS: auto-submit sort dropdown on change, and a11y focus handoff
+  from tab click (browsers native — no script needed for the tabs). Small
+  enough to keep inline as it's strictly a template-local behaviour, but
+  for Theme Store hygiene we move it to a shared asset.
+{%- endcomment -%}
+<script src="{{ 'main-search.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
   "name": "t:sections.main-search.name",
   "tag": "section",
-  "class": "section"
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main-search.settings.header__empty.content"
+    },
+    {
+      "type": "text",
+      "id": "popular_heading",
+      "label": "t:sections.main-search.settings.popular_heading.label",
+      "default": "t:sections.main-search.settings.popular_heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "popular_subtext",
+      "label": "t:sections.main-search.settings.popular_subtext.label",
+      "default": "t:sections.main-search.settings.popular_subtext.default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "query",
+      "name": "t:sections.main-search.blocks.query.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.main-search.blocks.query.settings.label.label",
+          "default": "t:sections.main-search.blocks.query.settings.label.default"
+        },
+        {
+          "type": "text",
+          "id": "query",
+          "label": "t:sections.main-search.blocks.query.settings.query.label",
+          "info": "t:sections.main-search.blocks.query.settings.query.info"
+        }
+      ]
+    },
+    {
+      "type": "collection_link",
+      "name": "t:sections.main-search.blocks.collection_link.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.main-search.blocks.collection_link.settings.collection.label"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "query", "settings": { "label": "Knives",      "query": "knives" } },
+      { "type": "query", "settings": { "label": "Cookware",    "query": "cookware" } },
+      { "type": "query", "settings": { "label": "Appliances",  "query": "appliances" } },
+      { "type": "query", "settings": { "label": "Bakeware",    "query": "bakeware" } }
+    ]
+  }
 }
 {% endschema %}

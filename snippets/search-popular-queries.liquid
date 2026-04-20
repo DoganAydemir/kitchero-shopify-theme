@@ -1,0 +1,76 @@
+{%- comment -%}
+  Popular search queries + collection shortcuts.
+
+  Rendered on /search in two empty states:
+    1. Landing (no query yet)
+    2. Zero-results for the current query
+
+  Sourced entirely from the section's own blocks so merchants can curate
+  seasonal suggestions without touching code. Expects `section` as a
+  render param.
+
+  Block types:
+    • `query`         — a single popular-search term (label + query string)
+    • `collection_link` — a collection shortcut (label comes from the
+      collection itself; renders as a pill pointing at the collection page)
+{%- endcomment -%}
+
+<section class="kt-search-page__popular" aria-labelledby="SearchPopularHeading">
+  <h2 id="SearchPopularHeading" class="kt-search-page__popular-heading">
+    {{ section.settings.popular_heading | default: 'kt.search.popular_heading' | t }}
+  </h2>
+
+  {%- if section.settings.popular_subtext != blank -%}
+    <div class="kt-search-page__popular-subtext">{{ section.settings.popular_subtext }}</div>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <ul class="kt-search-page__popular-list" role="list">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'query' -%}
+            {%- if block.settings.query != blank -%}
+              <li>
+                <a
+                  href="{{ routes.search_url }}?q={{ block.settings.query | url_encode }}&type=product,article,page"
+                  class="kt-search-page__popular-pill"
+                  {{ block.shopify_attributes }}
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <span>{{ block.settings.label | default: block.settings.query }}</span>
+                </a>
+              </li>
+            {%- elsif request.design_mode -%}
+              <li>
+                <span class="kt-search-page__popular-pill kt-search-page__popular-pill--empty" {{ block.shopify_attributes }}>
+                  {{ 'kt.search.popular_empty_block' | t }}
+                </span>
+              </li>
+            {%- endif -%}
+
+          {%- when 'collection_link' -%}
+            {%- if block.settings.collection != blank -%}
+              <li>
+                <a
+                  href="{{ block.settings.collection.url }}"
+                  class="kt-search-page__popular-pill kt-search-page__popular-pill--collection"
+                  {{ block.shopify_attributes }}
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  <span>{{ block.settings.collection.title }}</span>
+                </a>
+              </li>
+            {%- elsif request.design_mode -%}
+              <li>
+                <span class="kt-search-page__popular-pill kt-search-page__popular-pill--empty" {{ block.shopify_attributes }}>
+                  {{ 'kt.search.popular_empty_collection' | t }}
+                </span>
+              </li>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </ul>
+  {%- elsif request.design_mode -%}
+    <p class="kt-search-page__popular-hint">{{ 'kt.search.popular_empty_section' | t }}</p>
+  {%- endif -%}
+</section>

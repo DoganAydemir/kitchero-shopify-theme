@@ -1,15 +1,36 @@
 {%- comment -%}
   Collection Filters — renders Shopify native storefront filters.
-  Used in all collection template variants.
+  Shared by main-collection variants (drawer, vertical) and main-search.
 
   Accepts:
-  - layout: 'horizontal' | 'drawer' | 'vertical'
-  - collection: {Object} the collection
+  - layout: 'horizontal' | 'drawer' | 'vertical'  (visual only — no logic today)
+  - collection: {Object} the collection (back-compat: used when filters/action_url omitted)
+  - filters: {Array<Filter>} explicit filters array (preferred — for /search)
+  - action_url: {String} form action URL (preferred — for /search)
+  - form_id: {String} custom form id (default 'CollectionFiltersForm')
+  - hidden_terms: {String} emits <input name="q" value="…"> when set (for /search)
+  - hidden_type: {String} emits <input name="type" value="…"> when set (for /search)
+  - hidden_options_prefix: {String} emits <input name="options[prefix]" value="…"> when set (for /search — typically "last")
 {%- endcomment -%}
 
-{%- if collection.filters.size > 0 -%}
-  <form id="CollectionFiltersForm" action="{{ collection.url }}" method="get" data-collection-filters-form>
-    {%- for filter in collection.filters -%}
+{%- liquid
+  assign filter_list = filters | default: collection.filters
+  assign filter_action = action_url | default: collection.url
+  assign filter_form_id = form_id | default: 'CollectionFiltersForm'
+-%}
+
+{%- if filter_list.size > 0 -%}
+  <form id="{{ filter_form_id }}" action="{{ filter_action }}" method="get" data-collection-filters-form>
+    {%- if hidden_terms -%}
+      <input type="hidden" name="q" value="{{ hidden_terms | escape }}">
+    {%- endif -%}
+    {%- if hidden_type -%}
+      <input type="hidden" name="type" value="{{ hidden_type | escape }}">
+    {%- endif -%}
+    {%- if hidden_options_prefix -%}
+      <input type="hidden" name="options[prefix]" value="{{ hidden_options_prefix | escape }}">
+    {%- endif -%}
+    {%- for filter in filter_list -%}
       <div class="kt-filter" data-filter-group>
         {%- case filter.type -%}
           {%- comment -%}
