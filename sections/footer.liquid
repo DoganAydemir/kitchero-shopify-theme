@@ -186,6 +186,28 @@
           </div>
         {%- endif -%}
       </div>
+
+      {%- comment -%}
+        Shop policies row — renders only the policies the merchant has
+        actually published in Admin → Settings → Policies. `shop.policies`
+        already filters to published ones, so the `{% for %}` silently
+        collapses to nothing on a store that has none. Keeps the legal
+        links discoverable (a Theme Store review requirement) without
+        forcing merchants to curate a separate menu.
+      {%- endcomment -%}
+      {%- if section.settings.show_policy_links and shop.policies.size > 0 -%}
+        <nav class="kt-footer__policies" aria-label="{{ 'kt.general.footer.policies' | t | default: 'Legal' }}">
+          <ul class="kt-footer__policies-list list-unstyled" role="list">
+            {%- for policy in shop.policies -%}
+              <li>
+                <a href="{{ policy.url }}" class="kt-footer__policy-link">
+                  {{ policy.title }}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
     </div>
   </div>
 </footer>
@@ -256,6 +278,13 @@
       "type": "checkbox",
       "id": "show_payment_icons",
       "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_policy_links",
+      "label": "t:sections.footer.settings.show_policy_links.label",
+      "info": "t:sections.footer.settings.show_policy_links.info",
       "default": true
     },
     {
