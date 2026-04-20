@@ -92,9 +92,16 @@
       <span class="kt-video-bg-hero__eyebrow">{{ section.settings.eyebrow }}</span>
     {%- endif -%}
 
+    {%- comment -%}
+      `inline_richtext` lets merchants drop in an explicit `<br>` for
+      line breaks without the hackier `newline_to_br` filter (which
+      only worked on textarea types and silently no-op'd on the old
+      `text` type we had here). The setting now accepts simple inline
+      HTML (em, strong, br, a) — the theme renders it as-is.
+    {%- endcomment -%}
     {%- if section.settings.heading != blank -%}
       <{{ heading_tag }} class="kt-video-bg-hero__heading">
-        {{ section.settings.heading | newline_to_br }}
+        {{ section.settings.heading }}
       </{{ heading_tag }}>
     {%- endif -%}
 
@@ -152,9 +159,10 @@
       "default": "Variant A / Local Cinema Background"
     },
     {
-      "type": "text",
+      "type": "inline_richtext",
       "id": "heading",
       "label": "t:sections.video_bg_hero.settings.heading.label",
+      "info": "t:sections.video_bg_hero.settings.heading.info",
       "default": "The Local Advantage."
     },
     {
