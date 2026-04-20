@@ -3,6 +3,17 @@
 {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
 
 <div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
+  {%- comment -%}
+    Visible breadcrumb that mirrors the BreadcrumbList JSON-LD emitted
+    by snippets/structured-data.liquid. Google Search Console warns
+    when structured data declares a breadcrumb the page doesn't show;
+    this snippet closes that parity gap across collection/article/
+    blog/page templates.
+  {%- endcomment -%}
+  <div class="page-width">
+    {%- render 'breadcrumbs', class_extra: 'kt-collection__breadcrumbs' -%}
+  </div>
+
   {%- comment -%} Hero Header {%- endcomment -%}
   <section class="kt-collection__hero" data-collection-hero>
     {%- comment -%} Layer 1: Base matrix grid (small dots, static) {%- endcomment -%}

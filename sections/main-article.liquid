@@ -17,6 +17,16 @@
 {%- endcomment -%}
 
 <article class="kt-article" data-section-id="{{ section.id }}">
+  {%- comment -%}
+    Visible breadcrumb that mirrors the BreadcrumbList JSON-LD from
+    structured-data.liquid. Rendered above the article hero so
+    readers orient themselves ("Home > Journal > This article")
+    before entering the long-form content.
+  {%- endcomment -%}
+  <div class="page-width">
+    {%- render 'breadcrumbs', class_extra: 'kt-article__breadcrumbs' -%}
+  </div>
+
   {%- comment -%} Hero Header — centered, editorial {%- endcomment -%}
   <header class="kt-article__header">
     <div class="page-width">

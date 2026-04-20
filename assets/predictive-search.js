@@ -81,6 +81,65 @@
         fetchResults(input, resultsContainer, query);
       }, 300);
     });
+
+    /* Keyboard navigation through predictive results. ArrowDown moves
+       the highlight down, ArrowUp moves it up, Enter follows the
+       highlighted link. Without this, keyboard-only users have to
+       Tab through every result individually to pick one — below the
+       parity bar Dawn sets. */
+    input.addEventListener('keydown', function (event) {
+      var links = resultsContainer.querySelectorAll('.kt-predictive-search__link');
+      if (!links.length) return;
+
+      var currentIndex = -1;
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].classList.contains('is-active')) {
+          currentIndex = i;
+          break;
+        }
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        var next = currentIndex + 1;
+        if (next >= links.length) next = 0;
+        setActive(links, next);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        var prev = currentIndex - 1;
+        if (prev < 0) prev = links.length - 1;
+        setActive(links, prev);
+      } else if (event.key === 'Enter' && currentIndex >= 0) {
+        /* Only intercept Enter when the user has navigated into the
+           results — otherwise allow the default form submit to reach
+           the full-page /search results. */
+        event.preventDefault();
+        links[currentIndex].click();
+      } else if (event.key === 'Escape') {
+        clearActive(links);
+      }
+    });
+  }
+
+  function setActive(links, index) {
+    clearActive(links);
+    var link = links[index];
+    if (!link) return;
+    link.classList.add('is-active');
+    link.setAttribute('aria-selected', 'true');
+    /* Scroll the result into view if the list is tall enough to
+       overflow its container. `block: 'nearest'` avoids a jumpy
+       center-scroll on short result lists. */
+    if (typeof link.scrollIntoView === 'function') {
+      link.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function clearActive(links) {
+    for (var i = 0; i < links.length; i++) {
+      links[i].classList.remove('is-active');
+      links[i].removeAttribute('aria-selected');
+    }
   }
 
   function bindPills(input, resultsContainer, root) {

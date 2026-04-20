@@ -59,6 +59,24 @@
       </svg>
     </a>
   {%- endif -%}
+
+  {%- comment -%}
+    App-block slot. Merchants can drop in cookie-consent / translation
+    / banner-scheduling apps into the announcement strip via
+    block.shopify_attributes for editor selection highlighting.
+    Previously the schema declared a blocks array but the template
+    never iterated — apps were installable but silently invisible.
+  {%- endcomment -%}
+  {%- if section.blocks.size > 0 -%}
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when '@app' -%}
+          <div class="kt-announcement-banner__app-block" {{ block.shopify_attributes }}>
+            {%- render block -%}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  {%- endif -%}
 </section>
 
 {% schema %}

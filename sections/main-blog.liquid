@@ -35,6 +35,9 @@
 {%- endif -%}
 
 <section class="kt-blog" data-section-id="{{ section.id }}">
+  <div class="page-width">
+    {%- render 'breadcrumbs', class_extra: 'kt-blog__breadcrumbs' -%}
+  </div>
   <div class="page-width kt-blog__body">
     {%- paginate blog.articles by section.settings.articles_per_page -%}
       {%- if blog.articles.size > 0 -%}

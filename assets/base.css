@@ -393,3 +393,56 @@ button[type="submit"]:hover {
   color: var(--kt-emerald-800, #065f46);
   font-size: 0.875rem;
 }
+
+/* ── Shared breadcrumb component ─────────────────────────
+   Rendered via snippets/breadcrumbs.liquid on collection /
+   article / blog / page / search pages. Product pages use
+   their own integrated breadcrumb inside the PDP hero
+   layout (main-product.liquid), so no cross-wiring needed. */
+.kt-breadcrumbs {
+  padding: 1rem 0;
+}
+
+.kt-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--kt-stone-500, #78716c);
+}
+
+.kt-breadcrumbs__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kt-breadcrumbs__item + .kt-breadcrumbs__item::before {
+  content: '/';
+  color: var(--kt-stone-400, #a8a29e);
+  font-weight: 300;
+}
+
+.kt-breadcrumbs__link {
+  color: var(--kt-stone-600, #57534e);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.kt-breadcrumbs__link:hover {
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-breadcrumbs__link:focus-visible {
+  outline: 2px solid var(--kt-stone-900, #1c1917);
+  outline-offset: 2px;
+}
+
+.kt-breadcrumbs__current {
+  color: var(--kt-stone-900, #1c1917);
+  font-weight: 500;
+}

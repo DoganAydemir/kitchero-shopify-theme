@@ -1,0 +1,92 @@
+{%- comment -%}
+  Breadcrumbs — renders a <nav> breadcrumb list driven by the current
+  `request.page_type`. Mirrors the BreadcrumbList JSON-LD emitted from
+  `snippets/structured-data.liquid`, so Google's rich result matches
+  what the page visibly shows.
+
+  The product template ships its own inline breadcrumb block (the
+  design there is tightly coupled to the surrounding hero layout and
+  the schema toggle). For every OTHER template — collection, article,
+  blog, page — include this snippet to get the rich-result parity.
+
+  Accepts (optional):
+    - class_extra:  {String}  appended to the nav element's class list
+                              so the caller can position it (e.g. push
+                              below a hero or add margin).
+
+  Renders nothing on the homepage (template == 'index') because a
+  single "Home" breadcrumb adds no information.
+{%- endcomment -%}
+
+{%- liquid
+  assign nav_classes = 'kt-breadcrumbs'
+  if class_extra != blank
+    assign nav_classes = nav_classes | append: ' ' | append: class_extra
+  endif
+-%}
+
+{%- unless request.page_type == 'index' -%}
+  <nav class="{{ nav_classes }}" aria-label="{{ 'kt.a11y.breadcrumb' | t }}">
+    <ol class="kt-breadcrumbs__list" role="list">
+      <li class="kt-breadcrumbs__item">
+        <a href="{{ routes.root_url }}" class="kt-breadcrumbs__link">
+          {{ 'kt.general.breadcrumbs.home' | t | default: 'Home' }}
+        </a>
+      </li>
+
+      {%- case request.page_type -%}
+        {%- when 'collection' -%}
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ collection.title }}</span>
+          </li>
+
+        {%- when 'product' -%}
+          {%- if product.collections.first -%}
+            <li class="kt-breadcrumbs__item">
+              <a href="{{ product.collections.first.url }}" class="kt-breadcrumbs__link">
+                {{ product.collections.first.title }}
+              </a>
+            </li>
+          {%- else -%}
+            <li class="kt-breadcrumbs__item">
+              <a href="{{ routes.all_products_collection_url }}" class="kt-breadcrumbs__link">
+                {{ 'kt.general.breadcrumbs.products' | t }}
+              </a>
+            </li>
+          {%- endif -%}
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ product.title }}</span>
+          </li>
+
+        {%- when 'blog' -%}
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ blog.title }}</span>
+          </li>
+
+        {%- when 'article' -%}
+          <li class="kt-breadcrumbs__item">
+            <a href="{{ blog.url }}" class="kt-breadcrumbs__link">{{ blog.title }}</a>
+          </li>
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ article.title }}</span>
+          </li>
+
+        {%- when 'page' -%}
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ page.title }}</span>
+          </li>
+
+        {%- when 'search' -%}
+          <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
+            <span aria-current="page" class="kt-breadcrumbs__current">
+              {%- if search.terms != blank -%}
+                {{ 'kt.search.results_for' | t: terms: search.terms }}
+              {%- else -%}
+                {{ 'kt.search.search' | t }}
+              {%- endif -%}
+            </span>
+          </li>
+      {%- endcase -%}
+    </ol>
+  </nav>
+{%- endunless -%}
