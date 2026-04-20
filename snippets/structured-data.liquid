@@ -11,17 +11,44 @@
 {%- endcomment -%}
 
 {%- unless request.page_type == 'product' or request.page_type == 'article' -%}
+  {%- comment -%}
+    Build sameAs as a collected array then join, so we never emit a
+    trailing comma. The previous shape used `{%- unless forloop.last -%}`
+    inside a series of independent `if` blocks (no `forloop` exists in
+    that context), which meant the comma was always emitted: enabling
+    only Facebook produced `"sameAs": [url1,]` — invalid JSON that
+    Google's Rich Results Test rejects outright.
+
+    Logo: Google's Organization schema strongly recommends a logo of
+    at least 112×112 so the Knowledge Panel can pick up the brand
+    mark. Emit the theme logo when set, otherwise Shopify's native
+    brand logo (admin → Settings → Brand).
+  {%- endcomment -%}
+  {%- assign social_urls = '' -%}
+  {%- if settings.kt_social_facebook != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_facebook | append: '||' -%}{%- endif -%}
+  {%- if settings.kt_social_instagram != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_instagram | append: '||' -%}{%- endif -%}
+  {%- if settings.kt_social_twitter != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_twitter | append: '||' -%}{%- endif -%}
+  {%- if settings.kt_social_youtube != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_youtube | append: '||' -%}{%- endif -%}
+  {%- if settings.kt_social_pinterest != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_pinterest | append: '||' -%}{%- endif -%}
+  {%- if settings.kt_social_tiktok != blank -%}{%- assign social_urls = social_urls | append: settings.kt_social_tiktok | append: '||' -%}{%- endif -%}
+  {%- assign social_urls = social_urls | split: '||' -%}
+
+  {%- assign brand_logo = settings.kt_logo | default: shop.brand.logo -%}
+
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
-      {%- if settings.kt_social_facebook != blank or settings.kt_social_instagram != blank or settings.kt_social_twitter != blank -%}
+      {%- if brand_logo != blank -%}
+        ,"logo": {{ brand_logo | image_url: width: 512 | prepend: 'https:' | json }}
+      {%- endif -%}
+      {%- if social_urls.size > 0 -%}
         ,"sameAs": [
-          {%- if settings.kt_social_facebook != blank -%}{{ settings.kt_social_facebook | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
-          {%- if settings.kt_social_instagram != blank -%}{{ settings.kt_social_instagram | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endif -%}
-          {%- if settings.kt_social_twitter != blank -%}{{ settings.kt_social_twitter | json }}{%- endif -%}
+          {%- for url in social_urls -%}
+            {{ url | json }}{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
         ]
       {%- endif -%}
     }

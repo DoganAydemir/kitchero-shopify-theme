@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="js" lang="{{ request.locale.iso_code }}" dir="ltr">
+<html class="js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -34,16 +34,26 @@
       serves the right translation per user locale. Emitted only when
       the shop has more than one published locale; x-default falls back
       to the primary locale.
+
+      The previous implementation hand-built URLs with
+      `request.origin + '/' + locale.iso_code + request.path`, which
+      double-prefixes on already-prefixed paths (visiting /tr/foo on
+      the tr locale would emit /tr/tr/foo for the tr hreflang). Use
+      canonical_url + string replace of the CURRENT locale's root_url
+      for the TARGET locale's root_url — that stays correct regardless
+      of whether the incoming request has a locale prefix or not.
     {%- endcomment -%}
     {%- if shop.published_locales.size > 1 -%}
+      {%- assign primary_root = '/' -%}
       {%- for locale in shop.published_locales -%}
         {%- if locale.primary -%}
-          <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ request.origin }}{{ request.path }}">
-        {%- else -%}
-          <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ request.origin }}/{{ locale.iso_code }}{{ request.path }}">
+          {%- assign primary_root = locale.root_url -%}
         {%- endif -%}
       {%- endfor -%}
-      <link rel="alternate" hreflang="x-default" href="{{ request.origin }}{{ request.path }}">
+      {%- for locale in shop.published_locales -%}
+        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: request.locale.root_url, locale.root_url }}">
+      {%- endfor -%}
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: request.locale.root_url, primary_root }}">
     {%- endif -%}
 
     {%- if settings.kt_favicon != blank -%}
@@ -61,9 +71,15 @@
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
+    {%- comment -%}
+      Always emit a description. Fall through page_description
+      (per-template override via settings or metafields) → shop.description
+      (admin → Preferences) → shop.name, so there is never a missing or
+      empty meta description on any storefront page — Google flags the
+      "missing description" on sites that skip the tag entirely, and
+      social-share scrapers use this field when og:description is absent.
+    {%- endcomment -%}
+    <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape }}">
 
     {% render 'meta-tags' %}
 
