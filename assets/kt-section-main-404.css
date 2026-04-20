@@ -7,3 +7,65 @@
 @media screen and (min-width: 750px) { .kt-404__title { font-size: 3rem; } }
 .kt-404__desc { font-size: 1rem; color: var(--kt-stone-500); margin-bottom: 2rem; }
 .kt-404__btn { display: inline-block; }
+
+/* Search form — pill-shaped input with inline submit button.
+   The icon button sits on the right inside the rounded container so
+   the whole widget reads as a single unit instead of two siblings. */
+.kt-404__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 24rem;
+  margin: 0 auto 1.5rem;
+  border: 1px solid var(--kt-stone-200);
+  border-radius: 9999px;
+  background: var(--kt-white, #fff);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.kt-404__search:focus-within {
+  border-color: var(--kt-stone-900);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.kt-404__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem 0.5rem 0.75rem 1.25rem;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--kt-stone-900);
+  outline: none;
+}
+
+.kt-404__search-input::placeholder {
+  color: var(--kt-stone-400);
+}
+
+.kt-404__search-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--kt-stone-900);
+  color: var(--kt-white, #fff);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.kt-404__search-btn:hover,
+.kt-404__search-btn:focus-visible {
+  background: var(--kt-stone-700, #44403c);
+}
+
+.kt-404__search-btn:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
+}
