@@ -144,10 +144,24 @@
               {%- when 'title' -%}
                 {%- assign heading_tag_value = block.settings.heading_tag | default: 'h1' -%}
                 {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
+                {%- comment -%}
+                  Guard against non-image file references. Merchants can
+                  point a `file_reference` metafield at any file — a PDF
+                  spec sheet, a CAD file, a text doc — and the old code
+                  piped ALL of these through `| image_url`, producing a
+                  broken `<img src="">` when the target wasn't an image.
+                  The `media_type` accessor is only defined for image
+                  uploads; for everything else it returns nil and we
+                  fall through to the featured_image branch.
+                {%- endcomment -%}
+                {%- assign door_sample_is_image = false -%}
+                {%- if door_sample_image != blank and door_sample_image.media_type == 'image' -%}
+                  {%- assign door_sample_is_image = true -%}
+                {%- endif -%}
                 <div class="kt-showroom__title-row" {{ block.shopify_attributes }}>
                   <{{ heading_tag_value }} class="kt-showroom__title">{{ product.title }}</{{ heading_tag_value }}>
                   {%- if block.settings.show_door_thumb -%}
-                    {%- if door_sample_image != blank -%}
+                    {%- if door_sample_is_image -%}
                       <div class="kt-showroom__door-thumb">
                         {{ door_sample_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
                       </div>

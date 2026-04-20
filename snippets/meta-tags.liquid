@@ -100,7 +100,18 @@
   because page_type is stable across template suffixes
   (customers/login.suffix vs customers/login).
 {%- endcomment -%}
-{%- assign hidden_page_types = 'search,404,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
+{%- comment -%}
+  Extended list:
+  - `captcha` — Shopify's robot-challenge interstitial. Never user
+    content, always noindex.
+  - `gift_card` — the issued-gift-card landing page URLs
+    (/gift_cards/<id>/<code>) contain the redemption code in the
+    path. Google must NEVER index these — a leaked URL becomes an
+    open redemption exposure. MUST noindex.
+  - Other customer/* pages + search + 404 carried over from the
+    previous list.
+{%- endcomment -%}
+{%- assign hidden_page_types = 'search,404,captcha,gift_card,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
 {%- endif -%}

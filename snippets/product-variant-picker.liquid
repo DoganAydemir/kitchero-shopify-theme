@@ -64,8 +64,56 @@
                 assign swatch_meta_color = nil
                 assign swatch_meta_image = nil
                 if matching_variant
-                  assign swatch_meta_color = matching_variant.metafields.custom.swatch_color
+                  comment
+                    Access the .value accessor explicitly and coerce through
+                    `strip` so list/JSON coercion of the metafield wrapper
+                    object can't accidentally slip raw object syntax into
+                    the style attribute. Metafield TYPE `color` returns a
+                    hex string (e.g. "#1A1A1A"); `single_line_text_field`
+                    returns whatever the merchant typed — and without the
+                    sanitization below, a merchant with metafield write
+                    access could paste `red; background-image: url(...)`
+                    and inject arbitrary CSS into every product page.
+                    See the sanitizer on line 102-113 below.
+                  endcomment
+                  assign swatch_meta_color = matching_variant.metafields.custom.swatch_color.value | strip
                   assign swatch_meta_image = matching_variant.metafields.custom.swatch_image.value
+                endif
+
+                comment
+                  Sanitize the swatch color before it hits an inline style.
+                  Only accept CSS hex (#rgb / #rrggbb / #rrggbbaa). Anything
+                  else (including `red`, `rgb(...)`, `var(...)`, free text)
+                  is rejected and falls through to the keyword match below.
+                  This closes the CSS-injection vector where a write-capable
+                  metafield editor could embed `; background-image: url(...)`
+                  or `; position: fixed; top: 0;` into every variant picker.
+
+                  Shopify Liquid has no regex — use an alphabet-strip
+                  pattern: after `remove`-ing every valid hex char, the
+                  candidate must be empty. Then check length is 4/7/9
+                  (with the leading `#`).
+                endcomment
+                if swatch_meta_color != blank
+                  assign hex_candidate = swatch_meta_color | downcase
+                  assign hex_stripped = hex_candidate
+                  assign hex_stripped = hex_stripped | remove: '#'
+                  assign hex_stripped = hex_stripped | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4'
+                  assign hex_stripped = hex_stripped | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+                  assign hex_stripped = hex_stripped | remove: 'a' | remove: 'b' | remove: 'c' | remove: 'd' | remove: 'e' | remove: 'f'
+                  assign hex_size = hex_candidate | size
+                  assign is_hex_color = false
+                  if hex_stripped == '' and hex_candidate != ''
+                    if hex_size == 4 or hex_size == 7 or hex_size == 9
+                      assign hex_first = hex_candidate | slice: 0
+                      if hex_first == '#'
+                        assign is_hex_color = true
+                      endif
+                    endif
+                  endif
+                  unless is_hex_color
+                    assign swatch_meta_color = nil
+                  endunless
                 endif
 
                 assign color_lower = value | downcase | strip
