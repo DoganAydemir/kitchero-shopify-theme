@@ -37,7 +37,7 @@ Kitchero is a premium OS 2.0 theme crafted for merchants who sell the kinds of
 products that deserve a magazine spread, not a grid cell — luxury kitchen
 cabinetry, countertops, bespoke furniture, and high-end home goods.
 
-Built on Shopify Dawn's architectural skeleton but with every piece of UI
+Built on Shopify's approved Skeleton baseline with every piece of UI
 custom-designed, Kitchero gives you the scroll-triggered animations, cinematic
 galleries, and layered typography of a hand-coded agency build — all fully
 editable from the theme editor, with no developer required.
@@ -162,8 +162,8 @@ Before submission, the demo store must have:
 
 ```
 Kitchero ports a complete Next.js / Tailwind frontend into vanilla Shopify
-Liquid + plain CSS + vanilla JS with no build step, strictly following CLAUDE.md
-guidelines (Dawn is architectural reference only, no visual reuse).
+Liquid + plain CSS + vanilla JS with no build step, strictly following Shopify's
+Skeleton conventions (no reference-theme UI reused).
 
 Known behaviors worth noting:
 - The newsletter popup auto-opens after a merchant-defined delay and uses

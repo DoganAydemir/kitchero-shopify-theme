@@ -1,6 +1,6 @@
 # Kitchero — Premium Shopify Theme
 
-A Theme-Store-ready Shopify OS 2.0 theme designed for luxury kitchen, cabinetry, and home-design brands. Built on Dawn's architectural skeleton but with a completely custom visual design — no Dawn UI is reused.
+A Theme-Store-ready Shopify OS 2.0 theme designed for luxury kitchen, cabinetry, and home-design brands. Built on Shopify's approved Skeleton baseline with a completely custom visual design — no reference-theme UI is reused.
 
 ![Theme Check](https://img.shields.io/badge/theme%20check-0%20errors-brightgreen)
 ![Shopify OS 2.0](https://img.shields.io/badge/Shopify-OS%202.0-96bf48)
@@ -261,7 +261,7 @@ Commercial theme. See `LICENSE` for terms.
 
 ## Credits
 
-- **Architectural reference:** [Shopify Dawn](https://github.com/Shopify/dawn) — skeleton only, no visual components reused
+- **Architectural reference:** [Shopify Skeleton](https://github.com/Shopify/skeleton-theme) — approved baseline, no visual components reused
 - **Animations:** [GSAP](https://greensock.com/gsap/) + [ScrollTrigger](https://greensock.com/scrolltrigger/) (self-hosted, standard license)
 - **Smooth scroll:** [Lenis](https://github.com/darkroomengineering/lenis) (self-hosted, MIT)
 - **Fonts:** [Inter](https://rsms.me/inter/) + [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) (Google Fonts, OFL)
