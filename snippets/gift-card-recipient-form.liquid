@@ -81,7 +81,7 @@
         autocomplete="email"
         disabled
         {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="GiftRecipientEmail-{{ uid }}-error"{% endif %}
-        value="{{ form.email }}"
+        value="{{ form.email | escape }}"
       >
       {%- render 'form-field-error',
         form: form,
@@ -102,7 +102,7 @@
         autocomplete="name"
         disabled
         {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="GiftRecipientName-{{ uid }}-error"{% endif %}
-        value="{{ form.name }}"
+        value="{{ form.name | escape }}"
       >
       {%- render 'form-field-error',
         form: form,
@@ -122,7 +122,7 @@
         class="kt-gift-recipient__input"
         disabled
         {% if form.errors contains 'send_on' %}aria-invalid="true" aria-describedby="GiftRecipientSendOn-{{ uid }}-error"{% endif %}
-        value="{{ form.send_on }}"
+        value="{{ form.send_on | escape }}"
       >
       {%- render 'form-field-error',
         form: form,
@@ -143,7 +143,7 @@
         maxlength="200"
         disabled
         {% if form.errors contains 'message' %}aria-invalid="true" aria-describedby="GiftRecipientMessage-{{ uid }}-error"{% endif %}
-      >{{ form.message }}</textarea>
+      >{{ form.message | escape }}</textarea>
       {%- render 'form-field-error',
         form: form,
         field: 'message',

@@ -121,11 +121,11 @@
                     {%- assign first = property.first | downcase -%}
                     {%- unless first.first == '_' or property.last == blank -%}
                       <li>
-                        <span>{{ property.first }}:</span>
+                        <span>{{ property.first | escape }}:</span>
                         {%- if property.last contains '/uploads/' -%}
-                          <a href="{{ property.last }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last }}</a>
+                          <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last }}</a>
                         {%- else -%}
-                          {{ property.last }}
+                          {{ property.last | escape }}
                         {%- endif -%}
                       </li>
                     {%- endunless -%}

@@ -104,4 +104,24 @@
       document.body.style.overflow = '';
     }
   });
+
+  /* Auto-open on post-submit redirect. When the {% form 'contact' %}
+     inside the drawer submits, Shopify redirects back to the
+     originating page with `form.posted_successfully?` true. The
+     drawer's Liquid renders the success <p> AND a hidden sentinel
+     span `<span data-appointment-posted-successfully>`. If we don't
+     auto-open, the user arrives on the same page, sees the drawer
+     closed, and re-submits thinking the form failed. Check on load. */
+  function autoOpenIfPosted() {
+    var d = getDrawer();
+    if (!d) return;
+    if (d.querySelector('[data-appointment-posted-successfully]')) {
+      openDrawer();
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoOpenIfPosted);
+  } else {
+    autoOpenIfPosted();
+  }
 })();

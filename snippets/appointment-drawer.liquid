@@ -23,6 +23,18 @@
     <div class="kt-appointment-drawer__body">
       {% form 'contact', id: 'appointment-form' %}
         {%- if form.posted_successfully? -%}
+          {%- comment -%}
+            Success sentinel — an empty `<span>` whose presence
+            tells appointment-drawer.js "the form just submitted
+            successfully, auto-open the drawer on load". Without
+            this, Shopify redirects back to the current page, the
+            success `<p>` below renders inside the aria-hidden
+            drawer, and the user sees no feedback — they assume
+            the submit failed and re-submit. The span carries no
+            text so SR users don't hear a duplicate announcement
+            (the `role="status"` paragraph below handles that).
+          {%- endcomment -%}
+          <span data-appointment-posted-successfully hidden></span>
           <p class="kt-form__success" role="status">
             {{ 'kt.section.appointment.success' | t | default: 'Thanks — we will be in touch shortly.' }}
           </p>
