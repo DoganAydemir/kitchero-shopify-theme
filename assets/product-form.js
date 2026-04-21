@@ -354,6 +354,21 @@
         }
       }
 
+      /* Announce the variant change + new price to the polite SR live
+         region. Visual swatch + label swap happens silently otherwise
+         — blind users hear nothing after picking a swatch, and the
+         sold-out state change is invisible to them. Skipped when the
+         announcer utility hasn't loaded yet (early page state). */
+      if (window.Kitchero && typeof Kitchero.announce === 'function') {
+        var announcement = matchedVariant.title;
+        if (!matchedVariant.available && Kitchero.variantStrings && Kitchero.variantStrings.soldOut) {
+          announcement += ' — ' + Kitchero.variantStrings.soldOut;
+        } else if (priceEl && priceEl.textContent) {
+          announcement += ' — ' + priceEl.textContent.trim();
+        }
+        Kitchero.announce(announcement);
+      }
+
       /* Update gallery to variant's featured media.
 
          We used to match by URL path segment (img.src.includes(…)),

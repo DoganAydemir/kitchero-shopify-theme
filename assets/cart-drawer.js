@@ -194,13 +194,41 @@
         body: JSON.stringify({ id: key, quantity: quantity }),
       })
         .then(function (response) {
-          return response.json();
+          /* 422 = quantity rejected (over inventory, over quantity limit,
+             variant no longer purchasable). Shopify sends the rejection
+             reason in `description` on the JSON body. Surface it to the
+             shopper via the global announcer — previously we blindly
+             chained `.then(json)` without checking ok, so the drawer
+             silently snapped back to the pre-change quantity with no
+             feedback. That's a real "did my click even register?" UX
+             fail, and at worst hides inventory errors from the shopper. */
+          return response.json().then(function (body) {
+            if (!response.ok) {
+              var msg = (body && body.description) || (body && body.message) ||
+                (Kitchero.cartStrings && Kitchero.cartStrings.error) ||
+                'Unable to update cart.';
+              /* Push to the assertive live region so SR users hear it
+                 and sighted users pick up the visual alert. */
+              if (window.Kitchero && typeof Kitchero.announce === 'function') {
+                Kitchero.announce(msg, { assertive: true });
+              }
+              /* Throw so the outer .catch below still releases the
+                 inflight lock but the drawer refresh is skipped. */
+              var err = new Error(msg);
+              err.httpStatus = response.status;
+              err.cartError = true;
+              throw err;
+            }
+            return body;
+          });
         })
         .then(function () {
           return self.refreshDrawer();
         })
         .catch(function (error) {
-          console.error('Cart update error:', error);
+          if (!error || !error.cartError) {
+            console.error('Cart update error:', error);
+          }
         })
         .then(function () {
           /* Release the lock regardless of success/failure. If a new

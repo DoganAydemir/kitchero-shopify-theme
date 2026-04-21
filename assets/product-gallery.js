@@ -315,6 +315,17 @@
 
     return function destroy() {
       document.removeEventListener('keydown', onKeydown);
+      /* Defensive: if the section unloads while the lightbox is
+         open (editor re-render during zoom), the previous close()
+         path never ran, so body.style.overflow stays 'hidden' and
+         Kitchero.focusTrap keeps an active trap on the now-detached
+         lightbox node. Force the cleanup here so the next section
+         load starts from a clean state. */
+      if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.disable(lightbox);
+      }
     };
   }
 

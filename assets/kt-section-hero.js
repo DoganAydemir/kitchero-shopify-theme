@@ -89,6 +89,30 @@
         self.resetAutoplay();
       });
     }
+
+    /* WCAG 2.2.2 Pause, Stop, Hide — any content that auto-updates
+       needs a way to pause. Pointer hover and keyboard focus both
+       pause autoplay; leaving the section resumes. Previously the
+       slideshow advanced every N seconds regardless, which made
+       Tab-ing through a slide's link a game of whack-a-mole. */
+    this._pauseAutoplay = function () {
+      if (self.timer) {
+        clearInterval(self.timer);
+        self.timer = null;
+      }
+    };
+    this._resumeAutoplay = function () {
+      /* Only resume if a resume is still desirable: >1 slide, not
+         reduced-motion, merchant set autoplay. Mirrors resetAutoplay's
+         guards. */
+      if (self.total > 1 && !self.prefersReducedMotion && self.autoplaySpeed > 0 && !self.timer) {
+        self.startAutoplay();
+      }
+    };
+    this.section.addEventListener('mouseenter', this._pauseAutoplay);
+    this.section.addEventListener('mouseleave', this._resumeAutoplay);
+    this.section.addEventListener('focusin', this._pauseAutoplay);
+    this.section.addEventListener('focusout', this._resumeAutoplay);
   };
 
   KitcheroHero.prototype.goTo = function (index) {
@@ -120,6 +144,17 @@
   KitcheroHero.prototype.destroy = function () {
     clearInterval(this.timer);
     if (this.gsapCtx) this.gsapCtx.revert();
+    /* Release the WCAG pause-on-hover/focus listeners so a later
+       editor re-mount of this section doesn't stack duplicate
+       handlers — each instance binds its own closure. */
+    if (this._pauseAutoplay && this.section) {
+      this.section.removeEventListener('mouseenter', this._pauseAutoplay);
+      this.section.removeEventListener('focusin', this._pauseAutoplay);
+    }
+    if (this._resumeAutoplay && this.section) {
+      this.section.removeEventListener('mouseleave', this._resumeAutoplay);
+      this.section.removeEventListener('focusout', this._resumeAutoplay);
+    }
   };
 
   function initHero(container) {
