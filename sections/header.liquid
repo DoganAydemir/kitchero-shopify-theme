@@ -23,7 +23,7 @@
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
-    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
+    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name | escape }}">
       {%- if settings.kt_logo != blank -%}
         {{
           settings.kt_logo
@@ -313,7 +313,7 @@
   aria-label="{{ 'kt.a11y.navigation' | t }}"
 >
   <div class="kt-header__mobile-panel-header">
-    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name }}">
+    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name | escape }}">
       <span class="kt-header__logo-text">{{ shop.name }}</span>
     </a>
     <button

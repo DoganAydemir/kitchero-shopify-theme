@@ -174,7 +174,7 @@
                 <span
                   class="kt-variant-picker__swatch"
                   style="{{ swatch_style }}"
-                  title="{{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}"
+                  title="{{ value | escape }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}"
                 ></span>
               </label>
             {%- endfor -%}
@@ -226,7 +226,15 @@
           value="{{ variant.id }}"
           {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
           {% unless variant.available %}disabled{% endunless %}
-          data-variant-json='{{ variant | json }}'
+          {%- comment -%}
+            Double-quoted attr + `| escape` is required. Shopify's
+            `| json` encodes for JSON string context but does NOT
+            HTML-entity-encode `"`, `&`, `<`. A variant with a
+            title containing `'` (e.g. "Men's Large") would otherwise
+            break out of a single-quoted attribute — attribute-
+            breakout XSS. Double-quote + escape closes both paths.
+          {%- endcomment -%}
+          data-variant-json="{{ variant | json | escape }}"
         >
           {{ variant.title }}
         </option>

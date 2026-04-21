@@ -81,7 +81,8 @@
                     </span>
                   {%- endif -%}
                   <span class="kt-collapsible-visual__item-title">
-                    {{- block.settings.title | default: 'kt.section.collapsible_visual.feature_title_default' | t -}}
+                    {%- assign collapsible_visual_fallback = 'kt.section.collapsible_visual.feature_title_default' | t -%}
+                    {{- block.settings.title | default: collapsible_visual_fallback -}}
                   </span>
                 </span>
                 <span

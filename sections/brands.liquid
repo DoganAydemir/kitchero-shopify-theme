@@ -10,8 +10,16 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'logo' -%}
           <div class="kt-brands__item" {{ block.shopify_attributes }}>
+            {%- comment -%}
+              Alt fallback — pre-resolve the localized string into a
+              variable so `| default:` sees a translated value. The
+              previous one-liner ran `| t` AFTER `| default:`, which
+              meant non-English locales got the translation-missing
+              warning instead of the fallback.
+            {%- endcomment -%}
+            {%- assign brand_alt_fallback = 'kt.section.brands.logo_alt' | t -%}
             {%- if block.settings.image != blank -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: 'kt.section.brands.logo_alt' | t }}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
             {%- else -%}
               <div class="kt-brands__placeholder">
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}

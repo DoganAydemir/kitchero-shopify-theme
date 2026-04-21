@@ -5,6 +5,30 @@
     <h1 class="kt-customer__title">{{ 'kt.customer.register.title' | t }}</h1>
 
     {%- form 'create_customer', id: 'CreateCustomerForm' -%}
+      {%- comment -%}
+        Email-verification success state. When the merchant has
+        "customer accounts → email verification" enabled (Shopify's
+        default for new stores as of 2024), create_customer returns
+        form.posted_successfully? == true without logging the
+        customer in — Shopify sends a confirmation email. Without
+        this branch the register form just re-rendered with the
+        customer's typed values still in the inputs, looking like
+        the submit failed silently. Theme Store reviewers test
+        account creation end-to-end and flag this as a broken flow.
+      {%- endcomment -%}
+      {%- if form.posted_successfully? -%}
+        <div class="kt-customer__success" role="status" tabindex="-1" data-form-error-summary>
+          <h2 class="kt-customer__success-title">
+            {{ 'kt.customer.register.success_heading' | t | default: 'Check your email' }}
+          </h2>
+          <p class="kt-customer__success-desc">
+            {{ 'kt.customer.register.success_description' | t | default: 'We just sent a confirmation link to your inbox. Click the link to activate your account and start shopping.' }}
+          </p>
+          <a href="{{ routes.account_login_url }}" class="kt-customer__submit kt-customer__success-cta">
+            {{ 'kt.customer.login.sign_in' | t }}
+          </a>
+        </div>
+      {%- else -%}
       {%- if form.errors -%}
         <div class="kt-customer__errors" role="alert" tabindex="-1">
           <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
@@ -125,6 +149,7 @@
           <a href="{{ routes.account_login_url }}">{{ 'kt.customer.login.sign_in' | t }}</a>
         </div>
       </div>
+      {%- endif -%}
     {%- endform -%}
   </div>
 </section>

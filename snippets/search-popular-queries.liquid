@@ -17,7 +17,18 @@
 
 <section class="kt-search-page__popular" aria-labelledby="SearchPopularHeading">
   <h2 id="SearchPopularHeading" class="kt-search-page__popular-heading">
-    {{ section.settings.popular_heading | default: 'kt.search.popular_heading' | t }}
+    {%- comment -%}
+      Filter-chain fix. Previous pipeline:
+        section.settings.popular_heading | default: 'kt.search.popular_heading' | t
+      Shopify schema already resolves `t:` prefixes on defaults, so
+      `section.settings.popular_heading` already holds the merchant's
+      override OR the translated English default. Running `| t` on
+      it then treats the resolved string as a translation key and
+      emits "translation missing: en.Start with something popular"
+      on every non-English locale (TR/DE/ES/FR). The setting is
+      already display-ready — no `| t` needed.
+    {%- endcomment -%}
+    {{ section.settings.popular_heading }}
   </h2>
 
   {%- if section.settings.popular_subtext != blank -%}

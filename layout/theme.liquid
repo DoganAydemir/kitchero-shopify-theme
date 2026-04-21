@@ -286,35 +286,51 @@
         endif
         assign search_types = search_types | split: ',' | join: ','
       -%}
+      {%- comment -%}
+        Every value interpolated into this JS blob is emitted via
+        `| json` so Shopify produces a fully JS-string-literal-safe
+        value (with surrounding double quotes). This closes two
+        injection vectors:
+
+        1. Single-quoted strings: a variant title / route with `'` in
+           it would otherwise break out.
+        2. Backtick template literals: a translation containing
+           `${...}` would otherwise be parsed as a JS expression
+           (merchant-localized strings can easily carry `$`).
+
+        Shopify `| json` produces proper JSON, which is itself valid
+        JS syntax for strings / numbers — no extra quoting needed on
+        our side.
+      {%- endcomment -%}
       Object.assign(window.Kitchero, {
-        shopUrl: '{{ request.origin }}',
+        shopUrl: {{ request.origin | json }},
         routes: {
-          cartAdd:          '{{ routes.cart_add_url }}',
-          cartChange:       '{{ routes.cart_change_url }}',
-          cartUpdate:       '{{ routes.cart_update_url }}',
-          cart:             '{{ routes.cart_url }}',
-          predictiveSearch: '{{ routes.predictive_search_url }}',
+          cartAdd:          {{ routes.cart_add_url | json }},
+          cartChange:       {{ routes.cart_change_url | json }},
+          cartUpdate:       {{ routes.cart_update_url | json }},
+          cart:             {{ routes.cart_url | json }},
+          predictiveSearch: {{ routes.predictive_search_url | json }},
         },
         searchSettings: {
-          types: '{{ search_types }}',
-          resultsAnnouncement: `{{ 'kt.search.results_announcement' | t: count: '{{ count }}' }}`,
-          noResults:           `{{ 'kt.search.no_results_announcement' | t }}`
+          types:               {{ search_types | json }},
+          resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '{{ count }}' | json }},
+          noResults:           {{ 'kt.search.no_results_announcement' | t | json }}
         },
         cartStrings: {
-          error:            `{{ 'kt.cart.cart_error' | t }}`,
-          quantityError:    `{{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
-          updatedSubtotal:  `{{ 'kt.cart.updated_subtotal' | t: subtotal: '{{ subtotal }}' }}`,
+          error:           {{ 'kt.cart.cart_error' | t | json }},
+          quantityError:   {{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' | json }},
+          updatedSubtotal: {{ 'kt.cart.updated_subtotal' | t: subtotal: '{{ subtotal }}' | json }},
         },
         variantStrings: {
-          addToCart:      `{{ 'kt.product.add_to_cart' | t }}`,
-          addedToCart:    `{{ 'kt.product.added_to_cart' | t }}`,
-          addToCartError: `{{ 'kt.product.add_to_cart_error' | t }}`,
-          soldOut:        `{{ 'kt.product.sold_out' | t }}`,
-          unavailable:    `{{ 'kt.product.unavailable' | t }}`,
+          addToCart:      {{ 'kt.product.add_to_cart' | t | json }},
+          addedToCart:    {{ 'kt.product.added_to_cart' | t | json }},
+          addToCartError: {{ 'kt.product.add_to_cart_error' | t | json }},
+          soldOut:        {{ 'kt.product.sold_out' | t | json }},
+          unavailable:    {{ 'kt.product.unavailable' | t | json }},
         },
         a11yStrings: {
-          imageAvailable: `{{ 'kt.product.media.image_available' | t: index: '[index]' }}`,
-          shareSuccess:   `{{ 'kt.share.success_message' | t }}`,
+          imageAvailable: {{ 'kt.product.media.image_available' | t: index: '[index]' | json }},
+          shareSuccess:   {{ 'kt.share.success_message' | t | json }},
         }
       });
     </script>
