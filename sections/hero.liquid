@@ -1,36 +1,18 @@
 {{ 'kt-section-hero.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
-  LCP preload — emit a preload hint for the first slide's image so
-  the browser can start downloading it as soon as the HTML streams
-  in, BEFORE the body parser discovers the <img>. On a slow mobile
-  connection this shaves 2-3 seconds off LCP.
+  LCP preload is emitted inline on the slide image via image_tag's
+  `preload: true` filter argument (see below). That routes the
+  `<link rel="preload">` through Shopify's content_for_header
+  pipeline, which lands it in the document <head> — earlier in the
+  byte stream than any body-level <link> could appear. The preload
+  scanner picks it up before it even reaches our section markup,
+  shaving 2-3s off LCP on slow mobile.
 
-  Previously gated on `section.index == 1` but Shopify's section.index
-  is unreliable for JSON-template sections (it's only populated in
-  section groups / {% section %} tag renders). The hero section
-  itself is also typically unique per template — merchants placing
-  multiple hero sections on one page is edge-case enough that
-  double-preloading is an acceptable worst case for the LCP win.
-
-  Note on effectiveness: the preload `<link>` lives in body (not
-  head) because section rendering can't inject into head without
-  Shopify's content_for_header pipeline. Browser still benefits
-  from early-discovery — preload scanner walks ahead of the main
-  parser and picks up the hint before hitting the <img>.
+  Only slide 0 gets `preload: true` (via the slide_preload assign
+  below). Subsequent slides are fade-stacked behind; preloading
+  them would waste critical-resource budget.
 {%- endcomment -%}
-{%- for block in section.blocks -%}
-  {%- if block.type == 'slide' and forloop.first and block.settings.image != blank -%}
-    <link
-      rel="preload"
-      as="image"
-      href="{{ block.settings.image | image_url: width: 1500 }}"
-      imagesrcset="{{ block.settings.image | image_url: width: 750 }} 750w, {{ block.settings.image | image_url: width: 1100 }} 1100w, {{ block.settings.image | image_url: width: 1500 }} 1500w, {{ block.settings.image | image_url: width: 2000 }} 2000w"
-      imagesizes="100vw"
-      fetchpriority="high"
-    >
-  {%- endif -%}
-{%- endfor -%}
 
 <section
   class="kt-hero"
@@ -57,15 +39,18 @@
           {%- if forloop.first -%}
             {%- assign slide_loading = 'eager' -%}
             {%- assign slide_fetchpriority = 'high' -%}
+            {%- assign slide_preload = true -%}
           {%- else -%}
             {%- assign slide_loading = 'lazy' -%}
             {%- assign slide_fetchpriority = 'auto' -%}
+            {%- assign slide_preload = false -%}
           {%- endif -%}
           {%- if block.settings.image != blank -%}
             {{
               block.settings.image
               | image_url: width: 2000
               | image_tag:
+                preload: slide_preload,
                 class: 'kt-hero__slide-image',
                 loading: slide_loading,
                 fetchpriority: slide_fetchpriority,
