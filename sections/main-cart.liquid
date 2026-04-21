@@ -79,6 +79,47 @@
                       </ul>
                     {%- endunless -%}
 
+                    {%- comment -%}
+                      Selling-plan (subscription) label. Previously a
+                      subscription line item showed its product + variant
+                      but never surfaced "Delivers every 30 days" — the
+                      subscription cadence was invisible between ATC and
+                      the checkout's summary panel, eroding confidence
+                      for anyone who'd just picked a plan on the PDP.
+                    {%- endcomment -%}
+                    {%- if item.selling_plan_allocation -%}
+                      <p class="kt-cart-page__item-selling-plan">
+                        {{ item.selling_plan_allocation.selling_plan.name }}
+                      </p>
+                    {%- endif -%}
+
+                    {%- comment -%}
+                      Bundle components. When the customer adds a
+                      native Shopify Bundle (product.type Bundle or
+                      any bundle app that populates
+                      line_item.line_components), the parent line item
+                      is the one they paid for; the child components
+                      are the items that ship. Rendering the
+                      components keeps the cart honest — they can
+                      verify the bundle contents without clicking
+                      through to the product page.
+                    {%- endcomment -%}
+                    {%- if item.line_components.size > 0 -%}
+                      <ul class="kt-cart-page__item-components" role="list">
+                        {%- for component in item.line_components -%}
+                          <li class="kt-cart-page__item-component">
+                            {%- if component.quantity > 1 -%}
+                              <span class="kt-cart-page__item-component-qty">{{ component.quantity }}&times;</span>
+                            {%- endif -%}
+                            <span class="kt-cart-page__item-component-title">{{ component.product.title | default: component.title }}</span>
+                            {%- unless component.product.has_only_default_variant -%}
+                              <span class="kt-cart-page__item-component-variant">{{ component.variant.title }}</span>
+                            {%- endunless -%}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+
                     {%- if item.properties != blank -%}
                       <ul class="kt-cart-page__item-options" role="list">
                         {%- for property in item.properties -%}
@@ -261,21 +302,32 @@
 
               <div class="kt-cart-page__summary-row kt-cart-page__summary-row--total">
                 <span class="kt-cart-page__summary-label">{{ 'kt.cart.total' | t | default: 'Total' }}</span>
-                <span class="kt-cart-page__summary-value">{{ cart.total_price | money }}</span>
+                {%- comment -%}
+                  Grand total uses money_with_currency so a customer
+                  on a multi-currency store sees the ISO code right
+                  above the Checkout CTA. Per-line rows above stay on
+                  plain `money` because the currency is unambiguous by
+                  the time they've been displayed four times on the
+                  same page.
+                {%- endcomment -%}
+                <span class="kt-cart-page__summary-value">{{ cart.total_price | money_with_currency }}</span>
               </div>
 
               <p class="kt-cart-page__taxes-note">
                 {%- comment -%}
-                  Gift-card-only carts and cart contents flagged as
-                  digital skip the shipping step at checkout. Showing
-                  "and shipping" there is misleading; fall through to
-                  a digital-only message so the cart page matches the
-                  checkout experience.
+                  Three-way branch — `cart.taxes_included` is true in
+                  EU-style stores where displayed prices already bake in
+                  VAT. "Taxes calculated at checkout" reads as wrong
+                  there. `cart.requires_shipping` is false for gift-card
+                  and fully-digital carts. Order: digital first (most
+                  specific), tax-inclusive second, default last.
                 {%- endcomment -%}
-                {%- if cart.requires_shipping -%}
-                  {{ 'kt.cart.taxes_note' | t }}
-                {%- else -%}
+                {%- if cart.requires_shipping == false -%}
                   {{ 'kt.cart.taxes_note_digital' | t }}
+                {%- elsif cart.taxes_included -%}
+                  {{ 'kt.cart.taxes_note_included' | t | default: 'Tax included. Shipping calculated at checkout.' }}
+                {%- else -%}
+                  {{ 'kt.cart.taxes_note' | t }}
                 {%- endif -%}
               </p>
 

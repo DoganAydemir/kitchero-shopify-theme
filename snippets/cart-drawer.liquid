@@ -65,7 +65,7 @@
                 </div>
               </div>
 
-              {%- comment -%} Row 2: variant / properties {%- endcomment -%}
+              {%- comment -%} Row 2: variant / selling-plan / bundle components / properties {%- endcomment -%}
               {%- unless item.product.has_only_default_variant -%}
                 <p class="kt-cart-drawer__item-variant">
                   {%- for option in item.options_with_values -%}
@@ -74,6 +74,36 @@
                   {%- endfor -%}
                 </p>
               {%- endunless -%}
+
+              {%- comment -%}
+                Selling-plan (subscription) label — matches the main
+                cart page. Subscription cadence needs to be visible
+                here because the drawer opens on ATC success and the
+                customer reviews the line before proceeding.
+              {%- endcomment -%}
+              {%- if item.selling_plan_allocation -%}
+                <p class="kt-cart-drawer__item-selling-plan">
+                  {{ item.selling_plan_allocation.selling_plan.name }}
+                </p>
+              {%- endif -%}
+
+              {%- comment -%}
+                Bundle components — native Shopify Bundles app + any
+                bundle app populate `line_components`. Rendering child
+                lines gives the customer a "what's in the box" receipt
+                before they click Checkout. Compact render (title + qty
+                only) to keep drawer density manageable.
+              {%- endcomment -%}
+              {%- if item.line_components.size > 0 -%}
+                <ul class="kt-cart-drawer__item-components" role="list">
+                  {%- for component in item.line_components -%}
+                    <li>
+                      {%- if component.quantity > 1 -%}<span>{{ component.quantity }}&times;</span> {% endif -%}
+                      {{ component.product.title | default: component.title }}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
 
               {%- if item.properties != blank -%}
                 <ul class="kt-cart-drawer__item-properties" role="list">
@@ -180,13 +210,27 @@
         {%- render 'free-shipping-bar' -%}
         <div class="kt-cart-drawer__subtotal">
           <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
-          <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money }}</span>
+          {%- comment -%}
+            Grand total in the drawer footer uses money_with_currency
+            to match the /cart page. On multi-currency stores the ISO
+            code right above the Checkout CTA prevents customer
+            confusion about which currency will be charged.
+          {%- endcomment -%}
+          <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money_with_currency }}</span>
         </div>
         <p class="kt-cart-drawer__taxes">
-          {%- if cart.requires_shipping -%}
-            {{ 'kt.cart.taxes_note' | t }}
-          {%- else -%}
+          {%- comment -%}
+            Three-way branch: digital-only cart (no shipping),
+            tax-inclusive (EU-style), or default "calculated at
+            checkout". Matches main-cart.liquid copy logic exactly
+            so page and drawer can't contradict each other.
+          {%- endcomment -%}
+          {%- if cart.requires_shipping == false -%}
             {{ 'kt.cart.taxes_note_digital' | t }}
+          {%- elsif cart.taxes_included -%}
+            {{ 'kt.cart.taxes_note_included' | t | default: 'Tax included. Shipping calculated at checkout.' }}
+          {%- else -%}
+            {{ 'kt.cart.taxes_note' | t }}
           {%- endif -%}
         </p>
         {%- comment -%}
