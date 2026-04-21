@@ -1,0 +1,37 @@
+{%- comment -%}
+  Header cart icon — dedicated section used ONLY as a Section Rendering
+  API target from `assets/cart-drawer.js::refreshDrawer()`.
+
+  Why a standalone section: the drawer's refreshDrawer fetches
+  `/?sections=cart-drawer,header-cart-icon` after every qty change or
+  ATC. The Section Rendering API requires the `sections` key to
+  reference real section files; without this file the `header-cart-icon`
+  response key was silently missing and the drawer fell through to a
+  full cart.js fetch, round-tripping extra bytes on every update.
+
+  The cart count pill that visually lives in sections/header.liquid is
+  duplicated here — the JS swaps the inner textContent, not the node,
+  so the visible header icon (rendered by sections/header.liquid) keeps
+  its event listeners intact. Keeping this section tiny keeps the SRA
+  response small (~200 bytes vs. the ~5 KB header.liquid would emit).
+
+  NOT rendered on the storefront — it isn't in any template's section
+  group. Shopify's SRA accepts orphan sections as long as the section
+  file exists, which is the entire purpose here.
+{%- endcomment -%}
+<span
+  class="kt-header__cart-count"
+  aria-live="polite"
+  aria-atomic="true"
+  {% if cart.item_count == 0 %}style="display: none;"{% endif %}
+>
+  {{ cart.item_count }}
+</span>
+
+{% schema %}
+{
+  "name": "Header cart icon",
+  "tag": null,
+  "settings": []
+}
+{% endschema %}
