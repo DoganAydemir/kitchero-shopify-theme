@@ -35,12 +35,23 @@
     </button>
 
     <div class="kt-video-modal__frame-wrap">
+      {%- comment -%}
+        Explicit width/height attrs so Lighthouse's "image elements
+        have explicit width and height" audit (which also checks
+        <iframe> + <video>) doesn't flag CLS risk. The 16:9 aspect is
+        re-enforced by CSS on the wrapper; the numeric attrs are
+        effectively a ratio hint — browsers use them to reserve space
+        before the frame src is set.
+      {%- endcomment -%}
       <iframe
         class="kt-video-modal__frame"
         data-video-modal-frame
         src=""
+        width="1280"
+        height="720"
         title="{{ 'kt.section.video_modal.iframe_title' | t | default: 'Video player' }}"
         frameborder="0"
+        loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
       ></iframe>

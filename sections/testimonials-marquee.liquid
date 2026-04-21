@@ -38,22 +38,55 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'testimonial' -%}
           <div class="kt-testimonials-marquee__item" {{ block.shopify_attributes }}>
-            <div class="kt-testimonials-marquee__stars" aria-hidden="true">
-              {%- for i in (1..5) -%}
-                <svg
-                  class="kt-testimonials-marquee__star"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="10"
-                  height="10"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1L12 2z" />
-                </svg>
-              {%- endfor -%}
-            </div>
+            {%- comment -%}
+              Per-block rating. Previously every testimonial rendered a
+              fixed 5-star cluster — a "review aggregator" look-and-feel
+              with no real backing data. Theme Store flags patterns
+              that imply review aggregation without actual merchant
+              input. The rating is now per-block (merchant-editable
+              integer 0-5); 0 hides the stars entirely so merchants
+              can run testimonials with no rating claim at all.
+            {%- endcomment -%}
+            {%- assign marquee_rating = block.settings.rating | default: 0 -%}
+            {%- if marquee_rating > 0 -%}
+              <div
+                class="kt-testimonials-marquee__stars"
+                role="img"
+                aria-label="{{ 'kt.section.testimonials-marquee.rating_aria' | t: rating: marquee_rating, scale: 5 }}"
+              >
+                {%- for i in (1..5) -%}
+                  {%- if i <= marquee_rating -%}
+                    <svg
+                      class="kt-testimonials-marquee__star"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="10"
+                      height="10"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1L12 2z" />
+                    </svg>
+                  {%- else -%}
+                    <svg
+                      class="kt-testimonials-marquee__star kt-testimonials-marquee__star--empty"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="10"
+                      height="10"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1L12 2z" />
+                    </svg>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
 
             {%- if block.settings.quote != blank -%}
               <p class="kt-testimonials-marquee__quote">
@@ -181,6 +214,16 @@
           "id": "author_brand",
           "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_brand.label",
           "default": "Brand & Co."
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.rating.label",
+          "info": "t:sections.testimonials-marquee.blocks.testimonial.settings.rating.info",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "default": 5
         }
       ]
     },
