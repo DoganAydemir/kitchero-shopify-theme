@@ -439,6 +439,86 @@
   border-radius: 0.25rem;
 }
 
+/* ── Selling-plan picker ─────────────────────────────────
+   Radio group rendered above the ATC on products with
+   selling_plan_groups configured. Card-style options with
+   clear selected state. When a group has multiple plans
+   (weekly / monthly), each plan renders as a separate
+   option row. */
+.kt-selling-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: none;
+}
+
+.kt-selling-plan__legend {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-selling-plan__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.kt-selling-plan__option:hover {
+  border-color: var(--kt-stone-500, #78716c);
+}
+
+.kt-selling-plan__option:has(.kt-selling-plan__radio:checked) {
+  border-color: var(--kt-stone-900, #1c1917);
+  background-color: var(--kt-stone-50, #fafaf9);
+}
+
+.kt-selling-plan__option:has(.kt-selling-plan__radio:focus-visible) {
+  outline: 2px solid var(--kt-stone-900, #1c1917);
+  outline-offset: 2px;
+}
+
+.kt-selling-plan__radio {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  cursor: pointer;
+  accent-color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-selling-plan__option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.kt-selling-plan__option-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--kt-stone-900, #1c1917);
+  line-height: 1.4;
+}
+
+.kt-selling-plan__option-desc {
+  font-size: 0.8125rem;
+  color: var(--kt-stone-600, #57534e);
+  line-height: 1.4;
+}
+
 /* ── Pre-order badge ─────────────────────────────────────
    Shown when the variant is out of stock but the merchant's
    inventory_policy is 'continue' (backorder enabled). Tells

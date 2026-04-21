@@ -1,0 +1,74 @@
+{%- comment -%}
+  Selling-plan (subscription) picker.
+
+  Renders a radio group offering one-time purchase + each configured
+  subscription plan. The customer's choice writes into the product
+  form's hidden `selling_plan` input via assets/selling-plan-picker.js,
+  so the existing Ajax ATC path (product-form.js) picks up the plan
+  without modification.
+
+  Gated on product.selling_plan_groups.size so the snippet renders
+  nothing for non-subscription products. When the product also has
+  `requires_selling_plan: true` we hide the "One-time purchase" option
+  — the merchant has declared subscription-only.
+
+  Accepts:
+  - product: {Object} current product
+{%- endcomment -%}
+
+{%- if product.selling_plan_groups.size > 0 -%}
+  <fieldset class="kt-selling-plan" data-selling-plan-picker>
+    <legend class="kt-selling-plan__legend">
+      {{ 'kt.product.selling_plan.legend' | t | default: 'Purchase options' }}
+    </legend>
+
+    {%- unless product.requires_selling_plan -%}
+      <label class="kt-selling-plan__option">
+        <input
+          type="radio"
+          name="kt-selling-plan-choice"
+          value=""
+          class="kt-selling-plan__radio"
+          data-selling-plan-id=""
+          checked
+        >
+        <span class="kt-selling-plan__option-body">
+          <span class="kt-selling-plan__option-name">
+            {{ 'kt.product.selling_plan.one_time' | t | default: 'One-time purchase' }}
+          </span>
+        </span>
+      </label>
+    {%- endunless -%}
+
+    {%- for group in product.selling_plan_groups -%}
+      {%- for plan in group.selling_plans -%}
+        {%- assign plan_checked = false -%}
+        {%- if product.requires_selling_plan and forloop.first and forloop.parentloop.first -%}
+          {%- assign plan_checked = true -%}
+        {%- endif -%}
+        <label class="kt-selling-plan__option">
+          <input
+            type="radio"
+            name="kt-selling-plan-choice"
+            value="{{ plan.id }}"
+            class="kt-selling-plan__radio"
+            data-selling-plan-id="{{ plan.id }}"
+            {% if plan_checked %}checked{% endif %}
+          >
+          <span class="kt-selling-plan__option-body">
+            <span class="kt-selling-plan__option-name">
+              {%- if group.name != blank and group.name != plan.name -%}
+                {{ group.name }} — {{ plan.name }}
+              {%- else -%}
+                {{ plan.name }}
+              {%- endif -%}
+            </span>
+            {%- if plan.description != blank -%}
+              <span class="kt-selling-plan__option-desc">{{ plan.description }}</span>
+            {%- endif -%}
+          </span>
+        </label>
+      {%- endfor -%}
+    {%- endfor -%}
+  </fieldset>
+{%- endif -%}

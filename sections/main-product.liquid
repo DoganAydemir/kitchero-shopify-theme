@@ -128,6 +128,14 @@
 
               {%- when 'buy_buttons' -%}
                 <div {{ block.shopify_attributes }}>
+                  {%- comment -%}
+                    Selling-plan (subscription) picker rendered BEFORE
+                    the product form so the picker is visually above
+                    the ATC row. Its hidden input is written into the
+                    form via assets/selling-plan-picker.js and picked
+                    up by the existing Ajax ATC path.
+                  {%- endcomment -%}
+                  {%- render 'product-selling-plans', product: product -%}
                   {%- render 'product-form', product: product, show_dynamic_checkout: block.settings.show_dynamic_checkout -%}
                   {%- comment -%}
                     Pickup availability — rendered directly beneath the
@@ -270,6 +278,14 @@
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+{%- comment -%}
+  Selling-plan picker JS only emits when the product actually has
+  subscription plans configured. Saves a ~1.5KB transfer on every
+  non-subscription product page.
+{%- endcomment -%}
+{%- if product.selling_plan_groups.size > 0 -%}
+  <script src="{{ 'selling-plan-picker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 {%- comment -%}
   Only load the product-model custom element registration when the
   product actually has 3D model media — avoids a no-op script request

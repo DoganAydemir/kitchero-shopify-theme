@@ -98,9 +98,15 @@
       customer sees a clear disabled state + localised "Subscription
       required" copy instead.
     {%- endcomment -%}
+    {%- comment -%}
+      ATC disabled on sold-out only. requires_selling_plan no longer
+      disables the button because snippets/product-selling-plans.liquid
+      (rendered above) auto-selects a plan for subscription-only
+      products, so the hidden `selling_plan` field is populated before
+      the submit.
+    {%- endcomment -%}
     {%- assign atc_disabled = false -%}
     {%- unless current_variant.available -%}{%- assign atc_disabled = true -%}{%- endunless -%}
-    {%- if product.requires_selling_plan -%}{%- assign atc_disabled = true -%}{%- endif -%}
     <button
       type="submit"
       class="kt-product-form__atc"
@@ -120,9 +126,7 @@
         <line x1="9" y1="9" x2="15" y2="15"></line>
       </svg>
       <span data-add-to-cart-text>
-        {%- if product.requires_selling_plan -%}
-          {{ 'kt.product.subscription_required' | t }}
-        {%- elsif current_variant.available -%}
+        {%- if current_variant.available -%}
           {{ 'kt.product.add_to_cart' | t }}
         {%- else -%}
           {{ 'kt.product.sold_out' | t }}
@@ -130,18 +134,6 @@
       </span>
     </button>
   </div>
-
-  {%- if product.requires_selling_plan -%}
-    {%- comment -%}
-      Subscription-only products can't be bought one-time. Render a
-      short explanatory hint so the customer understands why the ATC
-      is disabled. Full selling-plan picker UX is deferred — when it
-      ships, this block will render the picker instead of the hint.
-    {%- endcomment -%}
-    <p class="kt-product-form__subscription-hint" role="note">
-      {{ 'kt.product.subscription_required_hint' | t }}
-    </p>
-  {%- endif -%}
 
   {%- comment -%}
     Pre-order badge — shown when the variant is out of stock BUT the
