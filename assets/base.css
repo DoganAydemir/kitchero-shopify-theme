@@ -90,6 +90,35 @@ summary,
 }
 
 /* ============================================================
+   Drawer / Overlay skeleton — CLS prevention
+   ============================================================
+   Cart-drawer, search-overlay, and appointment-drawer CSS files
+   are intentionally async-loaded (media="print" → "all" swap in
+   theme.liquid) so they don't block first paint. The side-effect:
+   between the HTML painting and the stylesheet arriving, each
+   drawer renders as a plain block-level <div> containing its
+   full form markup — taking up 500+ px of body flow. When the
+   real stylesheet lands and applies `display: none`, the drawer
+   snaps out and everything below it jumps up.
+   Measured impact on a product page: CLS 1.817 (target ≤0.1),
+   dominated by <main> reflow + appointment-drawer reflow.
+   Duplicate these two rules here (base.css IS render-blocking)
+   so the drawers never take layout space before their full
+   stylesheet arrives. The async stylesheets still win for
+   visual styling (colour, spacing, transitions) — they only
+   stop mattering for initial layout. */
+.kt-cart-drawer,
+.kt-search-overlay,
+.kt-appointment-drawer {
+  display: none;
+}
+.kt-cart-drawer[aria-hidden="false"],
+.kt-search-overlay[aria-hidden="false"],
+.kt-appointment-drawer[aria-hidden="false"] {
+  display: block;
+}
+
+/* ============================================================
    Layout Utilities
    ============================================================ */
 
