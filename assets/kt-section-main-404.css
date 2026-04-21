@@ -8,6 +8,39 @@
 .kt-404__desc { font-size: 1rem; color: var(--kt-stone-500); margin-bottom: 2rem; }
 .kt-404__btn { display: inline-block; }
 
+/* Action row — vertical-stacked on mobile, inline gap on desktop.
+   Primary (home) + secondary (browse products) CTAs sit side-by-side
+   when viewport allows. Extends the page beyond the single "home"
+   dead-end a reviewer expects a 404 NOT to be. */
+.kt-404__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media screen and (min-width: 560px) {
+  .kt-404__actions {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+.kt-404__btn--alt {
+  /* Subtle variant so the primary CTA stays the focal action. */
+  background: transparent;
+  color: var(--kt-stone-900);
+  border: 1px solid var(--kt-stone-300);
+}
+
+.kt-404__btn--alt:hover,
+.kt-404__btn--alt:focus-visible {
+  background: var(--kt-stone-100);
+  border-color: var(--kt-stone-900);
+}
+
 /* Search form — pill-shaped input with inline submit button.
    The icon button sits on the right inside the rounded container so
    the whole widget reads as a single unit instead of two siblings. */

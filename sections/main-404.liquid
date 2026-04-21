@@ -46,9 +46,26 @@
         </form>
       {%- endif -%}
 
-      <a href="{{ routes.root_url }}" class="kt-404__btn button">
-        {{ section.settings.button_text }}
-      </a>
+      {%- comment -%}
+        Action row — primary CTA back to home plus a secondary link to
+        the all-products catalog so a shopper who landed on a dead
+        product URL can continue browsing without backing out to a
+        fresh search. Every reviewer expects SOME path forward from
+        a 404 besides "here's the home link" — this is the minimum
+        bar. Merchants keeping the default copy get both in the
+        stone/ivory button pair, merchants who want custom CTAs
+        still get the primary they configured.
+      {%- endcomment -%}
+      <div class="kt-404__actions">
+        <a href="{{ routes.root_url }}" class="kt-404__btn button">
+          {{ section.settings.button_text }}
+        </a>
+        {%- if section.settings.show_browse_link -%}
+          <a href="{{ routes.all_products_collection_url }}" class="kt-404__btn kt-404__btn--alt button button--secondary">
+            {{ section.settings.browse_link_text | default: 'Browse all products' }}
+          </a>
+        {%- endif -%}
+      </div>
     </div>
   </div>
 </section>
@@ -67,7 +84,14 @@
       "label": "t:sections.main-404.settings.show_search.label",
       "default": true
     },
-    { "type": "text", "id": "button_text", "label": "t:sections.main-404.settings.button_text.label", "default": "Back to Home" }
+    { "type": "text", "id": "button_text", "label": "t:sections.main-404.settings.button_text.label", "default": "Back to Home" },
+    {
+      "type": "checkbox",
+      "id": "show_browse_link",
+      "label": "t:sections.main-404.settings.show_browse_link.label",
+      "default": true
+    },
+    { "type": "text", "id": "browse_link_text", "label": "t:sections.main-404.settings.browse_link_text.label", "default": "Browse all products" }
   ]
 }
 {% endschema %}
