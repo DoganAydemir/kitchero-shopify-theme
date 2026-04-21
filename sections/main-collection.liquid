@@ -307,11 +307,21 @@
               <section class="kt-filter-drawer__group">
                 <h4 class="kt-filter-drawer__group-title">{{ filter.label }}</h4>
                 <ul class="kt-filter-drawer__options list-unstyled" role="list">
+                  {%- comment -%}
+                    Drawer-scoped unique id per checkbox so SR users
+                    get label↔input linkage even though the label
+                    also wraps. forloop.index is stable per filter
+                    group, prefixed with FilterDrawer- to avoid
+                    collision with the sidebar snippet's `Filter-*`
+                    ids (if both are ever rendered on one page).
+                  {%- endcomment -%}
                   {%- for value in filter.values -%}
+                    {%- assign drawer_filter_id = 'FilterDrawer-' | append: filter.param_name | append: '-' | append: forloop.index -%}
                     <li class="kt-filter-drawer__option">
-                      <label class="kt-filter-drawer__check">
+                      <label class="kt-filter-drawer__check" for="{{ drawer_filter_id }}">
                         <input
                           type="checkbox"
+                          id="{{ drawer_filter_id }}"
                           name="{{ value.param_name }}"
                           value="{{ value.value }}"
                           {% if value.active %}checked{% endif %}
