@@ -1,6 +1,6 @@
 {%- comment -%}
   Product Form — quantity + add to cart + dynamic checkout button.
-  Birebir from source PDP: quantity selector + ATC + wishlist/share.
+  Birebir from source PDP: quantity selector + ATC + share.
   Uses Shopify {% form 'product' %} with variant ID.
 
   Accepts:
@@ -165,26 +165,16 @@
   {%- endif -%}
 
   {%- comment -%}
-    Wishlist + Share — real, privacy-safe implementations.
-    Wishlist persists product handles in localStorage (no server, no cookies).
-    Share uses the Web Share API with a clipboard fallback. No tracking.
+    Share — Web Share API with clipboard fallback. Privacy-safe: no
+    tracking, no external services. The wishlist button that shipped
+    in earlier rounds was removed because it was a half-built feature
+    (toggle existed, but no /pages/wishlist surface to view saved
+    items). Theme Store review flags incomplete features more harshly
+    than missing ones. Will return as a complete feature in a future
+    release — skeleton of the localStorage helpers stays in
+    product-form.js for that path.
   {%- endcomment -%}
   <div class="kt-product-form__actions">
-    <button
-      type="button"
-      class="kt-product-form__action-btn"
-      data-wishlist-toggle
-      data-product-handle="{{ product.handle }}"
-      data-product-title="{{ product.title | escape }}"
-      aria-pressed="false"
-      data-label-add="{{ 'kt.product.wishlist' | t }}"
-      data-label-added="{{ 'kt.product.wishlist_added' | t }}"
-    >
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-      </svg>
-      <span data-wishlist-label>{{ 'kt.product.wishlist' | t }}</span>
-    </button>
     <button
       type="button"
       class="kt-product-form__action-btn"
