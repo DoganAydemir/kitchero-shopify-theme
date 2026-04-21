@@ -222,6 +222,101 @@
   font-size: 0.75rem;
 }
 
+/* ── Discount code entry ────────────────────────────────
+   Optional, gated on settings.kt_cart_show_discount. Submits
+   to Shopify's native /discount/:code GET endpoint — works
+   without JS. */
+.kt-cart-page__discount {
+  margin: 1rem 0 0;
+}
+
+.kt-cart-page__discount-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.kt-cart-page__discount-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.625rem 0.875rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: rgb(var(--kt-c-fg));
+  background-color: transparent;
+  border: 1px solid rgba(var(--kt-c-fg), 0.2);
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.kt-cart-page__discount-input:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+}
+
+.kt-cart-page__discount-submit {
+  min-width: 5.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.kt-cart-page__discount-submit:hover {
+  opacity: 0.88;
+}
+
+.kt-cart-page__discount-applied {
+  list-style: none;
+  padding: 0;
+  margin: 0.625rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.kt-cart-page__discount-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.375rem 0.25rem 0.625rem;
+  background-color: rgba(5, 150, 105, 0.08);
+  color: var(--kt-emerald-700, #047857);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.kt-cart-page__discount-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  color: currentColor;
+  text-decoration: none;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.kt-cart-page__discount-remove:hover {
+  opacity: 1;
+  background-color: rgba(5, 150, 105, 0.15);
+}
+
 .kt-cart-page__item-unit-price {
   margin-top: 0.5rem;
   font-size: 0.8125rem;

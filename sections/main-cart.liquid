@@ -298,6 +298,71 @@
                 {%- endfor -%}
               {%- endif -%}
 
+              {%- comment -%}
+                Discount code entry — optional per-merchant (gated on
+                settings.kt_cart_show_discount). Submits to /discount/
+                which is Shopify's native discount-code endpoint: the
+                server applies the code to the cart and 302-redirects
+                back to ?redirect=/cart, so the customer lands on a
+                refreshed cart with the discount already applied. Works
+                without JS (plain form POST).
+
+                Error handling is server-side — Shopify surfaces
+                invalid codes as a flash message on the redirected
+                /cart render via cart.cart_level_discount_applications
+                reflecting (or not reflecting) the attempted code.
+                For richer inline feedback merchants can swap the
+                server form for an AJAX handler later; this baseline
+                closes the parity gap with zero JS requirement.
+              {%- endcomment -%}
+              {%- if settings.kt_cart_show_discount -%}
+                <form
+                  action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | escape }}{% endif %}"
+                  method="get"
+                  class="kt-cart-page__discount"
+                  data-cart-discount-form
+                >
+                  <input type="hidden" name="redirect" value="{{ routes.cart_url }}">
+                  <label for="cart-discount-code" class="visually-hidden">
+                    {{ 'kt.cart.discount.label' | t | default: 'Discount code' }}
+                  </label>
+                  <div class="kt-cart-page__discount-row">
+                    <input
+                      type="text"
+                      id="cart-discount-code"
+                      name="code"
+                      class="kt-cart-page__discount-input"
+                      placeholder="{{ 'kt.cart.discount.placeholder' | t | default: 'Discount code' }}"
+                      autocomplete="off"
+                      autocapitalize="characters"
+                      spellcheck="false"
+                    >
+                    <button type="submit" class="kt-cart-page__discount-submit">
+                      {{ 'kt.cart.discount.apply' | t | default: 'Apply' }}
+                    </button>
+                  </div>
+                  {%- if cart.discount_codes.size > 0 -%}
+                    <ul class="kt-cart-page__discount-applied" role="list">
+                      {%- for code in cart.discount_codes -%}
+                        <li class="kt-cart-page__discount-chip">
+                          <span>{{ code }}</span>
+                          {%- comment -%}
+                            Server-side remove: GET /discount/<empty>
+                            clears the code. Shopify's native endpoint
+                            is the same URL with no code path segment.
+                          {%- endcomment -%}
+                          <a
+                            href="/discount?redirect={{ routes.cart_url | url_encode }}"
+                            class="kt-cart-page__discount-remove"
+                            aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: code | default: 'Remove discount code' }}"
+                          >&times;</a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </form>
+              {%- endif -%}
+
               <div class="kt-cart-page__summary-divider" aria-hidden="true"></div>
 
               <div class="kt-cart-page__summary-row kt-cart-page__summary-row--total">
