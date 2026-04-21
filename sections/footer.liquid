@@ -121,6 +121,45 @@
               {%- endif -%}
             </div>
 
+          {%- when 'contact_info' -%}
+            {%- comment -%}
+              Shop-level contact details pulled dynamically from
+              `shop.address` / `shop.email` / `shop.phone` — all of
+              which Admin → Settings → General populates. Previously
+              merchants had to repeat this info in a plain text block
+              (easy to forget, goes stale on move). Each line gated on
+              its own toggle so a merchant who doesn't want to surface
+              (e.g.) their phone publicly can hide it.
+            {%- endcomment -%}
+            <div class="kt-footer__column" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h3 class="kt-footer__heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+              <ul class="kt-footer__contact list-unstyled" role="list">
+                {%- if block.settings.show_address and shop.address.street != blank -%}
+                  <li class="kt-footer__contact-item">
+                    <address class="kt-footer__contact-address">{{ shop.address | format_address }}</address>
+                  </li>
+                {%- endif -%}
+                {%- if block.settings.show_email and shop.email != blank -%}
+                  <li class="kt-footer__contact-item">
+                    <a href="mailto:{{ shop.email }}" class="kt-footer__contact-link">{{ shop.email }}</a>
+                  </li>
+                {%- endif -%}
+                {%- if block.settings.show_phone and shop.phone != blank -%}
+                  <li class="kt-footer__contact-item">
+                    {%- comment -%}
+                      tel: scheme strips non-digit chars for dial-
+                      friendliness (Safari iOS is picky about spaces
+                      and dashes in the href), while the visible text
+                      keeps the merchant's formatting.
+                    {%- endcomment -%}
+                    <a href="tel:{{ shop.phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}" class="kt-footer__contact-link">{{ shop.phone }}</a>
+                  </li>
+                {%- endif -%}
+              </ul>
+            </div>
+
           {%- when '@app' -%}
             <div class="kt-footer__column kt-footer__column--app" {{ block.shopify_attributes }}>
               {% render block %}
@@ -339,26 +378,60 @@
     },
     {
       "type": "newsletter",
-      "name": "Newsletter",
+      "name": "t:sections.footer.blocks.newsletter.name",
       "limit": 1,
       "settings": [
         {
           "type": "text",
           "id": "heading",
-          "label": "Heading",
+          "label": "t:sections.footer.blocks.newsletter.settings.heading.label",
           "default": "Subscribe"
         }
       ]
     },
     {
       "type": "image",
-      "name": "Image",
+      "name": "t:sections.footer.blocks.image.name",
       "limit": 4,
       "settings": [
         {
           "type": "image_picker",
           "id": "image",
-          "label": "Image"
+          "label": "t:sections.footer.blocks.image.settings.image.label"
+        }
+      ]
+    },
+    {
+      "type": "contact_info",
+      "name": "t:sections.footer.blocks.contact_info.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.footer.blocks.contact_info.settings.heading.label",
+          "default": "Contact"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_address",
+          "label": "t:sections.footer.blocks.contact_info.settings.show_address.label",
+          "info": "t:sections.footer.blocks.contact_info.settings.show_address.info",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_email",
+          "label": "t:sections.footer.blocks.contact_info.settings.show_email.label",
+          "info": "t:sections.footer.blocks.contact_info.settings.show_email.info",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_phone",
+          "label": "t:sections.footer.blocks.contact_info.settings.show_phone.label",
+          "info": "t:sections.footer.blocks.contact_info.settings.show_phone.info",
+          "default": true
         }
       ]
     },
