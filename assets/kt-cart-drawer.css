@@ -454,3 +454,50 @@
     transition: none;
   }
 }
+
+/* ── Free-shipping progress bar ───────────────────────
+   Rendered inside both main-cart summary + cart-drawer footer.
+   Threshold read from settings.kt_free_shipping_threshold.
+   Label color flips from stone-700 to emerald-700 when unlocked. */
+.kt-free-ship {
+  margin: 0 0 1rem;
+  padding: 0.625rem 0;
+}
+
+.kt-free-ship__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kt-stone-700, #44403c);
+}
+
+.kt-free-ship--unlocked .kt-free-ship__label {
+  color: var(--kt-emerald-700, #047857);
+  font-weight: 600;
+}
+
+.kt-free-ship__track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--kt-stone-200, #e7e5e4);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.kt-free-ship__fill {
+  height: 100%;
+  background-color: var(--kt-stone-900, #1c1917);
+  border-radius: 9999px;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kt-free-ship--unlocked .kt-free-ship__fill {
+  background-color: var(--kt-emerald-600, #059669);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-free-ship__fill {
+    transition: none;
+  }
+}

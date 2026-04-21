@@ -1,0 +1,62 @@
+{%- comment -%}
+  Free-shipping progress bar.
+
+  Renders a subtotal-to-threshold progress bar when the merchant has
+  configured a free-shipping minimum via `settings.kt_free_shipping_threshold`
+  (in the shop's default currency, same integer units as Shopify prices
+  — i.e. cents). When the merchant hasn't set one (0 or blank) the
+  snippet renders nothing.
+
+  States:
+  - Under threshold: "Add {{ remaining }} more for free shipping" with
+    a partially-filled bar
+  - At/above threshold: "Free shipping unlocked" with a full bar
+  - Digital-only cart (cart.requires_shipping == false): skip entirely
+    — there's no shipping to unlock
+
+  Used by main-cart.liquid (page) and cart-drawer.liquid (drawer).
+  Snippet so the threshold math lives in one place.
+{%- endcomment -%}
+
+{%- liquid
+  assign threshold = settings.kt_free_shipping_threshold | default: 0 | times: 1
+  assign threshold_cents = threshold | times: 100
+-%}
+
+{%- if threshold_cents > 0 and cart.requires_shipping and cart.item_count > 0 -%}
+  {%- assign subtotal = cart.total_price -%}
+  {%- if subtotal >= threshold_cents -%}
+    {%- assign unlocked = true -%}
+    {%- assign percent = 100 -%}
+    {%- assign remaining_cents = 0 -%}
+  {%- else -%}
+    {%- assign unlocked = false -%}
+    {%- assign percent = subtotal | times: 100 | divided_by: threshold_cents -%}
+    {%- assign remaining_cents = threshold_cents | minus: subtotal -%}
+  {%- endif -%}
+
+  <div
+    class="kt-free-ship {% if unlocked %}kt-free-ship--unlocked{% endif %}"
+    role="status"
+    aria-live="polite"
+    data-free-shipping-bar
+  >
+    <p class="kt-free-ship__label">
+      {%- if unlocked -%}
+        {{ 'kt.cart.free_shipping.unlocked' | t | default: '🎉 Free shipping unlocked!' }}
+      {%- else -%}
+        {%- comment -%}
+          Pre-format the money amount with the `| money` filter BEFORE
+          handing it to `t:` — Liquid pipe precedence would otherwise
+          apply `| money` to the whole translation string (which is
+          not a number) and silently render the raw cents integer.
+        {%- endcomment -%}
+        {%- assign remaining_formatted = remaining_cents | money -%}
+        {{ 'kt.cart.free_shipping.remaining_html' | t: amount: remaining_formatted }}
+      {%- endif -%}
+    </p>
+    <div class="kt-free-ship__track" aria-hidden="true">
+      <div class="kt-free-ship__fill" style="width: {{ percent }}%"></div>
+    </div>
+  </div>
+{%- endif -%}
