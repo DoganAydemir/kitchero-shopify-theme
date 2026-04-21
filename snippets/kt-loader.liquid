@@ -55,13 +55,22 @@
   </div>
 
   <div class="kt-loader__stage">
-    <h1 class="kt-loader__brand" aria-label="{{ brand_raw }}">
+    {%- comment -%}
+      Brand lockup is intentionally NOT an h1 — every template under
+      the loader has its own semantic h1 (hero, product title, collection
+      title, etc.). Rendering two h1s in the DOM (even with the loader's
+      aria-hidden="true" on the parent) trips SEO + structure audits
+      that manually grep the source. <div> with aria-label preserves
+      the accessible-name behaviour the loader needs without competing
+      for the page's primary heading semantics.
+    {%- endcomment -%}
+    <div class="kt-loader__brand" role="presentation" aria-hidden="true">
       {%- for char in brand_chars -%}
         <span class="kt-loader__brand-char" style="--i: {{ forloop.index0 }};">
           <span class="kt-loader__brand-char-inner">{%- if char == ' ' -%}&nbsp;{%- else -%}{{ char }}{%- endif -%}</span>
         </span>
       {%- endfor -%}
-    </h1>
+    </div>
     <span class="kt-loader__underline" aria-hidden="true"></span>
   </div>
 

@@ -100,7 +100,8 @@
     if (!container) {
       // WeakMap is not iterable; consumers that want a blanket teardown
       // should keep their own container refs. This branch is a no-op by
-      // design, which is itself a divergence from Dawn's `removeTrapFocus()`.
+      // design — callers that opened a trap own the container reference
+      // and must pass it to disable. A missing arg means "no-op".
       return;
     }
     var state = activeTraps.get(container);
