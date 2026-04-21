@@ -248,12 +248,18 @@
           name="checkout" directly to /checkouts/..., bypassing the
           /cart page. Wrapping only the submit button (not the whole
           drawer) keeps the existing AJAX quantity update path intact.
+
+          Use `{% form 'cart' %}` here so Shopify injects the CSRF
+          authenticity_token + auto-routes to routes.cart_url for
+          the current locale. Hand-rolled `<form action="{{ routes.cart_url }}">`
+          was missing the authenticity token; main-cart.liquid
+          already uses the form block — drawer now matches.
         {%- endcomment -%}
-        <form action="{{ routes.cart_url }}" method="post" class="kt-cart-drawer__checkout-form" novalidate>
+        {%- form 'cart', class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
           <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
             {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
           </button>
-        </form>
+        {%- endform -%}
         <button type="button" class="kt-cart-drawer__continue" data-cart-drawer-close>
           {{ 'kt.cart.continue_shopping' | t | default: 'Continue shopping' }}
         </button>
