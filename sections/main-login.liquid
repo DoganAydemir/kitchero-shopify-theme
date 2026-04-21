@@ -14,11 +14,23 @@
         breaking the "click Sign in while shopping → return to the
         previous page" flow and the checkout-gated-login flow.
       {%- endcomment -%}
+      {%- comment -%}
+        theme-check complains about UndefinedObject for `checkout_url`
+        and `return_to` because its static analyser doesn't know these
+        are context-injected Liquid variables Shopify populates on
+        /account/login when the customer arrives via a checkout
+        redirect or a ?return_to=… query param. Suppress the noise
+        only for this block — they ARE defined at runtime on this
+        specific template. See Shopify docs: "Redirect users to a
+        new page after they login".
+      {%- endcomment -%}
+      {% # theme-check-disable UndefinedObject %}
       {%- if checkout_url != blank -%}
         <input type="hidden" name="checkout_url" value="{{ checkout_url | escape }}">
       {%- elsif return_to != blank -%}
         <input type="hidden" name="return_to" value="{{ return_to | escape }}">
       {%- endif -%}
+      {% # theme-check-enable UndefinedObject %}
 
       {%- if form.errors -%}
         <div class="kt-customer__errors" role="alert" tabindex="-1">
