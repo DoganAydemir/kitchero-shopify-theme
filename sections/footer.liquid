@@ -177,7 +177,16 @@
         {%- comment -%} Copyright {%- endcomment -%}
         <div class="kt-footer__copyright">
           <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}.</span>
-          <a href="https://www.shopify.com" target="_blank" rel="noopener noreferrer">{{ 'kt.general.footer.powered_by_shopify' | t | default: 'Powered by Shopify' }}</a>
+          {%- comment -%}
+            `{{ powered_by_link }}` emits a fully localized `<a>` tag
+            pointing at the correct Shopify URL for the current locale,
+            with the translated label from Shopify's own i18n tables —
+            no hand-maintained locale key needed. Also removes the
+            target="_blank" noopener attribute combo we were carrying
+            manually (reviewer recommendation: don't force external
+            target on the powered-by link, let the user choose).
+          {%- endcomment -%}
+          {{ powered_by_link }}
         </div>
 
         {%- comment -%} Language/Country Selectors (Shopify native localization) {%- endcomment -%}
