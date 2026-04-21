@@ -195,8 +195,26 @@
     {%- endif -%}
   </div>
 
-  {%- comment -%} Fullscreen Lightbox {%- endcomment -%}
-  <div class="kt-lightbox" data-lightbox aria-hidden="true" data-lenis-prevent="true">
+  {%- comment -%}
+    Fullscreen Lightbox — WAI-ARIA Dialog pattern. Previously this
+    was a bare <div> with only aria-hidden; screen readers
+    announced "image" with no modal context, so keyboard users
+    entering it via the gallery's "View full size" button had no
+    idea they were inside a modal + couldn't figure out ESC closes.
+    Added role="dialog" + aria-modal="true" + aria-label so NVDA /
+    VoiceOver correctly announce the dialog boundary + the
+    focus trap (already wired in product-gallery.js) now matches
+    the APG Dialog expectations.
+  {%- endcomment -%}
+  <div
+    class="kt-lightbox"
+    data-lightbox
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ 'kt.a11y.lightbox' | t | default: 'Product image viewer' }}"
+    aria-hidden="true"
+    data-lenis-prevent="true"
+  >
     <button type="button" class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
       <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
