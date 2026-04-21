@@ -246,7 +246,16 @@
       </a>
 
       {%- comment -%} Cart {%- endcomment -%}
-      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.cart.title' | t }}">
+      {%- comment -%}
+        aria-label includes the item count so WCAG 2.5.3 Label in
+        Name is satisfied — the visible badge shows the count, so
+        the accessible name must also contain it. Previously
+        `aria-label="Cart"` clashed with the visible "5" (or whatever
+        count was showing), and voice-control users saying "click
+        cart 5" would fail to match. Translation key interpolates
+        count — zero-count plural handled via pluralize.
+      {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>

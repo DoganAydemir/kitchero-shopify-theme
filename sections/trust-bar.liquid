@@ -19,7 +19,15 @@
                   <span class="kt-trust-bar__prefix">{{ block.settings.prefix }}</span>
                 {%- endif -%}
               </div>
-              <h3 class="kt-trust-bar__label">{{ block.settings.label }}</h3>
+              {%- comment -%}
+                Stat label — not a page-outline heading. Previously
+                h3 and tripping Lighthouse's heading-order audit on
+                pages where the preceding section is h1/h2 and the
+                stat label jumps to h3 without intermediate h2s.
+                <p> reads as stat caption in the a11y tree instead
+                of competing in the heading outline.
+              {%- endcomment -%}
+              <p class="kt-trust-bar__label">{{ block.settings.label }}</p>
             </div>
           </div>
         {%- endif -%}

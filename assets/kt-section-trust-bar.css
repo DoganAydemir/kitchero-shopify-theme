@@ -104,7 +104,11 @@
   letter-spacing: 0.15em;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  /* stone-500 only reached 4.39:1 on the stone-100 trust-bar bg,
+     failing WCAG AA for body text (needs 4.5:1). Bumped to stone-700
+     (#44403c) which hits ~10:1 — still reads as a muted label vs.
+     the prominent stat value, but clears contrast. */
+  color: var(--kt-stone-700);
   margin-top: 1rem;
   transition: color 0.2s ease;
 }

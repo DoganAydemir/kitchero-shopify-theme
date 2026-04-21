@@ -36,9 +36,9 @@
         {%- case block.type -%}
           {%- when 'link_list' -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
-              <h4 class="kt-footer__column-title">
+              <h2 class="kt-footer__column-title">
                 {{ block.settings.heading | default: block.settings.menu.title }}
-              </h4>
+              </h2>
               {%- if block.settings.menu != blank and block.settings.menu.links.size > 0 -%}
                 <ul class="kt-footer__link-list list-unstyled" role="list">
                   {%- for link in block.settings.menu.links -%}
@@ -67,7 +67,7 @@
           {%- when 'text' -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h4 class="kt-footer__column-title">{{ block.settings.heading }}</h4>
+                <h2 class="kt-footer__column-title">{{ block.settings.heading }}</h2>
               {%- endif -%}
               <div class="kt-footer__text rte">{{ block.settings.text }}</div>
             </div>
@@ -75,7 +75,7 @@
           {%- when 'newsletter' -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h4 class="kt-footer__column-title">{{ block.settings.heading }}</h4>
+                <h2 class="kt-footer__column-title">{{ block.settings.heading }}</h2>
               {%- endif -%}
               {%- form 'customer', id: 'FooterNewsletter' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
@@ -133,7 +133,7 @@
             {%- endcomment -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h3 class="kt-footer__heading">{{ block.settings.heading }}</h3>
+                <h2 class="kt-footer__heading">{{ block.settings.heading }}</h2>
               {%- endif -%}
               <ul class="kt-footer__contact list-unstyled" role="list">
                 {%- if block.settings.show_address and shop.address.street != blank -%}

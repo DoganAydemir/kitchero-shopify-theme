@@ -26,7 +26,10 @@
 
 .kt-before-after__subtitle {
   font-size: 1.25rem;
-  color: var(--kt-stone-500);
+  /* stone-500 on stone-900 backdrop failed WCAG AA at 3.64:1
+     (needs 4.5:1). stone-400 (#a8a29e) hits ~7:1 on #1c1917 —
+     clearly muted vs. the white heading, contrast-safe. */
+  color: var(--kt-stone-400);
   font-weight: 300;
 }
 

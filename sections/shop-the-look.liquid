@@ -85,7 +85,13 @@
         <div class="kt-shop-the-look__mobile-sheet-content">
           <div class="kt-shop-the-look__mobile-sheet-img" data-mobile-sheet-img></div>
           <div>
-            <h4 class="kt-shop-the-look__mobile-sheet-name" data-mobile-sheet-name></h4>
+            {%- comment -%}
+              Mobile sheet is a dynamic bottom-sheet that reveals on
+              hotspot tap — not a heading in the page outline. Was h4
+              which jumped the heading order. <p> + strong styling
+              keeps the visual weight without polluting the outline.
+            {%- endcomment -%}
+            <p class="kt-shop-the-look__mobile-sheet-name" data-mobile-sheet-name></p>
             <p class="kt-shop-the-look__mobile-sheet-price" data-mobile-sheet-price></p>
             {%- comment -%}
               Mobile sheet "View Product" link is a JS-populated template:

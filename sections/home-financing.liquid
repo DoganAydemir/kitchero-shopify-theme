@@ -32,10 +32,16 @@
           {%- for block in section.blocks -%}
             {%- if block.type == 'partner' -%}
               <div class="kt-home-financing__partner" {{ block.shopify_attributes }}>
-                <h4 class="kt-home-financing__partner-header">
+                {%- comment -%}
+                  Partner card heading — promoted from h4 to h3 so it
+                  sits properly under the section's h2 (home-financing
+                  headline). Was jumping from h2 to h4 and tripping
+                  Lighthouse heading-order.
+                {%- endcomment -%}
+                <h3 class="kt-home-financing__partner-header">
                   <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                   {{ block.settings.name }}
-                </h4>
+                </h3>
                 <p class="kt-home-financing__partner-desc">{{ block.settings.description }}</p>
                 {%- if block.settings.badge != blank -%}
                   <div class="kt-home-financing__partner-badge">

@@ -53,7 +53,10 @@
 /* p: text-xl md:text-2xl text-stone-400 font-light max-w-md md:text-right md:pb-4 */
 .kt-why-choose-us__desc {
   font-size: 1.25rem;
-  color: var(--kt-stone-500);
+  /* stone-500 on stone-950 (#0c0a09) failed WCAG AA at 4.11:1
+     (needs 4.5:1). stone-400 hits ~6.5:1 on the same dark bg — still
+     reads as muted vs. the white heading, contrast-safe. */
+  color: var(--kt-stone-400);
   font-weight: 300;
   max-width: 28rem;
   margin: 0;
@@ -187,6 +190,9 @@
 /* p: text-stone-400 leading-relaxed text-lg */
 .kt-why-choose-us__feature-desc {
   font-size: 1.125rem;
-  color: var(--kt-stone-500);
+  /* Same WCAG AA fix as __desc above — stone-500 was 4.11:1 on the
+     dark section background; stone-400 clears the 4.5:1 body-text
+     threshold. */
+  color: var(--kt-stone-400);
   line-height: 1.625;
 }
