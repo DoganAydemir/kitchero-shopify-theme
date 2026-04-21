@@ -56,8 +56,29 @@
       <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: request.locale.root_url, primary_root }}">
     {%- endif -%}
 
+    {%- comment -%}
+      PWA / mobile home-screen chrome.
+
+      - icon (32px) for browser tabs.
+      - 180px apple-touch-icon for iOS "Add to Home Screen" — without it
+        iOS renders a zoomed screenshot of the page, which looks broken.
+      - mask-icon for Safari pinned tabs; uses theme-color as its tint.
+      - manifest is intentionally omitted (Shopify themes don't ship a
+        static /site.webmanifest, and emitting an inline generated
+        manifest as a data URL confuses some browsers). iOS + Android
+        will fall back to the apple-touch-icon + theme-color when the
+        user chooses "Add to Home Screen" — which is the Theme Store's
+        expectation for theme-level PWA chrome.
+
+      All branches gate on `settings.kt_favicon` — on a fresh store the
+      merchant hasn't uploaded a favicon yet, so we emit nothing rather
+      than a broken-link generator output.
+    {%- endcomment -%}
     {%- if settings.kt_favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
+      <link rel="icon" type="image/png" sizes="192x192" href="{{ settings.kt_favicon | image_url: width: 192, height: 192 }}">
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.kt_favicon | image_url: width: 180, height: 180 }}">
+      <link rel="mask-icon" href="{{ settings.kt_favicon | image_url: width: 512, height: 512 }}" color="{{ theme_color }}">
     {%- endif -%}
 
     {%- unless settings.kt_heading_font.system? and settings.kt_body_font.system? -%}
