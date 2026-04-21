@@ -20,16 +20,34 @@
   'use strict';
 
   var SCROLL_THRESHOLD = 50;
+  // Cache the header ref + rAF gate: previously `updateScrollState`
+  // did a fresh document.querySelector on every scroll tick (50-100
+  // times/sec on fast wheels) plus two DOM writes. On long-scroll
+  // pages that's measurable TBT. Cache at lookup on each call (so
+  // editor re-mounts still resolve), but gate the whole handler
+  // behind a requestAnimationFrame flag so we only update state
+  // once per frame even if scroll fires 5× between paints.
+  var scrollTicking = false;
+  var cachedHeader = null;
+
+  function computeScrollState() {
+    scrollTicking = false;
+    if (!cachedHeader || !cachedHeader.isConnected) {
+      cachedHeader = document.querySelector('.kt-header');
+    }
+    if (!cachedHeader) return;
+    var scrolled = window.scrollY > SCROLL_THRESHOLD;
+    cachedHeader.classList.toggle('kt-header--scrolled', scrolled);
+    var isTransparent = cachedHeader.dataset.headerStyle === 'transparent';
+    if (isTransparent) {
+      cachedHeader.classList.toggle('kt-header--transparent', !scrolled);
+    }
+  }
 
   function updateScrollState() {
-    var header = document.querySelector('.kt-header');
-    if (!header) return;
-    var scrolled = window.scrollY > SCROLL_THRESHOLD;
-    header.classList.toggle('kt-header--scrolled', scrolled);
-    var isTransparent = header.dataset.headerStyle === 'transparent';
-    if (isTransparent) {
-      header.classList.toggle('kt-header--transparent', !scrolled);
-    }
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(computeScrollState);
   }
 
   window.addEventListener('scroll', updateScrollState, { passive: true });
