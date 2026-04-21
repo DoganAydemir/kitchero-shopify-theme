@@ -18,7 +18,14 @@
 (function () {
   'use strict';
 
-  var LERP = 0.12;          // smoothness: lower = laggier, higher = snappier
+  /* Reduced-motion guard — under `prefers-reduced-motion: reduce` we
+     snap the spotlight directly to the cursor each frame instead of
+     LERPing toward it, so there's no visible motion trail. WCAG 2.3.3
+     compliance for customers who've opted out of animated motion. */
+  var prefersReducedMotion = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var LERP = prefersReducedMotion ? 1 : 0.12;  // 1 = snap, 0.12 = smooth trail
   var RADIUS = 450;         // spotlight radius in px (matches Testimonials.tsx)
 
   function maskString(x, y) {
