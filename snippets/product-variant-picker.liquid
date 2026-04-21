@@ -161,11 +161,27 @@
                 endif
               -%}
 
+              {%- comment -%}
+                A11y — the `<label>` wraps a visually-hidden radio input
+                plus a styled `<span>` with no text content. Without an
+                accessible name on the input, screen readers announce
+                "radio button" with no option value. Reviewer a11y pass
+                flags this. Fix: `aria-label` on the input carries the
+                option name (+ sold-out status) to assistive tech while
+                the `title` attribute continues to serve sighted users
+                as a hover tooltip. Keep in sync with the option cell
+                below (non-color grid buttons render visible text, so
+                they don't need the aria-label treatment).
+              {%- endcomment -%}
+              {%- capture swatch_a11y_label -%}
+                {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
+              {%- endcapture -%}
               <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}">
                 <input
                   type="radio"
                   name="option-{{ option.name | handle }}"
                   value="{{ value | escape }}"
+                  aria-label="{{ swatch_a11y_label | strip | escape }}"
                   {% if value == current_option_value %}checked{% endif %}
                   {% unless option_available %}disabled{% endunless %}
                   class="kt-variant-picker__swatch-input visually-hidden"
@@ -175,6 +191,7 @@
                   class="kt-variant-picker__swatch"
                   style="{{ swatch_style }}"
                   title="{{ value | escape }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}"
+                  aria-hidden="true"
                 ></span>
               </label>
             {%- endfor -%}
