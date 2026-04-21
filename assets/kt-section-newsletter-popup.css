@@ -43,12 +43,16 @@
   box-shadow: 0 64px 128px -32px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
+  /* Bottom margin = safe-area inset so the home-indicator bar on
+     iPhone X+ doesn't overlap the close button / submit CTA when
+     the dialog is near the bottom of the viewport. */
+  margin-bottom: env(safe-area-inset-bottom, 0px);
   transform: scale(0.95) translateY(3rem);
   transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   /* Use dvh so iOS/Android browser chrome (URL bar, toolbar) doesn't
      push the dialog off-screen. vh fallback for older browsers. */
   max-height: calc(100vh - 2rem);
-  max-height: calc(100dvh - 2rem);
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }

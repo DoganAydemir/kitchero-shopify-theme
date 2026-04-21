@@ -29,7 +29,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  /* Safe-area padding so the virtual keyboard + iOS home indicator
+     don't cover the search input / results list on mobile. */
+  padding: calc(2rem + env(safe-area-inset-top, 0px))
+           calc(2rem + env(safe-area-inset-right, 0px))
+           calc(2rem + env(safe-area-inset-bottom, 0px))
+           calc(2rem + env(safe-area-inset-left, 0px));
 }
 
 .kt-search-overlay__close {

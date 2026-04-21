@@ -130,7 +130,11 @@
 }
 
 .kt-appointment-drawer__footer {
-  padding: 1.5rem;
+  /* Respect iOS home-indicator safe area (iPhone X+): add the
+     bottom inset on top of our 1.5rem base padding so the submit
+     button doesn't sit under the home-indicator bar. Falls back
+     silently on non-safe-area devices (env() returns 0). */
+  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--kt-stone-200);
 }
 

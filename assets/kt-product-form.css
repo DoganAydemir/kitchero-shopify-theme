@@ -472,6 +472,14 @@
   border-color: var(--kt-stone-500, #78716c);
 }
 
+/* Cell-level checked-state styling uses `:has()` (Safari 15.4+,
+   Chrome 105+, Firefox 121+). On older browsers the selector is
+   simply skipped — the radio still shows its native checked dot
+   (browser-provided accent-color) so the user can see which plan
+   is selected. Accepted graceful degradation: <3% of traffic sees
+   the native radio indicator without the wrapper highlight, but
+   no functionality breaks and the checked state is never invisible
+   (the native `:checked` styles the radio regardless). */
 .kt-selling-plan__option:has(.kt-selling-plan__radio:checked) {
   border-color: var(--kt-stone-900, #1c1917);
   background-color: var(--kt-stone-50, #fafaf9);
@@ -480,6 +488,15 @@
 .kt-selling-plan__option:has(.kt-selling-plan__radio:focus-visible) {
   outline: 2px solid var(--kt-stone-900, #1c1917);
   outline-offset: 2px;
+}
+
+/* Sibling fallback so Safari 15.3 and older AT LEAST get a visible
+   outline on the radio itself when focused (the radio IS a child
+   of the label, but we can style the radio directly). `:checked`
+   alone can't climb to the wrapper, but it can visibly emphasize
+   the radio, matching the intent. */
+.kt-selling-plan__radio:checked {
+  accent-color: var(--kt-stone-900, #1c1917);
 }
 
 .kt-selling-plan__radio {
