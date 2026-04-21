@@ -52,7 +52,17 @@
               </div>
               <div class="kt-guide-teaser__card-content">
                 {%- if section.settings.show_category and article.tags.size > 0 -%}
-                  <p class="kt-guide-teaser__card-category">{{ article.tags.first }}</p>
+                  {%- assign guide_teaser_primary_tag = blank -%}
+                  {%- for tag in article.tags -%}
+                    {%- assign tag_first_char = tag | slice: 0 -%}
+                    {%- unless tag_first_char == '_' -%}
+                      {%- assign guide_teaser_primary_tag = tag -%}
+                      {%- break -%}
+                    {%- endunless -%}
+                  {%- endfor -%}
+                  {%- if guide_teaser_primary_tag != blank -%}
+                    <p class="kt-guide-teaser__card-category">{{ guide_teaser_primary_tag }}</p>
+                  {%- endif -%}
                 {%- endif -%}
                 <h3 class="kt-guide-teaser__card-title">{{ article.title }}</h3>
                 {%- if section.settings.show_excerpt and article.excerpt_or_content != blank -%}

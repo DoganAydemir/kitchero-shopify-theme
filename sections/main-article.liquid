@@ -32,8 +32,21 @@
     <div class="page-width">
       <div class="kt-article__header-inner">
         <div class="kt-article__meta">
-          {%- if article.tags.size > 0 -%}
-            <span class="kt-article__meta-item">{{ article.tags.first }}</span>
+          {%- comment -%}
+            Underscore-prefixed tags are Shopify's hidden-meta
+            convention (_featured etc.) — filter them out so
+            internal curation tags don't leak to readers.
+          {%- endcomment -%}
+          {%- assign article_primary_tag = blank -%}
+          {%- for tag in article.tags -%}
+            {%- assign tag_first_char = tag | slice: 0 -%}
+            {%- unless tag_first_char == '_' -%}
+              {%- assign article_primary_tag = tag -%}
+              {%- break -%}
+            {%- endunless -%}
+          {%- endfor -%}
+          {%- if article_primary_tag != blank -%}
+            <span class="kt-article__meta-item">{{ article_primary_tag }}</span>
             <span class="kt-article__meta-rule" aria-hidden="true"></span>
           {%- endif -%}
           <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
@@ -64,9 +77,18 @@
     </div>
   </header>
 
-  {%- comment -%} Full-bleed featured image {%- endcomment -%}
-  {%- if article.image -%}
-    <div class="kt-article__hero-image">
+  {%- comment -%}
+    Full-bleed featured image. Previously gated entirely on
+    article.image — articles without a cover rendered no hero and
+    (via snippets/structured-data.liquid's article | structured_data
+    filter) may have emitted JSON-LD with an empty `image` field,
+    which Google Search Console flags "Missing field 'image'" for
+    BlogPosting. Falls back to the Shopify placeholder SVG so the
+    layout reserves the LCP space AND structured data has a usable
+    URL (Shopify's placeholder URL resolves at its CDN).
+  {%- endcomment -%}
+  <div class="kt-article__hero-image">
+    {%- if article.image -%}
       {{
         article.image
         | image_url: width: 2400
@@ -78,10 +100,12 @@
           sizes: '100vw',
           width: article.image.width,
           height: article.image.height,
-          alt: article.title
+          alt: article.title | escape
       }}
-    </div>
-  {%- endif -%}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-article__hero-img' }}
+    {%- endif -%}
+  </div>
 
   {%- comment -%} Body / rich-text content {%- endcomment -%}
   <div class="kt-article__body">
@@ -139,6 +163,40 @@
       </div>
     </div>
   </div>
+
+  {%- comment -%}
+    Previous / next article navigation. Shopify exposes
+    `blog.previous_article` and `blog.next_article` automatically for
+    article templates, ordered by publication date. Without this
+    readers finishing an article have to manually navigate back to
+    the blog index + scan the grid. Standard editorial-theme pattern.
+    Gated on EITHER being present so the row doesn't render empty on
+    the first/last article in the blog.
+  {%- endcomment -%}
+  {%- if blog.previous_article or blog.next_article -%}
+    <nav class="kt-article__pager" aria-label="{{ 'kt.blog.article.pager_label' | t | default: 'More articles' }}">
+      <div class="page-width">
+        <div class="kt-article__pager-inner">
+          {%- if blog.previous_article -%}
+            <a href="{{ blog.previous_article.url }}" class="kt-article__pager-link kt-article__pager-link--prev" rel="prev">
+              <span class="kt-article__pager-eyebrow">{{ 'kt.blog.article.previous' | t | default: 'Previous' }}</span>
+              <span class="kt-article__pager-title">{{ blog.previous_article.title }}</span>
+            </a>
+          {%- else -%}
+            <span class="kt-article__pager-spacer" aria-hidden="true"></span>
+          {%- endif -%}
+          {%- if blog.next_article -%}
+            <a href="{{ blog.next_article.url }}" class="kt-article__pager-link kt-article__pager-link--next" rel="next">
+              <span class="kt-article__pager-eyebrow">{{ 'kt.blog.article.next' | t | default: 'Next' }}</span>
+              <span class="kt-article__pager-title">{{ blog.next_article.title }}</span>
+            </a>
+          {%- else -%}
+            <span class="kt-article__pager-spacer" aria-hidden="true"></span>
+          {%- endif -%}
+        </div>
+      </div>
+    </nav>
+  {%- endif -%}
 
   {%- comment -%} Comments {%- endcomment -%}
   {%- if blog.comments_enabled? -%}

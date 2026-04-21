@@ -50,8 +50,23 @@
       {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-article-card__image' }}
     {%- endif -%}
 
-    {%- if article.tags.size > 0 -%}
-      <span class="kt-article-card__category">{{ article.tags.first }}</span>
+    {%- comment -%}
+      Filter out underscore-prefixed tags — Shopify convention flags
+      these as hidden meta tags (_featured, _cover, _pinned) used for
+      internal editorial curation. Walk the tag list until a public
+      tag is found. Previously `article.tags.first` published
+      "_featured" in the UI on merchants who used tag-based pinning.
+    {%- endcomment -%}
+    {%- assign article_card_primary_tag = blank -%}
+    {%- for tag in article.tags -%}
+      {%- assign tag_first_char = tag | slice: 0 -%}
+      {%- unless tag_first_char == '_' -%}
+        {%- assign article_card_primary_tag = tag -%}
+        {%- break -%}
+      {%- endunless -%}
+    {%- endfor -%}
+    {%- if article_card_primary_tag != blank -%}
+      <span class="kt-article-card__category">{{ article_card_primary_tag }}</span>
     {%- endif -%}
   </div>
 
