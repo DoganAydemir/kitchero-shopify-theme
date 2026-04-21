@@ -119,6 +119,23 @@
               {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'VisualizeStudioEmail-error' -%}
             </div>
 
+            {%- comment -%}
+              `contact[body]` is the message field of Shopify's contact
+              form. Without it, submissions deliver to the merchant
+              inbox with an empty message — a lead with only name +
+              email and no context. Hidden value carries the form
+              intent (section heading) so merchants can route /
+              auto-reply based on the source.
+            {%- endcomment -%}
+            {%- capture visualize_body_message -%}
+              Visualize Studio consultation request — section: {{ section.settings.heading | default: 'Visualize Studio' }}
+            {%- endcapture -%}
+            <input
+              type="hidden"
+              name="contact[body]"
+              value="{{ visualize_body_message | strip | escape }}"
+            >
+
             <button type="submit" class="kt-visualize-studio__submit">
               {{ section.settings.submit_text | default: 'Start The Process' }}
             </button>

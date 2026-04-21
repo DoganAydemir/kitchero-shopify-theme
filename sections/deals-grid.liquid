@@ -65,7 +65,7 @@
               {%- comment -%} Price + includes overlay (bottom-left) {%- endcomment -%}
               <div class="kt-deals__card-overlay">
                 {%- if block.settings.price != blank -%}
-                  <p class="kt-deals__card-price-big">{{ block.settings.price }}</p>
+                  <p class="kt-deals__card-price-big">{{ block.settings.price | escape }}</p>
                 {%- endif -%}
 
                 {%- if block.settings.includes != blank -%}
@@ -89,10 +89,10 @@
               <div class="kt-deals__card-heading">
                 <h3 class="kt-deals__card-title">
                   {{- tier_text -}}
-                  {%- if block.settings.price != blank %} : {{ block.settings.price }}{% endif -%}
+                  {%- if block.settings.price != blank %} : {{ block.settings.price | escape }}{% endif -%}
                 </h3>
                 {%- if block.settings.original_price != blank -%}
-                  <s class="kt-deals__card-original-price">{{ block.settings.original_price }}</s>
+                  <s class="kt-deals__card-original-price">{{ block.settings.original_price | escape }}</s>
                 {%- endif -%}
               </div>
 
@@ -106,7 +106,7 @@
               {%- endif -%}
 
               {%- if block.settings.description != blank -%}
-                <p class="kt-deals__card-desc">{{ block.settings.description }}</p>
+                <p class="kt-deals__card-desc">{{ block.settings.description | escape }}</p>
               {%- endif -%}
 
               <div class="kt-deals__card-cta-wrap">
