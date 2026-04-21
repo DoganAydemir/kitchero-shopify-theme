@@ -196,14 +196,30 @@
   function init(root) {
     /* Re-resolve the input + results container every run — on a theme
        editor section:load the old references may have been detached
-       from the document. */
-    var input = document.getElementById('search-input');
+       from the document.
+
+       CRITICAL FIX: the previous selector `getElementById('search-input')`
+       didn't match ANY element in the theme. The overlay input is
+       `id="search-overlay-input"` (snippets/search-overlay.liquid:35)
+       and the full-page search input is `id="search-page-input"`
+       (sections/main-search.liquid:66). Predictive search was
+       therefore DEAD across the entire site — typing in the overlay
+       produced zero suggestions. Switched to the `[data-search-input]`
+       attribute selector which tags every search input we own and
+       stays stable even if the id conventions change. Using
+       querySelectorAll + forEach so both overlay AND main-search
+       inputs pick up predictive suggestions when present on the same
+       page. */
+    var inputs = (root === document ? document : (root.querySelectorAll ? root : document))
+      .querySelectorAll('[data-search-input]');
     var resultsContainer = document.getElementById('predictive-search-results');
-    if (!input || !resultsContainer) return;
+    if (!inputs.length || !resultsContainer) return;
     if (!window.Kitchero || !Kitchero.routes || !Kitchero.routes.predictiveSearch) return;
 
-    bindInput(input, resultsContainer);
-    bindPills(input, resultsContainer, root);
+    inputs.forEach(function (input) {
+      bindInput(input, resultsContainer);
+    });
+    bindPills(inputs[0], resultsContainer, root);
   }
 
   if (document.readyState === 'loading') {
