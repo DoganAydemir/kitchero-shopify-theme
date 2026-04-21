@@ -223,6 +223,37 @@
 {%- comment -%} ─── Structured data (product + article) via native filter ─── {%- endcomment -%}
 {%- if request.page_type == 'product' and product -%}
   <script type="application/ld+json">{{ product | structured_data }}</script>
+  {%- comment -%}
+    aggregateRating supplement — Shopify's native `| structured_data`
+    filter emits Product with price/availability/SKU/image but does
+    NOT automatically pull `product.metafields.reviews.rating` into
+    schema. The theme DOES render stars on the PDP reading that
+    metafield, so Google's Rich Results Test flags "Review snippets
+    not present" — visible UI, absent schema. Emit a supplementary
+    Product block with matching @id (the canonical URL Shopify uses);
+    Google merges multiple same-@id Product schemas per spec.
+    Gated on the metafield existing — new stores without reviews
+    installed get nothing extra.
+  {%- endcomment -%}
+  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.custom.rating.value -%}
+  {%- assign sd_rating_count = product.metafields.reviews.rating_count.value -%}
+  {%- assign sd_rating_scale = product.metafields.reviews.rating.value.scale_max | default: 5 -%}
+  {%- if sd_rating and sd_rating_count and sd_rating_count > 0 -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": {{ canonical_url | json }},
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": {{ sd_rating | json }},
+          "bestRating": {{ sd_rating_scale | json }},
+          "worstRating": "1",
+          "reviewCount": {{ sd_rating_count | json }}
+        }
+      }
+    </script>
+  {%- endif -%}
 {%- elsif request.page_type == 'article' and article -%}
   <script type="application/ld+json">{{ article | structured_data }}</script>
 {%- endif -%}
