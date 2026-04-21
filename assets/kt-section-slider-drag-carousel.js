@@ -24,6 +24,18 @@ if (!window.__kitcheroSliderDragLoaded) {
     var DRAG_THRESHOLD = 5; /* px — below this counts as a click, not a drag */
     var SCROLL_EDGE_EPSILON = 4;
 
+    /* Respect prefers-reduced-motion by substituting 'auto' for 'smooth'
+       behavior on all programmatic scrollBy/scrollTo calls. Drag is
+       user-direct and unaffected. Re-queried per call so a customer
+       toggling OS-level reduce-motion mid-session picks up live. */
+    function scrollBehavior() {
+      try {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      } catch (e) {
+        return 'smooth';
+      }
+    }
+
     /* Registry of teardown fns, keyed by section id */
     var teardowns = Object.create(null);
 
@@ -127,7 +139,7 @@ if (!window.__kitcheroSliderDragLoaded) {
       /* ---------- Arrows ---------- */
       function scrollBySteps(dir) {
         var step = getStep(track);
-        track.scrollBy({ left: dir * step, behavior: 'smooth' });
+        track.scrollBy({ left: dir * step, behavior: scrollBehavior() });
       }
 
       function onPrevClick() {
@@ -230,7 +242,7 @@ if (!window.__kitcheroSliderDragLoaded) {
       var blockRect = block.getBoundingClientRect();
       var currentScroll = track.scrollLeft;
       var delta = blockRect.left - trackRect.left;
-      track.scrollTo({ left: currentScroll + delta, behavior: 'smooth' });
+      track.scrollTo({ left: currentScroll + delta, behavior: scrollBehavior() });
     });
   })();
 }

@@ -252,7 +252,12 @@ button[type="submit"]:hover {
   white-space: normal !important;
 }
 
-.focus-none:focus {
+/* Mouse-focus outline suppression ONLY — `:not(:focus-visible)` makes
+   sure keyboard / skip-link focus still renders the visible outline.
+   Without the :not() guard, pressing Enter on the skip-to-content
+   link would jump the customer into <main> with zero indication of
+   where focus landed. */
+.focus-none:focus:not(:focus-visible) {
   outline: none;
 }
 

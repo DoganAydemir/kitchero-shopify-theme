@@ -2,25 +2,38 @@
 
 You are porting a finished Next.js 16 + React 19 + Tailwind 4 frontend theme
 ("Kitchero") into a professional, Theme-Store-ready Shopify theme based on
-Dawn. This file contains the immutable rules and conventions you must follow
-in every session.
+**Shopify Skeleton** (Shopify's approved modern baseline). This file contains
+the immutable rules and conventions you must follow in every session.
 
 ## Project paths
 
 - **Shopify theme repo (working directory):** `/path/to/shopify-theme`
 - **Next.js source (visual truth):** `/Users/macos/Documents/GitHub/freemannyc-site-css-js-backups/kitchen theme`
-- **Dawn reference (architectural reference only):** `/path/to/dawn` (cloned from https://github.com/Shopify/dawn)
 - **Port roadmap & mapping matrix:** `PORT_PLAN.md` — always read this before starting a new phase or unfamiliar area
 - **Shopify rules reference:** `references/shopify-rules.md` — read on demand when you hit Theme Check errors, section schema questions, or Theme Store requirements
 
-## The Dawn rule (critical)
+## The Skeleton rule (critical)
 
-Dawn is the **architectural reference**, NOT a visual template.
+Shopify Skeleton is the approved baseline for new Theme Store submissions
+(Dawn/Horizon derivations are disqualified for new submissions per the 2025
+requirements). Everything in this codebase must be traceable to Skeleton
+conventions OR freshly written for Kitchero — NOT copied from Dawn.
 
-- **You CAN copy from Dawn:** theme.liquid skeleton, settings_schema.json structure, snippet patterns (meta-tags, pagination, price, icon-*, product-media, seo/structured-data), utility JS classes, asset pipeline conventions, locale key structure, schema patterns.
-- **You CANNOT copy from Dawn:** any visible UI (hero, card-product, collection grid, product page layout, cart drawer, header, footer, sections). Every visual component must come from the Next.js source, re-implemented in Liquid.
-- **Before finalizing any section, ask yourself:** "Does this visually look like Dawn?" If yes, redesign from the Next.js source.
-- **Reason:** Shopify Theme Store allows Dawn-based themes but rejects submissions that "resemble a reference theme" visually or in UX. Architecture copying is fine; visual/UX copying is a rejection trigger.
+- **You CAN use as reference:** Shopify's public docs, the Skeleton repo
+  patterns (theme.liquid skeleton, settings_schema.json structure, the
+  `{% form %}` / `{% paginate %}` / `{% section %}` Liquid tag patterns,
+  asset pipeline conventions, locale key structure).
+- **You CANNOT copy from Dawn:** any file, snippet pattern, CSS class, or
+  code comment. Any reference to "ported from Dawn" / "Dawn's X does Y" /
+  "matches Dawn" in source comments is a Theme Store rejection signal and
+  must be scrubbed before submission.
+- **Before finalizing any section, ask yourself:** "Does this visually
+  resemble a Theme Store reference theme (Dawn, Horizon, etc.)?" If yes,
+  redesign from the Next.js source.
+- **Reason:** Shopify Theme Store rejects submissions that resemble any
+  reference theme visually or in UX, and it rejects Dawn/Horizon-derived
+  codebases outright. The Kitchero visual language is ours; the Shopify
+  scaffolding follows Skeleton conventions.
 
 ## Must
 
@@ -47,7 +60,7 @@ Dawn is the **architectural reference**, NOT a visual template.
 - **Never minify** your CSS or JS in source. Shopify serves them as-is. Minified source is grounds for rejection.
 - **Never use deceptive UI:** fake countdown timers, fake stock counters, fake "5 people viewing" badges, fake reviews. The countdown in our Next.js source uses localStorage to persist a real end date — this is fine because it's a real offer timer backed by a product metafield. It is not "fake urgency" as long as the end date comes from actual merchant-editable data.
 - **Never hardcode product IDs, collection IDs, or handles** in Liquid. Use `section.settings`, metafields, or dynamic sources.
-- **Never import Dawn's component CSS files** (`component-*.css`). Our CSS is ours.
+- **Never copy CSS, markup, or comment text from Dawn or Horizon.** Our CSS and markup are ours. This includes the `component-*.css` naming pattern Dawn uses — keep to the `kt-*` BEM namespace.
 - **Never use `{% include %}`** — deprecated. Always `{% render %}`.
 - **Never create a `robots.txt.liquid` template.** Theme Store bans it.
 - **Never create new accounts, post to external services, or share merchant data** — you are porting code, not operating a store.
@@ -77,8 +90,8 @@ Dawn is the **architectural reference**, NOT a visual template.
 
 ## When unsure
 
-- **Layout/liquid pattern question** → read Dawn's equivalent file first (architecture reference only), then check `references/shopify-rules.md`, then implement.
-- **Schema setting question** → Dawn has an example of almost every setting type in its sections. Look there.
+- **Layout/liquid pattern question** → check Shopify Skeleton's equivalent file (https://github.com/Shopify/skeleton-theme) or Shopify's theme docs, then `references/shopify-rules.md`, then implement. Do NOT consult Dawn for pattern answers.
+- **Schema setting question** → check the Skeleton repo or Shopify's settings documentation (https://shopify.dev/docs/storefronts/themes/architecture/sections/section-schema). Do NOT copy Dawn schemas.
 - **Theme Check error** → `references/shopify-rules.md` has a quick-reference table with fixes. If the error isn't listed, search Shopify's docs at https://shopify.dev/docs/storefronts/themes/tools/theme-check/checks
 - **Visual/UX question** → the Next.js source is the source of truth. Never guess; read the source.
 - **Anything not in this file, the plan, or the references** → ASK before implementing. Do not invent conventions.
