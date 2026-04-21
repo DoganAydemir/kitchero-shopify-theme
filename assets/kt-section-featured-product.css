@@ -45,12 +45,18 @@
   gap: 1.25rem;
 }
 
+/* All text + button colors use the section's active color-scheme
+   tokens (--kt-c-fg, --kt-c-bg, --kt-c-action, --kt-c-action-text)
+   so a merchant flipping the `color_scheme` setting from Ink to
+   Paper to Emerald sees the featured-product flip with it.
+   Previously hardcoded `var(--kt-stone-900)` on title / price /
+   button renders dark-on-dark and vanishes on scheme-2 (Dark). */
 .kt-featured-product__eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.6);
   margin: 0;
 }
 
@@ -58,7 +64,7 @@
   font-family: var(--kt-f-accent-family);
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 600;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   margin: 0;
   line-height: 1.15;
 }
@@ -66,13 +72,13 @@
 .kt-featured-product__price {
   font-size: 1.25rem;
   font-weight: 500;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-featured-product__description {
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg), 0.75);
 }
 
 .kt-featured-product__form {
@@ -84,34 +90,35 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 2.5rem;
-  background: var(--kt-stone-900);
-  color: var(--kt-white);
+  background: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   border: none;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .kt-featured-product__submit:hover {
-  background: var(--kt-stone-800);
+  opacity: 0.9;
 }
 
 .kt-featured-product__submit:disabled {
-  background: var(--kt-stone-400);
+  background: rgba(var(--kt-c-fg), 0.3);
+  color: rgb(var(--kt-c-bg));
   cursor: not-allowed;
 }
 
 .kt-featured-product__submit:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
 .kt-featured-product__view-link {
   display: inline-block;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg));
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: underline;
