@@ -113,6 +113,11 @@
       this.lastTrigger = document.activeElement;
 
       this.setAttribute('aria-hidden', 'false');
+      /* `inert` keeps keyboard users (Tab + SR virtual cursor) from
+         reaching hidden content; we mirror aria-hidden so the two
+         stay in sync. Browsers that don't support `inert` (pre-
+         Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
+      this.removeAttribute('inert');
       document.body.style.overflow = 'hidden';
 
       if (window.Kitchero && Kitchero.focusTrap) {
@@ -134,6 +139,7 @@
 
     close() {
       this.setAttribute('aria-hidden', 'true');
+      this.setAttribute('inert', '');
       document.body.style.overflow = '';
 
       if (window.Kitchero && Kitchero.focusTrap) {

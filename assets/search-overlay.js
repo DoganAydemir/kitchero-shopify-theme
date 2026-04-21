@@ -62,6 +62,7 @@ if (!window.__kitcheroSearchOverlayLoaded) {
 
       lastTrigger = trigger || document.activeElement;
       overlay.setAttribute('aria-hidden', 'false');
+      overlay.removeAttribute('inert');
       document.body.style.overflow = 'hidden';
 
       /* Update aria-expanded on any open triggers */
@@ -81,6 +82,7 @@ if (!window.__kitcheroSearchOverlayLoaded) {
       if (!overlay) return;
 
       overlay.setAttribute('aria-hidden', 'true');
+      overlay.setAttribute('inert', '');
       document.body.style.overflow = '';
 
       document.querySelectorAll('[data-search-open]').forEach(function (btn) {

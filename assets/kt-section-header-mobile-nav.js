@@ -32,6 +32,7 @@
     if (!panel) return;
     lastTrigger = toggle || document.activeElement;
     panel.classList.add('kt-header__mobile-panel--open');
+    panel.removeAttribute('inert');
     document.body.style.overflow = 'hidden';
     if (toggle) {
       toggle.setAttribute('aria-expanded', 'true');
@@ -63,6 +64,7 @@
   function closePanel(panel, toggle) {
     if (!panel) return;
     panel.classList.remove('kt-header__mobile-panel--open');
+    panel.setAttribute('inert', '');
     document.body.style.overflow = '';
     if (toggle) {
       toggle.setAttribute('aria-expanded', 'false');

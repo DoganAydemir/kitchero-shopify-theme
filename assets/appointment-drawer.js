@@ -31,6 +31,7 @@
 
     lastActiveElement = document.activeElement;
     d.setAttribute('aria-hidden', 'false');
+    d.removeAttribute('inert');
     document.body.style.overflow = 'hidden';
 
     // Focus first input for keyboard users
@@ -55,6 +56,7 @@
     if (e) e.preventDefault();
 
     d.setAttribute('aria-hidden', 'true');
+    d.setAttribute('inert', '');
     document.body.style.overflow = '';
 
     // Release the focus trap BEFORE restoring focus — otherwise the

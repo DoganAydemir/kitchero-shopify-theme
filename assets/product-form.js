@@ -243,6 +243,7 @@
                   drawerEl.open();
                 } else if (drawerEl) {
                   drawerEl.setAttribute('aria-hidden', 'false');
+                  drawerEl.removeAttribute('inert');
                   document.body.style.overflow = 'hidden';
                 }
               });
