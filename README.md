@@ -4,7 +4,7 @@ A Theme-Store-ready Shopify OS 2.0 theme designed for luxury kitchen, cabinetry,
 
 ![Theme Check](https://img.shields.io/badge/theme%20check-0%20errors-brightgreen)
 ![Shopify OS 2.0](https://img.shields.io/badge/Shopify-OS%202.0-96bf48)
-![Languages](https://img.shields.io/badge/languages-6-blue)
+![Languages](https://img.shields.io/badge/languages-5-blue)
 ![License](https://img.shields.io/badge/license-commercial-black)
 
 ---

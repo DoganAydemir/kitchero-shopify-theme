@@ -2,7 +2,7 @@
 
 Every merchant-droppable section in Kitchero, grouped by intent. All sections
 support presets, app blocks, theme-editor live editing, translatable labels
-(6 languages), and WCAG AA accessibility.
+(5 languages: EN, TR, DE, FR, ES), and WCAG AA accessibility.
 
 Template-bound sections (`main-*.liquid`) are not listed here — they only
 render on their associated template (product, collection, cart, etc.).
