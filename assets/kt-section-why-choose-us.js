@@ -47,8 +47,14 @@
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
-    if (instances[e.detail.sectionId]) {
-      instances[e.detail.sectionId].revert();
+    var id = e.detail.sectionId;
+    if (instances[id]) {
+      instances[id].revert();
+      // Also drop the map entry so the next :load doesn't find a
+      // stale GSAP context object (revert() internally kills the
+      // timeline but leaves the wrapper; keeping it around would
+      // grow the instances map for every editor re-render).
+      delete instances[id];
     }
   });
 })();

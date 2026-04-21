@@ -43,6 +43,13 @@
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
-    if (instances[e.detail.sectionId]) instances[e.detail.sectionId].revert();
+    var id = e.detail.sectionId;
+    if (instances[id]) {
+      instances[id].revert();
+      // Same rationale as kt-section-why-choose-us: revert() leaves
+      // the wrapper entry behind; delete it so the map doesn't grow
+      // per editor re-render.
+      delete instances[id];
+    }
   });
 })();
