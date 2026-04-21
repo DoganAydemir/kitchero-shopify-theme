@@ -81,19 +81,45 @@ if (!window.__kitcheroMainCartLoaded) {
     }
 
     /**
-     * Fetch the current page as HTML and swap the live .kt-cart-page
-     * contents with the server's fresh render. Keeps the URL, scroll
-     * position, and header count all in sync with the new cart state.
+     * Refresh the live .kt-cart-page section via Shopify's Section
+     * Rendering API. Previously this hit `/cart` for the full page
+     * HTML (~100-200 KB of rendered layout including header, footer,
+     * nav, CSS references). The Section Rendering API returns just
+     * the cart-related sections' HTML as a JSON blob — typically
+     * ~10-20 KB. Parse each section separately and swap the matching
+     * DOM fragment. Huge TBT/network win on every quantity change.
+     *
+     * Section IDs:
+     *   - main-cart is the template-bound section id (from cart.json).
+     *   - cart-drawer is the always-rendered drawer (layout-level).
+     *   - header-cart-icon is the standalone cart count badge section.
+     *   - Falls back gracefully when any section isn't present on
+     *     the page (e.g. cart-drawer absent if settings.kt_cart_type
+     *     is 'page').
      */
     function refreshCartPage() {
-      return fetch(window.location.pathname, {
-        headers: { 'Accept': 'text/html' },
+      var sectionsToFetch = [];
+      if (document.querySelector('.kt-cart-page')) sectionsToFetch.push('main-cart');
+      if (document.querySelector('.kt-cart-drawer')) sectionsToFetch.push('cart-drawer');
+      if (document.querySelector('[data-section-type="header-cart-icon"]')) sectionsToFetch.push('header-cart-icon');
+      // Safety: always include main-cart so a layout without the drawer
+      // / icon sections still gets the primary swap.
+      if (sectionsToFetch.length === 0) sectionsToFetch.push('main-cart');
+
+      return fetch('/?sections=' + sectionsToFetch.join(','), {
+        headers: { 'Accept': 'application/json' },
       })
         .then(function (response) {
-          if (!response.ok) throw new Error('refreshCartPage: page fetch failed');
-          return response.text();
+          if (!response.ok) throw new Error('refreshCartPage: sections fetch failed');
+          return response.json();
         })
-        .then(function (html) {
+        .then(function (sections) {
+          // Build a combined doc from the section fragments so the
+          // existing selector logic below works unchanged.
+          var html = '';
+          if (sections['main-cart']) html += sections['main-cart'];
+          if (sections['cart-drawer']) html += sections['cart-drawer'];
+          if (sections['header-cart-icon']) html += sections['header-cart-icon'];
           var doc = new DOMParser().parseFromString(html, 'text/html');
 
           /* Swap the whole cart page section */
