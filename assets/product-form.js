@@ -122,10 +122,26 @@
 
       clearError();
 
-      var formData = {
-        id: parseInt(variantIdInput ? variantIdInput.value : form.querySelector('[name="id"]').value, 10),
-        quantity: parseInt(qtyInput ? qtyInput.value : 1, 10)
-      };
+      /* Build the add-to-cart payload from the whole form, not just
+         {id, quantity}. Previously the hand-rolled object dropped
+         every other input the form carries:
+           - `selling_plan`         → subscription/pre-order products
+             failed silently (customer picked a plan, cart added as
+             one-time; if product.requires_selling_plan the /cart/add
+             returned 422 with no visible error).
+           - `properties[*]`         → gift-card recipient email/name/
+             send-on-date, engraving text, gift-wrap toggle, and any
+             merchant-added custom line-item properties all vanished
+             before hitting Shopify. Gift-card recipients never got
+             their email; engraved orders shipped blank.
+           - File upload inputs      → properties with `type="file"`
+             (custom monograms) dropped.
+         `FormData(form)` picks up every named field including
+         selling_plan + properties[*] automatically. Shopify's
+         /cart/add.js accepts multipart/form-data, so the `Content-Type`
+         header is removed here to let the browser set the correct
+         boundary-aware value. */
+      var formData = new FormData(form);
 
       /* Loading state — use a dedicated `--loading` class + aria-busy
          instead of `disabled`. The :disabled selector carries the
@@ -142,8 +158,10 @@
 
       fetch(Kitchero.routes.cartAdd + '.js', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(formData)
+        /* No Content-Type header — FormData triggers the browser to
+           set multipart/form-data with the right boundary. */
+        headers: { 'Accept': 'application/json' },
+        body: formData
       })
         .then(function (response) {
           /* Shopify returns a JSON body with `description` on 422
@@ -325,13 +343,42 @@
       var compareEl = container.querySelector('.kt-product-price__compare');
       var discountEl = container.querySelector('.kt-product-price__discount');
 
+      /* Format prices for the active Shopify market. Previously we
+         called `Shopify.formatMoney` with a `$NN.NN` fallback — but
+         `Shopify.formatMoney` isn't loaded in this theme (no
+         shopify_common.js / option_selection.js). On every EUR/TRY/
+         GBP market the fallback fired, flashing `$149.00` the instant
+         a customer clicked a swatch even though the Liquid-rendered
+         initial price read `€149,00`. Theme Store multi-country test
+         catches this. Use `Intl.NumberFormat` locked to
+         `Shopify.currency.active` (set on every market) with the
+         document's active locale for correct decimal separator +
+         symbol placement. */
+      function formatMoney(cents) {
+        var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+        var locale = (document.documentElement.lang || 'en').replace('_', '-');
+        try {
+          return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency
+          }).format(cents / 100);
+        } catch (e) {
+          /* Invalid locale/currency — fall back to USD formatting so
+             we at least don't throw. */
+          return new Intl.NumberFormat('en', {
+            style: 'currency',
+            currency: 'USD'
+          }).format(cents / 100);
+        }
+      }
+
       if (priceEl) {
-        priceEl.textContent = Shopify.formatMoney ? Shopify.formatMoney(matchedVariant.price) : '$' + (matchedVariant.price / 100).toFixed(2);
+        priceEl.textContent = formatMoney(matchedVariant.price);
       }
 
       if (matchedVariant.compare_at_price && matchedVariant.compare_at_price > matchedVariant.price) {
         if (compareEl) {
-          compareEl.textContent = Shopify.formatMoney ? Shopify.formatMoney(matchedVariant.compare_at_price) : '$' + (matchedVariant.compare_at_price / 100).toFixed(2);
+          compareEl.textContent = formatMoney(matchedVariant.compare_at_price);
           compareEl.style.display = '';
         }
         if (discountEl) {
