@@ -268,7 +268,7 @@
           if (announcedSubtotal && window.Kitchero && typeof Kitchero.announce === 'function') {
             Kitchero.announce(
               (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
-                ? Kitchero.cartStrings.updatedSubtotal.replace('{{ subtotal }}', announcedSubtotal)
+                ? Kitchero.cartStrings.updatedSubtotal.replace('[subtotal]', announcedSubtotal)
                 : 'Cart updated. Subtotal ' + announcedSubtotal)
             );
           }

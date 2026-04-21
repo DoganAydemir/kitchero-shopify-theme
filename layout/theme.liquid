@@ -329,14 +329,26 @@
           predictiveSearch: {{ routes.predictive_search_url | json }},
         },
         searchSettings: {
+          {%- comment -%}
+            Placeholder convention — pass `[count]` / `[subtotal]` as
+            the `| t:` argument so the rendered string has a JS-
+            replaceable token (square brackets). We previously used
+            `{{ count }}` which collides with Liquid's own tag syntax:
+            Shopify's parser greedy-matches `}}` from INSIDE the
+            nested string and closes the outer filter tag early,
+            spilling raw Liquid source into the page → a JS
+            SyntaxError when browsers encounter the `{{` in script.
+            Square-bracket placeholders dodge the syntax conflict
+            entirely and match Dawn/Skeleton's standard convention.
+          {%- endcomment -%}
           types:               {{ search_types | json }},
-          resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '{{ count }}' | json }},
+          resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
           noResults:           {{ 'kt.search.no_results_announcement' | t | json }}
         },
         cartStrings: {
           error:           {{ 'kt.cart.cart_error' | t | json }},
           quantityError:   {{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' | json }},
-          updatedSubtotal: {{ 'kt.cart.updated_subtotal' | t: subtotal: '{{ subtotal }}' | json }},
+          updatedSubtotal: {{ 'kt.cart.updated_subtotal' | t: subtotal: '[subtotal]' | json }},
         },
         variantStrings: {
           addToCart:      {{ 'kt.product.add_to_cart' | t | json }},

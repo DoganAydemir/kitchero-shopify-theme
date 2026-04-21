@@ -126,7 +126,7 @@ if (!window.__kitcheroMainCartLoaded) {
           if (nextTotal && window.Kitchero && typeof Kitchero.announce === 'function') {
             Kitchero.announce(
               (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
-                ? Kitchero.cartStrings.updatedSubtotal.replace('{{ subtotal }}', nextTotal.textContent.trim())
+                ? Kitchero.cartStrings.updatedSubtotal.replace('[subtotal]', nextTotal.textContent.trim())
                 : 'Cart updated. Subtotal ' + nextTotal.textContent.trim())
             );
           }

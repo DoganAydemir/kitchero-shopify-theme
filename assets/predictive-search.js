@@ -34,7 +34,7 @@
       msg = (window.Kitchero.searchSettings && window.Kitchero.searchSettings.noResults)
         || 'No results found';
     } else if (tpl) {
-      msg = tpl.replace('{{ count }}', count);
+      msg = tpl.replace('[count]', count);
     } else {
       msg = count + ' results found';
     }

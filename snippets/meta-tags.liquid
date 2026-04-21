@@ -219,7 +219,15 @@
   <script type="application/ld+json">{{ article | structured_data }}</script>
 {%- endif -%}
 
-{%- comment -%} ─── Mobile-app hints (Apple) ─── {%- endcomment -%}
+{%- comment -%}
+  Mobile-app hints.
+
+  `mobile-web-app-capable` is the modern, cross-browser equivalent;
+  `apple-mobile-web-app-capable` is Safari's older form, deprecation-
+  warned by Chrome 111+. Emitting both keeps iOS home-screen saves
+  working while silencing Chrome DevTools' deprecation warning.
+{%- endcomment -%}
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{{ shop.name | escape }}">
 <meta name="format-detection" content="telephone=no">
