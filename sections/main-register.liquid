@@ -38,7 +38,15 @@
                 {%- if field == 'form' -%}
                   {{ form.errors.messages[field] }}
                 {%- else -%}
-                  <a href="#register-{{ field }}">
+                  {%- comment -%}
+                    Shopify error-field names are snake_case (first_name,
+                    password_confirmation). Inputs below use hyphen IDs
+                    (register-first-name). Without the replace, the
+                    anchor lands on a non-existent `#register-first_name`
+                    and clicking an error does nothing for keyboard /
+                    SR users. Replace underscores → hyphens to match.
+                  {%- endcomment -%}
+                  <a href="#register-{{ field | replace: '_', '-' }}">
                     {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
                   </a>
                 {%- endif -%}
