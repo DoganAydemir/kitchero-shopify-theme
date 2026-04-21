@@ -104,9 +104,13 @@
     input.addEventListener('input', function () {
       clearTimeout(debounceTimer);
       var query = this.value.trim();
+      /* 180 ms debounce — tuned to match Shopify's predictive-search
+         endpoint latency (typically 60-120 ms). 300 ms felt laggy
+         vs. live-search UX; 180 ms still drops typed-and-deleted
+         characters before firing the request. */
       debounceTimer = setTimeout(function () {
         fetchResults(input, resultsContainer, query);
-      }, 300);
+      }, 180);
     });
 
     /* Keyboard navigation through predictive results. ArrowDown moves

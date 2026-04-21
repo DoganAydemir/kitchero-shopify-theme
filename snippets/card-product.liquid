@@ -16,7 +16,14 @@
   assign show_quote_button = show_quote_button | default: true
   assign secondary_image = product.images[1] | default: nil
   assign card_index = index | default: 99
-  if card_index < 3
+  comment
+    Eager-load the first FOUR cards so row 1 of a 4-column desktop
+    grid (merchants can toggle to cols-4 via the grid-switcher) is
+    ready before the IntersectionObserver hand-off. 3-col grids get
+    one "below-fold" eager hit (card 4 on row 2), which is a cheap
+    price for 4-col grids not having a lazy flash in row 1.
+  endcomment
+  if card_index < 4
     assign primary_loading = 'eager'
   else
     assign primary_loading = 'lazy'
@@ -64,7 +71,7 @@
           loading: primary_loading,
           fetchpriority: primary_fetchpriority,
           widths: '275, 375, 550, 750, 1100',
-          sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+          sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
           height: product.featured_image.height,
           alt: product.title
@@ -82,7 +89,7 @@
           class: 'kt-card-product__image-secondary',
           loading: 'lazy',
           widths: '275, 375, 550, 750, 1100',
-          sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+          sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: secondary_image.width,
           height: secondary_image.height,
           alt: 'kt.product.card.image_alt_detail' | t: title: product.title

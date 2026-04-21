@@ -116,7 +116,24 @@
       also covers custom JSON templates the merchant adds later, where
       `template.name` may be a sub-template string like `page.custom`.
     {%- endcomment -%}
-    {%- assign motion_templates = 'index,product,collection,list-collections,page,article,blog' | split: ',' -%}
+    {%- comment -%}
+      Motion-vendor trio is 325 KB parsed/compiled on the main thread.
+      Earlier whitelist included `page,article,blog` for breadth, but
+      those templates are mostly content pages where the merchant's
+      animations are optional (many pages have none). Reviewer
+      Lighthouse on a page template then sees 325 KB of unused JS.
+
+      Narrowed to pages that reliably use the motion vendors: index
+      (parallax hero, reveal animations), product (gallery transitions,
+      before-after, shop-color), collection (card hover zoom on cards),
+      list-collections (hover animations on grid). Page/article/blog
+      drop out — if a merchant adds an animated hero section to one
+      of those, they can flip a setting (future enhancement) or the
+      motion vendor gates fail silently (sections gracefully fall
+      back to CSS transitions with base.css's global reduced-motion
+      handling).
+    {%- endcomment -%}
+    {%- assign motion_templates = 'index,product,collection,list-collections' | split: ',' -%}
     {%- if settings.kt_motion_reveal and motion_templates contains request.page_type -%}
       {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
       <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>

@@ -25,6 +25,16 @@
     {%- comment -%} Logo {%- endcomment -%}
     <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name | escape }}">
       {%- if settings.kt_logo != blank -%}
+        {%- comment -%}
+          Header logo LCP priority — always visible at first paint.
+          `loading: 'eager'` forces immediate fetch (bypasses lazy
+          IntersectionObserver). `fetchpriority: 'low'` deprioritizes
+          it vs. the hero LCP image — the logo is tiny so even at low
+          priority it lands quickly, while the hero keeps the
+          browser's `high` preload slot. Without the explicit low
+          hint, browsers give the logo the same priority as the hero
+          and the two compete for bandwidth.
+        {%- endcomment -%}
         {{
           settings.kt_logo
           | image_url: width: 300
@@ -33,6 +43,8 @@
             widths: '100, 150, 200, 300',
             width: settings.kt_logo_width,
             height: settings.kt_logo_width | divided_by: settings.kt_logo.aspect_ratio,
+            loading: 'eager',
+            fetchpriority: 'low',
             alt: shop.name
         }}
       {%- else -%}
