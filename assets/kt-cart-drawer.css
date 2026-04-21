@@ -359,8 +359,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  /* WCAG 2.5.5 touch target — 44×44 minimum (was 32×32 at 2rem).
+     Destructive "remove from cart" needs to be tappable without
+     fat-fingering onto the adjacent line item. */
+  width: 2.75rem;
+  height: 2.75rem;
   background: transparent;
   border: 0;
   color: rgba(var(--kt-c-fg), 0.45);

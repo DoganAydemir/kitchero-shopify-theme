@@ -373,6 +373,72 @@ button[type="submit"]:hover {
 }
 
 /* ============================================================
+   Pagination — shared across collection, search, blog, article,
+   customer orders. Touch-target compliant (WCAG 2.5.5): every
+   clickable cell is at least 44×44 CSS px, and the current-page
+   indicator matches the same box so adjacent hit areas align.
+   ============================================================ */
+
+.kt-pagination {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.kt-pagination__rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kt-pagination__item {
+  display: flex;
+}
+
+.kt-pagination__link,
+.kt-pagination__current,
+.kt-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1;
+  color: rgb(var(--kt-c-fg));
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.kt-pagination__link:hover,
+.kt-pagination__link:focus-visible {
+  background-color: rgba(var(--kt-c-fg), 0.06);
+  border-color: rgba(var(--kt-c-fg), 0.18);
+}
+
+.kt-pagination__current {
+  font-weight: 600;
+  border-color: rgba(var(--kt-c-fg), 0.3);
+}
+
+.kt-pagination__ellipsis {
+  color: rgba(var(--kt-c-fg), 0.5);
+  border: none;
+}
+
+.kt-pagination__link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================================
    RTL Support
    ============================================================ */
 
