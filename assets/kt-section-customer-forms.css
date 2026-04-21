@@ -131,6 +131,30 @@
   min-width: 0;
 }
 
+/* Privacy-policy disclosure paragraph — referenced by the consent
+   checkbox via aria-describedby so SR announces the consent text
+   AND this privacy pointer together. Visually muted so it reads as
+   a secondary note, not a duplicate label. Gated server-side on
+   shop.privacy_policy.url so the paragraph only emits when there's
+   a real destination to link to. */
+.kt-customer__consent-privacy {
+  margin: 0.5rem 0 0 1.625rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(var(--kt-c-fg), 0.6);
+}
+
+.kt-customer__consent-privacy-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.kt-customer__consent-privacy-link:hover,
+.kt-customer__consent-privacy-link:focus-visible {
+  color: rgba(var(--kt-c-fg), 0.9);
+}
+
 .kt-customer__submit:hover {
   opacity: 0.88;
 }

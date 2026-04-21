@@ -128,17 +128,32 @@
         {%- if section.settings.show_marketing_opt_in -%}
           <div class="kt-customer__consent">
             <label class="kt-customer__consent-label" for="register-accepts-marketing">
+              {%- comment -%}
+                GDPR/ePrivacy — link the consent checkbox via
+                `aria-describedby` to a privacy-policy pointer so
+                assistive tech reads the consent text AND the
+                "see our privacy policy" disclosure together. Gated
+                on `shop.privacy_policy.url` because new stores may
+                not have one linked yet — don't emit a dangling
+                "Read our privacy policy" without a destination.
+              {%- endcomment -%}
               <input
                 type="checkbox"
                 id="register-accepts-marketing"
                 name="customer[accepts_marketing]"
                 value="1"
                 class="kt-customer__consent-checkbox"
+                {%- if shop.privacy_policy.url != blank %} aria-describedby="register-consent-privacy"{%- endif -%}
               >
               <span class="kt-customer__consent-text">
                 {{ 'kt.customer.register.marketing_consent' | t | default: 'Yes, sign me up to hear about new arrivals, sales, and exclusive offers. I can unsubscribe at any time.' }}
               </span>
             </label>
+            {%- if shop.privacy_policy.url != blank -%}
+              <p id="register-consent-privacy" class="kt-customer__consent-privacy">
+                {{ 'kt.customer.register.privacy_note_html' | t: link: shop.privacy_policy.url }}
+              </p>
+            {%- endif -%}
           </div>
         {%- endif -%}
 
