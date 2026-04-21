@@ -79,10 +79,45 @@
             placeholder="{{ 'kt.customer.register.password' | t }}"
             required
             autocomplete="new-password"
+            minlength="5"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="register-password-error"{% endif %}
+            aria-describedby="register-password-hint"
           >
+          <p class="kt-customer__hint" id="register-password-hint">
+            {{ 'kt.customer.register.password_hint' | t | default: 'At least 5 characters.' }}
+          </p>
           {%- render 'form-field-error', form: form, field: 'password', describedby_id: 'register-password-error' -%}
         </div>
+
+        {%- comment -%}
+          Marketing consent checkbox. `customer[accepts_marketing]` is
+          Shopify's form field for opt-in to promotional email / SMS.
+          REQUIRED to be off by default and require an explicit opt-in
+          under EU GDPR + CCPA + CASL (Canada) — any pre-checked
+          default is a legal risk for merchants selling into those
+          markets. Label is a full-sentence consent statement (not
+          just "Subscribe") so merchants meet the "informed consent"
+          bar. Gated on a merchant setting so stores that handle
+          marketing via a separate app (Klaviyo, Mailchimp) can turn
+          it off.
+        {%- endcomment -%}
+        {%- if section.settings.show_marketing_opt_in -%}
+          <div class="kt-customer__consent">
+            <label class="kt-customer__consent-label" for="register-accepts-marketing">
+              <input
+                type="checkbox"
+                id="register-accepts-marketing"
+                name="customer[accepts_marketing]"
+                value="1"
+                class="kt-customer__consent-checkbox"
+              >
+              <span class="kt-customer__consent-text">
+                {{ 'kt.customer.register.marketing_consent' | t | default: 'Yes, sign me up to hear about new arrivals, sales, and exclusive offers. I can unsubscribe at any time.' }}
+              </span>
+            </label>
+          </div>
+        {%- endif -%}
+
         <button type="submit" class="kt-customer__submit">{{ 'kt.customer.register.submit' | t }}</button>
 
         <div class="kt-customer__alt">
@@ -98,6 +133,15 @@
 {
   "name": "t:sections.main-register.name",
   "tag": "section",
-  "class": "section"
+  "class": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_marketing_opt_in",
+      "label": "t:sections.main-register.settings.show_marketing_opt_in.label",
+      "info": "t:sections.main-register.settings.show_marketing_opt_in.info",
+      "default": true
+    }
+  ]
 }
 {% endschema %}
