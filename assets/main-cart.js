@@ -115,6 +115,22 @@ if (!window.__kitcheroMainCartLoaded) {
             }
           });
 
+          /* Announce the new subtotal to screen readers. Without this,
+             a keyboard/SR user raising a line item's quantity hears
+             silence — the +/- press has no audible confirmation that
+             the cart accepted the change. Pull from the rendered
+             summary's grand total so the formatting (money +
+             money_with_currency branching for multi-currency stores)
+             matches what's on-screen. */
+          var nextTotal = doc.querySelector('.kt-cart-page__summary-row--total .kt-cart-page__summary-value');
+          if (nextTotal && window.Kitchero && typeof Kitchero.announce === 'function') {
+            Kitchero.announce(
+              (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
+                ? Kitchero.cartStrings.updatedSubtotal.replace('{{ subtotal }}', nextTotal.textContent.trim())
+                : 'Cart updated. Subtotal ' + nextTotal.textContent.trim())
+            );
+          }
+
           /* Also refresh the cart drawer (if present) so the two UIs
              never diverge */
           if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {

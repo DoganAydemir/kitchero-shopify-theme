@@ -243,6 +243,7 @@
           /* Swap the drawer panel (header + items + footer). The API
            * returns the raw section HTML — the outer section wrapper
            * is included, so we parse it and pick just the panel. */
+          var announcedSubtotal = null;
           if (sections['cart-drawer']) {
             var tmp = document.createElement('div');
             tmp.innerHTML = sections['cart-drawer'];
@@ -250,7 +251,20 @@
             var currentPanel = self.querySelector('.kt-cart-drawer__panel');
             if (currentPanel && newPanel) {
               currentPanel.innerHTML = newPanel.innerHTML;
+              /* Announce the new subtotal — keyboard/SR users raising
+                 the qty of a cart line otherwise get silence after the
+                 panel swaps in. Pull the server-rendered subtotal so
+                 the currency formatting matches the visible value. */
+              var nextSubtotal = newPanel.querySelector('.kt-cart-drawer__subtotal-value');
+              if (nextSubtotal) announcedSubtotal = nextSubtotal.textContent.trim();
             }
+          }
+          if (announcedSubtotal && window.Kitchero && typeof Kitchero.announce === 'function') {
+            Kitchero.announce(
+              (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
+                ? Kitchero.cartStrings.updatedSubtotal.replace('{{ subtotal }}', announcedSubtotal)
+                : 'Cart updated. Subtotal ' + announcedSubtotal)
+            );
           }
 
           /* Sync the header cart count. The `header-cart-icon` section

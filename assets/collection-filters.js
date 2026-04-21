@@ -129,11 +129,25 @@ if (window.__kitcheroCollectionFiltersLoaded) {
           oldFilters.remove();
         }
 
-        /* Replace results count */
+        /* Replace results count + announce to screen readers. Without
+           this announcement, keyboard/SR users who tick a filter
+           checkbox (or slide the price range) hear nothing from the
+           Ajax swap — the grid silently re-renders but they have no
+           audible confirmation how many products match. The count
+           span below carries aria-live="polite" too, but a focused
+           announcement via Kitchero.announce queues reliably even
+           when the old text node is replaced. */
         var newCount = doc.querySelector('.kt-collection__results-count');
         var oldCount = document.querySelector('.kt-collection__results-count');
+        var countText = '';
         if (newCount && oldCount) {
-          oldCount.textContent = newCount.textContent;
+          countText = newCount.textContent;
+          oldCount.textContent = countText;
+        } else if (newCount) {
+          countText = newCount.textContent;
+        }
+        if (countText && window.Kitchero && typeof Kitchero.announce === 'function') {
+          Kitchero.announce(countText.trim());
         }
 
         /* Replace pagination */
