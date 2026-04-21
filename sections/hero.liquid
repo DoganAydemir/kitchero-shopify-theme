@@ -1,36 +1,36 @@
 {{ 'kt-section-hero.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
-  LCP preload — when this section is position 0 on the template
-  (i.e., the home hero), emit a preload hint for the first slide's
-  image so the browser can start downloading it as soon as the HTML
-  streams in, BEFORE the body parser discovers the <img>. On a slow
-  mobile connection this shaves 2-3 seconds off LCP. Gated on
-  `section.index == 1` so merchants dropping hero below other
-  sections don't get a useless preload hint competing with actual
-  above-fold resources.
+  LCP preload — emit a preload hint for the first slide's image so
+  the browser can start downloading it as soon as the HTML streams
+  in, BEFORE the body parser discovers the <img>. On a slow mobile
+  connection this shaves 2-3 seconds off LCP.
+
+  Previously gated on `section.index == 1` but Shopify's section.index
+  is unreliable for JSON-template sections (it's only populated in
+  section groups / {% section %} tag renders). The hero section
+  itself is also typically unique per template — merchants placing
+  multiple hero sections on one page is edge-case enough that
+  double-preloading is an acceptable worst case for the LCP win.
+
+  Note on effectiveness: the preload `<link>` lives in body (not
+  head) because section rendering can't inject into head without
+  Shopify's content_for_header pipeline. Browser still benefits
+  from early-discovery — preload scanner walks ahead of the main
+  parser and picks up the hint before hitting the <img>.
 {%- endcomment -%}
-{%- if section.index == 1 -%}
-  {%- for block in section.blocks -%}
-    {%- if block.type == 'slide' and forloop.first and block.settings.image != blank -%}
-      {%- capture hero_preload_href -%}{{ block.settings.image | image_url: width: 1500 }}{%- endcapture -%}
-      {%- capture hero_preload_srcset -%}
-        {{- block.settings.image | image_url: width: 750 }} 750w,
-        {{- block.settings.image | image_url: width: 1100 }} 1100w,
-        {{- block.settings.image | image_url: width: 1500 }} 1500w,
-        {{- block.settings.image | image_url: width: 2000 }} 2000w
-      {%- endcapture -%}
-      <link
-        rel="preload"
-        as="image"
-        href="{{ hero_preload_href }}"
-        imagesrcset="{{ hero_preload_srcset | strip | strip_newlines }}"
-        imagesizes="100vw"
-        fetchpriority="high"
-      >
-    {%- endif -%}
-  {%- endfor -%}
-{%- endif -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == 'slide' and forloop.first and block.settings.image != blank -%}
+    <link
+      rel="preload"
+      as="image"
+      href="{{ block.settings.image | image_url: width: 1500 }}"
+      imagesrcset="{{ block.settings.image | image_url: width: 750 }} 750w, {{ block.settings.image | image_url: width: 1100 }} 1100w, {{ block.settings.image | image_url: width: 1500 }} 1500w, {{ block.settings.image | image_url: width: 2000 }} 2000w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    >
+  {%- endif -%}
+{%- endfor -%}
 
 <section
   class="kt-hero"
