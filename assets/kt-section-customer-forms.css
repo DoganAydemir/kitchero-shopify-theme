@@ -218,6 +218,36 @@
   padding: 1rem;
 }
 
+/* No-JS fallback — show the forgot-password form inline (not as a
+   modal) when scripting is off, so users can still request a reset
+   email without the toggle button working. Also hide the toggle
+   button itself in that state, since clicking it would be a dead
+   no-op. The no-js / js class is flipped at the very top of <head>
+   by a tiny inline script in theme.liquid. */
+html:not(.js) .kt-customer__modal {
+  display: block;
+  position: static;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+html:not(.js) .kt-customer__modal-overlay,
+html:not(.js) .kt-customer__modal-close {
+  display: none;
+}
+
+html:not(.js) .kt-customer__modal-panel {
+  position: static;
+  padding: 1.5rem;
+  max-width: none;
+  box-shadow: none;
+  border: 1px solid rgba(var(--kt-c-fg), 0.12);
+}
+
+html:not(.js) .kt-customer__forgot-link {
+  display: none;
+}
+
 .kt-customer__modal-overlay {
   position: absolute;
   inset: 0;

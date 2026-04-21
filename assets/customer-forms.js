@@ -10,6 +10,11 @@
     if (!modal || modal.dataset.kitcheroBound === 'true') return;
     modal.dataset.kitcheroBound = 'true';
 
+    // Initial aria-hidden. The markup intentionally omits this
+    // attribute so no-JS SR users CAN reach the form (rendered
+    // inline via html:not(.js) CSS). JS users get it closed here.
+    modal.setAttribute('aria-hidden', 'true');
+
     function open() {
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';

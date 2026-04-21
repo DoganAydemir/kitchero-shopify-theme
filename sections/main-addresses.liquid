@@ -150,9 +150,21 @@
                     <button type="button" class="kt-addresses__btn" data-addresses-toggle-edit="{{ address.id }}" aria-expanded="false" aria-controls="AddressEditForm{{ address.id }}">
                       {{ 'kt.customer.addresses.edit' | t }}
                     </button>
-                    <button type="button" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t }}">
-                      {{ 'kt.customer.addresses.delete' | t }}
-                    </button>
+                    {%- comment -%}
+                      Delete button wrapped in a native form so it
+                      works without JS. Shopify routes POST to an
+                      address URL with hidden `_method=delete` as
+                      an actual DELETE. JS intercepts the submit
+                      event for a confirm() dialog and an AJAX
+                      DELETE (see assets/customer-addresses.js) so
+                      JS-on users still get the polished UX.
+                    {%- endcomment -%}
+                    <form action="{{ address.url }}" method="post" class="kt-addresses__delete-form">
+                      <input type="hidden" name="_method" value="delete">
+                      <button type="submit" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t }}">
+                        {{ 'kt.customer.addresses.delete' | t }}
+                      </button>
+                    </form>
                   </div>
 
                   <div id="AddressEditForm{{ address.id }}" class="kt-addresses__form" hidden data-edit-form="{{ address.id }}">

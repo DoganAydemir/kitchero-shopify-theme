@@ -93,8 +93,18 @@
       </div>
     {%- endform -%}
 
-    {%- comment -%} Forgot Password Modal {%- endcomment -%}
-    <div class="kt-customer__modal" id="forgot-modal" aria-hidden="true">
+    {%- comment -%}
+      Forgot Password — rendered as a modal for JS-enabled visitors
+      (bindModal in customer-forms.js sets aria-hidden="true" on
+      init; the toggle button flips it to false). For no-JS
+      visitors the `html:not(.js) .kt-customer__modal` CSS rule
+      flips it to a plain inline section and hides the toggle
+      button. NOT emitting `aria-hidden="true"` in markup: JS users
+      get it set by the script before paint (inline no-js→js swap
+      runs first, but aria-hidden init happens at bindModal); no-JS
+      users never get it applied, so SR correctly reads the form.
+    {%- endcomment -%}
+    <div class="kt-customer__modal" id="forgot-modal">
       <div class="kt-customer__modal-overlay" data-close-forgot></div>
       <div class="kt-customer__modal-panel" role="dialog" aria-modal="true" aria-labelledby="forgot-modal-title">
         <button type="button" class="kt-customer__modal-close" data-close-forgot aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">

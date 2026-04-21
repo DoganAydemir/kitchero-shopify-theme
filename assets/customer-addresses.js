@@ -98,32 +98,25 @@
       }
     });
 
-    // Delete confirm -> post as DELETE via hidden form.
+    // Delete confirm — intercept the NATIVE form submit.
+    // The button lives inside a <form action="{{ address.url }}"
+    // method="post"><input _method=delete>…</form> wrapper so the
+    // submission works without JS (hit Enter on the button or click
+    // it — form submits, server deletes, page refreshes). JS
+    // enhancement here just adds a confirm() prompt. Previously we
+    // synthesized a fresh form in JS and submitted it; that
+    // duplicated work and crucially LEFT users without JS unable
+    // to delete at all.
     section.querySelectorAll('[data-addresses-delete]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      var form = btn.closest('form');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
         var msg = btn.getAttribute('data-confirm-message') || '';
-        if (msg && !confirm(msg)) return;
-        var url = btn.getAttribute('data-addresses-delete');
-        if (!url) return;
-        // Shopify expects a POST with _method=delete and authenticity_token.
-        var form = document.createElement('form');
-        form.method = 'post';
-        form.action = url;
-        var methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'delete';
-        form.appendChild(methodInput);
-        var tokenEl = document.querySelector('meta[name="csrf-token"]');
-        if (tokenEl) {
-          var token = document.createElement('input');
-          token.type = 'hidden';
-          token.name = 'authenticity_token';
-          token.value = tokenEl.getAttribute('content') || '';
-          form.appendChild(token);
+        if (msg && !confirm(msg)) {
+          e.preventDefault();
         }
-        document.body.appendChild(form);
-        form.submit();
+        // If confirmed, let the native form POST proceed — Shopify
+        // sees _method=delete and routes to the DELETE handler.
       });
     });
   }
