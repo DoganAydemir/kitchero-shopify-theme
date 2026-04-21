@@ -192,6 +192,14 @@
   {%- if article.author != blank -%}
     <meta property="article:author" content="{{ article.author | escape }}">
   {%- endif -%}
+  {%- if blog.title != blank -%}
+    {%- comment -%}
+      Facebook's article scraper reads article:section to categorize
+      the content in Open Graph news aggregation. blog.title is the
+      closest section analogue — e.g. "News", "Journal", "Design Tips".
+    {%- endcomment -%}
+    <meta property="article:section" content="{{ blog.title | escape }}">
+  {%- endif -%}
   {%- for tag in article.tags -%}
     <meta property="article:tag" content="{{ tag | escape }}">
   {%- endfor -%}
