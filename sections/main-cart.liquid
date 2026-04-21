@@ -246,7 +246,21 @@
                   {%- if item.original_line_price != item.final_line_price -%}
                     <s class="kt-cart-page__item-total-was">{{ item.original_line_price | money }}</s>
                   {%- endif -%}
-                  <span class="kt-cart-page__item-total-final">{{ item.final_line_price | money }}</span>
+                  {%- comment -%}
+                    Free-item substitution — a 100%-discounted line or
+                    a freebie gift-with-purchase renders a "Free" word
+                    instead of a bare "$0.00" amount, which reads as
+                    friendlier and clearer than the currency zero. The
+                    original_line_price stays struck-through above so
+                    the customer still sees the saved amount.
+                  {%- endcomment -%}
+                  <span class="kt-cart-page__item-total-final">
+                    {%- if item.final_line_price > 0 -%}
+                      {{ item.final_line_price | money }}
+                    {%- else -%}
+                      {{ 'kt.cart.free' | t | default: 'Free' }}
+                    {%- endif -%}
+                  </span>
                   {%- if item.line_level_discount_allocations.size > 0 -%}
                     <ul class="kt-cart-page__item-discounts" role="list">
                       {%- for discount in item.line_level_discount_allocations -%}

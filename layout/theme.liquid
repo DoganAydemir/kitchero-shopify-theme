@@ -296,7 +296,9 @@
           predictiveSearch: '{{ routes.predictive_search_url }}',
         },
         searchSettings: {
-          types: '{{ search_types }}'
+          types: '{{ search_types }}',
+          resultsAnnouncement: `{{ 'kt.search.results_announcement' | t: count: '{{ count }}' }}`,
+          noResults:           `{{ 'kt.search.no_results_announcement' | t }}`
         },
         cartStrings: {
           error:            `{{ 'kt.cart.cart_error' | t }}`,

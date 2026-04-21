@@ -225,4 +225,32 @@
   global.Kitchero.bus = { on: on, off: off, emit: emit };
   global.Kitchero.escapeCloseDetails = escapeCloseDetails;
   global.Kitchero.announce = announce;
+
+  /* ------------------------------------------------------------------ */
+  /* Form-error auto-focus. When a server-rendered form comes back with */
+  /* validation errors, Shopify does a full-page re-render (not AJAX),  */
+  /* so focus resets to document.body. The error summary snippet marks  */
+  /* itself up with role="alert" + tabindex="-1"; flip that focus to    */
+  /* the summary on load so keyboard/SR users get the error context     */
+  /* without having to scroll-hunt.                                     */
+  /* ------------------------------------------------------------------ */
+
+  function focusFirstFormError() {
+    var summary = document.querySelector('[data-form-error-summary][tabindex="-1"]')
+      || document.querySelector('[role="alert"][tabindex="-1"]');
+    if (summary && typeof summary.focus === 'function') {
+      /* rAF so the browser has laid out the element before we move
+         focus — some SRs swallow focus moves that happen before first
+         paint. */
+      requestAnimationFrame(function () {
+        try { summary.focus({ preventScroll: false }); } catch (e) { /* ignore */ }
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', focusFirstFormError);
+  } else {
+    focusFirstFormError();
+  }
 })(window);

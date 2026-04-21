@@ -21,6 +21,26 @@
 
   var debounceTimer;
 
+  /* SR announcement helper — pushes result counts through the global
+     Kitchero.announce() live region. The results container itself has
+     aria-live="polite" but mass DOM replacement doesn't always fire
+     announcements reliably across SRs; a discrete textContent swap
+     on the persistent announcer is the belt-and-braces. */
+  function announceResultCount(count) {
+    if (!(window.Kitchero && typeof Kitchero.announce === 'function')) return;
+    var tpl = window.Kitchero.searchSettings && window.Kitchero.searchSettings.resultsAnnouncement;
+    var msg;
+    if (count === 0) {
+      msg = (window.Kitchero.searchSettings && window.Kitchero.searchSettings.noResults)
+        || 'No results found';
+    } else if (tpl) {
+      msg = tpl.replace('{{ count }}', count);
+    } else {
+      msg = count + ' results found';
+    }
+    Kitchero.announce(msg);
+  }
+
   function fetchResults(input, resultsContainer, query) {
     if (query.length < 2) {
       resultsContainer.innerHTML = '';
@@ -64,12 +84,14 @@
         if (products.length === 0) {
           /* Fallback: show raw text results */
           resultsContainer.innerHTML = html;
+          announceResultCount(0);
           return;
         }
         resultsContainer.innerHTML = '';
         products.forEach(function (item) {
           resultsContainer.appendChild(item.cloneNode(true));
         });
+        announceResultCount(products.length);
       })
       .catch(function () {
         resultsContainer.innerHTML = '';

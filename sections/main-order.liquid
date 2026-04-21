@@ -81,6 +81,23 @@
       Gate on fulfillments.size so pending orders render nothing
       extra.
     {%- endcomment -%}
+    {%- comment -%}
+      Pending-fulfillment note. When an order has been placed but no
+      fulfillment has started yet (common first 1-6 hours post-order),
+      the tracking block below renders nothing, which looked to
+      customers like tracking info was missing rather than pending.
+      This note fills the gap with a reassuring "we'll update you"
+      copy, suppressed once a fulfillment exists or the order is
+      cancelled (cancellation note above already explains THAT state).
+    {%- endcomment -%}
+    {%- if order.fulfillments.size == 0 and order.cancelled_at == blank -%}
+      <div class="kt-order__pending" role="note">
+        <p class="kt-order__pending-text">
+          {{ 'kt.customer.order.pending_fulfillment' | t | default: 'Your order is being prepared. Tracking details will appear here once it ships.' }}
+        </p>
+      </div>
+    {%- endif -%}
+
     {%- if order.fulfillments.size > 0 -%}
       <div class="kt-order__tracking" aria-label="{{ 'kt.customer.order.tracking_heading' | t }}">
         <h2 class="kt-order__tracking-heading">{{ 'kt.customer.order.tracking_heading' | t }}</h2>

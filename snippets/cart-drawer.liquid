@@ -50,7 +50,17 @@
                   {{- item.product.title -}}
                 </a>
                 <div class="kt-cart-drawer__item-price-stack">
-                  <span class="kt-cart-drawer__item-price">{{ item.final_line_price | money }}</span>
+                  {%- comment -%}
+                    "Free" substitution for 100%-discount / freebie
+                    lines — matches /cart page treatment.
+                  {%- endcomment -%}
+                  <span class="kt-cart-drawer__item-price">
+                    {%- if item.final_line_price > 0 -%}
+                      {{ item.final_line_price | money }}
+                    {%- else -%}
+                      {{ 'kt.cart.free' | t | default: 'Free' }}
+                    {%- endif -%}
+                  </span>
                   {%- comment -%}
                     EU unit pricing mirror of the main cart page — when
                     the variant has a unit_price_measurement, show the
