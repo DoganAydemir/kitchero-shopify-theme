@@ -16,7 +16,11 @@
   {%- liquid
     assign blog_eyebrow = section.settings.eyebrow
     if blog_eyebrow == blank
-      assign blog_eyebrow = 'The Archives'
+      # Merchant hasn't set a custom eyebrow — fall back to a
+      # localized default so TR/DE/FR/ES visitors don't see raw
+      # English. Key lives alongside the other kt.section.blog.*
+      # strings.
+      assign blog_eyebrow = 'kt.section.blog.default_eyebrow' | t
     endif
     assign blog_heading = section.settings.heading
     if blog_heading == blank
