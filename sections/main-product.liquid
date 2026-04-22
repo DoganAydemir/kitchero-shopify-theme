@@ -1,9 +1,28 @@
+{%- comment -%}
+  PDP CSS — above-fold files load eager (parser-blocking) because
+  they style the LCP candidate (gallery main image), price, swatches,
+  and the ATC button which sit above the fold on every product
+  page. Accordion is below-fold (merchant description / shipping /
+  returns copy) so its CSS loads async via the media="print"→all
+  swap pattern — same trick theme.liquid uses for drawer/overlay
+  CSS. Saves one parser-blocking round-trip on 4G mobile.
+
+  noscript fallback ensures the accordion is styled when JavaScript
+  is disabled (no onload event fires without JS).
+{%- endcomment -%}
 {{ 'kt-section-main-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-gallery.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-price.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
-{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}
+
+<link
+  rel="stylesheet"
+  href="{{ 'kt-product-accordion.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}</noscript>
 
 {%- comment -%}
   Main Product — E-commerce PDP.

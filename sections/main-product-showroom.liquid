@@ -1,7 +1,19 @@
+{%- comment -%}
+  Showroom CSS — above-fold (layout + gallery + swatches) parser-
+  blocking, accordion below-fold async loaded. See main-product.liquid
+  for the full rationale.
+{%- endcomment -%}
 {{ 'kt-section-main-product-showroom.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-gallery.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
-{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}
+
+<link
+  rel="stylesheet"
+  href="{{ 'kt-product-accordion.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}</noscript>
 
 {%- comment -%}
   Main Product Showroom — premium visual layout (lead-gen focused)
