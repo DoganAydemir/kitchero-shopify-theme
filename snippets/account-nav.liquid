@@ -1,0 +1,58 @@
+{%- comment -%}
+  Customer account sidebar navigation — shared across main-account,
+  main-addresses, and main-order so a signed-in customer sees the
+  same shell everywhere and `aria-current` flips to the right link.
+
+  Accepts:
+  - current: {String} one of 'details' | 'addresses' | 'orders' | ''.
+    The 'orders' value flags "I'm on the order detail screen, which
+    is reached from the Details landing"; we mark Details active so
+    the nav stays contextually anchored.
+
+  Landmark pattern: outer <aside> carries the "complementary"
+  landmark semantics, inner <nav> wraps the link group so screen
+  readers announce "navigation" when the user lands on the links and
+  "complementary" for the aside itself (WCAG 1.3.1 — navigational
+  link lists belong inside a <nav>).
+
+  Extracted from main-account.liquid / main-addresses.liquid to DRY
+  the markup and to close the R11 gap where main-order.liquid had
+  only a single "← Back to account" link and lost the sidebar shell
+  when customers deep-linked to /account/orders/:id and refreshed.
+{%- endcomment -%}
+{%- liquid
+  assign nav_current = current | default: ''
+  # Treat the Order-detail view as "I'm in the Details area" for
+  # active-link purposes — orders are surfaced from the account landing.
+  assign is_details = false
+  assign is_addresses = false
+  if nav_current == 'details' or nav_current == 'orders'
+    assign is_details = true
+  endif
+  if nav_current == 'addresses'
+    assign is_addresses = true
+  endif
+-%}
+<aside class="kt-account__nav" aria-labelledby="AccountSharedNavHeading">
+  <h2 id="AccountSharedNavHeading" class="visually-hidden">{{ 'kt.customer.account.nav_label' | t }}</h2>
+  <nav aria-label="{{ 'kt.customer.account.nav_label' | t }}">
+    <a
+      href="{{ routes.account_url }}"
+      class="kt-account__nav-link{% if is_details %} kt-account__nav-link--active{% endif %}"
+      {%- if is_details %} aria-current="page"{% endif -%}
+    >
+      {{ 'kt.customer.account.details' | t }}
+    </a>
+    <a
+      href="{{ routes.account_addresses_url }}"
+      class="kt-account__nav-link{% if is_addresses %} kt-account__nav-link--active{% endif %}"
+      {%- if is_addresses %} aria-current="page"{% endif -%}
+    >
+      {{ 'kt.customer.account.addresses' | t }}
+      <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
+    </a>
+    <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
+      {{ 'kt.customer.account.log_out' | t }}
+    </a>
+  </nav>
+</aside>

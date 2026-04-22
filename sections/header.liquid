@@ -88,7 +88,20 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </a>
-                <div class="kt-header__mega-menu" role="menu">
+                {%- comment -%}
+                  Previously emitted role="menu" + role="menuitem" here
+                  to match the APG "application menu" pattern, but the
+                  JS wiring is plain Tab-through navigation (not
+                  arrow-key grid + typeahead). Declaring APG menu roles
+                  without implementing the full keyboard pattern fails
+                  WCAG 4.1.2 (axe `aria-required-children`/
+                  `aria-required-parent`). Native &lt;nav aria-label&gt;
+                  (parent) + &lt;ul&gt;&lt;li&gt;&lt;a&gt; (here) is the
+                  correct semantics for standard navigation — SRs
+                  announce "navigation", "list", "link" which matches
+                  the actual interaction model.
+                {%- endcomment -%}
+                <div class="kt-header__mega-menu">
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
@@ -97,14 +110,14 @@
                           <ul class="kt-header__mega-list list-unstyled" role="list">
                             {%- for grandchild_link in child_link.links -%}
                               <li>
-                                <a href="{{ grandchild_link.url }}" class="kt-header__mega-link" role="menuitem">
+                                <a href="{{ grandchild_link.url }}" class="kt-header__mega-link">
                                   {{ grandchild_link.title }}
                                 </a>
                               </li>
                             {%- endfor -%}
                           </ul>
                         {%- else -%}
-                          <a href="{{ child_link.url }}" class="kt-header__mega-link" role="menuitem">
+                          <a href="{{ child_link.url }}" class="kt-header__mega-link">
                             {{ child_link.title }}
                           </a>
                         {%- endif -%}
@@ -165,9 +178,15 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </a>
-                <div class="kt-header__flyout" role="menu">
+                {%- comment -%}
+                  Same fix as the mega-menu above: drop role="menu"/
+                  "menuitem" (APG pattern we don't implement) and let
+                  the native &lt;nav aria-label&gt; + &lt;a&gt; semantics
+                  describe the standard-navigation behaviour correctly.
+                {%- endcomment -%}
+                <div class="kt-header__flyout">
                   {%- for child_link in link.links -%}
-                    <a href="{{ child_link.url }}" class="kt-header__flyout-link" role="menuitem">
+                    <a href="{{ child_link.url }}" class="kt-header__flyout-link">
                       {{ child_link.title }}
                     </a>
                   {%- endfor -%}

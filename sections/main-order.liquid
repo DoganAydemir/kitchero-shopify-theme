@@ -8,26 +8,29 @@
     </a>
 
     {%- comment -%}
-      Preformat the order date BEFORE handing it to the translation
-      filter. Previously the line read
-        {{ 'kt.customer.order.date_html' | t: date: order.created_at | date: format: 'date' }}
-      which parses as
-        (('...' | t: date: order.created_at) | date: format: 'date')
-      — i.e. the `| date` filter runs on the already-interpolated
-      translation STRING ("Placed on 2026-01-01…"), not the
-      order.created_at timestamp. Output was garbled or unchanged
-      depending on locale. Split the pipeline so `date` filter runs
-      on the raw timestamp first.
+      Account sidebar + content layout. Previously the order page
+      rendered the title + body directly inside the wide container
+      with only a single "← Back to account" link as navigation. A
+      customer deep-linking to /account/orders/:id (bookmark, email
+      receipt link) and hitting refresh would lose the account
+      shell entirely — no path to Addresses, no Logout. Wrapping in
+      the shared `.kt-account__layout` + rendering the same sidebar
+      restores the shell on every account URL. `current: 'orders'`
+      marks the Details link active because this order detail view
+      is conceptually reached from the Details landing.
     {%- endcomment -%}
     {%- assign order_date_formatted = order.created_at | date: format: 'date' -%}
-    <header class="kt-account__header kt-order__title-block">
-      <h1 class="kt-customer__title kt-order__title-heading">
-        {{ 'kt.customer.order.title' | t: name: order.name }}
-      </h1>
-      <p class="kt-account__greeting">
-        {{ 'kt.customer.order.date_html' | t: date: order_date_formatted }}
-      </p>
-    </header>
+    <div class="kt-account__layout">
+      {%- render 'account-nav', current: 'orders' -%}
+      <div class="kt-account__content">
+        <header class="kt-account__header kt-order__title-block">
+          <h1 class="kt-customer__title kt-order__title-heading">
+            {{ 'kt.customer.order.title' | t: name: order.name }}
+          </h1>
+          <p class="kt-account__greeting">
+            {{ 'kt.customer.order.date_html' | t: date: order_date_formatted }}
+          </p>
+        </header>
 
     {%- comment -%}
       Cancelled-order banner. `order.cancelled_at` is set when the
@@ -299,6 +302,8 @@
         </dl>
       </div>
     {%- endif -%}
+      </div>{%- comment -%} /.kt-account__content {%- endcomment -%}
+    </div>{%- comment -%} /.kt-account__layout {%- endcomment -%}
   </div>
 </section>
 

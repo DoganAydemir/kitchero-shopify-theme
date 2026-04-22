@@ -116,6 +116,22 @@
     {%- endcomment -%}
     <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape }}">
 
+    {%- comment -%}
+      `content_for_header` MUST appear immediately after the title +
+      meta-description and BEFORE any theme scripts/stylesheets.
+      Shopify docs require this ordering because the injected markup
+      carries:
+        • analytics + checkout beacons (must run as early as possible),
+        • app-installed preload hints (LCP image, critical CSS),
+        • hreflang alternates, og/twitter tags, shop extensions.
+      Earlier versions of this layout placed `{{ content_for_header }}`
+      AFTER the global.js + motion vendor scripts, which delayed the
+      preload scanner's ability to prioritise hinted resources and
+      pushed LCP by 100-300ms on mobile. Moved up per Shopify's
+      documented layout spec and the R12 performance audit.
+    {%- endcomment -%}
+    {{ content_for_header }}
+
     {% render 'meta-tags' %}
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
@@ -156,8 +172,6 @@
       <script src="{{ 'smooth-scroll.js' | asset_url }}" defer="defer"></script>
       {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
     {%- endif -%}
-
-    {{ content_for_header }}
 
     {%- render 'kt-css-variables' -%}
 
@@ -237,17 +251,22 @@
       section that swaps its DOM out can still emit announcements
       without losing them in the transition.
     {%- endcomment -%}
+    {%- comment -%}
+      `role="status"` implies `aria-live="polite"` by default, and
+      `role="alert"` implies `aria-live="assertive"`. Declaring both
+      is redundant ARIA — axe-core flags `aria-redundant` and some
+      SRs double-announce. Keep the roles (clearer semantics) and
+      drop the implied live values.
+    {%- endcomment -%}
     <div
       id="ktAnnouncer"
       class="visually-hidden"
-      aria-live="polite"
       aria-atomic="true"
       role="status"
     ></div>
     <div
       id="ktAnnouncerAlert"
       class="visually-hidden"
-      aria-live="assertive"
       aria-atomic="true"
       role="alert"
     ></div>

@@ -34,29 +34,7 @@
     </header>
 
     <div class="kt-account__layout">
-      {%- comment -%}
-        Sidebar / nav. Outer <aside> carries the landmark semantics
-        for the entire side column; a <nav> inside wraps the actual
-        link group so screen readers announce "navigation" when the
-        user lands on the links and "complementary" for the aside
-        itself (required by WCAG 1.3.1 — lists of navigational links
-        belong inside a <nav>).
-      {%- endcomment -%}
-      <aside class="kt-account__nav" aria-labelledby="AccountNavHeading">
-        <h2 id="AccountNavHeading" class="visually-hidden">{{ 'kt.customer.account.nav_label' | t }}</h2>
-        <nav aria-label="{{ 'kt.customer.account.nav_label' | t }}">
-          <a href="{{ routes.account_url }}" class="kt-account__nav-link kt-account__nav-link--active" aria-current="page">
-            {{ 'kt.customer.account.details' | t }}
-          </a>
-          <a href="{{ routes.account_addresses_url }}" class="kt-account__nav-link">
-            {{ 'kt.customer.account.addresses' | t }}
-            <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
-          </a>
-          <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
-            {{ 'kt.customer.account.log_out' | t }}
-          </a>
-        </nav>
-      </aside>
+      {%- render 'account-nav', current: 'details' -%}
 
       {%- comment -%} Main content: orders list {%- endcomment -%}
       <div class="kt-account__content">
@@ -65,7 +43,14 @@
         {%- paginate customer.orders by 20 -%}
           {%- if customer.orders.size > 0 -%}
             <div class="kt-account__orders-wrap">
-              <table class="kt-account__orders" role="table">
+              {%- comment -%}
+                Native &lt;table&gt; already carries implicit role="table".
+                Explicit `role="table"` on a real table is redundant
+                ARIA and fails axe-core's `aria-allowed-role` check
+                (WCAG 4.1.2). The scope="col"/scope="row" + caption
+                below give SR users the structure they need.
+              {%- endcomment -%}
+              <table class="kt-account__orders">
                 <caption class="visually-hidden">{{ 'kt.customer.orders.caption' | t }}</caption>
                 <thead>
                   <tr>
