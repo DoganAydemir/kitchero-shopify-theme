@@ -186,6 +186,23 @@
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {{ 'kt-loader.css' | asset_url | stylesheet_tag }}
 
+    {%- comment -%}
+      Drawer / overlay CSS — loaded in <head> so the stylesheet
+      applies before first paint. These files are small (5-10KB
+      each) and only render work when the drawer opens, so the
+      parser-blocking cost is negligible. Previously emitted in
+      <body> with `media="print" onload="this.media='all'"` async-
+      swap, but the onload handler didn't fire reliably across
+      CSP / extension combos and left the cart drawer unstyled:
+      opened drawer rendered full-width instead of a right-side
+      panel. <head>-loaded `stylesheet_tag` guarantees application.
+    {%- endcomment -%}
+    {%- if settings.kt_cart_type == 'drawer' -%}
+      {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
+    {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
+    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+
     {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
       <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
@@ -280,47 +297,17 @@
     ></div>
 
     {%- comment -%}
-      Drawer/overlay CSS — only needed when the user opens them via a click.
-      Load them async with the media="print"→media="all" swap pattern so they
-      never block first render. noscript fallback ensures styling still works
-      when JavaScript is disabled.
-    {%- endcomment -%}
-
-    {%- comment -%}
-      Cart Drawer / Search Overlay / Appointment Drawer CSS.
-
-      Previously used the `media="print" onload="this.media='all'"`
-      async-swap trick to avoid parser-blocking on first paint. That
-      saves a few ms on LCP but relies on the inline `onload` handler
-      firing — which silently fails under strict CSP headers (some
-      Shopify Plus shops, merchant-installed security apps) and,
-      more pressingly, was leaving the cart drawer UNSTYLED on this
-      store: the opened drawer rendered full-width with no panel,
-      overlay, or positioning because the stylesheet stayed at
-      `media="print"` forever.
-
-      The performance tradeoff is tiny for drawer CSS (these files
-      are small, ~5-10KB each, only render when the drawer opens),
-      so revert to plain `stylesheet_tag`. Guaranteed to apply;
-      noscript fallback no longer needed.
-
-      Cart Drawer is still loaded conditionally — `{% section 'cart-
-      drawer' %}` registers it so JS can refresh via the Section
-      Rendering API, but we only emit the <link> + section when the
-      merchant has chosen drawer (not page) for the cart surface.
+      Drawer / overlay MARKUP. The stylesheets themselves load in
+      <head> (above) so the panels are already styled when they
+      render. Markup kept in <body> so it lives inside the layout
+      flow (and so `{% section 'cart-drawer' %}` participates in
+      the Section Rendering API for AJAX refresh).
     {%- endcomment -%}
     {%- if settings.kt_cart_type == 'drawer' -%}
-      {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
       {% section 'cart-drawer' %}
     {%- endif -%}
-
-    {%- comment -%} Search Overlay {%- endcomment -%}
-    {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {%- render 'search-overlay' -%}
     <script src="{{ 'search-overlay.js' | asset_url }}" defer="defer"></script>
-
-    {%- comment -%} Appointment Drawer {%- endcomment -%}
-    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
     {%- render 'appointment-drawer' -%}
     <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
 
