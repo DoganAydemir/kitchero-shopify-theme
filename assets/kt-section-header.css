@@ -4,10 +4,17 @@
    BEM naming: .kt-header, .kt-header__*
    ============================================================ */
 
-/* Solid mode (default): bg-stone-950/95 shadow-lg */
+/* Solid mode (default): bg-stone-950/95 shadow-lg
+   `top` is offset by the announcement-banner's rendered height when
+   a banner is present in the header-group — see assets/announcement
+   -banner.js for the measurement. Falls back to 0px when no banner
+   exists so behaviour is unchanged on templates / stores without
+   the strip. Same offset applies to both solid and transparent
+   modes because in both cases the banner should sit above the
+   header (not under it). */
 .kt-header {
   position: fixed;
-  top: 0;
+  top: var(--kt-announcement-banner-height, 0px);
   left: 0;
   right: 0;
   z-index: 1000;
