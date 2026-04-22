@@ -57,14 +57,26 @@
         supported via the `color` inheritance pattern on the <stop>
         element.
       {%- endcomment -%}
+      {%- comment -%}
+        SVG defs use `id` to let `fill="url(#…)"` reference the
+        gradient. On a collection grid with N rating components
+        a literal `id="half-star"` collides N times — the HTML
+        spec forbids duplicate ids in the same document, Chrome
+        DevTools Issues panel flags every occurrence, and some
+        browsers resolve the url() reference to the first match
+        (typically fine, but validators reject). Scope the id to
+        the product so it's always unique. Fallback `'solo'` for
+        snippets rendered outside a product loop.
+      {%- endcomment -%}
+      {%- assign rating_gradient_id = 'half-star-' | append: product.id | default: 'half-star-solo' -%}
       <svg aria-hidden="true" focusable="false" class="kt-rating__star kt-rating__star--half" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="none">
         <defs>
-          <linearGradient id="half-star">
+          <linearGradient id="{{ rating_gradient_id }}">
             <stop offset="50%" stop-color="currentColor"/>
             <stop offset="50%" class="kt-rating__half-stop"/>
           </linearGradient>
         </defs>
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="url(#half-star)"/>
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="url(#{{ rating_gradient_id }})"/>
       </svg>
     {%- endif -%}
     {%- for i in (1..empty_stars) -%}

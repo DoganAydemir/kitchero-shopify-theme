@@ -328,7 +328,15 @@
         })
         .catch(function (error) {
           console.error(error);
-          /* Last-ditch fallback so the UI isn't left in a stale state */
+          /* Last-ditch fallback so the UI isn't left in a stale state.
+             Adds a terminal .catch so that when BOTH the primary
+             Section-Rendering-API fetch AND this cart.js fallback
+             fail (full Shopify outage), we surface an error to the
+             user rather than leaving an unhandled Promise rejection
+             (which previously leaked to window as console noise + no
+             UI feedback — drawer would stay open with stale qty and
+             the user would keep clicking the +/– buttons wondering
+             what's wrong). */
           return fetch(Kitchero.routes.cart, {
             headers: { 'Accept': 'application/json' },
           })
@@ -336,6 +344,15 @@
             .then(function (cart) {
               self.updateCartCount(cart.item_count);
               if (cart.item_count === 0) self.close();
+            })
+            .catch(function (innerError) {
+              console.error('cart-drawer: total failure, cart state unknown', innerError);
+              if (window.Kitchero && typeof Kitchero.announce === 'function') {
+                Kitchero.announce(
+                  (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.',
+                  { assertive: true }
+                );
+              }
             });
         });
     }

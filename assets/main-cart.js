@@ -59,10 +59,36 @@ if (!window.__kitcheroMainCartLoaded) {
           return refreshCartPage();
         })
         .catch(function (error) {
-          console.error(error);
-          if (row) row.style.opacity = '';
-          /* Fallback: reload the page so the UI isn't stuck in a stale state */
-          window.location.reload();
+          /* Previously this hard-reloaded on ANY fetch failure — including
+             transient 503 / flaky mobile. On 3G the entire cart page would
+             flash white, scroll position would reset, and any unsaved
+             qty/note the user typed would vanish. Instead: surface the
+             error via the assertive announcer + revert the row's visual
+             loading state. The user can retry the qty change from the
+             rolled-back UI state. Only suppress console.error for
+             classified `cartError` (422) — unclassified errors still
+             surface to console for debugging.
+
+             The fetch's .ok check at line 55 throws for non-2xx; that
+             error lands here without a `cartError` flag. Net effect:
+             422 stays quiet (handled in the inner JSON read in a later
+             commit, or we can classify here), 5xx/network failures
+             show the user an error but keep the page intact. */
+          var errMsg = (error && error.message) || '';
+          var isQuotaErr = errMsg.indexOf('422') !== -1;
+          if (!isQuotaErr) {
+            console.error(error);
+          }
+          if (row) {
+            row.style.opacity = '';
+            row.style.pointerEvents = '';
+          }
+          if (window.Kitchero && typeof Kitchero.announce === 'function') {
+            Kitchero.announce(
+              (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.',
+              { assertive: true }
+            );
+          }
         })
         .then(function () {
           /* Release lock; flush pending queue. */
