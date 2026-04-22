@@ -16,9 +16,19 @@
     function open() {
       /* Remember the button that opened the drawer so focus can be
          restored there on close — same pattern as cart-drawer and
-         mobile-nav. */
+         mobile-nav.
+
+         State signal fix: previously toggled `.kt-filter-drawer--open`
+         class, but the CSS shows/hides the drawer via
+         `[aria-hidden="false"]` selectors (kt-collection-filters.css:
+         354, 392). The class + attribute were decoupled, so clicks
+         flipped the class but the drawer stayed invisible — filter
+         feature was completely dead. Flip aria-hidden directly so the
+         existing CSS selectors match; aria-hidden="false" is also the
+         correct semantic for "dialog is now shown" per APG, so this
+         single state change carries both visual + SR signals. */
       lastTrigger = document.activeElement;
-      drawer.classList.add('kt-filter-drawer--open');
+      drawer.setAttribute('aria-hidden', 'false');
       drawer.removeAttribute('inert');
       document.body.style.overflow = 'hidden';
       if (panel && window.Kitchero && Kitchero.focusTrap) {
@@ -42,7 +52,7 @@
     }
 
     function close() {
-      drawer.classList.remove('kt-filter-drawer--open');
+      drawer.setAttribute('aria-hidden', 'true');
       drawer.setAttribute('inert', '');
       document.body.style.overflow = '';
       if (panel && window.Kitchero && Kitchero.focusTrap) {
@@ -65,7 +75,7 @@
     });
 
     function onKeyDown(e) {
-      if (e.code === 'Escape' && drawer.classList.contains('kt-filter-drawer--open')) {
+      if (e.code === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
         close();
       }
     }

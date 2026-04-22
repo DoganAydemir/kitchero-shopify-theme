@@ -24,7 +24,25 @@
 -%}
 
 {%- if threshold_cents > 0 and cart.requires_shipping and cart.item_count > 0 -%}
-  {%- assign subtotal = cart.total_price -%}
+  {%- comment -%}
+    Use items_subtotal_price (pre-discount, pre-shipping line total)
+    not total_price (post-discount, post-tax in EU/UK stores). Two
+    reasons this matters for merchant-set "spend $X, get free shipping"
+    thresholds:
+
+    1. Discount codes: if a customer has a 20% coupon, cart.total_price
+       is already discounted, so the bar unlocks free shipping before
+       the customer hit the merchant-intended order size. Merchants set
+       the threshold based on the GOODS amount, not the post-discount
+       checkout total.
+    2. Tax-included markets (UK, EU, AU, etc.): in tax_incl stores,
+       cart.total_price includes VAT. A £50 threshold would unlock at
+       ~£42 of pre-tax goods — again short of the merchant intent.
+
+    items_subtotal_price is the sum of line_price × quantity before any
+    cart-level discount or tax — exactly the figure merchants think in.
+  {%- endcomment -%}
+  {%- assign subtotal = cart.items_subtotal_price -%}
   {%- if subtotal >= threshold_cents -%}
     {%- assign unlocked = true -%}
     {%- assign percent = 100 -%}
