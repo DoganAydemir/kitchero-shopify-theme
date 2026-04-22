@@ -286,23 +286,41 @@
       when JavaScript is disabled.
     {%- endcomment -%}
 
-    {%- comment -%} Cart Drawer (loaded conditionally, registered as a
-        section so JS can refresh it via the Section Rendering API) {%- endcomment -%}
+    {%- comment -%}
+      Cart Drawer / Search Overlay / Appointment Drawer CSS.
+
+      Previously used the `media="print" onload="this.media='all'"`
+      async-swap trick to avoid parser-blocking on first paint. That
+      saves a few ms on LCP but relies on the inline `onload` handler
+      firing — which silently fails under strict CSP headers (some
+      Shopify Plus shops, merchant-installed security apps) and,
+      more pressingly, was leaving the cart drawer UNSTYLED on this
+      store: the opened drawer rendered full-width with no panel,
+      overlay, or positioning because the stylesheet stayed at
+      `media="print"` forever.
+
+      The performance tradeoff is tiny for drawer CSS (these files
+      are small, ~5-10KB each, only render when the drawer opens),
+      so revert to plain `stylesheet_tag`. Guaranteed to apply;
+      noscript fallback no longer needed.
+
+      Cart Drawer is still loaded conditionally — `{% section 'cart-
+      drawer' %}` registers it so JS can refresh via the Section
+      Rendering API, but we only emit the <link> + section when the
+      merchant has chosen drawer (not page) for the cart surface.
+    {%- endcomment -%}
     {%- if settings.kt_cart_type == 'drawer' -%}
-      <link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
-      <noscript><link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}"></noscript>
+      {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
       {% section 'cart-drawer' %}
     {%- endif -%}
 
     {%- comment -%} Search Overlay {%- endcomment -%}
-    <link rel="stylesheet" href="{{ 'kt-search-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ 'kt-search-overlay.css' | asset_url }}"></noscript>
+    {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {%- render 'search-overlay' -%}
     <script src="{{ 'search-overlay.js' | asset_url }}" defer="defer"></script>
 
     {%- comment -%} Appointment Drawer {%- endcomment -%}
-    <link rel="stylesheet" href="{{ 'kt-appointment-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ 'kt-appointment-drawer.css' | asset_url }}"></noscript>
+    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
     {%- render 'appointment-drawer' -%}
     <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
 
