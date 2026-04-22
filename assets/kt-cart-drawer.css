@@ -1,31 +1,45 @@
 /* ============================================================
    Cart Drawer — Kitchero Theme
 
-   Scheme-aware: surface, text, action, and subtle separators
-   use the `--kt-c-*` tokens from the active color scheme so a
-   merchant toggling from Ink to Paper propagates everywhere.
-   Only the universal dimming overlay and danger-red remove
-   button keep fixed palette colours.
+   Birebir port of src/components/CartDrawer.tsx from the Next.js
+   source. Uses BRAND palette tokens (--kt-stone-*, --kt-white,
+   --kt-red-*) — NOT scheme tokens (--kt-c-*) — because the Next.js
+   source hardcodes bg-white / text-stone-900 / etc. rather than
+   letting the drawer flip with the active color scheme. A dark
+   scheme would otherwise paint the drawer near-black, which is
+   what was happening on this store's stone-950-ink scheme.
+
+   Animation: slide-in from right via `transform: translateX`,
+   500ms cubic-bezier(0.16, 1, 0.3, 1). Overlay fades via opacity.
+   Element stays in the DOM always (no display: none toggle) so
+   the transform has a state to animate FROM.
    ============================================================ */
 
+/* ── Root + visibility ──────────────────────────────────── */
+
 .kt-cart-drawer {
-  display: none;
+  /* Stays in DOM always so transform can animate. Pointer-events
+     are gated on aria-hidden so the closed drawer doesn't intercept
+     clicks. */
+  pointer-events: none;
 }
 
 .kt-cart-drawer[aria-hidden="false"] {
-  display: block;
+  pointer-events: auto;
 }
+
+/* ── Overlay (dim + blur behind panel) ──────────────────── */
 
 .kt-cart-drawer__overlay {
   position: fixed;
   inset: 0;
-  z-index: 1100;
-  background-color: rgba(var(--kt-c-shadow), 0.6);
-  backdrop-filter: blur(4px);
+  background-color: rgba(28, 25, 23, 0.6); /* stone-900 / 60% */
+  backdrop-filter: blur(4px);              /* backdrop-blur-sm */
   -webkit-backdrop-filter: blur(4px);
-  cursor: pointer;
+  z-index: 2000;
   opacity: 0;
   transition: opacity 0.5s ease;
+  cursor: pointer;
   pointer-events: none;
 }
 
@@ -34,32 +48,44 @@
   pointer-events: auto;
 }
 
+/* ── Panel (the slide-in) ───────────────────────────────── */
+
 .kt-cart-drawer__panel {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 1101;
-  width: 100%;
-  max-width: 450px;
-  background-color: rgb(var(--kt-c-bg));
-  color: rgb(var(--kt-c-fg));
+  width: 100%;                              /* w-full */
+  background-color: var(--kt-white);        /* bg-white */
+  color: var(--kt-stone-900);
+  z-index: 2100;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  transform: translateX(100%);              /* translate-x-full */
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: -10px 0 40px rgba(var(--kt-c-shadow), 0.15);
+  /* Keep the panel reachable and pointer-interactive only when open,
+     mirroring the pointer-events-auto/none Tailwind toggle in the
+     Next.js source. */
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .kt-cart-drawer__panel {
+    width: 450px;                           /* sm:w-[450px] */
+  }
 }
 
 [dir="rtl"] .kt-cart-drawer__panel {
   right: auto;
   left: 0;
   transform: translateX(-100%);
-  box-shadow: 10px 0 40px rgba(var(--kt-c-shadow), 0.15);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
 }
 
 .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel {
-  transform: translateX(0);
+  transform: translateX(0);                 /* translate-x-0 */
+  pointer-events: auto;
 }
 
 /* ── Header ─────────────────────────────────────────────── */
@@ -68,16 +94,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
+  padding: 1.5rem;                          /* p-6 */
+  border-bottom: 1px solid var(--kt-stone-200);
   flex-shrink: 0;
 }
 
 .kt-cart-drawer__title {
-  font-family: var(--kt-f-accent-family, Georgia, serif);
-  font-size: 1.25rem;
+  font-family: var(--kt-f-accent-family, Georgia, serif); /* font-serif */
+  font-size: 1.25rem;                       /* text-xl */
   font-weight: 400;
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -86,28 +112,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* WCAG 2.5.5: interactive targets must be >=44×44 CSS px. The inner
-     SVG stays visually at 20px — we just expand the hit area. */
+  /* WCAG 2.5.5 — 44×44 min hit target even though the inner SVG
+     stays at 20px per the Next.js source. */
   width: 2.75rem;
   height: 2.75rem;
   min-width: 44px;
   min-height: 44px;
+  padding: 0;
   background: transparent;
   border: 0;
-  border-radius: 9999px;
-  color: rgba(var(--kt-c-fg), 0.55);
+  border-radius: 9999px;                    /* rounded-full */
+  color: var(--kt-stone-500);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
-  padding: 0;
 }
 
 .kt-cart-drawer__close:hover {
-  background-color: rgba(var(--kt-c-fg), 0.05);
-  color: rgb(var(--kt-c-fg));
+  background-color: var(--kt-stone-100);
+  color: var(--kt-stone-900);
 }
 
 .kt-cart-drawer__close:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg));
+  outline: 2px solid var(--kt-stone-900);
   outline-offset: 2px;
 }
 
@@ -116,11 +142,13 @@
 .kt-cart-drawer__body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 1.5rem;                          /* p-6 */
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2rem;                                /* gap-8 */
 }
+
+/* ── Empty state ────────────────────────────────────────── */
 
 .kt-cart-drawer__empty-state {
   margin: auto;
@@ -135,12 +163,12 @@
 .kt-cart-drawer__empty-icon {
   width: 48px;
   height: 48px;
-  color: rgba(var(--kt-c-fg), 0.3);
+  color: var(--kt-stone-300);
 }
 
 .kt-cart-drawer__empty {
   margin: 0;
-  color: rgba(var(--kt-c-fg), 0.6);
+  color: var(--kt-stone-500);
   font-size: 0.9375rem;
 }
 
@@ -148,23 +176,23 @@
   display: inline-block;
   margin-top: 0.5rem;
   padding: 0.75rem 1.75rem;
-  background-color: rgb(var(--kt-c-action));
-  color: rgb(var(--kt-c-action-text));
+  background-color: var(--kt-stone-900);
+  color: var(--kt-white);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   text-decoration: none;
   border-radius: 9999px;
-  transition: opacity 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .kt-cart-drawer__empty-cta:hover {
-  opacity: 0.85;
+  background-color: var(--kt-stone-800);
 }
 
 .kt-cart-drawer__empty-cta:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg));
+  outline: 2px solid var(--kt-stone-900);
   outline-offset: 3px;
 }
 
@@ -172,18 +200,17 @@
 
 .kt-cart-drawer__item {
   display: flex;
-  gap: 1rem;
-  align-items: stretch;
+  gap: 1rem;                                /* gap-4 */
 }
 
 .kt-cart-drawer__item-image {
   position: relative;
-  width: 6rem;
-  height: 6rem;
+  width: 6rem;                              /* w-24 */
+  height: 6rem;                             /* h-24 */
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 4px;
-  background-color: rgba(var(--kt-c-fg), 0.06);
+  border-radius: 0.25rem;                   /* rounded */
+  background-color: var(--kt-stone-100);
   display: block;
 }
 
@@ -191,7 +218,7 @@
 .kt-cart-drawer__item-image .kt-cart-drawer__item-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover;                        /* object-cover */
   display: block;
 }
 
@@ -200,27 +227,27 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.125rem 0;
+  padding: 0.25rem 0;                       /* py-1 */
 }
 
-/* Row 1: title (left) + price (right) aligned on top */
+/* Row 1: title + price on same line */
 .kt-cart-drawer__item-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem;                   /* mb-1 */
 }
 
 .kt-cart-drawer__item-title {
-  font-size: 0.9375rem;
+  font-size: 15px;                          /* text-[15px] */
   font-weight: 700;
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
   text-decoration: none;
   line-height: 1.3;
   letter-spacing: -0.005em;
   transition: color 0.15s ease;
-  /* Clamp to 2 lines so long titles don't squeeze the price off-row */
+  /* Clamp to 2 lines so long titles don't squeeze the price off-row. */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -228,27 +255,39 @@
 }
 
 .kt-cart-drawer__item-title:hover {
-  color: rgba(var(--kt-c-fg), 0.75);
+  color: var(--kt-stone-600);
+}
+
+.kt-cart-drawer__item-price-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .kt-cart-drawer__item-price {
-  font-size: 0.9375rem;
+  font-size: 15px;
   font-weight: 700;
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.kt-cart-drawer__item-variant {
-  font-size: 0.75rem;
-  color: rgba(var(--kt-c-fg), 0.55);
-  line-height: 1.45;
-  margin: 0 0 0.75rem 0;
+.kt-cart-drawer__item-unit-measure {
+  font-size: 0.6875rem;
+  color: var(--kt-stone-500);
+  margin-top: 0.125rem;
+  white-space: nowrap;
 }
 
-/* Selling-plan pill — subscription cadence below the variant line.
-   Uses the emerald accent so subscription lines stand out at a glance
-   against one-time-purchase lines in a mixed cart. */
+/* Variant / option line */
+.kt-cart-drawer__item-variant {
+  font-size: 0.75rem;                       /* text-xs */
+  color: var(--kt-stone-500);
+  line-height: 1.45;
+  margin: 0 0 0.75rem 0;                    /* mb-3 */
+}
+
+/* Selling-plan pill — subscription cadence below the variant line. */
 .kt-cart-drawer__item-selling-plan {
   display: inline-block;
   font-size: 0.6875rem;
@@ -261,16 +300,14 @@
   margin: 0 0 0.5rem 0;
 }
 
-/* Bundle child components — nested under the bundle line. Muted text
-   + indent makes it read as "contains:" without competing with the
-   primary title. */
+/* Bundle child components. */
 .kt-cart-drawer__item-components {
   list-style: none;
   padding: 0 0 0 0.625rem;
   margin: 0 0 0.625rem 0;
-  border-left: 2px solid rgba(var(--kt-c-fg), 0.1);
+  border-left: 2px solid var(--kt-stone-200);
   font-size: 0.6875rem;
-  color: rgba(var(--kt-c-fg), 0.6);
+  color: var(--kt-stone-600);
   line-height: 1.45;
 }
 
@@ -283,7 +320,7 @@
   padding: 0;
   margin: 0 0 0.75rem 0;
   font-size: 0.6875rem;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: var(--kt-stone-500);
 }
 
 .kt-cart-drawer__item-properties li + li {
@@ -292,7 +329,7 @@
 
 .kt-cart-drawer__item-properties span {
   font-weight: 600;
-  color: rgba(var(--kt-c-fg), 0.7);
+  color: var(--kt-stone-700);
 }
 
 /* Row 3: qty stepper + trash button */
@@ -301,15 +338,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-top: auto;
+  margin-top: auto;                         /* mt-auto */
 }
 
-/* Qty stepper — bordered pill, minimal */
+/* Qty stepper — bordered pill */
 .kt-cart-drawer__qty {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(var(--kt-c-fg), 0.1);
-  border-radius: 4px;
+  border: 1px solid var(--kt-stone-200);
+  border-radius: 0.25rem;                   /* rounded */
   overflow: hidden;
 }
 
@@ -317,25 +354,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* WCAG 2.5.5 — 44×44 min hit target, even though the visual cap
-     above the quantity pill keeps the +/- glyphs compact. */
+  /* WCAG 2.5.5 — 44×44 touch target. */
   min-width: 44px;
   min-height: 44px;
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.75rem;                 /* py-1 px-3 */
   background: transparent;
   border: 0;
-  color: rgba(var(--kt-c-fg), 0.45);
+  color: var(--kt-stone-400);
   cursor: pointer;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .kt-cart-drawer__qty-btn:hover:not(:disabled) {
-  color: rgb(var(--kt-c-fg));
-  background-color: rgba(var(--kt-c-fg), 0.05);
+  color: var(--kt-stone-900);
+  background-color: var(--kt-stone-50);
 }
 
 .kt-cart-drawer__qty-btn:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg));
+  outline: 2px solid var(--kt-stone-900);
   outline-offset: -2px;
 }
 
@@ -345,57 +381,50 @@
 }
 
 .kt-cart-drawer__qty-value {
-  min-width: 1.5rem;
+  min-width: 1.5rem;                        /* w-6 */
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.875rem;                      /* text-sm */
   font-weight: 500;
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
   font-variant-numeric: tabular-nums;
 }
 
-/* Trash / remove button — keeps fixed danger-red so the
-   destructive affordance reads the same regardless of scheme. */
+/* Trash / remove button — fixed danger-red on hover. */
 .kt-cart-drawer__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* WCAG 2.5.5 touch target — 44×44 minimum (was 32×32 at 2rem).
-     Destructive "remove from cart" needs to be tappable without
-     fat-fingering onto the adjacent line item. */
-  width: 2.75rem;
+  width: 2.75rem;                           /* 44×44 WCAG */
   height: 2.75rem;
   background: transparent;
   border: 0;
-  color: rgba(var(--kt-c-fg), 0.45);
+  color: var(--kt-stone-400);
   cursor: pointer;
-  border-radius: 4px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  border-radius: 0.25rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .kt-cart-drawer__remove:hover {
-  color: var(--kt-red-600);
-  background-color: var(--kt-red-50);
+  color: var(--kt-red-500, #ef4444);
+  background-color: var(--kt-red-50, #fef2f2);
 }
 
 .kt-cart-drawer__remove:focus-visible {
-  outline: 2px solid var(--kt-red-600);
+  outline: 2px solid var(--kt-red-600, #dc2626);
   outline-offset: 2px;
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
 
 .kt-cart-drawer__footer {
-  border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
-  background-color: rgba(var(--kt-c-fg), 0.035);
+  border-top: 1px solid var(--kt-stone-200);
+  background-color: var(--kt-stone-50);     /* bg-stone-50 */
   padding: 1.5rem;
-  /* Respect the iPhone home-indicator safe area — otherwise the
-     checkout CTA button sits directly under the system chrome on
-     notched devices. max() keeps the normal 1.5rem on devices
-     without the inset. */
+  /* Respect the iPhone home-indicator safe area. */
   padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1rem;                                /* gap-4 */
   flex-shrink: 0;
 }
 
@@ -403,81 +432,81 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
 }
 
 .kt-cart-drawer__subtotal-label {
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: var(--kt-stone-500);
   font-size: 0.9375rem;
 }
 
 .kt-cart-drawer__subtotal-value {
   font-family: var(--kt-f-accent-family, Georgia, serif);
-  font-size: 1.25rem;
+  font-size: 1.25rem;                       /* text-xl */
   font-weight: 400;
   letter-spacing: -0.01em;
 }
 
 .kt-cart-drawer__taxes {
-  font-size: 0.75rem;
-  color: rgba(var(--kt-c-fg), 0.45);
+  font-size: 0.75rem;                       /* text-xs */
+  color: var(--kt-stone-400);
   text-align: center;
   margin: 0;
 }
 
 .kt-cart-drawer__checkout-form {
   /* Wrapper form exists only to POST name="checkout" to Shopify so the
-     submit goes straight to /checkouts/... — the form itself must not
-     affect the flex layout of .kt-cart-drawer__footer. */
+     submit goes straight to /checkouts/... — must not affect the flex
+     layout of .kt-cart-drawer__footer. */
   display: contents;
 }
 
 .kt-cart-drawer__checkout {
   display: block;
   width: 100%;
-  padding: 1rem;
-  background-color: rgb(var(--kt-c-action));
-  color: rgb(var(--kt-c-action-text));
-  font-size: 0.75rem;
+  padding: 1rem 0;                          /* py-4 */
+  background-color: var(--kt-stone-900);
+  color: var(--kt-white);
+  font-size: 0.75rem;                       /* text-xs */
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.15em;                   /* tracking-widest */
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
   border: 0;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: background-color 0.2s ease;
 }
 
 .kt-cart-drawer__checkout:hover {
-  opacity: 0.88;
+  background-color: var(--kt-stone-800);
 }
 
 .kt-cart-drawer__checkout:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-action));
+  outline: 2px solid var(--kt-stone-900);
   outline-offset: 3px;
 }
 
 .kt-cart-drawer__continue {
   display: block;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.5rem 0;                        /* py-2 */
   background: transparent;
-  color: rgba(var(--kt-c-fg), 0.7);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
+  color: var(--kt-stone-600);
+  font-size: 0.875rem;                      /* text-sm */
+  font-weight: 700;
+  letter-spacing: 0.025em;                  /* tracking-wide */
   border: 0;
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color 0.2s ease;
 }
 
 .kt-cart-drawer__continue:hover {
-  color: rgb(var(--kt-c-fg));
+  color: var(--kt-stone-900);
 }
 
 .kt-cart-drawer__continue:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg));
+  outline: 2px solid var(--kt-stone-900);
   outline-offset: 2px;
 }
 
@@ -490,10 +519,11 @@
   }
 }
 
-/* ── Free-shipping progress bar ───────────────────────
-   Rendered inside both main-cart summary + cart-drawer footer.
+/* ── Free-shipping progress bar ──────────────────────────── */
+/* Rendered inside both main-cart summary + cart-drawer footer.
    Threshold read from settings.kt_free_shipping_threshold.
    Label color flips from stone-700 to emerald-700 when unlocked. */
+
 .kt-free-ship {
   margin: 0 0 1rem;
   padding: 0.625rem 0;
@@ -504,7 +534,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.4;
-  color: var(--kt-stone-700, #44403c);
+  color: var(--kt-stone-700);
 }
 
 .kt-free-ship--unlocked .kt-free-ship__label {
@@ -515,14 +545,14 @@
 .kt-free-ship__track {
   width: 100%;
   height: 6px;
-  background-color: var(--kt-stone-200, #e7e5e4);
+  background-color: var(--kt-stone-200);
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .kt-free-ship__fill {
   height: 100%;
-  background-color: var(--kt-stone-900, #1c1917);
+  background-color: var(--kt-stone-900);
   border-radius: 9999px;
   transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
