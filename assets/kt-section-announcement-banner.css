@@ -4,6 +4,22 @@
    Color themes via [data-color-theme] attribute
    ========================================================================== */
 
+/* The banner is a rounded-pill floating inside its shopify-section
+   wrapper with 1.25rem margins. Without a matching wrapper bg, the
+   body's default (white) shows through those margins and the pill
+   looks like it's floating in a broken white rectangle. Paint the
+   wrapper to match each color-theme so the pill sits on a seamless
+   dark / emerald chrome strip. Targets the DIRECT parent only
+   (`>`) so the rule doesn't leak into nested cases. */
+.shopify-section:has(> .kt-announcement-banner[data-color-theme='dark']),
+.shopify-section:has(> .kt-announcement-banner[data-color-theme='gradient-dark']) {
+  background-color: var(--kt-stone-950);
+}
+
+.shopify-section:has(> .kt-announcement-banner[data-color-theme='emerald-light']) {
+  background-color: var(--kt-emerald-50);
+}
+
 .kt-announcement-banner {
   margin: 1.25rem 1.5rem; /* py-5 mx-6 equivalent */
   border-radius: 0.75rem; /* rounded-xl */
