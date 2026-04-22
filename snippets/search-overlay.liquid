@@ -30,6 +30,13 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
+          {%- comment -%}
+            ARIA combobox pattern — predictive-search.js populates
+            #predictive-search-results (role="listbox" below) with
+            role="option" items as the customer types. These attrs
+            let assistive tech announce the combobox state + current
+            highlighted option. WCAG 2.1 SC 4.1.2 compliant.
+          {%- endcomment -%}
           <input
             type="search"
             id="search-overlay-input"
@@ -41,6 +48,11 @@
             autocapitalize="off"
             spellcheck="false"
             enterkeyhint="search"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="predictive-search-results"
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
             data-search-input
           >
           {%- comment -%}
@@ -55,8 +67,19 @@
         </div>
       </form>
 
-      {%- comment -%} Predictive search results container — future enhancement hook {%- endcomment -%}
-      <div class="kt-search-overlay__results" id="predictive-search-results" aria-live="polite"></div>
+      {%- comment -%}
+        Predictive search results container. `role="listbox"` pairs
+        with the input's `role="combobox"` above — arrow-key nav +
+        aria-activedescendant highlight happens in predictive-search.js.
+        aria-live="polite" still fires SR announcements on mass-DOM
+        replacement for belt-and-braces coverage.
+      {%- endcomment -%}
+      <div
+        class="kt-search-overlay__results"
+        id="predictive-search-results"
+        role="listbox"
+        aria-live="polite"
+      ></div>
 
       {%- comment -%} Popular search term pills (from theme settings) {%- endcomment -%}
       {%- assign popular_terms = settings.kt_search_popular | default: '' -%}

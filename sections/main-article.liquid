@@ -263,6 +263,14 @@
                 </div>
               {%- endif -%}
 
+              {%- comment -%}
+                All inputs preserve the typed values via `value=` /
+                textarea inner-text. Shopify re-renders the article
+                page with form.* populated on validation failure;
+                without these bindings the customer retypes their
+                comment, which is a known Theme-Store reject per the
+                CLAUDE.md progressive-enhancement rule.
+              {%- endcomment -%}
               <div class="kt-article__comment-form-grid">
                 <div class="kt-article__comment-field">
                   <input
@@ -270,6 +278,7 @@
                     id="comment-author"
                     name="comment[author]"
                     class="kt-article__comment-input"
+                    value="{{ form.author | default: '' | escape }}"
                     required
                     autocomplete="name"
                     placeholder=" "
@@ -286,6 +295,7 @@
                     id="comment-email"
                     name="comment[email]"
                     class="kt-article__comment-input"
+                    value="{{ form.email | default: '' | escape }}"
                     required
                     autocomplete="email"
                     placeholder=" "
@@ -307,7 +317,7 @@
                   required
                   placeholder=" "
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="comment-body-error"{% endif %}
-                ></textarea>
+                >{{ form.body | default: '' }}</textarea>
                 <label for="comment-body" class="kt-article__comment-label">
                   {{ 'kt.blog.article.comment' | t | default: 'Your Comment' }}
                 </label>

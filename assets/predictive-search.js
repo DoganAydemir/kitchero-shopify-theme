@@ -49,9 +49,20 @@
     Kitchero.announce(msg);
   }
 
+  /* Toggle the combobox's `aria-expanded` based on whether the listbox
+     currently has result content. Lets AT announce "listbox collapsed"
+     when the query clears and "listbox expanded, N results" when
+     suggestions appear. Pair with aria-controls on the input. */
+  function setExpanded(input, expanded) {
+    if (input && input.setAttribute) {
+      input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+  }
+
   function fetchResults(input, resultsContainer, query) {
     if (query.length < 2) {
       resultsContainer.innerHTML = '';
+      setExpanded(input, false);
       return;
     }
 
@@ -98,6 +109,7 @@
           /* Fallback: show raw text results */
           resultsContainer.innerHTML = html;
           announceResultCount(0);
+          setExpanded(input, resultsContainer.children.length > 0);
           return;
         }
         resultsContainer.innerHTML = '';
@@ -105,6 +117,7 @@
           resultsContainer.appendChild(item.cloneNode(true));
         });
         announceResultCount(products.length);
+        setExpanded(input, true);
       })
       .catch(function (err) {
         /* AbortError is expected — we cancelled the request ourselves
@@ -112,6 +125,7 @@
            clears the results so the UI doesn't freeze on stale data. */
         if (err && err.name === 'AbortError') return;
         resultsContainer.innerHTML = '';
+        setExpanded(input, false);
       });
   }
 
@@ -215,28 +229,29 @@
        editor section:load the old references may have been detached
        from the document.
 
-       CRITICAL FIX: the previous selector `getElementById('search-input')`
-       didn't match ANY element in the theme. The overlay input is
-       `id="search-overlay-input"` (snippets/search-overlay.liquid:35)
-       and the full-page search input is `id="search-page-input"`
-       (sections/main-search.liquid:66). Predictive search was
-       therefore DEAD across the entire site — typing in the overlay
-       produced zero suggestions. Switched to the `[data-search-input]`
-       attribute selector which tags every search input we own and
-       stays stable even if the id conventions change. Using
-       querySelectorAll + forEach so both overlay AND main-search
-       inputs pick up predictive suggestions when present on the same
-       page. */
+       Each `[data-search-input]` pairs with its OWN results container
+       via `aria-controls="..."`. Previously we looked up ONE global
+       `#predictive-search-results` which only matched the overlay —
+       the full-page /search input had no listbox target and its
+       live-suggestions path was dead. Reading aria-controls off each
+       input scopes the pairing and aligns with the ARIA combobox
+       pattern already in the markup. */
     var inputs = (root === document ? document : (root.querySelectorAll ? root : document))
       .querySelectorAll('[data-search-input]');
-    var resultsContainer = document.getElementById('predictive-search-results');
-    if (!inputs.length || !resultsContainer) return;
+    if (!inputs.length) return;
     if (!window.Kitchero || !Kitchero.routes || !Kitchero.routes.predictiveSearch) return;
 
+    var fallbackContainer = null;
     inputs.forEach(function (input) {
-      bindInput(input, resultsContainer);
+      var containerId = input.getAttribute('aria-controls');
+      var container = containerId
+        ? document.getElementById(containerId)
+        : document.getElementById('predictive-search-results');
+      if (!container) return;
+      if (!fallbackContainer) fallbackContainer = container;
+      bindInput(input, container);
     });
-    bindPills(inputs[0], resultsContainer, root);
+    if (fallbackContainer) bindPills(inputs[0], fallbackContainer, root);
   }
 
   if (document.readyState === 'loading') {

@@ -6,7 +6,7 @@
     • A big hero title + centered search form (always present)
     • Type tabs that scope results to all / products / articles / pages via
       the `type` query param (URL-persisted so merchants can link directly
-      to e.g. `/search?q=…&type=product`)
+      to e.g. `/search?q=…&amp;type=product`)
     • When `type=product`, native Shopify storefront filters rendered in a
       sidebar via the shared `collection-filters` snippet, plus a sort
       dropdown wired to the same form
@@ -61,6 +61,14 @@
     <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-page__form">
       <label for="search-page-input" class="visually-hidden">{{ 'kt.search.search' | t }}</label>
       <svg class="kt-search-page__input-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      {%- comment -%}
+        `data-search-input` opts this input into predictive-search.js,
+        the same hook used by the overlay input. Without it, the
+        full-page /search input had no live-suggestions wiring —
+        customers saw suggestions in the header overlay but not on
+        the dedicated search page. ARIA combobox attrs mirror the
+        overlay: #search-page-results below is the listbox target.
+      {%- endcomment -%}
       <input
         type="search"
         id="search-page-input"
@@ -70,32 +78,44 @@
         placeholder="{{ 'kt.search.placeholder' | t }}"
         autocomplete="off"
         enterkeyhint="search"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="search-page-results"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        data-search-input
       >
       <input type="hidden" name="type" value="{{ search_type }}">
       <input type="hidden" name="options[prefix]" value="last">
       <button type="submit" class="kt-search-page__submit">{{ 'kt.search.search' | t }}</button>
     </form>
+    <div
+      class="kt-search-page__predictive-results"
+      id="search-page-results"
+      role="listbox"
+      aria-live="polite"
+    ></div>
 
     {%- if search.performed -%}
       <nav class="kt-search-page__tabs" aria-label="{{ 'kt.search.scope_aria' | t }}">
         {%- assign terms_param = search.terms | url_encode -%}
         <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&type=product,article,page"
+          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=product,article,page"
           class="kt-search-page__tab{% if active_scope == 'all' %} kt-search-page__tab--active{% endif %}"
           {% if active_scope == 'all' %}aria-current="page"{% endif %}
         >{{ 'kt.search.scope_all' | t }}</a>
         <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&type=product"
+          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=product"
           class="kt-search-page__tab{% if active_scope == 'product' %} kt-search-page__tab--active{% endif %}"
           {% if active_scope == 'product' %}aria-current="page"{% endif %}
         >{{ 'kt.search.scope_products' | t }}</a>
         <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&type=article"
+          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=article"
           class="kt-search-page__tab{% if active_scope == 'article' %} kt-search-page__tab--active{% endif %}"
           {% if active_scope == 'article' %}aria-current="page"{% endif %}
         >{{ 'kt.search.scope_articles' | t }}</a>
         <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&type=page"
+          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=page"
           class="kt-search-page__tab{% if active_scope == 'page' %} kt-search-page__tab--active{% endif %}"
           {% if active_scope == 'page' %}aria-current="page"{% endif %}
         >{{ 'kt.search.scope_pages' | t }}</a>
