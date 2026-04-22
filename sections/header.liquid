@@ -11,9 +11,13 @@
   assign header_style = section.settings.header_style | default: 'solid'
 -%}
 
-{%- unless header_style == 'transparent' -%}
-  <div class="kt-header-spacer" aria-hidden="true"></div>
-{%- endunless -%}
+{%- comment -%}
+  Solid mode no longer needs a spacer because `.kt-header` is
+  `position: sticky` — it sits in normal flow and naturally pushes
+  content below. Transparent mode is `position: fixed` (floats over
+  hero) and intentionally does NOT reserve flow space so the hero
+  can render behind it. In both modes the spacer is superfluous.
+{%- endcomment -%}
 
 <header
   class="kt-header{% if header_style == 'transparent' %} kt-header--transparent{% endif %}"
