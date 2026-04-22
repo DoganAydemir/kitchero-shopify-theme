@@ -33,9 +33,21 @@
       {% # theme-check-enable UndefinedObject %}
 
       {%- if form.errors -%}
-        <div class="kt-customer__errors" role="alert" tabindex="-1">
+        {%- comment -%}
+          `role="alert"` is scoped to the dynamic UL, not the outer
+          container. Previously the whole block (heading + list)
+          carried the role, so NVDA/JAWS announced the heading AND
+          every list item as one long run-on string on submit. Moving
+          the live region to the UL lets the heading read normally
+          through focus/Tab flow and only the error list triggers
+          the alert announcement. The outer div keeps tabindex="-1"
+          so the form-error-focus helper in global.js can still
+          programmatically move focus to the summary on server-render
+          failure.
+        {%- endcomment -%}
+        <div class="kt-customer__errors" data-form-error-summary tabindex="-1">
           <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
-          <ul class="kt-customer__errors-list">
+          <ul class="kt-customer__errors-list" role="alert">
             {%- for field in form.errors -%}
               <li>
                 {%- if field == 'form' -%}

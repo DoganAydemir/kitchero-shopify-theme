@@ -30,9 +30,15 @@
         </div>
       {%- else -%}
       {%- if form.errors -%}
-        <div class="kt-customer__errors" role="alert" tabindex="-1">
+        {%- comment -%}
+          role="alert" scoped to the UL (dynamic content) not the
+          outer div (static heading) — see main-login.liquid for the
+          full rationale. Heading reads through normal focus flow;
+          the error list alerts on submit.
+        {%- endcomment -%}
+        <div class="kt-customer__errors" data-form-error-summary tabindex="-1">
           <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
-          <ul class="kt-customer__errors-list">
+          <ul class="kt-customer__errors-list" role="alert">
             {%- for field in form.errors -%}
               <li>
                 {%- if field == 'form' -%}
@@ -103,6 +109,17 @@
         </div>
         <div class="kt-customer__field">
           <label for="register-password" class="visually-hidden">{{ 'kt.customer.register.password' | t }}</label>
+          {%- comment -%}
+            Drop hardcoded `minlength="5"` — Shopify's server-side
+            validation owns the minimum password length. Shops on Plus
+            plans with Customer Accounts New UI sometimes enforce a
+            higher minimum (8 or 12) via a security policy; having the
+            theme hardcode 5 would block submission and give no
+            helpful error (the browser native "at least 5 characters"
+            tooltip contradicts the real 12-char requirement).
+            Shopify returns per-field errors for password_too_short
+            which render via the form-field-error snippet below.
+          {%- endcomment -%}
           <input
             type="password"
             id="register-password"
@@ -111,7 +128,6 @@
             placeholder="{{ 'kt.customer.register.password' | t }}"
             required
             autocomplete="new-password"
-            minlength="5"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="register-password-error"{% endif %}
             aria-describedby="register-password-hint"
           >
