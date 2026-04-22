@@ -23,6 +23,12 @@ if (window.__kitcheroCollectionFiltersLoaded) {
      click would full-page reload instead of AJAX-refining. */
   var priceTimer;
 
+  /* AbortController for filter-refine fetches. Rapidly toggling
+     checkboxes fires overlapping requests; whichever resolves last
+     paints the grid, which is often NOT the response to the user's
+     latest click. Cancel prior on every new applyFilters(). */
+  var abortCtl = null;
+
   function onChange(event) {
     var cb = event.target.closest && event.target.closest('[data-filter-checkbox]');
     if (cb) {
@@ -110,7 +116,12 @@ if (window.__kitcheroCollectionFiltersLoaded) {
       oldGridEarly.classList.add('kt-collection__grid--loading');
     }
 
-    fetch(fetchUrl)
+    /* Cancel any prior in-flight refine so a slow earlier response
+       can't overwrite the grid with stale filter state. */
+    if (abortCtl) abortCtl.abort();
+    abortCtl = new AbortController();
+
+    fetch(fetchUrl, { signal: abortCtl.signal })
       .then(function (response) {
         if (!response.ok) throw new Error('Filter fetch failed');
         return response.text();
@@ -181,9 +192,15 @@ if (window.__kitcheroCollectionFiltersLoaded) {
           Kitchero.bus.emit('collection:filtered', { url: newUrl });
         }
       })
-      .catch(function () {
-        /* Fallback on error — navigate to the filter URL so server
-           renders the filtered result natively. Announce the
+      .catch(function (err) {
+        /* AbortError is expected — we cancelled the request on a
+           newer filter click. Silently ignore; do NOT navigate in
+           that case because the caller's follow-up fetch is already
+           handling the newer state. */
+        if (err && err.name === 'AbortError') return;
+
+        /* Fallback on real error — navigate to the filter URL so
+           server renders the filtered result natively. Announce the
            transition so SR users know why the page flashes. */
         if (window.Kitchero && typeof Kitchero.announce === 'function') {
           Kitchero.announce(
@@ -212,9 +229,56 @@ if (window.__kitcheroCollectionFiltersLoaded) {
   /* Re-init after section reload in editor */
   document.addEventListener('shopify:section:load', init);
 
-  /* Handle browser back/forward */
+  /* Handle browser back/forward. Previously did `window.location
+     .reload()` which hard-reloaded the entire page — lost scroll
+     position, wiped any unrelated client state, and defeated the
+     whole point of AJAX-refining (users expect back/forward to be
+     as fast as the forward navigation was).
+
+     New: re-fetch the section HTML for the URL the browser restored
+     via the same Section Rendering API path applyFilters() uses.
+     Don't call applyFilters() directly because that reads the
+     current DOM's checkbox/price state — on popstate the DOM hasn't
+     been synced to the restored URL yet. Instead: fetch the
+     restored URL's section HTML and swap the grid + filters +
+     active-filters in place. */
   window.addEventListener('popstate', function () {
-    window.location.reload();
+    var restoredUrl = window.location.pathname + window.location.search;
+    var sectionEl = document.querySelector('[data-section-type="main-collection"]');
+    if (!sectionEl) { window.location.reload(); return; }
+    var shopifySection = sectionEl.closest('.shopify-section');
+    var sectionId = shopifySection ? shopifySection.id.replace('shopify-section-', '') : null;
+    if (!sectionId) { window.location.reload(); return; }
+
+    var fetchUrl = restoredUrl + (restoredUrl.includes('?') ? '&' : '?') + 'section_id=' + sectionId;
+
+    if (abortCtl) abortCtl.abort();
+    abortCtl = new AbortController();
+
+    fetch(fetchUrl, { signal: abortCtl.signal })
+      .then(function (r) { if (!r.ok) throw new Error('popstate fetch failed'); return r.text(); })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var newGrid = doc.getElementById('product-grid');
+        var oldGrid = document.getElementById('product-grid');
+        if (newGrid && oldGrid) oldGrid.innerHTML = newGrid.innerHTML;
+        var newPagination = doc.querySelector('.kt-collection__pagination');
+        var oldPagination = document.querySelector('.kt-collection__pagination');
+        if (newPagination && oldPagination) oldPagination.innerHTML = newPagination.innerHTML;
+        else if (!newPagination && oldPagination) oldPagination.remove();
+        /* Active filters + the filter sidebar checkbox state both need
+           to be swapped so the UI reflects the restored URL. */
+        var newFilters = doc.querySelector('.kt-collection__active-filters');
+        var oldFilters = document.querySelector('.kt-collection__active-filters');
+        if (newFilters && oldFilters) oldFilters.outerHTML = newFilters.outerHTML;
+        else if (!newFilters && oldFilters) oldFilters.remove();
+      })
+      .catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        /* Real error — fallback to hard reload so the user at least
+           lands on the correct state. */
+        window.location.reload();
+      });
   });
 })();
 }

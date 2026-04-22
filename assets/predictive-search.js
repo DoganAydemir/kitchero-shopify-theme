@@ -21,6 +21,14 @@
 
   var debounceTimer;
 
+  /* AbortController for in-flight predictive-search requests. Fast
+     typists trigger several overlapping fetches as they type — without
+     cancellation, responses race each other and whichever lands LAST
+     wins the DOM, which is often the response to a PRIOR query. Users
+     see stale matches that don't reflect what they typed. On each new
+     fetch, abort the previous controller before firing the new one. */
+  var abortCtl = null;
+
   /* SR announcement helper — pushes result counts through the global
      Kitchero.announce() live region. The results container itself has
      aria-live="polite" but mass DOM replacement doesn't always fire
@@ -70,7 +78,12 @@
       + '&resources[limit]=4'
       + '&section_id=predictive-search';
 
-    fetch(url)
+    /* Cancel any prior in-flight fetch so a slow earlier response
+       can't overwrite the DOM with stale matches. */
+    if (abortCtl) abortCtl.abort();
+    abortCtl = new AbortController();
+
+    fetch(url, { signal: abortCtl.signal })
       .then(function (response) {
         if (!response.ok) throw new Error('Search failed');
         return response.text();
@@ -93,7 +106,11 @@
         });
         announceResultCount(products.length);
       })
-      .catch(function () {
+      .catch(function (err) {
+        /* AbortError is expected — we cancelled the request ourselves
+           on a newer keystroke. Silently ignore; any other error
+           clears the results so the UI doesn't freeze on stale data. */
+        if (err && err.name === 'AbortError') return;
         resultsContainer.innerHTML = '';
       });
   }
