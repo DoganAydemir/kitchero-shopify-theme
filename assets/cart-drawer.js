@@ -224,7 +224,12 @@
               /* Push to the assertive live region so SR users hear it
                  and sighted users pick up the visual alert. */
               if (window.Kitchero && typeof Kitchero.announce === 'function') {
-                Kitchero.announce(msg, { assertive: true });
+                /* global.js announce signature: (message, urgency). Urgency
+                   is a STRING ('assertive' | 'polite'), NOT an object. Passing
+                   `{ assertive: true }` made the `urgency === 'assertive'`
+                   check in global.js fail → error landed on the polite
+                   announcer, which SRs don't interrupt speech for. */
+                Kitchero.announce(msg, 'assertive');
               }
               /* Throw so the outer .catch below still releases the
                  inflight lock but the drawer refresh is skipped. */
@@ -362,9 +367,12 @@
             .catch(function (innerError) {
               console.error('cart-drawer: total failure, cart state unknown', innerError);
               if (window.Kitchero && typeof Kitchero.announce === 'function') {
+                /* Urgency must be the string 'assertive' — object form is
+                   not recognized by global.js. See cart-drawer.js:227
+                   for the full rationale. */
                 Kitchero.announce(
                   (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.',
-                  { assertive: true }
+                  'assertive'
                 );
               }
             });

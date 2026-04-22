@@ -84,9 +84,13 @@ if (!window.__kitcheroMainCartLoaded) {
             row.style.pointerEvents = '';
           }
           if (window.Kitchero && typeof Kitchero.announce === 'function') {
+            /* Urgency must be the string 'assertive' — object form is
+               not recognized by global.js announce(). Wrong form landed
+               cart errors on the polite announcer, which SRs don't
+               interrupt speech for. */
             Kitchero.announce(
               (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.',
-              { assertive: true }
+              'assertive'
             );
           }
         })
@@ -184,9 +188,17 @@ if (!window.__kitcheroMainCartLoaded) {
           }
 
           /* Also refresh the cart drawer (if present) so the two UIs
-             never diverge */
+             never diverge. refreshDrawer() has its own inner fetch —
+             on a transient network blip while the cart-page refresh
+             already succeeded, its rejection becomes an unhandled
+             promise rejection which leaks to the console. Silence it
+             with a terminal `.catch` — page is already in a good
+             state; drawer will auto-resync on next user action. */
           if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {
-            window.kitcheroCartDrawer.refreshDrawer();
+            var drawerRefresh = window.kitcheroCartDrawer.refreshDrawer();
+            if (drawerRefresh && typeof drawerRefresh.catch === 'function') {
+              drawerRefresh.catch(function () { /* swallow — cart page already refreshed */ });
+            }
           }
         });
     }

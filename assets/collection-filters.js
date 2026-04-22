@@ -203,9 +203,12 @@ if (window.__kitcheroCollectionFiltersLoaded) {
            server renders the filtered result natively. Announce the
            transition so SR users know why the page flashes. */
         if (window.Kitchero && typeof Kitchero.announce === 'function') {
+          /* global.js announce(message, urgency): urgency is a string
+             ('assertive' | 'polite'), not an object. Default is polite
+             when urgency is omitted or unrecognized, which is what this
+             call wants — just omit the second arg. */
           Kitchero.announce(
-            (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Loading results…',
-            { assertive: false }
+            (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Loading results…'
           );
         }
         window.location.href = newUrl;

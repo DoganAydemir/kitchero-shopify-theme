@@ -306,4 +306,36 @@
   } else {
     focusFirstFormError();
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Global error sink                                                  */
+  /*                                                                    */
+  /* Catches unhandled promise rejections and uncaught runtime errors   */
+  /* before they escape to the user-visible browser error indicator     */
+  /* (Safari's "error loading page" banner, Firefox devtools count).    */
+  /* Logs once with a Kitchero prefix so developers can correlate but   */
+  /* suppresses the default verbose stack that can leak request bodies  */
+  /* or internal hostnames on some builds. Explicitly a LAST-RESORT     */
+  /* catcher — every fetch/promise in the theme should still handle     */
+  /* its own failures; this is the seatbelt for future regressions.    */
+  /* ------------------------------------------------------------------ */
+
+  global.addEventListener('unhandledrejection', function (event) {
+    try {
+      var reason = event && event.reason;
+      /* Swallow common expected cases: AbortError (predictive search +
+         collection filter cancellation), and fetch failures that the
+         section JS already caught but rethrew. */
+      if (reason && (reason.name === 'AbortError' || reason.name === 'TypeError' && /Failed to fetch/.test(reason.message || ''))) {
+        event.preventDefault();
+        return;
+      }
+      /* Log once, no stack — keeps DevTools count down for merchants
+         running analytics dashboards that bucket errors. */
+      if (global.console && console.warn) {
+        console.warn('[Kitchero] unhandled promise rejection:', reason && (reason.message || reason));
+      }
+      event.preventDefault();
+    } catch (e) { /* handler itself must not throw */ }
+  });
 })(window);

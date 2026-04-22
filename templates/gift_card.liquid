@@ -13,6 +13,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#fafaf9">
+    {%- comment -%}
+      noindex the issued-gift-card URL. The canonical URL pattern
+      `/gift_cards/<id>/<code>` contains the redeemable gift-card
+      code as a path segment. If indexed, the code becomes
+      searchable on Google — a direct security exposure (anyone
+      who sees the URL redeems the balance). Standard noindex on
+      gift_card templates is non-negotiable.
+
+      snippets/meta-tags.liquid ALREADY includes `gift_card` in its
+      hidden_page_types list, but this layout bypasses theme.liquid
+      entirely (gift_card has its own HTML shell), so the snippet
+      never renders here. Emit the meta directly.
+    {%- endcomment -%}
+    <meta name="robots" content="noindex, nofollow">
     <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name }}</title>
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
@@ -137,8 +151,19 @@
               {{ 'kt.giftcard.issued.expired' | t }}
             </span>
           {%- elsif gift_card.enabled -%}
+            {%- comment -%}
+              Preformat the expiry timestamp with `| date` BEFORE
+              piping to `| t`. Liquid parses the old one-liner as
+                (('kt.giftcard.issued.active' | t: expiry: gift_card.expires_on) | date: '%B %-d, %Y')
+              — i.e. `| date` runs on the already-translated STRING
+              `"Expires on <ISO>"`, not on the raw timestamp. Result:
+              the expiry pill rendered the ISO-8601 string unformatted.
+              Same filter-precedence pattern fixed in main-password
+              and main-order.
+            {%- endcomment -%}
+            {%- assign gift_expiry_formatted = gift_card.expires_on | date: format: 'date' -%}
             <span class="kt-gift-card__pill kt-gift-card__pill--active">
-              {{ 'kt.giftcard.issued.active' | t: expiry: gift_card.expires_on | date: '%B %-d, %Y' }}
+              {{ 'kt.giftcard.issued.active' | t: expiry: gift_expiry_formatted }}
             </span>
           {%- endif -%}
         </div>
