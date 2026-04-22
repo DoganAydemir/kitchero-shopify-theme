@@ -21,6 +21,20 @@
 
   var BOUND_FLAG = '__kitcheroMobileNavBound';
 
+  /* JS-progressive-enhancement contract: the panel's markup no longer
+     emits `inert` / `role="dialog"` / `aria-modal="true"` so that a
+     visitor with JavaScript disabled (Theme-Store reviewer smoke test,
+     corp firewall, security-disabled browsers) still sees the nav
+     rendered inline via `html.no-js` CSS. On mount we apply those
+     attributes so the modal behaves correctly for JS-enabled
+     visitors. Removed on section:unload to avoid orphan state. */
+  function applyPanelAttrs(panel) {
+    if (!panel) return;
+    if (!panel.hasAttribute('role')) panel.setAttribute('role', 'dialog');
+    if (!panel.hasAttribute('aria-modal')) panel.setAttribute('aria-modal', 'true');
+    if (!panel.hasAttribute('inert')) panel.setAttribute('inert', '');
+  }
+
   /* Track the trigger element that opened the panel so we can return
      focus there on close. Without this, closing the drawer leaves the
      user's focus on <body> and the next Tab jumps to the first
@@ -211,6 +225,8 @@
     window[BOUND_FLAG] = true;
     document.addEventListener('click', handleDocumentClick);
     document.addEventListener('keydown', handleEscape);
+    /* Apply JS-only attrs to every panel present at bind time. */
+    document.querySelectorAll('.kt-header__mobile-panel').forEach(applyPanelAttrs);
   }
 
   // Initial bind — document-level listeners survive section re-renders,
@@ -231,6 +247,11 @@
         e.target.classList.contains('kt-header__mobile-panel')) {
       resetStack();
       bind();
+      /* Re-apply JS-only attrs on a freshly-rendered panel. */
+      var freshPanel = e.target.classList.contains('kt-header__mobile-panel')
+        ? e.target
+        : e.target.querySelector('.kt-header__mobile-panel');
+      applyPanelAttrs(freshPanel);
     }
   });
 

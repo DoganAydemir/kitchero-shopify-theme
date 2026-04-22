@@ -560,6 +560,27 @@
   transform: translateY(0);
 }
 
+/* JS-off fallback: the mobile panel rendered INLINE (no overlay,
+   no fixed positioning, no slide animation) so visitors without
+   JavaScript — reviewer JS-off smoke test + locked-down browsers
+   — can still reach navigation on mobile. Hamburger toggle and
+   sub-panel forward/back buttons are hidden because they require
+   JS. Links inside the panel (href anchors) work natively. */
+html.no-js .kt-header__mobile-panel {
+  position: static;
+  transform: none;
+  height: auto;
+  background-color: var(--kt-stone-950);
+  padding: 0.75rem 1.25rem;
+}
+
+html.no-js .kt-header__menu-toggle,
+html.no-js .kt-header__mobile-panel-close,
+html.no-js [data-mobile-forward],
+html.no-js [data-mobile-back] {
+  display: none;
+}
+
 .kt-header__mobile-panel-header {
   display: flex;
   align-items: center;

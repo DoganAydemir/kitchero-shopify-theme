@@ -66,12 +66,20 @@
       <div class="kt-customer__form">
         <div class="kt-customer__field">
           <label for="login-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
+          {%- comment -%}
+            `value="..."` preserves the typed email on server-side
+            validation failure. Shopify redirects back to the page
+            with `form.email` populated; without the explicit value
+            binding the input renders empty and the user has to
+            retype. Password field stays empty for security.
+          {%- endcomment -%}
           <input
             type="email"
             id="login-email"
             name="customer[email]"
             class="kt-customer__input"
             placeholder="{{ 'kt.customer.login.email' | t }}"
+            value="{{ form.email | escape }}"
             required
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="login-email-error"{% endif %}

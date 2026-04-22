@@ -387,8 +387,11 @@
 
       /* Re-read the active selling plan (if any) so the new variant
          shows the subscription-discounted price instead of flipping
-         back to one-time price for one frame. */
-      var activePlanInput = form.querySelector('input[name="selling_plan"]');
+         back to one-time price for one frame. The radios share the
+         same `name="selling_plan"` — grab the checked one via
+         `:checked` so we read the customer's actual selection, not
+         the first radio in DOM order. */
+      var activePlanInput = form.querySelector('input[name="selling_plan"]:checked');
       var activePlanId = activePlanInput ? activePlanInput.value : null;
 
       renderPriceForVariant(container, matchedVariant, activePlanId);

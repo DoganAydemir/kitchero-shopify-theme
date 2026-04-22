@@ -2,10 +2,16 @@
   Selling-plan (subscription) picker.
 
   Renders a radio group offering one-time purchase + each configured
-  subscription plan. The customer's choice writes into the product
-  form's hidden `selling_plan` input via assets/selling-plan-picker.js,
-  so the existing Ajax ATC path (product-form.js) picks up the plan
-  without modification.
+  subscription plan. The radios use `name="selling_plan"` directly
+  — which is the field name Shopify's `/cart/add` endpoint expects
+  — so JS-off visitors still submit the checked plan with their ATC.
+  Previously the radios used `name="kt-selling-plan-choice"` (a JS
+  hook) and selling-plan-picker.js hand-rolled a hidden
+  `name="selling_plan"` input at runtime; on `requires_selling_plan:
+  true` products that path broke without JS (Shopify rejected the
+  submission as missing a required field). selling-plan-picker.js
+  still dispatches the `selling-plan:change` event for live price
+  refresh, but the form-field source of truth is now the radios.
 
   Gated on product.selling_plan_groups.size so the snippet renders
   nothing for non-subscription products. When the product also has
@@ -26,7 +32,7 @@
       <label class="kt-selling-plan__option">
         <input
           type="radio"
-          name="kt-selling-plan-choice"
+          name="selling_plan"
           value=""
           class="kt-selling-plan__radio"
           data-selling-plan-id=""
@@ -49,7 +55,7 @@
         <label class="kt-selling-plan__option">
           <input
             type="radio"
-            name="kt-selling-plan-choice"
+            name="selling_plan"
             value="{{ plan.id }}"
             class="kt-selling-plan__radio"
             data-selling-plan-id="{{ plan.id }}"

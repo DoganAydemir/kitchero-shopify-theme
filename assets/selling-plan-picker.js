@@ -1,29 +1,26 @@
 /**
- * Selling Plan Picker — wires the radio group rendered by
- * snippets/product-selling-plans.liquid to the product form's hidden
- * `selling_plan` input.
+ * Selling Plan Picker — broadcasts the selected plan for live price
+ * refresh.
  *
- * On radio change:
- *   1. Write the selected plan ID (or '') into a hidden input named
- *      `selling_plan` inside the same product form. Creates the input
- *      on first change if it doesn't exist.
- *   2. Dispatch a `selling-plan:change` CustomEvent on the product
- *      container so other modules (price, product-form.js, future
- *      subscription price display) can react without reaching into
- *      this picker.
+ * The radio group rendered by snippets/product-selling-plans.liquid
+ * now uses `name="selling_plan"` directly — the same field name
+ * Shopify's `/cart/add` endpoint reads — so the checked radio ships
+ * with the form submit natively, including in the JS-off path. This
+ * script's ONLY job is to dispatch a `selling-plan:change` CustomEvent
+ * on the product container when the selection changes, so
+ * product-form.js can re-render the PDP price for the active plan's
+ * allocation without touching the picker internals.
  *
- * Why a CustomEvent instead of directly poking the price: the product
- * form's Ajax ATC path already picks up any input named `selling_plan`
- * in the form, so no further JS is required for the submit side. Any
- * future "show subscribe-and-save price" feature hooks via the event.
+ * Works without JS: the native radio submit carries `selling_plan` in
+ * the form POST, so add-to-cart for both optional and
+ * `requires_selling_plan: true` products succeeds. Price display on
+ * PDP stays at variant.price until JS runs, then refreshes to the
+ * plan's allocation price — acceptable progressive enhancement.
  *
- * Works without JS: the form POSTs whatever radio is `checked` via the
- * regular Shopify form path (the `name="kt-selling-plan-choice"` on
- * our radios is symbolic; the real submit field is the hidden input
- * created here). If JS is off, no `selling_plan` field is submitted
- * and Shopify treats the ATC as one-time — the right default for a
- * product with optional subscription. Subscription-only products
- * already have requires_selling_plan which gates the ATC entirely.
+ * Previously this script hand-rolled a hidden `input name="selling_plan"`
+ * at runtime because the radios used a non-standard name. That pattern
+ * broke ATC for JS-off visitors on subscription-only products (R13
+ * Agent C REJECT); now obviated.
  */
 (function () {
   'use strict';
@@ -32,38 +29,15 @@
     if (!picker || picker.dataset.sellingPlanBound === '1') return;
     picker.dataset.sellingPlanBound = '1';
 
-    /* Walk up to the nearest product form wrapper so we know which
-       form to write into. `[data-product-form]` is set by snippets/
-       product-form.liquid on its wrapping <div>. */
+    /* Walk up to the nearest product form wrapper so we can locate the
+       container for the dispatched event. `[data-product-form]` is set
+       by snippets/product-form.liquid on its wrapping <div>. */
     var wrapper = picker.closest('[data-product-form]') || picker.closest('form');
     if (!wrapper) return;
-    var form = wrapper.matches('form') ? wrapper : wrapper.querySelector('form');
-    if (!form) return;
-
-    function syncHidden(planId) {
-      var input = form.querySelector('input[name="selling_plan"]');
-      if (!input) {
-        input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'selling_plan';
-        form.appendChild(input);
-      }
-      input.value = planId || '';
-    }
-
-    /* Initialize hidden input to match the currently-checked radio.
-       This handles both the server-rendered default (first plan when
-       requires_selling_plan is true, one-time otherwise) and the case
-       where the customer arrived via a ?selling_plan=… link. */
-    var initiallyChecked = picker.querySelector('input[type="radio"]:checked');
-    if (initiallyChecked) {
-      syncHidden(initiallyChecked.value);
-    }
 
     picker.addEventListener('change', function (event) {
       var target = event.target;
-      if (!target || target.name !== 'kt-selling-plan-choice') return;
-      syncHidden(target.value);
+      if (!target || target.name !== 'selling_plan') return;
 
       var detail = { planId: target.value || null };
       var container = wrapper.closest('[data-section-type]') || wrapper;

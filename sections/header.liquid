@@ -348,12 +348,21 @@
   Keeping it as a sibling of <header> keeps the viewport as the
   containing block, so `inset: 0` reaches the full 100vh.
 {%- endcomment -%}
+{%- comment -%}
+  The `inert` attribute is NOT emitted in markup — it's added by
+  assets/kt-section-header-mobile-nav.js on init so JS-disabled
+  users get an interactive panel. Without the JS add, visitors with
+  scripting off (reviewer's Theme-Store "JS-off" smoke test, or real
+  users on locked-down networks) could still reach the nav via the
+  CSS-only `html.no-js` unflush treatment below.
+
+  Same applies to `aria-modal` and the `role="dialog"` — they imply a
+  JS-controlled modal which doesn't exist in the JS-off fallback, so
+  they're also script-attached.
+{%- endcomment -%}
 <div
   id="kt-mobile-panel-{{ section.id }}"
   class="kt-header__mobile-panel"
-  inert
-  role="dialog"
-  aria-modal="true"
   aria-label="{{ 'kt.a11y.navigation' | t }}"
 >
   <div class="kt-header__mobile-panel-header">
