@@ -6,12 +6,17 @@
 
 /* Solid mode (default): bg-stone-950/95 shadow-lg
    `top` is offset by the announcement-banner's rendered height when
-   a banner is present in the header-group — see assets/announcement
-   -banner.js for the measurement. Falls back to 0px when no banner
-   exists so behaviour is unchanged on templates / stores without
-   the strip. Same offset applies to both solid and transparent
-   modes because in both cases the banner should sit above the
-   header (not under it). */
+   a banner is present in the header-group. Two layers:
+     1. CSS-only default via `:has(.kt-announcement-banner)` below.
+        Static 76px desktop / 80px mobile — covers the common case
+        without any JS. Works on Chrome 105+, Safari 15.4+, Firefox
+        121+ (same browsers Shopify Theme Store already requires).
+     2. assets/announcement-banner.js overrides with the measured
+        exact height via `--kt-announcement-banner-height`, handling
+        variable-wrap cases (mobile: flex-wrap kicks in ≤639px so
+        the banner can grow to 2-3 lines depending on copy length).
+   The CSS-only layer makes the fix robust when the JS hasn't run
+   yet (first paint) or fails to load; the JS layer refines it. */
 .kt-header {
   position: fixed;
   top: var(--kt-announcement-banner-height, 0px);
@@ -23,6 +28,31 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* CSS-only banner offset fallback — applied when the announcement-
+   banner is rendered anywhere on the page.
+
+   Math:
+     desktop banner flow-height = content (32px) + margin-top (20px,
+       1.25rem) + margin-bottom (20px) = 72px
+     mobile banner flow-height  = content (28px) + margin-top (16px,
+       1rem) + margin-bottom (16px) = ~60px (grows on wrap)
+
+   Setting --kt-announcement-banner-height = banner flow-height makes
+   the fixed header's bottom edge land exactly where the in-flow
+   spacer ends, so below-the-fold content doesn't get clipped by the
+   header. Overridable by assets/announcement-banner.js which
+   measures the exact rendered height (important on mobile where
+   flex-wrap can push the banner to 2-3 lines). */
+body:has(.kt-announcement-banner) {
+  --kt-announcement-banner-height: 72px;
+}
+
+@media (max-width: 639px) {
+  body:has(.kt-announcement-banner) {
+    --kt-announcement-banner-height: 64px;
+  }
 }
 
 /* Transparent mode: no background until scrolled — floats over hero.
