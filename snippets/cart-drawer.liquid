@@ -260,7 +260,16 @@
           was missing the authenticity token; main-cart.liquid
           already uses the form block — drawer now matches.
         {%- endcomment -%}
-        {%- form 'cart', class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
+        {%- comment -%}
+          Pass `cart` as the second positional argument. Shopify's
+          `{% form 'cart' %}` tag requires the cart object — without
+          it the runtime throws "cart form must be given a cart",
+          which in turn leaves the drawer's checkout button unrendered
+          and the surrounding HTML malformed (the error message bleeds
+          into the drawer body). main-cart.liquid already does this
+          at line 40; drawer now matches.
+        {%- endcomment -%}
+        {%- form 'cart', cart, class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
           <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
             {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
           </button>
