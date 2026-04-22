@@ -127,7 +127,11 @@ if (!window.__kitcheroVideoModalLoaded) {
       if (frame) frame.setAttribute('src', embedUrl);
 
       modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('video-modal');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
       activeModal = modal;
       lastTrigger = trigger;
 
@@ -141,7 +145,11 @@ if (!window.__kitcheroVideoModalLoaded) {
       var frame = activeModal.querySelector('[data-video-modal-frame]');
       if (frame) frame.setAttribute('src', '');
       activeModal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('video-modal');
+      } else {
+        document.body.style.overflow = '';
+      }
 
       if (lastTrigger && typeof lastTrigger.focus === 'function') {
         lastTrigger.focus();

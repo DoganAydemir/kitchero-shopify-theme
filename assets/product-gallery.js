@@ -166,7 +166,11 @@
       if (!lightbox || !lightboxImage) return;
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('product-gallery-lightbox');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
       if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.enable(lightbox);
     }
 
@@ -174,7 +178,11 @@
     function closeLightbox() {
       if (!lightbox) return;
       lightbox.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('product-gallery-lightbox');
+      } else {
+        document.body.style.overflow = '';
+      }
       if (lightboxViewport) {
         lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
         lightboxViewport.classList.remove('is-loading');
@@ -323,7 +331,11 @@
          load starts from a clean state. */
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
         lightbox.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+        if (window.Kitchero && Kitchero.scrollLock) {
+          Kitchero.scrollLock.unlock('product-gallery-lightbox');
+        } else {
+          document.body.style.overflow = '';
+        }
         if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.disable(lightbox);
       }
     };

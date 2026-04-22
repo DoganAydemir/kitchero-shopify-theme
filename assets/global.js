@@ -213,6 +213,54 @@
   });
 
   /* ------------------------------------------------------------------ */
+  /* Scroll lock — stacked body overflow:hidden across multiple owners. */
+  /*                                                                    */
+  /* 14 components (cart drawer, filter drawer, mobile nav, search      */
+  /* overlay, video modal, lightbox, newsletter popup, appointment      */
+  /* drawer, product gallery zoom, customer forms, etc.) each set       */
+  /* body.style.overflow = 'hidden' on open and '' on close. When two   */
+  /* overlay each other — e.g. cart drawer is open, user clicks a link  */
+  /* that opens the appointment drawer, then closes the appointment     */
+  /* drawer — the close path would restore overflow = '' even though    */
+  /* the cart drawer is still visible. Page silently scrolls behind the */
+  /* open drawer until the next component re-locks it.                  */
+  /*                                                                    */
+  /* Central Set<ownerId> pattern: each caller passes a unique id.      */
+  /* Body lock applied while the Set is non-empty, released when it     */
+  /* drains. Lock/unlock are idempotent per id (double-lock no-op;      */
+  /* unlock of unknown id no-op). Stores the original overflow value    */
+  /* so merchants who set `body { overflow: auto }` via custom CSS get  */
+  /* that value restored, not a hardcoded ''.                           */
+  /* ------------------------------------------------------------------ */
+
+  var scrollLockOwners = new Set();
+  var scrollLockOriginalOverflow = null;
+
+  function scrollLock(id) {
+    if (!id || scrollLockOwners.has(id)) return;
+    if (scrollLockOwners.size === 0) {
+      scrollLockOriginalOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    scrollLockOwners.add(id);
+  }
+
+  function scrollUnlock(id) {
+    if (!id || !scrollLockOwners.has(id)) return;
+    scrollLockOwners.delete(id);
+    if (scrollLockOwners.size === 0) {
+      document.body.style.overflow = scrollLockOriginalOverflow || '';
+      scrollLockOriginalOverflow = null;
+    }
+  }
+
+  function scrollLockReset() {
+    scrollLockOwners.clear();
+    document.body.style.overflow = '';
+    scrollLockOriginalOverflow = null;
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Public surface                                                     */
   /* ------------------------------------------------------------------ */
 
@@ -225,6 +273,11 @@
   global.Kitchero.bus = { on: on, off: off, emit: emit };
   global.Kitchero.escapeCloseDetails = escapeCloseDetails;
   global.Kitchero.announce = announce;
+  global.Kitchero.scrollLock = {
+    lock: scrollLock,
+    unlock: scrollUnlock,
+    reset: scrollLockReset
+  };
 
   /* ------------------------------------------------------------------ */
   /* Form-error auto-focus. When a server-rendered form comes back with */

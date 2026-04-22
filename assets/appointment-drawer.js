@@ -32,7 +32,11 @@
     lastActiveElement = document.activeElement;
     d.setAttribute('aria-hidden', 'false');
     d.removeAttribute('inert');
-    document.body.style.overflow = 'hidden';
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.lock('appointment-drawer');
+    } else {
+      document.body.style.overflow = 'hidden';
+    }
 
     // Focus first input for keyboard users
     var firstInput = d.querySelector('input, select, textarea, button:not([data-appointment-close])');
@@ -57,7 +61,11 @@
 
     d.setAttribute('aria-hidden', 'true');
     d.setAttribute('inert', '');
-    document.body.style.overflow = '';
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.unlock('appointment-drawer');
+    } else {
+      document.body.style.overflow = '';
+    }
 
     // Release the focus trap BEFORE restoring focus — otherwise the
     // trap's last active element may block the restoration.
@@ -96,11 +104,14 @@
 
   /* Safety net: if the drawer (or a containing section) is removed
      from the page while the drawer is open (theme editor section
-     unload), the body-overflow lock stays engaged and the customer
-     can't scroll. Restore overflow on any section:unload event —
-     harmless no-op when the drawer wasn't open. */
+     unload), release our scrollLock owner so the body overflow is
+     not held hostage by a drawer that no longer exists. Using
+     scrollLock.unlock means another drawer still open (cart, mobile
+     nav, etc.) keeps its lock — no stomping. */
   document.addEventListener('shopify:section:unload', function () {
-    if (document.body.style.overflow === 'hidden' && !isOpen()) {
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.unlock('appointment-drawer');
+    } else if (document.body.style.overflow === 'hidden' && !isOpen()) {
       document.body.style.overflow = '';
     }
   });

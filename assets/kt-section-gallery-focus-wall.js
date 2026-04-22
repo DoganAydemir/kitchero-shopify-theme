@@ -112,7 +112,11 @@ if (!window.__kitcheroGalleryFocusLoaded) {
 
       render(active);
       lightbox.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('gallery-focus-wall');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
 
       /* Focus close button so keyboard users land on something useful */
       var closeBtn = lightbox.querySelector(SELECTORS.close + ':not([data-focus-close=""])')
@@ -125,7 +129,11 @@ if (!window.__kitcheroGalleryFocusLoaded) {
     function close() {
       if (!active) return;
       active.lightbox.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('gallery-focus-wall');
+      } else {
+        document.body.style.overflow = '';
+      }
 
       var opener = active.opener;
       active = null;
@@ -260,14 +268,22 @@ if (!window.__kitcheroGalleryFocusLoaded) {
          dangling state pointing at a removed node. */
       if (active && e.target && e.target.contains(active.lightbox)) {
         active = null;
-        document.body.style.overflow = '';
+        if (window.Kitchero && Kitchero.scrollLock) {
+          Kitchero.scrollLock.unlock('gallery-focus-wall');
+        } else {
+          document.body.style.overflow = '';
+        }
       }
     });
 
     document.addEventListener('shopify:section:unload', function (e) {
       if (active && e.target && e.target.contains(active.lightbox)) {
         active.lightbox.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+        if (window.Kitchero && Kitchero.scrollLock) {
+          Kitchero.scrollLock.unlock('gallery-focus-wall');
+        } else {
+          document.body.style.overflow = '';
+        }
         active = null;
       }
     });

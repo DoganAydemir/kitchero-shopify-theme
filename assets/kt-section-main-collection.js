@@ -73,7 +73,11 @@
     function openDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('collection-section-filter-drawer');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
       /* Focus the close button so keyboard users can dismiss right away */
       var closer = drawer.querySelector('.kt-filter-drawer__close');
       if (closer && typeof closer.focus === 'function') {
@@ -84,7 +88,11 @@
     function closeDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('collection-section-filter-drawer');
+      } else {
+        document.body.style.overflow = '';
+      }
       if (openBtn && typeof openBtn.focus === 'function') openBtn.focus();
     }
 
@@ -184,8 +192,13 @@
        context owns — essential, otherwise ScrollTriggers keep firing
        against a detached DOM until GSAP's internal list is flushed. */
     if (state.ctx && typeof state.ctx.revert === 'function') state.ctx.revert();
-    /* Re-enable body scroll in case the drawer was open at unload. */
-    if (document.body) document.body.style.overflow = '';
+    /* Re-enable body scroll in case the drawer was open at unload.
+       Use scrollLock.unlock so we don't stomp a sibling drawer. */
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.unlock('collection-section-filter-drawer');
+    } else if (document.body) {
+      document.body.style.overflow = '';
+    }
     sectionState.delete(section);
   });
 })();

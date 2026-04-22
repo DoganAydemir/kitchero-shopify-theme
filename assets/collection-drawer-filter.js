@@ -30,7 +30,11 @@
       lastTrigger = document.activeElement;
       drawer.setAttribute('aria-hidden', 'false');
       drawer.removeAttribute('inert');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('filter-drawer');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
       if (panel && window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.enable(panel);
       }
@@ -54,7 +58,11 @@
     function close() {
       drawer.setAttribute('aria-hidden', 'true');
       drawer.setAttribute('inert', '');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('filter-drawer');
+      } else {
+        document.body.style.overflow = '';
+      }
       if (panel && window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.disable(panel);
       }

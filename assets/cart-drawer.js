@@ -42,8 +42,14 @@
       if (this._clickHandler) document.removeEventListener('click', this._clickHandler);
       /* Restore body scroll in case the drawer was open when the
          section was unloaded — without this the storefront would boot
-         into a locked-scroll state after the editor re-renders. */
-      if (document.body) document.body.style.overflow = '';
+         into a locked-scroll state after the editor re-renders. Use
+         the centralized scrollLock.unlock so we don't stomp on another
+         drawer that might also be open. */
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('cart-drawer');
+      } else if (document.body) {
+        document.body.style.overflow = '';
+      }
       if (window.kitcheroCartDrawer === this) window.kitcheroCartDrawer = null;
     }
 
@@ -118,7 +124,11 @@
          stay in sync. Browsers that don't support `inert` (pre-
          Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
       this.removeAttribute('inert');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('cart-drawer');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
 
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.enable(this.panel);
@@ -140,7 +150,11 @@
     close() {
       this.setAttribute('aria-hidden', 'true');
       this.setAttribute('inert', '');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('cart-drawer');
+      } else {
+        document.body.style.overflow = '';
+      }
 
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.disable(this.panel);

@@ -260,9 +260,18 @@
                 if (drawerEl && typeof drawerEl.open === 'function') {
                   drawerEl.open();
                 } else if (drawerEl) {
+                  /* Fallback path: `cart-drawer.js` custom element hasn't
+                     upgraded yet (script eval race), so we do a minimal
+                     manual open. Use the same 'cart-drawer' scrollLock
+                     owner id the drawer component uses so its own
+                     close() correctly releases the lock later. */
                   drawerEl.setAttribute('aria-hidden', 'false');
                   drawerEl.removeAttribute('inert');
-                  document.body.style.overflow = 'hidden';
+                  if (window.Kitchero && Kitchero.scrollLock) {
+                    Kitchero.scrollLock.lock('cart-drawer');
+                  } else {
+                    document.body.style.overflow = 'hidden';
+                  }
                 }
               });
           }

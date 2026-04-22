@@ -17,14 +17,22 @@
 
     function open() {
       modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('customer-forms-modal');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
       var first = modal.querySelector('input, select, textarea, button');
       if (first) first.focus();
     }
 
     function close() {
       modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('customer-forms-modal');
+      } else {
+        document.body.style.overflow = '';
+      }
     }
 
     var scope = modal.closest('[data-section-id]') || document;

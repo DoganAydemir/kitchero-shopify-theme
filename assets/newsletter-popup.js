@@ -127,7 +127,11 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
 
       lastTrigger = triggerEl || document.activeElement;
       p.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('newsletter-popup');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
 
       /* Focus: email input if present, otherwise first focusable in dialog */
       setTimeout(function () {
@@ -157,7 +161,11 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       if (!p || !isOpen()) return;
 
       p.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('newsletter-popup');
+      } else {
+        document.body.style.overflow = '';
+      }
 
       if (persistDismissal !== false) {
         markDismissed();
@@ -243,7 +251,11 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       if (e.target && e.target.querySelector && e.target.querySelector('[data-newsletter-popup]')) {
         if (openTimer) { clearTimeout(openTimer); openTimer = null; }
         if (autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = null; }
-        document.body.style.overflow = '';
+        if (window.Kitchero && Kitchero.scrollLock) {
+          Kitchero.scrollLock.unlock('newsletter-popup');
+        } else {
+          document.body.style.overflow = '';
+        }
         popup = null;
         dialog = null;
       }

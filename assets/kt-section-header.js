@@ -60,9 +60,12 @@
 
   document.addEventListener('shopify:section:load', updateScrollState);
   document.addEventListener('shopify:section:select', updateScrollState);
-  document.addEventListener('shopify:section:unload', function () {
-    document.body.style.overflow = '';
-  });
+  /* Intentionally NO body-overflow reset on section:unload. The mobile
+     nav owns its own scrollLock owner id and releases it from
+     kt-section-header-mobile-nav.js's own shopify:section:unload
+     handler. A blanket `document.body.style.overflow = ''` here would
+     stomp a sibling drawer's lock (cart-drawer, filter-drawer, etc.)
+     if the merchant unloads the header while those were open. */
 
   /* ------------------------------------------------------------------
      Desktop mega-menu / flyout aria-expanded state.

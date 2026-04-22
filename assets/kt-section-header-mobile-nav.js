@@ -33,7 +33,11 @@
     lastTrigger = toggle || document.activeElement;
     panel.classList.add('kt-header__mobile-panel--open');
     panel.removeAttribute('inert');
-    document.body.style.overflow = 'hidden';
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.lock('mobile-nav');
+    } else {
+      document.body.style.overflow = 'hidden';
+    }
     if (toggle) {
       toggle.setAttribute('aria-expanded', 'true');
       var oi = toggle.querySelector('.kt-header__menu-toggle-open');
@@ -65,7 +69,11 @@
     if (!panel) return;
     panel.classList.remove('kt-header__mobile-panel--open');
     panel.setAttribute('inert', '');
-    document.body.style.overflow = '';
+    if (window.Kitchero && Kitchero.scrollLock) {
+      Kitchero.scrollLock.unlock('mobile-nav');
+    } else {
+      document.body.style.overflow = '';
+    }
     if (toggle) {
       toggle.setAttribute('aria-expanded', 'false');
       var oi = toggle.querySelector('.kt-header__menu-toggle-open');
@@ -231,7 +239,12 @@
     if (e.target.querySelector('.kt-header__menu-toggle') ||
         e.target.classList.contains('kt-header__mobile-panel')) {
       // Restore body overflow if the section unmounts while open.
-      document.body.style.overflow = '';
+      // Use scrollLock.unlock so we don't stomp a different drawer.
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('mobile-nav');
+      } else {
+        document.body.style.overflow = '';
+      }
     }
   });
 })();
