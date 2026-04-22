@@ -109,7 +109,7 @@
   - Other customer/* pages + search + 404 carried over from the
     previous list.
 {%- endcomment -%}
-{%- assign hidden_page_types = 'search,404,captcha,gift_card,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
+{%- assign hidden_page_types = 'search,404,captcha,gift_card,password,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
 {%- endif -%}
@@ -147,17 +147,28 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' and product -%}
-  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
+  {%- comment -%}
+    FB Commerce Catalog ingests `product:price:amount` as a dotted
+    decimal. `money_without_currency` renders locale-specific
+    separators (e.g. "99,00" in French stores) which Facebook's feed
+    parser rejects. Divide cents by 100.0 to guarantee a
+    locale-independent "99.00". `round: 2` keeps two decimals.
+  {%- endcomment -%}
+  {%- assign og_price_decimal = product.price | divided_by: 100.0 | round: 2 -%}
+  <meta property="og:price:amount" content="{{ og_price_decimal }}">
   <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
   {%- comment -%}
     Emit both the modern product:availability key AND the legacy
     og:availability key — FB Business and some product-catalog
     scrapers still expect og:availability with "instock"/"oos" form.
     product:brand + product:retailer_item_id (SKU) are required by
-    Facebook Catalog / Shop feed ingestion.
+    Facebook Catalog / Shop feed ingestion. product:condition is a
+    required FB catalog field; default to "new" — merchants selling
+    refurbished/used can override via a future metafield.
   {%- endcomment -%}
   <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
   <meta property="og:availability" content="{% if product.available %}instock{% else %}oos{% endif %}">
+  <meta property="product:condition" content="new">
   {%- if product.vendor != blank -%}
     <meta property="product:brand" content="{{ product.vendor | escape }}">
   {%- endif -%}

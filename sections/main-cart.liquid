@@ -86,6 +86,23 @@
                   <div class="kt-cart-page__item-info">
                     <a href="{{ item.url }}" class="kt-cart-page__item-title">{{ item.product.title }}</a>
 
+                    {%- comment -%}
+                      Unavailable-after-add warning. A cart can sit in
+                      a session for hours; if a variant goes out of
+                      stock in the meantime, Shopify silently drops
+                      the line at checkout with a generic "item
+                      unavailable" error the customer first sees AFTER
+                      they've clicked Checkout. Surface it here at
+                      the cart page so they can remove/swap before
+                      hitting the checkout wall. role="alert" so SR
+                      users hear it on page load.
+                    {%- endcomment -%}
+                    {%- unless item.variant.available -%}
+                      <p class="kt-cart-page__item-unavailable" role="alert">
+                        {{ 'kt.cart.item_unavailable' | t | default: 'This item is no longer available. Please remove it to continue.' }}
+                      </p>
+                    {%- endunless -%}
+
                     {%- unless item.product.has_only_default_variant -%}
                       <ul class="kt-cart-page__item-options" role="list">
                         {%- for option in item.options_with_values -%}
@@ -238,9 +255,20 @@
                     </button>
                   </div>
 
-                  {%- comment -%} Desktop remove icon next to stepper {%- endcomment -%}
+                  {%- comment -%}
+                    Remove icon. `type="submit"` with `name="updates[key]"
+                    value="0"` so JS-off users submitting the cart form
+                    remove the line natively (Shopify's /cart handler
+                    reads `updates[key]` as the new quantity — 0 means
+                    delete). assets/main-cart.js intercepts the click
+                    via the `data-cart-remove` attribute and runs the
+                    AJAX path; if JS is on, preventDefault stops the
+                    native submit.
+                  {%- endcomment -%}
                   <button
-                    type="button"
+                    type="submit"
+                    name="updates[{{ item.key }}]"
+                    value="0"
                     class="kt-cart-page__item-remove"
                     data-cart-remove
                     data-line-key="{{ item.key }}"

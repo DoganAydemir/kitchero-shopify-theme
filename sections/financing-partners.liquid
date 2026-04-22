@@ -31,12 +31,22 @@
             {%- if block.type == 'partner' -%}
               <li class="kt-financing-partners__item" {{ block.shopify_attributes }}>
                 {%- if block.settings.logo_image != blank -%}
+                  {%- comment -%}
+                    Compute the width attr from the merchant upload's
+                    aspect ratio at 24px render height so <img> ships
+                    valid width+height (Theme Check `ImgWidthAndHeight`
+                    + CLS prevention). Previously only `height: 24`
+                    was emitted — no width → browser reserves 0px
+                    until the image loads → partner row jumps in.
+                  {%- endcomment -%}
+                  {%- assign logo_width = block.settings.logo_image.width | times: 24 | divided_by: block.settings.logo_image.height -%}
                   {{
                     block.settings.logo_image
                     | image_url: height: 48
                     | image_tag:
                       class: 'kt-financing-partners__logo',
                       loading: 'lazy',
+                      width: logo_width,
                       height: 24,
                       alt: block.settings.name
                   }}

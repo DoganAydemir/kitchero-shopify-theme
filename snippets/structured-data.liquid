@@ -89,7 +89,16 @@
             ,"postalCode": {{ shop.address.zip | json }}
           {%- endif -%}
           {%- if shop.address.country != blank -%}
-            ,"addressCountry": {{ shop.address.country_upper | default: shop.address.country | json }}
+            {%- comment -%}
+              Google prefers ISO 3166-1 alpha-2 for addressCountry
+              (e.g. "US", "TR", "DE"). Shopify's `country_code` is
+              that ISO form; `country` is the localized full name.
+              Previous code referenced `country_upper` which isn't a
+              real Liquid property and silently fell back to the
+              localized name. Emit ISO code first, full name as
+              fallback for stores without country_code set.
+            {%- endcomment -%}
+            ,"addressCountry": {{ shop.address.country_code | default: shop.address.country | json }}
           {%- endif -%}
         }
       {%- endif -%}

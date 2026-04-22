@@ -19,7 +19,17 @@
             {%- endcomment -%}
             {%- assign brand_alt_fallback = 'kt.section.brands.logo_alt' | t -%}
             {%- if block.settings.image != blank -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: 120, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
+              {%- comment -%}
+                Compute width from merchant upload's aspect ratio at
+                40px render height. Previously hardcoded `width: 120,
+                height: 40` (3:1) stretched narrow or tall logos and
+                caused a CLS flash before the `.kt-brands__logo` CSS
+                `max-height: 100%; width: auto` overrode. Using the
+                real aspect keeps width+height truthful for Theme
+                Check and prevents the reflow.
+              {%- endcomment -%}
+              {%- assign brand_logo_width = block.settings.image.width | times: 40 | divided_by: block.settings.image.height -%}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: brand_logo_width, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
             {%- else -%}
               <div class="kt-brands__placeholder">
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
