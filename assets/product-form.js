@@ -312,6 +312,33 @@
     });
   }
 
+  /**
+   * Lazy-parse the `<script type="application/json" data-variant-data>`
+   * blob rendered by product-variant-picker.liquid. Previously every
+   * `<option>` in the hidden variant select carried a full
+   * `data-variant-json` attribute — ~600 bytes × 20 variants = 12KB
+   * of HTML overhead PLUS repeated `JSON.parse` on every swatch
+   * click. Parse once, cache on the container, reuse.
+   *
+   * Returns an array of variant objects, or an empty array on parse
+   * failure (defensive — product-form.js must never throw in the
+   * variant-match hot path).
+   */
+  function getVariantsData(container) {
+    if (container._kitcheroVariants) return container._kitcheroVariants;
+    var blob = container.querySelector('script[data-variant-data]');
+    if (!blob) {
+      container._kitcheroVariants = [];
+      return container._kitcheroVariants;
+    }
+    try {
+      container._kitcheroVariants = JSON.parse(blob.textContent) || [];
+    } catch (e) {
+      container._kitcheroVariants = [];
+    }
+    return container._kitcheroVariants;
+  }
+
   function updateVariant(container, variantIdInput, variantSelect, atcBtn, atcText) {
     /* Collect selected options */
     var selectedOptions = [];
@@ -319,23 +346,25 @@
       selectedOptions.push(input.value);
     });
 
-    /* Find matching variant */
-    var options = variantSelect.querySelectorAll('option');
+    /* Find matching variant — iterate the cached JSON array, not the
+       hidden select's options (we no longer write variant JSON per
+       option). `variant.options` is `[option1, option2, option3]`
+       from Shopify; compare index-by-index against the selected
+       radios. */
+    var variants = getVariantsData(container);
     var matchedVariant = null;
-
-    options.forEach(function (option) {
-      try {
-        var variant = JSON.parse(option.dataset.variantJson);
-        var match = true;
-        for (var i = 0; i < selectedOptions.length; i++) {
-          if (variant.options[i] !== selectedOptions[i]) {
-            match = false;
-            break;
-          }
+    for (var idx = 0; idx < variants.length; idx++) {
+      var variant = variants[idx];
+      if (!variant || !variant.options) continue;
+      var match = true;
+      for (var i = 0; i < selectedOptions.length; i++) {
+        if (variant.options[i] !== selectedOptions[i]) {
+          match = false;
+          break;
         }
-        if (match) matchedVariant = variant;
-      } catch (e) {}
-    });
+      }
+      if (match) { matchedVariant = variant; break; }
+    }
 
     if (matchedVariant) {
       /* Update hidden ID */
@@ -550,22 +579,30 @@
     var container = e.target && (e.target.closest ? e.target.closest('[data-section-type]') : null);
     if (!container || !container.dataset) return;
     var planId = (e.detail && e.detail.planId) || null;
+    var variant = null;
     var variantJson = container.dataset.currentVariantJson;
-    if (!variantJson) {
-      /* First plan change before any variant swap — fall back to
-         reading the currently-selected variant off the hidden <select>
-         inside the form. */
+    if (variantJson) {
+      try { variant = JSON.parse(variantJson); } catch (err) { variant = null; }
+    }
+    if (!variant) {
+      /* First plan change before any variant swap — find the
+         currently-selected variant by id in the cached data blob. */
       var form = container.querySelector('form[action*="/cart/add"]');
       var select = form && form.querySelector('[data-variant-select]');
-      var opt = select && select.querySelector('option:checked');
-      if (opt && opt.dataset.variantJson) {
-        variantJson = opt.dataset.variantJson;
-        container.dataset.currentVariantJson = variantJson;
+      if (select && select.value) {
+        var targetId = Number(select.value);
+        var variants = getVariantsData(container);
+        for (var vi = 0; vi < variants.length; vi++) {
+          if (variants[vi] && Number(variants[vi].id) === targetId) {
+            variant = variants[vi];
+            try { container.dataset.currentVariantJson = JSON.stringify(variant); } catch (e) {}
+            break;
+          }
+        }
       }
     }
-    if (!variantJson) return;
+    if (!variant) return;
     try {
-      var variant = JSON.parse(variantJson);
       renderPriceForVariant(container, variant, planId);
 
       /* Announce the new price to SR users — subscription discount

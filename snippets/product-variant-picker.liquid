@@ -243,20 +243,27 @@
           value="{{ variant.id }}"
           {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
           {% unless variant.available %}disabled{% endunless %}
-          {%- comment -%}
-            Double-quoted attr + `| escape` is required. Shopify's
-            `| json` encodes for JSON string context but does NOT
-            HTML-entity-encode `"`, `&`, `<`. A variant with a
-            title containing `'` (e.g. "Men's Large") would otherwise
-            break out of a single-quoted attribute — attribute-
-            breakout XSS. Double-quote + escape closes both paths.
-          {%- endcomment -%}
-          data-variant-json="{{ variant | json | escape }}"
         >
           {{ variant.title }}
         </option>
       {%- endfor -%}
     </select>
+
+    {%- comment -%}
+      Variants data blob. Previously we emitted the full variant JSON
+      on EVERY `<option>` via `data-variant-json`; for a 20-variant
+      product that's ~12KB of HTML overhead AND product-form.js ran
+      `JSON.parse` once per variant on every swatch change (repeated
+      O(n) parsing). Moving to a single `<script type="application/
+      json">` block parses once on init, caches the result on the
+      container, and lets option matching iterate an in-memory array.
+
+      `type="application/json"` is NOT executed by the browser — it's
+      data storage with JSON-safe content. Shopify's `| json` filter
+      handles all the escape/encoding so no additional `| escape`
+      is needed (application/json context, not HTML attribute).
+    {%- endcomment -%}
+    <script type="application/json" data-variant-data>{{ product.variants | json }}</script>
   </div>
 
   {%- comment -%}
