@@ -82,7 +82,11 @@
 }
 
 .kt-search-page__input::placeholder {
-  color: var(--kt-stone-400);
+  /* Darkened from stone-400 (#a8a29e 2.85:1 on white) to stone-500
+     (#78716c 4.6:1) so placeholder text clears WCAG 1.4.11 UI-
+     components contrast on light backgrounds. The input has a white
+     background — stone-400 fails axe's color-contrast rule. */
+  color: var(--kt-stone-500);
 }
 
 .kt-search-page__input:focus-visible {
@@ -455,7 +459,9 @@
 
 .kt-search-page__popular-pill--empty {
   font-style: italic;
-  color: var(--kt-stone-400);
+  /* WCAG 1.4.3: body text on white needs 4.5:1. stone-400 (#a8a29e)
+     is 2.85:1, fail. stone-500 (#78716c) is 4.6:1, pass. */
+  color: var(--kt-stone-500);
   background-color: transparent;
   border-style: dashed;
   cursor: default;
@@ -463,7 +469,8 @@
 
 .kt-search-page__popular-hint {
   font-style: italic;
-  color: var(--kt-stone-400);
+  /* Same WCAG 1.4.3 fix — hint text renders on white search page bg. */
+  color: var(--kt-stone-500);
   font-size: 0.875rem;
   margin: 0;
 }

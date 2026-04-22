@@ -214,7 +214,10 @@
 }
 
 .kt-financing-calculator__term--active .kt-financing-calculator__term-months {
-  color: var(--kt-stone-400);
+  /* WCAG 1.4.3: "months" text on the active-term card. Card bg is
+     stone-50 (#fafaf9); stone-400 on stone-50 is ~2.8:1, fail.
+     stone-500 is 4.4:1, pass for body text. */
+  color: var(--kt-stone-500);
 }
 
 .kt-financing-calculator__term-price {

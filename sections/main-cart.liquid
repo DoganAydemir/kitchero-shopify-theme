@@ -51,7 +51,22 @@
               <div class="kt-cart-page__item" data-line-key="{{ item.key }}">
                 {%- comment -%} Product: thumb + info {%- endcomment -%}
                 <div class="kt-cart-page__item-product">
-                  <a href="{{ item.url }}" class="kt-cart-page__item-image" aria-hidden="true" tabindex="-1">
+                  {%- comment -%}
+                    Previously had `aria-hidden="true"` to avoid SRs
+                    announcing the thumbnail link twice (once for
+                    thumb, once for title). But aria-hidden on a
+                    focusable `<a href>` fails axe-core's
+                    `aria-hidden-focus` rule (WCAG 4.1.2): an element
+                    with aria-hidden cannot contain focusable
+                    descendants, and `<a href>` IS focusable even
+                    with tabindex="-1". Kept tabindex="-1" to skip
+                    keyboard tab order; dropped aria-hidden. SR users
+                    now hear the product linked twice — the image's
+                    `alt={{ item.title }}` provides an accessible
+                    name, which axe accepts. Minor redundancy trade
+                    for passing the strict rule.
+                  {%- endcomment -%}
+                  <a href="{{ item.url }}" class="kt-cart-page__item-image" tabindex="-1">
                     {%- if item.image -%}
                       {{
                         item.image

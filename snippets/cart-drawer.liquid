@@ -24,8 +24,13 @@
       {%- if cart.item_count > 0 -%}
         {%- for item in cart.items -%}
           <div class="kt-cart-drawer__item" data-line-key="{{ item.key }}">
-            {%- comment -%} Thumbnail {%- endcomment -%}
-            <a href="{{ item.url }}" class="kt-cart-drawer__item-image" aria-hidden="true" tabindex="-1">
+            {%- comment -%}
+              Thumbnail. aria-hidden removed to avoid axe-core
+              `aria-hidden-focus` — see sections/main-cart.liquid
+              for the full rationale. tabindex="-1" kept so keyboard
+              Tab flow skips the thumb and lands on the title link.
+            {%- endcomment -%}
+            <a href="{{ item.url }}" class="kt-cart-drawer__item-image" tabindex="-1">
               {%- if item.image -%}
                 {{
                   item.image

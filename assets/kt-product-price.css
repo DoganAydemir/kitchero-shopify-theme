@@ -52,10 +52,13 @@
 }
 
 .kt-product-price__unit-separator {
-  color: var(--kt-stone-400);
+  /* WCAG 1.4.3: body text on white PDP bg needs 4.5:1. stone-400
+     (#a8a29e) is 2.85:1, fail. stone-500 (#78716c) is 4.6:1, pass. */
+  color: var(--kt-stone-500);
 }
 
 .kt-product-price__unit-qty {
   margin-left: 0.25rem;
-  color: var(--kt-stone-400);
+  /* Same fix as unit-separator — both render on white PDP bg. */
+  color: var(--kt-stone-500);
 }

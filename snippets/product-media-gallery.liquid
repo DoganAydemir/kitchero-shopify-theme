@@ -161,13 +161,21 @@
               External video provider needs its iframe wrapped so we can
               constrain aspect ratio. Shopify's external_video_tag emits
               a raw <iframe>; we wrap to preserve kt-gallery layout.
+
+              `title` attribute is required on every iframe (WCAG 4.1.2
+              "frame-title"). Shopify's external_video_tag filter
+              passes through arbitrary hash kwargs as iframe attributes,
+              so `title:` below lands on the rendered <iframe>.
+              Falls back to the product title when the merchant has
+              not set an alt on the video asset.
             {%- endcomment -%}
             <div class="kt-gallery__external-video">
               {{
                 media
                 | external_video_tag:
                   class: 'kt-gallery__video',
-                  loading: 'lazy'
+                  loading: 'lazy',
+                  title: media.alt | default: product.title
               }}
             </div>
           {%- when 'model' -%}
