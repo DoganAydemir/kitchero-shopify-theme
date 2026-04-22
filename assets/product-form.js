@@ -347,58 +347,22 @@
       url.searchParams.set('variant', matchedVariant.id);
       window.history.replaceState({}, '', url.toString());
 
-      /* Update price */
-      var priceEl = container.querySelector('.kt-product-price__current');
-      var compareEl = container.querySelector('.kt-product-price__compare');
-      var discountEl = container.querySelector('.kt-product-price__discount');
+      /* Stash the currently-matched variant on the container so the
+         selling-plan:change handler below can re-price when the
+         customer picks a subscription cadence without having to
+         re-match against option inputs. Cheap DOM storage (one JSON
+         per container), cleared on next variant change automatically. */
+      try {
+        container.dataset.currentVariantJson = JSON.stringify(matchedVariant);
+      } catch (e) { /* circular / non-serializable — ignore */ }
 
-      /* Format prices for the active Shopify market. Previously we
-         called `Shopify.formatMoney` with a `$NN.NN` fallback — but
-         `Shopify.formatMoney` isn't loaded in this theme (no
-         shopify_common.js / option_selection.js). On every EUR/TRY/
-         GBP market the fallback fired, flashing `$149.00` the instant
-         a customer clicked a swatch even though the Liquid-rendered
-         initial price read `€149,00`. Theme Store multi-country test
-         catches this. Use `Intl.NumberFormat` locked to
-         `Shopify.currency.active` (set on every market) with the
-         document's active locale for correct decimal separator +
-         symbol placement. */
-      function formatMoney(cents) {
-        var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
-        var locale = (document.documentElement.lang || 'en').replace('_', '-');
-        try {
-          return new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currency
-          }).format(cents / 100);
-        } catch (e) {
-          /* Invalid locale/currency — fall back to USD formatting so
-             we at least don't throw. */
-          return new Intl.NumberFormat('en', {
-            style: 'currency',
-            currency: 'USD'
-          }).format(cents / 100);
-        }
-      }
+      /* Re-read the active selling plan (if any) so the new variant
+         shows the subscription-discounted price instead of flipping
+         back to one-time price for one frame. */
+      var activePlanInput = form.querySelector('input[name="selling_plan"]');
+      var activePlanId = activePlanInput ? activePlanInput.value : null;
 
-      if (priceEl) {
-        priceEl.textContent = formatMoney(matchedVariant.price);
-      }
-
-      if (matchedVariant.compare_at_price && matchedVariant.compare_at_price > matchedVariant.price) {
-        if (compareEl) {
-          compareEl.textContent = formatMoney(matchedVariant.compare_at_price);
-          compareEl.style.display = '';
-        }
-        if (discountEl) {
-          var pct = Math.round(((matchedVariant.compare_at_price - matchedVariant.price) / matchedVariant.compare_at_price) * 100);
-          discountEl.textContent = '-' + pct + '%';
-          discountEl.style.display = '';
-        }
-      } else {
-        if (compareEl) compareEl.style.display = 'none';
-        if (discountEl) discountEl.style.display = 'none';
-      }
+      renderPriceForVariant(container, matchedVariant, activePlanId);
 
       /* Update ATC button state */
       if (atcBtn) {
@@ -460,6 +424,160 @@
       }
     }
   }
+
+  /**
+   * Format a cents integer as a currency string, market-aware.
+   *
+   * Previously called `Shopify.formatMoney` with a `$NN.NN` fallback —
+   * but `Shopify.formatMoney` isn't loaded in this theme (no
+   * shopify_common.js / option_selection.js). On every EUR/TRY/GBP
+   * market the fallback fired, flashing `$149.00` the instant a
+   * customer clicked a swatch even though the Liquid-rendered initial
+   * price read `€149,00`. Theme Store multi-country test catches this.
+   * Use `Intl.NumberFormat` locked to `Shopify.currency.active` (set on
+   * every market) with the document's active locale for correct
+   * decimal separator + symbol placement.
+   */
+  function formatMoney(cents) {
+    var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+    var locale = (document.documentElement.lang || 'en').replace('_', '-');
+    try {
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currency
+      }).format(cents / 100);
+    } catch (e) {
+      return new Intl.NumberFormat('en', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(cents / 100);
+    }
+  }
+
+  /**
+   * Render the product price block (`.kt-product-price__current` +
+   * `__compare` + `__discount`) for a given variant and optional
+   * selling-plan id.
+   *
+   * Why this exists as a standalone function: previously the price
+   * render lived inline inside `updateVariant` and only ran on
+   * option-swatch clicks. That meant when the customer picked a
+   * "Subscribe & save 15%" radio the PDP price stayed at full price
+   * until checkout — a known Theme Store reject because the customer
+   * can't confirm the discounted amount before committing.
+   *
+   * Now called from BOTH variant-change AND selling-plan:change so
+   * the display stays consistent with what will actually be charged.
+   *
+   * Lookup order for price:
+   *   1. `variant.selling_plan_allocations[planId].price` when a
+   *      selling plan is active. This is the discounted recurring
+   *      price (e.g. 15% off $100 = $85 shown here).
+   *   2. `variant.price` otherwise — one-time purchase price.
+   *
+   * Compare-at: we only show compare/discount when we have a clear
+   * "was/now" pair. For one-time purchase that's
+   * `compare_at_price > price`. For a subscription it's
+   * `variant.price > allocation.price` (the sub discount, so the
+   * compare-at displays the one-time price struck through), OR the
+   * existing compare_at when larger. Pick the max so the savings
+   * display is never understated.
+   */
+  function renderPriceForVariant(container, variant, sellingPlanId) {
+    if (!container || !variant) return;
+    var priceEl = container.querySelector('.kt-product-price__current');
+    var compareEl = container.querySelector('.kt-product-price__compare');
+    var discountEl = container.querySelector('.kt-product-price__discount');
+
+    var displayPrice = variant.price;
+    var comparePrice = variant.compare_at_price || 0;
+
+    /* Resolve allocation for the active plan. The selling_plan_allocations
+       array has an entry per plan that applies to this variant; the
+       shape is `{ price, compare_at_price, per_delivery_price,
+       selling_plan_id, ... }`. A one-time purchase selection leaves
+       sellingPlanId empty, so we fall through to variant.price. */
+    if (sellingPlanId && variant.selling_plan_allocations && variant.selling_plan_allocations.length) {
+      for (var i = 0; i < variant.selling_plan_allocations.length; i++) {
+        var alloc = variant.selling_plan_allocations[i];
+        if (String(alloc.selling_plan_id) === String(sellingPlanId)) {
+          displayPrice = alloc.price;
+          /* When subscribing, the one-time `variant.price` IS the
+             compare-at — that's the savings. Keep existing compare_at
+             if the merchant set one higher (sale + sub stacked). */
+          var subCompare = variant.price;
+          if (subCompare > displayPrice) {
+            comparePrice = Math.max(comparePrice, subCompare);
+          }
+          break;
+        }
+      }
+    }
+
+    if (priceEl) {
+      priceEl.textContent = formatMoney(displayPrice);
+    }
+
+    if (comparePrice && comparePrice > displayPrice) {
+      if (compareEl) {
+        compareEl.textContent = formatMoney(comparePrice);
+        compareEl.style.display = '';
+      }
+      if (discountEl) {
+        var pct = Math.round(((comparePrice - displayPrice) / comparePrice) * 100);
+        discountEl.textContent = '-' + pct + '%';
+        discountEl.style.display = '';
+      }
+    } else {
+      if (compareEl) compareEl.style.display = 'none';
+      if (discountEl) discountEl.style.display = 'none';
+    }
+  }
+
+  /**
+   * Global listener for selling-plan:change — fired by
+   * selling-plan-picker.js when the customer ticks a different
+   * subscription cadence radio. Finds the owning product form's
+   * stashed variant and re-runs the price render for the new plan.
+   *
+   * Lives outside `initProductForm` so a single listener covers every
+   * product section on the page (search results, recommended slider,
+   * PDP main form) without per-form re-binding. The event bubbles
+   * from the section container to `document`; we walk back to the
+   * section container to read `currentVariantJson`.
+   */
+  document.addEventListener('selling-plan:change', function (e) {
+    var container = e.target && (e.target.closest ? e.target.closest('[data-section-type]') : null);
+    if (!container || !container.dataset) return;
+    var planId = (e.detail && e.detail.planId) || null;
+    var variantJson = container.dataset.currentVariantJson;
+    if (!variantJson) {
+      /* First plan change before any variant swap — fall back to
+         reading the currently-selected variant off the hidden <select>
+         inside the form. */
+      var form = container.querySelector('form[action*="/cart/add"]');
+      var select = form && form.querySelector('[data-variant-select]');
+      var opt = select && select.querySelector('option:checked');
+      if (opt && opt.dataset.variantJson) {
+        variantJson = opt.dataset.variantJson;
+        container.dataset.currentVariantJson = variantJson;
+      }
+    }
+    if (!variantJson) return;
+    try {
+      var variant = JSON.parse(variantJson);
+      renderPriceForVariant(container, variant, planId);
+
+      /* Announce the new price to SR users — subscription discount
+         applied silently is confusing. */
+      if (window.Kitchero && typeof Kitchero.announce === 'function') {
+        var priceEl = container.querySelector('.kt-product-price__current');
+        if (priceEl && priceEl.textContent) {
+          Kitchero.announce(priceEl.textContent.trim());
+        }
+      }
+    } catch (err) { /* malformed JSON — skip */ }
+  });
 
   /**
    * Share — Web Share API first, clipboard fallback. No external service.

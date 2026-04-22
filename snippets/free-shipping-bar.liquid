@@ -21,9 +21,25 @@
 {%- liquid
   assign threshold = settings.kt_free_shipping_threshold | default: 0 | times: 1
   assign threshold_cents = threshold | times: 100
+
+  # Markets / multi-currency gate. The threshold setting is a raw
+  # number interpreted in the shop's primary currency. When a customer
+  # is browsing in a different currency via Shopify Markets,
+  # cart.items_subtotal_price comes back in THAT buyer currency, but
+  # threshold_cents stays in shop-primary units. Comparing them yields
+  # a wrong "Add $X" prompt (e.g. merchant sets $100, UK buyer at
+  # £85 cart sees "Add £15" even though the converted threshold is
+  # ~£79 at current rates). Rather than ship wrong numbers, suppress
+  # the bar when currencies differ; merchant can set per-market
+  # thresholds via localized settings once Shopify's Markets UI
+  # supports that natively (not yet GA as of 2026).
+  assign currency_mismatch = false
+  if cart.currency.iso_code != shop.currency
+    assign currency_mismatch = true
+  endif
 -%}
 
-{%- if threshold_cents > 0 and cart.requires_shipping and cart.item_count > 0 -%}
+{%- if threshold_cents > 0 and cart.requires_shipping and cart.item_count > 0 and currency_mismatch == false -%}
   {%- comment -%}
     Use items_subtotal_price (pre-discount, pre-shipping line total)
     not total_price (post-discount, post-tax in EU/UK stores). Two

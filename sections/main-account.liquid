@@ -123,12 +123,36 @@
       </div>
     </div>
   </div>
+
+  {%- comment -%}
+    App-block render slot — sits BELOW the orders table so merchants can
+    append loyalty widgets, referral CTAs, rewards summaries, etc. The
+    `{"type": "@app"}` in the schema below is a Theme Store hard
+    requirement — without it, loyalty / referral app vendors can't
+    attach UI to the customer account.
+  {%- endcomment -%}
+  {%- if section.blocks.size > 0 -%}
+    <div class="kt-account__app-blocks">
+      <div class="page-width">
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}
+            <div class="kt-account__app-block" {{ block.shopify_attributes }}>
+              {%- render block -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
 </section>
 
 {% schema %}
 {
   "name": "t:sections.main-account.name",
   "tag": "section",
-  "class": "section"
+  "class": "section",
+  "blocks": [
+    { "type": "@app" }
+  ]
 }
 {% endschema %}

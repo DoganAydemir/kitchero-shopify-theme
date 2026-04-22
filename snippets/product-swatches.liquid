@@ -1,7 +1,30 @@
 {%- comment -%}
   Product Color Swatches — renders small color circles from variant options.
   Reads the "Color" option from product.options_with_values.
-  Each swatch links to the variant URL.
+  Each swatch is picked from three sources, in priority order:
+
+    1. Shopify's native option-value swatch (OS 2.0 Color option type).
+       When the merchant configures a color or image swatch in the
+       admin product editor, `option.selected_value.swatch.color` /
+       `.image` is populated automatically. This is the canonical
+       source and needs no theme intervention.
+
+    2. Per-variant metafield `custom.swatch_color` (hex) /
+       `custom.swatch_image` (file reference). Same pattern as
+       product-variant-picker.liquid for parity — merchants who
+       already populated those metafields for the PDP get the same
+       result on cards. The hex goes through the alphabet-strip
+       sanitizer so a write-capable metafield editor can't inject
+       CSS via `; background-image: url(...)`.
+
+    3. Name→hex lookup for ~20 common English color words. This is
+       ONLY a last-resort for stores that haven't configured either
+       of the above. Previously this was the sole source — meaning
+       any color not in the list (e.g. "Midnight Teal", "Rose Gold",
+       Turkish/French/German color names) silently rendered as a
+       grey fallback and was flagged by Theme Store reviewers as a
+       "hardcoded palette limits merchant customisation".
+
   Renders nothing if no "Color" option exists.
 
   Accepts:
@@ -12,7 +35,7 @@
   assign color_option = nil
   for option in product.options_with_values
     assign option_name_lower = option.name | downcase
-    if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk'
+    if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk' or option_name_lower == 'couleur' or option_name_lower == 'farbe'
       assign color_option = option
       break
     endif
@@ -22,39 +45,139 @@
 {%- if color_option and color_option.values.size > 0 -%}
   <div class="kt-swatches" aria-label="{{ color_option.name }}">
     {%- for value in color_option.values -%}
-      {%- assign color_lower = value | downcase | strip -%}
-      {%- comment -%} Map common color names to hex {%- endcomment -%}
-      {%- case color_lower -%}
-        {%- when 'black' -%}{%- assign swatch_bg = '#1a1a1a' -%}
-        {%- when 'white' -%}{%- assign swatch_bg = '#faf9f6' -%}
-        {%- when 'beige' -%}{%- assign swatch_bg = '#e8dccc' -%}
-        {%- when 'brown' -%}{%- assign swatch_bg = '#6b4e31' -%}
-        {%- when 'gray' or 'grey' -%}{%- assign swatch_bg = '#808080' -%}
-        {%- when 'navy' -%}{%- assign swatch_bg = '#2c3e50' -%}
-        {%- when 'silver' -%}{%- assign swatch_bg = '#c0c0c0' -%}
-        {%- when 'orange' -%}{%- assign swatch_bg = '#d35400' -%}
-        {%- when 'green' -%}{%- assign swatch_bg = '#27ae60' -%}
-        {%- when 'burgundy' -%}{%- assign swatch_bg = '#800020' -%}
-        {%- when 'red' -%}{%- assign swatch_bg = '#c0392b' -%}
-        {%- when 'blue' -%}{%- assign swatch_bg = '#2980b9' -%}
-        {%- when 'yellow' -%}{%- assign swatch_bg = '#f1c40f' -%}
-        {%- when 'pink' -%}{%- assign swatch_bg = '#e91e8c' -%}
-        {%- when 'cream' -%}{%- assign swatch_bg = '#FFFDD0' -%}
-        {%- when 'ivory' -%}{%- assign swatch_bg = '#FFFFF0' -%}
-        {%- when 'walnut' -%}{%- assign swatch_bg = '#5D432C' -%}
-        {%- when 'oak' -%}{%- assign swatch_bg = '#d2b48c' -%}
-        {%- when 'espresso' -%}{%- assign swatch_bg = '#3C2415' -%}
-        {%- when 'charcoal' -%}{%- assign swatch_bg = '#36454F' -%}
-        {%- when 'midnight' -%}{%- assign swatch_bg = '#191970' -%}
-        {%- else -%}{%- assign swatch_bg = '#a8a29e' -%}
-      {%- endcase -%}
+      {%- liquid
+        # 1. Native OS 2.0 swatch on the option value. `value` here is
+        #    a ProductOptionValue object when the option is of Color
+        #    type; `.swatch.color` is the merchant-configured hex,
+        #    `.swatch.image` is the uploaded variant image.
+        assign swatch_bg = nil
+        assign swatch_image_url = nil
+        if value.swatch != blank
+          if value.swatch.color != blank
+            assign swatch_bg = value.swatch.color
+          endif
+          if value.swatch.image != blank
+            assign swatch_image_url = value.swatch.image | image_url: width: 64
+          endif
+        endif
 
-      <span
-        class="kt-swatches__dot"
-        style="background-color: {{ swatch_bg }};"
-        title="{{ value | escape }}"
-        aria-label="{{ value | escape }}"
-      ></span>
+        # 2. Per-variant metafield fallback. Find the first variant whose
+        #    color option matches this value, read its swatch_color /
+        #    swatch_image metafield. Only if (1) didn't populate.
+        if swatch_bg == nil and swatch_image_url == nil
+          assign matching_variant = nil
+          for v in product.variants
+            assign variant_color = nil
+            if v.option1 != blank and color_option.position == 1
+              assign variant_color = v.option1
+            elsif v.option2 != blank and color_option.position == 2
+              assign variant_color = v.option2
+            elsif v.option3 != blank and color_option.position == 3
+              assign variant_color = v.option3
+            endif
+            if variant_color == value
+              assign matching_variant = v
+              break
+            endif
+          endfor
+          if matching_variant
+            assign meta_color = matching_variant.metafields.custom.swatch_color.value | strip
+            assign meta_image = matching_variant.metafields.custom.swatch_image.value
+
+            # Hex sanitizer — reject anything that isn't #rgb / #rrggbb /
+            # #rrggbbaa. Share the same alphabet-strip pattern used in
+            # product-variant-picker.liquid. This closes the CSS-injection
+            # vector where a metafield editor pastes
+            # "red; background-image: url(...)".
+            if meta_color != blank
+              assign hex_cand = meta_color | downcase
+              assign hex_strip = hex_cand | remove: '#'
+              assign hex_strip = hex_strip | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4'
+              assign hex_strip = hex_strip | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+              assign hex_strip = hex_strip | remove: 'a' | remove: 'b' | remove: 'c' | remove: 'd' | remove: 'e' | remove: 'f'
+              assign hex_size = hex_cand | size
+              if hex_strip == '' and hex_cand != '' and hex_cand != '#'
+                if hex_size == 4 or hex_size == 7 or hex_size == 9
+                  assign hex_first = hex_cand | slice: 0
+                  if hex_first == '#'
+                    assign swatch_bg = meta_color
+                  endif
+                endif
+              endif
+            endif
+            if meta_image != blank and swatch_image_url == nil
+              assign swatch_image_url = meta_image | image_url: width: 64
+            endif
+          endif
+        endif
+
+        # 3. Keyword fallback — last resort only.
+        if swatch_bg == nil and swatch_image_url == nil
+          assign color_lower = value | downcase | strip
+          case color_lower
+            when 'black'
+              assign swatch_bg = '#1a1a1a'
+            when 'white', 'arctic white'
+              assign swatch_bg = '#faf9f6'
+            when 'beige'
+              assign swatch_bg = '#e8dccc'
+            when 'brown'
+              assign swatch_bg = '#6b4e31'
+            when 'gray', 'grey'
+              assign swatch_bg = '#808080'
+            when 'navy'
+              assign swatch_bg = '#2c3e50'
+            when 'silver'
+              assign swatch_bg = '#c0c0c0'
+            when 'orange'
+              assign swatch_bg = '#d35400'
+            when 'green'
+              assign swatch_bg = '#27ae60'
+            when 'burgundy'
+              assign swatch_bg = '#800020'
+            when 'red'
+              assign swatch_bg = '#c0392b'
+            when 'blue'
+              assign swatch_bg = '#2980b9'
+            when 'yellow'
+              assign swatch_bg = '#f1c40f'
+            when 'pink'
+              assign swatch_bg = '#e91e8c'
+            when 'cream'
+              assign swatch_bg = '#FFFDD0'
+            when 'ivory'
+              assign swatch_bg = '#FFFFF0'
+            when 'walnut'
+              assign swatch_bg = '#5D432C'
+            when 'oak'
+              assign swatch_bg = '#d2b48c'
+            when 'espresso'
+              assign swatch_bg = '#3C2415'
+            when 'charcoal'
+              assign swatch_bg = '#36454F'
+            when 'midnight'
+              assign swatch_bg = '#191970'
+            else
+              assign swatch_bg = '#a8a29e'
+          endcase
+        endif
+      -%}
+
+      {%- if swatch_image_url -%}
+        <span
+          class="kt-swatches__dot kt-swatches__dot--image"
+          style="background-image: url('{{ swatch_image_url }}');"
+          title="{{ value | escape }}"
+          aria-label="{{ value | escape }}"
+        ></span>
+      {%- else -%}
+        <span
+          class="kt-swatches__dot"
+          style="background-color: {{ swatch_bg }};"
+          title="{{ value | escape }}"
+          aria-label="{{ value | escape }}"
+        ></span>
+      {%- endif -%}
     {%- endfor -%}
   </div>
 {%- endif -%}

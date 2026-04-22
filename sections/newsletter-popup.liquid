@@ -97,8 +97,25 @@
                 {{ 'kt.section.newsletter-popup.success_heading' | t | default: 'Welcome to the Family!' }}
               </h2>
               <p class="kt-newsletter-popup__success-desc" id="NewsletterPopupDesc-{{ section.id }}">
-                {%- assign success_code_html = '<span class="kt-newsletter-popup__code">' | append: section.settings.success_code | append: '</span>' -%}
-                {{ section.settings.success_description | default: 'Your 15% discount code has been sent to your inbox. Use code [code] at checkout.' | replace: '[code]', success_code_html }}
+                {%- comment -%}
+                  XSS defense: the merchant-editable `success_description`
+                  (textarea) and `success_code` (text) are NOT auto-
+                  escaped by Liquid — `{{ textarea_var }}` emits raw
+                  bytes. Previously the raw description was passed
+                  through `| replace: '[code]', success_code_html`, so a
+                  merchant admin with content-edit rights could paste
+                  `<script>…</script>` into either field and execute JS
+                  on every visitor who saw the success state. Shopify's
+                  threat model trusts the admin, but Theme Store policy
+                  flags this as a stored-XSS vector the theme must
+                  defuse — escape both inputs first, then inject the
+                  `<span>` via the replace.
+                {%- endcomment -%}
+                {%- assign desc_default = 'Your 15% discount code has been sent to your inbox. Use code [code] at checkout.' -%}
+                {%- assign desc_safe = section.settings.success_description | default: desc_default | escape -%}
+                {%- assign code_safe = section.settings.success_code | escape -%}
+                {%- assign success_code_html = '<span class="kt-newsletter-popup__code">' | append: code_safe | append: '</span>' -%}
+                {{ desc_safe | replace: '[code]', success_code_html }}
               </p>
               {%- if section.settings.success_button_text != blank -%}
                 <a
