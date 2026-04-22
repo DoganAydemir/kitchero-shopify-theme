@@ -100,12 +100,13 @@
                 {%- comment -%}
                   XSS defense: the merchant-editable `success_description`
                   (textarea) and `success_code` (text) are NOT auto-
-                  escaped by Liquid — `{{ textarea_var }}` emits raw
-                  bytes. Previously the raw description was passed
-                  through `| replace: '[code]', success_code_html`, so a
+                  escaped by Liquid — a direct output of a textarea
+                  variable emits raw bytes. Previously the raw
+                  description was passed through
+                  `| replace: '[code]', success_code_html`, so a
                   merchant admin with content-edit rights could paste
-                  `<script>…</script>` into either field and execute JS
-                  on every visitor who saw the success state. Shopify's
+                  a script tag into either field and execute JS on
+                  every visitor who saw the success state. Shopify's
                   threat model trusts the admin, but Theme Store policy
                   flags this as a stored-XSS vector the theme must
                   defuse — escape both inputs first, then inject the

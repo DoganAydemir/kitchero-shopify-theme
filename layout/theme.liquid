@@ -124,11 +124,19 @@
         • analytics + checkout beacons (must run as early as possible),
         • app-installed preload hints (LCP image, critical CSS),
         • hreflang alternates, og/twitter tags, shop extensions.
-      Earlier versions of this layout placed `{{ content_for_header }}`
-      AFTER the global.js + motion vendor scripts, which delayed the
-      preload scanner's ability to prioritise hinted resources and
-      pushed LCP by 100-300ms on mobile. Moved up per Shopify's
-      documented layout spec and the R12 performance audit.
+      Earlier versions of this layout placed the content_for_header
+      directive AFTER the global.js + motion vendor scripts, which
+      delayed the preload scanner's ability to prioritise hinted
+      resources and pushed LCP by 100-300ms on mobile. Moved up per
+      Shopify's documented layout spec and the R12 performance
+      audit.
+
+      Note: do NOT write literal double-brace or percent-brace
+      Liquid markers inside this comment (or any comment). Liquid's
+      comment tag does not sandbox embedded output or tag delimiters
+      — a stray pair breaks the outer comment's close-match and the
+      runtime reports "'comment' tag was never closed" at the parent
+      open.
     {%- endcomment -%}
     {{ content_for_header }}
 
@@ -366,13 +374,19 @@
             Placeholder convention — pass `[count]` / `[subtotal]` as
             the `| t:` argument so the rendered string has a JS-
             replaceable token (square brackets). We previously used
-            `{{ count }}` which collides with Liquid's own tag syntax:
-            Shopify's parser greedy-matches `}}` from INSIDE the
-            nested string and closes the outer filter tag early,
-            spilling raw Liquid source into the page → a JS
-            SyntaxError when browsers encounter the `{{` in script.
-            Square-bracket placeholders dodge the syntax conflict
-            entirely and follow Skeleton's placeholder convention.
+            Liquid-style curly-brace placeholders (count in double
+            braces) which collide with Liquid's own tag syntax:
+            Shopify's parser greedy-matches the closing double-brace
+            from INSIDE the nested string and closes the outer filter
+            tag early, spilling raw Liquid source into the page → a
+            JS SyntaxError when browsers encounter the opener in
+            script. Square-bracket placeholders dodge the syntax
+            conflict entirely and follow Skeleton's placeholder
+            convention. Also: keep this comment free of literal
+            double-brace sequences — Liquid comment tags do NOT
+            sandbox embedded output delimiters from the parser, and
+            a stray pair inside a comment will be reported as an
+            unclosed comment tag at the line of the outer open.
           {%- endcomment -%}
           types:               {{ search_types | json }},
           resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
