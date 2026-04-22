@@ -267,6 +267,38 @@
         <p class="kt-order__note-body">{{ order.note | escape | newline_to_br }}</p>
       </div>
     {%- endif -%}
+
+    {%- comment -%}
+      Custom cart attributes carried from checkout into the order —
+      Shopify surfaces them as `order.attributes` (hash of
+      merchant-defined OR B2B buyer-populated key/value pairs).
+      Common uses:
+        - B2B purchase-order number (`attributes['PO Number']`)
+        - B2B cost centre / project code
+        - Gift-recipient shipping scheduling date ("Deliver on")
+        - Custom engraving text on multi-line orders
+      Without this block, a B2B buyer reviewing their order page
+      sees NO reference to their PO number, which is the #1
+      merchant-service complaint on B2B stores. Rendered as a
+      definition list so assistive tech announces key: value pairs
+      correctly. Both key + value escaped (attribute name/value
+      are user-typed).
+    {%- endcomment -%}
+    {%- if order.attributes != blank and order.attributes.size > 0 -%}
+      <div class="kt-order__attributes">
+        <h3 class="kt-order__attributes-title">{{ 'kt.customer.order.attributes_heading' | t | default: 'Order details' }}</h3>
+        <dl class="kt-order__attributes-list">
+          {%- for attribute in order.attributes -%}
+            {%- assign attr_key = attribute.first | strip -%}
+            {%- assign attr_first_char = attr_key | slice: 0, 1 -%}
+            {%- unless attr_key == blank or attr_first_char == '_' -%}
+              <dt class="kt-order__attributes-key">{{ attr_key | escape }}</dt>
+              <dd class="kt-order__attributes-value">{{ attribute.last | escape }}</dd>
+            {%- endunless -%}
+          {%- endfor -%}
+        </dl>
+      </div>
+    {%- endif -%}
   </div>
 </section>
 

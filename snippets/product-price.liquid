@@ -13,8 +13,17 @@
   endunless
   assign current_price = variant.price
   assign compare_price = variant.compare_at_price
+  # Free product shortcut — show "Free" label in place of $0.00
+  # and suppress the sale badge entirely. Without this guard a
+  # variant priced at 0 with compare > 0 emits a "-100% OFF" badge
+  # over a "$0.00" which reads as broken (sale mechanics against
+  # zero are nonsensical — either it's a giveaway or bad data).
+  assign is_free = false
+  if current_price == 0
+    assign is_free = true
+  endif
   assign on_sale = false
-  if compare_price > current_price
+  if compare_price > current_price and is_free == false
     assign on_sale = true
     assign discount_pct = compare_price | minus: current_price | times: 100 | divided_by: compare_price
   endif
@@ -41,7 +50,11 @@
     {%- if on_sale -%}
       <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
     {%- endif -%}
-    {{ current_price | money }}
+    {%- if is_free -%}
+      {{ 'kt.cart.free' | t | default: 'Free' }}
+    {%- else -%}
+      {{ current_price | money }}
+    {%- endif -%}
   </span>
 
   {%- if on_sale -%}

@@ -974,3 +974,43 @@
   color: var(--kt-stone-700);
   white-space: pre-wrap;
 }
+
+/* Order attributes (B2B PO numbers, cost codes, custom cart
+   attributes carried through checkout). Rendered as a definition
+   list so assistive tech announces key: value pairs correctly.
+   Grid layout on desktop so long-value attributes wrap cleanly
+   against short labels. */
+.kt-order__attributes {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--kt-stone-100, #f5f5f4);
+  border-radius: 0.375rem;
+}
+
+.kt-order__attributes-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--kt-stone-900);
+}
+
+.kt-order__attributes-list {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) 1fr;
+  column-gap: 1rem;
+  row-gap: 0.375rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.kt-order__attributes-key {
+  font-weight: 600;
+  color: var(--kt-stone-900);
+}
+
+.kt-order__attributes-value {
+  margin: 0;
+  color: var(--kt-stone-700);
+  word-break: break-word;
+}
