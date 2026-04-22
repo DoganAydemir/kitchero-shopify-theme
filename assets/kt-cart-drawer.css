@@ -461,7 +461,15 @@
   display: contents;
 }
 
-.kt-cart-drawer__checkout {
+/* `button.kt-cart-drawer__checkout` (specificity 0,0,1,1) is required
+   because base.css:196 has a global `button[type="submit"]` rule with
+   the same specificity that otherwise wins source-order arbitrarily.
+   Qualifying our selector with the `button` tag ties specificity, and
+   since this file loads AFTER base.css our rule wins. Without this,
+   the checkout button inherited the scheme's --kt-c-action color
+   (light on stone-950-ink schemes) and the dark stone-900 background
+   we want was invisible. */
+button.kt-cart-drawer__checkout {
   display: block;
   width: 100%;
   padding: 1rem 0;                          /* py-4 */
@@ -474,20 +482,22 @@
   text-align: center;
   text-decoration: none;
   border: 0;
+  border-radius: 0;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
-.kt-cart-drawer__checkout:hover {
+button.kt-cart-drawer__checkout:hover {
   background-color: var(--kt-stone-800);
+  color: var(--kt-white);                   /* keep white on hover */
 }
 
-.kt-cart-drawer__checkout:focus-visible {
+button.kt-cart-drawer__checkout:focus-visible {
   outline: 2px solid var(--kt-stone-900);
   outline-offset: 3px;
 }
 
-.kt-cart-drawer__continue {
+button.kt-cart-drawer__continue {
   display: block;
   width: 100%;
   padding: 0.5rem 0;                        /* py-2 */
@@ -501,11 +511,11 @@
   transition: color 0.2s ease;
 }
 
-.kt-cart-drawer__continue:hover {
+button.kt-cart-drawer__continue:hover {
   color: var(--kt-stone-900);
 }
 
-.kt-cart-drawer__continue:focus-visible {
+button.kt-cart-drawer__continue:focus-visible {
   outline: 2px solid var(--kt-stone-900);
   outline-offset: 2px;
 }
