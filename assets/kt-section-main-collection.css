@@ -250,6 +250,18 @@
   font-size: 0.875rem;
 }
 
+/* Loading state during AJAX filter swap — dim + block pointer events
+   on the grid so the shopper sees something is in flight. Keeps the
+   skeleton of the previous grid visible (no layout jump) while the
+   next page of results is fetched. Paired with aria-busy="true" for
+   SR users. reduce-motion respectful: no spinner, just opacity +
+   block. */
+.kt-collection__grid--loading {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
 /* Grid toggle buttons */
 .kt-collection__grid-toggle {
   display: none;

@@ -99,6 +99,17 @@ if (window.__kitcheroCollectionFiltersLoaded) {
     /* Fetch new section HTML via Section Rendering API */
     var fetchUrl = newUrl + (newUrl.includes('?') ? '&' : '?') + 'section_id=' + sectionId;
 
+    /* Visible loading state — previously ZERO feedback fired between
+       filter-click and grid-swap. On a 3G / throttled connection users
+       would rapid-click the same checkbox wondering if anything
+       registered. aria-busy cues SR users of pending work; the CSS
+       class is opt-in for a dim/spinner overlay on the grid. */
+    var oldGridEarly = document.getElementById('product-grid');
+    if (oldGridEarly) {
+      oldGridEarly.setAttribute('aria-busy', 'true');
+      oldGridEarly.classList.add('kt-collection__grid--loading');
+    }
+
     fetch(fetchUrl)
       .then(function (response) {
         if (!response.ok) throw new Error('Filter fetch failed');
@@ -171,8 +182,28 @@ if (window.__kitcheroCollectionFiltersLoaded) {
         }
       })
       .catch(function () {
-        /* Fallback on error */
+        /* Fallback on error — navigate to the filter URL so server
+           renders the filtered result natively. Announce the
+           transition so SR users know why the page flashes. */
+        if (window.Kitchero && typeof Kitchero.announce === 'function') {
+          Kitchero.announce(
+            (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Loading results…',
+            { assertive: false }
+          );
+        }
         window.location.href = newUrl;
+      })
+      .then(function () {
+        /* Release loading state on both success and failure paths.
+           Runs in chained `.then` after `.catch` so it executes in
+           every case — the `.catch` above navigates, but if the
+           navigation is slow the visual state should clear so the
+           grid doesn't look dead. */
+        var oldGrid = document.getElementById('product-grid');
+        if (oldGrid) {
+          oldGrid.removeAttribute('aria-busy');
+          oldGrid.classList.remove('kt-collection__grid--loading');
+        }
       });
   }
 
