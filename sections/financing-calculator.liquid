@@ -41,7 +41,16 @@
               {{ section.settings.amount_label | default: 'Estimated Loan Amount' }}
             </label>
             <div class="kt-financing-calculator__amount-field">
-              <span class="kt-financing-calculator__amount-prefix" aria-hidden="true">$</span>
+              {%- comment -%}
+                Currency symbol pulled from the shop's active currency via
+                `cart.currency.symbol` so EU / TR / other-market merchants
+                don't see a hardcoded USD "$". `cart` is always available
+                in Liquid (even when empty), so this is safe anywhere the
+                section renders. aria-hidden because the symbol is already
+                implied in the input's inputmode/numeric context and the
+                amount label describes the field for AT.
+              {%- endcomment -%}
+              <span class="kt-financing-calculator__amount-prefix" aria-hidden="true">{{ cart.currency.symbol }}</span>
               <input
                 type="number"
                 id="FinancingCalcAmount-{{ section.id }}"

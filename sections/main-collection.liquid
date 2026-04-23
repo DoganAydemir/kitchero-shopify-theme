@@ -77,7 +77,11 @@
                       {%- endif -%}
                     </div>
                     <form id="FilterBar-{{ filter.param_name }}" action="{{ collection.url }}" method="get" data-collection-filters-form>
-                      <ul class="kt-filter__list list-unstyled" role="list">
+                      <ul
+                        class="kt-filter__list list-unstyled"
+                        role="group"
+                        aria-label="{{ filter.label | escape }}"
+                      >
                         {%- for value in filter.values -%}
                           <li>
                             <label class="kt-filter__option" for="Bar-{{ filter.param_name }}-{{ forloop.index }}">
@@ -304,9 +308,20 @@
 
           {%- for filter in collection.filters -%}
             {%- if filter.type == 'list' -%}
+              {%- comment -%}
+                Filter drawer group wrapped in a <section> with the h4 title.
+                The <ul> is a checkbox group whose label is the h4 above —
+                role="group" + aria-labelledby pins the group name to the
+                visible heading, matching the <fieldset><legend> pattern
+                CLAUDE.md requires without a structural rewrite.
+              {%- endcomment -%}
               <section class="kt-filter-drawer__group">
-                <h4 class="kt-filter-drawer__group-title">{{ filter.label }}</h4>
-                <ul class="kt-filter-drawer__options list-unstyled" role="list">
+                <h4 class="kt-filter-drawer__group-title" id="FilterDrawerGroup-{{ filter.param_name }}">{{ filter.label }}</h4>
+                <ul
+                  class="kt-filter-drawer__options list-unstyled"
+                  role="group"
+                  aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}"
+                >
                   {%- comment -%}
                     Drawer-scoped unique id per checkbox so SR users
                     get label↔input linkage even though the label

@@ -60,7 +60,19 @@
                 <svg class="kt-filter__chevron" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </summary>
               <div class="kt-filter__content">
-                <ul class="kt-filter__list list-unstyled" role="list">
+                {%- comment -%}
+                  Checkbox group needs an accessible name — the <summary> above
+                  already contains {{ filter.label }}, but AT users treat the
+                  <ul> as a separate landmark. role="group" + aria-label gives
+                  screen readers the filter's name when they enter the list,
+                  matching the <fieldset><legend> pattern CLAUDE.md calls for
+                  without breaking the <details> styling.
+                {%- endcomment -%}
+                <ul
+                  class="kt-filter__list list-unstyled"
+                  role="group"
+                  aria-label="{{ filter.label | escape }}"
+                >
                   {%- for value in filter.values -%}
                     <li>
                       <label class="kt-filter__option" for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
