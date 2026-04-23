@@ -221,7 +221,7 @@
                     </div>
                     <div class="kt-pdp__door-sample-body">
                       <div class="kt-pdp__door-sample-info">
-                        <h4 class="kt-pdp__door-sample-name">{{ sample_product.title }}</h4>
+                        <h3 class="kt-pdp__door-sample-name">{{ sample_product.title }}</h3>
                         <div class="kt-pdp__door-sample-price">
                           <span>{{ sample_variant.price | money }}</span>
                           {%- if block.settings.refundable -%}
@@ -265,7 +265,7 @@
                 {%- assign concierge_cta_url = block.settings.cta_link | default: pages.contact.url -%}
                 <div class="kt-pdp__concierge" {{ block.shopify_attributes }}>
                   {%- if block.settings.heading != blank -%}
-                    <h4 class="kt-pdp__concierge-heading">{{ block.settings.heading }}</h4>
+                    <h3 class="kt-pdp__concierge-heading">{{ block.settings.heading }}</h3>
                   {%- endif -%}
                   {%- if block.settings.body != blank -%}
                     <p class="kt-pdp__concierge-body">{{ block.settings.body }}</p>
@@ -328,6 +328,10 @@
   "name": "t:sections.main-product.name",
   "tag": "div",
   "class": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "limit": 1,
   "settings": [
     {
       "type": "checkbox",

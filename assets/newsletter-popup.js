@@ -133,6 +133,14 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
         document.body.style.overflow = 'hidden';
       }
 
+      /* Enable focus trap so Tab/Shift+Tab stay within the modal.
+       * WCAG 2.4.3 — focus order must not leak to the page behind a
+       * role="dialog" aria-modal="true" element. Mirrors the pattern
+       * used by cart-drawer + search-overlay. */
+      if (window.Kitchero && Kitchero.focusTrap && dialog) {
+        Kitchero.focusTrap.enable(dialog);
+      }
+
       /* Focus: email input if present, otherwise first focusable in dialog */
       setTimeout(function () {
         var email = p.querySelector('[data-popup-email]');
@@ -165,6 +173,12 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
         Kitchero.scrollLock.unlock('newsletter-popup');
       } else {
         document.body.style.overflow = '';
+      }
+
+      /* Release focus trap so surrounding page is keyboard-reachable
+       * again. Paired with the openPopup() enable call above. */
+      if (window.Kitchero && Kitchero.focusTrap && dialog) {
+        Kitchero.focusTrap.disable(dialog);
       }
 
       if (persistDismissal !== false) {

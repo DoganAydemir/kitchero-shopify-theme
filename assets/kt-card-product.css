@@ -164,7 +164,12 @@
   color: var(--kt-white);
 }
 
-.kt-card-product:hover .kt-card-product__hover-info {
+/* Reveal on hover OR when any child (e.g. the image link) receives
+   keyboard focus. WCAG 1.4.13 — content shown on hover must also be
+   reachable via keyboard so sighted keyboard users see the same
+   vendor/material metadata mouse users get on hover. */
+.kt-card-product:hover .kt-card-product__hover-info,
+.kt-card-product:focus-within .kt-card-product__hover-info {
   transform: translateY(0);
   opacity: 1;
 }

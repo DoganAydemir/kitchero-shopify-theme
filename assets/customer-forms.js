@@ -15,12 +15,25 @@
     // inline via html:not(.js) CSS). JS users get it closed here.
     modal.setAttribute('aria-hidden', 'true');
 
-    function open() {
+    // Track the element that opened the modal so we can return focus
+    // on close. WCAG 2.4.3 — focus must move back to the triggering
+    // control so keyboard users don't lose their place in the tab
+    // order (otherwise focus drops to <body>).
+    var lastTrigger = null;
+
+    function open(e) {
+      lastTrigger = (e && e.currentTarget) || document.activeElement;
       modal.setAttribute('aria-hidden', 'false');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('customer-forms-modal');
       } else {
         document.body.style.overflow = 'hidden';
+      }
+      // Focus trap keeps Tab/Shift+Tab within the role="dialog"
+      // element — without this the user can tab into the (visually
+      // covered) underlying login form, a WCAG fail for modal dialogs.
+      if (window.Kitchero && Kitchero.focusTrap) {
+        Kitchero.focusTrap.enable(modal);
       }
       var first = modal.querySelector('input, select, textarea, button');
       if (first) first.focus();
@@ -33,6 +46,16 @@
       } else {
         document.body.style.overflow = '';
       }
+      if (window.Kitchero && Kitchero.focusTrap) {
+        Kitchero.focusTrap.disable(modal);
+      }
+      // Return focus to the element that opened the modal. Guard
+      // against the trigger having been removed from the DOM (e.g.
+      // theme editor replaced the section while the modal was open).
+      if (lastTrigger && typeof lastTrigger.focus === 'function' && document.body.contains(lastTrigger)) {
+        lastTrigger.focus();
+      }
+      lastTrigger = null;
     }
 
     var scope = modal.closest('[data-section-id]') || document;

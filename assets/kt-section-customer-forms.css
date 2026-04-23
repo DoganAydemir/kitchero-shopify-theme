@@ -278,13 +278,24 @@ html:not(.js) .kt-customer__forgot-link {
 
 .kt-customer__modal-close {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* WCAG 2.5.8 / 2.5.5 — modal close buttons match the rest of the
+     theme's 44×44 tap target spec. The visible 24px glyph sits
+     inside the padded hit-area so mouse, touch, and reduced-motion
+     screen-reader cursors all get a consistent target. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
   background: none;
   border: none;
   color: rgba(var(--kt-c-fg), 0.55);
   cursor: pointer;
-  transition: color 0.2s ease;
+  border-radius: 50%;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .kt-customer__modal-close:hover {
