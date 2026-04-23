@@ -183,7 +183,12 @@
 @media screen and (min-width: 750px) {
   .kt-ecosystem__image-col {
     width: 50%;
+    /* Sticky h-screen column — use 100svh so iOS Safari's collapsing
+       address bar doesn't make the sticky container taller than the
+       visible viewport (content gets clipped below the bar on first
+       paint). 100vh fallback for older browsers. */
     height: 100vh;
+    height: 100svh;
     display: flex;
     flex-direction: column;
     justify-content: center;

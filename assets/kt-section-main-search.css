@@ -188,7 +188,11 @@
   .kt-search-page__sidebar {
     position: sticky;
     top: 8rem;
+    /* svh locks to small viewport so mobile-Safari-style URL-bar
+       collapse (iPad) can't push the sticky sidebar past the visible
+       edge. vh fallback for browsers pre-svh (Safari <15.4). */
     max-height: calc(100vh - 10rem);
+    max-height: calc(100svh - 10rem);
     overflow-y: auto;
   }
 }

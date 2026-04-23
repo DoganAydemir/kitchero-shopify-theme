@@ -319,7 +319,11 @@
     position: sticky;
     top: 5rem;
     align-self: flex-start;
+    /* svh locks to small viewport so iPad Safari's URL-bar collapse
+       can't push the sticky sidebar past the visible edge. vh fallback
+       for pre-svh browsers (Safari <15.4, Chrome <108). */
     max-height: calc(100vh - 6rem);
+    max-height: calc(100svh - 6rem);
     overflow-y: auto;
   }
 }

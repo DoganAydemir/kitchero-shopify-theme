@@ -4,7 +4,13 @@
 /* Section */
 .kt-collection {
   background-color: var(--kt-stone-50);
+  /* `100svh` (small viewport) avoids the iOS Safari address-bar
+     bug where `100vh` uses the large viewport (bar hidden) so the
+     section is taller than the visible area on first paint, forcing
+     an unnecessary scroll. 100vh kept as a fallback for pre-2022
+     browsers without svh support. */
   min-height: 100vh;
+  min-height: 100svh;
   padding-bottom: 10rem;
 }
 
