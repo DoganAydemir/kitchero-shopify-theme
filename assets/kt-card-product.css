@@ -129,6 +129,26 @@
   color: var(--kt-white);
 }
 
+/* Sold-out badge — neutral charcoal so it reads as "unavailable" rather
+   than "on sale" (red) or "promoted" (green). Pair with the image-link
+   desaturate below so the whole card says "not buyable right now". */
+.kt-card-product__badge--soldout {
+  background: rgba(68, 64, 60, 0.92);
+  color: var(--kt-white);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Desaturated image treatment on sold-out cards so the tile reads as
+   unavailable at a glance even before the badge registers. `filter`
+   applies to the primary + secondary images inside the anchor;
+   `pointer-events` stays enabled so shoppers can still open the PDP
+   (they might want to see details, wait-list, or read reviews). */
+.kt-card-product__image-link--soldout .kt-card-product__image-primary,
+.kt-card-product__image-link--soldout .kt-card-product__image-secondary {
+  filter: grayscale(0.6) opacity(0.75);
+}
+
 /* Hover info overlay: absolute inset-x-0 bottom-6 px-8 z-20 translate-y-4 opacity-0 → translate-y-0 opacity-100 */
 .kt-card-product__hover-info {
   position: absolute;

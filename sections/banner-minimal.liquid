@@ -18,6 +18,11 @@
 >
   <div class="kt-banner-minimal__frame">
     <div class="kt-banner-minimal__media">
+      {%- comment -%}
+        `fetchpriority: 'auto'` — see banner-hero.liquid for the
+        multiple-critical-image rationale. `loading: 'eager'` kept
+        so the image loads early if the section is visible.
+      {%- endcomment -%}
       {%- if section.settings.image != blank -%}
         {{
           section.settings.image
@@ -25,7 +30,7 @@
           | image_tag:
             class: 'kt-banner-minimal__image',
             loading: 'eager',
-            fetchpriority: 'high',
+            fetchpriority: 'auto',
             widths: '375, 550, 750, 1100, 1500, 1780, 2000',
             sizes: '100vw',
             width: section.settings.image.width,

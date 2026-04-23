@@ -8,7 +8,16 @@
   we swap the modal into the success state and the JS auto-keeps it open.
 {%- endcomment -%}
 
-{{ 'kt-section-newsletter-popup.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Pull the stylesheet in only when the merchant has toggled the popup
+  on. ~10 KB saved on the initial paint for stores that disable the
+  popup (which is the default state on most launches). The modal
+  markup below is already gated on the same flag, so there's nothing
+  to style when the flag is off.
+{%- endcomment -%}
+{%- if section.settings.enabled -%}
+  {{ 'kt-section-newsletter-popup.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- if section.settings.enabled -%}
   {%- assign newsletter_form_id = 'NewsletterPopupForm-' | append: section.id -%}

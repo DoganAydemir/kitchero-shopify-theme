@@ -184,7 +184,17 @@
     {%- render 'kt-css-variables' -%}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
-    {{ 'kt-loader.css' | asset_url | stylesheet_tag }}
+    {%- comment -%}
+      Loader CSS is ~10 KB and only styles an overlay that appears when
+      the merchant has enabled `kt_loader_enable` in Theme Settings.
+      Gating the stylesheet behind the same toggle skips the request
+      entirely on stores that have the intro loader disabled — direct
+      LCP/FCP win without touching the JS bootstrap (which does its
+      own `loaderEnabled` check below).
+    {%- endcomment -%}
+    {%- if settings.kt_loader_enable -%}
+      {{ 'kt-loader.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {%- comment -%}
       Drawer / overlay CSS — loaded in <head> so the stylesheet

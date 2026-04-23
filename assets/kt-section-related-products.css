@@ -35,3 +35,53 @@
     gap: 3rem 2rem;
   }
 }
+
+/* Skeleton placeholders shown while section-related-products.js
+   fetches the populated Section Rendering API response. Sized to
+   approximate a card so the grid reserves vertical space and CLS
+   stays low when the real cards swap in. The subtle animation
+   hints that content is loading without being distracting. */
+.kt-related__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kt-related__skeleton-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-color: var(--kt-stone-200);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.kt-related__skeleton-line {
+  height: 0.875rem;
+  background-color: var(--kt-stone-200);
+  border-radius: 0.25rem;
+}
+
+.kt-related__skeleton-line--title {
+  width: 70%;
+  margin-top: 0.5rem;
+}
+
+.kt-related__skeleton-line--price {
+  width: 30%;
+}
+
+/* Pulse animation on the skeleton — gentle opacity shimmer so users
+   know the area is loading rather than broken. Honors reduced-motion
+   preference to avoid triggering motion sensitivity. */
+@media (prefers-reduced-motion: no-preference) {
+  .kt-related__skeleton-image,
+  .kt-related__skeleton-line {
+    animation: kt-related-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes kt-related-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}

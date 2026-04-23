@@ -41,7 +41,7 @@
   {%- if show_secondary_image and secondary_image -%}
     {%- assign hover_has_secondary = true -%}
   {%- endif -%}
-  <a href="{{ product.url }}" class="kt-card-product__image-link{% unless hover_has_secondary %} kt-card-product__image-link--zoom-only{% endunless %}" aria-label="{{ product.title | escape }}">
+  <a href="{{ product.url }}" class="kt-card-product__image-link{% unless hover_has_secondary %} kt-card-product__image-link--zoom-only{% endunless %}{% unless product.available %} kt-card-product__image-link--soldout{% endunless %}" aria-label="{{ product.title | escape }}">
     {%- comment -%} Gradient overlay {%- endcomment -%}
     <div class="kt-card-product__gradient" aria-hidden="true"></div>
 
@@ -101,8 +101,21 @@
       <span class="kt-card-product__badge">{{ product.type }}</span>
     {%- endif -%}
 
+    {%- comment -%}
+      Sold-out badge has highest priority — if the product is
+      unavailable (all variants out of stock + inventory_policy == deny)
+      the visual must surface that fact before any discount / bestseller
+      / new ornamentation, otherwise shoppers waste time clicking
+      through to a page where the CTA is "Sold out". Theme Store
+      inspectors specifically check for out-of-stock affordance on
+      collection cards.
+    {%- endcomment -%}
+    {%- if product.available == false -%}
+      <span class="kt-card-product__badge kt-card-product__badge--soldout" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+        {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
+      </span>
     {%- comment -%} Sale badge {%- endcomment -%}
-    {%- if product.compare_at_price > product.price -%}
+    {%- elsif product.compare_at_price > product.price -%}
       {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
       <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.discount_badge' | t: amount: discount_pct }}

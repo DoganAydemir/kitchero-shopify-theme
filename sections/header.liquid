@@ -399,6 +399,23 @@
         <div class="kt-header__mobile-view-inner">
           {%- for link in section.settings.main_menu.links -%}
             {%- if link.links.size > 0 -%}
+              {%- comment -%}
+                Parent link with children. JS-on: render a <button> that
+                slides the sub-panel into view. JS-off: the button does
+                nothing AND the sub-panel is positioned off-screen
+                (`translateX(100%)`), so shoppers without JS have no way
+                to reach the children (or even the parent's own page).
+                We render a sibling <a> pointing at `link.url` so no-JS
+                sessions get a working link to at least the parent
+                category page — CSS below hides the <a> when JS is on
+                and hides the <button> when JS is off.
+              {%- endcomment -%}
+              <a
+                href="{{ link.url }}"
+                class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
+              >
+                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
+              </a>
               <button
                 type="button"
                 class="kt-header__mobile-link kt-header__mobile-link--parent"
@@ -459,6 +476,18 @@
 
               {%- for child in link.links -%}
                 {%- if child.links.size > 0 -%}
+                  {%- comment -%}
+                    Same JS-on/JS-off split as the Level-1 parent: emit
+                    a fallback <a> so no-JS shoppers can still navigate
+                    to the mid-level category page, plus the <button>
+                    that slides the Level-3 panel in for JS-on users.
+                  {%- endcomment -%}
+                  <a
+                    href="{{ child.url }}"
+                    class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
+                  >
+                    <span class="kt-header__mobile-link-label">{{ child.title }}</span>
+                  </a>
                   <button
                     type="button"
                     class="kt-header__mobile-link kt-header__mobile-link--parent"

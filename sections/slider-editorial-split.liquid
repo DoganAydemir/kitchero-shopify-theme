@@ -36,13 +36,21 @@
             >
               {%- if block.settings.image != blank -%}
                 {%- if forloop.first -%}
+                  {%- comment -%}
+                    `fetchpriority: 'auto'` — slider-editorial-split is
+                    a mid-scroll editorial section, not a hero. Keeping
+                    it high-priority competed with the true LCP image
+                    (banner-hero or hero section above it). Eager
+                    loading still ensures the first slide is ready
+                    when the section scrolls into view.
+                  {%- endcomment -%}
                   {{
                     block.settings.image
                     | image_url: width: 1600
                     | image_tag:
                       class: 'kt-slider-editorial__image',
                       loading: 'eager',
-                      fetchpriority: 'high',
+                      fetchpriority: 'auto',
                       widths: '600, 900, 1200, 1600, 2000',
                       sizes: '(min-width: 990px) 60vw, 100vw',
                       width: block.settings.image.width,

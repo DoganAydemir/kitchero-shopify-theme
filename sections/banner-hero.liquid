@@ -20,6 +20,15 @@
 >
   <div class="kt-banner-hero__frame">
     <div class="kt-banner-hero__media">
+      {%- comment -%}
+        `fetchpriority: 'auto'` (not 'high') — banner-hero is a reusable
+        section merchants drop anywhere, not always above-the-fold.
+        Multiple critical-priority images on a single page triggers
+        Lighthouse "Avoid multiple critical resources" and blurs which
+        asset the network prefers. `loading: 'eager'` is kept so the
+        image skips the lazy queue when the section IS visible on
+        first paint; browser decides priority.
+      {%- endcomment -%}
       {%- if section.settings.hero_image != blank -%}
         {{
           section.settings.hero_image
@@ -27,7 +36,7 @@
           | image_tag:
             class: 'kt-banner-hero__image',
             loading: 'eager',
-            fetchpriority: 'high',
+            fetchpriority: 'auto',
             widths: '500, 750, 1100, 1500, 2000',
             sizes: '(min-width: 990px) 1400px, 100vw',
             width: section.settings.hero_image.width,

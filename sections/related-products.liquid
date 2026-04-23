@@ -3,24 +3,76 @@
 
 {%- comment -%}
   Related Products — "You may also like"
-  Uses Shopify product.recommendations or manual collection.
+
+  Uses Shopify's `product.recommendations` object fed by the Section
+  Rendering API. The `recommendations` object only populates when
+  this section is rendered via `/recommendations/products?section_id=
+  {section}&product_id={id}&intent=related` — on the initial product
+  page server-render, `recommendations.performed` is `false` and
+  `recommendations.products` is empty.
+
+  Strategy:
+    1. Server-render emits a wrapper with `data-product-recommendations`
+       + `data-section-id` + `data-url` + `data-product-id`.
+       When `recommendations.performed == false` we still emit the
+       wrapper + a skeleton so the section reserves vertical space
+       (reduces CLS) and the client JS has a target to swap into.
+    2. `section-related-products.js` fires on DOMContentLoaded (and on
+       `shopify:section:load` for editor compatibility), fetches the
+       section HTML with the recommendations populated, and swaps the
+       inner content in.
+    3. On fetch failure the skeleton stays (acceptable degraded state);
+       on `recommendations.products_count == 0` the client JS hides
+       the whole section so the PDP doesn't end with an empty block.
 {%- endcomment -%}
 
-{%- if recommendations.performed and recommendations.products_count > 0 -%}
-  <section class="kt-related" data-section-id="{{ section.id }}">
-    <div class="page-width">
-      <div class="kt-related__header">
-        {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-        <{{ heading_tag }} class="kt-related__title">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
-      </div>
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
-      <div class="kt-related__grid">
-        {%- for product in recommendations.products limit: section.settings.products_count -%}
-          {%- render 'card-product', product: product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
-        {%- endfor -%}
-      </div>
+<section
+  class="kt-related"
+  data-section-id="{{ section.id }}"
+  data-section-type="related-products"
+  data-product-recommendations
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_count }}&intent=related"
+  {% if recommendations.performed and recommendations.products_count == 0 %}hidden{% endif %}
+>
+  <div class="page-width">
+    <div class="kt-related__header">
+      <{{ heading_tag }} class="kt-related__title">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
     </div>
-  </section>
+
+    <div class="kt-related__grid" role="list">
+      {%- if recommendations.performed and recommendations.products_count > 0 -%}
+        {%- for recommended_product in recommendations.products limit: section.settings.products_count -%}
+          {%- render 'card-product', product: recommended_product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
+        {%- endfor -%}
+      {%- elsif recommendations.performed == false -%}
+        {%- comment -%}
+          Skeleton placeholders while the async fetch is in flight. The
+          wrapper count matches `products_count` so the grid reserves
+          the same space the real cards will occupy.
+        {%- endcomment -%}
+        {%- for i in (1..section.settings.products_count) -%}
+          <div class="kt-related__skeleton" aria-hidden="true">
+            <div class="kt-related__skeleton-image"></div>
+            <div class="kt-related__skeleton-line kt-related__skeleton-line--title"></div>
+            <div class="kt-related__skeleton-line kt-related__skeleton-line--price"></div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{%- comment -%}
+  Only emit the fetch script when we actually need the async swap —
+  i.e. we're on the initial PDP render where recommendations hasn't
+  been performed yet. When the section is rendered inside the
+  Section Rendering API response (the fetch's target), the server
+  has already populated recommendations and the script is redundant.
+{%- endcomment -%}
+{%- if recommendations.performed == false -%}
+  <script src="{{ 'section-related-products.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 
 {% schema %}

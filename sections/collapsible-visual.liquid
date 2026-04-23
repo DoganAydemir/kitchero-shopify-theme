@@ -125,12 +125,20 @@
               >
                 {%- if block.settings.image != blank -%}
                   {%- if is_first_image -%}
+                    {%- comment -%}
+                      `fetchpriority: 'auto'` (not 'high') — this section
+                      is reused across home / about / collection pages
+                      and rarely sits above the fold. The first block's
+                      image still gets `loading: 'eager'` so it's not
+                      lazy-queued when visible, but we let the browser
+                      own priority.
+                    {%- endcomment -%}
                     {{
                       block.settings.image
                       | image_url: width: 1600
                       | image_tag:
                         loading: 'eager',
-                        fetchpriority: 'high',
+                        fetchpriority: 'auto',
                         width: block.settings.image.width,
                         height: block.settings.image.height,
                         sizes: '(min-width: 1024px) 50vw, 100vw',

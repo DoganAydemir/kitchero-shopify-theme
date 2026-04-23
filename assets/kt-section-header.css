@@ -581,6 +581,51 @@ html.no-js [data-mobile-back] {
   display: none;
 }
 
+/* JS-off fallback link for parent menu items — the <a> sibling rendered
+   alongside the slider <button> in header.liquid. Hidden by default
+   (JS-on users see the slide button) and revealed only when JS fails
+   to boot. Flex alignment matches the sibling button so the layout
+   doesn't jump. */
+.kt-header__mobile-link--nojs-fallback {
+  display: none;
+}
+
+html.no-js .kt-header__mobile-link--nojs-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* JS-off: flatten sub-panels out of the translateX(100%) parking spot
+   and stack them in normal flow so every level of the menu is reachable
+   without a slider. The sibling `.kt-header__mobile-link--parent` button
+   is already hidden above, so each parent is represented solely by its
+   <a href> fallback and its Level-2/3 panel is rendered beneath as a
+   visible list. Not pretty, but every link is one tap away. */
+html.no-js .kt-header__mobile-slider {
+  overflow: visible;
+  height: auto;
+}
+
+html.no-js .kt-header__mobile-view {
+  position: static;
+  inset: auto;
+  transform: none;
+  transition: none;
+  overflow: visible;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.no-js .kt-header__mobile-view-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.5rem 0;
+}
+
 .kt-header__mobile-panel-header {
   display: flex;
   align-items: center;

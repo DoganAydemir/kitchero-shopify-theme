@@ -28,6 +28,18 @@
   pointer-events: auto;
 }
 
+/* JS-off progressive enhancement: the drawer can't open or operate
+   without JavaScript (qty-change and remove-line buttons are
+   `type="button"` that dispatch fetches, not real submits). Hide
+   the drawer entirely when JS is unavailable — the cart icon in the
+   header is always a real `<a href="{{ routes.cart_url }}">` anchor,
+   so no-JS shoppers land on `/cart` which is a full
+   `{% form 'cart' %}` with native submits. Without this rule, the
+   drawer DOM stays interactive-but-broken on no-JS sessions. */
+html.no-js .kt-cart-drawer {
+  display: none;
+}
+
 /* ── Overlay (dim + blur behind panel) ──────────────────── */
 
 .kt-cart-drawer__overlay {

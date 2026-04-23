@@ -22,13 +22,23 @@
   style="--kt-banner-cover-min-height-mobile: {{ min_h_mobile }}px; --kt-banner-cover-min-height-desktop: {{ min_h_desktop }}px; --kt-banner-cover-overlay-opacity: {{ overlay_opacity }};"
 >
   <div class="kt-banner-cover__media" aria-hidden="true">
+    {%- comment -%}
+      `fetchpriority: 'high'` was unconditionally attached here in
+      earlier rounds, but banner-cover sections aren't guaranteed to be
+      the page's LCP — merchants often place them mid-page behind a
+      true hero. Multiple high-priority images on the same page hurts
+      Lighthouse (Avoid multiple critical resources) and can shift
+      which image the browser actually rushes. `loading: 'eager'` still
+      skips the lazy queue so the image loads early if the section is
+      on-screen, while `fetchpriority: 'auto'` lets the browser decide.
+    {%- endcomment -%}
     {%- if section.settings.image != blank -%}
       {{
         section.settings.image
         | image_url: width: 2400
         | image_tag:
           loading: 'eager',
-          fetchpriority: 'high',
+          fetchpriority: 'auto',
           class: 'kt-banner-cover__image',
           widths: '800, 1200, 1600, 2000, 2400',
           sizes: '100vw',
