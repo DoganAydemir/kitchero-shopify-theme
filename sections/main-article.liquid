@@ -23,9 +23,11 @@
     readers orient themselves ("Home > Journal > This article")
     before entering the long-form content.
   {%- endcomment -%}
-  <div class="page-width">
-    {%- render 'breadcrumbs', class_extra: 'kt-article__breadcrumbs' -%}
-  </div>
+  {%- if section.settings.show_breadcrumbs -%}
+    <div class="page-width">
+      {%- render 'breadcrumbs', class_extra: 'kt-article__breadcrumbs' -%}
+    </div>
+  {%- endif -%}
 
   {%- comment -%} Hero Header — centered, editorial {%- endcomment -%}
   <header class="kt-article__header">
@@ -47,11 +49,15 @@
           {%- endfor -%}
           {%- if article_primary_tag != blank -%}
             <span class="kt-article__meta-item">{{ article_primary_tag }}</span>
-            <span class="kt-article__meta-rule" aria-hidden="true"></span>
+            {%- if section.settings.show_date -%}
+              <span class="kt-article__meta-rule" aria-hidden="true"></span>
+            {%- endif -%}
           {%- endif -%}
-          <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
-            {{ article.published_at | date: format: 'abbreviated_date' }}
-          </time>
+          {%- if section.settings.show_date -%}
+            <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+              {{ article.published_at | date: format: 'abbreviated_date' }}
+            </time>
+          {%- endif -%}
           {%- comment -%}
             Author byline — Google's NewsArticle/BlogPosting rich result
             heavily weights a visible author string; without it, Search
@@ -59,9 +65,14 @@
             Shopify's native `article | structured_data` filter already
             populates the JSON-LD author — this adds the human-visible
             byline so the page itself matches the structured data.
+            Merchant can hide the visible byline via `show_author`; the
+            JSON-LD still carries the author (Shopify filter handles it)
+            so the structured-data-missing-author warning doesn't return.
           {%- endcomment -%}
-          {%- if article.author != blank -%}
-            <span class="kt-article__meta-rule" aria-hidden="true"></span>
+          {%- if section.settings.show_author and article.author != blank -%}
+            {%- if article_primary_tag != blank or section.settings.show_date -%}
+              <span class="kt-article__meta-rule" aria-hidden="true"></span>
+            {%- endif -%}
             <span class="kt-article__meta-item kt-article__meta-author">
               {{ 'kt.blog.article.by_author_html' | t: author: article.author }}
             </span>
@@ -143,7 +154,13 @@
         </div>
       {%- endif -%}
 
-      {%- comment -%} Share row {%- endcomment -%}
+      {%- comment -%}
+        Share row — gated on the `show_share_buttons` setting so
+        merchants who'd rather drive engagement through email
+        newsletters / comments instead of social share can turn the
+        row off from the theme editor without editing code.
+      {%- endcomment -%}
+      {%- if section.settings.show_share_buttons -%}
       <div class="kt-article__share">
         <span class="kt-article__share-label">{{ 'kt.share.title' | t | default: 'Share' }}</span>
         <div class="kt-article__share-links">
@@ -171,6 +188,7 @@
           </a>
         </div>
       </div>
+      {%- endif -%}
     </div>
   </div>
 
@@ -181,9 +199,15 @@
     readers finishing an article have to manually navigate back to
     the blog index + scan the grid. Standard editorial-theme pattern.
     Gated on EITHER being present so the row doesn't render empty on
-    the first/last article in the blog.
+    the first/last article in the blog. Additionally gated on the
+    merchant setting `show_pager` for merchants whose blog strategy
+    prefers list-only browsing.
   {%- endcomment -%}
+  {%- assign has_pager_content = false -%}
   {%- if blog.previous_article or blog.next_article -%}
+    {%- assign has_pager_content = true -%}
+  {%- endif -%}
+  {%- if section.settings.show_pager and has_pager_content -%}
     <nav class="kt-article__pager" aria-label="{{ 'kt.blog.article.pager_label' | t | default: 'More articles' }}">
       <div class="page-width">
         <div class="kt-article__pager-inner">
@@ -372,6 +396,44 @@
   "enabled_on": {
     "templates": ["article"]
   },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main-article.settings.header__display.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main-article.settings.show_breadcrumbs.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:sections.main-article.settings.show_date.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:sections.main-article.settings.show_author.label",
+      "info": "t:sections.main-article.settings.show_author.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "t:sections.main-article.settings.show_share_buttons.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pager",
+      "label": "t:sections.main-article.settings.show_pager.label",
+      "info": "t:sections.main-article.settings.show_pager.info",
+      "default": true
+    }
+  ],
   "blocks": [
     {
       "type": "@app"
