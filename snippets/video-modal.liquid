@@ -43,6 +43,16 @@
         effectively a ratio hint — browsers use them to reserve space
         before the frame src is set.
       {%- endcomment -%}
+      {%- comment -%}
+        Sandbox attribute — restricts what the embedded YouTube/Vimeo
+        frame can do. We allow the minimum set needed for video playback
+        to work: script execution (required by player APIs), same-origin
+        requests (for analytics / captions), presentation (fullscreen
+        API), and popups (YouTube's share menu opens in a new window).
+        Without sandbox an ad-serving frame could theoretically navigate
+        the top window or run drive-by scripts on modal dismiss; this
+        closes the OWASP-flagged "unsandboxed third-party iframe" gap.
+      {%- endcomment -%}
       <iframe
         class="kt-video-modal__frame"
         data-video-modal-frame
@@ -54,6 +64,7 @@
         loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
       ></iframe>
     </div>
   </div>

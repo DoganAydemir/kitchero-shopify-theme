@@ -109,7 +109,7 @@
                     class="kt-contact__form-input"
                     required
                     autocomplete="given-name"
-                    value="{% if form.first_name %}{{ form.first_name }}{% elsif customer %}{{ customer.first_name }}{% endif %}"
+                    value="{% if form.first_name %}{{ form.first_name | escape }}{% elsif customer %}{{ customer.first_name | escape }}{% endif %}"
                     {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="contact-first-name-error"{% endif %}
                   >
                   {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: 'contact-first-name-error' -%}
@@ -123,7 +123,7 @@
                     class="kt-contact__form-input"
                     required
                     autocomplete="family-name"
-                    value="{% if form.last_name %}{{ form.last_name }}{% elsif customer %}{{ customer.last_name }}{% endif %}"
+                    value="{% if form.last_name %}{{ form.last_name | escape }}{% elsif customer %}{{ customer.last_name | escape }}{% endif %}"
                     {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="contact-last-name-error"{% endif %}
                   >
                   {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: 'contact-last-name-error' -%}
@@ -139,7 +139,7 @@
                     class="kt-contact__form-input"
                     required
                     autocomplete="email"
-                    value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                    value="{% if form.email %}{{ form.email | escape }}{% elsif customer %}{{ customer.email | escape }}{% endif %}"
                     {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="contact-email-error"{% endif %}
                   >
                   {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'contact-email-error' -%}
@@ -152,7 +152,7 @@
                     name="contact[phone]"
                     class="kt-contact__form-input"
                     autocomplete="tel"
-                    value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+                    value="{% if form.phone %}{{ form.phone | escape }}{% elsif customer %}{{ customer.phone | escape }}{% endif %}"
                     {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="contact-phone-error"{% endif %}
                   >
                   {%- render 'form-field-error', form: form, field: 'phone', describedby_id: 'contact-phone-error' -%}
@@ -167,7 +167,7 @@
                   rows="4"
                   required
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="contact-message-error"{% endif %}
-                >{% if form.body %}{{ form.body }}{% endif %}</textarea>
+                >{% if form.body %}{{ form.body | escape }}{% endif %}</textarea>
                 {%- render 'form-field-error', form: form, field: 'body', describedby_id: 'contact-message-error' -%}
               </div>
               <button type="submit" class="kt-contact__form-submit">

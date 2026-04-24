@@ -119,6 +119,15 @@
               for an image the viewer won't see.
             {%- endcomment -%}
             {%- if media.id == active_media_id -%}
+              {%- comment -%}
+                `preload: true` emits <link rel="preload" as="image"> into
+                <head> via content_for_header — combined with eager +
+                fetchpriority high, this makes the active PDP image the
+                highest-priority fetch the browser queues, which is what
+                Lighthouse's "Preload LCP image" audit expects. Without
+                preload the image discovery waits for the HTML parser to
+                reach the <img>, costing ~150–400ms of LCP on slow 4G.
+              {%- endcomment -%}
               {{
                 media
                 | image_url: width: 1200
@@ -126,6 +135,7 @@
                   class: 'kt-gallery__image',
                   loading: 'eager',
                   fetchpriority: 'high',
+                  preload: true,
                   widths: '375, 550, 750, 1100',
                   sizes: '(min-width: 990px) 58vw, 100vw',
                   width: media.width,

@@ -273,6 +273,22 @@
           <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
             {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
           </button>
+
+          {%- comment -%}
+            Express / dynamic checkout buttons — Shop Pay, Apple Pay,
+            Google Pay, PayPal, etc. Shopify injects these via
+            content_for_additional_checkout_buttons ONLY when they are
+            enabled in Settings → Payments and the current cart is
+            eligible (no subscription-only bundles, etc.). The slot
+            MUST live inside the cart form so the active cart ships
+            with the express-payment POST. Matching main-cart.liquid's
+            wrapper so both checkout surfaces render the same chrome.
+          {%- endcomment -%}
+          {%- if additional_checkout_buttons -%}
+            <div class="kt-cart-drawer__additional-checkout" role="group" aria-label="{{ 'kt.cart.additional_checkout' | t | default: 'Additional payment options' }}">
+              {{ content_for_additional_checkout_buttons }}
+            </div>
+          {%- endif -%}
         {%- endform -%}
         <button type="button" class="kt-cart-drawer__continue" data-cart-drawer-close>
           {{ 'kt.cart.continue_shopping' | t | default: 'Continue shopping' }}

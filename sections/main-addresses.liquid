@@ -194,43 +194,43 @@
                       <div class="kt-addresses__row">
                         <div class="kt-addresses__field">
                           <label for="AddressFirstName{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.first_name' | t }}</label>
-                          <input type="text" id="AddressFirstName{{ address.id }}" name="address[first_name]" required aria-required="true" class="kt-customer__input" value="{{ form.first_name | default: address.first_name }}" autocomplete="given-name" {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="{{ err_fname }}"{% endif %}>
+                          <input type="text" id="AddressFirstName{{ address.id }}" name="address[first_name]" required aria-required="true" class="kt-customer__input" value="{{ form.first_name | default: address.first_name | escape }}" autocomplete="given-name" {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="{{ err_fname }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: err_fname -%}
                         </div>
                         <div class="kt-addresses__field">
                           <label for="AddressLastName{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.last_name' | t }}</label>
-                          <input type="text" id="AddressLastName{{ address.id }}" name="address[last_name]" required aria-required="true" class="kt-customer__input" value="{{ form.last_name | default: address.last_name }}" autocomplete="family-name" {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="{{ err_lname }}"{% endif %}>
+                          <input type="text" id="AddressLastName{{ address.id }}" name="address[last_name]" required aria-required="true" class="kt-customer__input" value="{{ form.last_name | default: address.last_name | escape }}" autocomplete="family-name" {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="{{ err_lname }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: err_lname -%}
                         </div>
                       </div>
 
                       <div class="kt-addresses__field">
                         <label for="AddressCompany{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.company' | t }}</label>
-                        <input type="text" id="AddressCompany{{ address.id }}" name="address[company]" class="kt-customer__input" value="{{ form.company | default: address.company }}" autocomplete="organization" {% if form.errors contains 'company' %}aria-invalid="true" aria-describedby="{{ err_company }}"{% endif %}>
+                        <input type="text" id="AddressCompany{{ address.id }}" name="address[company]" class="kt-customer__input" value="{{ form.company | default: address.company | escape }}" autocomplete="organization" {% if form.errors contains 'company' %}aria-invalid="true" aria-describedby="{{ err_company }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'company', describedby_id: err_company -%}
                       </div>
 
                       <div class="kt-addresses__field">
                         <label for="AddressAddress1{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.address1' | t }}</label>
-                        <input type="text" id="AddressAddress1{{ address.id }}" name="address[address1]" required aria-required="true" class="kt-customer__input" value="{{ form.address1 | default: address.address1 }}" autocomplete="address-line1" {% if form.errors contains 'address1' %}aria-invalid="true" aria-describedby="{{ err_addr1 }}"{% endif %}>
+                        <input type="text" id="AddressAddress1{{ address.id }}" name="address[address1]" required aria-required="true" class="kt-customer__input" value="{{ form.address1 | default: address.address1 | escape }}" autocomplete="address-line1" {% if form.errors contains 'address1' %}aria-invalid="true" aria-describedby="{{ err_addr1 }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'address1', describedby_id: err_addr1 -%}
                       </div>
 
                       <div class="kt-addresses__field">
                         <label for="AddressAddress2{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.address2' | t }}</label>
-                        <input type="text" id="AddressAddress2{{ address.id }}" name="address[address2]" class="kt-customer__input" value="{{ form.address2 | default: address.address2 }}" autocomplete="address-line2" {% if form.errors contains 'address2' %}aria-invalid="true" aria-describedby="{{ err_addr2 }}"{% endif %}>
+                        <input type="text" id="AddressAddress2{{ address.id }}" name="address[address2]" class="kt-customer__input" value="{{ form.address2 | default: address.address2 | escape }}" autocomplete="address-line2" {% if form.errors contains 'address2' %}aria-invalid="true" aria-describedby="{{ err_addr2 }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'address2', describedby_id: err_addr2 -%}
                       </div>
 
                       <div class="kt-addresses__row">
                         <div class="kt-addresses__field">
                           <label for="AddressCity{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.city' | t }}</label>
-                          <input type="text" id="AddressCity{{ address.id }}" name="address[city]" required aria-required="true" class="kt-customer__input" value="{{ form.city | default: address.city }}" autocomplete="address-level2" {% if form.errors contains 'city' %}aria-invalid="true" aria-describedby="{{ err_city }}"{% endif %}>
+                          <input type="text" id="AddressCity{{ address.id }}" name="address[city]" required aria-required="true" class="kt-customer__input" value="{{ form.city | default: address.city | escape }}" autocomplete="address-level2" {% if form.errors contains 'city' %}aria-invalid="true" aria-describedby="{{ err_city }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'city', describedby_id: err_city -%}
                         </div>
                         <div class="kt-addresses__field">
                           <label for="AddressZip{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.zip' | t }}</label>
-                          <input type="text" id="AddressZip{{ address.id }}" name="address[zip]" required aria-required="true" class="kt-customer__input" value="{{ form.zip | default: address.zip }}" autocomplete="postal-code" {% if form.errors contains 'zip' %}aria-invalid="true" aria-describedby="{{ err_zip }}"{% endif %}>
+                          <input type="text" id="AddressZip{{ address.id }}" name="address[zip]" required aria-required="true" class="kt-customer__input" value="{{ form.zip | default: address.zip | escape }}" autocomplete="postal-code" {% if form.errors contains 'zip' %}aria-invalid="true" aria-describedby="{{ err_zip }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'zip', describedby_id: err_zip -%}
                         </div>
                       </div>
@@ -238,14 +238,14 @@
                       <div class="kt-addresses__row">
                         <div class="kt-addresses__field">
                           <label for="AddressCountry{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.country' | t }}</label>
-                          <select id="AddressCountry{{ address.id }}" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | default: address.country }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="{{ err_country }}"{% endif %}>
+                          <select id="AddressCountry{{ address.id }}" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | default: address.country | escape }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="{{ err_country }}"{% endif %}>
                   {{ country_option_tags }}
                 </select>
                 {%- render 'form-field-error', form: form, field: 'country', describedby_id: err_country -%}
                         </div>
                         <div class="kt-addresses__field" data-province-field>
                           <label for="AddressProvince{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
-                          <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="{{ err_province }}"{% endif %}>
+                          <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province | escape }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="{{ err_province }}"{% endif %}>
 
                 </select>
                 {%- render 'form-field-error', form: form, field: 'province', describedby_id: err_province -%}
@@ -254,7 +254,7 @@
 
                       <div class="kt-addresses__field">
                         <label for="AddressPhone{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.phone' | t }}</label>
-                        <input type="tel" id="AddressPhone{{ address.id }}" name="address[phone]" class="kt-customer__input" value="{{ form.phone | default: address.phone }}" autocomplete="tel" {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="{{ err_phone }}"{% endif %}>
+                        <input type="tel" id="AddressPhone{{ address.id }}" name="address[phone]" class="kt-customer__input" value="{{ form.phone | default: address.phone | escape }}" autocomplete="tel" {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="{{ err_phone }}"{% endif %}>
               {%- render 'form-field-error', form: form, field: 'phone', describedby_id: err_phone -%}
                       </div>
 

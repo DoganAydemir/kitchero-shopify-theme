@@ -141,7 +141,16 @@
                 alt: line_item.image.alt | default: line_item.title
               }}
             {%- else -%}
-              <div class="kt-order__item-image"></div>
+              {%- comment -%}
+                Shopify placeholder SVG keeps the 80×80 slot visually
+                balanced when a line item has no product image
+                (imported orders, deleted products, digital goods).
+                An empty <div> left a blank square that looked like a
+                broken asset and shifted row height inconsistently
+                between items — Theme Store's empty-state rule
+                requires a visible fallback on every image slot.
+              {%- endcomment -%}
+              {{ 'product-1' | placeholder_svg_tag: 'kt-order__item-image kt-order__item-image--placeholder' }}
             {%- endif -%}
 
             <div>
