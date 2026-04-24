@@ -183,24 +183,30 @@
 @media screen and (min-width: 750px) {
   .kt-ecosystem__image-col {
     width: 50%;
-    /* Sticky h-screen column — use 100svh so iOS Safari's collapsing
-       address bar doesn't make the sticky container taller than the
-       visible viewport (content gets clipped below the bar on first
-       paint). 100vh fallback for older browsers. */
+    /* h-screen column — use 100svh so iOS Safari's collapsing
+       address bar doesn't make the container taller than the visible
+       viewport (content gets clipped below the bar on first paint).
+       100vh fallback for older browsers. */
     height: 100vh;
     height: 100svh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Sticky so the image stays anchored in view as the left-column
-       feature text scrolls past. Mirrors the Next.js source which uses
-       a sticky h-screen wrapper. Also fixes the Shopify theme-editor
-       "disappearing image on scroll" bug — without sticky, the 100vh
-       column scrolls out of view long before the text column finishes. */
+    align-self: flex-start;
+  }
+
+  /* JS-off fallback — use CSS sticky to keep the image anchored while
+     the left-column feature text scrolls past. Progressive enhancement:
+     when JS is available (html.js), GSAP ScrollTrigger takes over the
+     pinning via transform-based pin which is smoother and respects
+     reduced-motion / theme-editor contexts. Previously both sticky AND
+     ScrollTrigger pin were active simultaneously, so the pin handoff
+     jumped the image by a few px as the GSAP transform activated and
+     the native sticky released. One mechanism at a time now. */
+  html:not(.js) .kt-ecosystem__image-col {
     position: sticky;
     top: 0;
-    align-self: flex-start;
   }
 }
 

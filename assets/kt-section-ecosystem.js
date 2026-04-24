@@ -30,13 +30,33 @@
         var leftHeight = leftCol.offsetHeight;
         var windowHeight = window.innerHeight;
 
-        /* Pin the entire right column */
+        /* Pin the entire right column.
+         *
+         * anticipatePin: 1 pre-warms the pin a frame before the
+         * scrollbar reaches the start line so the transform takes
+         * effect on the frame the user actually sees it enter the
+         * pinned state. Without it, high-DPI Retina scrolling pushes
+         * past the start line before the first RAF commits the pin
+         * transform, and the image column visibly hops by a few
+         * pixels at pin engagement.
+         *
+         * invalidateOnRefresh re-reads leftHeight on resize / theme-
+         * editor section reload; left-column text length can change
+         * via CMS edits, which changes the `end` distance.
+         *
+         * pinType "transform" is default on touch but we force it on
+         * desktop too — fixed pinning on desktop was causing subpixel
+         * rounding jitter when the page had zoom != 100%.
+         */
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
           end: '+=' + (leftHeight - windowHeight + 100),
           pin: rightCol,
-          pinSpacing: false
+          pinSpacing: false,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          pinType: 'transform'
         });
 
         /* Parallax image scale */
