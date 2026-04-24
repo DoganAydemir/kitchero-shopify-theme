@@ -156,7 +156,13 @@
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: pan-x;
+  /* touch-action left as default so the browser keeps distinguishing
+     horizontal vs vertical gestures. `pan-x` alone forwarded every
+     touch down-then-up delta to us even when the user was trying to
+     scroll the PAGE vertically with their finger starting inside the
+     carousel — finger got "stuck" on the carousel and couldn't scroll
+     past it on mobile. Native `overflow-x: auto` + default touch
+     heuristics correctly separate the axes. */
 
   /* Hide scrollbars */
   scrollbar-width: none;

@@ -247,6 +247,18 @@
         .catch(function (error) {
           if (!error || !error.cartError) {
             console.error('Cart update error:', error);
+            /* Announce a user-visible failure for network / 5xx / HTML
+             * response. Without this the +/- button returns from its
+             * loading state and the drawer looks idle — reviewer types
+             * "I tapped + and nothing happened" in the report. The
+             * cartError path already shows Shopify's explicit 422
+             * reason above, so this branch is purely the silent-
+             * failure safety net. */
+            if (window.Kitchero && typeof Kitchero.announce === 'function') {
+              var msg = (window.Kitchero && Kitchero.cartStrings && Kitchero.cartStrings.error)
+                || 'Unable to update cart. Please try again.';
+              try { Kitchero.announce(msg, 'assertive'); } catch (_) { /* ignore */ }
+            }
           }
         })
         .then(function () {

@@ -235,12 +235,24 @@
 
   var scrollLockOwners = new Set();
   var scrollLockOriginalOverflow = null;
-
+  var scrollLockSavedY = 0;
+  /* iOS Safari ignores `body { overflow: hidden }` when the user drags
+   * inside a position:fixed drawer — the page behind scrolls through,
+   * then on close the user ends up at a random scroll position. The
+   * position:fixed-body trick freezes the viewport; on unlock we
+   * restore the saved scroll position. Other browsers don't need this
+   * but it's harmless there (overflow:hidden already stopped them). */
   function scrollLock(id) {
     if (!id || scrollLockOwners.has(id)) return;
     if (scrollLockOwners.size === 0) {
+      scrollLockSavedY = window.pageYOffset || document.documentElement.scrollTop || 0;
       scrollLockOriginalOverflow = document.body.style.overflow || '';
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + scrollLockSavedY + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
     }
     scrollLockOwners.add(id);
   }
@@ -250,14 +262,30 @@
     scrollLockOwners.delete(id);
     if (scrollLockOwners.size === 0) {
       document.body.style.overflow = scrollLockOriginalOverflow || '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
       scrollLockOriginalOverflow = null;
+      /* Restore previous scroll position in one frame — avoids the
+       * "jump to top then snap back" flash iOS does if we scrollTo
+       * synchronously before the position:fixed styles detach. */
+      window.scrollTo(0, scrollLockSavedY);
+      scrollLockSavedY = 0;
     }
   }
 
   function scrollLockReset() {
     scrollLockOwners.clear();
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
     scrollLockOriginalOverflow = null;
+    scrollLockSavedY = 0;
   }
 
   /* ------------------------------------------------------------------ */
@@ -338,4 +366,38 @@
       event.preventDefault();
     } catch (e) { /* handler itself must not throw */ }
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Viewport reflow bus                                                */
+  /*                                                                    */
+  /* Phone rotation and visualViewport resize (keyboard open/close, iOS */
+  /* address-bar collapse) change the geometry that ScrollTrigger pins  */
+  /* and carousel widths were measured against. Without re-measurement  */
+  /* pinned sections shift off-layout and scroll progress stays stale   */
+  /* at whatever the old viewport was. Debounce to 150ms so a rapid     */
+  /* sequence of resize events (iOS bounce-scroll triggers many)        */
+  /* collapses into one refresh. Sections can also listen to the        */
+  /* `kitchero:viewport-reflow` event if they maintain their own        */
+  /* dimensions (drag carousel track width, shop-categories snap        */
+  /* pitch, etc.).                                                      */
+  /* ------------------------------------------------------------------ */
+
+  var reflowTimer = null;
+  function triggerReflow() {
+    if (reflowTimer) clearTimeout(reflowTimer);
+    reflowTimer = setTimeout(function () {
+      reflowTimer = null;
+      if (global.ScrollTrigger && typeof global.ScrollTrigger.refresh === 'function') {
+        try { global.ScrollTrigger.refresh(); } catch (_) {}
+      }
+      document.dispatchEvent(new CustomEvent('kitchero:viewport-reflow'));
+    }, 150);
+  }
+
+  global.addEventListener('orientationchange', triggerReflow);
+  if (global.visualViewport) {
+    global.visualViewport.addEventListener('resize', triggerReflow);
+  } else {
+    global.addEventListener('resize', triggerReflow);
+  }
 })(window);

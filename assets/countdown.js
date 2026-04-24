@@ -83,5 +83,10 @@ if (!window.__kitcheroCountdownLoaded) {
       timers.forEach(function (id) { clearInterval(id); });
       timers = [];
     });
+    /* External re-init trigger — dispatched by collection-filters.js
+     * after AJAX-swapping the product grid. Newly rendered cards that
+     * carry [data-countdown] need fresh intervals, but the filter JS
+     * can't reach countdown's IIFE-scoped initAll directly. */
+    document.addEventListener('kitchero:countdown:refresh', initAll);
   })();
 }

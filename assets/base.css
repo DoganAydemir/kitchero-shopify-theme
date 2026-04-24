@@ -66,6 +66,21 @@ button,
 select,
 summary {
   cursor: pointer !important;
+  /* Kill iOS Safari's default grey tap flash on every interactive
+     surface — the UA default looks unpolished on a premium theme and
+     Theme Store reviewers mention it on mobile QA. Component-level
+     :active / :focus-visible styles remain the intentional feedback. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile horizontal-overflow safety net — a rogue long URL, wide
+   marquee, or overflowed grid can introduce a page-level horizontal
+   scrollbar on narrow viewports. `clip` is preferred over `hidden`
+   because `clip` doesn't form a scroll container, so position:sticky
+   descendants (sticky header, sticky PDP info column) keep working. */
+html,
+body {
+  overflow-x: clip;
 }
 
 /* Kill the 300ms tap-delay on touch devices for every element

@@ -184,8 +184,14 @@ if (window.__kitcheroCollectionFiltersLoaded) {
         /* Update URL without reload */
         window.history.pushState({}, '', newUrl);
 
-        /* Re-init countdowns if present */
-        if (typeof initAll === 'function') initAll();
+        /* Re-init countdowns if present. `initAll` used to be a direct
+         * reference — it was an IIFE-scoped function in countdown.js
+         * which meant `typeof initAll === 'function'` was ALWAYS false
+         * here (different scope). Countdowns on newly-rendered filter
+         * result cards never started ticking. Bridge via a document
+         * event now; countdown.js subscribes and calls its internal
+         * initAll. */
+        document.dispatchEvent(new CustomEvent('kitchero:countdown:refresh'));
 
         /* Publish event for other scripts */
         if (window.Kitchero && Kitchero.bus) {
