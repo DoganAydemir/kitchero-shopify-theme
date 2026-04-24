@@ -138,7 +138,19 @@
                 </ul>
               {%- endif -%}
 
-              {%- comment -%} Row 3: qty stepper on LEFT + remove button on RIGHT {%- endcomment -%}
+              {%- comment -%}
+                Row 3: qty stepper on LEFT + remove button on RIGHT.
+
+                Quantity rule respect — `item.variant.quantity_rule.increment`
+                tells Shopify what step size this variant accepts (e.g.
+                wholesale "case of 6" = increment 6). Hardcoded +1/-1
+                previously caused "Unable to update cart" errors for any
+                merchant using B2B bundles, since Shopify rejects non-
+                conforming quantities at the /cart/change.js endpoint.
+                main-cart.liquid already reads this rule; drawer now
+                matches so both surfaces behave identically.
+              {%- endcomment -%}
+              {%- assign drawer_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
               <div class="kt-cart-drawer__item-footer">
                 <div class="kt-cart-drawer__qty">
                   <button
@@ -147,7 +159,7 @@
                     aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
-                    data-qty="{{ item.quantity | minus: 1 }}"
+                    data-qty="{{ item.quantity | minus: drawer_qty_step }}"
                   >
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
@@ -158,7 +170,7 @@
                     aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
-                    data-qty="{{ item.quantity | plus: 1 }}"
+                    data-qty="{{ item.quantity | plus: drawer_qty_step }}"
                   >
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
@@ -270,6 +282,37 @@
           at line 40; drawer now matches.
         {%- endcomment -%}
         {%- form 'cart', cart, class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
+          {%- comment -%}
+            Optional order note — gated on the same kt_cart_show_note
+            setting as /cart. Drawer checkout skips the /cart page and
+            POSTs straight to /checkouts/..., so if we didn't surface
+            the note here a merchant who enabled notes in settings
+            would see them on the page but never from the drawer. Must
+            live INSIDE {% form 'cart' %} so the name="note" attr binds
+            to the same POST body Shopify sends to /checkouts/... The
+            <details> wrapper keeps the drawer compact — collapsed by
+            default, expands when the customer wants to leave a note
+            (gift message, delivery instructions, etc.).
+          {%- endcomment -%}
+          {%- if settings.kt_cart_show_note -%}
+            <details class="kt-cart-drawer__note-details">
+              <summary class="kt-cart-drawer__note-toggle">
+                {{ 'kt.cart.note_toggle' | t | default: 'Add order note' }}
+              </summary>
+              <label class="kt-cart-drawer__note-label" for="CartDrawerNote">
+                <span class="visually-hidden">{{ 'kt.cart.note' | t | default: 'Order note' }}</span>
+              </label>
+              <textarea
+                id="CartDrawerNote"
+                name="note"
+                class="kt-cart-drawer__note"
+                rows="3"
+                maxlength="2000"
+                placeholder="{{ 'kt.cart.note_placeholder' | t }}"
+              >{{ cart.note | escape }}</textarea>
+            </details>
+          {%- endif -%}
+
           <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
             {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
           </button>

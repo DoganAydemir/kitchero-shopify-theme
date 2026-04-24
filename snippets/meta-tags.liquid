@@ -25,8 +25,31 @@
   assign share_description = page_description | default: shop.description | default: shop.name
   assign share_url = canonical_url | default: request.origin
   assign share_image = page_image
+  # Merchant-uploaded default social-share image (1200×630 recommended).
+  # Sits between page_image (template-specific) and shop.brand.logo
+  # (usually square and ugly when cropped into a 1.91:1 social card).
+  # Home/collection/page/search links paste into Slack/FB/LinkedIn with
+  # a purpose-built preview instead of a zoomed-in logo.
+  if share_image == blank and settings.kt_default_share_image != blank
+    assign share_image = settings.kt_default_share_image
+  endif
   if share_image == blank and shop.brand.logo != blank
     assign share_image = shop.brand.logo
+  endif
+  # Video featured_media guard — product.featured_media can be a video
+  # object when the merchant's first media slot is a YouTube/Vimeo embed
+  # or uploaded .mp4. In that case share_image.width / .height resolve
+  # to 0 or nil, which breaks the og:image:width / og:image:height pair
+  # below (emits width="0" and spec validators reject the card). Fall
+  # back to the merchant default or logo so every page has a usable image.
+  if share_image != blank and share_image.width == 0
+    if settings.kt_default_share_image != blank
+      assign share_image = settings.kt_default_share_image
+    elsif shop.brand.logo != blank
+      assign share_image = shop.brand.logo
+    else
+      assign share_image = blank
+    endif
   endif
 
   # ── Template dispatch (case over request.page_type; each branch sets
@@ -54,10 +77,12 @@
   endif
 
   # ── Twitter handle: strip the domain from the twitter_link setting and
-  # prepend "@" so admins can paste the full profile URL. ──
+  # prepend "@" so admins can paste the full profile URL. `remove_first: '@'`
+  # protects against the admin pasting a bare handle like "@kitchero" (or
+  # an X URL containing "@") — without it the prepend would double to "@@".
   assign twitter_handle = ''
   if settings.kt_social_twitter != blank
-    assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | remove: '/' | prepend: '@'
+    assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | split: 'x.com/' | last | remove: '/' | remove_first: '@' | prepend: '@'
   endif
 
   # ── Share-image sizing ─────────────────────────────────────────────

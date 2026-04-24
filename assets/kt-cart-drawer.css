@@ -488,6 +488,81 @@ html.no-js .kt-cart-drawer {
   margin-top: 0.5rem;
 }
 
+/* Optional order-note disclosure — collapsed by default to keep the
+   drawer footer compact; expanding reveals a low-chrome textarea that
+   matches the input styling on /cart. Sits above the primary Checkout
+   CTA so customers see it before committing to checkout. */
+.kt-cart-drawer__note-details {
+  margin-bottom: 0.75rem;
+}
+
+.kt-cart-drawer__note-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg), 0.65);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+/* Hide the native disclosure arrow on both webkit + standards-mode
+   browsers so we can style the trigger as a plain text link. */
+.kt-cart-drawer__note-toggle::-webkit-details-marker {
+  display: none;
+}
+.kt-cart-drawer__note-toggle::marker {
+  display: none;
+  content: '';
+}
+
+.kt-cart-drawer__note-toggle::before {
+  content: '+';
+  display: inline-block;
+  width: 1em;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.kt-cart-drawer__note-details[open] .kt-cart-drawer__note-toggle::before {
+  content: '−';
+}
+
+.kt-cart-drawer__note-toggle:hover,
+.kt-cart-drawer__note-toggle:focus-visible {
+  color: rgb(var(--kt-c-fg));
+  outline: none;
+}
+
+.kt-cart-drawer__note-toggle:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+}
+
+.kt-cart-drawer__note {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: rgb(var(--kt-c-fg));
+  background: transparent;
+  border: 1px solid rgba(var(--kt-c-fg), 0.18);
+  resize: vertical;
+  min-height: 3.25rem;
+}
+
+.kt-cart-drawer__note:focus {
+  outline: none;
+  border-color: rgb(var(--kt-c-fg));
+}
+
+.kt-cart-drawer__note::placeholder {
+  color: rgba(var(--kt-c-fg), 0.5);
+}
+
 /* `button.kt-cart-drawer__checkout` (specificity 0,0,1,1) is required
    because base.css:196 has a global `button[type="submit"]` rule with
    the same specificity that otherwise wins source-order arbitrarily.

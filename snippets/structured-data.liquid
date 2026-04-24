@@ -118,6 +118,15 @@
       "@type": "WebSite",
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }},
+      {%- comment -%}
+        inLanguage — recommended for multi-locale stores so Google
+        Search Console can attribute WebSite / SearchAction to the
+        right locale index. `request.locale.iso_code` is "en", "tr",
+        "de-DE" etc. — either ISO 639 or BCP 47, both accepted by
+        schema.org. Single-locale stores still benefit (clears the
+        "missing field" recommendation in Rich Results Test).
+      {%- endcomment -%}
+      "inLanguage": {{ request.locale.iso_code | json }},
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
@@ -183,12 +192,31 @@
             "item": {{ canonical_url | json }}
           }
         {%- elsif request.page_type == 'collection' -%}
+          {%- comment -%}
+            When the collection is being viewed under a tag filter
+            (/collections/<handle>/<tag>) or with `current_tags`
+            active, the tag becomes a third breadcrumb rung. The
+            canonical URL at position 2 is the un-tagged collection
+            (so Google's graph always has the parent), and position 3
+            joins the tag names if present. Without this the tag-
+            filtered view shared the same breadcrumb as the un-tagged
+            collection — Rich Results flagged "Duplicate breadcrumb"
+            on index-vs-filter pages.
+          {%- endcomment -%}
           ,{
             "@type": "ListItem",
             "position": 2,
             "name": {{ collection.title | json }},
-            "item": {{ canonical_url | json }}
+            "item": {{ request.origin | append: collection.url | json }}
           }
+          {%- if current_tags -%}
+            ,{
+              "@type": "ListItem",
+              "position": 3,
+              "name": {{ current_tags | join: ', ' | json }},
+              "item": {{ canonical_url | json }}
+            }
+          {%- endif -%}
         {%- elsif request.page_type == 'article' -%}
           ,{
             "@type": "ListItem",
