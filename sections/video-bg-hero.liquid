@@ -1,4 +1,5 @@
 {{ 'kt-section-video-bg-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'kt-section-video-bg-hero.js' | asset_url }}" defer="defer"></script>
 
 {%- liquid
   assign height_class = 'kt-video-bg-hero--full'
@@ -85,6 +86,34 @@
     {%- endif -%}
 
     <div class="kt-video-bg-hero__overlay"></div>
+
+    {%- comment -%}
+      WCAG 2.2.2 Pause, Stop, Hide — auto-playing background video
+      longer than 5 seconds MUST offer a user-controllable pause. Button
+      is positioned above the overlay so it's reachable both by mouse
+      and keyboard. Only emitted when there is actually a video to
+      control (skipped for poster-only / placeholder states). JS in
+      kt-section-video-bg-hero.js toggles playback + swaps aria-label
+      and also respects prefers-reduced-motion (auto-paused on first
+      paint for that cohort).
+    {%- endcomment -%}
+    {%- if section.settings.video_file != blank -%}
+      <button
+        type="button"
+        class="kt-video-bg-hero__toggle"
+        data-video-bg-hero-toggle
+        aria-label="{{ 'kt.section.video_bg_hero.pause' | t | default: 'Pause background video' }}"
+        data-label-pause="{{ 'kt.section.video_bg_hero.pause' | t | default: 'Pause background video' }}"
+        data-label-play="{{ 'kt.section.video_bg_hero.play' | t | default: 'Play background video' }}"
+      >
+        <span class="kt-video-bg-hero__toggle-icon kt-video-bg-hero__toggle-icon--pause" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </span>
+        <span class="kt-video-bg-hero__toggle-icon kt-video-bg-hero__toggle-icon--play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+      </button>
+    {%- endif -%}
   </div>
 
   <div class="kt-video-bg-hero__content">

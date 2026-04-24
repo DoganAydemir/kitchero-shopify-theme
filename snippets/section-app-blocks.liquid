@@ -1,0 +1,34 @@
+{%- comment -%}
+  Render the "@app" blocks a merchant has dragged into the host
+  section. Designed as a drop-in for any section whose schema
+  declares `{"type": "@app"}` in its blocks array — it does the
+  `section.blocks` iteration + the `{% render block %}` call + the
+  `block.shopify_attributes` wiring in one place so we don't repeat
+  that plumbing across twenty templates.
+
+  Usage: `{% render 'section-app-blocks' %}`
+
+  Skips silently when there are no app blocks to render so it's safe
+  to include unconditionally at the end of a section body. The ARIA
+  role groups the app output for screen readers; the label is
+  translatable via `kt.general.app_blocks`.
+{%- endcomment -%}
+{%- assign has_app_blocks = false -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == '@app' -%}
+    {%- assign has_app_blocks = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if has_app_blocks -%}
+  <div class="kt-section-app-blocks" role="group" aria-label="{{ 'kt.general.app_blocks' | t | default: 'Merchant app content' }}">
+    {%- for block in section.blocks -%}
+      {%- if block.type == '@app' -%}
+        <div class="kt-section-app-blocks__item" {{ block.shopify_attributes }}>
+          {% render block %}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}

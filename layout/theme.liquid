@@ -216,6 +216,20 @@
     {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
       <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
+      {%- comment -%}
+        Bold body weight — used above-fold by button text (`base.css`
+        btn rule), form labels, and everywhere a `<strong>` / `<b>` /
+        `.bold` class appears. Without preloading it the browser
+        discovers the weight only when paint hits the first bold node,
+        at which point font-display: swap triggers a short FOUT and the
+        width/advance delta between the fallback and bold face shifts
+        nearby text — a CLS penalty we were paying needlessly because
+        `kt-css-variables.liquid` already emits the @font-face for it.
+      {%- endcomment -%}
+      {%- assign body_font_bold = settings.kt_body_font | font_modify: 'weight', 'bold' -%}
+      {%- if body_font_bold -%}
+        <link rel="preload" as="font" href="{{ body_font_bold | font_url }}" type="font/woff2" crossorigin>
+      {%- endif -%}
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
     {%- unless settings.kt_heading_font.system? -%}

@@ -65,7 +65,17 @@
 
       <div class="kt-customer__form">
         <div class="kt-customer__field">
-          <label for="login-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
+          {%- comment -%}
+            Visible label (not visually-hidden) per WCAG 2.5.3 Label
+            in Name + WCAG 3.3.2 Labels or Instructions. Low-vision
+            users and cognitive-disability users who rely on the
+            label persisting during typing were previously left with
+            only the placeholder, which disappears the moment they
+            start entering an address and blanks the field's purpose.
+            Placeholder is retained alongside the label as an example
+            hint, per current a11y best practice.
+          {%- endcomment -%}
+          <label for="login-email" class="kt-customer__label">{{ 'kt.customer.login.email' | t }}</label>
           {%- comment -%}
             `value="..."` preserves the typed email on server-side
             validation failure. Shopify redirects back to the page
@@ -87,7 +97,7 @@
           {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'login-email-error' -%}
         </div>
         <div class="kt-customer__field">
-          <label for="login-password" class="visually-hidden">{{ 'kt.customer.login.password' | t }}</label>
+          <label for="login-password" class="kt-customer__label">{{ 'kt.customer.login.password' | t }}</label>
           <input
             type="password"
             id="login-password"

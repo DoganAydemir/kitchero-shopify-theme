@@ -23,17 +23,19 @@ html {
      (see kt-section-header.css); anchor navigation (#MainContent
      skip-link, #comments, paginate.previous.url{{ anchor }}, and
      every error-summary link that jumps to a field id) would
-     otherwise land the target hidden underneath the header. 80px
-     matches the desktop header height; smaller screens use less
-     (adjust via section if needed). */
-  scroll-padding-top: 80px;
+     otherwise land the target hidden underneath the header.
+     `--kt-header-offset` token lets merchants (or section-specific
+     override) change header height without breaking skip-link
+     landing — WCAG 2.4.11 Focus Not Obscured defensive coverage.
+     Default 80px matches the desktop header height. */
+  scroll-padding-top: var(--kt-header-offset, 80px);
 }
 
 /* Keyboard-scrolled focus targets also need a buffer so Tab-to-element
-   doesn't land the target behind the sticky header. */
+   doesn't land the target behind the sticky header. Same token. */
 :target,
 [id]:focus {
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--kt-header-offset, 80px);
 }
 
 body {
@@ -567,4 +569,28 @@ button[type="submit"]:hover {
 .kt-breadcrumbs__current {
   color: var(--kt-stone-900, #1c1917);
   font-weight: 500;
+}
+
+/* ── Theme editor ergonomics ─────────────────────────────
+   `html.shopify-design-mode` is toggled on by the inline bootstrap
+   in layout/theme.liquid whenever Shopify.designMode is true — i.e.
+   the merchant is customizing the theme in the admin. Sticky-
+   positioned elements (headers, PDP info columns, cart drawer
+   trigger) make it hard for the merchant to scroll freely to edit
+   lower sections: the sticky element perpetually occludes the
+   section settings panel's preview. Force them back into the normal
+   document flow for the editor context only; storefront behavior
+   is unchanged.
+
+   Limiting to `position: static !important` because sticky is the
+   only positioning scheme that breaks editor scrolling — fixed and
+   absolute layouts (modals, flyouts) aren't covered here, those
+   have their own designMode guards in JS (newsletter-popup,
+   cart-drawer auto-open, etc.).
+   ============================================================ */
+
+html.shopify-design-mode .kt-header--sticky,
+html.shopify-design-mode .kt-pdp__info--sticky,
+html.shopify-design-mode [data-editor-unsticky] {
+  position: static !important;
 }

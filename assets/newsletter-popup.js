@@ -199,6 +199,16 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       var p = getPopup();
       if (!p) return;
 
+      /* Theme editor guard — never auto-open in `Shopify.designMode`.
+       * The merchant is actively editing section settings; the popup's
+       * modal overlay would trap them and every settings change would
+       * re-fire `shopify:section:load` → re-open the popup → trap again,
+       * making the section uneditable. They can still preview the popup
+       * by triggering a [data-newsletter-popup-open] control manually.
+       * Theme Store reviewers flag auto-opening modals in the editor as
+       * a blocking rejection ("modal traps merchant workflow"). */
+      if (window.Shopify && Shopify.designMode) return;
+
       /* Always open (immediately) when Shopify redirected back after a
        * successful submission — the merchant needs to see the success panel. */
       if (p.getAttribute('data-posted-successfully') === 'true') {

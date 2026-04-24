@@ -161,3 +161,60 @@
     transform: none;
   }
 }
+
+/* ── Pause / play toggle (WCAG 2.2.2) ───────────────────────
+   Bottom-right corner so it doesn't compete with the centered
+   headline/CTA. Icons swap based on .is-paused class; default
+   shows the pause glyph (video auto-plays). 44×44 hit target. */
+.kt-video-bg-hero__toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--kt-white);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.kt-video-bg-hero__toggle:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.kt-video-bg-hero__toggle:focus-visible {
+  outline: 2px solid var(--kt-white);
+  outline-offset: 2px;
+}
+
+.kt-video-bg-hero__toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kt-video-bg-hero__toggle-icon--play {
+  display: none;
+}
+
+.kt-video-bg-hero__toggle.is-paused .kt-video-bg-hero__toggle-icon--pause {
+  display: none;
+}
+
+.kt-video-bg-hero__toggle.is-paused .kt-video-bg-hero__toggle-icon--play {
+  display: inline-flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-video-bg-hero__toggle {
+    transition: none;
+  }
+}

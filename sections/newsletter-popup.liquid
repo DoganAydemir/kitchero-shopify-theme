@@ -238,6 +238,15 @@
 
       </div>
     </div>
+
+    {% comment %}
+      App block slot — email capture app integrations (Klaviyo embed,
+      Mailchimp widgets, consent managers) frequently want to inject a
+      control inside the newsletter surface. Rendering outside the
+      modal panel so app-block markup isn't subject to the panel's
+      focus trap.
+    {% endcomment %}
+    {% render 'section-app-blocks' %}
   </div>
 
   <script src="{{ 'newsletter-popup.js' | asset_url }}" defer="defer"></script>

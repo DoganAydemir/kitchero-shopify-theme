@@ -401,6 +401,14 @@
       {%- endif -%}
     {%- endpaginate -%}
   </div>
+
+  {%- comment -%}
+    App block slot — schema declares `{"type": "@app"}`; this renders
+    any app blocks the merchant has dragged in (Judge.me star ratings,
+    wishlist widgets, etc.). Kept outside the product grid so the
+    app's markup doesn't break the grid layout.
+  {%- endcomment -%}
+  {% render 'section-app-blocks' %}
 </div>
 
 <script src="{{ 'kt-section-main-collection.js' | asset_url }}" defer="defer"></script>

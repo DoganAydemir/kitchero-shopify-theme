@@ -559,6 +559,17 @@ html.no-js .kt-cart-drawer {
   border-color: rgb(var(--kt-c-fg));
 }
 
+/* WCAG 2.4.7 Focus Visible — keyboard users need a visible focus
+   indicator when the textarea receives focus via Tab navigation.
+   :focus above suppresses the native outline to keep the hover/click
+   state clean for mouse users; :focus-visible restores a distinct
+   indicator for the keyboard path only. */
+.kt-cart-drawer__note:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+  border-color: rgb(var(--kt-c-fg));
+}
+
 .kt-cart-drawer__note::placeholder {
   color: rgba(var(--kt-c-fg), 0.5);
 }

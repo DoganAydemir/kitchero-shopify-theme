@@ -472,8 +472,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    /* WCAG 2.5.8 Target Size (Minimum) — desktop "remove" button
+       was 36×36 (2.25rem), just under the 24×24 spec minimum when
+       you factor spacing, and below the 44×44 theme-wide standard
+       the mobile pattern uses. Matching the theme's 44px hit-target
+       baseline so pointer + touch precision is consistent across
+       surfaces and the SVG glyph stays centered inside the pad. */
+    min-width: 44px;
+    min-height: 44px;
     background: transparent;
     border: 0;
     color: rgba(var(--kt-c-fg), 0.45);

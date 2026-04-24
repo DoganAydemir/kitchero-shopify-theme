@@ -62,33 +62,47 @@ if (!window.__kitcheroDottedHeaderLoaded) {
       if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return false;
       gsap.registerPlugin(ScrollTrigger);
 
-      var dots = header.querySelector('[data-parallax-dots]');
-      if (dots) {
-        gsap.to(dots, {
-          y: '20%',
-          ease: 'none',
-          scrollTrigger: {
-            trigger: header,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-      }
+      /* Wrap the GSAP tweens + ScrollTriggers in a gsap.context scoped
+       * to this header element. On section unload we call ctx.revert()
+       * which kills every tween and ScrollTrigger the context created,
+       * so detached DOM references don't linger — previously the
+       * ScrollTriggers survived section removal in the theme editor
+       * and accumulated "referencing detached element" warnings while
+       * degrading scroll perf over repeated section re-renders. */
+      var ctx = gsap.context(function () {
+        var dots = header.querySelector('[data-parallax-dots]');
+        if (dots) {
+          gsap.to(dots, {
+            y: '20%',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: header,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
 
-      var markers = header.querySelector('[data-parallax-markers]');
-      if (markers) {
-        gsap.to(markers, {
-          y: '35%',
-          ease: 'none',
-          scrollTrigger: {
-            trigger: header,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-      }
+        var markers = header.querySelector('[data-parallax-markers]');
+        if (markers) {
+          gsap.to(markers, {
+            y: '35%',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: header,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+      }, header);
+
+      /* Push the ctx.revert() into the shared `instances` cleanup list
+       * so the same section-unload handler at the bottom of the file
+       * collects GSAP pinned work alongside the RAF fallback listeners. */
+      instances.push({ header: header, cleanup: function () { ctx.revert(); } });
 
       return true;
     }
