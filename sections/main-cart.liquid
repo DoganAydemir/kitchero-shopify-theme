@@ -517,12 +517,26 @@
           </aside>
         </div>
 
-        {%- comment -%} App block slot (required for Theme Store) {%- endcomment -%}
+        {%- comment -%}
+          App block slot (required for Theme Store). Each rendered
+          block needs its own wrapper element carrying
+          `{{ block.shopify_attributes }}` so the theme editor can
+          attach its data-shopify-editor-block-id and highlight the
+          block when the merchant selects it in the sidebar. Without
+          the attribute the merchant clicks an app block in the
+          editor and nothing scrolls / outlines on the page — a
+          Theme Store reviewer flags this as broken editor UX.
+          Every other section in the theme uses this pattern
+          (snippets/section-app-blocks.liquid, main-article.liquid,
+          etc.); main-cart now matches.
+        {%- endcomment -%}
         {%- if section.blocks.size > 0 -%}
           <div class="kt-cart-page__blocks">
             {%- for block in section.blocks -%}
               {%- if block.type == '@app' -%}
-                {% render block %}
+                <div class="kt-cart-page__block" {{ block.shopify_attributes }}>
+                  {% render block %}
+                </div>
               {%- endif -%}
             {%- endfor -%}
           </div>
