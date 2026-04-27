@@ -40,6 +40,20 @@
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 
 <section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
+  {%- if section.settings.show_breadcrumb -%}
+    <div class="page-width">
+      <nav class="kt-pdp__breadcrumb-top" aria-label="{{ 'kt.a11y.breadcrumb' | t }}">
+        <ol class="kt-pdp__breadcrumb-list" role="list">
+          <li><a href="{{ routes.root_url }}">{{ 'kt.general.breadcrumbs.home' | t | default: 'Home' }}</a></li>
+          {%- if product.collections.first -%}
+            <li><a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a></li>
+          {%- endif -%}
+          <li><span aria-current="page">{{ product.title }}</span></li>
+        </ol>
+      </nav>
+    </div>
+  {%- endif -%}
+
   <div class="page-width">
     <div class="kt-pdp__layout">
 
@@ -52,18 +66,15 @@
       <div class="kt-pdp__info-col">
         <div class="kt-pdp__info-sticky">
 
-          {%- comment -%} Breadcrumb always renders at top (nav, not a block) {%- endcomment -%}
-          {%- if section.settings.show_breadcrumb -%}
-            <nav class="kt-pdp__breadcrumb" aria-label="{{ 'kt.a11y.breadcrumb' | t }}">
-              <ol class="kt-pdp__breadcrumb-list" role="list">
-                <li><a href="{{ routes.root_url }}">{{ 'kt.general.breadcrumbs.home' | t | default: 'Home' }}</a></li>
-                {%- if product.collections.first -%}
-                  <li><a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a></li>
-                {%- endif -%}
-                <li><span aria-current="page">{{ product.title }}</span></li>
-              </ol>
-            </nav>
-          {%- endif -%}
+          {%- comment -%}
+            Breadcrumb moved out — see the kt-pdp top of section, above
+            the gallery + info layout. Keeping it inside the sticky info
+            column (where it lived before) tucked it into a narrow
+            right-rail context where shoppers couldn't see it as a
+            navigation aid. The user reported "no breadcrumb on PDP"
+            for that reason. The setting `show_breadcrumb` still gates
+            visibility; merchants who want a quieter PDP turn it off.
+          {%- endcomment -%}
 
           {%- for block in section.blocks -%}
             {%- case block.type -%}

@@ -101,12 +101,16 @@
   outline: none;
 }
 
-/* Mouse focus is communicated by the parent .kt-search-overlay__input-wrap —
-   its bottom border shifts from stone-600 to white via :focus-within.
-   Keyboard users still get an explicit outline ring for WCAG. */
+/* Both mouse AND keyboard focus are communicated by the parent
+   .kt-search-overlay__input-wrap shifting its bottom-border colour
+   from stone-600 to white via :focus-within. That visible state-
+   change satisfies WCAG 2.4.7 (Focus Visible) on its own, so we
+   suppress the redundant rectangle outline that previously framed
+   the entire input on click — the user reported it as a visual
+   border that shouldn't be there. */
+.kt-search-overlay__input:focus,
 .kt-search-overlay__input:focus-visible {
-  outline: 2px solid var(--kt-white);
-  outline-offset: 4px;
+  outline: none;
 }
 
 @media screen and (min-width: 750px) {

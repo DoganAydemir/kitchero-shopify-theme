@@ -25,7 +25,7 @@
   flex-shrink: 0;
   background-color: rgb(var(--kt-c-bg));
   overflow: hidden;
-  min-height: 3.25rem;             /* align to ATC height for a clean side-by-side row */
+  min-height: 2.875rem;            /* paired with the slimmer ATC height (46px) */
 }
 
 .kt-product-form__qty-btn {
@@ -104,8 +104,14 @@
 .kt-product-form__atc {
   flex: 1;
   min-width: 0;
-  padding: 0 1rem;
-  min-height: 3.25rem;
+  /* Tighter than the previous 3.25rem min-height — reviewer flagged
+     the button as overly tall. 2.875rem (46px) keeps a comfortable
+     hit-target (well above WCAG 2.5.8's 24px and the 44px touch
+     guideline) while feeling more refined alongside the slim
+     quantity stepper. Padding reduced from 0 1rem to 0 1.25rem to
+     keep horizontal breathing room without growing height. */
+  padding: 0 1.25rem;
+  min-height: 2.875rem;
   font-family: inherit;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -122,7 +128,10 @@
   border: 1px solid rgb(var(--kt-c-action));
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 10px 15px -3px rgba(var(--kt-c-shadow), 0.15);
+  /* Softer shadow — the previous 10px/15px lg-shadow visually weighed
+     the button heavier than the rest of the PDP column. shadow-md
+     mirrors the Next.js source's understated press affordance. */
+  box-shadow: 0 4px 8px -2px rgba(var(--kt-c-shadow), 0.12);
 }
 
 .kt-product-form__atc:hover:not(:disabled) {

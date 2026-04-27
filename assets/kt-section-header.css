@@ -546,11 +546,19 @@
 }
 
 /* Mobile Panel — fills the viewport when open. The inner slider is
-   absolute-positioned so its children panels can slide horizontally. */
+   absolute-positioned so its children panels can slide horizontally.
+
+   Z-index needs to clear the sticky header (1000) so the merchant's
+   panel chrome (logo + close button) doesn't end up stacked underneath
+   the page header — previously z-index: 950 left the header visible
+   above the open panel, which rendered the KITCHERO logo twice (once
+   on the header, once inside the panel) and the layout looked broken.
+   1100 sits above header but still under cart-drawer (2100) so the
+   cart can open over an active mobile menu. */
 .kt-header__mobile-panel {
   position: fixed;
   inset: 0;
-  z-index: 950;
+  z-index: 1100;
   background-color: var(--kt-stone-900);
   color: var(--kt-stone-50);
   transform: translateY(-100%);

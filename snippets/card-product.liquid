@@ -80,8 +80,18 @@
       {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-card-product__image-primary' }}
     {%- endif -%}
 
-    {%- comment -%} Secondary hover image (only if exists) {%- endcomment -%}
+    {%- comment -%}
+      Secondary hover image (only if exists). The alt text needs an
+      `assign` first because `image_tag` doesn't accept the `| t:`
+      filter chain inline as a parameter — Liquid parses everything
+      after `alt:` as a single literal-then-filter expression and the
+      raw locale key (`kt.product.card.image_alt_detail`) leaks into
+      the rendered alt attribute as a "Translation missing" string.
+      Pre-resolving the t-filter into `secondary_image_alt` keeps the
+      attribute a clean translated string.
+    {%- endcomment -%}
     {%- if has_hover_swap -%}
+      {%- assign secondary_image_alt = 'kt.product.card.image_alt_detail' | t: title: product.title -%}
       {{
         secondary_image
         | image_url: width: 1100
@@ -92,7 +102,7 @@
           sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: secondary_image.width,
           height: secondary_image.height,
-          alt: 'kt.product.card.image_alt_detail' | t: title: product.title
+          alt: secondary_image_alt
       }}
     {%- endif -%}
 
