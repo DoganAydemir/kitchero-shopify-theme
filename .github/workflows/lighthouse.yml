@@ -39,9 +39,10 @@ jobs:
           #   - /products/<handle>          (template "product")
           #   - /collections/<handle>       (template "collection")
           #   - /cart                       (template "cart")
-          # Minimum category scores (0-1 scale)
-          min_score_performance: 0.60
-          min_score_accessibility: 0.90
-          min_score_best_practices: 0.90
-          min_score_seo: 0.90
-          pull_request_comment: true
+          # Minimum category scores (0-1 scale). The action only exposes
+          # `lhci_min_score_performance` and `lhci_min_score_accessibility`
+          # as gate inputs — Best Practices and SEO are reported in the PR
+          # comment but not gate-enforced. These two thresholds are the
+          # exact ones Theme Store reviewers apply (perf 60, a11y 90).
+          lhci_min_score_performance: 0.60
+          lhci_min_score_accessibility: 0.90
