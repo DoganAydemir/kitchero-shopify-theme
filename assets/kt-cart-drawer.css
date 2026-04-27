@@ -76,6 +76,13 @@ html.no-js .kt-cart-drawer {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
   transform: translateX(100%);              /* translate-x-full */
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  /* `will-change: transform` promotes the panel to its own compositor
+     layer at parse time, so the very first open() doesn't wait on the
+     browser to allocate a layer mid-animation (which manifested as an
+     "instant snap" rather than the cubic-bezier slide). Lives only on
+     the panel — keeping it off the overlay/root saves a layer we don't
+     need elsewhere. */
+  will-change: transform;
   /* Keep the panel reachable and pointer-interactive only when open,
      mirroring the pointer-events-auto/none Tailwind toggle in the
      Next.js source. */

@@ -124,15 +124,29 @@
          stay in sync. Browsers that don't support `inert` (pre-
          Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
       this.removeAttribute('inert');
-      if (window.Kitchero && Kitchero.scrollLock) {
-        Kitchero.scrollLock.lock('cart-drawer');
-      } else {
-        document.body.style.overflow = 'hidden';
-      }
 
-      if (window.Kitchero && Kitchero.focusTrap) {
-        Kitchero.focusTrap.enable(this.panel);
-      }
+      /* Defer scrollLock to the next frame so the slide-in transition
+       * has a tick to start before the body's `position: fixed`
+       * (R23 iOS scroll-bleed fix) forces a global layout reflow. With
+       * the lock applied synchronously in the same tick as the
+       * aria-hidden flip, the reflow promoted the panel out of its
+       * compositor layer mid-animation — Chrome/Safari skipped the
+       * 0.5s cubic-bezier slide and snapped the drawer open instantly.
+       * Double rAF guarantees one paint of the closed state before the
+       * lock + transition kick in. */
+      var self = this;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (window.Kitchero && Kitchero.scrollLock) {
+            Kitchero.scrollLock.lock('cart-drawer');
+          } else {
+            document.body.style.overflow = 'hidden';
+          }
+          if (window.Kitchero && Kitchero.focusTrap) {
+            Kitchero.focusTrap.enable(self.panel);
+          }
+        });
+      });
 
       /* Focus move — required for ATC success so SR users hear the
          drawer announcement instead of staying on the now-irrelevant
