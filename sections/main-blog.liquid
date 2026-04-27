@@ -44,9 +44,11 @@
 {%- endif -%}
 
 <section class="kt-blog" data-section-id="{{ section.id }}" data-section-type="main-blog">
-  <div class="page-width">
-    {%- render 'breadcrumbs', class_extra: 'kt-blog__breadcrumbs' -%}
-  </div>
+  {%- comment -%}
+    Breadcrumb moved to layout/theme.liquid (global render at the top
+    of <main>) so every page type gets it consistently. Removed the
+    section-level render here to avoid duplicating the nav.
+  {%- endcomment -%}
   <div class="page-width kt-blog__body">
     {%- paginate blog.articles by section.settings.articles_per_page -%}
       {%- if blog.articles.size > 0 -%}

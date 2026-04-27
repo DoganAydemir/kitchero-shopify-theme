@@ -347,6 +347,27 @@
     {% sections 'header-group' %}
 
     <main id="MainContent" class="content-for-layout focus-none" tabindex="-1">
+      {%- comment -%}
+        Global breadcrumb — single render at the top of `<main>`,
+        following Shopify's official liquid-code-examples pattern.
+        snippets/breadcrumbs.liquid filters out page types where a
+        breadcrumb adds no value (index, cart, list-collections, 404,
+        password, gift_card, customer/*). One render here keeps the
+        navigation aid consistent across every product, collection,
+        article, blog, page (default + alt-template), and search
+        result — no template-by-template wiring, no inconsistency
+        when a custom layout (banner-cover hero, etc.) skips the
+        main-* section that previously hosted the breadcrumb.
+
+        Merchants who want a quieter site can flip
+        `settings.kt_show_breadcrumbs` off in Theme Settings.
+      {%- endcomment -%}
+      {%- if settings.kt_show_breadcrumbs -%}
+        <div class="page-width kt-breadcrumbs-wrap">
+          {%- render 'breadcrumbs' -%}
+        </div>
+      {%- endif -%}
+
       {{ content_for_layout }}
     </main>
 

@@ -542,6 +542,19 @@ button[type="submit"]:hover {
   padding: 1rem 0;
 }
 
+/* Wrapper around the global breadcrumb render in layout/theme.liquid.
+   `:has()` only collapses the wrap when the snippet returns nothing
+   (page-types in `hidden_page_types` like cart, 404, customer/*).
+   Without :has(), the wrap would emit a stray padding row on those
+   templates because Liquid still renders the parent <div>. */
+.kt-breadcrumbs-wrap {
+  padding-top: 0;
+}
+
+.kt-breadcrumbs-wrap:not(:has(.kt-breadcrumbs)) {
+  display: none;
+}
+
 .kt-breadcrumbs__list {
   display: flex;
   flex-wrap: wrap;

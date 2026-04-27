@@ -23,11 +23,12 @@
     readers orient themselves ("Home > Journal > This article")
     before entering the long-form content.
   {%- endcomment -%}
-  {%- if section.settings.show_breadcrumbs -%}
-    <div class="page-width">
-      {%- render 'breadcrumbs', class_extra: 'kt-article__breadcrumbs' -%}
-    </div>
-  {%- endif -%}
+  {%- comment -%}
+    Breadcrumb moved to layout/theme.liquid (global). The
+    `show_breadcrumbs` section toggle stays in the schema for
+    backwards compatibility but no longer wires anything — the
+    global `settings.kt_show_breadcrumbs` is the source of truth.
+  {%- endcomment -%}
 
   {%- comment -%} Hero Header — centered, editorial {%- endcomment -%}
   <header class="kt-article__header">

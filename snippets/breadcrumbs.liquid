@@ -23,9 +23,16 @@
   if class_extra != blank
     assign nav_classes = nav_classes | append: ' ' | append: class_extra
   endif
+
+  # Page types where a breadcrumb either has no informational value
+  # or actively gets in the way. Mirrors Shopify's official liquid
+  # code-examples breadcrumb pattern (index/cart/list-collections/404)
+  # plus the customer + utility pages where a single "Home" rung adds
+  # noise without context.
+  assign hidden_page_types = 'index,cart,list-collections,404,password,gift_card,captcha,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ','
 -%}
 
-{%- unless request.page_type == 'index' -%}
+{%- unless hidden_page_types contains request.page_type -%}
   <nav class="{{ nav_classes }}" aria-label="{{ 'kt.a11y.breadcrumb' | t }}">
     <ol class="kt-breadcrumbs__list" role="list">
       <li class="kt-breadcrumbs__item">
