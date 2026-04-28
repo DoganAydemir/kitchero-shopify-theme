@@ -29,3 +29,27 @@
   outline: 2px solid var(--kt-white);
   outline-offset: 2px;
 }
+
+/* Inside the mobile menu panel (kt-stone-900 background) the
+ * default stone-500 text color sits dark-on-dark and the value
+ * was unreadable — user reported the dropdown rendered as a solid
+ * black block. Override to a brighter foreground (stone-50) and
+ * ensure the chevron caret stays visible too. */
+.kt-header__mobile-panel .localization-selector select {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--kt-stone-50);
+}
+
+.kt-header__mobile-panel .localization-selector select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Native browser dropdown options inherit the page text/background
+ * by default on most platforms — explicitly request a light-on-dark
+ * panel so the options aren't black-on-black on macOS Safari/Chrome
+ * when the OS is set to a dark accent. */
+.kt-header__mobile-panel .localization-selector select option {
+  background-color: var(--kt-stone-900);
+  color: var(--kt-stone-50);
+}

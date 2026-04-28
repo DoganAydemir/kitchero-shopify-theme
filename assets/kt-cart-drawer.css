@@ -651,17 +651,26 @@ button.kt-cart-drawer__continue:focus-visible {
  * 0.2s, and reassures the user that the drawer was deliberately
  * opened by their action rather than appearing out of nowhere. */
 @media (prefers-reduced-motion: reduce) {
+  /* `!important` is required: base.css's global reduce-motion rule
+   * (`*, *::before, *::after { transition-duration: 0.01ms !important }`)
+   * was clamping every transition to a single millisecond, which
+   * is exactly what made the drawer "snap open" — the user's
+   * macOS Reduce Motion flag tripped the global clamp and the
+   * cart-drawer-specific 0.2s opacity rule below, lacking
+   * !important, lost the cascade fight. Targeted !important here
+   * is the surgical exception: only this fade-in beats the global
+   * clamp; everything else still respects reduce-motion. */
   .kt-cart-drawer__panel {
     transform: none;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease !important;
   }
   .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel {
     transform: none;
     opacity: 1;
   }
   .kt-cart-drawer__overlay {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease !important;
   }
 }
 
