@@ -1012,17 +1012,33 @@ html.no-js .kt-header__mobile-view-title {
   padding: 0.625rem 0.875rem;
   font: inherit;
   font-size: 0.9375rem;
-  color: var(--kt-stone-900, #1c1917);
+  /* The mobile panel chrome is kt-stone-900 (near-black). Text needs
+   * to be light, not stone-900 — the previous default rendered as
+   * black-on-black and the user could not see the selected
+   * country/language at all. stone-50 keeps strong contrast against
+   * the panel background AND degrades sensibly if a future
+   * scheme-aware variant ever lands the dropdown in a light context.
+   * Border + caret SVG bumped to a lighter rgba(255,255,255,...) so
+   * the field's edges and chevron remain perceivable. */
+  color: var(--kt-stone-50, #fafaf9);
   background-color: transparent;
-  border: 1px solid var(--kt-stone-300, rgba(0, 0, 0, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23524e4a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fafaf9' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1rem 1rem;
   padding-right: 2.25rem;
+}
+
+/* Native dropdown options panel — explicitly request a light-on-dark
+ * panel so macOS / Windows OS-themed option lists don't render
+ * black-on-black against the mobile menu's dark chrome. */
+.kt-header__mobile-locale-select option {
+  background-color: var(--kt-stone-900, #1c1917);
+  color: var(--kt-stone-50, #fafaf9);
 }
 
 .kt-header__mobile-locale-select:focus-visible {

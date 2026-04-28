@@ -125,28 +125,56 @@
          Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
       this.removeAttribute('inert');
 
-      /* Defer scrollLock to the next frame so the slide-in transition
-       * has a tick to start before the body's `position: fixed`
-       * (R23 iOS scroll-bleed fix) forces a global layout reflow. With
-       * the lock applied synchronously in the same tick as the
-       * aria-hidden flip, the reflow promoted the panel out of its
-       * compositor layer mid-animation — Chrome/Safari skipped the
-       * 0.5s cubic-bezier slide and snapped the drawer open instantly.
-       * Double rAF guarantees one paint of the closed state before the
-       * lock + transition kick in. */
+      /* Wait until the slide-in animation actually finishes before
+       * applying scrollLock + focusTrap. Earlier tries (single rAF,
+       * double rAF, will-change layer hint) all kept the user-visible
+       * snap because the body's `position: fixed` (R23 iOS scroll-
+       * bleed fix) forces a synchronous layout reflow that yanks the
+       * panel out of its compositor layer mid-tween — Chrome/Safari
+       * abort the running transition and jump to the final frame.
+       *
+       * Listening for `transitionend` decouples the lock from the
+       * animation pipeline entirely: the browser owns the 500ms
+       * cubic-bezier slide uninterrupted; the lock runs only after
+       * the panel's transform has settled. The 600ms safety
+       * setTimeout covers reduce-motion users (whose transitionend
+       * fires almost immediately) plus the rare browser that doesn't
+       * emit the event for whatever compositor reason — no shopper
+       * gets a permanently scrollable background.
+       *
+       * Trade-off: there's a ~0.5s window where the page can still
+       * scroll behind the opening panel. UX-acceptable because the
+       * panel is already viewport-fixed and visually dominant; the
+       * tiny scroll opportunity costs nothing compared to a snap-
+       * open drawer that breaks the brand's motion identity. */
       var self = this;
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          if (window.Kitchero && Kitchero.scrollLock) {
-            Kitchero.scrollLock.lock('cart-drawer');
-          } else {
-            document.body.style.overflow = 'hidden';
-          }
-          if (window.Kitchero && Kitchero.focusTrap) {
-            Kitchero.focusTrap.enable(self.panel);
-          }
-        });
-      });
+      var lockApplied = false;
+      function applyOpenLock() {
+        if (lockApplied) return;
+        lockApplied = true;
+        if (window.Kitchero && Kitchero.scrollLock) {
+          Kitchero.scrollLock.lock('cart-drawer');
+        } else {
+          document.body.style.overflow = 'hidden';
+        }
+        if (window.Kitchero && Kitchero.focusTrap) {
+          Kitchero.focusTrap.enable(self.panel);
+        }
+      }
+      var panel = this.panel || this.querySelector('.kt-cart-drawer__panel');
+      if (panel && typeof panel.addEventListener === 'function') {
+        var onEnd = function (e) {
+          if (e.target !== panel) return;
+          if (e.propertyName !== 'transform' && e.propertyName !== 'opacity') return;
+          panel.removeEventListener('transitionend', onEnd);
+          applyOpenLock();
+        };
+        panel.addEventListener('transitionend', onEnd);
+      }
+      /* Safety net — fires whether the transitionend event ever
+       * arrives or not. 600ms = transition duration (500ms) + a
+       * small buffer so we never beat the real event in normal flow. */
+      setTimeout(applyOpenLock, 600);
 
       /* Focus move — required for ATC success so SR users hear the
          drawer announcement instead of staying on the now-irrelevant
