@@ -642,10 +642,26 @@ button.kt-cart-drawer__continue:focus-visible {
 
 /* ── Reduced motion ─────────────────────────────────────── */
 
+/* Reduce-motion users still need a state transition — without one
+ * the drawer materialises instantly and the user can't tell whether
+ * the cart updated, opened, or simply jumped position. The previous
+ * `transition: none` swap was strictly correct (no transform) but
+ * threw away the discoverability cue. Replace the slide with a
+ * short opacity fade — vestibular-safe (no movement), still under
+ * 0.2s, and reassures the user that the drawer was deliberately
+ * opened by their action rather than appearing out of nowhere. */
 @media (prefers-reduced-motion: reduce) {
-  .kt-cart-drawer__overlay,
   .kt-cart-drawer__panel {
-    transition: none;
+    transform: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel {
+    transform: none;
+    opacity: 1;
+  }
+  .kt-cart-drawer__overlay {
+    transition: opacity 0.2s ease;
   }
 }
 

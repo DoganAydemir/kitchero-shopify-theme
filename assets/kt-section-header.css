@@ -599,11 +599,17 @@ html.no-js [data-mobile-back] {
    (JS-on users see the slide button) and revealed only when JS fails
    to boot. Flex alignment matches the sibling button so the layout
    doesn't jump. */
-.kt-header__mobile-link--nojs-fallback {
+/* Chained class doubles specificity (0,2,0 vs the bare 0,1,0 of
+   `.kt-header__mobile-link { display: flex }` further down in the
+   file). Without the chain, source-order made `display: flex` win
+   the cascade and the JS-off fallback link rendered alongside its
+   sibling subpanel button — so every parent menu item showed twice
+   in the open mobile menu. */
+.kt-header__mobile-link.kt-header__mobile-link--nojs-fallback {
   display: none;
 }
 
-html.no-js .kt-header__mobile-link--nojs-fallback {
+html.no-js .kt-header__mobile-link.kt-header__mobile-link--nojs-fallback {
   display: flex;
   align-items: center;
   justify-content: space-between;
