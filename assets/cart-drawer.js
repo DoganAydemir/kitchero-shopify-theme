@@ -40,15 +40,13 @@
     disconnectedCallback() {
       if (this._keyHandler) document.removeEventListener('keydown', this._keyHandler);
       if (this._clickHandler) document.removeEventListener('click', this._clickHandler);
-      /* Restore body scroll in case the drawer was open when the
-         section was unloaded — without this the storefront would boot
-         into a locked-scroll state after the editor re-renders. Use
-         the centralized scrollLock.unlock so we don't stomp on another
-         drawer that might also be open. */
-      if (window.Kitchero && Kitchero.scrollLock) {
-        Kitchero.scrollLock.unlock('cart-drawer');
-      } else if (document.body) {
-        document.body.style.overflow = '';
+      /* Tear down the focus trap if the drawer was open when the
+         section was unloaded. The drawer no longer locks body scroll
+         (matches the Next.js source's no-lock behavior — see open()
+         for the full rationale), so there's nothing scroll-related
+         to restore here. */
+      if (window.Kitchero && Kitchero.focusTrap && this.panel) {
+        Kitchero.focusTrap.disable(this.panel);
       }
       if (window.kitcheroCartDrawer === this) window.kitcheroCartDrawer = null;
     }
@@ -125,66 +123,56 @@
          Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
       this.removeAttribute('inert');
 
-      /* Wait until the slide-in animation actually finishes before
-       * applying scrollLock + focusTrap. Earlier tries (single rAF,
-       * double rAF, will-change layer hint) all kept the user-visible
-       * snap because the body's `position: fixed` (R23 iOS scroll-
-       * bleed fix) forces a synchronous layout reflow that yanks the
-       * panel out of its compositor layer mid-tween — Chrome/Safari
-       * abort the running transition and jump to the final frame.
+      /* No body scroll lock during open. The Next.js source
+       * (src/components/CartDrawer.tsx) is intentionally minimal:
+       * it just toggles a `translate-x-full → translate-x-0`
+       * className and lets the CSS transition run. No useEffect,
+       * no body lock, no focus trap setup. That simplicity is WHY
+       * the original animation works flawlessly — the compositor
+       * pipeline runs uninterrupted because nothing else is
+       * mutating the DOM during the 500ms slide.
        *
-       * Listening for `transitionend` decouples the lock from the
-       * animation pipeline entirely: the browser owns the 500ms
-       * cubic-bezier slide uninterrupted; the lock runs only after
-       * the panel's transform has settled. The 600ms safety
-       * setTimeout covers reduce-motion users (whose transitionend
-       * fires almost immediately) plus the rare browser that doesn't
-       * emit the event for whatever compositor reason — no shopper
-       * gets a permanently scrollable background.
+       * Every previous fix attempt (will-change layer hints, single
+       * rAF, double rAF, transitionend-deferred scrollLock) kept
+       * the user-visible snap because at least ONE of these still
+       * triggered a synchronous layout reflow during the animation:
        *
-       * Trade-off: there's a ~0.5s window where the page can still
-       * scroll behind the opening panel. UX-acceptable because the
-       * panel is already viewport-fixed and visually dominant; the
-       * tiny scroll opportunity costs nothing compared to a snap-
-       * open drawer that breaks the brand's motion identity. */
-      var self = this;
-      var lockApplied = false;
-      function applyOpenLock() {
-        if (lockApplied) return;
-        lockApplied = true;
-        if (window.Kitchero && Kitchero.scrollLock) {
-          Kitchero.scrollLock.lock('cart-drawer');
-        } else {
-          document.body.style.overflow = 'hidden';
-        }
-        if (window.Kitchero && Kitchero.focusTrap) {
-          Kitchero.focusTrap.enable(self.panel);
-        }
+       *   - Kitchero.scrollLock applies `position: fixed` on the body
+       *     plus a negative `top` offset → forces a full relayout,
+       *     yanks the panel out of its compositor layer mid-tween.
+       *   - target.focus() WITHOUT preventScroll on a panel that's
+       *     currently at translateX(100%) → browser invokes
+       *     scrollIntoView on the focused element → another reflow.
+       *
+       * The cure is to eliminate both. We drop the body lock
+       * entirely (matching the original) and pass `preventScroll`
+       * to the focus call. Trade-off: the page behind the drawer
+       * can technically scroll if the user drags through the panel
+       * — same trade-off the original accepts. The `aria-modal`
+       * + `inert` combination still keeps the experience modal for
+       * AT users; sighted users see a viewport-fixed drawer dominant
+       * enough that background scroll isn't a real issue.
+       *
+       * Focus trap stays — it only attaches keydown listeners,
+       * doesn't mutate the DOM, and is required for keyboard a11y. */
+      if (window.Kitchero && Kitchero.focusTrap) {
+        Kitchero.focusTrap.enable(this.panel);
       }
-      var panel = this.panel || this.querySelector('.kt-cart-drawer__panel');
-      if (panel && typeof panel.addEventListener === 'function') {
-        var onEnd = function (e) {
-          if (e.target !== panel) return;
-          if (e.propertyName !== 'transform' && e.propertyName !== 'opacity') return;
-          panel.removeEventListener('transitionend', onEnd);
-          applyOpenLock();
-        };
-        panel.addEventListener('transitionend', onEnd);
-      }
-      /* Safety net — fires whether the transitionend event ever
-       * arrives or not. 600ms = transition duration (500ms) + a
-       * small buffer so we never beat the real event in normal flow. */
-      setTimeout(applyOpenLock, 600);
 
       /* Focus move — required for ATC success so SR users hear the
          drawer announcement instead of staying on the now-irrelevant
          ATC button. Use rAF so the browser has rendered the drawer
          before we hand focus to an element inside it (Safari has been
-         known to swallow focus() calls on display:none-ish ancestors). */
+         known to swallow focus() calls on display:none-ish ancestors).
+         `preventScroll: true` is critical: without it, focus() on a
+         button inside the still-translateX(100%) panel triggers
+         scrollIntoView, which forces a synchronous reflow and
+         aborts the running CSS transition — the exact compositor
+         abort that was making the drawer snap open. */
       var target = focusTarget || this.querySelector('[data-cart-drawer-close]');
       if (target && typeof target.focus === 'function') {
         requestAnimationFrame(function () {
-          try { target.focus(); } catch (e) { /* ignore */ }
+          try { target.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
         });
       }
     }
@@ -192,11 +180,6 @@
     close() {
       this.setAttribute('aria-hidden', 'true');
       this.setAttribute('inert', '');
-      if (window.Kitchero && Kitchero.scrollLock) {
-        Kitchero.scrollLock.unlock('cart-drawer');
-      } else {
-        document.body.style.overflow = '';
-      }
 
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.disable(this.panel);
@@ -205,9 +188,11 @@
       /* Restore focus to the element that opened the drawer (usually
          the header cart icon). Guard against detached nodes — if the
          trigger was inside a section that got unloaded in the theme
-         editor while the drawer was open, skip the restore. */
+         editor while the drawer was open, skip the restore.
+         `preventScroll: true` matches the open() pattern: keep the
+         body where the user left it, no scroll-jump on close. */
       if (this.lastTrigger && typeof this.lastTrigger.focus === 'function' && document.contains(this.lastTrigger)) {
-        this.lastTrigger.focus();
+        try { this.lastTrigger.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
       }
       this.lastTrigger = null;
     }
