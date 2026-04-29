@@ -93,6 +93,30 @@
                   {%- endif -%}
                 </div>
 
+              {%- when 'vendor' -%}
+                {%- comment -%}
+                  Vendor block — Theme Store: "Themes must support blocks
+                  for all or most elements on the main section of the
+                  product page (product price, vendor, description as
+                  individual blocks)". Linked to the vendor's collection
+                  by Shopify convention so customers can browse the rest
+                  of that maker's catalogue with one click; merchants who
+                  treat vendor as a brand category get free cross-product
+                  navigation. The block self-suppresses when product.vendor
+                  is blank (Shopify allows vendor-less products) so the
+                  PDP doesn't emit an empty link.
+                {%- endcomment -%}
+                {%- if product.vendor != blank -%}
+                  <div class="kt-pdp__vendor" {{ block.shopify_attributes }}>
+                    {%- if block.settings.show_label -%}
+                      <span class="kt-pdp__vendor-label">{{ 'kt.product.vendor_label' | t | default: 'By' }}</span>
+                    {%- endif -%}
+                    <a href="{{ product.vendor | url_for_vendor }}" class="kt-pdp__vendor-link">
+                      {{ product.vendor }}
+                    </a>
+                  </div>
+                {%- endif -%}
+
               {%- when 'countdown' -%}
                 {%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
                 {%- if deal_ends_at != blank -%}
@@ -397,6 +421,14 @@
       "settings": [
         { "type": "checkbox", "id": "show_rating", "label": "t:sections.main-product.blocks.meta.settings.show_rating.label", "default": true },
         { "type": "checkbox", "id": "show_stock", "label": "t:sections.main-product.blocks.meta.settings.show_stock.label", "default": true }
+      ]
+    },
+    {
+      "type": "vendor",
+      "name": "t:sections.main-product.blocks.vendor.name",
+      "limit": 1,
+      "settings": [
+        { "type": "checkbox", "id": "show_label", "label": "t:sections.main-product.blocks.vendor.settings.show_label.label", "default": true }
       ]
     },
     {
