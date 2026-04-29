@@ -135,13 +135,29 @@
 
               {%- when 'description' -%}
                 {%- if product.description != blank -%}
-                  <div class="kt-pdp__short-desc" {{ block.shopify_attributes }}>
-                    {%- if block.settings.truncate -%}
+                  {%- comment -%}
+                    `rte` class is critical for Theme Store: "All
+                    RTE-generated content must be consistent across
+                    templates" (h1-h6, blockquote, ul/ol, links). Without
+                    it, the product description here renders with the
+                    section's bare typography while the same RTE content
+                    on main-article (article.content) and main-page
+                    (page.content) gets the unified .rte cascade — a
+                    cross-template typography inconsistency that
+                    reviewers flag explicitly. Skip the class on the
+                    truncated branch because strip_html removes the rich
+                    markup, leaving plain text where the cascade adds
+                    nothing visible.
+                  {%- endcomment -%}
+                  {%- if block.settings.truncate -%}
+                    <div class="kt-pdp__short-desc" {{ block.shopify_attributes }}>
                       {{ product.description | strip_html | truncatewords: block.settings.word_limit | default: 40 }}
-                    {%- else -%}
+                    </div>
+                  {%- else -%}
+                    <div class="kt-pdp__short-desc rte" {{ block.shopify_attributes }}>
                       {{ product.description }}
-                    {%- endif -%}
-                  </div>
+                    </div>
+                  {%- endif -%}
                 {%- endif -%}
 
               {%- when 'variant_picker' -%}

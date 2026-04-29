@@ -272,7 +272,19 @@
                           {%- elsif acc_block.settings.content != blank -%}
                             {{ acc_block.settings.content }}
                           {%- else -%}
-                            <p>{{ product.description }}</p>
+                            {%- comment -%}
+                              product.description can contain RTE markup
+                              (h-tags, lists, links). Wrapping it in a
+                              raw <p> stripped the cascade and squashed
+                              everything to plain inline text — and
+                              produced invalid HTML when the description
+                              itself contained block-level tags. Render
+                              into a <div class="rte"> instead so it
+                              picks up the unified RTE typography used by
+                              main-article + main-page (Theme Store
+                              cross-template RTE consistency rule).
+                            {%- endcomment -%}
+                            <div class="rte">{{ product.description }}</div>
                           {%- endif -%}
                         {%- endcapture -%}
                         {%- render 'product-accordion', title: acc_block.settings.title, content: acc_content, open: acc_block.settings.open, style: 'serif', shopify_attributes: acc_block.shopify_attributes -%}
