@@ -51,6 +51,12 @@ node_modules/
 .env
 .env.*
 
+# Local theme-package zip artefacts (output of `shopify theme package`).
+# These are submission bundles, not files Shopify expects to find inside
+# the theme — pushing one in would create an infinite-recursion-looking
+# nest of zipped themes inside the live theme.
+*.zip
+
 # Local Claude Code agent state — never ship to storefront
 .claude/
 .claude-code/
