@@ -103,4 +103,25 @@
       {%- endif -%}
     </span>
   {%- endif -%}
+
+  {%- comment -%}
+    Tax-inclusive indicator — Theme Store mandatory: "tax-inclusive
+    indication using cart.taxes_included". When a merchant operates in
+    a jurisdiction that displays prices INCLUDING tax (most EU stores),
+    the storefront must label the displayed price as such so customers
+    aren't surprised by an unchanged total at checkout. We mirror the
+    pattern already used in main-cart.liquid + cart-drawer.liquid for
+    consistency between PDP, cart drawer, and cart page.
+
+    `cart.taxes_included` is true when Shopify Admin's "All prices
+    include tax" toggle is on; it's false in tax-exclusive markets
+    (e.g. US default), which renders this block as nothing — no
+    misleading "Tax included" label on a price that doesn't actually
+    include tax.
+  {%- endcomment -%}
+  {%- if cart.taxes_included -%}
+    <span class="kt-product-price__tax-note">
+      {{ 'kt.product.taxes_included' | t | default: 'Tax included.' }}
+    </span>
+  {%- endif -%}
 </div>

@@ -138,6 +138,17 @@
                 {{ block.settings.text }}
               </div>
 
+            {%- when 'liquid' -%}
+              {%- comment -%}
+                Custom Liquid block — Theme Store requires Custom Liquid
+                blocks alongside @app blocks so merchants without a packaged
+                app extension can still drop arbitrary Liquid into the
+                featured product card.
+              {%- endcomment -%}
+              <div class="kt-featured-product__custom-liquid" {{ block.shopify_attributes }}>
+                {{ block.settings.custom_liquid }}
+              </div>
+
             {%- when '@app' -%}
               {%- render block -%}
 
@@ -259,6 +270,18 @@
           "type": "richtext",
           "id": "text",
           "label": "t:sections.featured-product.blocks.text.settings.text.label"
+        }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.featured-product.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.featured-product.blocks.liquid.settings.custom_liquid.label",
+          "info": "t:sections.featured-product.blocks.liquid.settings.custom_liquid.info"
         }
       ]
     },

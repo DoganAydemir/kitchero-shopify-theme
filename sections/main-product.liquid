@@ -285,6 +285,18 @@
               {%- when 'spacer' -%}
                 <div class="kt-pdp__spacer" style="height: {{ block.settings.height | default: 16 }}px;" {{ block.shopify_attributes }}></div>
 
+              {%- when 'liquid' -%}
+                {%- comment -%}
+                  Custom Liquid block — Theme Store requires Custom Liquid
+                  blocks "wherever app blocks would be used". Sits next
+                  to {%- when '@app' -%} so a merchant who needs to drop
+                  in arbitrary Liquid (not packaged as an app extension)
+                  has a first-class slot inside the PDP info column.
+                {%- endcomment -%}
+                <div class="kt-pdp__custom-liquid" {{ block.shopify_attributes }}>
+                  {{ block.settings.custom_liquid }}
+                </div>
+
               {%- when '@app' -%}
                 {%- render block -%}
 
@@ -468,6 +480,18 @@
       "limit": 8,
       "settings": [
         { "type": "range", "id": "height", "label": "t:sections.main-product.blocks.spacer.settings.height.label", "min": 4, "max": 96, "step": 4, "unit": "px", "default": 16 }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.main-product.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.main-product.blocks.liquid.settings.custom_liquid.label",
+          "info": "t:sections.main-product.blocks.liquid.settings.custom_liquid.info"
+        }
       ]
     },
     { "type": "@app" }
