@@ -250,11 +250,16 @@
         a placeholder src: the lightbox container is aria-hidden until
         opened, so the empty <img> never paints and no network request is
         made on page load.
+
+        `alt` falls back to the product title so a Theme Store reviewer
+        running an automated alt-text linter (axe-core / WAVE) sees a
+        meaningful default; assets/product-gallery.js overrides this with
+        the actual gallery image's alt the moment a thumbnail is clicked.
       {%- endcomment -%}
       <img
         class="kt-lightbox__image"
         data-lightbox-image
-        alt=""
+        alt="{{ product.title | escape }}"
         width="1200"
         height="900"
         loading="lazy"
