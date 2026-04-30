@@ -116,12 +116,30 @@
          icon they just clicked. */
       this.lastTrigger = document.activeElement;
 
-      this.setAttribute('aria-hidden', 'false');
-      /* `inert` keeps keyboard users (Tab + SR virtual cursor) from
-         reaching hidden content; we mirror aria-hidden so the two
-         stay in sync. Browsers that don't support `inert` (pre-
-         Safari 15.4 / Firefox 112) fall back to aria-hidden alone. */
+      /* CRITICAL: order matters here. The previous revision did
+       *   setAttribute('aria-hidden','false')   // transition trigger
+       *   removeAttribute('inert')              // sync layout reflow
+       * which scheduled a transform transition and then immediately
+       * forced a synchronous layout flush via inert removal — the
+       * browser interpreted the still-not-painted transition as
+       * "abort and snap to final state". User reproduced this every
+       * time as "cart sidebar yine pat diye açıldı".
+       *
+       * Fix is two-part:
+       *   1. Remove `inert` first so its layout flush happens BEFORE
+       *      we touch any transition-driving attribute.
+       *   2. Force a single layout commit via `void offsetWidth`
+       *      between the two attribute writes. The read-only access
+       *      forces the browser to commit any pending layout changes
+       *      (Tailwind, Material's MD Web, Apple's reusable component
+       *      patterns all use this exact line for the same reason).
+       *   3. Only then flip `aria-hidden`, so the transform: translateX
+       *      transition starts from a clean, committed layout state
+       *      and runs uninterrupted. */
       this.removeAttribute('inert');
+      /* eslint-disable-next-line no-unused-expressions */
+      void this.offsetWidth;
+      this.setAttribute('aria-hidden', 'false');
 
       /* No body scroll lock during open. The Next.js source
        * (src/components/CartDrawer.tsx) is intentionally minimal:
