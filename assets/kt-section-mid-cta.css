@@ -93,30 +93,34 @@
 }
 
 .kt-mid-cta__btn {
-  /* Match Next.js source MidCta.tsx:34 — `shrink-0 self-start` keeps
-     the button at content width, not stretched to fill the parent
-     flex column. Without these the global `.button` class inherits a
-     block-width fallback and the CTA looked like a banner across the
-     whole text column. Padding mirrors the source's
-     `px-6 py-4 md:px-10 md:py-5` for the same understated, refined
-     proportions instead of the previous oversized block. */
+  /* Refined CTA proportions. User feedback: the previous build read
+   * "aşırı kaba" — fully-square corners, 1.25rem×2.5rem padding, 0.2em
+   * tracking added up to a heavy block of dark mass that fought the
+   * elegant editorial typography of the heading next to it. Tightened
+   * to thinner padding, narrower tracking, and a 4px corner radius so
+   * the button sits as a poised pill-tile rather than a slab. */
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   align-self: flex-start;
   flex-shrink: 0;
   width: auto;
-  padding: 1rem 1.5rem;
-  letter-spacing: 0.2em;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  border-radius: 4px;
 }
 
 @media screen and (min-width: 750px) {
   .kt-mid-cta__btn {
-    padding: 1.25rem 2.5rem;
+    padding: 0.875rem 1.75rem;
   }
 }
 
 .kt-mid-cta__btn svg {
+  width: 14px;
+  height: 14px;
   transition: transform 0.2s ease;
 }
 
