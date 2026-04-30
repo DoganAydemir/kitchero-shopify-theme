@@ -155,19 +155,28 @@
   padding-top: 0.75rem;
 }
 
+/* Hairline AT THE TOP of each group plus extra padding so the
+ * sections read as discrete blocks (PRODUCTS / JOURNAL / PAGES).
+ * Earlier revision put the separator under each group title, which
+ * cleaved the heading from its items but left the GROUPS visually
+ * fused — user feedback: "alanlar ayrık duramlaı!". Top-of-group
+ * separator is what Dawn ships and what the rest of the search
+ * overlay content sections use. */
 .kt-search-overlay .kt-predictive-search__group {
   gap: 0.625rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kt-search-overlay .kt-predictive-search__group:first-child {
+  padding-top: 0;
+  border-top: none;
 }
 
 .kt-search-overlay .kt-predictive-search__group-title {
   font-size: 0.6875rem;
   letter-spacing: 0.18em;
   color: rgba(255, 255, 255, 0.5);
-  /* Slight bottom border so each group reads as its own block on
-     the dark surface — without it the heading + items mush together
-     visually. */
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 0.25rem;
 }
 
