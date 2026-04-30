@@ -83,11 +83,37 @@
     var routes = window.Kitchero && Kitchero.routes;
     if (!routes || !routes.predictiveSearch) return;
 
-    var url = routes.predictiveSearch
-      + '?q=' + encodeURIComponent(query)
-      + '&resources[type]=' + encodeURIComponent(types)
-      + '&resources[limit]=4'
-      + '&section_id=predictive-search';
+    /* URL-build via URLSearchParams to dodge an encoding bug that
+     * blocked predictive search for the user across multiple debug
+     * rounds. The earlier hand-rolled URL did:
+     *
+     *   '&resources[type]=' + encodeURIComponent(types)
+     *
+     * with `types = 'product,collection,article,page'`. encodeURIComponent
+     * percent-encodes commas (',' → '%2C'), so the URL Shopify saw was
+     *
+     *   resources[type]=product%2Ccollection%2Carticle%2Cpage
+     *
+     * Shopify's predictive_search endpoint treats that decoded string
+     * `product,collection,article,page` as a SINGLE resource-type
+     * literal — none of its known types match, so the search executes
+     * with zero allowed types and returns no results regardless of
+     * what's in the index. (/search?q=test returned 4 products at
+     * the same time the overlay showed "No results"; same index,
+     * different query encoding.)
+     *
+     * URLSearchParams uses application/x-www-form-urlencoded encoding,
+     * which leaves commas intact in query values, producing the
+     * Shopify-expected
+     *   resources[type]=product,collection,article,page
+     * Section Rendering API + comma-separated multi-type both work
+     * once the encoding is right. */
+    var params = new URLSearchParams();
+    params.set('q', query);
+    params.set('resources[type]', types);
+    params.set('resources[limit]', '4');
+    params.set('section_id', 'predictive-search');
+    var url = routes.predictiveSearch + '?' + params.toString();
 
     /* Cancel any prior in-flight fetch so a slow earlier response
        can't overwrite the DOM with stale matches. */
