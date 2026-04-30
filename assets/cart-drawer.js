@@ -137,8 +137,21 @@
        *      transition starts from a clean, committed layout state
        *      and runs uninterrupted. */
       this.removeAttribute('inert');
+      /* Force a layout commit BEFORE the transition trigger so the
+       * inert-removal reflow doesn't abort the in-flight transform
+       * animation. void offsetWidth is the canonical trick. */
       /* eslint-disable-next-line no-unused-expressions */
       void this.offsetWidth;
+      /* Add a class IN ADDITION to flipping aria-hidden. Class-based
+       * transition triggers are more cascade-stable than ARIA-attribute
+       * triggers — Safari 17 has documented quirks where attribute-
+       * selector restyles occasionally land in the same paint tick as
+       * a layout invalidation, dropping the transition. The CSS rule
+       * `.kt-cart-drawer--open .kt-cart-drawer__panel { transform:
+       * translateX(0) }` paired with `aria-hidden="false"` selector
+       * gives the cascade two redundant signals — whichever the
+       * browser commits first wins, and the slide always plays. */
+      this.classList.add('kt-cart-drawer--open');
       this.setAttribute('aria-hidden', 'false');
 
       /* No body scroll lock during open. The Next.js source
@@ -196,6 +209,11 @@
     }
 
     close() {
+      /* Remove class first so the slide-out transition is driven by
+       * the same cascade signal (class) as the slide-in. ARIA flip
+       * stays for a11y. `inert` is set LAST so its layout reflow
+       * doesn't abort the close transition mid-tween. */
+      this.classList.remove('kt-cart-drawer--open');
       this.setAttribute('aria-hidden', 'true');
       this.setAttribute('inert', '');
 

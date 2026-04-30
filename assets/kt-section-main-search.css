@@ -44,27 +44,28 @@
 
 /* ── Form ──────────────────────────────────────────────── */
 
-/* Flat-rectangle search input. Earlier revision used a pill
- * (border-radius: 9999px) with an inner dark-pill submit button —
- * user feedback called the result "kutu, buton vs. çok çirkin"
- * because the chunky pill submit pulled visual weight away from
- * the result grid below it. The Next.js source's /search page has
- * no inline form at all — search lives in the overlay — so there's
- * no upstream design to mirror. We keep the form (Shopify needs a
- * GET endpoint for re-querying without leaving the page) but tone
- * it down to a quiet 4px-radius rectangle with a minimal
- * underline-style submit; the H1 + result grid remain the visual
- * focus, the form is just a tool. */
+/* Underline-style search form. User feedback over multiple rounds:
+ *   round 1: "kutu, buton vs. çok çirkin" → pill removed
+ *   round 2: "search soldaki icon kutuya yapışamaz! ayrık durmalı"
+ *            → gap between icon and input
+ *            "sağdaki search buton text olmamalı. btn gibi olmalı"
+ *            → submit becomes a real filled button again, just sized
+ *               proportionally to the form
+ *
+ * Layout: [magnifier] [── input ────] [SEARCH ▮]
+ *  with a small gap between icon and input, and a clearly-shaped
+ *  filled-rectangle submit on the right that reads as a button
+ *  rather than a text link. */
 .kt-search-page__form {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin: 0 auto 2rem;
   max-width: 36rem;
   background-color: var(--kt-white);
   border-bottom: 1px solid var(--kt-stone-900);
-  padding: 0.5rem 0;
+  padding: 0.5rem 0 0.5rem 0.75rem;
 }
 
 .kt-search-page__form:focus-within {
@@ -105,11 +106,15 @@
 
 .kt-search-page__submit {
   flex-shrink: 0;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  color: var(--kt-stone-900);
+  /* Filled-rectangle button — proportional to the input height.
+   * Padding tuned so the button reads as the focal action without
+   * dominating the form (compared to the chunky pill version that
+   * earlier rounds shipped). */
+  padding: 0.5rem 1.25rem;
+  background: var(--kt-stone-900);
+  color: var(--kt-white);
   border: none;
-  border-radius: 0;
+  border-radius: 4px;
   font-family: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -120,7 +125,7 @@
 }
 
 .kt-search-page__submit:hover {
-  color: var(--kt-stone-500);
+  background: var(--kt-black);
 }
 
 .kt-search-page__submit:focus-visible {
