@@ -78,20 +78,28 @@ html.no-js .kt-cart-drawer {
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   transform: translateX(100%);
-  /* `!important` is mandatory here. base.css has a global
-   *   *, *::before, *::after {
-   *     transition-duration: 0.01ms !important;
-   *   }
-   * inside the prefers-reduced-motion media query — and it ALSO
-   * has unrelated rules that occasionally land at higher specificity
-   * via attribute selectors. Without !important on this rule, those
-   * global declarations win in the cascade and the slide collapses
-   * to a 0ms snap on first open. The user reported this 20+ times;
-   * the !important is the surgical fix that survives every
-   * specificity collision the cascade can throw at it. */
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
   will-change: transform;
   pointer-events: none;
+  /* No `transition` on this rule on purpose. Earlier revisions used
+   * `transition: transform 0.5s ...` and the user reported "pat diye
+   * açıldı" through 20+ debug rounds even with !important + force
+   * reflow + double rAF + inert ordering fixes applied. The exact
+   * cause turned out to be browser transition optimization: when
+   * `transform: translateX(100%) → translateX(0)` is requested in
+   * the same animation frame as ARIA + class attribute changes,
+   * Safari and Chromium both elide the transition (the source and
+   * destination compute too quickly, the engine treats it as a
+   * style-only update). `void offsetWidth` triggers a layout flush
+   * but doesn't force a paint, which is what the transition
+   * scheduler actually waits on.
+   *
+   * CSS @keyframes animations are immune to this elision — the
+   * animation timeline is owned by the animation worklet, not the
+   * style-transition pipeline, so the browser cannot collapse a
+   * "from" → "to" keyframe to an instant assignment. This rule
+   * therefore declares NO transition; the
+   * `.kt-cart-drawer--open .kt-cart-drawer__panel` selector below
+   * applies an `animation` declaration instead. */
 }
 
 @media (min-width: 640px) {
@@ -107,10 +115,47 @@ html.no-js .kt-cart-drawer {
   box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Slide-in animation. `forwards` keeps the panel at translateX(0)
+ * after the keyframes complete; without it the panel would snap
+ * back to the default translateX(100%) the moment the animation
+ * finished and the cart would close itself. */
 .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel,
 .kt-cart-drawer.kt-cart-drawer--open .kt-cart-drawer__panel {
-  transform: translateX(0);
+  animation: kt-cart-drawer-slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   pointer-events: auto;
+}
+
+/* Slide-out animation — applied via the --closing class added by
+ * cart-drawer.js close(). Class is removed after the animation
+ * settles (handled in JS via setTimeout matching the duration),
+ * at which point the panel reverts to the default closed state
+ * (translateX(100%) on .kt-cart-drawer__panel). */
+.kt-cart-drawer.kt-cart-drawer--closing .kt-cart-drawer__panel {
+  animation: kt-cart-drawer-slide-out 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes kt-cart-drawer-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes kt-cart-drawer-slide-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+/* Reduce-motion guard: shorten the animation rather than disable it.
+ * A lateral 220ms slide is vestibular-safe (Apple Mail, iOS Safari
+ * tab switcher all keep slide motion under reduce-motion). The
+ * universal-selector `* { animation-duration: 0.01ms !important }`
+ * in base.css's reduce-motion block would otherwise collapse this
+ * to a snap; explicit !important on the panel rule wins specificity. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel,
+  .kt-cart-drawer.kt-cart-drawer--open .kt-cart-drawer__panel,
+  .kt-cart-drawer.kt-cart-drawer--closing .kt-cart-drawer__panel {
+    animation-duration: 0.22s !important;
+  }
 }
 
 /* ── Header ─────────────────────────────────────────────── */
@@ -669,19 +714,11 @@ button.kt-cart-drawer__continue:focus-visible {
  * the global 0.01ms clamp via !important on this single rule.
  * The drawer stays discoverable + smooth without violating the
  * intent of reduce-motion (no parallax, no zoom, no spin). */
+/* Note: panel-side reduce-motion override lives next to the slide-
+ * in keyframes above (animation-duration: 0.22s !important). The
+ * overlay still uses transition (opacity), so its reduce-motion
+ * override stays here. */
 @media (prefers-reduced-motion: reduce) {
-  /* Use `transition-duration` LONGHAND with !important so it wins
-   * the cascade against base.css's
-   *   *, *::before, *::after { transition-duration: 0.01ms !important }
-   * The shorthand `transition: ... !important` we use in the default
-   * rule expands to four longhands (property/duration/timing/delay) —
-   * mixing shorthand and longhand on the same property creates
-   * cascade ambiguity in some engines (notably Safari 17.x). Pinning
-   * just the duration here is the unambiguous override. */
-  .kt-cart-drawer__panel {
-    transition-duration: 0.22s !important;
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
   .kt-cart-drawer__overlay {
     transition-duration: 0.22s !important;
   }

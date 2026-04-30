@@ -209,13 +209,26 @@
     }
 
     close() {
-      /* Remove class first so the slide-out transition is driven by
-       * the same cascade signal (class) as the slide-in. ARIA flip
-       * stays for a11y. `inert` is set LAST so its layout reflow
-       * doesn't abort the close transition mid-tween. */
+      /* Two-phase close:
+       *   1. Swap --open for --closing so the slide-out @keyframes
+       *      animation plays. Aria-hidden flips immediately so SR
+       *      announcement matches the visual intent (drawer is
+       *      closing, no longer modal).
+       *   2. After the 500ms animation settles, remove --closing and
+       *      apply `inert` so keyboard users can't tab into the
+       *      now-hidden tree. Setting inert during the animation
+       *      would cause a layout reflow that aborts the slide.
+       *   The 500ms timeout matches the keyframe duration declared
+       *   in kt-cart-drawer.css. */
       this.classList.remove('kt-cart-drawer--open');
+      this.classList.add('kt-cart-drawer--closing');
       this.setAttribute('aria-hidden', 'true');
-      this.setAttribute('inert', '');
+
+      var self = this;
+      setTimeout(function () {
+        self.classList.remove('kt-cart-drawer--closing');
+        self.setAttribute('inert', '');
+      }, 500);
 
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.disable(this.panel);
