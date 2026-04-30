@@ -68,27 +68,56 @@
      if the merchant unloads the header while those were open. */
 
   /* ------------------------------------------------------------------
-     Desktop mega-menu / flyout aria-expanded state.
+     Desktop mega-menu / flyout — keyboard-and-mouse trigger.
 
-     CSS opens the .kt-header__mega-menu / .kt-header__flyout panels
-     via :hover / :focus-within on the parent .kt-header__menu-item —
-     fully declarative for sighted users. But screen-reader users
-     reading the parent anchor hear "aria-expanded false" even when
-     the panel is visually open, because nothing toggles the attribute.
+     Theme Store accessibility audit (manual, not Lighthouse) explicitly
+     rejects focus-triggered dropdowns: "Dropdown navigation elements
+     open on click, not on focus. This allows keyboard users to easily
+     bypass the navigation area." The audit further requires:
+       - open on Enter or Space
+       - close on Escape, returning focus to the parent element
 
-     Wire focusin/focusout + pointerenter/pointerleave on each menu
-     item and flip aria-expanded on the first [aria-haspopup] anchor
-     inside it. Delegated to document so new sections loaded in the
-     theme editor (or shopify:section:load) pick up listeners too.
+     Earlier revision flipped aria-expanded on focusin, which (a) was
+     a focus-trigger in everything but name and (b) confused SRs into
+     announcing "expanded" while the visual panel stayed hidden because
+     the CSS show-rule keyed off [open], not aria-expanded. Reviewers
+     would tab into a top-level link, hear "expanded", attempt to tab
+     into invisible submenu items, and reject.
+
+     New shape:
+       - setExpanded toggles BOTH the [open] attribute on the menu-item
+         (CSS shows the panel) AND aria-expanded on the trigger anchor
+         (SR announcement stays in sync with visual state).
+       - Mouse user: pointerenter/leave (hover) — unchanged UX.
+       - Keyboard user: click handler (Enter/Space activates the
+         anchor → click event fires) toggles [open]. No focus-trigger.
+       - Esc closes the open menu and returns focus to the trigger.
+       - Document-level click outside collapses any open panel.
+
+     Delegated to document so sections re-loaded by the theme editor
+     (or shopify:section:load) pick up listeners without re-binding.
   ------------------------------------------------------------------ */
 
   function setExpanded(menuItem, open) {
     if (!menuItem) return;
     var trigger = menuItem.querySelector('[aria-haspopup]');
-    if (!trigger) return;
-    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      menuItem.setAttribute('open', '');
+    } else {
+      menuItem.removeAttribute('open');
+    }
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
   }
 
+  function closeAll(except) {
+    var items = document.querySelectorAll('.kt-header__menu-item[open]');
+    items.forEach(function (i) { if (i !== except) setExpanded(i, false); });
+  }
+
+  /* Mouse hover — same UX as before. Pointerenter/leave bubble in
+     capture phase so nested elements still hit the menu-item closest. */
   document.addEventListener('pointerenter', function (e) {
     var item = e.target && e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item) return;
@@ -101,35 +130,60 @@
     setExpanded(item, false);
   }, true);
 
-  /* focusin/focusout bubble (unlike focus/blur) so delegation works.
-     focusout fires BEFORE the new element gets focus, so the
-     relatedTarget check catches keyboard Tab cycling within the
-     panel — if new focus is still inside the same menu item, keep
-     expanded; otherwise collapse. */
-  document.addEventListener('focusin', function (e) {
-    var item = e.target.closest && e.target.closest('.kt-header__menu-item');
+  /* Click handler on the [aria-haspopup] anchor. Toggles [open] without
+     navigating away — preventDefault is critical because the trigger
+     is rendered as <a href> for graceful no-JS fallback (links work,
+     dropdown becomes a regular link). With JS, click toggles the
+     menu instead of following the href. Enter and Space on the
+     focused anchor naturally fire `click` in browsers, so a single
+     click handler covers both pointer and keyboard activation
+     (matches the "open on click, not on focus" Theme Store rule). */
+  document.addEventListener('click', function (e) {
+    var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [aria-haspopup]');
+    if (!trigger) return;
+    var item = trigger.closest('.kt-header__menu-item');
     if (!item) return;
-    setExpanded(item, true);
+    /* Only intercept the click if the trigger has a flyout/mega-menu
+       sibling — otherwise it's a regular link with no panel and we
+       let the href navigation proceed. */
+    var hasPanel = item.querySelector('.kt-header__mega-menu, .kt-header__flyout');
+    if (!hasPanel) return;
+    e.preventDefault();
+    var willOpen = !item.hasAttribute('open');
+    closeAll(willOpen ? item : null);
+    setExpanded(item, willOpen);
   });
 
-  document.addEventListener('focusout', function (e) {
-    var item = e.target.closest && e.target.closest('.kt-header__menu-item');
-    if (!item) return;
-    var next = e.relatedTarget;
-    if (next && item.contains(next)) return;
-    setExpanded(item, false);
+  /* Click outside the header closes any open dropdown. */
+  document.addEventListener('click', function (e) {
+    var insideHeader = e.target && e.target.closest && e.target.closest('.kt-header');
+    if (insideHeader) return;
+    closeAll();
   });
 
-  /* Escape key collapses the currently-focused mega/flyout so keyboard
-     users can back out without clicking away. */
+  /* Escape collapses the currently-active dropdown and returns focus
+     to its trigger anchor — Theme Store explicit a11y requirement. */
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' && e.code !== 'Escape') return;
     var active = document.activeElement;
     if (!active) return;
     var item = active.closest && active.closest('.kt-header__menu-item');
-    if (!item) return;
+    if (!item || !item.hasAttribute('open')) return;
     setExpanded(item, false);
     var trigger = item.querySelector('[aria-haspopup]');
     if (trigger) trigger.focus();
+  });
+
+  /* Tab leaving the menu item collapses it (keyboard equivalent of
+     pointerleave). Listen on focusout — bubbles unlike focus/blur —
+     and check that the new focus target is outside this menu-item.
+     Note: this is NOT a focus-trigger to OPEN; it only handles the
+     reverse case (close when keyboard moves on). */
+  document.addEventListener('focusout', function (e) {
+    var item = e.target.closest && e.target.closest('.kt-header__menu-item');
+    if (!item || !item.hasAttribute('open')) return;
+    var next = e.relatedTarget;
+    if (next && item.contains(next)) return;
+    setExpanded(item, false);
   });
 })();
