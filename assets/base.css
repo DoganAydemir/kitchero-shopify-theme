@@ -622,3 +622,45 @@ html.shopify-design-mode .kt-pdp__info--sticky,
 html.shopify-design-mode [data-editor-unsticky] {
   position: static !important;
 }
+
+
+/* ============================================================
+   Long-content overflow guard — Theme Store "Breaking Review"
+
+   Stage 3 of the Theme Store review process specifically tests
+   themes against 30+ character single-word strings (long product
+   titles, breadcrumb labels, customer-supplied account names,
+   richtext from merchant pages, foreign-language compound words
+   like German "Kraftfahrzeughaftpflichtversicherung"). If the
+   layout breaks horizontally — text overflows its container,
+   pushes the grid sideways, hides the action button, etc. — the
+   theme is rejected as "fails edge-case testing".
+
+   Applying overflow-wrap: break-word at the document level is
+   the recommended global guard. It triggers ONLY when the word
+   would otherwise overflow — normal text reflows untouched.
+   `break-word` (not `anywhere`) keeps short words intact and only
+   breaks the un-wrappable monster, which is what reviewers test.
+
+   Hyphens: auto adds soft hyphens to long words where the locale
+   provides a dictionary (de/fr/es). Browsers fall back gracefully
+   on locales without a hyphenation dictionary (en uses very few
+   automatic hyphens, which is fine).
+   ============================================================ */
+:where(body) {
+  overflow-wrap: break-word;
+}
+
+:where(h1, h2, h3, h4, h5, h6,
+       .kt-pdp__title,
+       .kt-collection__title,
+       .kt-article__title,
+       .kt-breadcrumbs__current,
+       .kt-breadcrumbs__link,
+       .kt-card-product__title,
+       .kt-cart-page__item-title,
+       .kt-cart-drawer__item-title,
+       .rte) {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
