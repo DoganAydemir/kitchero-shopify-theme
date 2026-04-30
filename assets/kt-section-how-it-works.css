@@ -57,7 +57,15 @@
   }
 }
 
-@media screen and (min-width: 750px) {
+/* Horizontal 50/50 layout deferred to 1024px+ (true desktop). iPad
+ * (768-1024px) was hitting the row layout immediately at 750px,
+ * shrinking the right-hand text column to ~260px effective width
+ * — too narrow for "CONSULTATION" / "ENGINEERING" at 3rem to fit
+ * on one line, so the words broke across two lines. iPad now keeps
+ * the same vertical stack the phone uses (image on top, full-width
+ * text below) where the title has the whole card width to breathe;
+ * desktop ≥1024px gets the original side-by-side treatment. */
+@media screen and (min-width: 1024px) {
   .kt-how-it-works__card {
     flex-direction: row;
     min-height: 70vh;
@@ -76,14 +84,12 @@
   overflow: hidden;
 }
 
-@media screen and (min-width: 750px) {
+/* aspect-ratio + 50% width tied to the same 1024px breakpoint as the
+ * card row layout — under 1024px the image keeps its phone 4:3 ratio
+ * and full card width, matching the vertical stack treatment. */
+@media screen and (min-width: 1024px) {
   .kt-how-it-works__card-image-wrap {
     aspect-ratio: auto;
-  }
-}
-
-@media screen and (min-width: 750px) {
-  .kt-how-it-works__card-image-wrap {
     width: 50%;
   }
 }
@@ -102,7 +108,7 @@
   padding: 2.5rem 1.5rem;
 }
 
-@media screen and (min-width: 750px) {
+@media screen and (min-width: 1024px) {
   .kt-how-it-works__card-content {
     width: 50%;
     padding: 4rem 3rem;
