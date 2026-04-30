@@ -138,3 +138,110 @@
   font-size: 0.9375rem;
   color: var(--kt-stone-600);
 }
+
+
+/* ============================================================
+   Dark-context overrides — predictive search inside the search
+   overlay (which paints on a dark stone-950 backdrop). The base
+   rules above target a light surface (stone-900 text, stone-100
+   hover bg) and look washed-out / illegible against the overlay's
+   black tone. These selectors only kick in when predictive results
+   render INSIDE .kt-search-overlay, leaving the cart-drawer or
+   anywhere-else usage on its original light palette.
+   ============================================================ */
+
+.kt-search-overlay .kt-predictive-search {
+  gap: 1.75rem;
+  padding-top: 0.75rem;
+}
+
+.kt-search-overlay .kt-predictive-search__group {
+  gap: 0.625rem;
+}
+
+.kt-search-overlay .kt-predictive-search__group-title {
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.5);
+  /* Slight bottom border so each group reads as its own block on
+     the dark surface — without it the heading + items mush together
+     visually. */
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.25rem;
+}
+
+.kt-search-overlay .kt-predictive-search__list {
+  gap: 0.125rem;
+}
+
+.kt-search-overlay .kt-predictive-search__link {
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  /* Hover/focus accent shifts to a translucent white so it reads
+     against the dark overlay. The stone-100 from the base rule
+     would paint a near-black highlight that's invisible on the
+     stone-950 backdrop. */
+  transition: background-color 0.15s ease;
+}
+
+.kt-search-overlay .kt-predictive-search__link:hover,
+.kt-search-overlay .kt-predictive-search__link:focus-visible,
+.kt-search-overlay .kt-predictive-search__link.is-active {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.kt-search-overlay .kt-predictive-search__link:focus-visible {
+  outline-color: var(--kt-white);
+}
+
+.kt-search-overlay .kt-predictive-search__thumb {
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kt-search-overlay .kt-predictive-search__thumb--empty {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.kt-search-overlay .kt-predictive-search__title {
+  color: var(--kt-white);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+.kt-search-overlay .kt-predictive-search__price,
+.kt-search-overlay .kt-predictive-search__excerpt {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8125rem;
+  margin-top: 0.125rem;
+}
+
+.kt-search-overlay .kt-predictive-search__footer {
+  padding-top: 1rem;
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.kt-search-overlay .kt-predictive-search__view-all {
+  color: var(--kt-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid var(--kt-white);
+  padding-bottom: 2px;
+}
+
+.kt-search-overlay .kt-predictive-search__view-all:hover,
+.kt-search-overlay .kt-predictive-search__view-all:focus-visible {
+  color: rgba(255, 255, 255, 0.6);
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+
+.kt-search-overlay .kt-predictive-search__empty {
+  color: rgba(255, 255, 255, 0.55);
+}
