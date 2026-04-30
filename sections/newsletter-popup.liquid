@@ -103,7 +103,25 @@
                 </svg>
               </div>
               <h2 class="kt-newsletter-popup__success-title" id="NewsletterPopupHeading-{{ section.id }}">
-                {{ 'kt.section.newsletter-popup.success_heading' | t | default: 'Welcome to the Family!' }}
+                {%- comment -%}
+                  Schema declares `success_heading` as a merchant-editable
+                  text setting. Previously this output rendered only the
+                  translation key, which meant the editor toggle had zero
+                  effect on the popup — exactly the "schema setting
+                  declared but no runtime effect" pattern that Theme
+                  Store reviewers flag as a broken feature. Now we
+                  prefer the merchant override and fall back to the
+                  translated default when the setting is empty (fresh
+                  install). `| t` is NOT chained to the merchant value
+                  — that would treat the merchant's literal text as a
+                  translation key and emit "translation missing: ..."
+                  for any non-key string.
+                {%- endcomment -%}
+                {%- if section.settings.success_heading != blank -%}
+                  {{ section.settings.success_heading }}
+                {%- else -%}
+                  {{ 'kt.section.newsletter-popup.success_heading' | t | default: 'Welcome to the Family!' }}
+                {%- endif -%}
               </h2>
               <p class="kt-newsletter-popup__success-desc" id="NewsletterPopupDesc-{{ section.id }}">
                 {%- comment -%}

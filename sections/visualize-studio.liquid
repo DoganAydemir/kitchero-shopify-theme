@@ -127,8 +127,15 @@
               intent (section heading) so merchants can route /
               auto-reply based on the source.
             {%- endcomment -%}
+            {%- comment -%}
+              Form context for merchant inbox triage — pulls from the
+              section's existing heading_line1 setting (which is the
+              actual visible section heading) rather than referencing
+              an undefined `heading` setting that would silently
+              resolve to nil.
+            {%- endcomment -%}
             {%- capture visualize_body_message -%}
-              Visualize Studio consultation request — section: {{ section.settings.heading | default: 'Visualize Studio' }}
+              Visualize Studio consultation request — section: {{ section.settings.heading_line1 | default: 'Visualize Studio' }}
             {%- endcapture -%}
             <input
               type="hidden"

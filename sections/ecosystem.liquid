@@ -20,18 +20,7 @@
       <div class="kt-ecosystem__text-col">
         <div class="kt-ecosystem__title-block">
           {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-          {%- liquid
-            # Prefer the new unified `heading` (inline_richtext with <br>
-            # allowed). Fall back to the legacy two-field pair so we don't
-            # wipe existing merchant content.
-            assign resolved_heading = section.settings.heading
-            if resolved_heading == blank
-              assign part1 = section.settings.heading_line1 | default: 'High-Tech'
-              assign part2 = section.settings.heading_line2 | default: 'Storage.'
-              assign resolved_heading = part1 | append: '<br>' | append: part2
-            endif
-          -%}
-          <{{ heading_tag }} class="kt-ecosystem__title">{{ resolved_heading }}</{{ heading_tag }}>
+          <{{ heading_tag }} class="kt-ecosystem__title">{{ section.settings.heading }}</{{ heading_tag }}>
           {%- if section.settings.subtitle != blank -%}
             <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
           {%- endif -%}
@@ -41,18 +30,7 @@
           {%- for block in section.blocks -%}
             {%- if block.type == 'feature' -%}
               <div class="kt-ecosystem__feature eco-item" {{ block.shopify_attributes }}>
-                {%- comment -%}
-                  Feature title is now a single string. Legacy entries that
-                  still have a separate `number` setting are stitched back
-                  together so existing merchant data doesn't break.
-                {%- endcomment -%}
-                {%- assign feature_title = block.settings.title -%}
-                {%- if block.settings.number != blank and feature_title != blank -%}
-                  {%- unless feature_title contains '/' -%}
-                    {%- assign feature_title = block.settings.number | append: ' / ' | append: feature_title -%}
-                  {%- endunless -%}
-                {%- endif -%}
-                <h3 class="kt-ecosystem__feature-title">{{ feature_title }}</h3>
+                <h3 class="kt-ecosystem__feature-title">{{ block.settings.title }}</h3>
                 <p class="kt-ecosystem__feature-desc">{{ block.settings.description }}</p>
               </div>
             {%- endif -%}
