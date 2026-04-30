@@ -99,6 +99,27 @@
   font-style: italic;
   color: var(--kt-white);
   outline: none;
+  /* Strip the WebKit/Blink native search-cancel button. macOS Safari
+   * and Chrome-on-Mac inject a system-blue "x" icon into every
+   * <input type="search"> as soon as it has content. The blue
+   * accent is off-brand on a dark-stone overlay (user reported:
+   * "input un yanındaki x icon mavi. temayla ilgisi yok"). The
+   * overlay already has a dedicated .kt-search-overlay__close
+   * button for clearing/exiting, so the duplicate browser-supplied
+   * control is purely visual noise. */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Belt-and-braces removal of the same control across browsers that
+ * style it via the ::-webkit-search-cancel-button pseudo-element
+ * (Chromium 90+ exposes it directly). Without this, some Chromium
+ * builds keep painting the blue x even after appearance: none. */
+.kt-search-overlay__input::-webkit-search-cancel-button,
+.kt-search-overlay__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
 }
 
 /* Both mouse AND keyboard focus are communicated by the parent

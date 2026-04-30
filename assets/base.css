@@ -674,3 +674,38 @@ html.shopify-design-mode [data-editor-unsticky] {
   overflow-wrap: break-word;
   hyphens: auto;
 }
+
+
+/* ============================================================
+   Global suppression of WebKit/Blink native search-cancel button.
+
+   <input type="search"> on macOS Safari and Chromium-on-Mac
+   automatically injects a system-blue "x" clear button as soon as
+   the field has content. The blue tint comes from
+   `-apple-system-blue` and is unstylable through normal CSS color
+   properties — it ignores `color`, `accent-color`, and any
+   inherited values. On a dark/stone-themed surface (cart drawer,
+   search overlay, dark-mode color schemes) the blue x reads as
+   broken UI: it doesn't match any other theme element.
+
+   Two-rule defense:
+     1. `appearance: none` on the input itself strips most native
+        chrome on Safari.
+     2. The pseudo-element rule covers Chromium variants where
+        `appearance: none` doesn't reach the cancel button.
+
+   This is global because every <input type="search"> in the
+   theme (cart drawer search if added, predictive overlay, search
+   page input, 404-page search) shares the same off-brand chrome.
+   ============================================================ */
+input[type="search"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
