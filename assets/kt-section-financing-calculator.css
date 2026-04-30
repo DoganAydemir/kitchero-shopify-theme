@@ -268,7 +268,16 @@
 /* ── CTA + trust ──────────────────────────────────────── */
 
 .kt-financing-calculator__cta {
-  display: inline-block;
+  /* Block (not inline-block) so the trust note below renders on its
+   * own line under the button. Earlier revision used inline-block
+   * which caused the inline-flex trust note to flow side-by-side with
+   * the button on wide viewports — user reported "bu yazı buton
+   * altında olmalı". Block + auto margins keep the button centered
+   * horizontally within its max-width while bumping trust to the
+   * next row. */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   width: 100%;
   max-width: 22rem;
   padding: 1rem 2.5rem;
@@ -303,7 +312,12 @@
 }
 
 .kt-financing-calculator__trust {
-  display: inline-flex;
+  /* Flex (not inline-flex) so this lands on its own row beneath the
+   * CTA button. With inline-flex the element would still flow on the
+   * same baseline as the inline-block button when there's horizontal
+   * room, ignoring margin-top. Block-level flex enforces the row
+   * break unconditionally. */
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
