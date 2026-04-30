@@ -209,8 +209,19 @@ a {
    Buttons
    ============================================================ */
 
-.button,
-button[type="submit"] {
+/* Generic .button class only — DO NOT add `button[type="submit"]`
+   as a sibling selector. That blanket selector previously hijacked
+   every <button type="submit"> in the theme (Add to Cart, Add Sample
+   to Cart, Search submit, Newsletter signup, etc.) with this rule's
+   1.4rem font-size + 1.2rem 2.4rem padding — overpowering the
+   component-level CSS each of those forms ships (`.kt-product-form__atc`,
+   `.kt-showroom__sample-btn`, `.kt-search-page__submit`, ...) because
+   the bare `button[type="submit"]` selector has higher specificity
+   than a single component class. The user reported "ADD TO CART" and
+   "ADD SAMPLE TO CART" both rendering huge despite component CSS
+   declaring 0.75rem font + tighter padding — root cause was here.
+   Components opt INTO this look by adding `class="button"`. */
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -229,8 +240,7 @@ button[type="submit"] {
   transition: opacity 0.2s ease;
 }
 
-.button:hover,
-button[type="submit"]:hover {
+.button:hover {
   opacity: 0.85;
 }
 

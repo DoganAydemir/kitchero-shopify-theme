@@ -507,3 +507,42 @@
   text-decoration: none;
 }
 .kt-pdp__concierge-cta svg { width: 14px; height: 14px; }
+
+
+/* ============================================================
+   PDP info-column entrance animation hidden state
+
+   Sets opacity:0 + translateY(30px) initially so JS (kt-section-
+   main-product.js) can fade-up-stagger via GSAP on load. The JS
+   inits in DOMContentLoaded; before that frame paints, we want
+   the column to be invisible-but-laid-out (no CLS).
+
+   Fallbacks:
+   • html.no-js — the CSS reveal selector below shows the column
+     immediately if JS is disabled (Theme Store rule: progressive
+     enhancement, theme stays usable JS-off).
+   • prefers-reduced-motion — JS detects this and either softens
+     the animation (fade only, no translate) or skips entirely.
+     CSS still hides initially so the JS reveal logic runs cleanly.
+   ============================================================ */
+
+/* Direct children of the info-column wrapper get the animation.
+   Wrapper-based selector ([data-kt-pdp-anim-group] > *) means every
+   block render branch automatically participates — the schema's
+   block ordering becomes the stagger order for free, and we don't
+   have to plumb a `kt-pdp__anim` class through every {% when %}
+   case in main-product.liquid. */
+[data-kt-pdp-anim-group] > * {
+  opacity: 0;
+  transform: translateY(30px);
+  will-change: transform, opacity;
+}
+
+/* JS-disabled fallback: snap visible immediately so the column
+   isn't stuck hidden forever when GSAP / our init JS doesn't run.
+   `html.no-js` flag is set by the pre-paint inline script in
+   layout/theme.liquid (line 17). */
+html.no-js [data-kt-pdp-anim-group] > * {
+  opacity: 1;
+  transform: none;
+}

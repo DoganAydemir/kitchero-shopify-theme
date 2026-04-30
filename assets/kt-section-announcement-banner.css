@@ -16,6 +16,23 @@
    the strip to its intended "thin promotional" role. */
 .kt-announcement-banner {
   padding: 0.625rem 1.5rem;
+  /* User feedback: dark announcement bar + dark header below merge
+   * into one black slab — no visual separation between the promo
+   * strip and the navigation surface. Other Shopify themes solve
+   * this in three common ways:
+   *   1. Use a different brand accent bg on the bar (red/emerald
+   *      over a black header). Only works when the merchant's
+   *      promo identity isn't black; we can't enforce it.
+   *   2. Add a subtle hairline border under the bar — universal
+   *      across schemes, brand-neutral. Picked this.
+   *   3. Force a 1-2px white margin between bar and header — adds
+   *      an off-brand gap on every page; bad for premium themes.
+   * The translucent rgba(255,255,255,0.08) reads as a thin lighter
+   * line on dark schemes (where the bar collides with a dark
+   * header) and is invisible on light schemes (where the tonal
+   * contrast already separates the two surfaces) — auto-adaptive
+   * without hardcoding scheme tokens. */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;

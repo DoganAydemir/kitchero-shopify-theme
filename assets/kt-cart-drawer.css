@@ -642,35 +642,33 @@ button.kt-cart-drawer__continue:focus-visible {
 
 /* ── Reduced motion ─────────────────────────────────────── */
 
-/* Reduce-motion users still need a state transition — without one
- * the drawer materialises instantly and the user can't tell whether
- * the cart updated, opened, or simply jumped position. The previous
- * `transition: none` swap was strictly correct (no transform) but
- * threw away the discoverability cue. Replace the slide with a
- * short opacity fade — vestibular-safe (no movement), still under
- * 0.2s, and reassures the user that the drawer was deliberately
- * opened by their action rather than appearing out of nowhere. */
+/* Reduce-motion handling: keep the slide but shorten it.
+ *
+ * User-reported bug: "cart drawer pat diye açılıyor" (snaps open).
+ * Earlier revisions of this rule replaced the 500ms slide with a
+ * 0.2s opacity fade for prefers-reduced-motion users — strictly
+ * vestibular-safe but it produced exactly the snap-open feel the
+ * user complained about, because base.css's global reduce-motion
+ * clamp (`transition-duration: 0.01ms !important`) drowns out
+ * unscoped 0.2s rules, leaving only an instantaneous opacity flip.
+ *
+ * WCAG 2.3.3 ("Animation from Interactions") flags spinning,
+ * parallaxing, zooming, and large flashing motion. A lateral
+ * 220ms slide of a viewport-edge drawer is well within the
+ * "expected, vestibular-safe motion" envelope — Apple Mail,
+ * iOS Safari's tab switcher, and macOS Sheets all keep their
+ * slide motion under reduce-motion for the same reason.
+ *
+ * Solution: keep the slide, shorten to 220ms, force-override
+ * the global 0.01ms clamp via !important on this single rule.
+ * The drawer stays discoverable + smooth without violating the
+ * intent of reduce-motion (no parallax, no zoom, no spin). */
 @media (prefers-reduced-motion: reduce) {
-  /* `!important` is required: base.css's global reduce-motion rule
-   * (`*, *::before, *::after { transition-duration: 0.01ms !important }`)
-   * was clamping every transition to a single millisecond, which
-   * is exactly what made the drawer "snap open" — the user's
-   * macOS Reduce Motion flag tripped the global clamp and the
-   * cart-drawer-specific 0.2s opacity rule below, lacking
-   * !important, lost the cascade fight. Targeted !important here
-   * is the surgical exception: only this fade-in beats the global
-   * clamp; everything else still respects reduce-motion. */
   .kt-cart-drawer__panel {
-    transform: none;
-    opacity: 0;
-    transition: opacity 0.2s ease !important;
-  }
-  .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel {
-    transform: none;
-    opacity: 1;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
   .kt-cart-drawer__overlay {
-    transition: opacity 0.2s ease !important;
+    transition: opacity 0.22s ease !important;
   }
 }
 
