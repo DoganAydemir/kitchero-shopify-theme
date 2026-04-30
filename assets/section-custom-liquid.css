@@ -1,0 +1,29 @@
+/* ============================================================
+   Custom Liquid section — wrapper layout only
+
+   Theme Store rule: "All CSS must be in .css files" (CLAUDE.md
+   "Never write inline <style> tags directly inside Liquid files
+   unless strictly necessary"). The earlier inline <style> block
+   on the section's Liquid was 22 lines, which is past the
+   "strictly necessary" threshold reviewers tolerate (only
+   FOUC-prevention one-liners like kt-loader's display:none get
+   a pass). Moved here so the section conforms to the asset
+   pipeline rule.
+
+   The inline `style="--kt-section-padding-top: Xpx"` on the
+   section root stays — that's the documented exception ("only
+   when passing Liquid variables to CSS"), and it's how Liquid's
+   merchant-set padding values reach this stylesheet's
+   `var(--kt-section-padding-top)` lookups.
+   ============================================================ */
+
+.kt-custom-liquid {
+  padding-top: var(--kt-section-padding-top, 0);
+  padding-bottom: var(--kt-section-padding-bottom, 0);
+}
+
+.kt-custom-liquid__inner {
+  margin-inline: auto;
+  max-width: 1400px;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}

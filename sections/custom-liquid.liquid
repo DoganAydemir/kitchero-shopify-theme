@@ -21,6 +21,8 @@
   is loaded; the section root only owns layout padding tokens.
 {%- endcomment -%}
 
+{{ 'section-custom-liquid.css' | asset_url | stylesheet_tag }}
+
 <div
   class="kt-custom-liquid color-{{ section.settings.color_scheme }}"
   style="
@@ -32,18 +34,6 @@
     {{ section.settings.custom_liquid }}
   </div>
 </div>
-
-<style>
-  .kt-custom-liquid {
-    padding-top: var(--kt-section-padding-top, 0);
-    padding-bottom: var(--kt-section-padding-bottom, 0);
-  }
-  .kt-custom-liquid__inner {
-    margin-inline: auto;
-    max-width: 1400px;
-    padding-inline: clamp(1rem, 4vw, 3rem);
-  }
-</style>
 
 {% schema %}
 {
