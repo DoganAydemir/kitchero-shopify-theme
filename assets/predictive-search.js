@@ -83,37 +83,38 @@
     var routes = window.Kitchero && Kitchero.routes;
     if (!routes || !routes.predictiveSearch) return;
 
-    /* URL-build via URLSearchParams to dodge an encoding bug that
-     * blocked predictive search for the user across multiple debug
-     * rounds. The earlier hand-rolled URL did:
+    /* JSON endpoint instead of Section Rendering API.
      *
-     *   '&resources[type]=' + encodeURIComponent(types)
+     * History: this code went through 5+ debugging rounds across
+     * multiple commits trying to make the section-rendering pattern
+     * work (`/search/suggest?section_id=predictive-search`). Bugs
+     * surfaced at every level:
+     *   • disabled_on wildcard in the section schema → Section
+     *     Rendering API silently refused to invoke the Liquid path.
+     *   • encodeURIComponent(types) → commas became %2C →
+     *     Shopify treated the type list as one literal string.
+     *   • Even with both fixed, /search/suggest with section_id
+     *     kept returning the empty-state branch in some
+     *     environments — the user reported "still no results"
+     *     after every theoretically-complete fix.
      *
-     * with `types = 'product,collection,article,page'`. encodeURIComponent
-     * percent-encodes commas (',' → '%2C'), so the URL Shopify saw was
-     *
-     *   resources[type]=product%2Ccollection%2Carticle%2Cpage
-     *
-     * Shopify's predictive_search endpoint treats that decoded string
-     * `product,collection,article,page` as a SINGLE resource-type
-     * literal — none of its known types match, so the search executes
-     * with zero allowed types and returns no results regardless of
-     * what's in the index. (/search?q=test returned 4 products at
-     * the same time the overlay showed "No results"; same index,
-     * different query encoding.)
-     *
-     * URLSearchParams uses application/x-www-form-urlencoded encoding,
-     * which leaves commas intact in query values, producing the
-     * Shopify-expected
-     *   resources[type]=product,collection,article,page
-     * Section Rendering API + comma-separated multi-type both work
-     * once the encoding is right. */
+     * Switching to the JSON endpoint eliminates the entire class
+     * of section-render bugs. We call /search/suggest.json
+     * directly, get a guaranteed JSON payload back, and render
+     * the result groups manually in JS. The DOM output matches
+     * the kt-predictive-search markup the section template would
+     * have produced — same classes, same a11y semantics, same
+     * keyboard navigation hooks. The Liquid section file is
+     * retained as a no-JS fallback hook + defensive scaffold but
+     * is no longer on the critical path. */
+    var jsonUrl = routes.predictiveSearch
+      + (routes.predictiveSearch.indexOf('.json') === -1 ? '.json' : '');
+
     var params = new URLSearchParams();
     params.set('q', query);
     params.set('resources[type]', types);
     params.set('resources[limit]', '4');
-    params.set('section_id', 'predictive-search');
-    var url = routes.predictiveSearch + '?' + params.toString();
+    var url = jsonUrl + '?' + params.toString();
 
     /* Cancel any prior in-flight fetch so a slow earlier response
        can't overwrite the DOM with stale matches. */
@@ -122,27 +123,32 @@
 
     fetch(url, { signal: abortCtl.signal })
       .then(function (response) {
-        if (!response.ok) throw new Error('Search failed');
-        return response.text();
+        if (!response.ok) throw new Error('Search failed: HTTP ' + response.status);
+        return response.json();
       })
-      .then(function (html) {
-        /* Parse and extract results from section rendering */
-        var temp = document.createElement('div');
-        temp.innerHTML = html;
+      .then(function (data) {
+        var resources = (data && data.resources && data.resources.results) || {};
+        var products = resources.products || [];
+        var collections = resources.collections || [];
+        var articles = resources.articles || [];
+        var pages = resources.pages || [];
 
-        var products = temp.querySelectorAll('.predictive-search__item');
-        if (products.length === 0) {
-          /* Fallback: show raw text results */
-          resultsContainer.innerHTML = html;
+        var totalCount = products.length + collections.length + articles.length + pages.length;
+
+        if (totalCount === 0) {
+          resultsContainer.innerHTML = renderEmpty(query);
           announceResultCount(0);
-          setExpanded(input, resultsContainer.children.length > 0);
+          setExpanded(input, true);
           return;
         }
-        resultsContainer.innerHTML = '';
-        products.forEach(function (item) {
-          resultsContainer.appendChild(item.cloneNode(true));
-        });
-        announceResultCount(products.length);
+
+        resultsContainer.innerHTML =
+          (products.length    ? renderProductGroup(products)       : '') +
+          (collections.length ? renderCollectionGroup(collections) : '') +
+          (articles.length    ? renderArticleGroup(articles)       : '') +
+          (pages.length       ? renderPageGroup(pages)             : '') +
+          renderViewAll(query);
+        announceResultCount(totalCount);
         setExpanded(input, true);
       })
       .catch(function (err) {
@@ -150,9 +156,141 @@
            on a newer keystroke. Silently ignore; any other error
            clears the results so the UI doesn't freeze on stale data. */
         if (err && err.name === 'AbortError') return;
+        if (window.console && console.warn) {
+          console.warn('[Kitchero] predictive search failed:', err);
+        }
         resultsContainer.innerHTML = '';
         setExpanded(input, false);
       });
+  }
+
+  /* HTML render helpers — produce the same kt-predictive-search markup
+     the Liquid section ships, so existing CSS + keyboard nav hooks
+     continue to work without changes. Use innerHTML strings rather
+     than DOM construction because the tree is shallow + read-only and
+     the perf delta is negligible vs the readability win. All user-
+     supplied strings are escaped via escapeHtml(). */
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function strings() {
+    return (window.Kitchero && window.Kitchero.searchSettings) || {};
+  }
+
+  function renderProductGroup(products) {
+    var s = strings();
+    var heading = s.groupProducts || 'Products';
+    var html = '<div class="kt-predictive-search__group" data-group="products">';
+    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="list">';
+    products.forEach(function (p) {
+      var img = p.featured_image && p.featured_image.url ? p.featured_image.url : '';
+      var alt = (p.featured_image && p.featured_image.alt) || p.title || '';
+      var price = p.price ? formatMoney(p.price, p.currency) : '';
+      html += '<li class="predictive-search__item kt-predictive-search__item">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
+      if (img) {
+        html += '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(alt) + '" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
+      } else {
+        html += '<span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true"></span>';
+      }
+      html += '<span class="kt-predictive-search__text">';
+      html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
+      if (price) html += '<span class="kt-predictive-search__price">' + price + '</span>';
+      html += '</span></a></li>';
+    });
+    html += '</ul></div>';
+    return html;
+  }
+
+  function renderCollectionGroup(collections) {
+    var s = strings();
+    var heading = s.groupCollections || 'Collections';
+    var html = '<div class="kt-predictive-search__group" data-group="collections">';
+    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="list">';
+    collections.forEach(function (c) {
+      html += '<li class="predictive-search__item kt-predictive-search__item">';
+      html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<span class="kt-predictive-search__title">' + escapeHtml(c.title) + '</span>';
+      html += '</a></li>';
+    });
+    html += '</ul></div>';
+    return html;
+  }
+
+  function renderArticleGroup(articles) {
+    var s = strings();
+    var heading = s.groupArticles || 'Journal';
+    var html = '<div class="kt-predictive-search__group" data-group="articles">';
+    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="list">';
+    articles.forEach(function (a) {
+      html += '<li class="predictive-search__item kt-predictive-search__item">';
+      html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<span class="kt-predictive-search__title">' + escapeHtml(a.title) + '</span>';
+      html += '</a></li>';
+    });
+    html += '</ul></div>';
+    return html;
+  }
+
+  function renderPageGroup(pages) {
+    var s = strings();
+    var heading = s.groupPages || 'Pages';
+    var html = '<div class="kt-predictive-search__group" data-group="pages">';
+    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="list">';
+    pages.forEach(function (p) {
+      html += '<li class="predictive-search__item kt-predictive-search__item">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
+      html += '</a></li>';
+    });
+    html += '</ul></div>';
+    return html;
+  }
+
+  function renderViewAll(query) {
+    var s = strings();
+    var label = s.viewAll || 'View all results';
+    var routes = window.Kitchero && window.Kitchero.routes;
+    var searchUrl = (routes && routes.search) ? routes.search : '/search';
+    return '<div class="kt-predictive-search__footer">' +
+      '<a href="' + escapeHtml(searchUrl) + '?q=' + encodeURIComponent(query) + '" class="kt-predictive-search__view-all">' +
+      escapeHtml(label) + '</a></div>';
+  }
+
+  function renderEmpty(query) {
+    var s = strings();
+    var tpl = s.noResults || 'No results found for "[terms]".';
+    var msg = tpl.replace('[terms]', query);
+    return '<p class="kt-predictive-search__empty" role="status">' + escapeHtml(msg) + '</p>';
+  }
+
+  /* Money formatting — best-effort using Intl.NumberFormat. Shopify's
+     /search/suggest.json returns price as cents (integer) under
+     `price` and the currency under `currency`. Falls back to plain
+     "$X.YY" formatting if Intl isn't available. */
+  function formatMoney(cents, currency) {
+    var amount = (cents || 0) / 100;
+    if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
+      try {
+        return new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: currency || 'USD',
+        }).format(amount);
+      } catch (e) { /* fall through */ }
+    }
+    return '$' + amount.toFixed(2);
   }
 
   function bindInput(input, resultsContainer) {
