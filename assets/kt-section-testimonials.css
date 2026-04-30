@@ -116,7 +116,13 @@
   font-size: 0.9375rem;
 }
 
-/* Grid: grid-cols-1 md:grid-cols-3 gap-12 md:gap-20 */
+/* Grid: stacked on phones, 2-up on tablet, 3-up on desktop. iPad
+ * (768-1024px) was forcing the 3-column layout the moment the
+ * tablet breakpoint hit — three narrow columns of pull-quote text
+ * (~200px each) cramped against each other with the gap consuming
+ * most of the available width. Adding a 1024px breakpoint for the
+ * 3-up layout means iPad lands on a comfortable 2-up split, then
+ * full desktop gets 3-up as before. */
 .kt-testimonials__grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -124,6 +130,13 @@
 }
 
 @media screen and (min-width: 750px) {
+  .kt-testimonials__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
   .kt-testimonials__grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 5rem;

@@ -150,9 +150,15 @@
   letter-spacing: -0.05em;
 }
 
+/* Fluid scale tablet → desktop. iPad (768-1024px) reported "REDEFINE
+ * you r KITCHEN." breaking awkwardly — words wrapping mid-string
+ * because the desktop 7.5rem fired the moment viewport crossed
+ * 750px without an intermediate step. clamp(min, fluid, max) means
+ * iPad lands ~3.5-4.5rem, full desktop reaches the 7.5rem display
+ * size as before. */
 @media screen and (min-width: 750px) {
   .kt-hero__heading-line {
-    font-size: 7.5rem;
+    font-size: clamp(3rem, 6vw + 0.25rem, 7.5rem);
   }
 }
 
@@ -182,7 +188,7 @@
 
 @media screen and (min-width: 750px) {
   .kt-hero__heading-serif {
-    font-size: 7.5rem;
+    font-size: clamp(3rem, 6vw + 0.25rem, 7.5rem);
   }
 }
 
@@ -195,7 +201,7 @@
 
 @media screen and (min-width: 750px) {
   .kt-hero__heading-bold {
-    font-size: 7.5rem;
+    font-size: clamp(3rem, 6vw + 0.25rem, 7.5rem);
   }
 }
 
