@@ -122,7 +122,7 @@
           sizes: '100vw',
           width: article.image.width,
           height: article.image.height,
-          alt: article.title | escape
+          alt: article.image.alt | default: article.title | escape
       }}
     {%- else -%}
       {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-article__hero-img' }}

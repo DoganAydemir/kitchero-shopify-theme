@@ -68,13 +68,14 @@
                   {%- endcomment -%}
                   <a href="{{ item.url }}" class="kt-cart-page__item-image" tabindex="-1">
                     {%- if item.image -%}
+                      {%- assign cart_item_alt = item.image.alt | default: item.title -%}
                       {{
                         item.image
                         | image_url: width: 240
                         | image_tag:
                           width: 120,
                           height: 120,
-                          alt: item.title,
+                          alt: cart_item_alt,
                           loading: 'lazy',
                           class: 'kt-cart-page__item-img'
                       }}

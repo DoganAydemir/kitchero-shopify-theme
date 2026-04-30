@@ -63,6 +63,17 @@
       blurry on retina tablets).
     {%- endcomment -%}
     {%- if product.featured_image -%}
+      {%- comment -%}
+        Theme Store explicit reject example: "Supplying the product title
+        in place of an image description is not satisfactory" (see
+        partner blog: theme-store-accessibility-requirements). Prefer
+        merchant-authored `image.alt` so a screen-reader user hears the
+        product's actual visual description rather than just its name.
+        Falls back to product.title only when the merchant hasn't filled
+        in alt text — keeps the image accessible without forcing
+        merchants to backfill alt on every legacy product.
+      {%- endcomment -%}
+      {%- assign card_alt = product.featured_image.alt | default: product.title -%}
       {{
         product.featured_image
         | image_url: width: 1100
@@ -74,7 +85,7 @@
           sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
           height: product.featured_image.height,
-          alt: product.title
+          alt: card_alt
       }}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-card-product__image-primary' }}

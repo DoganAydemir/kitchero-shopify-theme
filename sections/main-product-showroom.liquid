@@ -175,11 +175,11 @@
                   {%- if block.settings.show_door_thumb -%}
                     {%- if door_sample_is_image -%}
                       <div class="kt-showroom__door-thumb">
-                        {{ door_sample_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
+                        {{ door_sample_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: door_sample_image.alt | default: product.title }}
                       </div>
                     {%- elsif product.featured_image != blank -%}
                       <div class="kt-showroom__door-thumb">
-                        {{ product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.title }}
+                        {{ product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 80, height: 106, alt: product.featured_image.alt | default: product.title }}
                       </div>
                     {%- endif -%}
                   {%- endif -%}

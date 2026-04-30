@@ -32,13 +32,19 @@
             {%- endcomment -%}
             <a href="{{ item.url }}" class="kt-cart-drawer__item-image" tabindex="-1">
               {%- if item.image -%}
+                {%- comment -%}
+                  Prefer merchant-authored image alt over the line title
+                  (Theme Store a11y rule: title is not satisfactory as
+                  alt text). Falls back to item.title when missing.
+                {%- endcomment -%}
+                {%- assign item_alt = item.image.alt | default: item.title -%}
                 {{
                   item.image
                   | image_url: width: 192
                   | image_tag:
                     width: 96,
                     height: 96,
-                    alt: item.title,
+                    alt: item_alt,
                     loading: 'lazy',
                     class: 'kt-cart-drawer__item-img'
                 }}
