@@ -240,18 +240,45 @@
 }
 
 .kt-slider-cinematic__dot {
+  /* Visual size kept thin — the bar style is intentional. The button
+     itself is sized to a 44px-tall hit area (a11y + Theme-Store touch
+     target floor) via transparent vertical padding, with the visual
+     bar rendered through a ::before child. content-box sizing keeps
+     the visible bar dimensions stable when the active modifier
+     widens the bar.
+
+     `display: flex` + `align-items: center` puts the ::before bar
+     vertically centered inside the 44px hit zone. */
+  display: flex;
+  align-items: center;
   width: 1.75rem;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  border-radius: 2px;
+  /* Reset Safari user-agent button styling so background:transparent
+     actually hides the chrome. */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kt-slider-cinematic__dot::before {
+  content: '';
+  display: block;
+  width: 100%;
   height: 0.1875rem;
   background-color: rgba(255, 255, 255, 0.25);
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  transition: width 0.5s ease, background-color 0.5s ease;
   border-radius: 2px;
+  transition: width 0.5s ease, background-color 0.5s ease;
 }
 
 .kt-slider-cinematic__dot--active {
   width: 2.75rem;
+}
+
+.kt-slider-cinematic__dot--active::before {
   background-color: var(--kt-white);
 }
 

@@ -65,7 +65,14 @@
         var open = !newForm.hidden;
         newForm.hidden = open;
         newBtn.setAttribute('aria-expanded', String(!open));
-        if (!open) newForm.querySelector('input, select, textarea').focus();
+        if (!open) {
+          /* Guard against forms with no focusable inputs (a merchant
+             could ship an address-edit form whose template is still
+             mounting). Without the null-check, .focus() on null throws
+             TypeError and the whole click handler dies. */
+          var firstField = newForm.querySelector('input, select, textarea');
+          if (firstField) firstField.focus();
+        }
       });
       var newCancel = newForm.querySelector('[data-addresses-cancel-new]');
       if (newCancel) {
@@ -86,7 +93,10 @@
         var open = !form.hidden;
         form.hidden = open;
         btn.setAttribute('aria-expanded', String(!open));
-        if (!open) form.querySelector('input, select, textarea').focus();
+        if (!open) {
+          var firstField = form.querySelector('input, select, textarea');
+          if (firstField) firstField.focus();
+        }
       });
       var cancel = form.querySelector('[data-addresses-cancel-edit]');
       if (cancel) {

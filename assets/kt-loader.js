@@ -46,7 +46,12 @@
   function runCounter(loader) {
     var numEl = loader.querySelector('.kt-loader__counter-num');
     var barEl = loader.querySelector('.kt-loader__bar-fill');
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* Guard matchMedia — sandboxed iframes and very old browsers may
+       not expose it. Falls back to the full animation in those cases,
+       which is the safe default (no a11y harm; just no reduced-motion
+       opt-out). Matches the pattern used in the rest of the codebase. */
+    var reduced = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduced) {
       /* Skip the theatrical counter — just snap to 100, brief hold, exit. */

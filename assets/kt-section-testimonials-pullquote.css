@@ -189,17 +189,33 @@
 }
 
 .kt-testimonials-pullquote__dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border: 0;
-  border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  /* 8px visible dot wrapped in a 44×44 transparent hit area for
+     Theme-Store touch-target compliance. The dot itself stays the
+     intentional minimal pip shape via ::before. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.kt-testimonials-pullquote__dot--active {
+.kt-testimonials-pullquote__dot::before {
+  content: '';
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.kt-testimonials-pullquote__dot--active::before {
   background-color: var(--kt-white);
   transform: scale(1.15);
 }
