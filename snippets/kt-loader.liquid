@@ -25,9 +25,15 @@
 {%- unless settings.kt_loader_enable -%}
   {%- comment -%} Merchant turned the loader off — render nothing. {%- endcomment -%}
 {%- else -%}
-<noscript>
-  <style>.kt-loader { display: none !important; }</style>
-</noscript>
+{%- comment -%}
+  No-JS hide is handled globally in assets/base.css via the
+  `html:not(.js) .kt-loader { display: none }` rule — the early
+  bootstrap script in theme.liquid sets `html.js` synchronously
+  before paint, so the rule only matches when JS is unavailable.
+  Previously we shipped an inline <noscript><style> here; the
+  Theme Store frowns on inline <style> in Liquid, so it was lifted
+  into base.css.
+{%- endcomment -%}
 
 {%- liquid
   assign brand_raw = settings.kt_loader_brand | default: shop.name

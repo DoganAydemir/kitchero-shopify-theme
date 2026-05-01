@@ -709,3 +709,21 @@ input[type="search"]::-webkit-search-decoration {
   appearance: none;
   display: none;
 }
+
+/* ============================================================
+   No-JS hide for the intro loader.
+   --------------------------------------------------------------
+   When JavaScript is disabled, the early bootstrap in theme.liquid
+   that sets `document.documentElement.className = 'js'` never runs,
+   so `html` keeps no class. The loader has no animation engine
+   without JS — it would paint a static splash and never dismiss,
+   trapping the visitor. Hide it on `html:not(.js)` so the page
+   content is reachable for no-JS / scraper / crawler visits.
+
+   Replaces a previous inline <noscript><style> hack in
+   snippets/kt-loader.liquid — the rule is brand-neutral and
+   universally applicable, so it lives globally.
+   ============================================================ */
+html:not(.js) .kt-loader {
+  display: none !important;
+}
