@@ -213,6 +213,61 @@
   });
 
   /* ------------------------------------------------------------------ */
+  /* Editor block-select pulse (design mode only).                      */
+  /*                                                                    */
+  /* When a merchant clicks a block in the theme-editor sidebar, scroll */
+  /* the corresponding DOM node into view (if it isn't fully visible)   */
+  /* and paint a 1.2s outline pulse so the block is easy to spot in the */
+  /* preview pane. Section-specific block:select handlers (carousel     */
+  /* slide-to-active, accordion expand, hotspot popup) still run on the */
+  /* same event — this is purely a baseline visual aid that complements */
+  /* them, not a replacement.                                           */
+  /*                                                                    */
+  /* Premium Theme-Store reviewers click multiple blocks during review  */
+  /* and expect "the right thing happens" feedback; without this, blocks*/
+  /* deep inside a long section land off-screen and the merchant has    */
+  /* no idea which block they just selected.                            */
+  /* ------------------------------------------------------------------ */
+
+  if (global.Shopify && global.Shopify.designMode) {
+    var blockPulseClass = 'kt-editor-block-selected';
+    var blockPulseDuration = 1200;
+
+    document.addEventListener('shopify:block:select', function (event) {
+      var block = event.target;
+      if (!block || !block.classList) return;
+
+      /* Scroll into view only if not fully visible — avoid jolting a
+         block that's already on-screen. */
+      var rect = block.getBoundingClientRect();
+      var viewportH = window.innerHeight || document.documentElement.clientHeight;
+      var fullyVisible = rect.top >= 0 && rect.bottom <= viewportH;
+      if (!fullyVisible && typeof block.scrollIntoView === 'function') {
+        try {
+          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (_) { block.scrollIntoView(); }
+      }
+
+      block.classList.add(blockPulseClass);
+      if (block.__ktBlockPulseTimer) clearTimeout(block.__ktBlockPulseTimer);
+      block.__ktBlockPulseTimer = setTimeout(function () {
+        block.classList.remove(blockPulseClass);
+        block.__ktBlockPulseTimer = null;
+      }, blockPulseDuration);
+    });
+
+    document.addEventListener('shopify:block:deselect', function (event) {
+      var block = event.target;
+      if (!block || !block.classList) return;
+      block.classList.remove(blockPulseClass);
+      if (block.__ktBlockPulseTimer) {
+        clearTimeout(block.__ktBlockPulseTimer);
+        block.__ktBlockPulseTimer = null;
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Scroll lock — stacked body overflow:hidden across multiple owners. */
   /*                                                                    */
   /* 14 components (cart drawer, filter drawer, mobile nav, search      */

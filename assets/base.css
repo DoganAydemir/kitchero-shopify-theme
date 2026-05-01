@@ -727,3 +727,33 @@ input[type="search"]::-webkit-search-decoration {
 html:not(.js) .kt-loader {
   display: none !important;
 }
+
+/* ============================================================
+   Theme-editor block-select pulse.
+   --------------------------------------------------------------
+   When a merchant clicks a block in the theme-editor sidebar,
+   global.js adds .kt-editor-block-selected for ~1.2s so the
+   block is easy to spot in the preview pane. Outline-only (does
+   not affect layout) and emerald-tinted to read against any
+   color scheme. Production-render unaffected — the class is
+   only attached when Shopify.designMode is true.
+   ============================================================ */
+.kt-editor-block-selected {
+  outline: 2px solid rgba(16, 185, 129, 0.85);
+  outline-offset: 4px;
+  border-radius: 2px;
+  animation: kt-editor-block-pulse 1.2s ease-out;
+}
+
+@keyframes kt-editor-block-pulse {
+  0%   { outline-color: rgba(16, 185, 129, 1); }
+  60%  { outline-color: rgba(16, 185, 129, 0.85); }
+  100% { outline-color: rgba(16, 185, 129, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-editor-block-selected {
+    animation: none;
+    outline-color: rgba(16, 185, 129, 0.85);
+  }
+}

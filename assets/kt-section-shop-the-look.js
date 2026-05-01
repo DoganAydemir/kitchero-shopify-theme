@@ -109,6 +109,14 @@
       });
     });
 
+    /* Expose open/close on the section node so the document-level
+       editor block:select handler can drive the popup state without
+       reaching into our IIFE closure. Premium Theme-Store reviewers
+       click hotspot blocks expecting the popup to open in the preview
+       — without this they see the block highlight (from global.js)
+       but the actual popup stays closed. */
+    section._ktShopTheLook = { open: openHotspot, closeAll: closeAll };
+
     /* Mobile close */
     if (mobileClose) {
       mobileClose.addEventListener('click', closeAll);
@@ -137,5 +145,30 @@
       document.removeEventListener('keydown', handler);
       keydownHandlers.delete(section);
     }
+  });
+
+  /* Theme-editor: open/close the popup that matches the merchant's
+     selected hotspot block. The block element wraps a [data-hotspot-id]
+     descendant we rendered in shop-the-look.liquid; we use that id to
+     drive the same openHotspot path the click handler uses, so state
+     stays consistent. */
+  document.addEventListener('shopify:block:select', function (e) {
+    var block = e.target;
+    if (!block || !block.closest) return;
+    var section = block.closest('[data-section-type="shop-the-look"]');
+    if (!section || !section._ktShopTheLook) return;
+    var hotspotEl = block.matches('[data-hotspot-id]')
+      ? block
+      : block.querySelector('[data-hotspot-id]');
+    if (!hotspotEl) return;
+    section._ktShopTheLook.open(hotspotEl.dataset.hotspotId);
+  });
+
+  document.addEventListener('shopify:block:deselect', function (e) {
+    var block = e.target;
+    if (!block || !block.closest) return;
+    var section = block.closest('[data-section-type="shop-the-look"]');
+    if (!section || !section._ktShopTheLook) return;
+    section._ktShopTheLook.closeAll();
   });
 })();
