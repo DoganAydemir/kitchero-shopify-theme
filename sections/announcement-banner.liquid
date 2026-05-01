@@ -1,83 +1,105 @@
 {{ 'kt-section-announcement-banner.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-announcement-banner.js' | asset_url }}" defer="defer"></script>
 
 {%- comment -%}
-  Announcement Banner — thin promotional strip with a badge, message, and CTA.
-  Merchant picks ONE color theme per section instance. Add multiple sections
-  for multiple strips.
+  Announcement Banner — single centered message, optional inline link.
+
+  Architecture: each merchant message is its own block. With one block
+  the bar is a static thin promotional strip; with two or more blocks
+  it cross-fades between them on a configurable interval (auto-rotate
+  off by default to match a "calm by default" stance — merchants who
+  want rotation enable it explicitly).
+
+  Rationale: the previous bar layered a coloured badge, primary copy,
+  greyed-out secondary copy, and a separate CTA pill in one strip —
+  four competing visual weights inside ~40px of vertical space. Premium
+  Theme Store themes (Prestige, Impulse, Empire) and DTC stores at the
+  Apple / Allbirds / Glossier tier all converge on the same simpler
+  pattern: one short sentence, centered, the whole sentence is the
+  link if anything is clickable. We follow that pattern.
 {%- endcomment -%}
 
 {%- liquid
-  assign color_theme = section.settings.color_theme | default: 'dark'
-  assign badge_text = section.settings.badge_text
-  assign message_main = section.settings.message_main
-  assign message_secondary = section.settings.message_secondary
-  assign cta_text = section.settings.cta_text
-  assign cta_link = section.settings.cta_link | default: routes.root_url
+  assign announcement_blocks = section.blocks | where: 'type', 'announcement'
+  assign block_count = announcement_blocks | size
+  assign rotate_speed_ms = section.settings.rotate_speed | times: 1000
+  assign should_rotate = false
+  if section.settings.auto_rotate and block_count > 1
+    assign should_rotate = true
+  endif
 -%}
 
-<section
+<announcement-banner
   class="kt-announcement-banner"
-  data-color-theme="{{ color_theme }}"
+  data-color-theme="{{ section.settings.color_theme }}"
+  data-alignment="{{ section.settings.alignment }}"
   data-section-id="{{ section.id }}"
+  data-block-count="{{ block_count }}"
+  data-auto-rotate="{{ should_rotate }}"
+  data-rotate-speed="{{ rotate_speed_ms }}"
   role="region"
   aria-label="{{ 'kt.section.announcement-banner.aria_label' | t }}"
 >
-  <div class="kt-announcement-banner__content">
-    {%- if badge_text != blank -%}
-      <span class="kt-announcement-banner__badge">{{ badge_text }}</span>
-    {%- endif -%}
-
-    {%- if message_main != blank -%}
-      <span class="kt-announcement-banner__message">
-        {{ message_main }}
-        {%- if message_secondary != blank -%}
-          <span class="kt-announcement-banner__message-secondary">
-            | {{ message_secondary }}
-          </span>
-        {%- endif -%}
-      </span>
-    {%- endif -%}
-  </div>
-
-  {%- if cta_text != blank -%}
-    <a href="{{ cta_link }}" class="kt-announcement-banner__cta">
-      {{ cta_text }}
-      <svg
-        class="kt-announcement-banner__cta-icon"
-        aria-hidden="true"
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-      </svg>
-    </a>
+  {%- if block_count > 0 -%}
+    {%- comment -%}
+      aria-live="polite" so screen readers announce the new message
+      when the bar rotates, but only after the active screen-reader
+      task is idle (won't interrupt mid-sentence).
+    {%- endcomment -%}
+    <div
+      class="kt-announcement-banner__track"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {%- comment -%}
+        announcement_index counts only announcement-type blocks so the
+        first announcement always gets the --active modifier even when
+        the merchant has reordered an @app block ahead of it. forloop.first
+        would have been wrong in that case.
+      {%- endcomment -%}
+      {%- assign announcement_index = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'announcement' -%}
+            <div
+              class="kt-announcement-banner__slide{% if announcement_index == 0 %} kt-announcement-banner__slide--active{% endif %}"
+              data-slide-index="{{ announcement_index }}"
+              {% if announcement_index > 0 %}aria-hidden="true"{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.link != blank and block.settings.text != blank -%}
+                <a href="{{ block.settings.link }}" class="kt-announcement-banner__link">
+                  <span class="kt-announcement-banner__text">{{ block.settings.text | escape }}</span>
+                  <svg
+                    class="kt-announcement-banner__arrow"
+                    aria-hidden="true"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+              {%- elsif block.settings.text != blank -%}
+                <span class="kt-announcement-banner__text">{{ block.settings.text | escape }}</span>
+              {%- endif -%}
+            </div>
+            {%- assign announcement_index = announcement_index | plus: 1 -%}
+          {%- when '@app' -%}
+            <div class="kt-announcement-banner__app-block" {{ block.shopify_attributes }}>
+              {%- render block -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
   {%- endif -%}
-
-  {%- comment -%}
-    App-block slot. Merchants can drop in cookie-consent / translation
-    / banner-scheduling apps into the announcement strip via
-    block.shopify_attributes for editor selection highlighting.
-    Previously the schema declared a blocks array but the template
-    never iterated — apps were installable but silently invisible.
-  {%- endcomment -%}
-  {%- if section.blocks.size > 0 -%}
-    {%- for block in section.blocks -%}
-      {%- case block.type -%}
-        {%- when '@app' -%}
-          <div class="kt-announcement-banner__app-block" {{ block.shopify_attributes }}>
-            {%- render block -%}
-          </div>
-      {%- endcase -%}
-    {%- endfor -%}
-  {%- endif -%}
-</section>
+</announcement-banner>
 
 {% schema %}
 {
@@ -99,56 +121,74 @@
           "label": "t:sections.announcement-banner.settings.color_theme.options__1.label"
         },
         {
-          "value": "emerald-light",
+          "value": "light",
           "label": "t:sections.announcement-banner.settings.color_theme.options__2.label"
         },
         {
-          "value": "gradient-dark",
+          "value": "accent",
           "label": "t:sections.announcement-banner.settings.color_theme.options__3.label"
         }
       ],
       "default": "dark"
     },
     {
-      "type": "header",
-      "content": "t:sections.announcement-banner.settings.header_content.content"
-    },
-    {
-      "type": "text",
-      "id": "badge_text",
-      "label": "t:sections.announcement-banner.settings.badge_text.label",
-      "default": "SALE"
-    },
-    {
-      "type": "text",
-      "id": "message_main",
-      "label": "t:sections.announcement-banner.settings.message_main.label",
-      "default": "Spring Collection — 25% Off Sitewide"
-    },
-    {
-      "type": "text",
-      "id": "message_secondary",
-      "label": "t:sections.announcement-banner.settings.message_secondary.label",
-      "info": "t:sections.announcement-banner.settings.message_secondary.info",
-      "default": "Complimentary shipping on qualifying orders"
+      "type": "select",
+      "id": "alignment",
+      "label": "t:sections.announcement-banner.settings.alignment.label",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:sections.announcement-banner.settings.alignment.options__1.label"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.announcement-banner.settings.alignment.options__2.label"
+        }
+      ],
+      "default": "center"
     },
     {
       "type": "header",
-      "content": "t:sections.announcement-banner.settings.header_cta.content"
+      "content": "t:sections.announcement-banner.settings.header_rotation.content"
     },
     {
-      "type": "text",
-      "id": "cta_text",
-      "label": "t:sections.announcement-banner.settings.cta_text.label",
-      "default": "Shop"
+      "type": "checkbox",
+      "id": "auto_rotate",
+      "label": "t:sections.announcement-banner.settings.auto_rotate.label",
+      "info": "t:sections.announcement-banner.settings.auto_rotate.info",
+      "default": false
     },
     {
-      "type": "url",
-      "id": "cta_link",
-      "label": "t:sections.announcement-banner.settings.cta_link.label"
+      "type": "range",
+      "id": "rotate_speed",
+      "label": "t:sections.announcement-banner.settings.rotate_speed.label",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
     }
   ],
   "blocks": [
+    {
+      "type": "announcement",
+      "name": "t:sections.announcement-banner.blocks.announcement.name",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:sections.announcement-banner.blocks.announcement.settings.text.label",
+          "default": "Free shipping on orders over $75"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.announcement-banner.blocks.announcement.settings.link.label",
+          "info": "t:sections.announcement-banner.blocks.announcement.settings.link.info"
+        }
+      ]
+    },
     {
       "type": "@app"
     }
@@ -161,11 +201,18 @@
       "name": "t:sections.announcement-banner.presets.name",
       "settings": {
         "color_theme": "dark",
-        "badge_text": "SALE",
-        "message_main": "Spring Collection — 25% Off Sitewide",
-        "message_secondary": "Complimentary shipping on qualifying orders",
-        "cta_text": "Shop"
-      }
+        "alignment": "center",
+        "auto_rotate": false,
+        "rotate_speed": 5
+      },
+      "blocks": [
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "Free shipping on orders over $75"
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,196 +1,204 @@
 /* ==========================================================================
-   Announcement Banner — thin promotional strip
+   Announcement Banner — single centered message, optional inline link
    BEM: .kt-announcement-banner
-   Color themes via [data-color-theme] attribute
-   ========================================================================== */
+   Theming via [data-color-theme]; alignment via [data-alignment].
+   ==========================================================================
 
-/* Full-width flush strip at the top of the page, flush against the
-   sticky header below. Previous iterations used a rounded-pill
-   design (margin: 1.25rem 1.5rem; border-radius: 0.75rem) inspired
-   by the Next.js source, but the pill needed a matching dark chrome
-   wrapper behind it — painting that wrapper stacked another ~40px
-   of dark mass above the (also dark) header, giving the top of the
-   page a 200px slab of black. Dropped the pill and margins: the
-   banner now paints edge-to-edge so there's no body-white showing
-   through and no wrapper-bg hack. Slimmer vertical padding keeps
-   the strip to its intended "thin promotional" role. */
+   The previous version stacked a badge, primary copy, secondary copy, and
+   a CTA pill — four visual weights in a ~40px strip, which read as busy.
+   This version follows the premium-DTC convention (Apple, Allbirds,
+   Glossier, Prestige) of one short sentence, centered, where the whole
+   sentence becomes the link if anything is clickable. */
+
 .kt-announcement-banner {
+  /* Edge-to-edge thin strip. Vertical padding stays compact (~10px) so
+     the bar reads as utility chrome, not a hero element. */
   padding: 0.625rem 1.5rem;
-  /* User feedback: dark announcement bar + dark header below merge
-   * into one black slab — no visual separation between the promo
-   * strip and the navigation surface. Other Shopify themes solve
-   * this in three common ways:
-   *   1. Use a different brand accent bg on the bar (red/emerald
-   *      over a black header). Only works when the merchant's
-   *      promo identity isn't black; we can't enforce it.
-   *   2. Add a subtle hairline border under the bar — universal
-   *      across schemes, brand-neutral. Picked this.
-   *   3. Force a 1-2px white margin between bar and header — adds
-   *      an off-brand gap on every page; bad for premium themes.
-   * The translucent rgba(255,255,255,0.08) reads as a thin lighter
-   * line on dark schemes (where the bar collides with a dark
-   * header) and is invisible on light schemes (where the tonal
-   * contrast already separates the two surfaces) — auto-adaptive
-   * without hardcoding scheme tokens. */
+  /* Hairline separator from the header below. Translucent white reads
+     as a thin lighter line on dark themes (where the dark bar collides
+     with a dark header) and is invisible on light themes (where tonal
+     contrast already separates the two surfaces). Auto-adaptive. */
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
   font-family: inherit;
   box-sizing: border-box;
+  position: relative;
+  /* Reserve a single line of body text plus the vertical padding so
+     the height stays stable when the bar rotates between messages of
+     different lengths (the absolutely-positioned slides take 0 layout). */
+  min-height: calc(0.875rem * 1.4 + 1.25rem);
 }
 
-.kt-announcement-banner__content {
+/* Track is the relative parent for the absolutely-stacked slides.
+   It fills the row and lets the active slide define the rendered text. */
+.kt-announcement-banner__track {
+  flex: 1 1 auto;
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Each slide stacks on top of the others; only the active one is
+   visible. We use opacity (instead of display:none) so the cross-fade
+   transition can animate smoothly. pointer-events:none on inactive
+   slides keeps the inert sentence from intercepting clicks aimed at
+   whatever's behind it (notably nothing, but it also keeps the link
+   inside the active slide unambiguously the target for keyboard /
+   AT focus). */
+.kt-announcement-banner__slide {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  min-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
-.kt-announcement-banner__badge {
-  display: inline-block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.75rem; /* py-1 px-3 */
-  border-radius: 9999px;
-  color: var(--kt-white);
-  white-space: nowrap;
-  line-height: 1.4;
+.kt-announcement-banner__slide--active {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.kt-announcement-banner__message {
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500;
-  line-height: 1.4;
-  min-width: 0;
+/* Alignment — drives both the slide content position and the
+   container's flex justification when the bar has only one slide. */
+.kt-announcement-banner[data-alignment="center"] .kt-announcement-banner__slide {
+  justify-content: center;
 }
 
-.kt-announcement-banner__message-secondary {
-  display: none;
+.kt-announcement-banner[data-alignment="left"] .kt-announcement-banner__slide {
+  justify-content: flex-start;
 }
 
-@media (min-width: 750px) {
-  .kt-announcement-banner__message-secondary {
-    display: inline;
-    margin-left: 0.25rem;
-  }
-}
-
-.kt-announcement-banner__cta {
+.kt-announcement-banner__link {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  gap: 0.5rem;
   text-decoration: none;
-  transition: color 0.2s ease;
+  color: inherit;
   border-radius: 0.25rem;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.kt-announcement-banner__cta-icon {
-  flex-shrink: 0;
-  width: 12px;
-  height: 12px;
+.kt-announcement-banner__link:hover {
+  opacity: 0.85;
 }
 
-.kt-announcement-banner__cta:focus-visible {
+.kt-announcement-banner__link:hover .kt-announcement-banner__arrow {
+  transform: translateX(2px);
+}
+
+.kt-announcement-banner__link:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
+.kt-announcement-banner__text {
+  /* 14px body — meets the 14px-mobile / 16px-desktop floor commonly
+     cited for promo strips. Bold-medium weight reads as informational
+     without screaming. */
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  /* Truncate long copy with an ellipsis on narrow viewports rather
+     than letting it wrap into a 2-line strip and pushing the header
+     below it down. Merchants who want long content can split into
+     multiple announcement blocks and enable rotation. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.kt-announcement-banner__arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+[dir="rtl"] .kt-announcement-banner__arrow {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .kt-announcement-banner__link:hover .kt-announcement-banner__arrow {
+  transform: scaleX(-1) translateX(2px);
+}
+
+/* App block slot — apps drop here (cookie-consent, geo-redirect, etc.)
+   Sits to the right of the announcement track at the end of the row. */
+.kt-announcement-banner__app-block {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 /* ==========================================================================
-   Theme: dark
+   Theme: dark — default. Stone-950 ground, white type.
    ========================================================================== */
-.kt-announcement-banner[data-color-theme='dark'] {
-  background-color: var(--kt-stone-950); /* stone-950 */
-  color: var(--kt-white);
-}
-
-.kt-announcement-banner[data-color-theme='dark'] .kt-announcement-banner__badge {
-  background-color: var(--kt-red-600); /* red-600 */
-}
-
-.kt-announcement-banner[data-color-theme='dark'] .kt-announcement-banner__message-secondary {
-  color: var(--kt-stone-400); /* stone-400 */
-}
-
-.kt-announcement-banner[data-color-theme='dark'] .kt-announcement-banner__cta {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.kt-announcement-banner[data-color-theme='dark'] .kt-announcement-banner__cta:hover {
+.kt-announcement-banner[data-color-theme="dark"] {
+  background-color: var(--kt-stone-950);
   color: var(--kt-white);
 }
 
 /* ==========================================================================
-   Theme: emerald-light
+   Theme: light — inverted for stores running a dark header below.
+   Stone-100 ground, stone-900 type. Hairline border darker for
+   visibility on white-ish backgrounds.
    ========================================================================== */
-.kt-announcement-banner[data-color-theme='emerald-light'] {
-  background-color: var(--kt-emerald-50); /* emerald-50 */
-  border: 1px solid var(--kt-green-200); /* emerald-200 */
-  color: var(--kt-emerald-900); /* emerald-900 */
-}
-
-.kt-announcement-banner[data-color-theme='emerald-light'] .kt-announcement-banner__badge {
-  background-color: var(--kt-emerald-600); /* emerald-600 */
-}
-
-.kt-announcement-banner[data-color-theme='emerald-light'] .kt-announcement-banner__message-secondary {
-  color: var(--kt-emerald-600); /* emerald-600 */
-}
-
-.kt-announcement-banner[data-color-theme='emerald-light'] .kt-announcement-banner__cta {
-  color: var(--kt-emerald-700); /* emerald-700 */
-}
-
-.kt-announcement-banner[data-color-theme='emerald-light'] .kt-announcement-banner__cta:hover {
-  color: var(--kt-emerald-900); /* emerald-900 */
+.kt-announcement-banner[data-color-theme="light"] {
+  background-color: var(--kt-stone-100);
+  color: var(--kt-stone-900);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ==========================================================================
-   Theme: gradient-dark
+   Theme: accent — emerald, the brand secondary. Use when the strip is
+   carrying a campaign message that should pop ("Spring sale ends Sunday").
    ========================================================================== */
-.kt-announcement-banner[data-color-theme='gradient-dark'] {
-  background-image: linear-gradient(to right, var(--kt-stone-950), var(--kt-stone-700)); /* stone-900 → stone-700 */
+.kt-announcement-banner[data-color-theme="accent"] {
+  background-color: var(--kt-emerald-700);
   color: var(--kt-white);
-}
-
-.kt-announcement-banner[data-color-theme='gradient-dark'] .kt-announcement-banner__badge {
-  background-color: var(--kt-amber-500); /* amber-500 */
-}
-
-.kt-announcement-banner[data-color-theme='gradient-dark'] .kt-announcement-banner__message-secondary {
-  color: var(--kt-stone-300); /* stone-300 */
-}
-
-.kt-announcement-banner[data-color-theme='gradient-dark'] .kt-announcement-banner__cta {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.kt-announcement-banner[data-color-theme='gradient-dark'] .kt-announcement-banner__cta:hover {
-  color: var(--kt-white);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
 /* ==========================================================================
-   Responsive
+   Responsive — narrow screens
    ========================================================================== */
 @media (max-width: 639px) {
   .kt-announcement-banner {
-    /* Slimmer padding on narrow screens; no margin because the banner
-       is full-width edge-to-edge now. flex-wrap lets the secondary
-       message + CTA drop to new lines when copy is long, rather than
-       shrinking type into illegibility. */
-    padding: 0.625rem 1rem;
-    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    min-height: calc(0.8125rem * 1.4 + 1rem);
   }
 
-  .kt-announcement-banner__content {
-    gap: 0.625rem;
+  .kt-announcement-banner__text {
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+  }
+
+  .kt-announcement-banner__link {
+    gap: 0.375rem;
+  }
+
+  .kt-announcement-banner__arrow {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion — kill the cross-fade transition. The JS also halts
+   auto-rotate on its own when prefers-reduced-motion matches, so this
+   only affects the editor-driven transitions when a merchant clicks
+   between slides in the theme editor.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .kt-announcement-banner__slide {
+    transition: none;
+  }
+
+  .kt-announcement-banner__link,
+  .kt-announcement-banner__arrow {
+    transition: none;
   }
 }
