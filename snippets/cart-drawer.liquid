@@ -157,6 +157,36 @@
                 matches so both surfaces behave identically.
               {%- endcomment -%}
               {%- assign drawer_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
+              {%- assign drawer_qty_max = item.variant.quantity_rule.max -%}
+              {%- comment -%}
+                quantity_rule.min isn't gated separately here because the
+                minus path lets a customer drop to 0 (which removes the
+                line entirely). For a wholesale case-of-6 product the
+                merchant intent is "must order 6 OR remove" — both
+                outcomes are reachable through the minus button without
+                a separate min cap.
+              {%- endcomment -%}
+              {%- comment -%}
+                Compute the next qty values so the +/- buttons can be
+                gated by quantity_rule. Without these caps, a customer
+                with a max-of-10 variant clicking + at qty 10 sends
+                qty=11 to /cart/change.js, gets a 422 + main-cart pattern
+                rolls back the UI — drawer needs the same defence so the
+                button is `disabled` once the rule hits its ceiling and
+                doesn't keep emitting failing requests.
+              {%- endcomment -%}
+              {%- assign drawer_qty_next_up = item.quantity | plus: drawer_qty_step -%}
+              {%- if drawer_qty_max != blank and drawer_qty_next_up > drawer_qty_max -%}
+                {%- assign drawer_qty_next_up = drawer_qty_max -%}
+              {%- endif -%}
+              {%- assign drawer_qty_next_down = item.quantity | minus: drawer_qty_step -%}
+              {%- if drawer_qty_next_down < 0 -%}
+                {%- assign drawer_qty_next_down = 0 -%}
+              {%- endif -%}
+              {%- assign drawer_qty_at_max = false -%}
+              {%- if drawer_qty_max != blank and item.quantity >= drawer_qty_max -%}
+                {%- assign drawer_qty_at_max = true -%}
+              {%- endif -%}
               <div class="kt-cart-drawer__item-footer">
                 <div class="kt-cart-drawer__qty">
                   <button
@@ -165,7 +195,7 @@
                     aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
-                    data-qty="{{ item.quantity | minus: drawer_qty_step }}"
+                    data-qty="{{ drawer_qty_next_down }}"
                   >
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
@@ -176,7 +206,8 @@
                     aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
-                    data-qty="{{ item.quantity | plus: drawer_qty_step }}"
+                    data-qty="{{ drawer_qty_next_up }}"
+                    {% if drawer_qty_at_max %}disabled aria-disabled="true"{% endif %}
                   >
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>

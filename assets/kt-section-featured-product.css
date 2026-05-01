@@ -85,6 +85,62 @@
   margin-top: 0.5rem;
 }
 
+/* Quantity input + ATC laid out side-by-side to keep the row tight
+   while still respecting variant.quantity_rule.{min,max,step}. */
+.kt-featured-product__qty-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kt-featured-product__qty-input {
+  width: 4.5rem;
+  padding: 0 0.75rem;
+  background: transparent;
+  color: rgb(var(--kt-c-fg));
+  border: 1px solid rgba(var(--kt-c-fg), 0.2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  /* Strip native spinners — the merchant's typical style guide doesn't
+     want browser-default arrows; main PDP form does the same. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kt-featured-product__qty-input::-webkit-inner-spin-button,
+.kt-featured-product__qty-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.kt-featured-product__qty-input:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+.kt-featured-product__preorder {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg), 0.7);
+  font-style: italic;
+}
+
+.kt-featured-product__error {
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: rgb(220, 38, 38);
+}
+
+.kt-featured-product__error[hidden] {
+  display: none;
+}
+
 .kt-featured-product__submit {
   display: inline-flex;
   align-items: center;

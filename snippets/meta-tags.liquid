@@ -179,9 +179,19 @@
     parser rejects. Divide cents by 100.0 to guarantee a
     locale-independent "99.00". `round: 2` keeps two decimals.
   {%- endcomment -%}
+  {%- comment -%}
+    og:price:amount is product.price (cents) divided by 100, which is
+    always denominated in the SHOP's primary currency — not the buyer's
+    market currency. Earlier this snippet emitted og:price:currency from
+    cart.currency.iso_code (buyer's currency under Markets), so a UK
+    shopper visiting a USD-primary store published `og:price:amount=99.00`
+    tagged with `og:price:currency=GBP` — a 28% mis-priced FB catalog
+    feed. Pin currency to the shop primary so amount+currency stay in the
+    same denomination.
+  {%- endcomment -%}
   {%- assign og_price_decimal = product.price | divided_by: 100.0 | round: 2 -%}
   <meta property="og:price:amount" content="{{ og_price_decimal }}">
-  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  <meta property="og:price:currency" content="{{ shop.currency.iso_code }}">
   {%- comment -%}
     Emit both the modern product:availability key AND the legacy
     og:availability key — FB Business and some product-catalog

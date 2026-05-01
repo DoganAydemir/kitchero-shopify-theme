@@ -105,23 +105,81 @@
               {%- endcomment -%}
               <div class="kt-featured-product__form" data-product-form data-product-id="{{ product.id }}" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
+                  {%- comment -%}
+                    Quantity rule + selling plan + error sentinel parity
+                    with snippets/product-form.liquid. Earlier the buy-
+                    button block here was a hand-rolled `<input id> +
+                    submit` pair, which silently broke three flows:
+                      · subscription-only products (requires_selling_plan)
+                        — POSTed to /cart/add without `selling_plan`,
+                        Shopify rejected with no UI feedback
+                      · variants with quantity_rule (e.g. case-of-6) —
+                        always sent qty=1, /cart/change.js error path
+                        rejected the order
+                      · /cart/add.js errors — assets/product-form.js looks
+                        for [data-product-form-error] on the form; when
+                        absent, error events fire-and-forget into the
+                        DOM with no surface to render on
+                    Resolved here so the Featured Product section is
+                    transactionally equivalent to the main PDP form.
+                  {%- endcomment -%}
                   {%- form 'product', product, id: 'FeaturedProductForm-' | append: section.id -%}
                     <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
-                    <button
-                      type="submit"
-                      name="add"
-                      class="kt-featured-product__submit button button--primary"
-                      data-add-to-cart
-                      {% unless current_variant.available %}disabled{% endunless %}
-                    >
-                      <span data-add-to-cart-text>
-                        {%- if current_variant.available -%}
-                          {{ block.settings.button_text | default: 'Add to cart' }}
-                        {%- else -%}
-                          {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
-                        {%- endif -%}
-                      </span>
-                    </button>
+
+                    {%- if product.selling_plan_groups.size > 0 -%}
+                      {%- render 'product-selling-plans', product: product, current_variant: current_variant, section: section -%}
+                    {%- endif -%}
+
+                    {%- assign qty_min = current_variant.quantity_rule.min | default: 1 -%}
+                    {%- assign qty_step = current_variant.quantity_rule.increment | default: 1 -%}
+                    {%- assign qty_max = current_variant.quantity_rule.max -%}
+                    <div class="kt-featured-product__qty-row">
+                      <label for="FeaturedQuantity-{{ section.id }}" class="visually-hidden">{{ 'kt.product.quantity.label' | t }}</label>
+                      <input
+                        type="number"
+                        name="quantity"
+                        id="FeaturedQuantity-{{ section.id }}"
+                        value="{{ qty_min }}"
+                        min="{{ qty_min }}"
+                        step="{{ qty_step }}"
+                        {% if qty_max != blank %}max="{{ qty_max }}"{% endif %}
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        class="kt-featured-product__qty-input"
+                        data-qty-input
+                        data-qty-min="{{ qty_min }}"
+                        data-qty-step="{{ qty_step }}"
+                        {% if qty_max != blank %}data-qty-max="{{ qty_max }}"{% endif %}
+                      >
+                      <button
+                        type="submit"
+                        name="add"
+                        class="kt-featured-product__submit button button--primary"
+                        data-add-to-cart
+                        {% unless current_variant.available %}disabled{% endunless %}
+                      >
+                        <span data-add-to-cart-text>
+                          {%- if current_variant.available -%}
+                            {{ block.settings.button_text | default: 'Add to cart' }}
+                          {%- else -%}
+                            {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
+                          {%- endif -%}
+                        </span>
+                      </button>
+                    </div>
+
+                    {%- comment -%}
+                      Pre-order indicator — variant out of stock with
+                      inventory_policy:'continue' (back-order allowed).
+                      Without it, the customer can't tell "in stock now"
+                      from "ships when restocked".
+                    {%- endcomment -%}
+                    {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
+                      <p class="kt-featured-product__preorder" role="note">{{ 'kt.product.preorder' | t }}</p>
+                    {%- endif -%}
+
+                    <div class="kt-featured-product__error" data-product-form-error role="alert" hidden></div>
+
                     {%- if block.settings.show_dynamic_checkout -%}
                       {{ form | payment_button }}
                     {%- endif -%}

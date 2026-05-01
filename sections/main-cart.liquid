@@ -375,7 +375,15 @@
               {%- endcomment -%}
               {%- if settings.kt_cart_show_discount -%}
                 <form
-                  action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | escape }}{% endif %}"
+                  {%- comment -%}
+                    Discount codes can contain reserved URL characters
+                    (`&`, `?`, `#`, ` `). `| escape` HTML-encodes them
+                    (e.g. `&` → `&amp;`) which is the wrong encoding for
+                    a URL path component — `| url_encode` percent-encodes
+                    them instead, which is what the `/discount/<code>`
+                    route expects.
+                  {%- endcomment -%}
+                  action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
                   method="get"
                   class="kt-cart-page__discount"
                   data-cart-discount-form

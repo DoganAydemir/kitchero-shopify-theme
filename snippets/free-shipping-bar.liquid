@@ -34,7 +34,12 @@
   # thresholds via localized settings once Shopify's Markets UI
   # supports that natively (not yet GA as of 2026).
   assign currency_mismatch = false
-  if cart.currency.iso_code != shop.currency
+  # `shop.currency` is a Currency OBJECT, not an ISO string; the previous
+  # comparison (string vs object) was always truthy on a Markets-enabled
+  # store, so the bar was silently suppressed even when the buyer was on
+  # the shop's primary currency. Compare iso_code-to-iso_code so a
+  # USD-shop / USD-buyer reads as a match and the bar renders.
+  if cart.currency.iso_code != shop.currency.iso_code
     assign currency_mismatch = true
   endif
 -%}
