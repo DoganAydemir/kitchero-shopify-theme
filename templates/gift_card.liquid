@@ -124,13 +124,18 @@
             {{ 'kt.giftcard.issued.copy_code' | t | default: 'Gift card code' }}
           </label>
           <div class="kt-gift-card__code-wrap">
+            {%- comment -%}
+              Accessible name is provided by the <label for="GiftCardCode">
+              above; emitting an aria-label here too gave the input two
+              accessible names (some axe/WAVE rules flag it as a "duplicate
+              name source"). The label suffices.
+            {%- endcomment -%}
             <input
               id="GiftCardCode"
               type="text"
               class="kt-gift-card__code"
               value="{{ gift_card.code | format_code }}"
               readonly
-              aria-label="{{ 'kt.giftcard.issued.copy_code' | t }}"
             >
             <button
               type="button"
