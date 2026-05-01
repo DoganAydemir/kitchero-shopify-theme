@@ -1,7 +1,12 @@
 # Shopify Port Plan — Kitchero Theme
 
 **Source of visual truth:** `/Users/macos/Documents/GitHub/freemannyc-site-css-js-backups/kitchen theme` (Next.js 16 + React 19 + Tailwind 4)
-**Target:** Dawn-based Shopify theme, Theme-Store-ready quality bar
+**Target:** Skeleton-based Shopify theme, Theme-Store-ready quality bar.
+Per Shopify's 2025 Theme Store policy, Skeleton is the **only** approved
+baseline for new submissions; Dawn- and Horizon-derived themes are
+rejected. Earlier drafts of this document referenced Dawn as a fork
+target — that was pre-policy and is no longer valid; nothing in this
+codebase derives from Dawn, and no future change should.
 **Reference rules:** `CLAUDE.md` (hard rules) + `references/shopify-rules.md` (Shopify-specific how-to)
 
 This document is the project-specific roadmap: what to port, where it goes, and in what order. Read this before starting any new phase.
@@ -13,7 +18,7 @@ This document is the project-specific roadmap: what to port, where it goes, and 
 Convert the finished Kitchero Next.js theme into a Shopify theme that:
 1. Passes `shopify theme check` with zero errors.
 2. Passes Theme Store submission requirements (Lighthouse perf ≥ 60, a11y ≥ 90, @app block support on main sections, proper empty states, dynamic checkout buttons, no deceptive UI, proper a11y, SEO metadata/JSON-LD, app-block compatibility).
-3. Preserves 100% of the Next.js theme's visual design — NOT Dawn's visual design.
+3. Preserves 100% of the Next.js theme's visual design — does not borrow visual language from any reference theme.
 4. Is merchant-friendly: every visible string, color, image, and layout choice must be editable via the theme editor or Liquid sources (metafields/settings).
 
 ---
@@ -27,7 +32,7 @@ Convert the finished Kitchero Next.js theme into a Shopify theme that:
 | `src/app/page.tsx` | Home | `templates/index.json` + home sections | 14 home sections, see section mapping below |
 | `src/app/about/page.tsx` | About Us | `templates/page.about.json` (alternate page template) | Includes BeforeAfter comparison + atelier gallery w/ lightbox |
 | `src/app/contact/page.tsx` | Contact | `templates/page.contact.json` | Showrooms list + contact form (`{% form 'contact' %}`) |
-| `src/app/blog/page.tsx` | Journal listing | `templates/blog.json` | Custom listing layout, not Dawn's default |
+| `src/app/blog/page.tsx` | Journal listing | `templates/blog.json` | Custom Kitchero listing layout |
 | `src/app/blog/[slug]/page.tsx` | Journal detail | `templates/article.json` | Rich content blocks, gallery lightbox, BeforeAfter blocks, video embeds |
 | `src/app/collections/page.tsx` | Collections (horizontal grid) | `templates/collection.json` | Primary collection listing, filters + sort |
 | `src/app/collections-drawer/page.tsx` | Collections (drawer variant) | `templates/collection.drawer.json` | Alternate template — filter in drawer |
@@ -95,7 +100,7 @@ These need concrete answers before or during the phases that touch them. Flag th
 
 1. **Countdown data source.** Current plan: a product metafield `custom.deal_ends_at` (type: `date_time`). Merchant sets the end date per product. Snippet reads it. The limited-offer badge shows when the metafield is set and in the future.
    - **Open:** who creates the metafield definition? → Document in Phase 4 deliverable: include a `config/metafields.json` or manual setup instructions in the theme's setup guide.
-2. **Color schemes.** Dawn uses `color_scheme` setting type tied to `config/settings_schema.json` schemes array. The Next.js theme uses stone/emerald/amber palette.
+2. **Color schemes.** Shopify's `color_scheme` setting type ties to a `color_scheme_group` declared in `config/settings_schema.json`. The Next.js theme uses stone/emerald/amber palette.
    - **Open:** define 3–5 schemes (e.g., "Light Stone", "Dark", "Emerald Accent") so merchants can switch.
 3. **Fonts.** Next.js uses Geist Sans + Geist Mono + serif (default system). Shopify best practice: use `settings.type_header_font_*` and `settings.type_body_font_*` with `font_picker` setting type.
    - **Open:** self-host Geist in `assets/` (Geist is open source, OFL license) OR use Shopify's `font_picker` and accept whatever the merchant picks. Recommend: self-host as default, provide `font_picker` fallbacks.
@@ -112,7 +117,7 @@ These need concrete answers before or during the phases that touch them. Flag th
    - Showroom product page = alternate template suffix `product.showroom.json`
    - **Open:** does the menu label "Showroom Style" in the navbar link to a single product or to a collection of products using the showroom template? → Recommend: point the menu link to a specific showcase product; merchants can change the handle.
 7. **Cart drawer JS.** Next.js `CartDrawer.tsx` is React state. Shopify cart drawer uses AJAX cart API (`/cart/add.js`, `/cart/update.js`, `/cart.js`).
-   - **Open:** write a custom element wrapper around the drawer that listens for `cart:update` events and re-renders. Dawn's `cart-drawer.js` is a good reference for the event model (but NOT the visual). Update: Use Shopify Section Rendering API for robust HTML updates instead of solely relying on JSON.
+   - **Resolved:** custom element (`<cart-drawer>`) listens for `cart:update` events. Uses Shopify Section Rendering API for robust HTML updates instead of relying on JSON alone. Implementation already shipped in `assets/cart-drawer.js`.
 8. **Blog → Articles.** Next.js `blogData.ts` has content blocks (paragraph, gallery, video, before-after). Shopify articles are single `content` field (rich text).
    - **Open:** either (a) use Shopify's rich text and lose the typed blocks, or (b) use an article metafield `custom.content_blocks` (list.metaobject) for structured content.
    - **Recommend:** option (a) for v1 (simpler), option (b) as v2 upgrade. For v1, editorial blocks from Next.js are replaced by Shopify's rich text editor content.
@@ -126,8 +131,7 @@ Work in phases. Finish a phase entirely, commit, test in `shopify theme dev`, th
 ### Phase 0 — Project scaffold (half day)
 
 **Tasks:**
-- Clone Dawn into `/path/to/dawn` as a reference (read-only).
-- Clone Skeleton OR fork Dawn into `/path/to/shopify-theme` as the working repo. If forking Dawn, immediately delete all `sections/*.liquid`, `snippets/card-product.liquid` and any other visual components. Keep: `layout/theme.liquid` (as starting point), `config/settings_schema.json` structure, `snippets/meta-tags.liquid`, `snippets/icon-*.liquid`, `snippets/pagination.liquid`, `assets/global.js` patterns, `locales/en.default.json`.
+- Clone Shopify Skeleton (https://github.com/Shopify/skeleton-theme) into the working repo as the foundation. Skeleton ships an empty, minimal scaffolding (`layout/theme.liquid`, `config/settings_schema.json` shell, locale stubs) — every section/snippet/CSS file in this theme is written from scratch on top of that.
 - Initialize git, initial commit.
 - Create `.theme-check.yml` via `shopify theme check --init`.
 - Set up `shopify theme dev` against a test store.
@@ -143,7 +147,7 @@ Work in phases. Finish a phase entirely, commit, test in `shopify theme dev`, th
 
 **Tasks:**
 - [ ] Port `layout/theme.liquid`: head with `content_for_header`, body with header-group + `content_for_layout` + footer-group. Include meta-tags snippet, global CSS and JS (deferred).
-- [ ] Implement valid JSON-LD structure using `snippets/structured-data.liquid` (copy schema patterns from Dawn).
+- [ ] Implement valid JSON-LD structure using `snippets/structured-data.liquid` (Product, Article, Breadcrumb, Organization, WebSite). Follow Shopify's official `structured_data` filter docs and Schema.org definitions; do NOT consult Dawn or Horizon for the markup.
 - [ ] Create `config/settings_schema.json` with:
   - `theme_info` metadata block (name, version, theme_author, theme_documentation_url)
   - Color schemes (Light Stone default, Dark, Emerald, Midnight — 4 schemes)
@@ -219,7 +223,7 @@ Work in phases. Finish a phase entirely, commit, test in `shopify theme dev`, th
 - [ ] `templates/collection.drawer.json` → main-collection-drawer
 - [ ] `templates/collection.vertical.json` → main-collection-vertical
 - [ ] Implement standard Shopify `{% paginate %}` logic across all grid views using `snippets/pagination.liquid` (max limit 50 per page).
-- [ ] `snippets/card-product.liquid` — product card (replaces Dawn's), with hover image swap, limited-offer pill + countdown, star rating, color swatches, price/compare-at, Add to cart, quick-view link
+- [ ] `snippets/card-product.liquid` — Kitchero product card with hover image swap, limited-offer pill + countdown, star rating, color swatches, price/compare-at, Add to cart, quick-view link. Written from scratch using `kt-` BEM naming; not derived from any reference theme.
 - [ ] `snippets/countdown.liquid` + `assets/countdown.js` — reads `product.metafields.custom.deal_ends_at`, re-inits on `shopify:section:load`, cleans interval on `shopify:section:unload`
 - [ ] `snippets/collection-filters.liquid` — reads `collection.filters` (Shopify Storefront Filtering API), handles filter URL state. **Must use Shopify's Section Rendering API (`/?section_id=...`) to update filters and grid without full page reloads.**
 - [ ] Sort options: use Shopify's native sort_by parameter
