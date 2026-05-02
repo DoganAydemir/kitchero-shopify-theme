@@ -158,6 +158,14 @@
   </section>
 {%- endif -%}
 
+{%- comment -%}
+  Render any @app blocks the merchant has dragged into this section.
+  Schema declares "@app"; without this render path, app blocks are
+  silently dropped — their UI never paints on the storefront even
+  though the editor accepts them.
+{%- endcomment -%}
+{% render 'section-app-blocks' %}
+
 {% schema %}
 {
   "name": "t:sections.deals-grid.name",
