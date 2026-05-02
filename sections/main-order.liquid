@@ -246,6 +246,26 @@
           <span>{{ 'kt.customer.order.total' | t }}</span>
           <span>{{ order.total_price | money_with_currency }}</span>
         </div>
+
+        {%- comment -%}
+          Refund summary — when an order has been partially or fully
+          refunded, customers need to see (a) what was refunded and
+          (b) what they actually paid net. Without these rows the
+          grand-total line above overstates the customer's payment
+          after any refund event. order.total_refunded sums every
+          refund_line_item.subtotal + refund.transactions adjustments;
+          order.net_payment is the true paid amount.
+        {%- endcomment -%}
+        {%- if order.total_refunded_set.shop_money.amount > 0 -%}
+          <div class="kt-order__totals-row kt-order__totals-row--refund">
+            <span>{{ 'kt.customer.order.refunded' | t | default: 'Refunded' }}</span>
+            <span>– {{ order.total_refunded_set | money_with_currency }}</span>
+          </div>
+          <div class="kt-order__totals-row kt-order__totals-row--net">
+            <span>{{ 'kt.customer.order.net_payment' | t | default: 'Net paid' }}</span>
+            <span>{{ order.net_payment_set | money_with_currency }}</span>
+          </div>
+        {%- endif -%}
       </aside>
     </div>
 

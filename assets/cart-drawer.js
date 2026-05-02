@@ -259,6 +259,27 @@
       this.lastTrigger = null;
     }
 
+    /**
+     * Paint a user-visible error in the drawer footer's
+     * [data-cart-drawer-error] region. Auto-dismisses after 6 seconds
+     * so a successful follow-up update doesn't leave a stale error
+     * sitting at the bottom of the drawer. SR users hear the error
+     * via Kitchero.announce(); this method is the visual sidekick.
+     */
+    showError(msg) {
+      var slot = this.querySelector('[data-cart-drawer-error]');
+      if (!slot) return;
+      slot.textContent = msg;
+      slot.hidden = false;
+      if (this._errorTimer) clearTimeout(this._errorTimer);
+      var self = this;
+      this._errorTimer = setTimeout(function () {
+        slot.textContent = '';
+        slot.hidden = true;
+        self._errorTimer = null;
+      }, 6000);
+    }
+
     updateQuantity(key, quantity) {
       var self = this;
 
@@ -320,6 +341,12 @@
                    announcer, which SRs don't interrupt speech for. */
                 Kitchero.announce(msg, 'assertive');
               }
+              /* Visible error region — sighted users without SR hear
+                 nothing from the announcer, so paint the message in
+                 the drawer footer too. Auto-clears 6s later so the
+                 drawer doesn't hold a stale error after a successful
+                 follow-up update. */
+              self.showError(msg);
               /* Throw so the outer .catch below still releases the
                  inflight lock but the drawer refresh is skipped. */
               var err = new Error(msg);
@@ -343,11 +370,12 @@
              * cartError path already shows Shopify's explicit 422
              * reason above, so this branch is purely the silent-
              * failure safety net. */
+            var fallbackMsg = (window.Kitchero && Kitchero.cartStrings && Kitchero.cartStrings.error)
+              || 'Unable to update cart. Please try again.';
             if (window.Kitchero && typeof Kitchero.announce === 'function') {
-              var msg = (window.Kitchero && Kitchero.cartStrings && Kitchero.cartStrings.error)
-                || 'Unable to update cart. Please try again.';
-              try { Kitchero.announce(msg, 'assertive'); } catch (_) { /* ignore */ }
+              try { Kitchero.announce(fallbackMsg, 'assertive'); } catch (_) { /* ignore */ }
             }
+            self.showError(fallbackMsg);
           }
         })
         .then(function () {

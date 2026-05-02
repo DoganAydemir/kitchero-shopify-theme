@@ -83,6 +83,23 @@
                       {{ item.variant.unit_price | money }}/{% if item.variant.unit_price_measurement.reference_value != 1 %}{{ item.variant.unit_price_measurement.reference_value }}&nbsp;{% endif %}{{ item.variant.unit_price_measurement.reference_unit }}
                     </span>
                   {%- endif -%}
+                  {%- comment -%}
+                    Line-level discount allocations — mirrors /cart page
+                    treatment. When a discount applies to this specific
+                    line (e.g. "Buy 2 Get 1 Free", "Spring Sale 20%"),
+                    the customer sees the discount name + amount under
+                    the price. Without this, drawer shows the discounted
+                    price but the SAVING is invisible — reviewer test
+                    case: apply a code, open drawer, expect to see "−$X
+                    Spring Sale" line.
+                  {%- endcomment -%}
+                  {%- if item.line_level_discount_allocations.size > 0 -%}
+                    <ul class="kt-cart-drawer__item-discounts" role="list">
+                      {%- for discount in item.line_level_discount_allocations -%}
+                        <li>– {{ discount.discount_application.title }} ({{ discount.amount | money }})</li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
                 </div>
               </div>
 
@@ -272,6 +289,34 @@
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">
         {%- render 'free-shipping-bar' -%}
+
+        {%- comment -%}
+          Cart-level discount applications (auto-applied or code-applied
+          to the whole cart, not a specific line). /cart page renders
+          this between subtotal and total; drawer mirrors. Without it,
+          a customer who applies a "Welcome10" code on /cart and re-
+          opens the drawer can't see what they saved.
+        {%- endcomment -%}
+        {%- if cart.cart_level_discount_applications.size > 0 -%}
+          <ul class="kt-cart-drawer__discounts" role="list">
+            {%- for discount in cart.cart_level_discount_applications -%}
+              <li class="kt-cart-drawer__discount">
+                <span class="kt-cart-drawer__discount-label">{{ discount.title }}</span>
+                <span class="kt-cart-drawer__discount-amount">– {{ discount.total_allocated_amount | money }}</span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- comment -%}
+          Visual error region for cart-update failures. cart-drawer.js
+          calls `Kitchero.announce(msg, 'assertive')` on /cart/change.js
+          422s — that reaches SR users via the global live region but
+          sighted users see the qty silently snap back with no visible
+          feedback. role="alert" + JS-toggled hidden gives both.
+        {%- endcomment -%}
+        <div class="kt-cart-drawer__error" data-cart-drawer-error role="alert" hidden></div>
+
         <div class="kt-cart-drawer__subtotal">
           <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
           {%- comment -%}
