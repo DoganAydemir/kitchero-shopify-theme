@@ -606,9 +606,21 @@
 }
 
 @media screen and (min-width: 990px) {
-  /* Desktop uses the inline filter bar — the drawer is mobile-only. */
+  /* Default collection template pairs the drawer (mobile) with an
+     inline filter sidebar (desktop) — drawer is mobile-only there.
+     The drawer-only template (.kt-collection--drawer-template) has no
+     inline sidebar, so its drawer must stay reachable on desktop;
+     re-enable it via the modifier class.
+
+     Without the override, FILTERS-button clicks toggle aria-hidden
+     correctly on desktop drawer-template pages but nothing paints,
+     because the parent stays display:none. */
   .kt-filter-drawer {
     display: none;
+  }
+
+  .kt-collection--drawer-template .kt-filter-drawer {
+    display: block;
   }
 }
 

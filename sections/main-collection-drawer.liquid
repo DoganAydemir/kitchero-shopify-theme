@@ -2,7 +2,23 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
 
-<div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
+{%- comment -%}
+  `kt-collection--drawer-template` is the modifier class the drawer-only
+  template hangs off. The shared kt-collection-filters.css ships a
+  desktop rule (`@media (min-width:990px) .kt-filter-drawer { display:
+  none }`) that hides the drawer on desktop because the DEFAULT template
+  pairs the drawer (mobile) with an inline sidebar (desktop). This
+  template has no inline sidebar — the drawer IS the only filter UI on
+  every breakpoint — so we re-enable it on desktop via the modifier.
+  Without the class the FILTERS button is dead silent on desktop: JS
+  toggles aria-hidden correctly, but the parent stays display:none and
+  nothing paints.
+
+  data-section-type stays "main-collection" so the shared
+  kt-section-main-collection.js (sticky bar + GSAP parallax + base
+  drawer wiring) finds and binds this section.
+{%- endcomment -%}
+<div class="kt-collection kt-collection--drawer-template" data-section-id="{{ section.id }}" data-section-type="main-collection">
   {%- comment -%} Hero Header (shared) {%- endcomment -%}
   <section class="kt-collection__hero" data-collection-hero>
     <div class="kt-collection__dots-base" aria-hidden="true"></div>
@@ -72,9 +88,28 @@
   </div>
 
   {%- comment -%} Filter Drawer (glassmorphic right panel) {%- endcomment -%}
-  <div class="kt-filter-drawer" id="filter-drawer" data-filter-drawer inert>
-    <div class="kt-filter-drawer__overlay" data-close-filter-drawer></div>
-    <div class="kt-filter-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="FilterDrawerPanelTitle">
+  {%- comment -%}
+    Initial state: aria-hidden="true" (matches main-collection.liquid's
+    default template + the CSS opacity-fade rule), role/aria-modal/
+    aria-labelledby on the parent so SR users hear the dialog framing
+    when JS sets aria-hidden="false". The overlay div uses the
+    `__backdrop` BEM class — `__overlay` was a stale name that the
+    shared kt-collection-filters.css never styled, leaving the click-
+    outside-to-close target invisible.
+  {%- endcomment -%}
+  <div
+    class="kt-filter-drawer"
+    id="filter-drawer"
+    data-filter-drawer
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="FilterDrawerPanelTitle"
+    tabindex="-1"
+    inert
+  >
+    <div class="kt-filter-drawer__backdrop" data-close-filter-drawer aria-hidden="true"></div>
+    <div class="kt-filter-drawer__panel">
       <div class="kt-filter-drawer__header">
         <h3 class="kt-filter-drawer__title" id="FilterDrawerPanelTitle">{{ 'kt.section.collection.refine' | t | default: 'Refine Search' }}</h3>
         <button type="button" class="kt-filter-drawer__close" data-close-filter-drawer aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
