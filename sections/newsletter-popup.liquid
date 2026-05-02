@@ -231,8 +231,26 @@
               </svg>
             </button>
 
+            {%- comment -%}
+              Privacy disclosure adjacent to the email field. Theme
+              Store reviewers explicitly look for a clickable link to
+              shop.privacy_policy here — the previous static text
+              mentioned "Privacy Policy" but never linked. When the
+              merchant has set up a privacy policy in Shopify admin,
+              the policy title becomes a real anchor; otherwise the
+              static disclosure renders alone (no broken link).
+
+              `accepts_marketing` hidden field is the GDPR opt-in
+              signal Shopify uses to flag the customer in the admin
+              "Accepts marketing" list. Required for EU/UK email-list
+              compliance.
+            {%- endcomment -%}
+            <input type="hidden" name="contact[accepts_marketing]" value="true">
             <p class="kt-newsletter-popup__privacy">
               {{ section.settings.privacy_note | default: 'By subscribing, you agree to our Privacy Policy. Unsubscribe at any time.' }}
+              {%- if shop.privacy_policy != blank %}
+                <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-popup__privacy-link">{{ shop.privacy_policy.title }}</a>
+              {%- endif -%}
             </p>
           {%- endif -%}
 
@@ -389,7 +407,7 @@
       "id": "delay_seconds",
       "label": "t:sections.newsletter-popup.settings.delay_seconds.label",
       "info": "t:sections.newsletter-popup.settings.delay_seconds.info",
-      "min": 0,
+      "min": 3,
       "max": 60,
       "step": 1,
       "unit": "s",

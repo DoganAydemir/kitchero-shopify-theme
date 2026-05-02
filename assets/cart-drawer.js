@@ -234,6 +234,19 @@
         Kitchero.focusTrap.disable(this.panel);
       }
 
+      /* Release any scrollLock owner registered under 'cart-drawer'.
+         The drawer itself doesn't take a scrollLock (deliberately —
+         see lines 167-191 above for the rationale), but assets/
+         product-form.js DOES call `Kitchero.scrollLock.lock('cart-
+         drawer')` as a fallback path when the custom element hasn't
+         upgraded yet (race between deferred scripts on first paint).
+         If that fallback fires and close() never releases the matching
+         owner, the body stays locked forever. unlock() is a no-op when
+         the owner isn't present, so this is safe to call unconditionally. */
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('cart-drawer');
+      }
+
       /* Restore focus to the element that opened the drawer (usually
          the header cart icon). Guard against detached nodes — if the
          trigger was inside a section that got unloaded in the theme

@@ -79,6 +79,7 @@
               {%- endif -%}
               {%- form 'customer', id: 'FooterNewsletter' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
+                <input type="hidden" name="contact[accepts_marketing]" value="true">
                 {%- if form.posted_successfully? -%}
                   <p class="kt-footer__newsletter-success" role="status">
                     {{ 'kt.section.newsletter-popup.success' | t | default: 'Thanks for subscribing.' }}
@@ -106,6 +107,11 @@
                       {%- for field in form.errors -%}
                         {{ form.errors.messages[field] }}{% unless forloop.last %} · {% endunless %}
                       {%- endfor -%}
+                    </p>
+                  {%- endif -%}
+                  {%- if shop.privacy_policy != blank -%}
+                    <p class="kt-footer__newsletter-privacy">
+                      <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>
                     </p>
                   {%- endif -%}
                 {%- endif -%}

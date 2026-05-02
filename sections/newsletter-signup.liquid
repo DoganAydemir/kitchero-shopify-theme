@@ -10,6 +10,12 @@
 
       {%- form 'customer', id: 'NewsletterPageForm', class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
+        {%- comment -%}
+          GDPR opt-in flag — sets the customer's "Accepts marketing"
+          state in Shopify admin so EU/UK reviewers see explicit
+          consent on the customer record.
+        {%- endcomment -%}
+        <input type="hidden" name="contact[accepts_marketing]" value="true">
 
         {%- if form.posted_successfully? -%}
           <div class="kt-newsletter-page__success" role="status">
@@ -45,7 +51,12 @@
         {%- endif -%}
       {%- endform -%}
 
-      <p class="kt-newsletter-page__note">{{ section.settings.note | default: 'We respect your privacy. Unsubscribe at any time.' }}</p>
+      <p class="kt-newsletter-page__note">
+        {{ section.settings.note | default: 'We respect your privacy. Unsubscribe at any time.' }}
+        {%- if shop.privacy_policy != blank %}
+          <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-page__note-link">{{ shop.privacy_policy.title }}</a>
+        {%- endif -%}
+      </p>
     </div>
   </div>
 </section>
