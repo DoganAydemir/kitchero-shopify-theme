@@ -59,7 +59,17 @@
         <div class="kt-filter-bar">
           <span class="kt-filter-bar__label">{{ 'kt.section.collection.filter' | t | default: 'Filter:' }}</span>
           {%- for filter in collection.filters -%}
-            {%- if filter.type == 'list' -%}
+            {%- comment -%}
+              Three filter types Shopify exposes: `list` (checkbox set),
+              `boolean` (same shape as list with yes/no values), and
+              `price_range` (min/max number inputs). The desktop pill
+              bar previously rendered only `list`; merchants who set up
+              a price filter or a boolean metafield filter saw the
+              filter on the vertical-sidebar template (which uses the
+              snippet that handles all three) but on the default
+              collection template's pill bar it silently disappeared.
+            {%- endcomment -%}
+            {%- if filter.type == 'list' or filter.type == 'boolean' -%}
               <div class="kt-filter-bar__dropdown">
                 <button class="kt-filter-bar__trigger" type="button">
                   <span>{{ filter.label }}</span>
@@ -136,6 +146,99 @@
                               <input type="hidden" name="{{ other_filter.max_value.param_name }}" value="{{ other_filter.max_value.value }}">
                             {%- endif -%}
                           {%- endif -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                      <noscript>
+                        <button type="submit" class="kt-filter__apply-btn button">
+                          {{ 'kt.section.collection.apply' | t | default: 'Apply' }}
+                        </button>
+                      </noscript>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {%- elsif filter.type == 'price_range' -%}
+              {%- comment -%}
+                Price-range pill — opens a dropdown panel containing two
+                number inputs (min, max) and an Apply button. Visual
+                shape mirrors the list pills above so the row reads as
+                one continuous filter set. Min/max can be left blank;
+                Shopify treats blank as "no constraint" on that side.
+                Sibling list/boolean values + sort_by are echoed as
+                hidden inputs so the JS-off Apply submit preserves the
+                rest of the query state.
+              {%- endcomment -%}
+              {%- assign has_price_active = false -%}
+              {%- if filter.min_value.value or filter.max_value.value -%}
+                {%- assign has_price_active = true -%}
+              {%- endif -%}
+              <div class="kt-filter-bar__dropdown">
+                <button class="kt-filter-bar__trigger" type="button">
+                  <span>{{ filter.label }}</span>
+                  {%- if has_price_active -%}
+                    <span class="kt-filter__count" aria-label="{{ 'kt.section.collection.selected' | t | default: 'selected' }}">•</span>
+                  {%- endif -%}
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="kt-filter-bar__panel">
+                  <div class="kt-filter-bar__panel-inner">
+                    <div class="kt-filter-bar__panel-header">
+                      <span class="kt-filter-bar__panel-count">{{ filter.label }}</span>
+                      {%- if has_price_active -%}
+                        <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">{{ 'kt.section.collection.reset' | t | default: 'Reset' }}</a>
+                      {%- endif -%}
+                    </div>
+                    <form id="FilterBar-{{ filter.param_name }}" action="{{ collection.url }}" method="get" data-collection-filters-form>
+                      <div class="kt-filter__price-range">
+                        <div class="kt-filter__price-field">
+                          <label for="Bar-{{ filter.min_value.param_name }}" class="visually-hidden">{{ 'kt.section.collection.price_min' | t | default: 'From' }}</label>
+                          <span class="kt-filter__price-prefix" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                          <input
+                            type="number"
+                            id="Bar-{{ filter.min_value.param_name }}"
+                            name="{{ filter.min_value.param_name }}"
+                            value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                            placeholder="0"
+                            min="0"
+                            max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            inputmode="decimal"
+                            class="kt-filter__price-input"
+                            data-filter-price
+                          >
+                        </div>
+                        <span class="kt-filter__price-separator" aria-hidden="true">—</span>
+                        <div class="kt-filter__price-field">
+                          <label for="Bar-{{ filter.max_value.param_name }}" class="visually-hidden">{{ 'kt.section.collection.price_max' | t | default: 'To' }}</label>
+                          <span class="kt-filter__price-prefix" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                          <input
+                            type="number"
+                            id="Bar-{{ filter.max_value.param_name }}"
+                            name="{{ filter.max_value.param_name }}"
+                            value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                            placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            min="0"
+                            max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            inputmode="decimal"
+                            class="kt-filter__price-input"
+                            data-filter-price
+                          >
+                        </div>
+                      </div>
+                      {%- comment -%}
+                        Sibling-state preservation for JS-off Apply.
+                        Same pattern as the list/boolean pills above:
+                        echo every OTHER filter's active values as
+                        hidden inputs so submitting this form doesn't
+                        wipe the rest of the query.
+                      {%- endcomment -%}
+                      {%- if collection.sort_by != blank -%}
+                        <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
+                      {%- endif -%}
+                      {%- for other_filter in collection.filters -%}
+                        {%- if other_filter.param_name != filter.param_name -%}
+                          {%- for active_value in other_filter.active_values -%}
+                            <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value }}">
+                          {%- endfor -%}
                         {%- endif -%}
                       {%- endfor -%}
                       <noscript>
@@ -307,7 +410,21 @@
           {%- endif -%}
 
           {%- for filter in collection.filters -%}
-            {%- if filter.type == 'list' -%}
+            {%- comment -%}
+              Three filter types Shopify exposes on the storefront:
+              `list` (multi-select checkboxes — color/size/etc.),
+              `boolean` (filterable boolean metafield, same value shape
+              as list — yes/no), and `price_range` (min/max number
+              inputs).
+
+              The drawer previously only rendered `list`; merchants who
+              configured a price filter in admin saw it on the desktop
+              vertical sidebar (which uses snippets/collection-filters
+              and handles all three types) but on mobile the drawer was
+              silent — Theme-Store reviewers test mobile filtering and
+              flag the missing types as a feature gap.
+            {%- endcomment -%}
+            {%- if filter.type == 'list' or filter.type == 'boolean' -%}
               {%- comment -%}
                 Filter drawer group wrapped in a <section> with the h4 title.
                 The <ul> is a checkbox group whose label is the h4 above —
@@ -351,6 +468,51 @@
                     </li>
                   {%- endfor -%}
                 </ul>
+              </section>
+            {%- elsif filter.type == 'price_range' -%}
+              {%- comment -%}
+                Price-range filter — two number inputs (min, max) bound
+                to filter.min_value.param_name + filter.max_value.param_name.
+                Empty inputs let Shopify treat them as "no constraint";
+                no need to gate the input rendering itself.
+              {%- endcomment -%}
+              <section
+                class="kt-filter-drawer__group kt-filter-drawer__group--price"
+                role="group"
+                aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}"
+              >
+                <h4 class="kt-filter-drawer__group-title" id="FilterDrawerGroup-{{ filter.param_name }}">{{ filter.label }}</h4>
+                <div class="kt-filter-drawer__price-range">
+                  <div class="kt-filter-drawer__price-field">
+                    <label for="FilterDrawer-{{ filter.min_value.param_name }}" class="visually-hidden">{{ 'kt.section.collection.price_min' | t | default: 'From' }}</label>
+                    <input
+                      type="number"
+                      id="FilterDrawer-{{ filter.min_value.param_name }}"
+                      name="{{ filter.min_value.param_name }}"
+                      value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                      placeholder="0"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      inputmode="decimal"
+                      class="kt-filter-drawer__price-input"
+                    >
+                  </div>
+                  <span class="kt-filter-drawer__price-separator" aria-hidden="true">—</span>
+                  <div class="kt-filter-drawer__price-field">
+                    <label for="FilterDrawer-{{ filter.max_value.param_name }}" class="visually-hidden">{{ 'kt.section.collection.price_max' | t | default: 'To' }}</label>
+                    <input
+                      type="number"
+                      id="FilterDrawer-{{ filter.max_value.param_name }}"
+                      name="{{ filter.max_value.param_name }}"
+                      value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                      placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      inputmode="decimal"
+                      class="kt-filter-drawer__price-input"
+                    >
+                  </div>
+                </div>
               </section>
             {%- endif -%}
           {%- endfor -%}

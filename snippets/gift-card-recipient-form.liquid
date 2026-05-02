@@ -73,6 +73,15 @@
       <label for="GiftRecipientEmail-{{ uid }}" class="kt-gift-recipient__label">
         {{ 'kt.giftcard.recipient.email' | t }}
       </label>
+      {%- comment -%}
+        `required` activates only when the field is also enabled — HTML5
+        treats a disabled required input as exempt from validation. The
+        toggle JS removes `disabled` when the merchant opts in to
+        gifting; at that moment the required attribute starts blocking
+        empty submits, which is the gift-card flow Shopify expects (no
+        email = no scheduled email = the gift-card order finalises but
+        the recipient never receives it).
+      {%- endcomment -%}
       <input
         type="email"
         id="GiftRecipientEmail-{{ uid }}"
@@ -80,6 +89,7 @@
         class="kt-gift-recipient__input"
         autocomplete="email"
         disabled
+        required
         {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="GiftRecipientEmail-{{ uid }}-error"{% endif %}
         value="{{ form.email | escape }}"
       >
@@ -115,11 +125,21 @@
       <label for="GiftRecipientSendOn-{{ uid }}" class="kt-gift-recipient__label">
         {{ 'kt.giftcard.recipient.send_on' | t }}
       </label>
+      {%- comment -%}
+        `min` blocks past-date selection client-side. Without it the
+        date input accepts e.g. 2010-01-01; Shopify silently sends
+        the email immediately when the date is in the past, which is
+        not what the merchant or recipient expects ("Send on" implies
+        future scheduling). Server-side Shopify also clamps to "now"
+        for past values, but the client-side guard surfaces the issue
+        before submit.
+      {%- endcomment -%}
       <input
         type="date"
         id="GiftRecipientSendOn-{{ uid }}"
         name="properties[Send on]"
         class="kt-gift-recipient__input"
+        min="{{ 'now' | date: '%Y-%m-%d' }}"
         disabled
         {% if form.errors contains 'send_on' %}aria-invalid="true" aria-describedby="GiftRecipientSendOn-{{ uid }}-error"{% endif %}
         value="{{ form.send_on | escape }}"
