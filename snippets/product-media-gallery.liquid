@@ -102,11 +102,25 @@
   <div class="kt-gallery__main" data-gallery-main>
     {%- for media in product.media -%}
       {%- assign media_alt = media.alt | default: product.title -%}
+      {%- comment -%}
+        Image slides are keyboard-activatable triggers that open the
+        lightbox: tabindex="0" makes them focusable, role="button" tells
+        SR users they're activatable, aria-label describes the action.
+        product-gallery.js attaches a keydown handler that calls the
+        same openLightbox path on Enter/Space.
+
+        Video and 3D-model slides intentionally don't get the trigger
+        treatment — `<video>` and `<model-viewer>` carry their own
+        built-in playback / orbit controls, and the lightbox only
+        renders an `<img>` so opening it on a non-image slide would
+        present an empty viewer (former W11 bug).
+      {%- endcomment -%}
       <div
         class="kt-gallery__slide kt-gallery__slide--{{ media.media_type }}{% if media.id == active_media_id %} kt-gallery__slide--active{% endif %}"
         data-gallery-slide="{{ forloop.index0 }}"
         data-media-id="{{ media.id }}"
         data-media-type="{{ media.media_type }}"
+        {% if media.media_type == 'image' %}tabindex="0" role="button" aria-label="{{ 'kt.product.media.image_larger' | t | default: 'View image larger' }}"{% endif %}
       >
         {%- case media.media_type -%}
           {%- when 'image' -%}

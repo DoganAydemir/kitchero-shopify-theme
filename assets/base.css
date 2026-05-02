@@ -391,6 +391,27 @@ a {
   height: auto;
 }
 
+/* Embedded media inside Rich-Text content (article body, page CMS,
+   etc.). Shopify's RTE editor outputs raw <iframe> for YouTube /
+   Vimeo embeds without explicit dimensions — without these rules the
+   iframe takes its native default size (~300×150) which collapses on
+   mobile and over-extends on desktop, breaking the article rhythm.
+   16:9 aspect-ratio is the dominant video format; reviewers test
+   articles with embedded YouTube and expect responsive behaviour. */
+.rte iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+.rte video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 /* Placeholder SVGs */
 .placeholder-svg {
   fill: rgba(var(--kt-c-fg), 0.08);

@@ -454,6 +454,33 @@
           }));
         }
       }
+    } else {
+      /* No variant matches the picked option combo — e.g. customer
+         selected "Red + XL" on a product where Red only ships in S/M.
+         Without this branch, the hidden `name="id"` input keeps the
+         PREVIOUS variant's id and ATC silently adds the wrong line to
+         the cart. Per the round-5 audit (real-purchase reviewer test
+         case): clicking an unavailable combo must surface the state,
+         not fall through. Disable ATC, swap label to "Unavailable",
+         clear the variant id so a stale value cannot be POSTed, and
+         announce to SR users. */
+      if (variantIdInput) variantIdInput.value = '';
+      if (variantSelect) variantSelect.value = '';
+
+      if (atcBtn) {
+        atcBtn.disabled = true;
+        if (atcText) {
+          atcText.textContent = (Kitchero.variantStrings && Kitchero.variantStrings.unavailable)
+            || (Kitchero.variantStrings && Kitchero.variantStrings.soldOut)
+            || 'Unavailable';
+        }
+      }
+
+      if (window.Kitchero && typeof Kitchero.announce === 'function') {
+        var unavailableMsg = (Kitchero.variantStrings && Kitchero.variantStrings.unavailable)
+          || 'This combination is unavailable';
+        Kitchero.announce(unavailableMsg, 'assertive');
+      }
     }
   }
 

@@ -62,13 +62,24 @@
           </div>
         {%- endif -%}
 
-        <div class="kt-page-header-dotted__title-wrap">
-          <{{ heading_tag }}
-            id="DottedHeaderTitle-{{ section.id | default: 'static' }}"
-            class="kt-page-header-dotted__title"
-            data-dotted-anim
-          >{{ title }}</{{ heading_tag }}>
-        </div>
+        {%- comment -%}
+          Gate the heading on `title != blank`. Without this guard the
+          template emits an empty `<h1></h1>` when a merchant has not
+          filled in the title setting yet — empty headings fail axe /
+          Lighthouse a11y checks AND give Theme Store reviewers a
+          visible "ghost row" above the page content. Decorative dot
+          layers + section markers still render, so the visual rhythm
+          is preserved; only the heading element is dropped when blank.
+        {%- endcomment -%}
+        {%- if title != blank -%}
+          <div class="kt-page-header-dotted__title-wrap">
+            <{{ heading_tag }}
+              id="DottedHeaderTitle-{{ section.id | default: 'static' }}"
+              class="kt-page-header-dotted__title"
+              data-dotted-anim
+            >{{ title }}</{{ heading_tag }}>
+          </div>
+        {%- endif -%}
 
         {%- if description != blank -%}
           <div class="kt-page-header-dotted__desc-wrap">

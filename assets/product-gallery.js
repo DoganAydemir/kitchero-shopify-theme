@@ -148,16 +148,38 @@
     /* Slide click → open lightbox to that specific image (Showroom PDP
        uses inline gallery without a single [data-gallery-main] wrapper,
        so each slide needs its own click handler). Works for E-commerce
-       too: clicking the currently-active slide opens the lightbox. */
-    slides.forEach(function (slide, slideIdx) {
-      slide.addEventListener('click', function (e) {
-        // Avoid double-firing when the click already bubbles up to mainArea.
-        if (mainArea && mainArea.contains(slide)) return;
+       too: clicking the currently-active slide opens the lightbox.
 
+       Gated on `data-media-type === 'image'`. Video and 3D-model slides
+       skip the lightbox entirely — `<video>`/`<model-viewer>` ship
+       their own controls and the lightbox only knows how to render an
+       <img>, so opening it on non-image media would present an empty
+       viewer.
+
+       Keyboard parity: Enter/Space on a focused image slide fires the
+       same openLightbox path. Image slides ship tabindex="0" +
+       role="button" from the Liquid template; non-image slides don't,
+       so this listener no-ops on them naturally. */
+    slides.forEach(function (slide, slideIdx) {
+      var openFromSlide = function () {
+        if (slide.dataset.mediaType !== 'image') return;
         var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
         if (isNaN(targetIndex)) targetIndex = slideIdx;
         goTo(targetIndex);
         openLightbox();
+      };
+
+      slide.addEventListener('click', function () {
+        // Avoid double-firing when the click already bubbles up to mainArea.
+        if (mainArea && mainArea.contains(slide)) return;
+        openFromSlide();
+      });
+
+      slide.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          openFromSlide();
+        }
       });
     });
 

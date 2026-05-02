@@ -280,6 +280,17 @@
     the browser's native form POST to the cart — no JS needed.
   {%- endcomment -%}
   <noscript>
+    {%- comment -%}
+      Quantity input mirrors the JS-on form's quantity_rule plumbing.
+      Without a `name="quantity"` field, /cart/add defaults qty=1 — for
+      a variant whose merchant set quantity_rule.min > 1 (e.g. case-of-6
+      wholesale), the JS-off submit always 422s and the customer lands
+      on /cart with a generic flash. Honoring the rule here keeps the
+      no-JS path usable for B2B / wholesale buyers.
+    {%- endcomment -%}
+    {%- assign nojs_qty_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1 -%}
+    {%- assign nojs_qty_step = product.selected_or_first_available_variant.quantity_rule.increment | default: 1 -%}
+    {%- assign nojs_qty_max = product.selected_or_first_available_variant.quantity_rule.max -%}
     <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="kt-variant-picker__nojs">
       <label for="VariantNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
         {{ 'kt.product.variant' | t | default: 'Variant' }}
@@ -297,6 +308,20 @@
           </option>
         {%- endfor -%}
       </select>
+      <label for="QuantityNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
+        {{ 'kt.product.quantity.label' | t | default: 'Quantity' }}
+      </label>
+      <input
+        type="number"
+        id="QuantityNoJs-{{ product.id }}"
+        name="quantity"
+        value="{{ nojs_qty_min }}"
+        min="{{ nojs_qty_min }}"
+        step="{{ nojs_qty_step }}"
+        {% if nojs_qty_max != blank %}max="{{ nojs_qty_max }}"{% endif %}
+        inputmode="numeric"
+        class="kt-variant-picker__nojs-qty"
+      >
       <button type="submit" class="kt-variant-picker__nojs-submit">
         {{ 'kt.product.add_to_cart' | t | default: 'Add to cart' }}
       </button>

@@ -98,13 +98,20 @@
      (or shopify:section:load) pick up listeners without re-binding.
   ------------------------------------------------------------------ */
 
+  /* Per HTML spec, the boolean `open` attribute is only valid on
+     <details> and <dialog>. We were writing it on a <li>, which W3C
+     validators flag and Theme Check's HTML5 validity check will catch.
+     Switched to `data-open` (still attribute-toggleable + still works
+     in CSS via [data-open]) — semantically a custom data attribute,
+     spec-clean on any element. The CSS selectors and the JS reader
+     queries below all use [data-open] now. */
   function setExpanded(menuItem, open) {
     if (!menuItem) return;
     var trigger = menuItem.querySelector('[aria-haspopup]');
     if (open) {
-      menuItem.setAttribute('open', '');
+      menuItem.setAttribute('data-open', '');
     } else {
-      menuItem.removeAttribute('open');
+      menuItem.removeAttribute('data-open');
     }
     if (trigger) {
       trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -112,7 +119,7 @@
   }
 
   function closeAll(except) {
-    var items = document.querySelectorAll('.kt-header__menu-item[open]');
+    var items = document.querySelectorAll('.kt-header__menu-item[data-open]');
     items.forEach(function (i) { if (i !== except) setExpanded(i, false); });
   }
 
@@ -149,7 +156,7 @@
     var hasPanel = item.querySelector('.kt-header__mega-menu, .kt-header__flyout');
     if (!hasPanel) return;
     e.preventDefault();
-    var willOpen = !item.hasAttribute('open');
+    var willOpen = !item.hasAttribute('data-open');
     closeAll(willOpen ? item : null);
     setExpanded(item, willOpen);
   });
@@ -168,7 +175,7 @@
     var active = document.activeElement;
     if (!active) return;
     var item = active.closest && active.closest('.kt-header__menu-item');
-    if (!item || !item.hasAttribute('open')) return;
+    if (!item || !item.hasAttribute('data-open')) return;
     setExpanded(item, false);
     var trigger = item.querySelector('[aria-haspopup]');
     if (trigger) trigger.focus();
@@ -181,7 +188,7 @@
      reverse case (close when keyboard moves on). */
   document.addEventListener('focusout', function (e) {
     var item = e.target.closest && e.target.closest('.kt-header__menu-item');
-    if (!item || !item.hasAttribute('open')) return;
+    if (!item || !item.hasAttribute('data-open')) return;
     var next = e.relatedTarget;
     if (next && item.contains(next)) return;
     setExpanded(item, false);
