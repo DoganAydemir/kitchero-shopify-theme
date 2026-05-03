@@ -118,9 +118,25 @@
           aria-label="{{ value | escape }}"
         ></span>
       {%- else -%}
+        {%- comment -%}
+          `swatch_bg` resolves from one of three sources, in order:
+            1. value.swatch.color   — Shopify-validated hex
+            2. (no longer present in card context — see header comment)
+            3. The keyword fallback table above OR the grey default
+          Source 1 is system-validated; source 3 is theme-controlled
+          hex literals. The `else` branch in the case table assigns
+          `'#a8a29e'` (a literal). So `swatch_bg` is always a known-
+          safe CSS color string. We still pipe it through `| escape`
+          before output as defense-in-depth — if a future change
+          introduces a path that lets a merchant-named option flow
+          through (e.g. a metafield path), this protects the style
+          attribute from CSS injection via `; expression()` legacy
+          vectors and ensures Theme Store automated audits don't
+          flag the un-escaped settings interpolation.
+        {%- endcomment -%}
         <span
           class="kt-swatches__dot"
-          style="background-color: {{ swatch_bg }};"
+          style="background-color: {{ swatch_bg | escape }};"
           title="{{ value | escape }}"
           aria-label="{{ value | escape }}"
         ></span>

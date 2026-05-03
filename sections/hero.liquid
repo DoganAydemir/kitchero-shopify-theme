@@ -90,6 +90,29 @@
     DOM doesn't need to change its h1/p mix.
   {%- endcomment -%}
   <div class="kt-hero__content">
+    {%- comment -%}
+      Empty-block guards. Two distinct cases:
+
+      1. Production with 0 slide blocks. The hero is the home page's
+         primary <h1> source — without it the page ships with no h1
+         (Lighthouse SEO + Theme Store reviewer flag). Emit a safety
+         <h1> from `shop.name` so the page always has a heading
+         landmark even if the merchant accidentally empties the hero.
+
+      2. Theme editor (request.design_mode) with 0 blocks. Show a
+         clear merchant hint that they need to add a slide block,
+         since an empty hero looks like the section is broken.
+    {%- endcomment -%}
+    {%- if section.blocks.size == 0 -%}
+      <div class="kt-hero__text">
+        <h1 class="kt-hero__heading">{{ shop.name | escape }}</h1>
+        {%- if request.design_mode -%}
+          <p class="kt-hero__editor-hint">
+            {{ 'kt.section.hero.editor_hint_empty' | t | default: 'Add a slide block in the theme editor to populate this hero.' }}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
     {%- for block in section.blocks -%}
       {%- if block.type == 'slide' -%}
         {%- if forloop.first -%}

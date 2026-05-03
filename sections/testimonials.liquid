@@ -55,6 +55,11 @@
 
     {%- comment -%} Testimonial cards {%- endcomment -%}
     <div class="kt-testimonials__grid">
+      {%- if section.blocks.size == 0 and request.design_mode -%}
+        <p class="kt-testimonials__editor-hint">
+          {{ 'kt.section.testimonials.editor_hint_empty' | t | default: 'Add testimonial blocks in the theme editor to populate this section.' }}
+        </p>
+      {%- endif -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'testimonial' -%}
           <div class="kt-testimonials__card" {{ block.shopify_attributes }}>
@@ -69,6 +74,20 @@
             <div class="kt-testimonials__author">
               {%- if block.settings.avatar != blank -%}
                 {{ block.settings.avatar | image_url: width: 96 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: block.settings.name | default: '' }}
+              {%- else -%}
+                {%- comment -%}
+                  Avatar is optional in the schema; when the merchant
+                  doesn't supply one we still render a circular slot
+                  with Shopify's lifestyle placeholder so the card
+                  composition stays balanced (without it, the name +
+                  role text floats on the left edge with no visual
+                  anchor and the card layout looks broken in design
+                  mode and in production previews on freshly-installed
+                  themes).
+                {%- endcomment -%}
+                <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
               {%- endif -%}
               <div>
                 <p class="kt-testimonials__author-name">{{ block.settings.name }}</p>

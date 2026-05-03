@@ -1,6 +1,21 @@
 {{ 'kt-section-brands.css' | asset_url | stylesheet_tag }}
 
 <section class="kt-brands" data-section-id="{{ section.id }}">
+  {%- comment -%}
+    Empty-block guard. The brands marquee renders empty fade gradients
+    over a blank track when the merchant has 0 logo blocks; in the
+    Theme Editor that reads as "is this section broken?". Show an
+    explicit hint in design_mode and suppress the marquee entirely
+    on the production storefront so an unconfigured section doesn't
+    publish a 0-content row to public visitors.
+  {%- endcomment -%}
+  {%- if section.blocks.size == 0 -%}
+    {%- if request.design_mode -%}
+      <p class="kt-brands__editor-hint">
+        {{ 'kt.section.brands.editor_hint_empty' | t | default: 'Add one or more logo blocks in the theme editor to populate this brands strip.' }}
+      </p>
+    {%- endif -%}
+  {%- else -%}
   <div class="kt-brands__fade-left" aria-hidden="true"></div>
   <div class="kt-brands__fade-right" aria-hidden="true"></div>
 
@@ -43,6 +58,7 @@
       {%- endfor -%}
     {%- endfor -%}
   </div>
+  {%- endif -%}
 </section>
 
 {% schema %}

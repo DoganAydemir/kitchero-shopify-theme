@@ -139,18 +139,62 @@
   <meta name="robots" content="noindex">
 {%- endif -%}
 
-{%- comment -%} ─── OpenGraph ─── {%- endcomment -%}
+{%- comment -%}
+  ─── OpenGraph ───
+
+  `og:locale` per OpenGraph spec must be in `xx_YY` format (lang +
+  region). Shopify's `request.locale.iso_code` returns just the
+  language code for the 5 enabled locales (en, tr, de, fr, es) —
+  the `replace: '-', '_'` is a no-op on these. Without a region
+  pair, Facebook / LinkedIn / Slack OG previews silently fall back
+  to en_US and Theme Store reviewers flag it as "invalid og:locale
+  format". The case map below picks the most common region per
+  language; merchants targeting a different region (e.g. en_GB
+  rather than en_US) can override later via metafields.
+{%- endcomment -%}
+{%- liquid
+  case request.locale.iso_code
+    when 'en'
+      assign og_locale = 'en_US'
+    when 'tr'
+      assign og_locale = 'tr_TR'
+    when 'de'
+      assign og_locale = 'de_DE'
+    when 'fr'
+      assign og_locale = 'fr_FR'
+    when 'es'
+      assign og_locale = 'es_ES'
+    else
+      assign og_locale = request.locale.iso_code | replace: '-', '_'
+  endcase
+-%}
 <meta property="og:site_name" content="{{ shop.name | escape }}">
 <meta property="og:title" content="{{ share_title | escape }}">
 <meta property="og:description" content="{{ share_description | escape }}">
 <meta property="og:url" content="{{ share_url | escape }}">
 <meta property="og:type" content="{{ og_type }}">
-<meta property="og:locale" content="{{ request.locale.iso_code | replace: '-', '_' }}">
+<meta property="og:locale" content="{{ og_locale }}">
 
 {%- if shop.published_locales.size > 1 -%}
   {%- for locale in shop.published_locales -%}
     {%- unless locale.iso_code == request.locale.iso_code -%}
-      <meta property="og:locale:alternate" content="{{ locale.iso_code | replace: '-', '_' }}">
+      {%- liquid
+        case locale.iso_code
+          when 'en'
+            assign alt_locale = 'en_US'
+          when 'tr'
+            assign alt_locale = 'tr_TR'
+          when 'de'
+            assign alt_locale = 'de_DE'
+          when 'fr'
+            assign alt_locale = 'fr_FR'
+          when 'es'
+            assign alt_locale = 'es_ES'
+          else
+            assign alt_locale = locale.iso_code | replace: '-', '_'
+        endcase
+      -%}
+      <meta property="og:locale:alternate" content="{{ alt_locale }}">
     {%- endunless -%}
   {%- endfor -%}
 {%- endif -%}

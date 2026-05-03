@@ -459,6 +459,14 @@
           cartUpdate:       {{ routes.cart_update_url | json }},
           cart:             {{ routes.cart_url | json }},
           predictiveSearch: {{ routes.predictive_search_url | json }},
+          {%- comment -%}
+            `search` was missing here; predictive-search.js's "press
+            Enter to search anyway" path was hardcoding `/search`,
+            which 404s on multi-locale storefronts where the locale
+            prefix is required (e.g. `/de/search`). `routes.search_url`
+            resolves to the correct localized path on every Market.
+          {%- endcomment -%}
+          search:           {{ routes.search_url | json }},
         },
         searchSettings: {
           {%- comment -%}

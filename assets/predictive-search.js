@@ -283,19 +283,34 @@
 
   /* Money formatting — best-effort using Intl.NumberFormat. Shopify's
      /search/suggest.json returns price as cents (integer) under
-     `price` and the currency under `currency`. Falls back to plain
-     "$X.YY" formatting if Intl isn't available. */
+     `price` and the currency under `currency`. The locale is read
+     from `<html lang>` so number formatting (decimal/thousands
+     separator placement) follows the storefront locale, not the
+     browser's preferred language — a French visitor on the German
+     storefront should still see "1.299,00 €" rather than the French
+     "1 299,00 €". When the suggest endpoint omits `currency` we
+     fall back to `Shopify.currency.active` (set in theme.liquid
+     bootstrap) so non-USD storefronts don't render a hardcoded "$"
+     prefix that misleads German / Turkish / French shoppers. */
   function formatMoney(cents, currency) {
     var amount = (cents || 0) / 100;
+    var activeCurrency = currency
+      || (window.Shopify && window.Shopify.currency && window.Shopify.currency.active)
+      || 'USD';
+    var locale = (document.documentElement && document.documentElement.lang) || 'en';
     if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
       try {
-        return new Intl.NumberFormat(undefined, {
+        return new Intl.NumberFormat(locale, {
           style: 'currency',
-          currency: currency || 'USD',
+          currency: activeCurrency,
         }).format(amount);
       } catch (e) { /* fall through */ }
     }
-    return '$' + amount.toFixed(2);
+    /* Last-resort fallback when Intl is missing or throws — use the
+       resolved active currency code as a suffix instead of a
+       hardcoded "$" so the shopper sees something that at least
+       names the currency they're being charged in. */
+    return amount.toFixed(2) + ' ' + activeCurrency;
   }
 
   function bindInput(input, resultsContainer) {
