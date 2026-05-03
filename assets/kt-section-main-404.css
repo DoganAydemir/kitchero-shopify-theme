@@ -69,7 +69,19 @@
   background: transparent;
   font: inherit;
   color: var(--kt-stone-900);
+  /* `outline: none` only on default state — `:focus-visible` below
+     re-paints a 2px ring so keyboard users still see the focused
+     input. Without the replacement, axe / Lighthouse flag a missing
+     focus indicator (WCAG 2.4.7). The wrapper's `:focus-within`
+     handles the chrome, but the input itself also needs an outline
+     so the indicator survives in scenarios where the wrapper border
+     and the input border share the same color. */
   outline: none;
+}
+
+.kt-404__search-input:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
 }
 
 .kt-404__search-input::placeholder {

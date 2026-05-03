@@ -1017,3 +1017,58 @@
   color: var(--kt-stone-700);
   word-break: break-word;
 }
+
+/* ============================================================
+   Print stylesheet — order details / account pages.
+   --------------------------------------------------------------
+   Customers print order receipts for warranty claims, tax records,
+   and expense reports. The base.css print block hides global UI
+   chrome; this block tightens the content side:
+     · drop the account sidebar (nav, logout link)
+     · drop "Back to account" link (no destination on paper)
+     · drop the editor-only block highlight from `data-section-id`
+     · widen content to full page width (no fixed page-width clamp)
+     · keep tracking links visible as plain URLs (so the customer
+       can transcribe the URL if needed)
+   ============================================================ */
+@media print {
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide navigation + return links — paper has no destination. */
+  .kt-account__nav,
+  .kt-order__back-to-account,
+  .kt-account__nav-link,
+  .kt-account__greeting + a {
+    display: none !important;
+  }
+
+  /* Account layout converts from sidebar+content to single column. */
+  .kt-account__layout {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .kt-account__content {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Ensure totals + addresses stay together on the page. */
+  .kt-order__totals,
+  .kt-order__addresses,
+  .kt-order__line-item,
+  .kt-order__attributes {
+    break-inside: avoid;
+  }
+
+  /* Show tracking link URLs in print so they're transcribable. */
+  .kt-order__tracking-link[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.875em;
+    color: var(--kt-stone-700);
+    word-break: break-all;
+  }
+}

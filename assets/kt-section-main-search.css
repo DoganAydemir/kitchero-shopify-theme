@@ -106,7 +106,13 @@
 }
 
 .kt-search-page__input:focus-visible {
-  outline: none;
+  /* The wrapper's `:focus-within` rule changes border-color, but the
+     default border and the focused border resolve to the same colour
+     on light schemes — no visual signal. Paint a 2px outline on the
+     input itself so keyboard users see a real indicator (WCAG 2.4.7).
+     The wrapper chrome still updates; this is belt-and-braces. */
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
 }
 
 .kt-search-page__submit {

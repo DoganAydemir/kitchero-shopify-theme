@@ -523,6 +523,76 @@ a {
   }
 }
 
+/* ============================================================
+   Print stylesheet — global suppression of UI chrome.
+   --------------------------------------------------------------
+   Customers print order receipts, gift cards, and articles. With
+   no `@media print` rules the full header (logo + nav + cart icon
+   + utility row), the full footer (4-column site map + copyright +
+   payment icons), the skip-to-content link, and any open drawer/
+   modal trigger all paint into the printed output — wasting a page
+   of toner before the actual content begins. Hide all the page
+   chrome and let `<main>` content drive the printout.
+
+   Color preservation: the brand surface colors / gradients / scheme
+   tokens are part of the visual identity (especially for printed
+   gift cards). `print-color-adjust: exact` tells the browser to
+   honor backgrounds + text colors as authored rather than its
+   default "ink saver" stripping. Modern Chrome / Safari / Firefox
+   all support this.
+   ============================================================ */
+@media print {
+  body {
+    background: white;
+    color: black;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide page chrome — site shell + drawers + overlays. */
+  .kt-header,
+  .kt-section-footer,
+  .kt-footer,
+  .kt-announcement-banner,
+  .skip-to-content-link,
+  .kt-cart-drawer,
+  .kt-search-overlay,
+  .kt-appointment-drawer,
+  .kt-newsletter-popup,
+  .kt-mobile-nav,
+  .kt-filter-drawer,
+  cart-drawer,
+  announcement-banner,
+  [data-cart-drawer-open],
+  [data-search-open],
+  [data-mobile-nav-toggle],
+  [data-collection-controls],
+  [data-section-type="newsletter-popup"] {
+    display: none !important;
+  }
+
+  /* Strip sticky behaviour so the printout flows linearly. */
+  .kt-collection__controls,
+  [class*="--scrolled"],
+  [data-sticky] {
+    position: static !important;
+  }
+
+  /* Don't waste space on a hover/focus ring nobody can interact with. */
+  *:focus,
+  *:focus-visible {
+    outline: none !important;
+  }
+
+  /* Avoid orphan break in the middle of a card / total / address. */
+  .kt-cart-page__item,
+  .kt-order__line-item,
+  .kt-order__address,
+  .kt-order__totals {
+    break-inside: avoid;
+  }
+}
+
 /* ── Form a11y utilities (shared) ───────────────────────
    Used by any form across the theme that needs an error
    summary + per-field error display + success status.

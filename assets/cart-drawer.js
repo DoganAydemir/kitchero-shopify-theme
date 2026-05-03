@@ -411,11 +411,25 @@
     refreshDrawer() {
       var self = this;
 
+      /* AbortController prevents stale-paint races. Two rapid /cart/
+         change.js calls (different line keys) each trigger their own
+         refreshDrawer(); without aborting the older fetch, whichever
+         response resolves LAST paints the panel — and that's not
+         guaranteed to be the response to the most recent server
+         state. Cancel any in-flight refresh before kicking a new one
+         so only the freshest panel HTML lands in the DOM. */
+      if (self._refreshAbort) {
+        try { self._refreshAbort.abort(); } catch (_) { /* ignore */ }
+      }
+      self._refreshAbort = new AbortController();
+      var signal = self._refreshAbort.signal;
+
       /* Shopify Section Rendering API — fetches just the cart-drawer
        * section markup, no full page. Much lighter than a full-page
        * fetch: responses are ~5–10 KB vs 100+ KB for a page. */
       return fetch('/?sections=cart-drawer,header-cart-icon', {
         headers: { 'Accept': 'application/json' },
+        signal: signal,
       })
         .then(function (response) {
           if (!response.ok) throw new Error('refreshDrawer: section fetch failed');
@@ -475,6 +489,11 @@
           }
         })
         .catch(function (error) {
+          /* AbortError on a deliberate abort isn't a real failure —
+             it just means a newer refreshDrawer() superseded this one.
+             Silently swallow so the next refresh's success path runs
+             unimpeded. */
+          if (error && error.name === 'AbortError') return;
           console.error(error);
           /* Last-ditch fallback so the UI isn't left in a stale state.
              Adds a terminal .catch so that when BOTH the primary

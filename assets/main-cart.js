@@ -29,6 +29,13 @@ if (!window.__kitcheroMainCartLoaded) {
     var inflight = Object.create(null);
     var pendingQty = Object.create(null);
 
+    /* Section-Rendering-API refresh AbortController. The per-line
+       `inflight` lock above coalesces same-key changes; this controller
+       cancels overlapping refreshCartPage() calls when DIFFERENT line
+       keys mutate in quick succession. Without it, the slower refresh
+       resolves last and paints a stale cart page over the fresh one. */
+    var refreshAbort = null;
+
     function updateLine(key, quantity, triggerEl) {
       if (inflight[key]) {
         /* Coalesce: remember the latest requested quantity; it will
@@ -136,8 +143,18 @@ if (!window.__kitcheroMainCartLoaded) {
       // / icon sections still gets the primary swap.
       if (sectionsToFetch.length === 0) sectionsToFetch.push('main-cart');
 
+      /* Cancel any prior in-flight refresh so the latest one wins.
+         Two rapid +/- on different line keys would otherwise yield
+         two overlapping section-fetches and the slower one painting
+         last over the fresh one. */
+      if (refreshAbort) {
+        try { refreshAbort.abort(); } catch (_) { /* ignore */ }
+      }
+      refreshAbort = new AbortController();
+
       return fetch('/?sections=' + sectionsToFetch.join(','), {
         headers: { 'Accept': 'application/json' },
+        signal: refreshAbort.signal,
       })
         .then(function (response) {
           if (!response.ok) throw new Error('refreshCartPage: sections fetch failed');
@@ -200,6 +217,13 @@ if (!window.__kitcheroMainCartLoaded) {
               drawerRefresh.catch(function () { /* swallow — cart page already refreshed */ });
             }
           }
+        })
+        .catch(function (error) {
+          /* AbortError = a newer refreshCartPage() superseded this one;
+             not a real failure. Silently swallow. Other errors stay
+             noisy so they surface in the console for debugging. */
+          if (error && error.name === 'AbortError') return;
+          console.error('refreshCartPage:', error);
         });
     }
 
