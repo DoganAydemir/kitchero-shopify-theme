@@ -139,6 +139,37 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         });
       }
 
+      /* Touch swipe on mobile. Same horizontal-bias pattern as the
+         hero slider — 50px threshold + dY-vs-dX guard so vertical
+         page scroll isn't hijacked. Pauses autoplay on touch start
+         so the slide doesn't advance under the user's finger. */
+      var swipeStartX = 0, swipeStartY = 0, swipeMoved = false;
+      var SWIPE_THRESHOLD = 50;
+      root.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+        swipeMoved = false;
+        controller.stop();
+      }, { passive: true });
+      root.addEventListener('touchmove', function () {
+        swipeMoved = true;
+      }, { passive: true });
+      root.addEventListener('touchend', function (e) {
+        if (!swipeMoved || !e.changedTouches[0]) {
+          if (!reducedMotion && interval > 0) controller.start();
+          return;
+        }
+        var dx = e.changedTouches[0].clientX - swipeStartX;
+        var dy = e.changedTouches[0].clientY - swipeStartY;
+        if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) controller.next(); else controller.prev();
+          controller.reset();
+        } else {
+          if (!reducedMotion && interval > 0) controller.start();
+        }
+      }, { passive: true });
+
       var dotList = root.querySelectorAll('[data-slide-dot]');
       dotList.forEach(function (dot) {
         dot.addEventListener('click', function () {

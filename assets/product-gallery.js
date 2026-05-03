@@ -143,6 +143,49 @@
       mainArea.addEventListener('click', function () {
         openLightbox();
       });
+
+      /* Touch swipe between slides on mobile. The lightbox already has
+         its own swipe (lines 234+); this is the inline gallery
+         equivalent so phone users don't have to tap thumbs to navigate.
+         50px horizontal threshold + dY-bias guard so vertical scroll
+         isn't hijacked. Without this, mobile users can only tap thumbs
+         (or open the lightbox) to navigate the gallery — Theme-Store
+         reviewers test this on real iPhone and expect swipe parity
+         with native shop apps. */
+      var inlineSwipeStartX = 0, inlineSwipeStartY = 0, inlineSwipeMoved = false;
+      var INLINE_SWIPE_THRESHOLD = 50;
+      mainArea.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        inlineSwipeStartX = e.touches[0].clientX;
+        inlineSwipeStartY = e.touches[0].clientY;
+        inlineSwipeMoved = false;
+      }, { passive: true });
+      mainArea.addEventListener('touchmove', function () {
+        inlineSwipeMoved = true;
+      }, { passive: true });
+      mainArea.addEventListener('touchend', function (e) {
+        if (!inlineSwipeMoved || !e.changedTouches[0]) return;
+        var dx = e.changedTouches[0].clientX - inlineSwipeStartX;
+        var dy = e.changedTouches[0].clientY - inlineSwipeStartY;
+        if (Math.abs(dx) < INLINE_SWIPE_THRESHOLD) return;
+        if (Math.abs(dy) > Math.abs(dx)) return; // vertical scroll
+        /* Suppress the click handler that fires on touchend (would
+           otherwise open the lightbox unintentionally during a swipe).
+           A subsequent click is suppressed via a one-shot capture
+           listener — released on the next tick so genuine taps work. */
+        var suppressClick = function (ev) { ev.preventDefault(); ev.stopPropagation(); };
+        mainArea.addEventListener('click', suppressClick, { capture: true, once: true });
+        setTimeout(function () {
+          mainArea.removeEventListener('click', suppressClick, { capture: true });
+        }, 350);
+        if (dx < 0) {
+          /* Swipe left → next slide */
+          if (currentIndex + 1 < slides.length) goTo(currentIndex + 1);
+        } else {
+          /* Swipe right → previous slide */
+          if (currentIndex > 0) goTo(currentIndex - 1);
+        }
+      }, { passive: true });
     }
 
     /* Slide click → open lightbox to that specific image (Showroom PDP

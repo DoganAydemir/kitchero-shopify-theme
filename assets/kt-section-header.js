@@ -107,7 +107,7 @@
      queries below all use [data-open] now. */
   function setExpanded(menuItem, open) {
     if (!menuItem) return;
-    var trigger = menuItem.querySelector('[aria-haspopup]');
+    var trigger = menuItem.querySelector('[data-flyout-trigger]');
     if (open) {
       menuItem.setAttribute('data-open', '');
     } else {
@@ -137,7 +137,7 @@
     setExpanded(item, false);
   }, true);
 
-  /* Click handler on the [aria-haspopup] anchor. Toggles [open] without
+  /* Click handler on the [data-flyout-trigger] anchor. Toggles [open] without
      navigating away — preventDefault is critical because the trigger
      is rendered as <a href> for graceful no-JS fallback (links work,
      dropdown becomes a regular link). With JS, click toggles the
@@ -146,7 +146,7 @@
      click handler covers both pointer and keyboard activation
      (matches the "open on click, not on focus" Theme Store rule). */
   document.addEventListener('click', function (e) {
-    var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [aria-haspopup]');
+    var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [data-flyout-trigger]');
     if (!trigger) return;
     var item = trigger.closest('.kt-header__menu-item');
     if (!item) return;
@@ -177,7 +177,7 @@
     var item = active.closest && active.closest('.kt-header__menu-item');
     if (!item || !item.hasAttribute('data-open')) return;
     setExpanded(item, false);
-    var trigger = item.querySelector('[aria-haspopup]');
+    var trigger = item.querySelector('[data-flyout-trigger]');
     if (trigger) trigger.focus();
   });
 

@@ -240,7 +240,18 @@
   appearance: none;
   background: none;
   border: none;
-  padding: 0.25rem 0.125rem;
+  /* 44×44 minimum hit area — WCAG 2.5.5 / Theme-Store touch target
+     floor. The visual numeric label ("01 / 02 / 03") stays compact;
+     the padding pushes total tap surface to the safe minimum
+     without changing the visual rhythm of the row. inline-flex +
+     centred alignment keeps the digit visually middle-aligned in
+     the enlarged hit zone. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.25rem 0.5rem;
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 0.9375rem;
   font-weight: 500;

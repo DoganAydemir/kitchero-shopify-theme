@@ -124,6 +124,42 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         });
       });
 
+      /* Touch swipe on mobile — without this, users on phones can
+         only navigate via the small "01 / 02 / 03" tab buttons. 50px
+         horizontal threshold + dY-vs-dX guard so vertical scroll
+         isn't hijacked. Pauses autoplay during drag so the slide
+         doesn't advance mid-gesture. */
+      var swipeStartX = 0, swipeStartY = 0, swipeMoved = false;
+      var SWIPE_THRESHOLD = 50;
+      section.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+        swipeMoved = false;
+        stopAutoplay();
+      }, { passive: true });
+      section.addEventListener('touchmove', function () {
+        swipeMoved = true;
+      }, { passive: true });
+      section.addEventListener('touchend', function (e) {
+        if (!swipeMoved || !e.changedTouches[0]) {
+          if (!prefersReducedMotion && interval > 0 && total > 1) startAutoplay();
+          return;
+        }
+        var dx = e.changedTouches[0].clientX - swipeStartX;
+        var dy = e.changedTouches[0].clientY - swipeStartY;
+        if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) {
+            setActive(activeIndex + 1);
+          } else {
+            setActive(activeIndex - 1);
+          }
+          if (!prefersReducedMotion && interval > 0 && total > 1) startAutoplay();
+        } else {
+          if (!prefersReducedMotion && interval > 0 && total > 1) startAutoplay();
+        }
+      }, { passive: true });
+
       /* Keyboard nav on the tablist — WAI-ARIA Authoring Practices tab
          pattern: ArrowLeft/Right cycle, Home/End jump to ends. Activates
          the target tab (automatic activation) and moves DOM focus so the

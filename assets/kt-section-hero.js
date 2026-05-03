@@ -113,6 +113,46 @@
     this.section.addEventListener('mouseleave', this._resumeAutoplay);
     this.section.addEventListener('focusin', this._pauseAutoplay);
     this.section.addEventListener('focusout', this._resumeAutoplay);
+
+    /* Touch swipe on mobile — without this, users on phones can
+       only navigate via the prev/next pill buttons (small touch
+       target, off the natural reading flow). 50px horizontal
+       threshold matches Shopify's reference implementations and
+       feels intentional vs. accidental. Vertical-bias guard
+       prevents the swipe from hijacking page scroll: if dY > dX
+       the gesture is treated as a scroll, not a swipe. Pause
+       autoplay during touch so a user mid-read isn't yanked to
+       the next slide while their finger is on the screen. */
+    var touchStartX = 0, touchStartY = 0, touchMoved = false;
+    var SWIPE_THRESHOLD = 50;
+    this.section.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+      self._pauseAutoplay();
+    }, { passive: true });
+    this.section.addEventListener('touchmove', function () {
+      touchMoved = true;
+    }, { passive: true });
+    this.section.addEventListener('touchend', function (e) {
+      if (!touchMoved || !e.changedTouches[0]) {
+        self._resumeAutoplay();
+        return;
+      }
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      var dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) {
+          self.goTo((self.current + 1) % self.total);
+        } else {
+          self.goTo((self.current - 1 + self.total) % self.total);
+        }
+        self.resetAutoplay();
+      } else {
+        self._resumeAutoplay();
+      }
+    }, { passive: true });
   };
 
   KitcheroHero.prototype.goTo = function (index) {
