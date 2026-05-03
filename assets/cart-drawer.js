@@ -467,7 +467,30 @@
             var newPanel = tmp.querySelector('.kt-cart-drawer__panel');
             var currentPanel = self.querySelector('.kt-cart-drawer__panel');
             if (currentPanel && newPanel) {
+              /* Capture transient form state the customer is still
+                 typing — innerHTML swap below would replace these with
+                 the server's last-saved values, wiping unsubmitted
+                 input. The cart note is the most common loss case
+                 (customer types a gift message, bumps qty, message
+                 disappears mid-sentence) — well-known reject vector
+                 reported on most "near-Theme-Store-ready" themes. */
+              var noteEl = currentPanel.querySelector('[name="note"]');
+              var preservedNote = noteEl ? noteEl.value : null;
+              var serverNote = newPanel.querySelector('[name="note"]');
+              var serverNoteValue = serverNote ? serverNote.value : '';
+
               currentPanel.innerHTML = newPanel.innerHTML;
+
+              /* Restore the typed note only if the server didn't itself
+                 ship a different value (which would mean another tab
+                 saved one and we'd want to honour the persisted state).
+                 Empty server value + non-empty local value = customer
+                 was mid-edit; restore. */
+              if (preservedNote && !serverNoteValue) {
+                var restoredNote = currentPanel.querySelector('[name="note"]');
+                if (restoredNote) restoredNote.value = preservedNote;
+              }
+
               /* Announce the new subtotal — keyboard/SR users raising
                  the qty of a cart line otherwise get silence after the
                  panel swaps in. Pull the server-rendered subtotal so

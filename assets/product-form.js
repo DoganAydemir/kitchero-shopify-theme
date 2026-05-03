@@ -455,6 +455,41 @@
       var activePlanInput = form.querySelector('input[name="selling_plan"]:checked');
       var activePlanId = activePlanInput ? activePlanInput.value : null;
 
+      /* Verify the active selling plan still exists for the new
+         variant. Subscription-eligible variants share allocations
+         keyed by `selling_plan_id`; if the new variant has no
+         allocation matching the customer's previously-checked plan
+         (e.g., they switched to a one-time-only variant), the radio
+         must be unchecked otherwise the form submits a selling_plan
+         id Shopify will reject (or worse: silently quietly accept
+         on a different plan). Also fall back to renderPriceForVariant
+         with no activePlanId so the price stack flips back to one-
+         time pricing instead of lying. */
+      if (activePlanId && matchedVariant.selling_plan_allocations) {
+        var planStillValid = false;
+        for (var pi = 0; pi < matchedVariant.selling_plan_allocations.length; pi++) {
+          var alloc = matchedVariant.selling_plan_allocations[pi];
+          if (alloc && String(alloc.selling_plan_id) === String(activePlanId)) {
+            planStillValid = true;
+            break;
+          }
+        }
+        if (!planStillValid) {
+          activePlanInput.checked = false;
+          activePlanId = null;
+          /* Tell SR users the subscription option dropped — they may
+             have selected a cadence then switched colour and the radio
+             silently went stale. */
+          if (window.Kitchero && typeof Kitchero.announce === 'function' && Kitchero.variantStrings && Kitchero.variantStrings.subscriptionUnavailable) {
+            Kitchero.announce(Kitchero.variantStrings.subscriptionUnavailable);
+          }
+        }
+      } else if (activePlanId && !matchedVariant.selling_plan_allocations) {
+        /* New variant carries no subscription allocations at all. */
+        activePlanInput.checked = false;
+        activePlanId = null;
+      }
+
       renderPriceForVariant(container, matchedVariant, activePlanId);
 
       /* Update ATC button state */

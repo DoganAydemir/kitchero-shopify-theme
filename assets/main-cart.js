@@ -169,11 +169,25 @@ if (!window.__kitcheroMainCartLoaded) {
           if (sections['header-cart-icon']) html += sections['header-cart-icon'];
           var doc = new DOMParser().parseFromString(html, 'text/html');
 
-          /* Swap the whole cart page section */
+          /* Swap the whole cart page section. Same note-preservation
+             pattern as cart-drawer.js: capture transient typed input
+             before innerHTML swap (server's value would clobber an
+             unsubmitted note mid-typing), restore after if the server
+             didn't itself save a different note in another tab. */
           var current = document.querySelector('.kt-cart-page');
           var next = doc.querySelector('.kt-cart-page');
           if (current && next) {
+            var noteEl = current.querySelector('[name="note"]');
+            var preservedNote = noteEl ? noteEl.value : null;
+            var serverNote = next.querySelector('[name="note"]');
+            var serverNoteValue = serverNote ? serverNote.value : '';
+
             current.innerHTML = next.innerHTML;
+
+            if (preservedNote && !serverNoteValue) {
+              var restoredNote = current.querySelector('[name="note"]');
+              if (restoredNote) restoredNote.value = preservedNote;
+            }
           }
 
           /* Sync header count */
