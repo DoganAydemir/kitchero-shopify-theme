@@ -555,4 +555,39 @@
   if (!customElements.get('cart-drawer')) {
     customElements.define('cart-drawer', CartDrawer);
   }
+
+  /* Theme Editor — when the merchant clicks the cart-drawer section
+     (or any block inside it) in the editor sidebar, open the drawer
+     so the merchant can preview / edit it. Without this, clicking
+     the cart-drawer section in the sidebar leaves the drawer closed
+     and the merchant has no way to inspect the layout, blocks, or
+     applied settings. Symmetric `:deselect` closes it back when the
+     merchant moves on so the storefront preview returns to baseline.
+     Gated on `Shopify.designMode` (set true in editor only) so
+     production storefronts aren't affected. */
+  document.addEventListener('shopify:section:select', function (event) {
+    if (!window.Shopify || !window.Shopify.designMode) return;
+    var drawer = event.target && event.target.querySelector
+      ? event.target.querySelector('cart-drawer')
+      : null;
+    if (drawer && typeof drawer.open === 'function') drawer.open();
+  });
+  document.addEventListener('shopify:section:deselect', function (event) {
+    if (!window.Shopify || !window.Shopify.designMode) return;
+    var drawer = event.target && event.target.querySelector
+      ? event.target.querySelector('cart-drawer')
+      : null;
+    if (drawer && typeof drawer.close === 'function') drawer.close();
+  });
+  /* Block-level select — merchant clicks a block inside cart-drawer
+     (e.g. an @app upsell block); ensure the drawer is open so the
+     block is visible. The browser's editor sidebar fires this BEFORE
+     :section:select on the parent so we open speculatively here too. */
+  document.addEventListener('shopify:block:select', function (event) {
+    if (!window.Shopify || !window.Shopify.designMode) return;
+    var node = event.target;
+    if (!node || !node.closest) return;
+    var drawerHost = node.closest('cart-drawer');
+    if (drawerHost && typeof drawerHost.open === 'function') drawerHost.open();
+  });
 })();

@@ -349,6 +349,39 @@ a {
 }
 
 /* ============================================================
+   Browser autofill polish — overrides Chrome/Safari yellow paint
+   ============================================================
+   When the browser autofills a field, Chrome / Safari paint a
+   bright yellow background that ignores `background-color` (the
+   browser draws on top). Standard workaround: `inset` shadow at
+   1000px tall masks the paint with the brand surface, while
+   `-webkit-text-fill-color` keeps the text legible. Pairs the
+   modern `:autofill` and the `:-webkit-autofill` legacy selector.
+   Without this, login / register / contact / newsletter inputs
+   render bright yellow on first paint after autofill. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--kt-white, #ffffff) inset !important;
+  box-shadow: 0 0 0 1000px var(--kt-white, #ffffff) inset !important;
+  -webkit-text-fill-color: var(--kt-stone-900, #1c1917);
+  caret-color: var(--kt-stone-900, #1c1917);
+  transition: background-color 5000s ease-in-out 0s;
+}
+@supports selector(:autofill) {
+  input:autofill,
+  textarea:autofill,
+  select:autofill {
+    box-shadow: 0 0 0 1000px var(--kt-white, #ffffff) inset !important;
+    -webkit-text-fill-color: var(--kt-stone-900, #1c1917);
+    caret-color: var(--kt-stone-900, #1c1917);
+  }
+}
+
+/* ============================================================
    Utilities
    ============================================================ */
 

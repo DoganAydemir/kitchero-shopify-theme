@@ -665,8 +665,15 @@ html.no-js .kt-cart-drawer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.125rem;
-  height: 1.125rem;
+  /* WCAG 2.2 SC 2.5.8 Target Size (Minimum) AA: pointer targets
+     must be at least 24x24 CSS pixels. The "×" remove button on
+     an applied discount chip was 18x18 — failed the SC. Bumped to
+     1.5rem (24px) and floor-set with min-width/min-height so a
+     parent CSS reset can't shrink it back. */
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
   border-radius: 9999px;
   color: currentColor;
   text-decoration: none;

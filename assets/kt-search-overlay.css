@@ -35,6 +35,12 @@
            calc(2rem + env(safe-area-inset-right, 0px))
            calc(2rem + env(safe-area-inset-bottom, 0px))
            calc(2rem + env(safe-area-inset-left, 0px));
+  /* Trap scroll inside the overlay — without this, scrolling past
+     the bottom of the predictive results list bleeds into the
+     page underneath, which on iOS Safari shifts the entire page
+     up and reveals raw body content briefly. `contain` keeps the
+     scroll-chain inside the overlay container. */
+  overscroll-behavior: contain;
 }
 
 .kt-search-overlay__close {

@@ -397,7 +397,15 @@
   border: 1px solid var(--kt-stone-300, #d6d3d1);
   border-radius: 0.5rem;
   font-family: inherit;
-  font-size: 0.9375rem;
+  /* iOS Safari auto-zooms `<input>` whose computed font-size is
+     under 16px when the user focuses it. The base.css zoom-prevention
+     override only fires under 750px; an iPad in landscape (or any
+     viewport ≥ 750px) was hitting `0.9375rem = 15px` and triggering
+     the zoom-on-focus → page reflows mid-typing on the gift-card
+     recipient form. 1rem (= 16px when html size:100%) keeps native
+     zoom suppressed at every viewport without needing the global
+     mobile media query to pick this up. */
+  font-size: 1rem;
   color: var(--kt-stone-900, #1c1917);
   transition: border-color 0.15s ease;
 }
