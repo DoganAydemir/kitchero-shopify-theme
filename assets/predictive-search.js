@@ -204,7 +204,12 @@
       }
       html += '<span class="kt-predictive-search__text">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
-      if (price) html += '<span class="kt-predictive-search__price">' + price + '</span>';
+      /* `price` comes from formatMoney() which uses Intl.NumberFormat
+         and today only returns digits / currency glyphs / separators —
+         nothing exploitable. Pipe it through escapeHtml() anyway as
+         defense-in-depth so a future fallback path that returned a
+         raw merchant string couldn't introduce an XSS vector. */
+      if (price) html += '<span class="kt-predictive-search__price">' + escapeHtml(price) + '</span>';
       html += '</span></a></li>';
     });
     html += '</ul></div>';

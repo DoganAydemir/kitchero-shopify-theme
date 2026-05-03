@@ -49,9 +49,16 @@
   position: relative;
 }
 
-.kt-deals__card:hover {
-  border-color: var(--kt-stone-400);
-  box-shadow: 0 40px 60px -24px rgba(0, 0, 0, 0.25);
+/* Hover effects gated on `hover: hover` so iOS taps don't leave the
+   card painted in a sticky hover state until the user taps something
+   else. Same rationale as `.kt-card-product` (see kt-card-product.css
+   header comment) — Theme Store reviewers flag iOS sticky-hover as a
+   visibly broken state on mobile. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-deals__card:hover {
+    border-color: var(--kt-stone-400);
+    box-shadow: 0 40px 60px -24px rgba(0, 0, 0, 0.25);
+  }
 }
 
 .kt-deals__card:focus-visible {
@@ -76,8 +83,10 @@
   transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.kt-deals__card:hover .kt-deals__card-image {
-  transform: scale(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .kt-deals__card:hover .kt-deals__card-image {
+    transform: scale(1.05);
+  }
 }
 
 .kt-deals__card-gradient {
@@ -303,14 +312,16 @@
   flex-shrink: 0;
 }
 
-.kt-deals__card:hover .kt-deals__card-cta {
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
-  border-color: var(--kt-stone-900);
-}
+@media (hover: hover) and (pointer: fine) {
+  .kt-deals__card:hover .kt-deals__card-cta {
+    background-color: var(--kt-stone-900);
+    color: var(--kt-white);
+    border-color: var(--kt-stone-900);
+  }
 
-.kt-deals__card:hover .kt-deals__card-cta svg {
-  transform: translateX(4px);
+  .kt-deals__card:hover .kt-deals__card-cta svg {
+    transform: translateX(4px);
+  }
 }
 
 /* ── Bottom CTA section ─────────────────────────────────── */

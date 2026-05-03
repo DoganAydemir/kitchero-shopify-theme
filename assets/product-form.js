@@ -9,10 +9,17 @@
    * Delegates to cart-drawer.js's refreshDrawer() so the fetch-and-swap
    * logic lives in one place. Falls back to a JSON-only cart-count
    * sync if no drawer is on the page (e.g. cart_type: page).
+   *
+   * Looks up the drawer in two places: the canonical
+   * `Kitchero.cartDrawer` namespace and the legacy
+   * `window.kitcheroCartDrawer` alias (kept for backward compat — the
+   * alias is removed on v2). Theme apps that grabbed the old global
+   * keep working while internal callers prefer the namespaced path.
    */
   function refreshCartDrawer() {
-    if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {
-      return window.kitcheroCartDrawer.refreshDrawer();
+    var drawer = (window.Kitchero && window.Kitchero.cartDrawer) || window.kitcheroCartDrawer;
+    if (drawer && typeof drawer.refreshDrawer === 'function') {
+      return drawer.refreshDrawer();
     }
     return fetch(Kitchero.routes.cart + '.js')
       .then(function (r) { return r.json(); })
@@ -110,6 +117,15 @@
 
     /* AJAX Add to Cart */
     var atcInflight = false;
+    /* AbortController scoped to this form. The inflight boolean above
+       guards against rapid double-tap stacking, but it doesn't cover
+       the case where the section unloads (theme editor reload, route
+       change in a SPA shell) while a /cart/add.js request is still in
+       flight — without a controller the success handler then writes
+       to a detached DOM (atcBtn classList toggles, drawer open()).
+       We keep one controller per inflight request and abort it from
+       a section:unload listener registered at the file-level below. */
+    var atcController = null;
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -119,6 +135,10 @@
          twice. Reject the second submit until the first finishes. */
       if (atcInflight) return;
       atcInflight = true;
+      atcController = new AbortController();
+      /* Expose the controller on the form so the section:unload
+         listener at the bottom of this file can find and abort it. */
+      form.__kitcheroAtcController = atcController;
 
       clearError();
 
@@ -161,7 +181,8 @@
         /* No Content-Type header — FormData triggers the browser to
            set multipart/form-data with the right boundary. */
         headers: { 'Accept': 'application/json' },
-        body: formData
+        body: formData,
+        signal: atcController.signal
       })
         .then(function (response) {
           /* Shopify returns a JSON body with `description` on 422
@@ -256,7 +277,10 @@
                    action. Falls back to raw aria-hidden toggle for the
                    rare case where the custom element hasn't upgraded
                    yet (script eval race). */
-                var drawerEl = window.kitcheroCartDrawer || document.querySelector('cart-drawer') || document.getElementById('cart-drawer');
+                var drawerEl = (window.Kitchero && window.Kitchero.cartDrawer)
+                  || window.kitcheroCartDrawer
+                  || document.querySelector('cart-drawer')
+                  || document.getElementById('cart-drawer');
                 if (drawerEl && typeof drawerEl.open === 'function') {
                   drawerEl.open();
                 } else if (drawerEl) {
@@ -280,6 +304,9 @@
           if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
         })
         .catch(function (error) {
+          /* Section unloaded mid-fetch — controller was aborted.
+             Don't surface an error to the user; the section is gone. */
+          if (error && error.name === 'AbortError') return;
           if (!error || !error.handled) console.error('Add to cart error:', error);
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
@@ -305,6 +332,8 @@
              before the navigation actually happens; that's cosmetic
              and harmless. */
           atcInflight = false;
+          atcController = null;
+          if (form.__kitcheroAtcController) delete form.__kitcheroAtcController;
           if (atcBtn && atcBtn.hasAttribute('aria-disabled')) {
             atcBtn.removeAttribute('aria-disabled');
           }
@@ -736,6 +765,25 @@
     if (section) {
       initProductForm(section);
       initActions(section);
+    }
+  });
+
+  /* Section unload — abort any in-flight /cart/add.js request the
+     section's product form may have started. Without this, theme
+     editor reloads while the merchant is mid-add fire the success
+     handler against a removed DOM (atcBtn classList writes silently
+     no-op, but `drawerEl.open()` falls into the manual fallback
+     branch and toggles aria-hidden on a node about to be GC'd).
+     Touching a controller that's already null/aborted is a no-op. */
+  document.addEventListener('shopify:section:unload', function (e) {
+    var section = e.target.querySelector
+      ? e.target.querySelector(PRODUCT_SECTION_SELECTOR)
+      : null;
+    if (!section) return;
+    var form = section.querySelector('form');
+    if (form && form.__kitcheroAtcController) {
+      try { form.__kitcheroAtcController.abort(); } catch (err) { /* no-op */ }
+      delete form.__kitcheroAtcController;
     }
   });
 })();

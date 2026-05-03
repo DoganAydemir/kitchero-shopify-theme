@@ -211,8 +211,9 @@ if (!window.__kitcheroMainCartLoaded) {
              promise rejection which leaks to the console. Silence it
              with a terminal `.catch` — page is already in a good
              state; drawer will auto-resync on next user action. */
-          if (window.kitcheroCartDrawer && typeof window.kitcheroCartDrawer.refreshDrawer === 'function') {
-            var drawerRefresh = window.kitcheroCartDrawer.refreshDrawer();
+          var drawer = (window.Kitchero && window.Kitchero.cartDrawer) || window.kitcheroCartDrawer;
+          if (drawer && typeof drawer.refreshDrawer === 'function') {
+            var drawerRefresh = drawer.refreshDrawer();
             if (drawerRefresh && typeof drawerRefresh.catch === 'function') {
               drawerRefresh.catch(function () { /* swallow — cart page already refreshed */ });
             }

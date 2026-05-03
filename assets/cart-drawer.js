@@ -32,9 +32,17 @@
 
       /* Expose instance for product-form.js and main-cart.js to call
          refreshDrawer() without duplicating fetch-and-swap logic.
-         Legacy global kept for backward compatibility; new code can
-         also `document.querySelector('cart-drawer')`. */
-      window.kitcheroCartDrawer = this;
+         Namespaced under `Kitchero.cartDrawer` (the canonical theme
+         namespace from `assets/theme.js`) — Theme Store reviewers
+         flag stray top-level globals as app-block collision risk
+         (an installed app could define its own `kitcheroCartDrawer`
+         and clobber ours, or vice versa). The legacy
+         `window.kitcheroCartDrawer` is kept as a deprecated alias
+         so any external code (custom apps, snippets) that grabbed
+         it before the namespacing keeps working; remove on v2. */
+      if (!window.Kitchero) window.Kitchero = {};
+      window.Kitchero.cartDrawer = this;
+      window.kitcheroCartDrawer = this; // deprecated alias — remove on v2
     }
 
     disconnectedCallback() {
@@ -47,6 +55,9 @@
          to restore here. */
       if (window.Kitchero && Kitchero.focusTrap && this.panel) {
         Kitchero.focusTrap.disable(this.panel);
+      }
+      if (window.Kitchero && window.Kitchero.cartDrawer === this) {
+        window.Kitchero.cartDrawer = null;
       }
       if (window.kitcheroCartDrawer === this) window.kitcheroCartDrawer = null;
     }

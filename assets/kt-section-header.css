@@ -176,7 +176,21 @@
               transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.kt-header__menu-item:hover > .kt-header__flyout,
+/* Hover-to-open is gated behind `(hover: hover)` so a touch laptop
+   or iPad Pro reaching the desktop breakpoint doesn't fire the
+   sticky-hover state on the flyout (the menu would stay open until
+   the user taps another menu item). The companion `[data-open]`
+   selector — driven by the JS click/keyboard handler — stays
+   unguarded so all input modalities still open the flyout. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-header__menu-item:hover > .kt-header__flyout {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 .kt-header__menu-item[data-open] > .kt-header__flyout {
   opacity: 1;
   visibility: visible;
@@ -281,7 +295,20 @@
               filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.kt-header__menu-item:hover > .kt-header__mega-menu,
+/* Same `(hover: hover)` gate as the flyout — prevents touch-laptop
+   sticky-hover. Click/keyboard activation goes through `[data-open]`
+   which stays unguarded so all input modalities still open the
+   mega menu. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-header__menu-item:hover > .kt-header__mega-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+    filter: blur(0);
+  }
+}
+
 .kt-header__menu-item[data-open] > .kt-header__mega-menu {
   opacity: 1;
   visibility: visible;
@@ -310,7 +337,14 @@
 .kt-header__mega-column:nth-child(4) { transition-delay: 200ms; }
 .kt-header__mega-column:nth-child(5) { transition-delay: 250ms; }
 
-.kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-column {
+@media (hover: hover) and (pointer: fine) {
+  .kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-column {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kt-header__menu-item[data-open] > .kt-header__mega-menu .kt-header__mega-column {
   opacity: 1;
   transform: translateY(0);
 }
@@ -323,7 +357,14 @@
               transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 200ms;
 }
 
-.kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-featured {
+@media (hover: hover) and (pointer: fine) {
+  .kt-header__menu-item:hover > .kt-header__mega-menu .kt-header__mega-featured {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kt-header__menu-item[data-open] > .kt-header__mega-menu .kt-header__mega-featured {
   opacity: 1;
   transform: translateY(0);
 }

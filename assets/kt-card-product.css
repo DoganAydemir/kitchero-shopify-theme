@@ -2,12 +2,22 @@
    Used in all collection templates.
    BEM: .kt-card-product, .kt-card-product__* */
 
-/* Card container: flex flex-col */
+/* Card container: flex flex-col.
+   `overflow: visible` is intentional — the keyboard `:focus-visible`
+   ring (global rule in base.css with `outline-offset: 2px`) sits
+   OUTSIDE the focusable element's box. Previously this container
+   used `overflow: hidden`, which clipped that ring on three sides
+   so keyboard users tabbing through a collection grid couldn't see
+   focus on the largest interactive surface in the theme — a WCAG
+   2.4.7 (Focus Visible) failure that Theme Store reviewers flag as
+   "no visible keyboard focus on product cards".
+   The image's scale-on-hover transform is already clipped by
+   `.kt-card-product__image-link`'s own `overflow: hidden` below, so
+   we don't need to clip at the card level. */
 .kt-card-product {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: hidden;
 }
 
 /* Image link: relative block w-full aspect-[4/3] overflow-hidden rounded-sm mb-6 */

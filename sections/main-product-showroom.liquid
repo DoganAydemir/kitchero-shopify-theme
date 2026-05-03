@@ -361,6 +361,21 @@
                             {{ 'kt.product.sold_out' | t }}
                           {%- endif -%}
                         </button>
+                        {%- comment -%}
+                          Dynamic Checkout Button — renders Shop Pay /
+                          Apple Pay / Google Pay buttons next to the
+                          standard add-to-cart. Required by Theme Store
+                          on every {% form 'product' %} block; without
+                          it the showroom sample form is a reject vector.
+                          Gated on a merchant setting so showrooms that
+                          want a clean visual layout (no shop_pay button)
+                          can hide it via the theme editor.
+                        {%- endcomment -%}
+                        {%- if block.settings.show_dynamic_checkout and sample_variant.available -%}
+                          <div class="kt-showroom__sample-payment">
+                            {{ form | payment_button }}
+                          </div>
+                        {%- endif -%}
                       {%- endform -%}
                     </div>
                   </div>
@@ -485,7 +500,8 @@
         { "type": "text", "id": "ships_badge", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.ships_badge.label", "default": "Ships in 48h" },
         { "type": "text", "id": "description", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.description.label", "default": "Sample cost applied to your full order" },
         { "type": "checkbox", "id": "refundable", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.refundable.label", "default": true },
-        { "type": "text", "id": "meta", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.meta.label", "default": "5″ × 7″ door front · Actual finish & texture" }
+        { "type": "text", "id": "meta", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.meta.label", "default": "5″ × 7″ door front · Actual finish & texture" },
+        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.show_dynamic_checkout.label", "info": "t:sections.main-product-showroom.blocks.door_sample.settings.show_dynamic_checkout.info", "default": true }
       ]
     },
     {
