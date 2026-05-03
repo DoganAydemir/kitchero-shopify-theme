@@ -120,7 +120,7 @@
                 {%- if section.settings.success_heading != blank -%}
                   {{ section.settings.success_heading }}
                 {%- else -%}
-                  {{ 'kt.section.newsletter-popup.success_heading' | t | default: 'Welcome to the Family!' }}
+                  {{ 'kt.section.newsletter-popup.success_heading' | t }}
                 {%- endif -%}
               </h2>
               <p class="kt-newsletter-popup__success-desc" id="NewsletterPopupDesc-{{ section.id }}">
@@ -158,27 +158,38 @@
 
           {%- else -%}
 
-            {%- comment -%} Eyebrow block: icon + "Limited Time" / "15% Off" {%- endcomment -%}
-            <div class="kt-newsletter-popup__eyebrow">
-              <div class="kt-newsletter-popup__eyebrow-icon" aria-hidden="true">
-                <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="19" y1="5" x2="5" y2="19"></line>
-                  <circle cx="6.5" cy="6.5" r="2.5"></circle>
-                  <circle cx="17.5" cy="17.5" r="2.5"></circle>
-                </svg>
+            {%- comment -%} Eyebrow block: icon + merchant-set eyebrow + discount label.
+              Both fields render only when merchant supplies them — defaults
+              are scrubbed to avoid synthesizing fake-urgency / fake-discount
+              copy on a freshly-installed storefront. The icon container also
+              suppresses when both labels are empty so the slot doesn't
+              render an empty band. {%- endcomment -%}
+            {%- if section.settings.eyebrow != blank or section.settings.discount_label != blank -%}
+              <div class="kt-newsletter-popup__eyebrow">
+                <div class="kt-newsletter-popup__eyebrow-icon" aria-hidden="true">
+                  <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="5" x2="5" y2="19"></line>
+                    <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                    <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                  </svg>
+                </div>
+                <div class="kt-newsletter-popup__eyebrow-text">
+                  {%- if section.settings.eyebrow != blank -%}
+                    <span class="kt-newsletter-popup__eyebrow-label">
+                      {{ section.settings.eyebrow }}
+                    </span>
+                  {%- endif -%}
+                  {%- if section.settings.discount_label != blank -%}
+                    <span class="kt-newsletter-popup__eyebrow-discount">
+                      {{ section.settings.discount_label }}
+                    </span>
+                  {%- endif -%}
+                </div>
               </div>
-              <div class="kt-newsletter-popup__eyebrow-text">
-                <span class="kt-newsletter-popup__eyebrow-label">
-                  {{ section.settings.eyebrow | default: 'Limited Time' }}
-                </span>
-                <span class="kt-newsletter-popup__eyebrow-discount">
-                  {{ section.settings.discount_label | default: '15% Off' }}
-                </span>
-              </div>
-            </div>
+            {%- endif -%}
 
             <h2 class="kt-newsletter-popup__heading" id="NewsletterPopupHeading-{{ section.id }}">
-              {{ section.settings.heading_part1 | default: 'Unlock Your' }}
+              {{ section.settings.heading_part1 | default: 'Join our' }}
               {%- if section.settings.heading_italic_word != blank -%}
                 <span class="kt-newsletter-popup__heading-italic">{{ section.settings.heading_italic_word }}</span>
               {%- endif -%}
@@ -235,7 +246,7 @@
             </p>
 
             <button type="submit" class="kt-newsletter-popup__submit">
-              <span>{{ section.settings.submit_button_text | default: 'Get 15% Off' }}</span>
+              <span>{{ section.settings.submit_button_text | default: 'Subscribe' }}</span>
               <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
@@ -381,7 +392,7 @@
       "type": "text",
       "id": "success_heading",
       "label": "t:sections.newsletter-popup.settings.success_heading.label",
-      "default": "Welcome to the Family!"
+      "default": "Thanks for subscribing"
     },
     {
       "type": "textarea",

@@ -59,8 +59,8 @@
           {{ financing_label }}
         {%- else -%}
           {{ monthly | money }} {{ 'kt.product.price.per_month' | t | default: 'per month' }}
-          {%- if financing_apr and financing_apr == 0 -%}
-            &nbsp;· {{ 'kt.product.price.zero_apr' | t }}
+          {%- if financing_apr -%}
+            &nbsp;· {{ 'kt.product.price.apr_suffix_html' | t: rate: financing_apr }}
           {%- endif -%}
           &nbsp;· {{ financing_months | divided_by: 12 }} {{ 'kt.product.price.years' | t | default: 'years' }}*
         {%- endif -%}

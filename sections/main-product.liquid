@@ -125,9 +125,11 @@
                     <div class="kt-pdp__countdown-top">
                       <div class="kt-pdp__countdown-label">
                         <span class="kt-pdp__countdown-dot" aria-hidden="true"></span>
-                        <span>{{ block.settings.label | default: 'Limited Time Offer' }}</span>
+                        <span>{{ block.settings.label }}</span>
                       </div>
-                      <span class="kt-pdp__countdown-badge">{{ block.settings.badge | default: 'Promo Active' }}</span>
+                      {%- if block.settings.badge != blank -%}
+                        <span class="kt-pdp__countdown-badge">{{ block.settings.badge }}</span>
+                      {%- endif -%}
                     </div>
                     <div class="kt-pdp__countdown-bottom">
                       <div
@@ -144,10 +146,14 @@
                         <span class="kt-pdp__countdown-colon">:</span>
                         <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-seconds>00</span><span class="kt-pdp__countdown-key">S</span></div>
                       </div>
-                      <div class="kt-pdp__countdown-ends">
-                        <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label | default: 'Ends soon' }}</div>
+                      {%- if block.settings.ending_label != blank -%}
+                        <div class="kt-pdp__countdown-ends">
+                          <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label }}</div>
+                          <div class="kt-pdp__countdown-progress"><div class="kt-pdp__countdown-progress-fill"></div></div>
+                        </div>
+                      {%- else -%}
                         <div class="kt-pdp__countdown-progress"><div class="kt-pdp__countdown-progress-fill"></div></div>
-                      </div>
+                      {%- endif -%}
                     </div>
                   </div>
                 {%- endif -%}
