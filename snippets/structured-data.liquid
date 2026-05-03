@@ -210,11 +210,22 @@
             "item": {{ request.origin | append: collection.url | json }}
           }
           {%- if current_tags -%}
+            {%- comment -%}
+              Tag-page item URL — Shopify's `canonical_url` on
+              /collections/<handle>/<tag> resolves to the un-tagged
+              collection (parent canonical), which made positions 2
+              and 3 share the same `item` URL → Rich Results flagged
+              "Duplicate breadcrumb item". Build the actual filtered
+              path manually so Google's graph sees a unique URL per
+              breadcrumb position. Multi-tag joins with `+` per
+              Shopify's tag-URL convention (e.g. /tag-a+tag-b).
+            {%- endcomment -%}
+            {%- assign tag_path = current_tags | join: '+' -%}
             ,{
               "@type": "ListItem",
               "position": 3,
               "name": {{ current_tags | join: ', ' | json }},
-              "item": {{ canonical_url | json }}
+              "item": {{ request.origin | append: collection.url | append: '/' | append: tag_path | json }}
             }
           {%- endif -%}
         {%- elsif request.page_type == 'article' -%}

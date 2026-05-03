@@ -405,6 +405,38 @@
       url.searchParams.set('variant', matchedVariant.id);
       window.history.replaceState({}, '', url.toString());
 
+      /* Re-sync quantity rule from the new variant. B2B catalogs
+         (and merchants who configure per-variant case packs) set
+         `variant.quantity_rule.min/max/increment` per-variant. If
+         a customer picks a "Case of 12" variant whose min is 12
+         while the input still shows the previous variant's min of
+         1, the ATC submit silently 422s with "Order minimum 12".
+         This block reads the new rule (defaults to 1/null/1) and
+         pushes it back to both the visible input attributes AND
+         the input value when the customer is below the new min,
+         so they see the correction immediately. */
+      var qtyInput = container.querySelector('[data-qty-input]');
+      if (qtyInput) {
+        var rule = matchedVariant.quantity_rule || {};
+        var newMin  = rule.min       != null ? rule.min       : 1;
+        var newStep = rule.increment != null ? rule.increment : 1;
+        var newMax  = rule.max       != null ? rule.max       : null;
+        qtyInput.min = newMin;
+        qtyInput.step = newStep;
+        qtyInput.dataset.qtyMin  = newMin;
+        qtyInput.dataset.qtyStep = newStep;
+        if (newMax != null) {
+          qtyInput.max = newMax;
+          qtyInput.dataset.qtyMax = newMax;
+        } else {
+          qtyInput.removeAttribute('max');
+          delete qtyInput.dataset.qtyMax;
+        }
+        var currentVal = parseInt(qtyInput.value, 10) || 1;
+        if (currentVal < newMin) qtyInput.value = newMin;
+        if (newMax != null && currentVal > newMax) qtyInput.value = newMax;
+      }
+
       /* Stash the currently-matched variant on the container so the
          selling-plan:change handler below can re-price when the
          customer picks a subscription cadence without having to
@@ -444,8 +476,20 @@
         var announcement = matchedVariant.title;
         if (!matchedVariant.available && Kitchero.variantStrings && Kitchero.variantStrings.soldOut) {
           announcement += ' — ' + Kitchero.variantStrings.soldOut;
-        } else if (priceEl && priceEl.textContent) {
-          announcement += ' — ' + priceEl.textContent.trim();
+        } else {
+          /* Look up the price element fresh — `renderPriceForVariant`
+             above just re-rendered it, so the textContent is the new
+             post-variant price. Previously this branch read a `priceEl`
+             that was never declared in this scope (only inside
+             `renderPriceForVariant`), throwing a ReferenceError on
+             every successful variant change in builds where the
+             `Kitchero.variantStrings.soldOut` localized string was
+             empty / missing — the announcement throw aborted gallery
+             sync below it. Scoped lookup here keeps it self-contained. */
+          var priceEl = container.querySelector('.kt-product-price__current');
+          if (priceEl && priceEl.textContent) {
+            announcement += ' — ' + priceEl.textContent.trim();
+          }
         }
         Kitchero.announce(announcement);
       }

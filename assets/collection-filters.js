@@ -74,10 +74,27 @@ if (window.__kitcheroCollectionFiltersLoaded) {
       }
     });
 
-    /* Preserve sort_by */
+    /* Preserve params we don't own — the filter form itself only
+       owns checkboxes + price inputs. Other query-string keys
+       belong to other features and must round-trip:
+         - `q` / `query`: the full-text search term when this is the
+           /search results page being filtered. Without preservation
+           the user's "kitchen" search collapses into "show all"
+           the moment they apply a filter.
+         - `type` / `options[*]`: search-result type filters
+         - `sort_by`: user-selected sort order (already preserved
+           explicitly; covered by the generic loop too).
+         - UTM params (`utm_source`, etc.): analytics attribution
+           shouldn't evaporate when a customer refines a search
+           filter mid-session.
+       Skip param names we own (filter checkboxes / price ranges)
+       so we don't double-write them. */
     var currentUrl = new URL(window.location.href);
-    var sortBy = currentUrl.searchParams.get('sort_by');
-    if (sortBy) params.set('sort_by', sortBy);
+    currentUrl.searchParams.forEach(function (value, key) {
+      if (params.has(key)) return; // owned by checkbox/price loop above
+      if (key === 'page') return;  // pagination resets on filter change
+      params.append(key, value);
+    });
 
     return window.location.pathname + '?' + params.toString();
   }

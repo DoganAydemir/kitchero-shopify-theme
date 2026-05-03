@@ -437,8 +437,18 @@
 
       /* Shopify Section Rendering API — fetches just the cart-drawer
        * section markup, no full page. Much lighter than a full-page
-       * fetch: responses are ~5–10 KB vs 100+ KB for a page. */
-      return fetch('/?sections=cart-drawer,header-cart-icon', {
+       * fetch: responses are ~5–10 KB vs 100+ KB for a page.
+       *
+       * The leading `/` was a bare hardcode; on locale-prefixed
+       * Markets storefronts (e.g. /de/, /es/) Shopify auto-redirects
+       * but adds a round-trip and may return the default-locale
+       * snippet, leaving currency/format strings mismatching the
+       * displayed page. Using `Shopify.routes.root` (auto-injected
+       * by Shopify on every storefront) keeps the request on the
+       * customer's actual locale path. Falls back to `/` for older
+       * Shopify rigs that haven't injected the global. */
+      var rootUrl = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+      return fetch(rootUrl + '?sections=cart-drawer,header-cart-icon', {
         headers: { 'Accept': 'application/json' },
         signal: signal,
       })

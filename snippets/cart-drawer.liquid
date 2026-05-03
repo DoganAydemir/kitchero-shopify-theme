@@ -63,6 +63,21 @@
 
             {%- comment -%} Content column {%- endcomment -%}
             <div class="kt-cart-drawer__item-info">
+              {%- comment -%}
+                Variant-unavailable alert — variant went out of stock
+                between ATC and now (or merchant deleted it). Without
+                this surface the customer sees the cart drawer + a
+                Checkout button, clicks it, and only THEN gets
+                Shopify's "Some items are no longer available" wall.
+                Mirrors `sections/main-cart.liquid:101-105` so the
+                drawer and full cart give the same warning.
+              {%- endcomment -%}
+              {%- unless item.variant.available -%}
+                <p class="kt-cart-drawer__item-unavailable" role="alert">
+                  {{ 'kt.cart.item_unavailable' | t | default: 'This item is no longer available. Please remove it to continue.' }}
+                </p>
+              {%- endunless -%}
+
               {%- comment -%} Row 1: title + price on same line {%- endcomment -%}
               <div class="kt-cart-drawer__item-top">
                 <a href="{{ item.url }}" class="kt-cart-drawer__item-title">
@@ -75,6 +90,27 @@
                   {%- endcomment -%}
                   <span class="kt-cart-drawer__item-price">
                     {%- if item.final_line_price > 0 -%}
+                      {%- comment -%}
+                        Strikethrough original_line_price when a discount
+                        has trimmed the line (auto-applied promo, line
+                        discount, "Buy 2 Get 1 Free", etc.). Without the
+                        struck-through original alongside the final, the
+                        customer sees only the discounted total and the
+                        SAVING is invisible — main-cart.liquid renders
+                        the same `<s>` pair, so this closes the drawer
+                        parity gap reviewers cite when applying a code,
+                        opening the drawer, and expecting to see the
+                        old price crossed out.
+                        Wrapped in <s> for screen readers — text-decoration
+                        alone doesn't convey "no longer valid" semantics.
+                      {%- endcomment -%}
+                      {%- if item.original_line_price > item.final_line_price -%}
+                        <s class="kt-cart-drawer__item-price-original">
+                          <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
+                          {{ item.original_line_price | money }}
+                        </s>
+                        <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
+                      {%- endif -%}
                       {{ item.final_line_price | money }}
                     {%- else -%}
                       {{ 'kt.cart.free' | t | default: 'Free' }}
