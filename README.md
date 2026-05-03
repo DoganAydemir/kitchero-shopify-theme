@@ -53,14 +53,14 @@ Kitchero is a premium Shopify theme built for merchants selling high-end kitchen
 
 ```bash
 # Clone this repository
-git clone https://github.com/YOUR_ORG/kitchero-shopify-theme.git
+git clone <your-fork-url>
 cd kitchero-shopify-theme
 
 # Install Shopify CLI if you don't have it
 npm install -g @shopify/cli @shopify/theme
 
-# Authenticate
-shopify login --store your-store.myshopify.com
+# Authenticate (replace <your-store> with your Shopify store handle)
+shopify login --store <your-store>.myshopify.com
 
 # Push to your development store
 shopify theme push --unpublished
@@ -135,13 +135,13 @@ For collections and products, you can assign alternate templates in the admin:
 │   └── customers/                    ← login, register, account, activate_account,
 │                                       reset_password, order, addresses
 │
-├── sections/            ← 57 sections (42 merchant-droppable + 13 main-* + header/footer)
-├── snippets/            ← 21 snippets (card-product, countdown, search-overlay, video-modal, etc.)
+├── sections/            ← 76 sections (57 merchant-droppable + 19 template-bound)
+├── snippets/            ← 32 snippets (card-product, countdown, search-overlay, video-modal, etc.)
 ├── assets/              ← CSS, JS, vendor libraries
 ├── config/
 │   ├── settings_schema.json
 │   └── settings_data.json
-└── locales/             ← en, tr, de, fr, es, ar + schema variants
+└── locales/             ← en, tr, de, fr, es + schema variants
 ```
 
 ---
@@ -248,8 +248,7 @@ by intent, with use-when guidance for each section.
 
 - **Documentation:** [`SETUP.md`](./SETUP.md) for per-page setup walkthrough
 - **Issues:** Report bugs via the repository issue tracker
-- **Theme docs:** https://kitchero.com/theme-docs (from `config/settings_schema.json`)
-- **Theme support:** https://kitchero.com/support (update both URLs before Theme Store submission)
+- **Theme docs / support:** Configure `theme_documentation_url` and `theme_support_url` in `config/settings_schema.json` with your live merchant-facing URLs before submission.
 
 ---
 

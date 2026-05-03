@@ -123,7 +123,19 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="testimonials"]');
-    if (s) destroyers[s.dataset.sectionId] = initTestimonials(e.target);
+    if (!s) return;
+    /* If this section was already initialized (rare, but happens when
+       merchant changes a setting in the editor and Shopify re-fires
+       :load without a preceding :unload), tear down the old listeners
+       + RAF before creating a new instance. Without this teardown the
+       previous mousemove/enter/leave handlers + RAF tick stay bound,
+       leaking on every editor edit cycle. */
+    var sid = s.dataset.sectionId;
+    if (destroyers[sid]) {
+      destroyers[sid]();
+      delete destroyers[sid];
+    }
+    destroyers[sid] = initTestimonials(e.target);
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
