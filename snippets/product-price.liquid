@@ -124,4 +124,32 @@
       {{ 'kt.product.taxes_included' | t | default: 'Tax included.' }}
     </span>
   {%- endif -%}
+
+  {%- comment -%}
+    Volume pricing (B2B catalog) — `variant.quantity_price_breaks`
+    is populated when a merchant on Shopify Plus configures
+    quantity-based pricing on a B2B catalog. Without this surface
+    a wholesale customer browsing the storefront-rendered PDP sees
+    only the base unit price and has to add to cart + check sub-
+    total to discover the volume discount tiers. Theme Store guides
+    flag the missing surface as a B2B parity gap on themes that
+    advertise wholesale support.
+
+    `quantity_price_breaks_configured?` short-circuits when no
+    breaks exist (the common case for non-B2B stores), so the block
+    renders nothing on retail storefronts. Each break renders the
+    minimum quantity threshold + the per-unit price.
+  {%- endcomment -%}
+  {%- if variant.quantity_price_breaks_configured? and variant.quantity_price_breaks.size > 0 -%}
+    <ul class="kt-product-price__breaks" role="list" aria-label="{{ 'kt.product.volume_pricing' | t | default: 'Volume pricing' }}">
+      {%- for vbreak in variant.quantity_price_breaks -%}
+        <li class="kt-product-price__break">
+          <span class="kt-product-price__break-qty">
+            {{ 'kt.product.volume_qty_html' | t: qty: vbreak.minimum_quantity }}
+          </span>
+          <span class="kt-product-price__break-price">{{ vbreak.price | money }}</span>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
 </div>

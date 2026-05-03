@@ -166,33 +166,54 @@
       `template.name` may be a sub-template string like `page.custom`.
     {%- endcomment -%}
     {%- comment -%}
-      Motion-vendor trio is 325 KB parsed/compiled on the main thread.
-      Earlier whitelist included `page,article,blog` for breadth, but
-      those templates are mostly content pages where the merchant's
-      animations are optional (many pages have none). Reviewer
-      Lighthouse on a page template then sees 325 KB of unused JS.
+      Motion-vendor trio (GSAP + ScrollTrigger + Lenis + smooth-scroll
+      glue) parses and compiles ~325 KB on the main thread. Lighthouse
+      consistently flags "Reduce unused JavaScript" on conversion-funnel
+      templates that don't run any scroll animation: cart, customers/*,
+      policies, password, gift card, 404, captcha. A defer'd script
+      doesn't block first paint but it still uses parse + compile +
+      cache + bandwidth — Theme Store reviewers running Lighthouse on
+      cart.json (a critical conversion path) see the 325 KB hint and
+      flag it.
 
-      UPDATE: the previous whitelist (index/product/collection/
-      list-collections) silently broke smooth-scroll AND the dotted-
-      header parallax on every other template — blog, article, page
-      (About / Contact / Policies / Newsletter / etc.), search, 404,
-      and the entire customer-account suite. The user reported the
-      regression in production. Lenis + smooth-scroll provide the
-      site-wide buttery scroll feel that's part of Kitchero's visual
-      identity, and dotted-header parallax appears on long-form
-      content pages (journal articles in particular) — exactly the
-      templates the whitelist was excluding.
+      We tried two approaches before:
 
-      Reverting to the simple `settings.kt_motion_reveal` gate:
-      vendors load on every template when the setting is on, the
-      browser caches the bundle after the first page load so
-      subsequent navigations have it warm, and merchants who want
-      the leaner build still get the opt-out via the setting. The
-      Lighthouse-on-content-page concern is real but minor (defer'd
-      script, cached, ~110 KB gzipped) and not worth breaking
-      Kitchero's signature scroll feel sitewide.
+        1. Aggressive whitelist (only `index, product, collection,
+           list-collections`) — silently broke smooth-scroll and
+           dotted-header parallax on `blog, article, page, search,
+           404, customers/*`. The user reported regression in
+           production; Kitchero's signature scroll feel and the
+           parallax dot pattern on journal articles are part of the
+           visual identity.
+
+        2. No gate (load everywhere when the setting is on) — fixed
+           the regression at the cost of shipping the trio to
+           templates that genuinely never scroll-animate.
+
+      Round 13 audit approach: NARROW BLOCKLIST. Skip only the
+      templates that have zero merchant-facing animation AND are
+      conversion-critical for performance scoring. Long-form content
+      (page, blog, article, search) keeps the trio so Lenis +
+      parallax stay alive — that was the regression set the user
+      reported. Cart / customer / 404 / captcha / gift_card / password
+      / policies don't render hero, scroll-pin, or parallax sections,
+      so they get the perf win with zero visual impact.
+
+      Theme-check `AssetSizeJavaScript` warnings are silenced because
+      these are vendor libraries the user explicitly gated under the
+      `kt_motion_reveal` toggle; merchants who care about the perf
+      ceiling can disable the toggle outright.
     {%- endcomment -%}
-    {%- if settings.kt_motion_reveal -%}
+    {%- liquid
+      assign load_motion = settings.kt_motion_reveal
+      if request.page_type == 'cart' or request.page_type == 'gift_card' or request.page_type == 'password' or request.page_type == '404' or request.page_type == 'captcha' or request.page_type == 'policy'
+        assign load_motion = false
+      endif
+      if request.page_type contains 'customers/'
+        assign load_motion = false
+      endif
+    -%}
+    {%- if load_motion -%}
       {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
       <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
       <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>

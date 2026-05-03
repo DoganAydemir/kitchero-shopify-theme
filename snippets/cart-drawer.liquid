@@ -317,6 +317,60 @@
         {%- endif -%}
 
         {%- comment -%}
+          Discount code entry — drawer parity with /cart page. Without
+          this, a customer pasting a promo from a marketing email has
+          to navigate away from the drawer to /cart to redeem it,
+          which Theme Store reviewers cite as a known parity gap on
+          modern themes. Same `/discount/<code>` server-side endpoint
+          used by main-cart.liquid; works without JS via plain GET
+          form + `redirect` hidden input. Gated on the same
+          `kt_cart_show_discount` setting so merchants who hide
+          discount entry on /cart also get it hidden in the drawer.
+        {%- endcomment -%}
+        {%- if settings.kt_cart_show_discount -%}
+          <form
+            action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+            method="get"
+            class="kt-cart-drawer__discount-form"
+            data-cart-drawer-discount-form
+          >
+            <input type="hidden" name="redirect" value="{{ routes.cart_url }}">
+            <label for="cart-drawer-discount-code" class="visually-hidden">
+              {{ 'kt.cart.discount.label' | t | default: 'Discount code' }}
+            </label>
+            <div class="kt-cart-drawer__discount-row">
+              <input
+                type="text"
+                id="cart-drawer-discount-code"
+                name="code"
+                class="kt-cart-drawer__discount-input"
+                placeholder="{{ 'kt.cart.discount.placeholder' | t | default: 'Discount code' }}"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+              >
+              <button type="submit" class="kt-cart-drawer__discount-submit">
+                {{ 'kt.cart.discount.apply' | t | default: 'Apply' }}
+              </button>
+            </div>
+            {%- if cart.discount_codes.size > 0 -%}
+              <ul class="kt-cart-drawer__discount-applied" role="list">
+                {%- for code in cart.discount_codes -%}
+                  <li class="kt-cart-drawer__discount-chip">
+                    <span>{{ code }}</span>
+                    <a
+                      href="/discount?redirect={{ routes.cart_url | url_encode }}"
+                      class="kt-cart-drawer__discount-remove"
+                      aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: code | default: 'Remove discount code' }}"
+                    >&times;</a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </form>
+        {%- endif -%}
+
+        {%- comment -%}
           Visual error region for cart-update failures. cart-drawer.js
           calls `Kitchero.announce(msg, 'assertive')` on /cart/change.js
           422s — that reaches SR users via the global live region but

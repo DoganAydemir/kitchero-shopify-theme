@@ -75,3 +75,45 @@
   color: var(--kt-stone-500);
 }
 
+/* Volume pricing tiers (B2B catalog) — rendered when
+   `variant.quantity_price_breaks_configured?` is true. Compact
+   stacked list of "qty × price" rows under the price block. The
+   stone-500 + small font puts it visually below the headline price
+   without competing for attention; merchants who don't sell B2B
+   never see this block on retail PDPs. */
+.kt-product-price__breaks {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--kt-stone-600);
+}
+
+.kt-product-price__break {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-top: 1px dashed rgba(120, 113, 108, 0.18);
+}
+
+.kt-product-price__break:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.kt-product-price__break-qty {
+  font-weight: 500;
+  color: var(--kt-stone-700);
+}
+
+.kt-product-price__break-price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--kt-stone-900);
+}
+
