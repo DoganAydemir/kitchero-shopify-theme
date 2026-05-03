@@ -77,6 +77,22 @@
       document.removeEventListener('keydown', onKeyDown);
       modal.dataset.kitcheroBound = '';
     };
+
+    /* Auto-open after a successful recover-password submit.
+       Shopify reloads the login page with `form.posted_successfully?`
+       rendered INSIDE this modal — but the modal's default state is
+       `aria-hidden="true"`, so the success message is invisible to
+       sighted users (and reachable to SR users via the trapped focus
+       only after they manually open the modal again). The customer
+       sees nothing happen and may resubmit, triggering Shopify's
+       rate limiter. Detect the success node and open the modal
+       immediately. The success message itself contains the SR
+       announcement (role="status"); we just need to make it visible.
+       Skipped when no success node — covers the common case where
+       the page was loaded for any reason other than a recover POST. */
+    if (modal.querySelector('.kt-customer__form-success')) {
+      open();
+    }
   }
 
   function initAll(root) {

@@ -125,7 +125,16 @@
       "missing description" on sites that skip the tag entirely, and
       social-share scrapers use this field when og:description is absent.
     {%- endcomment -%}
-    <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape }}">
+    {%- comment -%}
+      Cap meta description at 160 chars — Google's SERP truncates
+      around 155-160 chars on desktop and 120 on mobile. A merchant
+      who pastes a 300-char marketing paragraph as `shop.description`
+      gets it cut mid-sentence in search snippets. `truncate: 160`
+      with the ellipsis keeps the visible cut clean and signals to
+      crawlers that the description ends gracefully rather than
+      being cropped at an arbitrary token.
+    {%- endcomment -%}
+    <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape | truncate: 160, '…' }}">
 
     {%- comment -%}
       `content_for_header` MUST appear immediately after the title +

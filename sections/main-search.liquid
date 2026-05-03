@@ -198,6 +198,19 @@
       {%- else -%}
         <div class="kt-search-page__empty">
           <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
+          {%- comment -%}
+            Recovery path. A 0-result search shouldn't dead-end the
+            customer — give them a guaranteed escape hatch to the
+            full catalog so a typo or missing-product moment doesn't
+            send them back to Google. Pair the popular-queries hint
+            (which is merchant-curated and may be empty) with a
+            guaranteed link to /collections/all.
+          {%- endcomment -%}
+          <p class="kt-search-page__browse-all">
+            <a href="{{ routes.all_products_collection_url }}" class="kt-search-page__browse-all-link">
+              {{ 'kt.search.browse_all' | t | default: 'Browse all products' }}
+            </a>
+          </p>
           {%- render 'search-popular-queries', section: section -%}
         </div>
       {%- endif -%}

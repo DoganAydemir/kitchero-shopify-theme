@@ -134,9 +134,21 @@
   - Other customer/* pages + search + 404 carried over from the
     previous list.
 {%- endcomment -%}
-{%- assign hidden_page_types = 'search,404,captcha,gift_card,password,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
+{%- assign hidden_page_types = 'search,404,captcha,gift_card,password,cart,policy,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
+{%- comment -%}
+  Faceted collection / search URLs (`?filter.v.option.color=red`,
+  `?filter.p.tag=...`, `?q=` on collections) generate a high-
+  cardinality URL space — without `noindex,follow` Google indexes
+  thousands of filter permutations, dilutes the parent collection's
+  link equity, and Search Console shows the parent dropping out of
+  the top results. `follow` keeps the linked products themselves
+  crawlable so the discovery path stays intact. Mirrors what
+  premium peer themes (and the Shopify Online Store team) recommend.
+{%- endcomment -%}
+{%- elsif request.path contains '/collections/' and request.query_string contains 'filter.' -%}
+  <meta name="robots" content="noindex,follow">
 {%- endif -%}
 
 {%- comment -%}
