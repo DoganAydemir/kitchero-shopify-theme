@@ -46,29 +46,37 @@
       setPct((x - rect.left) / rect.width * 100);
     }
 
-    /* Mouse */
-    slider.addEventListener('mousedown', function (e) {
+    /* Pointer Events — unified mouse / touch / pen. setPointerCapture
+       on the slider keeps the drag tracking even when the cursor /
+       finger leaves the slider's bounding rect, so a fast horizontal
+       flick doesn't drop the drag mid-motion (visible jank). The
+       previous mouse + touch split missed pen input entirely (Surface,
+       iPad pencil) and dropped drags when the pointer left the slider
+       on the mouse path. */
+    slider.addEventListener('pointerdown', function (e) {
       dragging = true;
+      try { slider.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
       updateFromX(e.clientX);
     });
-    var onMouseUp = function () { dragging = false; };
-    window.addEventListener('mouseup', onMouseUp);
-    slider.addEventListener('mousemove', function (e) {
+
+    var onPointerUp = function (e) {
+      dragging = false;
+      try { slider.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+    };
+
+    /* Document-level for safety — pointercancel fires when the OS
+       interrupts the gesture (e.g. iOS pull-to-refresh, Android
+       app-switch). Clearing dragging there prevents a "stuck" handle
+       state when the user returns to the page. */
+    slider.addEventListener('pointerup', onPointerUp);
+    slider.addEventListener('pointercancel', onPointerUp);
+    slider.addEventListener('pointerleave', function () { dragging = false; });
+
+    slider.addEventListener('pointermove', function (e) {
       if (dragging) updateFromX(e.clientX);
     });
 
-    /* Touch */
-    slider.addEventListener('touchstart', function (e) {
-      dragging = true;
-      if (e.touches[0]) updateFromX(e.touches[0].clientX);
-    }, { passive: true });
-    var onTouchEnd = function () { dragging = false; };
-    window.addEventListener('touchend', onTouchEnd);
-    slider.addEventListener('touchmove', function (e) {
-      if (dragging && e.touches[0]) updateFromX(e.touches[0].clientX);
-    }, { passive: true });
-
-    windowHandlers.set(slider, { onMouseUp: onMouseUp, onTouchEnd: onTouchEnd });
+    windowHandlers.set(slider, { onPointerUp: onPointerUp });
 
     /* Click — jump to position */
     slider.addEventListener('click', function (e) { updateFromX(e.clientX); });
@@ -109,17 +117,13 @@
     if (ba) initSlider(ba);
   });
 
-  /* Detach window-level mouseup/touchend listeners when the section
-     is removed so we don't hold on to closures over a dead DOM tree. */
+  /* Pointer-up / cancel listeners are scoped to the slider element
+     itself (not window), so they GC with the DOM when shopify:section
+     :unload removes the section. Just clear the WeakMap entry. */
   document.addEventListener('shopify:section:unload', function (e) {
     if (!e.target || !e.target.querySelector) return;
     var slider = e.target.querySelector('[data-before-after]');
     if (!slider) return;
-    var handlers = windowHandlers.get(slider);
-    if (handlers) {
-      window.removeEventListener('mouseup', handlers.onMouseUp);
-      window.removeEventListener('touchend', handlers.onTouchEnd);
-      windowHandlers.delete(slider);
-    }
+    windowHandlers.delete(slider);
   });
 })();

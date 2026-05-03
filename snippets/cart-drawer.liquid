@@ -19,8 +19,16 @@
       </button>
     </div>
 
-    {%- comment -%} Cart Items {%- endcomment -%}
-    <div class="kt-cart-drawer__body" id="cart-drawer-items">
+    {%- comment -%}
+      Cart Items.
+      `data-lenis-prevent="true"` tells Lenis (smooth scroll vendor)
+      not to hijack vertical scroll inside the drawer. Without this,
+      Lenis's translateY animation fights the drawer's native overflow
+      scroll and the qty list scrolls jankily / not at all on iOS.
+      Filter drawer body uses the same attribute (kt-collection-filters
+      .css pattern, see main-collection-drawer.liquid:84).
+    {%- endcomment -%}
+    <div class="kt-cart-drawer__body" id="cart-drawer-items" data-lenis-prevent="true">
       {%- if cart.item_count > 0 -%}
         {%- for item in cart.items -%}
           <div class="kt-cart-drawer__item" data-line-key="{{ item.key }}">

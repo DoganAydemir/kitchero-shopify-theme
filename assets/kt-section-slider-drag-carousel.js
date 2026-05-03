@@ -98,6 +98,13 @@ if (!window.__kitcheroSliderDragLoaded) {
         startX = e.pageX;
         startScroll = track.scrollLeft;
         track.classList.add('is-dragging');
+        /* Capture the pointer so a fast horizontal flick that takes
+           the finger off the track DOM still receives pointermove +
+           pointerup events. Without this, drag freezes mid-flick on
+           mobile when the finger crosses the track boundary — the
+           carousel snaps to wherever the lift happened, not where
+           the gesture ended. */
+        try { track.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
       }
 
       function onPointerMove(e) {
@@ -107,10 +114,13 @@ if (!window.__kitcheroSliderDragLoaded) {
         track.scrollLeft = startScroll - dx;
       }
 
-      function onPointerUp() {
+      function onPointerUp(e) {
         if (!isDown) return;
         isDown = false;
         track.classList.remove('is-dragging');
+        if (e && e.pointerId) {
+          try { track.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+        }
         /* Reset `moved` on the next tick so click handler can read it */
         window.setTimeout(function () {
           moved = false;

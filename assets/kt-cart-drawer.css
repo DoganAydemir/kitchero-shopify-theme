@@ -212,6 +212,13 @@ html.no-js .kt-cart-drawer {
 .kt-cart-drawer__body {
   flex: 1;
   overflow-y: auto;
+  /* `overscroll-behavior: contain` stops scroll-chain at the drawer
+     boundary. On iOS Safari, scrolling the cart contents past the
+     top edge would otherwise trigger the page's pull-to-refresh
+     gesture (refreshing the storefront under the open drawer = data
+     loss + UX confusion). Filter drawer ships the same rule for the
+     same reason. */
+  overscroll-behavior: contain;
   padding: 1.5rem;                          /* p-6 */
   display: flex;
   flex-direction: column;

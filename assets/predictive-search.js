@@ -316,6 +316,21 @@
       var links = resultsContainer.querySelectorAll('.kt-predictive-search__link');
       if (!links.length) return;
 
+      /* Each option needs a unique id so the input's
+         `aria-activedescendant` can point at it — that's how the
+         WAI-ARIA combobox pattern tells screen readers WHICH option
+         in the listbox is currently highlighted while DOM focus
+         stays on the input. Without ids + activedescendant, NVDA /
+         JAWS users typing into the search and arrowing through
+         suggestions hear only the input value, never the highlighted
+         result. Assign lazily here (idempotent — keeps ids stable
+         across re-renders within the same query). */
+      for (var idx = 0; idx < links.length; idx++) {
+        if (!links[idx].id) {
+          links[idx].id = 'kt-predictive-option-' + idx;
+        }
+      }
+
       var currentIndex = -1;
       for (var i = 0; i < links.length; i++) {
         if (links[i].classList.contains('is-active')) {
@@ -328,12 +343,12 @@
         event.preventDefault();
         var next = currentIndex + 1;
         if (next >= links.length) next = 0;
-        setActive(links, next);
+        setActive(links, next, input);
       } else if (event.key === 'ArrowUp') {
         event.preventDefault();
         var prev = currentIndex - 1;
         if (prev < 0) prev = links.length - 1;
-        setActive(links, prev);
+        setActive(links, prev, input);
       } else if (event.key === 'Enter' && currentIndex >= 0) {
         /* Only intercept Enter when the user has navigated into the
            results — otherwise allow the default form submit to reach
@@ -341,17 +356,23 @@
         event.preventDefault();
         links[currentIndex].click();
       } else if (event.key === 'Escape') {
-        clearActive(links);
+        clearActive(links, input);
       }
     });
   }
 
-  function setActive(links, index) {
-    clearActive(links);
+  function setActive(links, index, input) {
+    clearActive(links, input);
     var link = links[index];
     if (!link) return;
     link.classList.add('is-active');
     link.setAttribute('aria-selected', 'true');
+    /* Sync the combobox input's aria-activedescendant to point at
+       the currently-highlighted option. SR users focused on the
+       input hear the option announced. */
+    if (input && link.id) {
+      input.setAttribute('aria-activedescendant', link.id);
+    }
     /* Scroll the result into view if the list is tall enough to
        overflow its container. `block: 'nearest'` avoids a jumpy
        center-scroll on short result lists. */
@@ -360,10 +381,13 @@
     }
   }
 
-  function clearActive(links) {
+  function clearActive(links, input) {
     for (var i = 0; i < links.length; i++) {
       links[i].classList.remove('is-active');
       links[i].removeAttribute('aria-selected');
+    }
+    if (input) {
+      input.removeAttribute('aria-activedescendant');
     }
   }
 

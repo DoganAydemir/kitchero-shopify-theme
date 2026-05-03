@@ -22,7 +22,7 @@
 {{ 'section-custom-liquid.css' | asset_url | stylesheet_tag }}
 
 <div
-  class="kt-custom-liquid color-{{ section.settings.color_scheme }}"
+  class="kt-custom-liquid color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="
     --kt-section-padding-top: {{ section.settings.padding_top }}px;
     --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;
