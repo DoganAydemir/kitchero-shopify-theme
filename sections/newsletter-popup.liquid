@@ -215,6 +215,8 @@
                 class="kt-newsletter-popup__input"
                 placeholder="{{ section.settings.email_placeholder | default: 'Enter your email address' }}"
                 required
+                aria-required="true"
+                inputmode="email"
                 autocomplete="email"
                 value=""
                 data-popup-email
@@ -222,6 +224,15 @@
               >
             </div>
             {%- render 'form-field-error', form: form, field: 'email', describedby_id: popup_email_err -%}
+
+            {%- comment -%}
+              Honeypot — appended to the popup form. Backend rejects
+              any submission with non-empty contact[website].
+            {%- endcomment -%}
+            <p class="kt-form__honeypot" aria-hidden="true">
+              <label for="NewsletterPopupTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+              <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off">
+            </p>
 
             <button type="submit" class="kt-newsletter-popup__submit">
               <span>{{ section.settings.submit_button_text | default: 'Get 15% Off' }}</span>

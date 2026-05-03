@@ -69,6 +69,7 @@
               name="contact[first_name]"
               class="field__input"
               required
+              aria-required="true"
               autocomplete="given-name"
               {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="appointment-first-name-error"{% endif %}
             >
@@ -84,6 +85,7 @@
               name="contact[last_name]"
               class="field__input"
               required
+              aria-required="true"
               autocomplete="family-name"
               {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="appointment-last-name-error"{% endif %}
             >
@@ -102,6 +104,8 @@
             name="contact[email]"
             class="field__input"
             required
+            aria-required="true"
+            inputmode="email"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="appointment-email-error"{% endif %}
           >
@@ -119,6 +123,8 @@
             name="contact[phone]"
             class="field__input"
             required
+            aria-required="true"
+            inputmode="tel"
             autocomplete="tel"
             {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="appointment-phone-error"{% endif %}
           >
@@ -163,6 +169,16 @@
             rows="4"
           ></textarea>
         </div>
+
+        {%- comment -%}
+          Honeypot — bots auto-fill every input including off-screen
+          ones; humans skip it because they can't see it. Backend
+          should reject any submission with non-empty contact[website].
+        {%- endcomment -%}
+        <p class="kt-form__honeypot" aria-hidden="true">
+          <label for="appointment-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+          <input type="text" id="appointment-website-trap" name="contact[website]" tabindex="-1" autocomplete="off">
+        </p>
 
         {%- comment -%} Submit {%- endcomment -%}
         <div class="kt-appointment-drawer__footer">

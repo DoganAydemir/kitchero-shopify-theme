@@ -639,6 +639,34 @@ a {
   font-size: 0.875rem;
 }
 
+/* Required-field marker — visible "*" appended to a form label so the
+   user knows a field is required before they tab into it. WCAG 3.3.2
+   (Labels or Instructions) wants required fields signalled visually,
+   not only via aria-required. The non-breaking space keeps the asterisk
+   from wrapping onto its own line on narrow viewports.
+   Applied via `class="kt-form__label kt-form__label--required"`. */
+.kt-form__label--required::after {
+  content: '\00a0*';
+  color: var(--kt-color-error, #c0392b);
+  font-weight: 600;
+  margin-left: 0.125rem;
+}
+
+/* Honeypot trap — invisible to humans, visible to bots that auto-fill
+   every input. Position off-screen + hidden from AT (`aria-hidden`,
+   `tabindex="-1"`) but still in the DOM so naive bots populate it.
+   Backend hint: any submission with a non-empty honeypot value is spam.
+   Used by appointment-drawer, newsletter forms, contact-form etc. */
+.kt-form__honeypot {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* ── Shared breadcrumb component ─────────────────────────
    Rendered via snippets/breadcrumbs.liquid on collection /
    article / blog / page / search pages. Product pages use

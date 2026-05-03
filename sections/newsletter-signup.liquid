@@ -32,10 +32,24 @@
               class="kt-newsletter-page__input"
               placeholder="{{ 'kt.newsletter.label' | t | default: 'Email' }}"
               required
+              aria-required="true"
+              inputmode="email"
               autocomplete="email"
               aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
               aria-describedby="NewsletterPageForm-error"
             >
+
+            {%- comment -%}
+              Honeypot — invisible to humans, populated by naive bots.
+              Backend can reject submissions where contact[website] is
+              non-empty. Field uses .kt-form__honeypot positioning trick
+              (off-screen, not display:none) so determined bots that
+              skip hidden fields still trip it.
+            {%- endcomment -%}
+            <p class="kt-form__honeypot" aria-hidden="true">
+              <label for="newsletter-page-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+              <input type="text" id="newsletter-page-website-trap" name="contact[website]" tabindex="-1" autocomplete="off">
+            </p>
             <button type="submit" class="kt-newsletter-page__btn" name="commit">
               {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
             </button>

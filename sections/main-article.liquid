@@ -315,11 +315,12 @@
                     class="kt-article__comment-input"
                     value="{{ form.author | default: '' | escape }}"
                     required
+                    aria-required="true"
                     autocomplete="name"
                     placeholder=" "
                     {% if form.errors contains 'author' %}aria-invalid="true" aria-describedby="comment-author-error"{% endif %}
                   >
-                  <label for="comment-author" class="kt-article__comment-label">
+                  <label for="comment-author" class="kt-article__comment-label kt-form__label--required">
                     {{ 'kt.blog.article.name' | t | default: 'Name' }}
                   </label>
                   {%- render 'form-field-error', form: form, field: 'author', describedby_id: 'comment-author-error' -%}
@@ -332,11 +333,13 @@
                     class="kt-article__comment-input"
                     value="{{ form.email | default: '' | escape }}"
                     required
+                    aria-required="true"
+                    inputmode="email"
                     autocomplete="email"
                     placeholder=" "
                     {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="comment-email-error"{% endif %}
                   >
-                  <label for="comment-email" class="kt-article__comment-label">
+                  <label for="comment-email" class="kt-article__comment-label kt-form__label--required">
                     {{ 'kt.blog.article.email' | t | default: 'Email' }}
                   </label>
                   {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'comment-email-error' -%}
@@ -350,10 +353,11 @@
                   class="kt-article__comment-textarea"
                   rows="4"
                   required
+                  aria-required="true"
                   placeholder=" "
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="comment-body-error"{% endif %}
                 >{{ form.body | default: '' | escape }}</textarea>
-                <label for="comment-body" class="kt-article__comment-label">
+                <label for="comment-body" class="kt-article__comment-label kt-form__label--required">
                   {{ 'kt.blog.article.comment' | t | default: 'Your Comment' }}
                 </label>
                 {%- render 'form-field-error', form: form, field: 'body', describedby_id: 'comment-body-error' -%}

@@ -75,7 +75,7 @@
             Placeholder is retained alongside the label as an example
             hint, per current a11y best practice.
           {%- endcomment -%}
-          <label for="login-email" class="kt-customer__label">{{ 'kt.customer.login.email' | t }}</label>
+          <label for="login-email" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.login.email' | t }}</label>
           {%- comment -%}
             `value="..."` preserves the typed email on server-side
             validation failure. Shopify redirects back to the page
@@ -91,13 +91,15 @@
             placeholder="{{ 'kt.customer.login.email' | t }}"
             value="{{ form.email | escape }}"
             required
+            aria-required="true"
+            inputmode="email"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="login-email-error"{% endif %}
           >
           {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'login-email-error' -%}
         </div>
         <div class="kt-customer__field">
-          <label for="login-password" class="kt-customer__label">{{ 'kt.customer.login.password' | t }}</label>
+          <label for="login-password" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.login.password' | t }}</label>
           <input
             type="password"
             id="login-password"
@@ -105,6 +107,7 @@
             class="kt-customer__input"
             placeholder="{{ 'kt.customer.login.password' | t }}"
             required
+            aria-required="true"
             autocomplete="current-password"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="login-password-error"{% endif %}
           >
@@ -165,6 +168,8 @@
               class="kt-customer__input"
               placeholder="{{ 'kt.customer.login.email' | t }}"
               required
+              aria-required="true"
+              inputmode="email"
               autocomplete="email"
               {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="forgot-email-error"{% endif %}
             >

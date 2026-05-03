@@ -72,7 +72,7 @@
         {%- endcomment -%}
         <div class="kt-customer__row">
           <div class="kt-customer__field">
-            <label for="register-first-name" class="kt-customer__label">{{ 'kt.customer.register.first_name' | t }}</label>
+            <label for="register-first-name" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.register.first_name' | t }}</label>
             <input
               type="text"
               id="register-first-name"
@@ -81,13 +81,14 @@
               placeholder="{{ 'kt.customer.register.first_name' | t }}"
               value="{{ form.first_name | escape }}"
               required
+              aria-required="true"
               autocomplete="given-name"
               {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="register-first-name-error"{% endif %}
             >
             {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: 'register-first-name-error' -%}
           </div>
           <div class="kt-customer__field">
-            <label for="register-last-name" class="kt-customer__label">{{ 'kt.customer.register.last_name' | t }}</label>
+            <label for="register-last-name" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.register.last_name' | t }}</label>
             <input
               type="text"
               id="register-last-name"
@@ -96,6 +97,7 @@
               placeholder="{{ 'kt.customer.register.last_name' | t }}"
               value="{{ form.last_name | escape }}"
               required
+              aria-required="true"
               autocomplete="family-name"
               {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="register-last-name-error"{% endif %}
             >
@@ -103,7 +105,7 @@
           </div>
         </div>
         <div class="kt-customer__field">
-          <label for="register-email" class="kt-customer__label">{{ 'kt.customer.register.email' | t }}</label>
+          <label for="register-email" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.register.email' | t }}</label>
           <input
             type="email"
             id="register-email"
@@ -112,13 +114,15 @@
             placeholder="{{ 'kt.customer.register.email' | t }}"
             value="{{ form.email | escape }}"
             required
+            aria-required="true"
+            inputmode="email"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="register-email-error"{% endif %}
           >
           {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'register-email-error' -%}
         </div>
         <div class="kt-customer__field">
-          <label for="register-password" class="kt-customer__label">{{ 'kt.customer.register.password' | t }}</label>
+          <label for="register-password" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.register.password' | t }}</label>
           {%- comment -%}
             Drop hardcoded `minlength="5"` — Shopify's server-side
             validation owns the minimum password length. Shops on Plus
@@ -137,6 +141,7 @@
             class="kt-customer__input"
             placeholder="{{ 'kt.customer.register.password' | t }}"
             required
+            aria-required="true"
             autocomplete="new-password"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="register-password-error"{% endif %}
             aria-describedby="register-password-hint"

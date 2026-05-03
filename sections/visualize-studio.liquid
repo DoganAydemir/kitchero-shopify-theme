@@ -98,6 +98,7 @@
                 placeholder="{{ 'kt.contact.form.name_placeholder' | t | default: 'Your Name' }}"
                 autocomplete="name"
                 required
+                aria-required="true"
                 {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="VisualizeStudioName-error"{% endif %}
               >
               {%- render 'form-field-error', form: form, field: 'name', describedby_id: 'VisualizeStudioName-error' -%}
@@ -112,12 +113,24 @@
                 id="VisualizeStudioEmail"
                 name="contact[email]"
                 placeholder="{{ 'kt.contact.form.email_placeholder' | t | default: 'Your Email' }}"
+                inputmode="email"
                 autocomplete="email"
                 required
+                aria-required="true"
                 {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="VisualizeStudioEmail-error"{% endif %}
               >
               {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'VisualizeStudioEmail-error' -%}
             </div>
+
+            {%- comment -%}
+              Honeypot — see base.css `.kt-form__honeypot` for positioning.
+              Backend should reject any submission with a non-empty
+              `contact[website]`.
+            {%- endcomment -%}
+            <p class="kt-form__honeypot" aria-hidden="true">
+              <label for="VisualizeStudioWebsiteTrap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+              <input type="text" id="VisualizeStudioWebsiteTrap" name="contact[website]" tabindex="-1" autocomplete="off">
+            </p>
 
             {%- comment -%}
               `contact[body]` is the message field of Shopify's contact
