@@ -87,10 +87,20 @@
             {%- comment -%} Info block (below image) {%- endcomment -%}
             <div class="kt-deals__card-body">
               <div class="kt-deals__card-heading">
-                <h3 class="kt-deals__card-title">
+                {%- comment -%}
+                  Card title rendered as <p role="heading" aria-level="2">
+                  rather than <h3>. The deals-grid section ships with no
+                  intrinsic h2/parent heading; on /deals (templates/
+                  page.deals.json) this section sits directly under the
+                  page-header-dotted h1, so an h3 here would create an
+                  h1 → h3 skip (WCAG 2.4.6). Using ARIA-level=2 keeps the
+                  semantic level matching the page outline without
+                  forcing a visible section heading.
+                {%- endcomment -%}
+                <p class="kt-deals__card-title" role="heading" aria-level="2">
                   {{- tier_text -}}
                   {%- if block.settings.price != blank %} : {{ block.settings.price | escape }}{% endif -%}
-                </h3>
+                </p>
                 {%- if block.settings.original_price != blank -%}
                   <s class="kt-deals__card-original-price">{{ block.settings.original_price | escape }}</s>
                 {%- endif -%}
