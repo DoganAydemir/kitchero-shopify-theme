@@ -172,9 +172,20 @@
   {%- comment -%} Content below image {%- endcomment -%}
   <div class="kt-card-product__content">
     <div class="kt-card-product__info">
-      <h3 class="kt-card-product__title">
+      {%- comment -%}
+        Promoted from <h3> to <h2>. Card-product is rendered inside
+        listing sections (main-collection, main-collection-vertical,
+        main-search) whose page title is h1. With <h3> here, the
+        outline went h1 → h3 (skip, WCAG 2.4.6). With <h2> the
+        outline becomes h1 → h2 (sequential). On main-search where
+        a wrapping "Products" h2 already exists, h2 here is the same
+        level (no skip). On featured-product on a home page, the
+        surrounding section heading sits at h2 → cards h2 = same
+        level (also legal).
+      {%- endcomment -%}
+      <h2 class="kt-card-product__title">
         <a href="{{ product.url }}" style="text-decoration: none; color: inherit;">{{ product.title }}</a>
-      </h3>
+      </h2>
 
       {%- comment -%} Star rating {%- endcomment -%}
       {%- render 'product-rating', product: product -%}
