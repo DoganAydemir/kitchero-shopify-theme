@@ -132,6 +132,15 @@
       target.classList.add('kt-announcement-banner__slide--active');
       target.removeAttribute('aria-hidden');
 
+      /* Sync tabindex on inner anchors so inactive slides' links can't
+         be reached by keyboard Tab while their slide is aria-hidden.
+         WCAG 4.1.2 — focusable elements inside aria-hidden subtrees
+         confuse assistive tech. */
+      var currentLink = current.querySelector('a');
+      var targetLink = target.querySelector('a');
+      if (currentLink) currentLink.setAttribute('tabindex', '-1');
+      if (targetLink) targetLink.removeAttribute('tabindex');
+
       this.activeIndex = index;
     }
   }

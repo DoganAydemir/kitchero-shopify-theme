@@ -67,8 +67,16 @@
               {% if announcement_index > 0 %}aria-hidden="true"{% endif %}
               {{ block.shopify_attributes }}
             >
+              {%- comment -%}
+                Inactive slides have aria-hidden="true"; their inner
+                anchors must also leave the keyboard tab order, otherwise
+                Tab cycles through invisible links (WCAG 4.1.2). The
+                tabindex="-1" on the link below mirrors the active-slide
+                attribute when the slide is hidden. JS goTo() syncs both
+                attributes when active slide changes.
+              {%- endcomment -%}
               {%- if block.settings.link != blank and block.settings.text != blank -%}
-                <a href="{{ block.settings.link | escape }}" class="kt-announcement-banner__link">
+                <a href="{{ block.settings.link | escape }}" class="kt-announcement-banner__link"{% if announcement_index > 0 %} tabindex="-1"{% endif %}>
                   <span class="kt-announcement-banner__text">{{ block.settings.text | escape }}</span>
                   <svg
                     class="kt-announcement-banner__arrow"

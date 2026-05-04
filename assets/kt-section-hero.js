@@ -13,10 +13,12 @@
     this.texts = section.querySelectorAll('[data-slide-text]');
     this.prevBtn = section.querySelector('[data-hero-prev]');
     this.nextBtn = section.querySelector('[data-hero-next]');
+    this.playToggle = section.querySelector('[data-hero-play-toggle]');
     this.current = 0;
     this.total = this.slides.length;
     this.autoplaySpeed = parseInt(section.dataset.autoplaySpeed || '8', 10) * 1000;
     this.timer = null;
+    this.userPaused = false;
     this.gsapCtx = null;
 
     this.prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -103,12 +105,28 @@
     };
     this._resumeAutoplay = function () {
       /* Only resume if a resume is still desirable: >1 slide, not
-         reduced-motion, merchant set autoplay. Mirrors resetAutoplay's
+         reduced-motion, merchant set autoplay, AND user hasn't
+         explicitly paused via the play toggle. Mirrors resetAutoplay's
          guards. */
+      if (self.userPaused) return;
       if (self.total > 1 && !self.prefersReducedMotion && self.autoplaySpeed > 0 && !self.timer) {
         self.startAutoplay();
       }
     };
+
+    /* Pause/play toggle — WCAG 2.2.2. User-controlled, persists.
+       aria-pressed="true" = autoplay running, "false" = paused. */
+    if (this.playToggle) {
+      this.playToggle.addEventListener('click', function () {
+        self.userPaused = !self.userPaused;
+        if (self.userPaused) {
+          self._pauseAutoplay();
+        } else {
+          self._resumeAutoplay();
+        }
+        self.playToggle.setAttribute('aria-pressed', self.userPaused ? 'false' : 'true');
+      });
+    }
     this.section.addEventListener('mouseenter', this._pauseAutoplay);
     this.section.addEventListener('mouseleave', this._resumeAutoplay);
     this.section.addEventListener('focusin', this._pauseAutoplay);
@@ -177,6 +195,7 @@
 
   KitcheroHero.prototype.resetAutoplay = function () {
     clearInterval(this.timer);
+    if (this.userPaused) return;
     if (this.prefersReducedMotion || this.autoplaySpeed <= 0) return;
     this.startAutoplay();
   };

@@ -312,6 +312,23 @@
   height: 20px;
 }
 
+/* Play/pause toggle — toggles which icon is visible based on aria-pressed.
+   aria-pressed="true" → autoplay running → show pause icon.
+   aria-pressed="false" → user paused → show play icon. */
+.kt-hero__nav-btn--play .kt-hero__icon--play {
+  display: none;
+}
+.kt-hero__nav-btn--play[aria-pressed='false'] .kt-hero__icon--play {
+  display: block;
+}
+.kt-hero__nav-btn--play[aria-pressed='false'] .kt-hero__icon--pause {
+  display: none;
+}
+.kt-hero__nav-btn--play .kt-hero__icon {
+  width: 16px;
+  height: 16px;
+}
+
 /* Scroll Indicator */
 .kt-hero__scroll {
   position: absolute;

@@ -157,7 +157,7 @@
 
           {%- if block.settings.cta_text != blank -%}
             <div class="kt-hero__anim" data-hero-anim data-delay="1000">
-              <a href="{{ block.settings.cta_link | default: routes.root_url }}" class="kt-hero__cta">
+              <a href="{{ block.settings.cta_link | default: routes.root_url | escape }}" class="kt-hero__cta">
                 {{ block.settings.cta_text }}
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -182,6 +182,28 @@
           <polyline points="9 6 15 12 9 18"></polyline>
         </svg>
       </button>
+      {%- comment -%}
+        Pause/play toggle — required by WCAG 2.2.2 for any auto-
+        advancing content. Renders only when autoplay > 0 and there's
+        more than one slide. Mirrors slider-cinematic-hero pattern.
+      {%- endcomment -%}
+      {%- if section.settings.show_play_toggle and section.settings.autoplay_speed > 0 and section.blocks.size > 1 -%}
+        <button
+          type="button"
+          class="kt-hero__nav-btn kt-hero__nav-btn--play"
+          data-hero-play-toggle
+          aria-pressed="true"
+          aria-label="{{ 'kt.section.hero.toggle_autoplay' | t | default: 'Pause or play slideshow' }}"
+        >
+          <svg class="kt-hero__icon kt-hero__icon--pause" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+          <svg class="kt-hero__icon kt-hero__icon--play" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+      {%- endif -%}
     </div>
 
     {%- comment -%} Scroll Indicator {%- endcomment -%}
@@ -214,6 +236,13 @@
       "unit": "s",
       "label": "t:sections.hero.settings.autoplay_speed.label",
       "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "show_play_toggle",
+      "label": "t:sections.hero.settings.show_play_toggle.label",
+      "info": "t:sections.hero.settings.show_play_toggle.info",
+      "default": true
     }
   ],
   "blocks": [
