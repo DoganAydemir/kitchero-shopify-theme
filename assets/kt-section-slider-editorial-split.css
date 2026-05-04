@@ -316,6 +316,48 @@
   to { transform: scaleX(1); }
 }
 
+/* ------------------------------------------------------------
+   Pause/play toggle — WCAG 2.1 SC 2.2.2 (any auto-advancing
+   content needs a user-controllable pause). Sits next to the
+   nav numbers in the copy pane footer area.
+   ------------------------------------------------------------ */
+.kt-slider-editorial__play-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+  vertical-align: middle;
+}
+
+.kt-slider-editorial__play-toggle:hover {
+  color: var(--kt-white, #fff);
+}
+
+.kt-slider-editorial__play-toggle .kt-slider-editorial__icon--play {
+  display: none;
+}
+
+.kt-slider-editorial__play-toggle[aria-pressed='false'] .kt-slider-editorial__icon--play {
+  display: block;
+}
+
+.kt-slider-editorial__play-toggle[aria-pressed='false'] .kt-slider-editorial__icon--pause {
+  display: none;
+}
+
+.kt-slider-editorial__play-toggle:focus-visible {
+  outline: 2px solid var(--kt-white, #fff);
+  outline-offset: 3px;
+}
+
 /* Reduced motion: skip every animated transform/opacity */
 @media (prefers-reduced-motion: reduce) {
   .kt-slider-editorial__image-slide,

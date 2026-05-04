@@ -185,6 +185,29 @@
               <span class="kt-slider-editorial__progress-bar" data-editorial-progress></span>
             </div>
           {%- endif -%}
+
+          {%- comment -%}
+            Pause / play toggle — required by WCAG 2.1 SC 2.2.2 for any
+            auto-advancing content. Mirrors the cinematic-hero pattern.
+            Only renders when autoplay is active and there's > 1 slide.
+          {%- endcomment -%}
+          {%- if section.settings.show_play_toggle and autoplay_interval > 0 and total_slides > 1 -%}
+            <button
+              type="button"
+              class="kt-slider-editorial__play-toggle"
+              data-editorial-play-toggle
+              aria-pressed="true"
+              aria-label="{{ 'kt.section.slider_editorial_split.toggle_autoplay' | t | default: 'Toggle autoplay' }}"
+            >
+              <svg class="kt-slider-editorial__icon kt-slider-editorial__icon--pause" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <svg class="kt-slider-editorial__icon kt-slider-editorial__icon--play" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+          {%- endif -%}
         </div>
       </div>
     </div>
@@ -217,6 +240,13 @@
       "type": "checkbox",
       "id": "show_progress_bar",
       "label": "t:sections.slider_editorial_split.settings.show_progress_bar.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_play_toggle",
+      "label": "t:sections.slider_editorial_split.settings.show_play_toggle.label",
+      "info": "t:sections.slider_editorial_split.settings.show_play_toggle.info",
       "default": true
     },
     {

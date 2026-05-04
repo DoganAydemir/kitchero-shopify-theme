@@ -111,14 +111,36 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         }
       }
 
+      /* Pause/play toggle — required by WCAG 2.1 SC 2.2.2.
+         User-controlled, persists until next page load.
+         aria-pressed="true" = autoplay running, "false" = paused. */
+      var playToggle = section.querySelector('[data-editorial-play-toggle]');
+      var userPaused = false;
+      function syncPlayToggleState() {
+        if (!playToggle) return;
+        playToggle.setAttribute('aria-pressed', userPaused ? 'false' : 'true');
+      }
+      if (playToggle) {
+        playToggle.addEventListener('click', function () {
+          userPaused = !userPaused;
+          if (userPaused) {
+            stopAutoplay();
+          } else if (!prefersReducedMotion && interval > 0 && total > 1) {
+            startAutoplay();
+          }
+          syncPlayToggleState();
+        });
+      }
+
       /* Wire nav clicks: swap slide + restart autoplay timer */
       navBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           var idx = parseInt(btn.getAttribute('data-editorial-nav'), 10);
           if (isNaN(idx)) return;
           setActive(idx);
-          /* Restart so user click gets full interval before next auto-advance */
-          if (!prefersReducedMotion && interval > 0 && total > 1) {
+          /* Restart so user click gets full interval before next auto-advance.
+             Skip restart if user explicitly paused via toggle. */
+          if (!userPaused && !prefersReducedMotion && interval > 0 && total > 1) {
             startAutoplay();
           }
         });
