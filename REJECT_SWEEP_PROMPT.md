@@ -47,12 +47,18 @@ Tek mesajda 6 `general-purpose` ajan başlat. Her ajana şu prompt:
 > modify files. Cap 600 words. If 0 findings, say "Found 0 REJECT — clean."
 
 Section atamaları:
-- Ajan 1 → A (Absolute) + C5 (Policy)
+- Ajan 1 → A (Absolute) + B3 (Mandatory features) + C5 (Policy)
 - Ajan 2 → B2 + C2 (A11y)
 - Ajan 3 → B1 + C3 (Perf)
-- Ajan 4 → C1 (Security)
+- Ajan 4 → C1 (Security) + B4 (Form correctness)
 - Ajan 5 → C4 (JavaScript)
 - Ajan 6 → C6 (Demo content)
+
+**Önemli:** REJECT_RULES.md'nin TÜM B-section kuralları (B1, B2, B3, B4)
+mutlaka kapsama dahil edilmelidir. B3 (mandatory features: @app block,
+payment_button, placeholder_svg, JSON-LD, theme_info, color_scheme,
+locale parity) ve B4 (form correctness: native `<form>` vs `{% form %}`,
+autocomplete, fieldset/legend, CSRF) paid Theme Store kritik kuralları.
 
 ### Adım 2 — Bulguları topla
 

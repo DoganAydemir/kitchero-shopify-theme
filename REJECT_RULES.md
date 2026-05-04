@@ -276,6 +276,19 @@ These look like violations but are correct:
 
 ## E. AGENT WORKFLOW
 
+**CRITICAL — Section coverage:** A 6-agent sweep MUST cover ALL B-section
+rules (B1, B2, B3, B4) plus all C-section rules (C1-C6) plus Section A.
+Recommended distribution:
+- Ajan 1 → A + B3 + C5 (absolute / mandatory features / policy)
+- Ajan 2 → B2 + C2 (a11y)
+- Ajan 3 → B1 + C3 (perf)
+- Ajan 4 → C1 + B4 (security + form correctness — both are CSRF/XSS adjacent)
+- Ajan 5 → C4 (JavaScript)
+- Ajan 6 → C6 (Demo content)
+B3 and B4 were historically omitted in early R29-R43 sweeps;
+they hold paid-Theme-Store mandatory criteria (CSRF tokens, @app
+blocks, payment_button) — never skip.
+
 When invoked for a REJECT audit, an agent MUST:
 
 1. **Read this entire file once.** ~400 lines, fits in single context.
