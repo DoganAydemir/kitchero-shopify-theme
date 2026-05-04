@@ -34,7 +34,7 @@
           aria-roledescription="slide"
           aria-label="{{ forloop.index }} / {{ section.blocks.size }}"
           aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
-          tabindex="0"
+          tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
           {{ block.shopify_attributes }}
         >
           <div class="kt-slider-cinematic__slide-image-wrap">

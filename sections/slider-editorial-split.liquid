@@ -100,7 +100,7 @@
               aria-roledescription="slide"
               aria-label="{{ index_padded }} / {{ total_padded }}"
               aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
-              tabindex="0"
+              tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
               {{ block.shopify_attributes }}
             >
               <span class="kt-slider-editorial__index" aria-hidden="true">{{ index_padded }}</span>
