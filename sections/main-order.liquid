@@ -273,14 +273,14 @@
     <div class="kt-order__addresses">
       {%- if order.shipping_address -%}
         <div class="kt-order__address-card">
-          <h3 class="kt-order__address-title">{{ 'kt.customer.order.shipping_address' | t }}</h3>
+          <h2 class="kt-order__address-title">{{ 'kt.customer.order.shipping_address' | t }}</h2>
           <address class="kt-order__address-body">{{ order.shipping_address | format_address }}</address>
         </div>
       {%- endif -%}
 
       {%- if order.billing_address -%}
         <div class="kt-order__address-card">
-          <h3 class="kt-order__address-title">{{ 'kt.customer.order.billing_address' | t }}</h3>
+          <h2 class="kt-order__address-title">{{ 'kt.customer.order.billing_address' | t }}</h2>
           <address class="kt-order__address-body">{{ order.billing_address | format_address }}</address>
         </div>
       {%- endif -%}
@@ -295,7 +295,7 @@
     {%- endcomment -%}
     {%- if order.note != blank -%}
       <div class="kt-order__note">
-        <h3 class="kt-order__note-title">{{ 'kt.customer.order.note_heading' | t | default: 'Order note' }}</h3>
+        <h2 class="kt-order__note-title">{{ 'kt.customer.order.note_heading' | t | default: 'Order note' }}</h2>
         <p class="kt-order__note-body">{{ order.note | escape | newline_to_br }}</p>
       </div>
     {%- endif -%}
@@ -318,7 +318,7 @@
     {%- endcomment -%}
     {%- if order.attributes != blank and order.attributes.size > 0 -%}
       <div class="kt-order__attributes">
-        <h3 class="kt-order__attributes-title">{{ 'kt.customer.order.attributes_heading' | t | default: 'Order details' }}</h3>
+        <h2 class="kt-order__attributes-title">{{ 'kt.customer.order.attributes_heading' | t | default: 'Order details' }}</h2>
         <dl class="kt-order__attributes-list">
           {%- for attribute in order.attributes -%}
             {%- assign attr_key = attribute.first | strip -%}
