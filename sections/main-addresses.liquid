@@ -141,12 +141,18 @@
                       DELETE (see assets/customer-addresses.js) so
                       JS-on users still get the polished UX.
                     {%- endcomment -%}
-                    <form action="{{ address.url }}" method="post" class="kt-addresses__delete-form">
+                    {%- comment -%}
+                      Wrap in {% form 'customer_address', address %} so
+                      Shopify auto-injects the authenticity_token (CSRF).
+                      Without it, JS-off users posting the delete get a
+                      422 on stores with strict CSRF middleware.
+                    {%- endcomment -%}
+                    {%- form 'customer_address', address, class: 'kt-addresses__delete-form' -%}
                       <input type="hidden" name="_method" value="delete">
                       <button type="submit" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t }}">
                         {{ 'kt.customer.addresses.delete' | t }}
                       </button>
-                    </form>
+                    {%- endform -%}
                   </div>
 
                   <div id="AddressEditForm{{ address.id }}" class="kt-addresses__form" hidden data-edit-form="{{ address.id }}">

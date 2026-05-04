@@ -291,7 +291,14 @@
     {%- assign nojs_qty_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1 -%}
     {%- assign nojs_qty_step = product.selected_or_first_available_variant.quantity_rule.increment | default: 1 -%}
     {%- assign nojs_qty_max = product.selected_or_first_available_variant.quantity_rule.max -%}
-    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="kt-variant-picker__nojs">
+    {%- comment -%}
+      Wrap in {% form 'product', product %} so Shopify auto-injects
+      authenticity_token (CSRF). A raw <form action="/cart/add"
+      method="post"> would be rejected with a 422 on stores with
+      strict CSRF middleware. The form filter also accepts
+      additional html-attributes like `class`.
+    {%- endcomment -%}
+    {%- form 'product', product, class: 'kt-variant-picker__nojs' -%}
       <label for="VariantNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
         {{ 'kt.product.variant' | t | default: 'Variant' }}
       </label>
@@ -325,6 +332,6 @@
       <button type="submit" class="kt-variant-picker__nojs-submit">
         {{ 'kt.product.add_to_cart' | t | default: 'Add to cart' }}
       </button>
-    </form>
+    {%- endform -%}
   </noscript>
 {%- endunless -%}
