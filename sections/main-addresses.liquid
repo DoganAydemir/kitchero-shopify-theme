@@ -86,14 +86,14 @@
             <div class="kt-addresses__row">
               <div class="kt-addresses__field">
                 <label for="AddressCountryNew" class="kt-addresses__label kt-form__label--required">{{ 'kt.customer.addresses.country' | t }}</label>
-                <select id="AddressCountryNew" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="AddressCountryNew-error"{% endif %}>
+                <select id="AddressCountryNew" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | escape }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="AddressCountryNew-error"{% endif %}>
                   {{ country_option_tags }}
                 </select>
                 {%- render 'form-field-error', form: form, field: 'country', describedby_id: 'AddressCountryNew-error' -%}
               </div>
               <div class="kt-addresses__field" data-province-field>
                 <label for="AddressProvinceNew" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
-                <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="AddressProvinceNew-error"{% endif %}>
+                <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province | escape }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="AddressProvinceNew-error"{% endif %}>
 
                 </select>
                 {%- render 'form-field-error', form: form, field: 'province', describedby_id: 'AddressProvinceNew-error' -%}

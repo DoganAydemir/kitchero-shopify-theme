@@ -152,7 +152,13 @@ if (!window.__kitcheroMainCartLoaded) {
       }
       refreshAbort = new AbortController();
 
-      return fetch('/?sections=' + sectionsToFetch.join(','), {
+      /* Use Shopify.routes.root so that on Markets storefronts the
+         locale prefix (`/de/`, `/fr/`, `/es/`, `/tr/`) is preserved.
+         A bare `/` would redirect to the default-locale section snippet
+         and the returned currency/format strings would mismatch the
+         displayed page. Mirrors cart-drawer.js. */
+      var rootUrl = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+      return fetch(rootUrl + '?sections=' + sectionsToFetch.join(','), {
         headers: { 'Accept': 'application/json' },
         signal: refreshAbort.signal,
       })
