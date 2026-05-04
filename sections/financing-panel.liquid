@@ -102,7 +102,7 @@
               <span class="kt-financing-panel__eyebrow-rule" aria-hidden="true"></span>
             {%- endunless -%}
             <span class="kt-financing-panel__eyebrow kt-financing-panel__eyebrow--{{ section.settings.eyebrow_style | default: 'default' }}">
-              {%- if section.settings.eyebrow_style == 'bread' -%}
+              {%- if section.settings.eyebrow_style == 'icon_prefix' -%}
                 <span class="kt-financing-panel__eyebrow-mark">{{ section.settings.eyebrow }}<sup>&reg;</sup></span>
               {%- else -%}
                 {{ section.settings.eyebrow }}
@@ -162,7 +162,7 @@
                   {%- endcase -%}
                 </div>
                 <div class="kt-financing-panel__highlight-body">
-                  <h5 class="kt-financing-panel__highlight-title">{{ block.settings.title }}</h5>
+                  <h4 class="kt-financing-panel__highlight-title">{{ block.settings.title }}</h4>
                   <p class="kt-financing-panel__highlight-desc">{{ block.settings.description }}</p>
                 </div>
               </div>
@@ -186,7 +186,7 @@
                       <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
                   {%- endcase -%}
                 </div>
-                <h5 class="kt-financing-panel__step-title">{{ block.settings.title }}</h5>
+                <h4 class="kt-financing-panel__step-title">{{ block.settings.title }}</h4>
                 <p class="kt-financing-panel__step-desc">{{ block.settings.description }}</p>
               </div>
             {%- endfor -%}
@@ -231,7 +231,7 @@
       "label": "t:sections.financing-panel.settings.eyebrow_style.label",
       "options": [
         { "value": "default", "label": "t:sections.financing-panel.settings.eyebrow_style.options__default.label" },
-        { "value": "bread", "label": "t:sections.financing-panel.settings.eyebrow_style.options__bread.label" }
+        { "value": "icon_prefix", "label": "t:sections.financing-panel.settings.eyebrow_style.options__icon_prefix.label" }
       ],
       "default": "default"
     },
