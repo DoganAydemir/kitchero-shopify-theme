@@ -262,6 +262,7 @@ These look like violations but are correct:
 | `href="{{ blog.previous_article.url }}"` / `blog.next_article.url` | Shopify-derived navigation, server-controlled |
 | `href="{{ link.url }}"` from a linklist (`link_list` setting) | Admin URL-validated like schema URL settings; SEC-002 covers MERCHANT/USER/FORM input, not Shopify-validated linklist outputs |
 | `href="{{ product.vendor \| url_for_vendor }}"` | Shopify vendor-handle URL, server-derived |
+| Schema `select` option labels with literal `"H1"`/`"H2"` etc. for `heading_tag` settings | Universal HTML tag names — same in every language; localizing is overkill and Theme Store doesn't flag |
 | `role="dialog" aria-modal="true"` on cart/search/menu drawer | Required, not a violation |
 | `sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"` on video iframe | Justified for video players |
 | `fetch(Kitchero.routes.cartChange + '.js')` | Correctly uses `.js` AJAX endpoint via routes object |
