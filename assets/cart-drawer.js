@@ -524,8 +524,13 @@
               }
             });
           } else {
-            /* No dedicated header-cart-icon section — query cart.js. */
-            return fetch(Kitchero.routes.cart, {
+            /* No dedicated header-cart-icon section — query cart.js.
+               IMPORTANT: must hit `/cart.js` (the AJAX endpoint), not
+               `/cart` (the HTML cart page). Shopify ignores
+               `Accept: application/json` on /cart and returns the HTML
+               cart page; r.json() then throws SyntaxError. The .js
+               suffix is the documented AJAX-cart endpoint. */
+            return fetch(Kitchero.routes.cart + '.js', {
               headers: { 'Accept': 'application/json' },
             })
               .then(function (r) { return r.json(); })
@@ -548,7 +553,7 @@
              UI feedback — drawer would stay open with stale qty and
              the user would keep clicking the +/– buttons wondering
              what's wrong). */
-          return fetch(Kitchero.routes.cart, {
+          return fetch(Kitchero.routes.cart + '.js', {
             headers: { 'Accept': 'application/json' },
           })
             .then(function (r) { return r.json(); })
