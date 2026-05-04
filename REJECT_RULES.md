@@ -254,6 +254,14 @@ These look like violations but are correct:
 | `localStorage.setItem('newsletter-popup-dismissed-at', Date.now())` | Throttle timestamp, not PII |
 | `innerHTML = sectionResponse.html` after `fetch('/?sections=...')` | Server-rendered Shopify HTML, safe |
 | `target="_blank" rel="noopener noreferrer"` on social/external links | Required pair, not a violation |
+| `href="{{ routes.* }}"` (cart_url, account_url, search_url, root_url, etc.) | Shopify-system fixed routes, not user input — `\| escape` not needed |
+| `href="{{ product.url }}"` / `collection.url` / `article.url` / `blog.url` / `page.url` / `item.url` / `line_item.url` / `order.customer_url` | Shopify-generated handles/URLs, validated server-side |
+| `href="{{ value.url_to_remove }}"` / `filter.url_to_remove` | Shopify Storefront Filtering API output, server-generated |
+| `href="{{ canonical_url }}"` | Shopify-generated canonical, server-controlled |
+| `href="{{ shop.privacy_policy.url }}"` / `policy.url` | Shopify-managed legal page URLs |
+| `href="{{ blog.previous_article.url }}"` / `blog.next_article.url` | Shopify-derived navigation, server-controlled |
+| `href="{{ link.url }}"` from a linklist (`link_list` setting) | Admin URL-validated like schema URL settings; SEC-002 covers MERCHANT/USER/FORM input, not Shopify-validated linklist outputs |
+| `href="{{ product.vendor \| url_for_vendor }}"` | Shopify vendor-handle URL, server-derived |
 | `role="dialog" aria-modal="true"` on cart/search/menu drawer | Required, not a violation |
 | `sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"` on video iframe | Justified for video players |
 | `fetch(Kitchero.routes.cartChange + '.js')` | Correctly uses `.js` AJAX endpoint via routes object |

@@ -106,6 +106,29 @@
         {%- endcase -%}
       {%- endfor -%}
     </div>
+
+    {%- comment -%}
+      Pause/play toggle — required by WCAG 2.2.2 for any auto-rotating
+      content. Only renders when auto-rotate is on and there's > 1
+      slide. Mirrors hero / slider-cinematic-hero pattern.
+    {%- endcomment -%}
+    {%- if should_rotate and block_count > 1 -%}
+      <button
+        type="button"
+        class="kt-announcement-banner__play-toggle"
+        data-announcement-play-toggle
+        aria-pressed="true"
+        aria-label="{{ 'kt.section.announcement-banner.toggle_autoplay' | t | default: 'Pause or play announcements' }}"
+      >
+        <svg class="kt-announcement-banner__icon kt-announcement-banner__icon--pause" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+        <svg class="kt-announcement-banner__icon kt-announcement-banner__icon--play" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </button>
+    {%- endif -%}
   {%- endif -%}
 </announcement-banner>
 

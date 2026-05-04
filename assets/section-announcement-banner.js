@@ -38,16 +38,33 @@
       this.activeIndex = 0;
       this.timer = null;
       this.isPaused = false;
+      this.userPaused = false;
 
       this.blockCount = parseInt(this.getAttribute('data-block-count'), 10) || 0;
       this.shouldRotate = this.getAttribute('data-auto-rotate') === 'true';
       this.rotateSpeed = parseInt(this.getAttribute('data-rotate-speed'), 10) || 5000;
+      this.playToggle = this.querySelector('[data-announcement-play-toggle]');
 
       // Need at least 2 slides AND opted-in rotation AND no reduced-motion
       // request before we start spinning the timer.
       if (this.shouldRotate && this.slides.length > 1 && !prefersReducedMotion()) {
         this.bindEvents();
         this.start();
+      }
+
+      // Pause/play toggle — WCAG 2.2.2. User control persists across
+      // hover/focus/visibility resumes via userPaused flag.
+      if (this.playToggle) {
+        var self = this;
+        this.playToggle.addEventListener('click', function () {
+          self.userPaused = !self.userPaused;
+          if (self.userPaused) {
+            self.stop();
+          } else if (self.shouldRotate && self.slides.length > 1 && !prefersReducedMotion()) {
+            self.start();
+          }
+          self.playToggle.setAttribute('aria-pressed', self.userPaused ? 'false' : 'true');
+        });
       }
     }
 
@@ -92,6 +109,8 @@
     }
 
     resume() {
+      // Don't auto-resume if user explicitly paused via the toggle.
+      if (this.userPaused) return;
       this.isPaused = false;
     }
 

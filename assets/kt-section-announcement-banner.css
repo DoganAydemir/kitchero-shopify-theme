@@ -202,3 +202,47 @@
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Pause/play toggle — WCAG 2.2.2 (auto-rotating content).
+   ========================================================================== */
+.kt-announcement-banner__play-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: transparent;
+  color: currentColor;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.kt-announcement-banner__play-toggle:hover {
+  opacity: 1;
+}
+
+.kt-announcement-banner__play-toggle:focus-visible {
+  opacity: 1;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.kt-announcement-banner__play-toggle .kt-announcement-banner__icon--play {
+  display: none;
+}
+
+.kt-announcement-banner__play-toggle[aria-pressed='false'] .kt-announcement-banner__icon--play {
+  display: block;
+}
+
+.kt-announcement-banner__play-toggle[aria-pressed='false'] .kt-announcement-banner__icon--pause {
+  display: none;
+}

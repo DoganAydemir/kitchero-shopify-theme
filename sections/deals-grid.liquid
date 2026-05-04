@@ -18,7 +18,7 @@
           {%- assign tier_text = block.settings.tier | default: block.settings.title -%}
           {%- assign card_link = block.settings.link | default: routes.collections_url -%}
 
-          <a href="{{ card_link }}" class="kt-deals__card" {{ block.shopify_attributes }}>
+          <a href="{{ card_link | escape }}" class="kt-deals__card" {{ block.shopify_attributes }}>
 
             {%- comment -%} Image + overlays {%- endcomment -%}
             <div class="kt-deals__card-media">
