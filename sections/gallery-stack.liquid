@@ -213,6 +213,24 @@
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
+          {%- comment -%} Pause/play toggle — WCAG 2.2.2 (auto-advancing). {%- endcomment -%}
+          {%- if autoplay and section.blocks.size > 1 -%}
+            <button
+              type="button"
+              class="kt-gallery-stack__arrow kt-gallery-stack__arrow--play"
+              data-stack-play-toggle
+              aria-pressed="true"
+              aria-label="{{ 'kt.section.gallery_stack.toggle_autoplay' | t | default: 'Pause or play gallery' }}"
+            >
+              <svg class="kt-gallery-stack__icon kt-gallery-stack__icon--pause" aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <svg class="kt-gallery-stack__icon kt-gallery-stack__icon--play" aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+          {%- endif -%}
         </div>
       </div>
     {%- endif -%}

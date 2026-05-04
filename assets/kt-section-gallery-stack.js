@@ -119,6 +119,7 @@ if (!window.__kitcheroGalleryStackLoaded) {
 
     function startAutoplay(instance) {
       if (!instance.autoplay || reducedMotion) return;
+      if (instance.userPaused) return;
       stopAutoplay(instance);
       instance.intervalId = setInterval(function () {
         goTo(instance, instance.activeIndex + 1);
@@ -163,12 +164,14 @@ if (!window.__kitcheroGalleryStackLoaded) {
         ),
         prevBtn: section.querySelector('[data-stack-prev]'),
         nextBtn: section.querySelector('[data-stack-next]'),
+        playToggle: section.querySelector('[data-stack-play-toggle]'),
         currentLabel: section.querySelector('[data-stack-current]'),
         activeIndex: 0,
         total: total,
         autoplay: autoplay,
         autoplayInterval: autoplayInterval,
         intervalId: null,
+        userPaused: false,
         listeners: []
       };
 
@@ -177,6 +180,17 @@ if (!window.__kitcheroGalleryStackLoaded) {
         el.addEventListener(event, handler);
         instance.listeners.push({ el: el, event: event, handler: handler });
       }
+
+      /* Pause/play toggle — WCAG 2.2.2. */
+      on(instance.playToggle, 'click', function () {
+        instance.userPaused = !instance.userPaused;
+        if (instance.userPaused) {
+          stopAutoplay(instance);
+        } else {
+          startAutoplay(instance);
+        }
+        instance.playToggle.setAttribute('aria-pressed', instance.userPaused ? 'false' : 'true');
+      });
 
       /* Arrow buttons */
       on(instance.prevBtn, 'click', function () {

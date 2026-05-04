@@ -187,3 +187,40 @@
     transform: none;
   }
 }
+
+/* Pause/play toggle — WCAG 2.2.2 (auto-playing motion content).
+   Sits in the bottom-right of the looping video pane. */
+.kt-video-split__pause-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  z-index: 2;
+  transition: background-color 0.2s ease;
+}
+.kt-video-split__pause-toggle:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+.kt-video-split__pause-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.kt-video-split__pause-toggle .kt-video-split__icon--play {
+  display: none;
+}
+.kt-video-split__pause-toggle[aria-pressed='false'] .kt-video-split__icon--play {
+  display: block;
+}
+.kt-video-split__pause-toggle[aria-pressed='false'] .kt-video-split__icon--pause {
+  display: none;
+}

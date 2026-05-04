@@ -28,9 +28,29 @@
   <div class="page-width">
     <div class="kt-video-split__inner">
 
-      {%- comment -%} LEFT (or right): looping background video pane {%- endcomment -%}
-      <div class="kt-video-split__media" aria-hidden="true">
+      {%- comment -%} LEFT (or right): looping background video pane.
+        WCAG 2.2.2 — auto-playing motion content > 5s requires user-
+        controllable pause. We render a small pause toggle on top of
+        the media; data-video-split-pause-toggle is wired by the
+        section JS to play/pause the underlying <video> element.
+      {%- endcomment -%}
+      <div class="kt-video-split__media">
         {%- if section.settings.loop_video != blank -%}
+          <button
+            type="button"
+            class="kt-video-split__pause-toggle"
+            data-video-split-pause-toggle
+            aria-pressed="true"
+            aria-label="{{ 'kt.section.video_split_modal.toggle_loop' | t | default: 'Pause or play background video' }}"
+          >
+            <svg class="kt-video-split__icon kt-video-split__icon--pause" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+            <svg class="kt-video-split__icon kt-video-split__icon--play" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </button>
           {%- if section.settings.loop_poster != blank -%}
             {%- assign poster_url = section.settings.loop_poster | image_url: width: 1200 -%}
             {{
@@ -122,6 +142,8 @@
   {%- render 'video-modal', modal_id: modal_id -%}
   <script src="{{ 'video-modal.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
+
+<script src="{{ 'kt-section-video-split-modal.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
