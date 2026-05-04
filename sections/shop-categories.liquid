@@ -21,7 +21,7 @@
     {%- for block in section.blocks -%}
       {%- if block.type == 'category' -%}
         <a
-          href="{{ block.settings.link | default: routes.collections_url }}"
+          href="{{ block.settings.link | default: routes.collections_url | escape }}"
           class="kt-shop-categories__card"
           {{ block.shopify_attributes }}
         >

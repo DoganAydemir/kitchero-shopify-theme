@@ -50,7 +50,7 @@
                   {%- endif -%}
                 </div>
                 {%- if block.settings.directions_url != blank -%}
-                  <a href="{{ block.settings.directions_url }}" class="kt-contact__showroom-link" target="_blank" rel="noopener noreferrer">
+                  <a href="{{ block.settings.directions_url | escape }}" class="kt-contact__showroom-link" target="_blank" rel="noopener noreferrer">
                     {{ 'kt.section.contact.directions' | t | default: 'Get Directions' }}
                   </a>
                 {%- endif -%}
@@ -241,8 +241,8 @@
     {
       "name": "t:sections.contact-form.presets.name",
       "blocks": [
-        { "type": "showroom", "settings": { "title": "Showroom 1" } },
-        { "type": "showroom", "settings": { "title": "Showroom 2" } }
+        { "type": "showroom", "settings": { "title": "Location 1" } },
+        { "type": "showroom", "settings": { "title": "Location 2" } }
       ]
     }
   ]

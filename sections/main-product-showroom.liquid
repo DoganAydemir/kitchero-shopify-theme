@@ -48,18 +48,32 @@
           {%- for media in product.media -%}
             {%- if media.media_type == 'image' -%}
               {%- assign pattern_pos = forloop.index0 | modulo: 3 -%}
+              {%- comment -%}
+                LCP eager hint: the first rendered image — whether it
+                lands in the full-width branch (pattern_pos 0) or the
+                pair branch (pattern_pos 1, e.g. when image 0 was a
+                video) — must load eagerly with `fetchpriority: 'high'`
+                so PDP LCP scores. All other images stay lazy.
+              {%- endcomment -%}
+              {%- if forloop.first -%}
+                {%- assign img_loading = 'eager' -%}
+                {%- assign img_fetchpriority = 'high' -%}
+              {%- else -%}
+                {%- assign img_loading = 'lazy' -%}
+                {%- assign img_fetchpriority = 'auto' -%}
+              {%- endif -%}
               {%- if pattern_pos == 0 -%}
                 {%- comment -%} Full width image {%- endcomment -%}
                 <div class="kt-showroom__gallery-full" data-gallery-slide="{{ forloop.index0 }}">
                   {%- assign media_alt = media.alt | default: product.title -%}
-                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
+                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
                 </div>
               {%- elsif pattern_pos == 1 -%}
                 {%- comment -%} Left of pair {%- endcomment -%}
                 <div class="kt-showroom__gallery-pair">
                   <div class="kt-showroom__gallery-half" data-gallery-slide="{{ forloop.index0 }}">
                     {%- assign media_alt = media.alt | default: product.title -%}
-                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
+                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
                   </div>
                   {%- comment -%} Right of pair (next image) {%- endcomment -%}
                   {%- assign next_index = forloop.index -%}
@@ -88,9 +102,16 @@
         <div class="kt-showroom__gallery-mobile">
           {%- for media in product.media -%}
             {%- if media.media_type == 'image' -%}
+              {%- if forloop.first -%}
+                {%- assign mob_loading = 'eager' -%}
+                {%- assign mob_fetchpriority = 'high' -%}
+              {%- else -%}
+                {%- assign mob_loading = 'lazy' -%}
+                {%- assign mob_fetchpriority = 'auto' -%}
+              {%- endif -%}
               <div class="kt-showroom__gallery-mobile-slide" data-gallery-slide="{{ forloop.index0 }}">
                 {%- assign media_alt = media.alt | default: product.title -%}
-                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
+                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
                 <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
               </div>
             {%- endif -%}
@@ -217,7 +238,7 @@
                   {%- if block.settings.secondary_cta_text != blank -%}
                     {%- if block.settings.secondary_cta_link != blank -%}
                       <a
-                        href="{{ block.settings.secondary_cta_link }}"
+                        href="{{ block.settings.secondary_cta_link | escape }}"
                         class="kt-showroom__cta kt-showroom__cta--secondary"
                       >
                         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

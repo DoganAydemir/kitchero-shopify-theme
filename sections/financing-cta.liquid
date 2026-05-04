@@ -32,7 +32,7 @@
     <div class="kt-financing-cta__buttons">
       {%- if section.settings.primary_text != blank -%}
         <a
-          href="{{ section.settings.primary_link | default: '#' }}"
+          href="{{ section.settings.primary_link | default: '#' | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--primary"
         >
           {{ section.settings.primary_text }}
@@ -42,7 +42,7 @@
 
       {%- if section.settings.secondary_text != blank -%}
         <a
-          href="{{ section.settings.secondary_link | default: '#' }}"
+          href="{{ section.settings.secondary_link | default: '#' | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--secondary"
         >
           {{ section.settings.secondary_text }}

@@ -268,7 +268,13 @@
     var s = strings();
     var label = s.viewAll || 'View all results';
     var routes = window.Kitchero && window.Kitchero.routes;
-    var searchUrl = (routes && routes.search) ? routes.search : '/search';
+    /* Markets locale-prefix safe fallback. The bare '/search' literal
+       breaks /de/, /fr/, /es/, /tr/ storefronts on the unlikely path
+       where Kitchero.routes.search wasn't bootstrapped. Mirror R28
+       cart-drawer.js fix: fall back through Shopify.routes.root which
+       is always set by Shopify, then root-relative search. */
+    var fallbackRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+    var searchUrl = (routes && routes.search) ? routes.search : (fallbackRoot + 'search');
     return '<div class="kt-predictive-search__footer">' +
       '<a href="' + escapeHtml(searchUrl) + '?q=' + encodeURIComponent(query) + '" class="kt-predictive-search__view-all">' +
       escapeHtml(label) + '</a></div>';

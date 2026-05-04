@@ -85,7 +85,7 @@
         {%- comment -%} No live articles — use merchant-configured blocks {%- endcomment -%}
         {%- for block in article_blocks -%}
           {%- if block.type == 'article' -%}
-            <a href="{{ block.settings.link | default: '#' }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
+            <a href="{{ block.settings.link | default: '#' | escape }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
               <div class="kt-guide-teaser__card-image-wrap">
                 {%- if block.settings.image != blank -%}
                   {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-guide-teaser__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title | default: '' }}

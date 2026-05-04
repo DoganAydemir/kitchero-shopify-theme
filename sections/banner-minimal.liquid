@@ -65,7 +65,7 @@
           <div class="kt-banner-minimal__ctas">
             {%- if section.settings.primary_cta_text != blank -%}
               <a
-                href="{{ section.settings.primary_cta_link | default: routes.root_url }}"
+                href="{{ section.settings.primary_cta_link | default: routes.root_url | escape }}"
                 class="kt-banner-minimal__btn kt-banner-minimal__btn--primary"
               >
                 {{ section.settings.primary_cta_text }}
@@ -73,7 +73,7 @@
             {%- endif -%}
             {%- if section.settings.secondary_cta_text != blank -%}
               <a
-                href="{{ section.settings.secondary_cta_link | default: routes.root_url }}"
+                href="{{ section.settings.secondary_cta_link | default: routes.root_url | escape }}"
                 class="kt-banner-minimal__btn kt-banner-minimal__btn--secondary"
               >
                 {{ section.settings.secondary_cta_text }}
