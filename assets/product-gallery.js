@@ -205,7 +205,16 @@
        so this listener no-ops on them naturally. */
     slides.forEach(function (slide, slideIdx) {
       var openFromSlide = function () {
-        if (slide.dataset.mediaType !== 'image') return;
+        /* Skip ONLY when the slide explicitly declares a non-image
+           media type. `dataset.mediaType` is `undefined` on layouts
+           that don't emit the attribute (the showroom PDP iterates
+           images-only and historically didn't set the attribute), so
+           the previous strict equality `!== 'image'` rejected those
+           legitimate image slides. The defensive form below treats
+           undefined / empty string as "image by default" and only
+           bails on explicit `video` / `model` / `external_video`. */
+        var t = slide.dataset.mediaType;
+        if (t && t !== 'image') return;
         var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
         if (isNaN(targetIndex)) targetIndex = slideIdx;
         goTo(targetIndex);
@@ -233,17 +242,23 @@
        above works in isolation but can race against parent-DOM
        click handlers in custom layouts; the delegated listener here
        guarantees that ANY click landing on (or inside) a
-       `[data-gallery-slide][data-media-type="image"]` opens the
-       lightbox even when the per-slide handler hasn't bound for any
-       reason. Idempotent: openLightbox checks aria-hidden and skips
-       if already open.
+       `[data-gallery-slide]` opens the lightbox even when the
+       per-slide handler hasn't bound for any reason. Idempotent:
+       openLightbox checks aria-hidden and skips if already open.
+
+       Selector intentionally drops the `[data-media-type="image"]`
+       requirement — showroom slides historically don't carry that
+       attribute. The mediaType check happens inside the handler
+       (defensive: only skip on explicit video / model declaration).
 
        Capture-phase = false (default bubble) — fires AFTER the
        per-slide handlers, so when both succeed the second call
        finds an already-open lightbox and is a no-op. */
     gallery.addEventListener('click', function (e) {
-      var slide = e.target.closest('[data-gallery-slide][data-media-type="image"]');
+      var slide = e.target.closest('[data-gallery-slide]');
       if (!slide || !gallery.contains(slide)) return;
+      var t = slide.dataset.mediaType;
+      if (t && t !== 'image') return;
       if (mainArea && mainArea.contains(slide)) return;
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') return;
       var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
