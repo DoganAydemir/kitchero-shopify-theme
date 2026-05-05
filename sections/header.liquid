@@ -262,12 +262,54 @@
           assign account_label = 'kt.customer.login.title' | t | default: 'Log in'
         endif
       -%}
-      <a href="{{ account_href }}" class="kt-header__icon" aria-label="{{ account_label }}">
-        <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </a>
+      {%- comment -%}
+        Theme Store 2026 direction — Shopify is migrating themes to the
+        `<shopify-account>` web component (Customer Accounts 2.0,
+        passwordless login, in-storefront sheet). Per the developer
+        changelog, the component "will soon become a theme requirement
+        for all themes submitted to or updated in the Theme Store."
+
+        We render `<shopify-account>` whenever the store has customer
+        accounts turned on (`shop.customer_accounts_enabled`). The
+        component handles BOTH legacy and new account systems —
+        when the store is still on legacy accounts, the avatar
+        falls back to linking to the sign-in page automatically.
+        Slots `signed-out-avatar` / `signed-in-avatar` keep our
+        in-theme icon styling so we don't ship Shopify's stock
+        avatar (which clashes with the rest of the header).
+
+        Wrap the legacy `<a>` link as the fallback for the rare
+        store that has all customer-account features disabled — the
+        component then yields nothing and the plain link still
+        provides a path to the (potentially still-classic) login.
+      {%- endcomment -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <shopify-account
+          menu="customer-account-main-menu"
+          class="kt-header__account"
+          aria-label="{{ account_label }}"
+        >
+          <a href="{{ account_href }}" slot="signed-out-avatar" class="kt-header__icon" aria-label="{{ account_label }}">
+            <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </a>
+          <a href="{{ account_href }}" slot="signed-in-avatar" class="kt-header__icon" aria-label="{{ account_label }}">
+            <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </a>
+        </shopify-account>
+      {%- else -%}
+        <a href="{{ account_href }}" class="kt-header__icon" aria-label="{{ account_label }}">
+          <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+      {%- endif -%}
 
       {%- comment -%} Cart {%- endcomment -%}
       {%- comment -%}
