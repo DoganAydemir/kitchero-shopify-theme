@@ -738,6 +738,59 @@
       if (compareEl) compareEl.style.display = 'none';
       if (discountEl) discountEl.style.display = 'none';
     }
+
+    /* Unit price (groceries / wellness / cosmetics with reference unit
+       like "$2.50/100ml"). Theme Store testing checklist explicitly
+       requires "Unit prices change dynamically on variant selection".
+       The container ([data-unit-price]) is rendered server-side from
+       `variant.unit_price_measurement` for the FIRST available variant;
+       when the customer picks another variant, this block must reflect
+       the new variant's unit_price/measurement OR vanish entirely if
+       the new variant has no measurement set.
+
+       `variant.unit_price_measurement` shape:
+         { measured_type, quantity_value, quantity_unit,
+           reference_value, reference_unit } */
+    var unitWrap = container.querySelector('[data-unit-price]');
+    if (unitWrap) {
+      var upm = variant && variant.unit_price_measurement;
+      if (upm && variant.unit_price) {
+        var unitValueEl = unitWrap.querySelector('.kt-product-price__unit-value');
+        var unitRefEl   = unitWrap.querySelector('.kt-product-price__unit-ref');
+        var unitQtyEl   = unitWrap.querySelector('.kt-product-price__unit-qty');
+        if (unitValueEl) unitValueEl.textContent = formatMoney(variant.unit_price);
+        if (unitRefEl) {
+          /* Mirror the Liquid logic: only prefix the reference value
+             when it isn't 1 (e.g. "100 ml" vs just "kg").   = &nbsp; */
+          var refText = '';
+          if (upm.reference_value !== 1) {
+            refText = String(upm.reference_value) + ' ';
+          }
+          refText += String(upm.reference_unit || '');
+          unitRefEl.textContent = refText;
+        }
+        if (unitQtyEl) {
+          if (upm.quantity_value !== upm.reference_value) {
+            /* "(250 g per 1 kg)" — German price-transparency law form.
+               Reproduce the localized template at runtime by reading
+               the data-template attribute set in the Liquid render. */
+            var template = unitQtyEl.getAttribute('data-template') || '';
+            var rendered = template
+              .replace('{quantity_value}', String(upm.quantity_value))
+              .replace('{quantity_unit}', String(upm.quantity_unit || ''))
+              .replace('{reference_value}', String(upm.reference_value))
+              .replace('{reference_unit}', String(upm.reference_unit || ''));
+            unitQtyEl.textContent = '(' + rendered + ')';
+            unitQtyEl.style.display = '';
+          } else {
+            unitQtyEl.style.display = 'none';
+          }
+        }
+        unitWrap.style.display = '';
+      } else {
+        unitWrap.style.display = 'none';
+      }
+    }
   }
 
   /**

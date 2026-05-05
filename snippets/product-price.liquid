@@ -85,22 +85,47 @@
     (e.g. \"250 g per 1 kg\"), which is what German price-transparency
     law requires.
   {%- endcomment -%}
-  {%- if variant.unit_price_measurement -%}
+  {%- comment -%}
+    Render the unit-price container for every product that has at least
+    one variant with a `unit_price_measurement`. Theme Store testing
+    checklist explicitly requires "Unit prices change dynamically on
+    variant selection" — a product whose first variant has no unit
+    price but a later variant DOES still needs the container in the
+    DOM so `assets/product-form.js` can populate it on variant change.
+    The container is hidden via `style="display:none"` when the first
+    variant carries no measurement; the JS toggles `display` based on
+    the selected variant's `unit_price_measurement` payload.
+
+    `data-template` carries the localized "X per Y" copy so the JS path
+    can re-render the suffix without re-fetching the page or parsing
+    the original Liquid filter at runtime.
+  {%- endcomment -%}
+  {%- assign has_any_unit_price = false -%}
+  {%- for v in product.variants -%}
+    {%- if v.unit_price_measurement -%}
+      {%- assign has_any_unit_price = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if has_any_unit_price -%}
     {%- assign upm = variant.unit_price_measurement -%}
-    <span class="kt-product-price__unit" data-unit-price>
-      <span class="kt-product-price__unit-value">{{ variant.unit_price | money }}</span>
+    {%- assign unit_qty_template = 'kt.product.unit_price_per_html' | t: quantity_value: '{quantity_value}', quantity_unit: '{quantity_unit}', reference_value: '{reference_value}', reference_unit: '{reference_unit}' -%}
+    <span class="kt-product-price__unit" data-unit-price{% unless upm %} style="display: none;"{% endunless %}>
+      <span class="kt-product-price__unit-value">{% if upm %}{{ variant.unit_price | money }}{% endif %}</span>
       <span class="kt-product-price__unit-separator" aria-hidden="true">/</span>
       <span class="kt-product-price__unit-ref">
-        {%- if upm.reference_value != 1 -%}
-          {{ upm.reference_value }}&nbsp;
+        {%- if upm -%}
+          {%- if upm.reference_value != 1 -%}
+            {{ upm.reference_value }}&nbsp;
+          {%- endif -%}
+          {{ upm.reference_unit }}
         {%- endif -%}
-        {{ upm.reference_unit }}
       </span>
-      {%- if upm.quantity_value != upm.reference_value -%}
-        <span class="kt-product-price__unit-qty">
+      <span class="kt-product-price__unit-qty" data-template="{{ unit_qty_template | escape }}"{% if upm == nil or upm.quantity_value == upm.reference_value %} style="display: none;"{% endif %}>
+        {%- if upm and upm.quantity_value != upm.reference_value -%}
           ({{ 'kt.product.unit_price_per_html' | t: quantity_value: upm.quantity_value, quantity_unit: upm.quantity_unit, reference_value: upm.reference_value, reference_unit: upm.reference_unit }})
-        </span>
-      {%- endif -%}
+        {%- endif -%}
+      </span>
     </span>
   {%- endif -%}
 
