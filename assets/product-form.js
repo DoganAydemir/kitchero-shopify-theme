@@ -405,6 +405,24 @@
       url.searchParams.set('variant', matchedVariant.id);
       window.history.replaceState({}, '', url.toString());
 
+      /* Dispatch `variant:change` event so Shopify-native custom
+         elements (`<shopify-payment-terms>` Shop Pay Installments
+         banner, `<pickup-availability>` widget, app-block stock
+         counters, etc.) re-fetch their state for the new variant.
+         Theme Store reviewers test "variant selection updates
+         dynamically" — without this dispatch, the Installments
+         banner price stays frozen on the original variant. */
+      try {
+        container.dispatchEvent(new CustomEvent('variant:change', {
+          bubbles: true,
+          detail: { variant: matchedVariant }
+        }));
+        document.dispatchEvent(new CustomEvent('variant:change', {
+          bubbles: false,
+          detail: { variant: matchedVariant, productId: container.dataset.productId }
+        }));
+      } catch (e) { /* CustomEvent unsupported in very old browsers — ignore */ }
+
       /* Re-sync quantity rule from the new variant. B2B catalogs
          (and merchants who configure per-variant case packs) set
          `variant.quantity_rule.min/max/increment` per-variant. If
