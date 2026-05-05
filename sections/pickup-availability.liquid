@@ -1,0 +1,33 @@
+{%- comment -%}
+  Pickup availability — section wrapper for the BOPIS (Buy-Online-
+  Pick-up-In-Store) snippet so it can be re-rendered via Shopify's
+  Section Rendering API on variant change.
+
+  Theme Store testing checklist (Section 7 — Local pickup) requires
+  the pickup banner to update *dynamically* when the customer picks a
+  different variant: a variant available at five locations must show
+  five locations, the same product's variant available only outside
+  the pickup network must drop the banner entirely, and so on.
+  Achieving this without a full page reload requires the section to
+  be requestable as `/variants/{variant_id}?section_id=pickup-
+  availability`; the route returns the product page rendered in the
+  context of that variant, scoped by section_id to just this block,
+  which `assets/product-form.js` swaps into the `[data-pickup-
+  availability]` container on variant:change.
+
+  The actual rendering logic lives in `snippets/pickup-availability`
+  so it stays callable from any product context (PDP, quick-view,
+  cart-drawer upsell) without duplicating the markup.
+{%- endcomment -%}
+{%- render 'pickup-availability',
+  variant: product.selected_or_first_available_variant,
+  product: product
+-%}
+
+{% schema %}
+{
+  "name": "t:sections.pickup-availability.name",
+  "tag": "div",
+  "class": "kt-pickup-section"
+}
+{% endschema %}

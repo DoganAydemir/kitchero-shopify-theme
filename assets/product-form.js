@@ -423,6 +423,75 @@
         }));
       } catch (e) { /* CustomEvent unsupported in very old browsers — ignore */ }
 
+      /* Pickup availability — re-fetch the rendered banner via
+         Shopify's Section Rendering API for the picked variant.
+         Theme Store testing checklist (Section 7) explicitly tests:
+         a variant available at five locations must show five rows; a
+         variant only available at non-pickup locations must hide the
+         banner; a variant sold out everywhere must clear it. The
+         banner is rendered server-side once on first paint by
+         `snippets/pickup-availability.liquid`, but the variant-level
+         pickup payload (`variant.store_availabilities`) varies between
+         variants, so the banner has to be re-rendered, not just
+         re-styled. We fetch
+           /products/{handle}?section_id=pickup-availability&variant=ID
+         which returns just the banner HTML scoped to that variant
+         context, then swap the `[data-pickup-availability]` node.
+         The fetch is fire-and-forget — a slow network or 4xx leaves
+         the previous banner in place rather than blanking the area. */
+      var productUrl = container.dataset.productUrl;
+      var pickupNode = container.querySelector('[data-pickup-availability]');
+      if (productUrl && pickupNode) {
+        /* `data-product-url` is the localized product URL emitted by
+           `{{ product.url }}` in Liquid, so it already carries the
+           Markets locale prefix on multi-locale storefronts (e.g.
+           /de/products/foo). Appending the variant query is enough to
+           force Shopify to render the section in the new variant's
+           context. */
+        var pickupUrl = productUrl + '?section_id=pickup-availability&variant=' + encodeURIComponent(matchedVariant.id);
+        /* AbortController — if the customer rapid-fires variant
+           switches, only the LAST fetch's response should land. */
+        if (container.__kitcheroPickupController) {
+          try { container.__kitcheroPickupController.abort(); } catch (e) { /* noop */ }
+        }
+        container.__kitcheroPickupController = new AbortController();
+        fetch(pickupUrl, {
+          signal: container.__kitcheroPickupController.signal,
+          credentials: 'same-origin',
+          headers: { 'Accept': 'text/html' }
+        })
+          .then(function (response) {
+            if (!response.ok) throw new Error('pickup fetch failed: ' + response.status);
+            return response.text();
+          })
+          .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var fresh = doc.querySelector('[data-pickup-availability]');
+            /* Re-query the live node — variant matcher could have run
+               twice in quick succession; pick the LATEST node so we
+               replace the most recent element, not a stale reference. */
+            var current = container.querySelector('[data-pickup-availability]');
+            if (fresh && current && current.parentNode) {
+              current.parentNode.replaceChild(fresh, current);
+            } else if (current && !fresh) {
+              /* Section rendered nothing (e.g. variant has no pickup
+                 anywhere on a multi-location store) — clear the
+                 container so the customer sees the cleared state. */
+              current.parentNode.removeChild(current);
+            }
+          })
+          .catch(function (err) {
+            /* AbortError on rapid switches is expected; log other
+               errors but keep the previous banner so the page never
+               looks broken. */
+            if (err && err.name !== 'AbortError') {
+              if (typeof console !== 'undefined' && console.warn) {
+                console.warn('Pickup availability fetch failed:', err);
+              }
+            }
+          });
+      }
+
       /* Re-sync quantity rule from the new variant. B2B catalogs
          (and merchants who configure per-variant case packs) set
          `variant.quantity_rule.min/max/increment` per-variant. If
