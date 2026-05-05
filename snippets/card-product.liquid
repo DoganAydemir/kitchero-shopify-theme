@@ -185,8 +185,20 @@
         surrounding section heading sits at h2 → cards h2 = same
         level (also legal).
       {%- endcomment -%}
+      {%- comment -%}
+        Theme Store a11y guideline — product cards should resolve to a
+        single tab stop per card. The image `<a>` above carries
+        `aria-label="{{ product.title | escape }}"` and is the canonical
+        focus target. Mark the secondary title/CTA anchors as
+        `tabindex="-1"` so mouse users still get the click target, but
+        keyboard users skip the duplicate stops while tabbing the
+        collection grid (3 stops per card × 24 cards = 72 stops on a
+        24-product page; 1 stop per card = 24 — far less friction).
+        Screen readers ignore tabindex on links and still announce all
+        targets, so SR navigation parity is preserved.
+      {%- endcomment -%}
       <h2 class="kt-card-product__title">
-        <a href="{{ product.url }}" style="text-decoration: none; color: inherit;">{{ product.title }}</a>
+        <a href="{{ product.url }}" tabindex="-1" style="text-decoration: none; color: inherit;">{{ product.title }}</a>
       </h2>
 
       {%- comment -%} Star rating {%- endcomment -%}
@@ -241,14 +253,14 @@
         </div>
       {%- endif -%}
 
-      <a href="{{ product.url }}" class="kt-card-product__view-link">
+      <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__view-link">
         {{ 'kt.product.view_details' | t | default: 'View Details' }}
       </a>
     </div>
 
     {%- if show_quote_button -%}
       <div>
-        <a href="{{ product.url }}" class="kt-card-product__quote-btn">
+        <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__quote-btn">
           {{ 'kt.product.get_quote' | t | default: 'Get Quote' }}
         </a>
       </div>
