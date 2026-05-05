@@ -196,10 +196,11 @@
                       bundle child rows as un-modifiable. Letting the
                       customer remove or re-quantity a bundle child in
                       isolation breaks the bundle (Functions-API
-                      BundleConfiguration treats this as a 422). Mirror
-                      Dawn's pattern: gate every cart-modifying control
-                      behind these instructions, render read-only
-                      counterparts for the inverse case.
+                      BundleConfiguration treats this as a 422). The
+                      Functions BundleConfiguration spec requires gating
+                      every cart-modifying control behind these
+                      instructions; we render read-only counterparts
+                      for the inverse case.
                     {%- endcomment -%}
                     {%- assign cart_can_update = item.instructions.can_update_quantity | default: true -%}
                     {%- assign cart_can_remove = item.instructions.can_remove | default: true -%}
