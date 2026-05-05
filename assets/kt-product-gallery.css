@@ -207,7 +207,18 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 5010;
-  padding: 0.75rem 1rem;
+  /* Equal width + height keeps the `border-radius: 50%` rendering
+     as a perfect circle. The previous `padding: 0.75rem 1rem` was
+     asymmetric (vertical 12px / horizontal 16px), which produced
+     a horizontally-stretched oval — visible against the
+     transparent backdrop on the lightbox. WCAG 2.5.5 touch-target
+     also wants 44×44 minimum, so we set the floor explicitly. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 50%;
@@ -247,6 +258,10 @@
 }
 
 @media screen and (min-width: 750px) {
+  .kt-lightbox__nav {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
   .kt-lightbox__nav--prev { left: 2rem; }
   .kt-lightbox__nav--next { right: 2rem; }
 }
