@@ -21,8 +21,16 @@
   assign variant = product.selected_or_first_available_variant
   assign current_price = variant.price
   assign compare_price = variant.compare_at_price
+  # Free-product guard — same pattern as product-price.liquid:21-29.
+  # A 0-priced variant with compare > 0 would otherwise emit a "Save"
+  # badge equal to the compare price and a "$0.00" current — both of
+  # which read as broken merchandising. Substitute "Free" copy instead.
+  assign is_free = false
+  if current_price == 0
+    assign is_free = true
+  endif
   assign on_sale = false
-  if compare_price > current_price
+  if compare_price > current_price and is_free == false
     assign on_sale = true
     assign savings = compare_price | minus: current_price
   endif
@@ -36,7 +44,13 @@
   <span class="kt-showroom-price__label">{{ 'kt.product.price.now_only' | t | default: 'Now only' }}</span>
 
   <div class="kt-showroom-price__row">
-    <span class="kt-showroom-price__current">{{ current_price | money }}</span>
+    <span class="kt-showroom-price__current">
+      {%- if is_free -%}
+        {{ 'kt.cart.free' | t | default: 'Free' }}
+      {%- else -%}
+        {{ current_price | money }}
+      {%- endif -%}
+    </span>
     {%- if on_sale -%}
       <span class="kt-showroom-price__save">
         {{ 'kt.product.price.save_html' | t: amount: savings | money | default: 'Save' }}
@@ -50,8 +64,26 @@
     </span>
   {%- endif -%}
 
-  {%- comment -%} Monthly installment pill — calculated price / months {%- endcomment -%}
-  {%- if financing_months > 0 -%}
+  {%- comment -%}
+    Tax-inclusive indicator — Theme Store mandate (Section 7) for any
+    PDP path that displays a price. The default `product-price.liquid`
+    renders this; the showroom variant was missing it, so EU-market
+    merchants running `product.showroom.json` shipped a price with no
+    tax disclosure. Mirrors the wording / class used on the default
+    PDP for visual consistency. Suppressed for free products — no
+    tax discussion makes sense at $0.
+  {%- endcomment -%}
+  {%- if cart.taxes_included and is_free == false -%}
+    <span class="kt-showroom-price__tax-note">
+      {{ 'kt.product.taxes_included' | t | default: 'Tax included.' }}
+    </span>
+  {%- endif -%}
+
+  {%- comment -%}
+    Monthly installment pill — calculated price / months. Suppressed
+    for free products since "Free / 60 months" makes no sense.
+  {%- endcomment -%}
+  {%- if financing_months > 0 and is_free == false -%}
     {%- assign monthly = current_price | divided_by: financing_months -%}
     <p class="kt-showroom-price__financing">
       <span class="kt-showroom-price__financing-pill">

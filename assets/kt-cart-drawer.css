@@ -414,6 +414,18 @@ html.no-js .kt-cart-drawer {
   color: var(--kt-stone-700);
 }
 
+/* Customer-supplied property values (engraving copy, custom config
+   strings) are unbounded merchant input. Without a wrap rule, a long
+   no-space token pushes the entire drawer past the viewport on narrow
+   phones (360px iPhone SE). `overflow-wrap: anywhere` permits a break
+   at any character only when no other option exists; `word-break:
+   break-word` is the legacy alias kept for older WebKit. */
+.kt-cart-drawer__item-properties,
+.kt-cart-drawer__item-properties li {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* Row 3: qty stepper + trash button */
 .kt-cart-drawer__item-footer {
   display: flex;

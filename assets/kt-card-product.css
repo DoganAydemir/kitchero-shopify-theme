@@ -238,9 +238,21 @@
   letter-spacing: -0.025em;
   color: var(--kt-stone-900);
   margin-bottom: 0.5rem;
+  /* 2-line clamp instead of single-line ellipsis. Single-line +
+     `white-space: nowrap` truncated realistic 60-char product titles
+     to "Modular Walnut Veneer Ki..." in 4-col grids — Theme Store
+     reviewers test on real merchant catalogues with long titles and
+     flag the truncation as broken collection rendering. The 2-line
+     clamp matches the same `-webkit-line-clamp` pattern used in
+     `.kt-cart-drawer__item-title` (kt-cart-drawer.css:332) and
+     `.kt-article-card__excerpt`, keeping the visual rhythm
+     predictable across the theme. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 @media screen and (min-width: 750px) {

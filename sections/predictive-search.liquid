@@ -62,10 +62,20 @@
                   {%- endif -%}
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ product.title }}</span>
+                    {%- comment -%}
+                      Free-product guard — surface "Free" instead of
+                      "$0.00" for 0-priced products in dropdown results.
+                      Matches the substitution applied in
+                      `snippets/product-price.liquid` and
+                      `snippets/card-product.liquid` for visual consistency
+                      across the discovery surfaces.
+                    {%- endcomment -%}
                     {%- if product.price_varies -%}
                       <span class="kt-predictive-search__price">
                         {{ 'kt.predictive_search.from_price' | t: price: product.price_min | money }}
                       </span>
+                    {%- elsif product.price == 0 -%}
+                      <span class="kt-predictive-search__price">{{ 'kt.cart.free' | t | default: 'Free' }}</span>
                     {%- else -%}
                       <span class="kt-predictive-search__price">{{ product.price | money }}</span>
                     {%- endif -%}

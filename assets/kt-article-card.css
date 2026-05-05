@@ -130,6 +130,17 @@
   line-height: 1.15;
   letter-spacing: -0.02em;
   transition: color 0.3s ease;
+  /* Long-token safety — German compound words (e.g. "Küchenmonteureinrichtung")
+     or unbroken URL-style strings will overflow the masonry column and
+     break the article-card grid without a wrap rule. `overflow-wrap: anywhere`
+     allows the browser to break at any character when no other option exists.
+     3-line clamp matches the excerpt cap directly below for visual rhythm. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 @media screen and (min-width: 750px) {

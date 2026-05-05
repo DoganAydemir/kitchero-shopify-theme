@@ -133,12 +133,24 @@
       inspectors specifically check for out-of-stock affordance on
       collection cards.
     {%- endcomment -%}
+    {%- comment -%}
+      Free-product guard — a 0-priced product with `compare_at_price > 0`
+      would otherwise emit a "-100% OFF" sale badge over a "$0.00" price.
+      That reads as broken merchandising (sale mechanics against zero
+      are nonsensical — either it's a giveaway or bad data). Mirror the
+      `snippets/product-price.liquid:21-29` is_free pattern at the card
+      level. Used for both the badge gate and the price block below.
+    {%- endcomment -%}
+    {%- assign card_is_free = false -%}
+    {%- if product.price == 0 -%}
+      {%- assign card_is_free = true -%}
+    {%- endif -%}
     {%- if product.available == false -%}
       <span class="kt-card-product__badge kt-card-product__badge--soldout" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
       </span>
-    {%- comment -%} Sale badge {%- endcomment -%}
-    {%- elsif product.compare_at_price > product.price -%}
+    {%- comment -%} Sale badge — suppressed for free products. {%- endcomment -%}
+    {%- elsif product.compare_at_price > product.price and card_is_free == false -%}
       {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
       <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.discount_badge' | t: amount: discount_pct }}
@@ -212,6 +224,16 @@
         {%- if product.price_varies -%}
           <span class="kt-card-product__price-from">{{ 'kt.product.from_price_label' | t }}</span>
           <span class="kt-card-product__price">{{ product.price_min | money }}</span>
+        {%- elsif card_is_free -%}
+          {%- comment -%}
+            "Free" substitution for 0-priced products — friendlier than
+            a bare "$0.00" and matches the PDP `product-price.liquid`
+            free-product copy. Kept inside the same `.kt-card-product__price`
+            wrapper so the visual rhythm of the price row is unchanged.
+          {%- endcomment -%}
+          <span class="kt-card-product__price">
+            {{ 'kt.cart.free' | t | default: 'Free' }}
+          </span>
         {%- else -%}
           <span class="kt-card-product__price">
             {%- if product.compare_at_price > product.price -%}
@@ -220,7 +242,7 @@
             {{ product.price | money }}
           </span>
         {%- endif -%}
-        {%- if product.compare_at_price > product.price -%}
+        {%- if product.compare_at_price > product.price and card_is_free == false -%}
           {%- comment -%}
             <s> makes the strikethrough semantic so screen readers
             announce the "no-longer-valid" meaning of the price.
