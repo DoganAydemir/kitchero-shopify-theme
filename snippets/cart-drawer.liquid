@@ -248,49 +248,74 @@
               {%- if drawer_qty_max != blank and item.quantity >= drawer_qty_max -%}
                 {%- assign drawer_qty_at_max = true -%}
               {%- endif -%}
+              {%- comment -%}
+                Bundle / fixed-bundle protection — Shopify exposes
+                `line_item.instructions.can_update_quantity` and
+                `line_item.instructions.can_remove` to tell themes
+                whether a given line item can be modified by the
+                customer. For child components of a bundle (Shopify
+                Functions BundleConfiguration / fixed bundles), both
+                are FALSE — letting the customer change one component
+                in isolation would break bundle integrity. Dawn checks
+                these instructions before rendering qty / remove
+                controls; we mirror that here so bundle children
+                render as read-only rows in the drawer rather than
+                silently failing on /cart/change.js with a 422.
+              {%- endcomment -%}
+              {%- assign drawer_can_update = item.instructions.can_update_quantity | default: true -%}
+              {%- assign drawer_can_remove = item.instructions.can_remove | default: true -%}
               <div class="kt-cart-drawer__item-footer">
-                <div class="kt-cart-drawer__qty">
-                  <button
-                    type="button"
-                    class="kt-cart-drawer__qty-btn"
-                    aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
-                    data-qty-change
-                    data-line-key="{{ item.key }}"
-                    data-qty="{{ drawer_qty_next_down }}"
-                  >
-                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                  </button>
-                  <span class="kt-cart-drawer__qty-value" aria-live="polite">{{ item.quantity }}</span>
-                  <button
-                    type="button"
-                    class="kt-cart-drawer__qty-btn"
-                    aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
-                    data-qty-change
-                    data-line-key="{{ item.key }}"
-                    data-qty="{{ drawer_qty_next_up }}"
-                    {% if drawer_qty_at_max %}disabled aria-disabled="true"{% endif %}
-                  >
-                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                  </button>
-                </div>
+                {%- if drawer_can_update -%}
+                  <div class="kt-cart-drawer__qty">
+                    <button
+                      type="button"
+                      class="kt-cart-drawer__qty-btn"
+                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
+                      data-qty-change
+                      data-line-key="{{ item.key }}"
+                      data-qty="{{ drawer_qty_next_down }}"
+                    >
+                      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <span class="kt-cart-drawer__qty-value" aria-live="polite">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="kt-cart-drawer__qty-btn"
+                      aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
+                      data-qty-change
+                      data-line-key="{{ item.key }}"
+                      data-qty="{{ drawer_qty_next_up }}"
+                      {% if drawer_qty_at_max %}disabled aria-disabled="true"{% endif %}
+                    >
+                      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                  </div>
+                {%- else -%}
+                  {%- comment -%} Read-only quantity for bundle children. {%- endcomment -%}
+                  <span class="kt-cart-drawer__qty-readonly" aria-label="{{ 'kt.product.quantity.label' | t | default: 'Quantity' }}">
+                    × {{ item.quantity }}
+                  </span>
+                {%- endif -%}
 
-                {%- comment -%} Remove button — sets qty to 0 {%- endcomment -%}
-                <button
-                  type="button"
-                  class="kt-cart-drawer__remove"
-                  aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
-                  data-qty-change
-                  data-line-key="{{ item.key }}"
-                  data-qty="0"
-                >
-                  <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                    <path d="M10 11v6"></path>
-                    <path d="M14 11v6"></path>
-                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-                  </svg>
-                </button>
+                {%- if drawer_can_remove -%}
+                  {%- comment -%} Remove button — sets qty to 0 {%- endcomment -%}
+                  <button
+                    type="button"
+                    class="kt-cart-drawer__remove"
+                    aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
+                    data-qty-change
+                    data-line-key="{{ item.key }}"
+                    data-qty="0"
+                  >
+                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                {%- endif -%}
               </div>
             </div>
           </div>
