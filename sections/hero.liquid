@@ -48,6 +48,14 @@
           {%- endif -%}
           {%- if block.settings.image != blank -%}
             {%- assign hero_focal = block.settings.image.presentation.focal_point | default: 'center center' -%}
+            {%- comment -%}
+              Pre-assign style — inline `style: 'object-position: ' |
+              append: hero_focal, alt: ...` makes Liquid read the
+              comma after `hero_focal` as a second arg to `append`,
+              producing "wrong number of arguments (given 3, expected
+              2)".
+            {%- endcomment -%}
+            {%- assign hero_image_style = 'object-position: ' | append: hero_focal -%}
             {{
               block.settings.image
               | image_url: width: 2000
@@ -60,7 +68,7 @@
                 sizes: '100vw',
                 width: block.settings.image.width,
                 height: block.settings.image.height,
-                style: 'object-position: ' | append: hero_focal,
+                style: hero_image_style,
                 alt: block.settings.subtitle | default: shop.name
             }}
           {%- else -%}

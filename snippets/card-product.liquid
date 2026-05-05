@@ -75,6 +75,19 @@
       {%- endcomment -%}
       {%- assign card_alt = product.featured_image.alt | default: product.title -%}
       {%- assign card_focal = product.featured_image.presentation.focal_point | default: 'center center' -%}
+      {%- comment -%}
+        `style` is pre-assigned because writing the inline form
+        `style: 'object-position: ' | append: card_focal,
+         alt: card_alt`
+        causes Liquid's parser to read the comma after `card_focal` as
+        a second argument to `append` rather than as the separator
+        between two named args to `image_tag`. The result is a
+        runtime "wrong number of arguments (given 3, expected 2)"
+        error on the related-products carousel and any other
+        location that renders multiple cards in quick succession.
+        Pre-assigning eliminates the ambiguity.
+      {%- endcomment -%}
+      {%- assign card_image_style = 'object-position: ' | append: card_focal -%}
       {{
         product.featured_image
         | image_url: width: 1100
@@ -86,7 +99,7 @@
           sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
           height: product.featured_image.height,
-          style: 'object-position: ' | append: card_focal,
+          style: card_image_style,
           alt: card_alt
       }}
     {%- else -%}
