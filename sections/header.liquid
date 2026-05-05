@@ -566,7 +566,7 @@
       {%- if localization.available_languages.size > 1 -%}
         {%- form 'localization', id: 'MobileLanguageForm', class: 'kt-header__mobile-locale-form' -%}
           <label for="MobileLanguageSelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
-          <select name="locale_code" id="MobileLanguageSelector" class="kt-header__mobile-locale-select">
+          <select name="language_code" id="MobileLanguageSelector" class="kt-header__mobile-locale-select">
             {%- for language in localization.available_languages -%}
               <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
                 {{ language.endonym_name | capitalize }}

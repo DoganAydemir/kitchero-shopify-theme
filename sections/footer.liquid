@@ -226,7 +226,7 @@
             {%- if localization.available_languages.size > 1 -%}
               {%- form 'localization', id: 'FooterLanguageForm', class: 'kt-footer__localization-form' -%}
                 <div class="localization-selector">
-                  <select name="locale_code" id="FooterLanguageSelector" aria-label="{{ 'kt.locale.language_label' | t | default: 'Language' }}">
+                  <select name="language_code" id="FooterLanguageSelector" aria-label="{{ 'kt.locale.language_label' | t | default: 'Language' }}">
                     {%- for language in localization.available_languages -%}
                       <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
                         {{ language.endonym_name | capitalize }}
