@@ -136,6 +136,20 @@
   scroll-snap-align: center;
   background-color: var(--kt-stone-100);
   overflow: hidden;
+  cursor: zoom-in;
+}
+
+/* WCAG 2.4.7 Focus Visible — the gallery slides ship as
+   `role="button"` with `tabindex="0"` so keyboard users can press
+   Enter/Space to open the lightbox (parity with the click handler).
+   Without an explicit focus ring the keyboard path is invisible:
+   surface a soft outline only on `:focus-visible` so mouse clicks
+   stay clean. */
+.kt-showroom__gallery-full:focus-visible,
+.kt-showroom__gallery-half:focus-visible,
+.kt-showroom__gallery-mobile-slide:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action, 28 25 23));
+  outline-offset: 2px;
 }
 
 .kt-showroom__gallery-counter {

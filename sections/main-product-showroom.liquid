@@ -63,22 +63,57 @@
                 {%- assign img_fetchpriority = 'auto' -%}
               {%- endif -%}
               {%- if pattern_pos == 0 -%}
-                {%- comment -%} Full width image {%- endcomment -%}
-                <div class="kt-showroom__gallery-full" data-gallery-slide="{{ forloop.index0 }}">
+                {%- comment -%}
+                  Full width image. `data-media-type="image"` is the
+                  signal `assets/product-gallery.js` uses to gate the
+                  click → lightbox handler (video / 3D-model slides
+                  skip the lightbox because the lightbox only knows
+                  how to render an `<img>`). Without this attribute
+                  the click handler short-circuits with the dataset
+                  check at line 208 of product-gallery.js and the
+                  showroom slides silently no-op on click.
+
+                  `tabindex="0"` + `role="button"` give keyboard users
+                  an Enter / Space activation path matching the click
+                  behaviour. The shared keydown listener checks both
+                  attributes when firing `openFromSlide`.
+                {%- endcomment -%}
+                <div
+                  class="kt-showroom__gallery-full"
+                  data-gallery-slide="{{ forloop.index0 }}"
+                  data-media-type="image"
+                  tabindex="0"
+                  role="button"
+                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                >
                   {%- assign media_alt = media.alt | default: product.title -%}
                   {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
                 </div>
               {%- elsif pattern_pos == 1 -%}
                 {%- comment -%} Left of pair {%- endcomment -%}
                 <div class="kt-showroom__gallery-pair">
-                  <div class="kt-showroom__gallery-half" data-gallery-slide="{{ forloop.index0 }}">
+                  <div
+                    class="kt-showroom__gallery-half"
+                    data-gallery-slide="{{ forloop.index0 }}"
+                    data-media-type="image"
+                    tabindex="0"
+                    role="button"
+                    aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                  >
                     {%- assign media_alt = media.alt | default: product.title -%}
                     {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
                   </div>
                   {%- comment -%} Right of pair (next image) {%- endcomment -%}
                   {%- assign next_index = forloop.index -%}
                   {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
-                    <div class="kt-showroom__gallery-half" data-gallery-slide="{{ next_index }}">
+                    <div
+                      class="kt-showroom__gallery-half"
+                      data-gallery-slide="{{ next_index }}"
+                      data-media-type="image"
+                      tabindex="0"
+                      role="button"
+                      aria-label="{{ 'kt.product.media.image_larger' | t: index: next_index | plus: 1 | default: 'View image larger' }}"
+                    >
                       {%- assign next_media = product.media[next_index] -%}
                       {%- assign next_alt = next_media.alt | default: product.title -%}
                       {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
@@ -109,7 +144,14 @@
                 {%- assign mob_loading = 'lazy' -%}
                 {%- assign mob_fetchpriority = 'auto' -%}
               {%- endif -%}
-              <div class="kt-showroom__gallery-mobile-slide" data-gallery-slide="{{ forloop.index0 }}">
+              <div
+                class="kt-showroom__gallery-mobile-slide"
+                data-gallery-slide="{{ forloop.index0 }}"
+                data-media-type="image"
+                tabindex="0"
+                role="button"
+                aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+              >
                 {%- assign media_alt = media.alt | default: product.title -%}
                 {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
                 <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
