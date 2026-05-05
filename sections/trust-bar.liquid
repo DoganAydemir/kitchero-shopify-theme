@@ -1,40 +1,103 @@
 {{ 'kt-section-trust-bar.css' | asset_url | stylesheet_tag }}
 
+{%- comment -%}
+  Trust bar — pre-flight pass to detect whether the merchant has
+  configured any stat. A block whose value is still the schema
+  default "0" AND label is still "Stat label" reads as
+  "unconfigured" — we skip rendering it on the storefront so the
+  page never ships with a broken-looking placeholder strip
+  ("0 STAT LABEL" repeated four times).
+
+  In the theme editor we DO render every block (gated on
+  `request.design_mode`) so the merchant can click through and
+  fill in copy, plus an "Add real numbers" hint when every
+  block is at default. Live shoppers see nothing for an empty
+  bar — the section quietly disappears until populated.
+{%- endcomment -%}
+{%- assign trust_configured_count = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == 'stat' -%}
+    {%- assign stat_value = block.settings.value | default: '' -%}
+    {%- assign stat_label = block.settings.label | default: '' -%}
+    {%- assign stat_prefix = block.settings.prefix | default: '' -%}
+    {%- comment -%}
+      Configured = label is set to anything other than the placeholder
+      "Stat label" OR a prefix is set OR value is something other than
+      bare "0". A merchant who legitimately wants to display "0%
+      commission" only needs to set the label and prefix; that path
+      passes the check via the label/prefix branch.
+    {%- endcomment -%}
+    {%- if stat_label != 'Stat label' and stat_label != blank -%}
+      {%- assign trust_configured_count = trust_configured_count | plus: 1 -%}
+    {%- elsif stat_prefix != blank -%}
+      {%- assign trust_configured_count = trust_configured_count | plus: 1 -%}
+    {%- elsif stat_value != '0' and stat_value != blank -%}
+      {%- assign trust_configured_count = trust_configured_count | plus: 1 -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if trust_configured_count > 0 or request.design_mode -%}
 <section class="kt-trust-bar" data-section-id="{{ section.id }}" data-section-type="trust-bar">
   <div class="page-width">
+    {%- if trust_configured_count == 0 and request.design_mode -%}
+      <p class="kt-trust-bar__editor-hint" style="text-align: center; padding: 1rem; font-size: 0.875rem; color: #57534e;">
+        {{ 'kt.section.trust-bar.editor_hint' | t | default: 'Edit each stat block to add real numbers and labels — empty stats are hidden on the live storefront.' }}
+      </p>
+    {%- endif -%}
     <div class="kt-trust-bar__grid">
       {%- for block in section.blocks -%}
         {%- if block.type == 'stat' -%}
-          <div class="kt-trust-bar__stat" {{ block.shopify_attributes }}>
-            <div class="kt-trust-bar__line" aria-hidden="true"></div>
-            <div class="kt-trust-bar__stat-content">
-              <div class="kt-trust-bar__value-row">
-                <span
-                  class="kt-trust-bar__number"
-                  data-count-to="{{ block.settings.value | escape }}"
-                >
-                  {{ block.settings.value }}
-                </span>
-                {%- if block.settings.prefix != blank -%}
-                  <span class="kt-trust-bar__prefix">{{ block.settings.prefix }}</span>
-                {%- endif -%}
+          {%- assign stat_value = block.settings.value | default: '' -%}
+          {%- assign stat_label = block.settings.label | default: '' -%}
+          {%- assign stat_prefix = block.settings.prefix | default: '' -%}
+          {%- assign stat_is_default = false -%}
+          {%- if stat_label == 'Stat label' or stat_label == blank -%}
+            {%- if stat_prefix == blank -%}
+              {%- if stat_value == '0' or stat_value == blank -%}
+                {%- assign stat_is_default = true -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+          {%- comment -%}
+            Live storefront: skip default-only blocks entirely.
+            Theme editor: render every block (with `--placeholder`
+            modifier on default-only ones) so the merchant can
+            click into it and fill in copy.
+          {%- endcomment -%}
+          {%- if stat_is_default == false or request.design_mode -%}
+            <div class="kt-trust-bar__stat{% if stat_is_default %} kt-trust-bar__stat--placeholder{% endif %}" {{ block.shopify_attributes }}>
+              <div class="kt-trust-bar__line" aria-hidden="true"></div>
+              <div class="kt-trust-bar__stat-content">
+                <div class="kt-trust-bar__value-row">
+                  <span
+                    class="kt-trust-bar__number"
+                    data-count-to="{{ block.settings.value | escape }}"
+                  >
+                    {{ block.settings.value }}
+                  </span>
+                  {%- if block.settings.prefix != blank -%}
+                    <span class="kt-trust-bar__prefix">{{ block.settings.prefix }}</span>
+                  {%- endif -%}
+                </div>
+                {%- comment -%}
+                  Stat label — not a page-outline heading. Previously
+                  h3 and tripping Lighthouse's heading-order audit on
+                  pages where the preceding section is h1/h2 and the
+                  stat label jumps to h3 without intermediate h2s.
+                  <p> reads as stat caption in the a11y tree instead
+                  of competing in the heading outline.
+                {%- endcomment -%}
+                <p class="kt-trust-bar__label">{{ block.settings.label }}</p>
               </div>
-              {%- comment -%}
-                Stat label — not a page-outline heading. Previously
-                h3 and tripping Lighthouse's heading-order audit on
-                pages where the preceding section is h1/h2 and the
-                stat label jumps to h3 without intermediate h2s.
-                <p> reads as stat caption in the a11y tree instead
-                of competing in the heading outline.
-              {%- endcomment -%}
-              <p class="kt-trust-bar__label">{{ block.settings.label }}</p>
             </div>
-          </div>
+          {%- endif -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
   </div>
 </section>
+{%- endif -%}
 
 <script src="{{ 'kt-section-trust-bar.js' | asset_url }}" defer="defer"></script>
 
