@@ -226,6 +226,31 @@
       });
     });
 
+    /* Gallery-level delegated click — backup for the showroom layout
+       where slides are nested inside multiple wrappers
+       (`.kt-showroom__gallery-desktop` > `.kt-showroom__gallery-pair`
+       > `.kt-showroom__gallery-half`, etc.). The per-slide listener
+       above works in isolation but can race against parent-DOM
+       click handlers in custom layouts; the delegated listener here
+       guarantees that ANY click landing on (or inside) a
+       `[data-gallery-slide][data-media-type="image"]` opens the
+       lightbox even when the per-slide handler hasn't bound for any
+       reason. Idempotent: openLightbox checks aria-hidden and skips
+       if already open.
+
+       Capture-phase = false (default bubble) — fires AFTER the
+       per-slide handlers, so when both succeed the second call
+       finds an already-open lightbox and is a no-op. */
+    gallery.addEventListener('click', function (e) {
+      var slide = e.target.closest('[data-gallery-slide][data-media-type="image"]');
+      if (!slide || !gallery.contains(slide)) return;
+      if (mainArea && mainArea.contains(slide)) return;
+      if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') return;
+      var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
+      if (!isNaN(targetIndex)) goTo(targetIndex);
+      openLightbox();
+    });
+
     /* Lightbox open */
     function openLightbox() {
       if (!lightbox || !lightboxImage) return;
