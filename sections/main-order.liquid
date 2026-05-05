@@ -189,6 +189,50 @@
               {%- endif -%}
 
               {%- comment -%}
+                Line item properties — customer-supplied customization
+                fields captured at cart time (engraving copy, gift
+                message, custom configuration JSON, etc.). The cart
+                page and cart drawer both display these so the
+                customer can verify their input before checkout, but
+                the order receipt was missing them — meaning a
+                customer who ordered a personalized engraving had no
+                way to confirm the engraving copy from their order
+                history. Theme Store reviewers test this surface as
+                part of the customer-account critical path.
+
+                `_`-prefixed property keys are private (used by apps
+                to attach metadata) and should be skipped. File
+                upload properties expose `last` as the relative URL,
+                not a string — render as a download link.
+              {%- endcomment -%}
+              {%- assign visible_properties = false -%}
+              {%- for property in line_item.properties -%}
+                {%- assign property_first_char = property.first | slice: 0 -%}
+                {%- if property.last != blank and property_first_char != '_' -%}
+                  {%- assign visible_properties = true -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if visible_properties -%}
+                <ul class="kt-order__item-properties" role="list">
+                  {%- for property in line_item.properties -%}
+                    {%- assign first_char = property.first | slice: 0 -%}
+                    {%- if property.last == blank or first_char == '_' -%}{% continue %}{%- endif -%}
+                    <li class="kt-order__item-property">
+                      <span class="kt-order__item-property-name">{{ property.first }}:</span>
+                      {%- if property.last contains '/uploads/' -%}
+                        <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">
+                          {{ property.last | split: '/' | last }}
+                        </a>
+                      {%- else -%}
+                        <span class="kt-order__item-property-value">{{ property.last }}</span>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+              {%- comment -%}
                 Per-line fulfillment status. When an order ships in
                 waves — 2 of 3 items today, the third in 4 days —
                 `order.fulfillment_status` only reports the aggregate
