@@ -220,6 +220,25 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
 
       if (openTimer) clearTimeout(openTimer);
       openTimer = setTimeout(function () {
+        /* Modal-stacking guard — when the auto-open fires while the
+           customer already has the cart drawer, mobile nav panel, or
+           search overlay open, the newsletter popup would render at a
+           lower z-index BEHIND the active modal (invisible) but still
+           install its own focus trap. Keyboard / SR users would then
+           type into a hidden form. WCAG 2.4.3 (Focus Order) violation.
+           Detect any sibling modal in the open state and skip this
+           cycle; the user's next page-load attempt re-arms the timer
+           naturally, so the popup still surfaces eventually. */
+        var anyModalOpen = (
+          document.querySelector('cart-drawer[aria-hidden="false"]') ||
+          document.querySelector('.kt-cart-drawer[aria-hidden="false"]') ||
+          document.querySelector('[data-search-overlay][aria-hidden="false"]') ||
+          document.querySelector('.kt-search-overlay[aria-hidden="false"]') ||
+          document.querySelector('.kt-header__mobile-panel[aria-hidden="false"]') ||
+          document.querySelector('[data-appointment-drawer][aria-hidden="false"]') ||
+          document.querySelector('[data-video-modal][aria-hidden="false"]')
+        );
+        if (anyModalOpen) return;
         openPopup(null);
       }, readDelayMs(p));
     }

@@ -72,18 +72,35 @@
       errorEl.hidden = false;
     }
 
-    /* Quantity buttons */
+    /* Quantity buttons — honour the variant's quantity_rule. The Liquid
+       template emits `data-qty-min` / `data-qty-step` / `data-qty-max`
+       on the input from `variant.quantity_rule.{min,increment,max}`,
+       so the stepper must respect those bounds (B2B / wholesale case
+       packs land qty=6,12,18 not 1,2,3). Fallback to 1/1/Infinity when
+       the dataset is empty so non-B2B catalogs still increment by 1. */
+    function readQtyRule() {
+      var min = parseInt(qtyInput && qtyInput.dataset.qtyMin, 10);
+      var step = parseInt(qtyInput && qtyInput.dataset.qtyStep, 10);
+      var max = parseInt(qtyInput && qtyInput.dataset.qtyMax, 10);
+      if (isNaN(min) || min < 1) min = 1;
+      if (isNaN(step) || step < 1) step = 1;
+      if (isNaN(max)) max = Infinity;
+      return { min: min, step: step, max: max };
+    }
+
     if (minusBtn && qtyInput) {
       minusBtn.addEventListener('click', function () {
-        var val = parseInt(qtyInput.value, 10) || 1;
-        qtyInput.value = Math.max(1, val - 1);
+        var rule = readQtyRule();
+        var val = parseInt(qtyInput.value, 10) || rule.min;
+        qtyInput.value = Math.max(rule.min, val - rule.step);
       });
     }
 
     if (plusBtn && qtyInput) {
       plusBtn.addEventListener('click', function () {
-        var val = parseInt(qtyInput.value, 10) || 1;
-        qtyInput.value = val + 1;
+        var rule = readQtyRule();
+        var val = parseInt(qtyInput.value, 10) || rule.min;
+        qtyInput.value = Math.min(rule.max, val + rule.step);
       });
     }
 

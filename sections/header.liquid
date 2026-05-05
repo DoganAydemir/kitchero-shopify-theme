@@ -39,6 +39,18 @@
           hint, browsers give the logo the same priority as the hero
           and the two compete for bandwidth.
         {%- endcomment -%}
+        {%- comment -%}
+          Pre-assign `height` — the inline form
+            height: settings.kt_logo_width | divided_by: ...,
+            loading: 'eager',
+          makes Liquid's parser read the trailing comma as a 2nd
+          arg to `divided_by`, producing the same "wrong number of
+          arguments (given 3, expected 2)" runtime error fixed for
+          card-product / banner-cover / hero. Resolving the math up
+          front in the {%- liquid -%} chain eliminates the ambiguity.
+        {%- endcomment -%}
+        {%- assign kt_logo_height = settings.kt_logo_width | divided_by: settings.kt_logo.aspect_ratio -%}
+        {%- assign kt_logo_alt = shop.name | escape -%}
         {{
           settings.kt_logo
           | image_url: width: 300
@@ -47,13 +59,13 @@
             widths: '100, 150, 200, 300',
             sizes: '(max-width: 750px) 100px, 150px',
             width: settings.kt_logo_width,
-            height: settings.kt_logo_width | divided_by: settings.kt_logo.aspect_ratio,
+            height: kt_logo_height,
             loading: 'eager',
             fetchpriority: 'low',
-            alt: shop.name
+            alt: kt_logo_alt
         }}
       {%- else -%}
-        <span class="kt-header__logo-text">{{ shop.name }}</span>
+        <span class="kt-header__logo-text">{{ shop.name | escape }}</span>
       {%- endif -%}
     </a>
 
@@ -410,7 +422,7 @@
 >
   <div class="kt-header__mobile-panel-header">
     <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name | escape }}">
-      <span class="kt-header__logo-text">{{ shop.name }}</span>
+      <span class="kt-header__logo-text">{{ shop.name | escape }}</span>
     </a>
     <button
       type="button"
