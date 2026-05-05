@@ -15,14 +15,25 @@
   `var(--kt-*)` consumer in lockstep.
 {%- enddoc -%}
 {%- liquid
+  comment
+    Theme Store requirement — for every font_picker setting we MUST emit
+    bold, italic, and bold-italic variants via the `font_modify` filter so
+    rich-text content (RTE blocks, descriptions, articles) renders the
+    correct weight/style without browsers falling back to synthetic
+    bolding/skewing. Reviewers grep for the four-variant matrix per font.
+  endcomment
   assign body_font = settings.kt_body_font
   assign body_font_bold = body_font | font_modify: 'weight', 'bold'
   assign body_font_italic = body_font | font_modify: 'style', 'italic'
   assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
   assign heading_font = settings.kt_heading_font
+  assign heading_font_bold = heading_font | font_modify: 'weight', 'bold'
+  assign heading_font_italic = heading_font | font_modify: 'style', 'italic'
+  assign heading_font_bold_italic = heading_font_bold | font_modify: 'style', 'italic'
   assign accent_font = settings.kt_accent_font
   assign accent_font_italic = accent_font | font_modify: 'style', 'italic'
   assign accent_font_bold = accent_font | font_modify: 'weight', 'bold'
+  assign accent_font_bold_italic = accent_font_bold | font_modify: 'style', 'italic'
 -%}
 {% style %}
   {{ body_font | font_face: font_display: 'swap' }}
@@ -30,9 +41,13 @@
   {{ body_font_italic | font_face: font_display: 'swap' }}
   {{ body_font_bold_italic | font_face: font_display: 'swap' }}
   {{ heading_font | font_face: font_display: 'swap' }}
+  {{ heading_font_bold | font_face: font_display: 'swap' }}
+  {{ heading_font_italic | font_face: font_display: 'swap' }}
+  {{ heading_font_bold_italic | font_face: font_display: 'swap' }}
   {{ accent_font | font_face: font_display: 'swap' }}
   {{ accent_font_italic | font_face: font_display: 'swap' }}
   {{ accent_font_bold | font_face: font_display: 'swap' }}
+  {{ accent_font_bold_italic | font_face: font_display: 'swap' }}
 
   {%- for scheme in settings.kt_schemes -%}
     {%- liquid
