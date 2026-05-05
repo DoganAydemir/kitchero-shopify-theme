@@ -410,7 +410,7 @@
                     them instead, which is what the `/discount/<code>`
                     route expects.
                   {%- endcomment -%}
-                  action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+                  action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
                   method="get"
                   class="kt-cart-page__discount"
                   data-cart-discount-form

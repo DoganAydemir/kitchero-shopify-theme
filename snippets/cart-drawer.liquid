@@ -390,7 +390,7 @@
         {%- endcomment -%}
         {%- if settings.kt_cart_show_discount -%}
           <form
-            action="/discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+            action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
             method="get"
             class="kt-cart-drawer__discount-form"
             data-cart-drawer-discount-form
