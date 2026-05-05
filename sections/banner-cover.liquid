@@ -33,6 +33,7 @@
       on-screen, while `fetchpriority: 'auto'` lets the browser decide.
     {%- endcomment -%}
     {%- if section.settings.image != blank -%}
+      {%- assign cover_focal = section.settings.image.presentation.focal_point | default: 'center center' -%}
       {{
         section.settings.image
         | image_url: width: 2400
@@ -44,6 +45,7 @@
           sizes: '100vw',
           width: section.settings.image.width,
           height: section.settings.image.height,
+          style: 'object-position: ' | append: cover_focal,
           alt: section.settings.image.alt | default: section.settings.heading
       }}
     {%- else -%}

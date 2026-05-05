@@ -18,6 +18,19 @@
           {% render 'social-icons' %}
         </div>
 
+        {%- comment -%}
+          Follow on Shop — Theme Store paid mandatory feature (Section 4).
+          `{{ shop | login_button: action: 'follow' }}` emits Shopify's
+          native button that lets shoppers follow the store via the Shop
+          app. Renders nothing when Shop login is unavailable on the
+          merchant's plan, so it's always safe to include.
+        {%- endcomment -%}
+        {%- if section.settings.show_follow_on_shop -%}
+          <div class="kt-footer__follow-on-shop">
+            {{ shop | login_button: action: 'follow' }}
+          </div>
+        {%- endif -%}
+
         {%- if section.settings.cta_text != blank -%}
           <a href="{{ section.settings.cta_link | default: routes.root_url | escape }}" class="kt-footer__cta">
             <span>{{ section.settings.cta_text }}</span>
@@ -350,6 +363,13 @@
       "type": "checkbox",
       "id": "show_payment_icons",
       "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_follow_on_shop",
+      "label": "t:sections.footer.settings.show_follow_on_shop.label",
+      "info": "t:sections.footer.settings.show_follow_on_shop.info",
       "default": true
     },
     {

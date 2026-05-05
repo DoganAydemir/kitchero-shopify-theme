@@ -165,6 +165,18 @@
   {%- endif -%}
 
   {%- comment -%}
+    Shop Pay Installments banner — Theme Store paid mandatory feature
+    (Section 4). `{{ form | payment_terms }}` renders Shopify's native
+    `<shopify-payment-terms>` custom element which only displays when
+    the merchant has Shop Pay Installments enabled AND the product
+    price meets the threshold; otherwise it emits nothing. Safe to
+    always include.
+  {%- endcomment -%}
+  <div class="kt-product-form__installments">
+    {{ form | payment_terms }}
+  </div>
+
+  {%- comment -%}
     Share — Web Share API with clipboard fallback. Privacy-safe: no
     tracking, no external services. The Shopify Theme Store treats
     save-for-later / favourites features as app territory (merchants

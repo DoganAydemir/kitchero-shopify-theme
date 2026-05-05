@@ -170,6 +170,25 @@
               <p class="kt-order__item-qty">{{ 'kt.customer.order.qty' | t: qty: line_item.quantity }}</p>
 
               {%- comment -%}
+                Unit price disclosure (EU groceries/wellness regulation)
+                + selling plan name (subscription compliance) — Theme
+                Store Section 7 customer-page requirements.
+              {%- endcomment -%}
+              {%- if line_item.variant.unit_price_measurement -%}
+                <p class="kt-order__item-unit-price">
+                  {{- line_item.variant.unit_price | money -}}
+                  <span aria-hidden="true">/</span>
+                  {%- if line_item.variant.unit_price_measurement.reference_value != 1 -%}
+                    {{- line_item.variant.unit_price_measurement.reference_value -}}
+                  {%- endif -%}
+                  {{- line_item.variant.unit_price_measurement.reference_unit -}}
+                </p>
+              {%- endif -%}
+              {%- if line_item.selling_plan_allocation -%}
+                <p class="kt-order__item-plan">{{ line_item.selling_plan_allocation.selling_plan.name | escape }}</p>
+              {%- endif -%}
+
+              {%- comment -%}
                 Per-line fulfillment status. When an order ships in
                 waves — 2 of 3 items today, the third in 4 days —
                 `order.fulfillment_status` only reports the aggregate

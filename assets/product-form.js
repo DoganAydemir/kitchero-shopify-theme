@@ -446,6 +446,27 @@
         container.dataset.currentVariantJson = JSON.stringify(matchedVariant);
       } catch (e) { /* circular / non-serializable — ignore */ }
 
+      /* Refresh visible SKU — Theme Store Section 7 requires the SKU
+         to update with the variant. The element is rendered server-side
+         from `selected_or_first_available_variant.sku`; we sync it
+         here on every variant change. Hidden when the matched variant
+         has no SKU (some products skip SKU per variant). */
+      try {
+        var skuEl = document.querySelector('[data-product-sku]');
+        if (skuEl) {
+          var hiddenLabel = skuEl.querySelector('.visually-hidden');
+          var hiddenLabelText = hiddenLabel ? hiddenLabel.outerHTML : '';
+          if (matchedVariant.sku) {
+            skuEl.hidden = false;
+            skuEl.innerHTML = hiddenLabelText + ' ' + matchedVariant.sku.replace(/[<>"&]/g, function (c) {
+              return c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&amp;';
+            });
+          } else {
+            skuEl.hidden = true;
+          }
+        }
+      } catch (e) { /* SKU update is non-critical */ }
+
       /* Re-read the active selling plan (if any) so the new variant
          shows the subscription-discounted price instead of flipping
          back to one-time price for one frame. The radios share the

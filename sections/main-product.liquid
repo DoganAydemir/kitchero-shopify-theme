@@ -75,6 +75,23 @@
               {%- when 'title' -%}
                 {%- assign heading_tag = block.settings.heading_tag | default: 'h1' -%}
                 <{{ heading_tag }} class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title }}</{{ heading_tag }}>
+                {%- comment -%}
+                  Variant SKU rendered for B2B / wholesale shoppers and
+                  inventory tracking — Theme Store Section 7 expects SKU
+                  visible and updated on variant change. JS in
+                  assets/product-form.js refreshes [data-product-sku]
+                  on variant select.
+                {%- endcomment -%}
+                {%- if product.selected_or_first_available_variant.sku != blank -%}
+                  <p class="kt-pdp__sku" data-product-sku>
+                    <span class="visually-hidden">{{ 'kt.product.sku.label' | t | default: 'SKU' }}: </span>
+                    {{ product.selected_or_first_available_variant.sku | escape }}
+                  </p>
+                {%- else -%}
+                  <p class="kt-pdp__sku" data-product-sku hidden>
+                    <span class="visually-hidden">{{ 'kt.product.sku.label' | t | default: 'SKU' }}: </span>
+                  </p>
+                {%- endif -%}
 
               {%- when 'meta' -%}
                 <div class="kt-pdp__meta" {{ block.shopify_attributes }}>

@@ -74,6 +74,7 @@
         merchants to backfill alt on every legacy product.
       {%- endcomment -%}
       {%- assign card_alt = product.featured_image.alt | default: product.title -%}
+      {%- assign card_focal = product.featured_image.presentation.focal_point | default: 'center center' -%}
       {{
         product.featured_image
         | image_url: width: 1100
@@ -85,6 +86,7 @@
           sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
           width: product.featured_image.width,
           height: product.featured_image.height,
+          style: 'object-position: ' | append: card_focal,
           alt: card_alt
       }}
     {%- else -%}
@@ -219,6 +221,25 @@
           </s>
         {%- endif -%}
       </div>
+
+      {%- comment -%}
+        Unit price for groceries / wellness / cosmetics — Theme Store
+        Section 7 collection requirement. Renders only when the
+        merchant has set unit_price_measurement on the variant
+        (otherwise emits nothing).
+      {%- endcomment -%}
+      {%- assign card_first_variant = product.selected_or_first_available_variant -%}
+      {%- if card_first_variant.unit_price_measurement -%}
+        <div class="kt-card-product__unit-price">
+          {{- card_first_variant.unit_price | money -}}
+          <span aria-hidden="true">/</span>
+          <span class="visually-hidden">{{ 'kt.product.unit_price_per_html' | t: quantity_value: card_first_variant.unit_price_measurement.quantity_value, quantity_unit: card_first_variant.unit_price_measurement.quantity_unit, reference_value: card_first_variant.unit_price_measurement.reference_value, reference_unit: card_first_variant.unit_price_measurement.reference_unit }}</span>
+          {%- if card_first_variant.unit_price_measurement.reference_value != 1 -%}
+            <span aria-hidden="true">{{ card_first_variant.unit_price_measurement.reference_value }}</span>
+          {%- endif -%}
+          <span aria-hidden="true">{{ card_first_variant.unit_price_measurement.reference_unit }}</span>
+        </div>
+      {%- endif -%}
 
       <a href="{{ product.url }}" class="kt-card-product__view-link">
         {{ 'kt.product.view_details' | t | default: 'View Details' }}

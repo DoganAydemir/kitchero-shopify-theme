@@ -47,6 +47,7 @@
             {%- assign slide_preload = false -%}
           {%- endif -%}
           {%- if block.settings.image != blank -%}
+            {%- assign hero_focal = block.settings.image.presentation.focal_point | default: 'center center' -%}
             {{
               block.settings.image
               | image_url: width: 2000
@@ -59,6 +60,7 @@
                 sizes: '100vw',
                 width: block.settings.image.width,
                 height: block.settings.image.height,
+                style: 'object-position: ' | append: hero_focal,
                 alt: block.settings.subtitle | default: shop.name
             }}
           {%- else -%}

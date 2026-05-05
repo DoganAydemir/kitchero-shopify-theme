@@ -33,7 +33,7 @@
   data-section-id="{{ section.id }}"
   data-section-type="related-products"
   data-product-recommendations
-  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_count }}&intent=related"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_count }}&intent={{ section.settings.intent | default: 'related' }}"
   {% if recommendations.performed and recommendations.products_count == 0 %}hidden{% endif %}
 >
   <div class="page-width">
@@ -108,6 +108,17 @@
       "step": 1,
       "default": 4,
       "label": "t:sections.related-products.settings.products_count.label"
+    },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "t:sections.related-products.settings.intent.label",
+      "info": "t:sections.related-products.settings.intent.info",
+      "options": [
+        { "value": "related", "label": "t:sections.related-products.settings.intent.options__related.label" },
+        { "value": "complementary", "label": "t:sections.related-products.settings.intent.options__complementary.label" }
+      ],
+      "default": "related"
     }
   ],
   "presets": [
