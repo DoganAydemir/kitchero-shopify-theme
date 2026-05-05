@@ -74,7 +74,7 @@
 
     slider.addEventListener('pointermove', function (e) {
       if (dragging) updateFromX(e.clientX);
-    });
+    }, { passive: true });
 
     windowHandlers.set(slider, { onPointerUp: onPointerUp });
 

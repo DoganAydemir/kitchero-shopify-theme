@@ -140,9 +140,9 @@ if (!window.__kitcheroSliderDragLoaded) {
       }
 
       track.addEventListener('pointerdown', onPointerDown);
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
-      window.addEventListener('pointercancel', onPointerUp);
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      window.addEventListener('pointerup', onPointerUp, { passive: true });
+      window.addEventListener('pointercancel', onPointerUp, { passive: true });
       track.addEventListener('click', onClickCapture, true);
       track.addEventListener('dragstart', onDragStart);
 
