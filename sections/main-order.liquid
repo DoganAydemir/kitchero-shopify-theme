@@ -28,7 +28,16 @@
             {{ 'kt.customer.order.title' | t: name: order.name }}
           </h1>
           <p class="kt-account__greeting">
-            {{ 'kt.customer.order.date_html' | t: date: order_date_formatted }}
+            {%- comment -%}
+              The localized "Placed on Jan 15, 2026" sentence is
+              wrapped in `<time datetime>` so screen readers and
+              SEO crawlers receive a machine-readable date alongside
+              the human-readable copy. Mirrors the pattern already
+              used in main-account.liquid orders table.
+            {%- endcomment -%}
+            <time datetime="{{ order.created_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+              {{ 'kt.customer.order.date_html' | t: date: order_date_formatted }}
+            </time>
           </p>
         </header>
 

@@ -41,6 +41,15 @@
     count_text: blog_count,
     heading_tag: blog_heading_tag
   -%}
+{%- else -%}
+  {%- comment -%}
+    Header off, but the page still needs an h1 for outline + SEO.
+    Article cards render as h2/h3, so without this the blog
+    template ships with zero h1s — Lighthouse a11y + Theme Store
+    structural audit both flag it. Visually-hidden so the merchant's
+    "header off" choice is still respected.
+  {%- endcomment -%}
+  <h1 class="visually-hidden">{{ blog.title }}</h1>
 {%- endif -%}
 
 <section class="kt-blog" data-section-id="{{ section.id }}" data-section-type="main-blog">

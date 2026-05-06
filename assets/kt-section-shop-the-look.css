@@ -341,7 +341,14 @@
   background: var(--kt-white);
   border-radius: 1.5rem;
   box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.15);
+  /* Bottom-fixed sheet on iPhone X+ — without `safe-area-inset-bottom`
+     the home-indicator bar overlapped the bottom of the product card
+     and "Get quote" CTA. `max()` keeps the visual rhythm on devices
+     without notch (the inset is 0) while honoring the inset on those
+     that have one. Mirrors the pattern in kt-cart-drawer.css /
+     kt-collection-filters.css / kt-appointment-drawer.css. */
   padding: 1.5rem;
+  padding-bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
   position: relative;
 }
 

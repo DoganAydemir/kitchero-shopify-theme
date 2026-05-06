@@ -52,6 +52,25 @@
         {%- if product.requires_selling_plan and forloop.first and forloop.parentloop.first -%}
           {%- assign plan_checked = true -%}
         {%- endif -%}
+        {%- comment -%}
+          Surface the plan's savings — Shopify subscription UX
+          guideline: "Provide a contextual subscription badge or
+          label" + "explain the current payment". Read the first
+          price_adjustment (Shopify's documented per-plan discount
+          shape) and render either "Save N%" for percentage
+          adjustments or "Save $X" for fixed-amount adjustments.
+          Skipped for plans without an adjustment so the picker
+          stays compact for one-time-only or full-price plans.
+        {%- endcomment -%}
+        {%- assign plan_savings_label = '' -%}
+        {%- if plan.price_adjustments.size > 0 -%}
+          {%- assign first_adj = plan.price_adjustments | first -%}
+          {%- if first_adj.value_type == 'percentage' and first_adj.value > 0 -%}
+            {%- assign plan_savings_label = 'kt.product.selling_plan.save_percent' | t: percent: first_adj.value | default: 'Save' -%}
+          {%- elsif first_adj.value_type == 'fixed_amount' and first_adj.value > 0 -%}
+            {%- assign plan_savings_label = 'kt.product.selling_plan.save_amount' | t: amount: first_adj.value | money | default: 'Save' -%}
+          {%- endif -%}
+        {%- endif -%}
         <label class="kt-selling-plan__option">
           <input
             type="radio"
@@ -69,6 +88,9 @@
                 {{ plan.name }}
               {%- endif -%}
             </span>
+            {%- if plan_savings_label != '' -%}
+              <span class="kt-selling-plan__option-savings">{{ plan_savings_label }}</span>
+            {%- endif -%}
             {%- if plan.description != blank -%}
               <span class="kt-selling-plan__option-desc">{{ plan.description }}</span>
             {%- endif -%}
@@ -76,5 +98,17 @@
         </label>
       {%- endfor -%}
     {%- endfor -%}
+
+    {%- comment -%}
+      Subscription policy link — Shopify subscription UX guideline:
+      "Subscription policy link (via shop.subscription_policy or in
+      description)". Renders only when the merchant configured the
+      policy in admin (Settings → Policies → Subscription policy).
+    {%- endcomment -%}
+    {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
+      <a href="{{ shop.subscription_policy.url }}" class="kt-selling-plan__policy-link">
+        {{ shop.subscription_policy.title | default: 'Subscription policy' }}
+      </a>
+    {%- endif -%}
   </fieldset>
 {%- endif -%}

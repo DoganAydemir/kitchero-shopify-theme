@@ -129,17 +129,21 @@
                     {%- comment -%}
                       Bundle components. When the customer adds a
                       native Shopify Bundle (product.type Bundle or
-                      any bundle app that populates
-                      line_item.line_components), the parent line item
-                      is the one they paid for; the child components
-                      are the items that ship. Rendering the
-                      components keeps the cart honest — they can
-                      verify the bundle contents without clicking
-                      through to the product page.
+                      Cart Transform API bundle), Shopify populates
+                      `line_item.item_components` (the documented
+                      Liquid attribute — earlier code referenced a
+                      non-existent `line_components` so child lines
+                      never rendered for merchants using Shopify
+                      Bundles). The parent line item is the one they
+                      paid for; the child components are the items
+                      that ship. Rendering the components keeps the
+                      cart honest — they can verify the bundle
+                      contents without clicking through to the
+                      product page.
                     {%- endcomment -%}
-                    {%- if item.line_components.size > 0 -%}
+                    {%- if item.item_components.size > 0 -%}
                       <ul class="kt-cart-page__item-components" role="list">
-                        {%- for component in item.line_components -%}
+                        {%- for component in item.item_components -%}
                           <li class="kt-cart-page__item-component">
                             {%- if component.quantity > 1 -%}
                               <span class="kt-cart-page__item-component-qty">{{ component.quantity }}&times;</span>

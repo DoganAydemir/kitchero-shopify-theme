@@ -89,17 +89,26 @@
             {%- endif -%}
 
             {%- if block.settings.quote != blank -%}
-              <p class="kt-testimonials-marquee__quote">
-                &ldquo;{{ block.settings.quote | escape }}&rdquo;
-              </p>
+              {%- comment -%}
+                Semantic <blockquote> for the testimonial copy + <cite>
+                for the author attribution. WCAG / Theme Store reviewer
+                expectation — the testimonials-pullquote section
+                already uses the same pair, this brings the marquee
+                variant in line. The <p> inside <blockquote> is
+                required by HTML spec (blockquote requires flow content;
+                bare text would be invalid).
+              {%- endcomment -%}
+              <blockquote class="kt-testimonials-marquee__quote">
+                <p>&ldquo;{{ block.settings.quote | escape }}&rdquo;</p>
+              </blockquote>
             {%- endif -%}
 
             {%- if block.settings.author_name != blank or block.settings.author_role != blank or block.settings.author_brand != blank -%}
               <div class="kt-testimonials-marquee__author">
                 {%- if block.settings.author_name != blank -%}
-                  <span class="kt-testimonials-marquee__author-name">
+                  <cite class="kt-testimonials-marquee__author-name">
                     {{- block.settings.author_name | escape -}}
-                  </span>
+                  </cite>
                 {%- endif -%}
                 {%- if block.settings.author_role != blank or block.settings.author_brand != blank -%}
                   <span class="kt-testimonials-marquee__author-meta">

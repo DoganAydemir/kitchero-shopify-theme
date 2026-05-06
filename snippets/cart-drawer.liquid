@@ -170,15 +170,19 @@
               {%- endif -%}
 
               {%- comment -%}
-                Bundle components — native Shopify Bundles app + any
-                bundle app populate `line_components`. Rendering child
-                lines gives the customer a "what's in the box" receipt
-                before they click Checkout. Compact render (title + qty
-                only) to keep drawer density manageable.
+                Bundle components — native Shopify Bundles + Cart
+                Transform API populate `item.item_components` (the
+                documented Liquid attribute). Earlier the loop read
+                `item.line_components` which doesn't exist on the
+                line_item drop, so child lines never rendered for
+                merchants using Shopify Bundles. Rendering child
+                lines gives the customer a "what's in the box"
+                receipt before they click Checkout. Compact render
+                (title + qty only) keeps drawer density manageable.
               {%- endcomment -%}
-              {%- if item.line_components.size > 0 -%}
+              {%- if item.item_components.size > 0 -%}
                 <ul class="kt-cart-drawer__item-components" role="list">
-                  {%- for component in item.line_components -%}
+                  {%- for component in item.item_components -%}
                     <li>
                       {%- if component.quantity > 1 -%}<span>{{ component.quantity }}&times;</span> {% endif -%}
                       {{ component.product.title | default: component.title }}

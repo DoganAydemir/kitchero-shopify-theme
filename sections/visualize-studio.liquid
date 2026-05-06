@@ -34,7 +34,16 @@
         <div class="kt-visualize-studio__eyebrow-row">
           <span class="kt-visualize-studio__rule" aria-hidden="true"></span>
           {%- if section.settings.eyebrow != blank -%}
-            <h2 class="kt-visualize-studio__eyebrow">{{ section.settings.eyebrow }}</h2>
+            {%- comment -%}
+              Eyebrow is decorative label (kicker), not a page-outline
+              heading. Previously emitted as <h2> which placed it
+              above the actual section heading at line 43 (default
+              h3) — outline went h2 → h3 (kicker as parent of the
+              real heading). Switched to <p> with a presentation-only
+              class so the visual "uppercase small caps" treatment
+              persists without polluting the heading hierarchy.
+            {%- endcomment -%}
+            <p class="kt-visualize-studio__eyebrow">{{ section.settings.eyebrow }}</p>
           {%- endif -%}
         </div>
 

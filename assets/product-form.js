@@ -921,6 +921,23 @@
     try {
       renderPriceForVariant(container, variant, planId);
 
+      /* Subscription ATC label switch — Shopify subscription UX
+         guideline: the main CTA copy should change when a recurring
+         plan is selected so the customer understands they're
+         committing to a subscription, not a one-time purchase.
+         Reverts to the regular "Add to cart" copy when the customer
+         switches back to one-time (planId blank). */
+      var atcText = container.querySelector('[data-add-to-cart-text]');
+      if (atcText && Kitchero.variantStrings) {
+        if (planId) {
+          atcText.textContent = Kitchero.variantStrings.addSubscription
+            || Kitchero.variantStrings.addToCart
+            || 'Add subscription to cart';
+        } else {
+          atcText.textContent = Kitchero.variantStrings.addToCart || 'Add to cart';
+        }
+      }
+
       /* Announce the new price to SR users — subscription discount
          applied silently is confusing. */
       if (window.Kitchero && typeof Kitchero.announce === 'function') {
