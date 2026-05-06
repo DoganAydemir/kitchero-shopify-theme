@@ -115,7 +115,17 @@
         </div>
         <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.sign_in' | t }}</button>
 
-        <button type="button" class="kt-customer__forgot-link" data-toggle-forgot aria-expanded="false">
+        {%- comment -%}
+          The forgot-password trigger opens a modal dialog (#forgot-modal,
+          role="dialog" aria-modal="true"), not an inline disclosure.
+          aria-expanded is reserved for inline collapsible widgets where
+          the controlled region remains in the natural reading flow;
+          modals require aria-haspopup="dialog" + aria-controls so the
+          screen reader announces the dialog relationship correctly.
+          Pattern matches header.liquid search overlay trigger which
+          uses the same aria-haspopup="dialog" + aria-controls combo.
+        {%- endcomment -%}
+        <button type="button" class="kt-customer__forgot-link" data-toggle-forgot aria-haspopup="dialog" aria-controls="forgot-modal">
           {{ 'kt.customer.login.forgot_password' | t }}
         </button>
 

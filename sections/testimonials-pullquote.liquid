@@ -16,6 +16,19 @@
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-pullquote"
   style="--kt-pullquote-padding: {{ vertical_padding }}px;"
+  {%- comment -%}
+    When quote blocks render as a slider, the inner slides carry
+    aria-roledescription="slide" — that's only valid inside a
+    carousel composite widget (WAI-ARIA Authoring Practices). The
+    parent must declare aria-roledescription="carousel" + an
+    accessible name so screen readers announce the orphan-slide
+    semantics correctly. Single-quote variant skips both attrs
+    (no slider, no carousel).
+  {%- endcomment -%}
+  {%- if quote_blocks.size > 1 -%}
+    aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
+    aria-label="{{ 'kt.a11y.testimonials_carousel' | t | default: 'Testimonials carousel' }}"
+  {%- endif -%}
 >
   <div class="page-width kt-testimonials-pullquote__inner">
     <div class="kt-testimonials-pullquote__icon" aria-hidden="true">
