@@ -379,10 +379,17 @@
       render. Markup kept in <body> so it lives inside the layout
       flow (and so `{% section 'cart-drawer' %}` participates in
       the Section Rendering API for AJAX refresh).
+
+      TSB-001 (Theme Store rule "static sections can't be added or
+      removed by Liquid templates or layouts"): the section is
+      now ALWAYS rendered. The internal `settings.kt_cart_type`
+      gate moved into sections/cart-drawer.liquid so the section
+      participates unconditionally in the layout while emitting
+      empty markup on stores configured for "page" cart mode.
+      Keeps Section Rendering API hooks consistent and matches
+      Shopify Skeleton's pattern for optional drawers.
     {%- endcomment -%}
-    {%- if settings.kt_cart_type == 'drawer' -%}
-      {% section 'cart-drawer' %}
-    {%- endif -%}
+    {% section 'cart-drawer' %}
     {%- render 'search-overlay' -%}
     <script src="{{ 'search-overlay.js' | asset_url }}" defer="defer"></script>
     {%- render 'appointment-drawer' -%}

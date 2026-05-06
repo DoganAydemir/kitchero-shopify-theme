@@ -17,9 +17,17 @@
   }
 
   function initAll(root) {
-    (root || document)
-      .querySelectorAll('.kt-footer__localization-form select')
-      .forEach(bindSelect);
+    var scope = root || document;
+    /* Bind every locale-form select across the theme: footer (always
+       present), mobile drawer (header bottom), and desktop header
+       popover (CLU-03). Each surface uses its own BEM classname; the
+       JS binding logic is identical so we union the three selectors.
+       Idempotent via dataset flag — re-runs are safe. */
+    scope.querySelectorAll(
+      '.kt-footer__localization-form select, ' +
+      '.kt-header__mobile-locale-select, ' +
+      '.kt-header__locale-form-select'
+    ).forEach(bindSelect);
   }
 
   if (document.readyState === 'loading') {

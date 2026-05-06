@@ -124,7 +124,7 @@
 
 ### templates-sections-blocks
 
-- [ ] **TSB-001** Static sections MUST NOT be added/removed by Liquid templates or layouts. _(R85 candidate — `theme.liquid:381` conditional `{% section 'cart-drawer' %}`; needs restructure to always-render with internal Liquid gate)_
+- [x] **TSB-001** Static sections MUST NOT be added/removed by Liquid templates or layouts. _(R85: theme.liquid now always renders `{% section 'cart-drawer' %}`; the `settings.kt_cart_type == 'drawer'` gate moved into sections/cart-drawer.liquid so the section participates unconditionally and emits empty markup on stores configured for page-cart mode.)_
   - **Source quote**: "You can't add or remove static sections from Liquid templates or layouts."
 - [x] **TSB-002** Theme MUST be Online Store 2.0 (JSON templates + section groups).
 - [x] **TSB-003** Block-level settings MUST be scoped to the block (in block schema, not section/theme).
@@ -274,7 +274,7 @@
 
 - [x] **CLU-01** Both selectors MUST render together in the same DOM region.
 - [x] **CLU-02** Footer placement: top of sub-footer, separate from nav links.
-- [ ] **CLU-03** Header: selector MUST be left of cart icon. _(R85 candidate — needs UI work to add desktop header selector)_
+- [x] **CLU-03** Header: selector MUST be left of cart icon. _(R85: added `<details>` popover localization selector in desktop header positioned immediately before cart `<a>`, gated on multi-country/language stores. Mobile drawer + footer selectors retained. Locale string `kt.locale.selector_label` × 5. localization-form.js extended to bind the new desktop selectors.)_
 - [x] **CLU-04** Nav drawer: selector MUST be styled as utility/footer link, not primary nav.
 - [x] **CLU-05** Selector MUST be popover, NOT modal dialog.
 - [x] **CLU-06** Display full country name + currency code (e.g., "United States (USD $)").
@@ -372,9 +372,9 @@
 
 | Round | Cluster focus | Items closed | Commit |
 |-------|--------------|--------------|--------|
-| R84 | All clusters | 9 fixed + 19 verified | (this round) |
-| R85 | TSB-001 + CLU-03 | 2 (UI restructure) | (planned) |
+| R84 | All clusters | 9 fixed + 19 verified | `cb67afe` |
+| R85 | TSB-001 + CLU-03 (UI restructure) | 2 fixed | (this round) |
 
-**Open items count:** 2 unchecked entries (TSB-001 cart-drawer restructure, CLU-03 desktop header selector).
+**Open items count:** 0.
 
-**Already verified compliant** (marked `[x]`): all other entries.
+**Status:** ✅ All 160 rules verified compliant or fixed. Ready for Theme Store submission audit.

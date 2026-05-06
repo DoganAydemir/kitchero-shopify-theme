@@ -8,9 +8,18 @@
   All markup lives in snippets/cart-drawer.liquid so the schema-free
   snippet form is still renderable from templates/other layouts if
   ever needed.
+
+  TSB-001 internal gate: layout/theme.liquid renders this section
+  unconditionally (Theme Store rule forbids conditional `{% section %}`
+  calls). When the merchant has chosen `kt_cart_type == 'page'`
+  (full-page cart), this section emits NOTHING so the drawer markup
+  doesn't ship to the page. The wrapper still exists in the SRA
+  response shape so AJAX refresh stays consistent.
 {%- endcomment -%}
 
-{%- render 'cart-drawer', section: section -%}
+{%- if settings.kt_cart_type == 'drawer' -%}
+  {%- render 'cart-drawer', section: section -%}
+{%- endif -%}
 
 {% schema %}
 {

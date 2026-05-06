@@ -343,6 +343,69 @@
         </a>
       {%- endif -%}
 
+      {%- comment -%}
+        Localization selector — Theme Store rule CLU-03 requires
+        the country/language selector to sit LEFT of the cart icon
+        in the header. CLU-05 requires popover (NOT modal) so we
+        use a native <details> disclosure. CLU-06 displays full
+        country name + currency code + symbol. Only emits when the
+        store has more than one configured country OR language —
+        single-locale stores see nothing here. CSS scopes this
+        block to desktop only (≥ 990px); mobile users still get
+        the in-drawer selector at the bottom of the mobile-nav.
+      {%- endcomment -%}
+      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+        <details class="kt-header__locale" data-locale-disclosure>
+          <summary class="kt-header__icon kt-header__locale-summary" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
+            <span class="kt-header__locale-current" aria-hidden="true">
+              {%- if localization.available_languages.size > 1 -%}
+                {{ localization.language.iso_code | upcase }}
+              {%- endif -%}
+              {%- if localization.available_languages.size > 1 and localization.available_countries.size > 1 %} / {% endif -%}
+              {%- if localization.available_countries.size > 1 -%}
+                {{ localization.country.currency.iso_code }}
+              {%- endif -%}
+            </span>
+            <svg class="kt-header__locale-chevron" aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
+            {%- if localization.available_languages.size > 1 -%}
+              {%- form 'localization', id: 'HeaderLanguageForm', class: 'kt-header__locale-form' -%}
+                <label for="HeaderLanguageSelector" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
+                <select name="language_code" id="HeaderLanguageSelector" class="kt-header__locale-form-select">
+                  {%- for language in localization.available_languages -%}
+                    <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+                      {{ language.endonym_name | capitalize }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+                <noscript>
+                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                </noscript>
+              {%- endform -%}
+            {%- endif -%}
+
+            {%- if localization.available_countries.size > 1 -%}
+              {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
+                <label for="HeaderCountrySelector" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
+                <select name="country_code" id="HeaderCountrySelector" class="kt-header__locale-form-select">
+                  {%- for country in localization.available_countries -%}
+                    <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                      {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+                <noscript>
+                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                </noscript>
+              {%- endform -%}
+            {%- endif -%}
+          </div>
+        </details>
+      {%- endif -%}
+
       {%- comment -%} Cart {%- endcomment -%}
       {%- comment -%}
         aria-label includes the item count so WCAG 2.5.3 Label in

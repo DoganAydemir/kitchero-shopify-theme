@@ -555,6 +555,133 @@
   border-radius: 50%;
 }
 
+/* ── Localization selector (desktop header, CLU-03) ─────────
+   <details> popover anchored to the LEFT of the cart icon. Hidden
+   on mobile (<990px) — mobile users get the in-drawer selector at
+   the bottom of the mobile-nav. The native <details> disclosure
+   handles open/close keyboard ergonomics for free (Enter / Space /
+   Esc) and meets CLU-05 (popover, not modal).
+*/
+.kt-header__locale {
+  display: none;
+  position: relative;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-header__locale {
+    display: block;
+  }
+}
+
+.kt-header__locale-summary {
+  /* Inherit the .kt-header__icon look (44×44 hit area, hover color)
+     but stretch horizontally to fit the EN / USD label. <summary>
+     defaults to list-item display — kill the marker and use flex
+     to align the label and chevron. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.kt-header__locale-summary::-webkit-details-marker {
+  display: none;
+}
+
+.kt-header__locale-summary::marker {
+  content: '';
+}
+
+.kt-header__locale-current {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kt-header__locale-chevron {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+
+.kt-header__locale[open] .kt-header__locale-chevron {
+  transform: rotate(180deg);
+}
+
+.kt-header__locale-popover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  /* Right-align so the popover stays inside the viewport when the
+     selector sits at the right edge of the header (just left of
+     the cart icon). */
+  right: 0;
+  min-width: 18rem;
+  max-width: 24rem;
+  padding: 1rem;
+  background-color: var(--kt-stone-900, #1c1917);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.45);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kt-header__locale-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kt-header__locale-form-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(214, 211, 209, 0.7);
+}
+
+.kt-header__locale-form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.625rem 2rem 0.625rem 0.75rem;
+  background-color: rgba(255, 255, 255, 0.04);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d6d3d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.375rem;
+  color: var(--kt-white, #fafaf9);
+  cursor: pointer;
+}
+
+.kt-header__locale-form-select:focus-visible {
+  outline: 2px solid var(--kt-white, #fafaf9);
+  outline-offset: 2px;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.kt-header__locale-form-submit {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--kt-white, #fafaf9);
+  color: var(--kt-stone-900, #1c1917);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
 /* Mobile Menu Toggle */
 .kt-header__menu-toggle {
   display: flex;
