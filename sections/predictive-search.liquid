@@ -27,19 +27,26 @@
     {%- assign results_count = predictive_search.resources.results_count -%}
 
     {%- if results_count > 0 -%}
-      {%- comment -%} Products group {%- endcomment -%}
+      {%- comment -%}
+        Products group. Per WAI-ARIA combobox + multi-listbox pattern
+        the group <ul> carries role="listbox" + aria-labelledby
+        pointing to the group <h2> id; each result <li> carries
+        role="option" (NOT the inner <a>). This matches the example
+        markup in Shopify's predictive-search docs and lets a
+        screen-reader's combobox navigation announce the option
+        landmark + group label, not the bare anchor text.
+      {%- endcomment -%}
       {%- if predictive_search.resources.results.products.size > 0 -%}
         <div class="kt-predictive-search__group" data-group="products">
-          <h2 class="kt-predictive-search__group-title">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading">
             {{ 'kt.predictive_search.products' | t | default: 'Products' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="list">
+          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-products-heading">
             {%- for product in predictive_search.resources.results.products -%}
-              <li class="predictive-search__item kt-predictive-search__item">
+              <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a
                   class="kt-predictive-search__link"
                   href="{{ product.url }}"
-                  role="option"
                   aria-label="{{ product.title | escape }}"
                 >
                   {%- if product.featured_media != blank -%}
@@ -87,16 +94,16 @@
         </div>
       {%- endif -%}
 
-      {%- comment -%} Collections group {%- endcomment -%}
+      {%- comment -%} Collections group — same listbox/option pattern as products. {%- endcomment -%}
       {%- if predictive_search.resources.results.collections.size > 0 -%}
         <div class="kt-predictive-search__group" data-group="collections">
-          <h2 class="kt-predictive-search__group-title">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading">
             {{ 'kt.predictive_search.collections' | t | default: 'Collections' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="list">
+          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-collections-heading">
             {%- for collection in predictive_search.resources.results.collections -%}
-              <li class="predictive-search__item kt-predictive-search__item">
-                <a class="kt-predictive-search__link" href="{{ collection.url }}" role="option">
+              <li class="predictive-search__item kt-predictive-search__item" role="option">
+                <a class="kt-predictive-search__link" href="{{ collection.url }}">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ collection.title }}</span>
                   </span>
@@ -107,16 +114,16 @@
         </div>
       {%- endif -%}
 
-      {%- comment -%} Articles group {%- endcomment -%}
+      {%- comment -%} Articles group — same listbox/option pattern. {%- endcomment -%}
       {%- if predictive_search.resources.results.articles.size > 0 -%}
         <div class="kt-predictive-search__group" data-group="articles">
-          <h2 class="kt-predictive-search__group-title">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading">
             {{ 'kt.predictive_search.articles' | t | default: 'Articles' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="list">
+          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-articles-heading">
             {%- for article in predictive_search.resources.results.articles -%}
-              <li class="predictive-search__item kt-predictive-search__item">
-                <a class="kt-predictive-search__link" href="{{ article.url }}" role="option">
+              <li class="predictive-search__item kt-predictive-search__item" role="option">
+                <a class="kt-predictive-search__link" href="{{ article.url }}">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ article.title }}</span>
                     {%- if article.excerpt != blank -%}
@@ -130,16 +137,16 @@
         </div>
       {%- endif -%}
 
-      {%- comment -%} Pages group {%- endcomment -%}
+      {%- comment -%} Pages group — same listbox/option pattern. {%- endcomment -%}
       {%- if predictive_search.resources.results.pages.size > 0 -%}
         <div class="kt-predictive-search__group" data-group="pages">
-          <h2 class="kt-predictive-search__group-title">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading">
             {{ 'kt.predictive_search.pages' | t | default: 'Pages' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="list">
+          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-pages-heading">
             {%- for page in predictive_search.resources.results.pages -%}
-              <li class="predictive-search__item kt-predictive-search__item">
-                <a class="kt-predictive-search__link" href="{{ page.url }}" role="option">
+              <li class="predictive-search__item kt-predictive-search__item" role="option">
+                <a class="kt-predictive-search__link" href="{{ page.url }}">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ page.title }}</span>
                   </span>

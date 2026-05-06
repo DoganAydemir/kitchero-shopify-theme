@@ -185,18 +185,26 @@
     return (window.Kitchero && window.Kitchero.searchSettings) || {};
   }
 
+  /* Group renderers — mirror the Liquid template's ARIA structure
+     per Shopify's predictive-search docs + WAI-ARIA combobox spec:
+     each group <ul> carries role="listbox" + aria-labelledby pointing
+     to the group <h2> id; each <li> carries role="option" (NOT the
+     inner <a>). The keydown handler below selects on .kt-predictive-
+     search__item now, with aria-activedescendant pointing to the <li>
+     id. */
+
   function renderProductGroup(products) {
     var s = strings();
     var heading = s.groupProducts || 'Products';
     var html = '<div class="kt-predictive-search__group" data-group="products">';
-    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="list">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-products-heading">';
     products.forEach(function (p) {
       var img = p.featured_image && p.featured_image.url ? p.featured_image.url : '';
       var alt = (p.featured_image && p.featured_image.alt) || p.title || '';
       var price = p.price ? formatMoney(p.price, p.currency) : '';
-      html += '<li class="predictive-search__item kt-predictive-search__item">';
-      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
       if (img) {
         html += '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(alt) + '" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
       } else {
@@ -220,11 +228,11 @@
     var s = strings();
     var heading = s.groupCollections || 'Collections';
     var html = '<div class="kt-predictive-search__group" data-group="collections">';
-    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="list">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-collections-heading">';
     collections.forEach(function (c) {
-      html += '<li class="predictive-search__item kt-predictive-search__item">';
-      html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
+      html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(c.title) + '</span>';
       html += '</a></li>';
     });
@@ -236,11 +244,11 @@
     var s = strings();
     var heading = s.groupArticles || 'Journal';
     var html = '<div class="kt-predictive-search__group" data-group="articles">';
-    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="list">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-articles-heading">';
     articles.forEach(function (a) {
-      html += '<li class="predictive-search__item kt-predictive-search__item">';
-      html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
+      html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(a.title) + '</span>';
       html += '</a></li>';
     });
@@ -252,11 +260,11 @@
     var s = strings();
     var heading = s.groupPages || 'Pages';
     var html = '<div class="kt-predictive-search__group" data-group="pages">';
-    html += '<h2 class="kt-predictive-search__group-title">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="list">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-pages-heading">';
     pages.forEach(function (p) {
-      html += '<li class="predictive-search__item kt-predictive-search__item">';
-      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
       html += '</a></li>';
     });
@@ -339,8 +347,14 @@
        highlighted link. Without this, keyboard-only users have to
        Tab through every result individually to pick one. */
     input.addEventListener('keydown', function (event) {
-      var links = resultsContainer.querySelectorAll('.kt-predictive-search__link');
-      if (!links.length) return;
+      /* WAI-ARIA combobox: aria-activedescendant on the input must
+         point to the element that carries role="option". The R83
+         restructuring moved role="option" from the inner <a> to the
+         wrapping <li> so the option semantics match Shopify's
+         documented predictive-search pattern. Query the <li>
+         (.kt-predictive-search__item) here, not the <a>. */
+      var options = resultsContainer.querySelectorAll('.kt-predictive-search__item');
+      if (!options.length) return;
 
       /* Each option needs a unique id so the input's
          `aria-activedescendant` can point at it — that's how the
@@ -351,15 +365,15 @@
          suggestions hear only the input value, never the highlighted
          result. Assign lazily here (idempotent — keeps ids stable
          across re-renders within the same query). */
-      for (var idx = 0; idx < links.length; idx++) {
-        if (!links[idx].id) {
-          links[idx].id = 'kt-predictive-option-' + idx;
+      for (var idx = 0; idx < options.length; idx++) {
+        if (!options[idx].id) {
+          options[idx].id = 'kt-predictive-option-' + idx;
         }
       }
 
       var currentIndex = -1;
-      for (var i = 0; i < links.length; i++) {
-        if (links[i].classList.contains('is-active')) {
+      for (var i = 0; i < options.length; i++) {
+        if (options[i].classList.contains('is-active')) {
           currentIndex = i;
           break;
         }
@@ -368,49 +382,53 @@
       if (event.key === 'ArrowDown') {
         event.preventDefault();
         var next = currentIndex + 1;
-        if (next >= links.length) next = 0;
-        setActive(links, next, input);
+        if (next >= options.length) next = 0;
+        setActive(options, next, input);
       } else if (event.key === 'ArrowUp') {
         event.preventDefault();
         var prev = currentIndex - 1;
-        if (prev < 0) prev = links.length - 1;
-        setActive(links, prev, input);
+        if (prev < 0) prev = options.length - 1;
+        setActive(options, prev, input);
       } else if (event.key === 'Enter' && currentIndex >= 0) {
         /* Only intercept Enter when the user has navigated into the
            results — otherwise allow the default form submit to reach
-           the full-page /search results. */
+           the full-page /search results. The actual navigation
+           happens via the inner <a> click; the role="option" wrapper
+           is purely an ARIA construct. */
         event.preventDefault();
-        links[currentIndex].click();
+        var anchor = options[currentIndex].querySelector('.kt-predictive-search__link');
+        if (anchor) anchor.click();
       } else if (event.key === 'Escape') {
-        clearActive(links, input);
+        clearActive(options, input);
       }
     });
   }
 
-  function setActive(links, index, input) {
-    clearActive(links, input);
-    var link = links[index];
-    if (!link) return;
-    link.classList.add('is-active');
-    link.setAttribute('aria-selected', 'true');
+  function setActive(options, index, input) {
+    clearActive(options, input);
+    var option = options[index];
+    if (!option) return;
+    option.classList.add('is-active');
+    option.setAttribute('aria-selected', 'true');
     /* Sync the combobox input's aria-activedescendant to point at
-       the currently-highlighted option. SR users focused on the
-       input hear the option announced. */
-    if (input && link.id) {
-      input.setAttribute('aria-activedescendant', link.id);
+       the currently-highlighted option (the <li role="option">,
+       not the inner <a>). SR users focused on the input hear the
+       option announced via the option's accessible name. */
+    if (input && option.id) {
+      input.setAttribute('aria-activedescendant', option.id);
     }
     /* Scroll the result into view if the list is tall enough to
        overflow its container. `block: 'nearest'` avoids a jumpy
        center-scroll on short result lists. */
-    if (typeof link.scrollIntoView === 'function') {
-      link.scrollIntoView({ block: 'nearest' });
+    if (typeof option.scrollIntoView === 'function') {
+      option.scrollIntoView({ block: 'nearest' });
     }
   }
 
-  function clearActive(links, input) {
-    for (var i = 0; i < links.length; i++) {
-      links[i].classList.remove('is-active');
-      links[i].removeAttribute('aria-selected');
+  function clearActive(options, input) {
+    for (var i = 0; i < options.length; i++) {
+      options[i].classList.remove('is-active');
+      options[i].removeAttribute('aria-selected');
     }
     if (input) {
       input.removeAttribute('aria-activedescendant');

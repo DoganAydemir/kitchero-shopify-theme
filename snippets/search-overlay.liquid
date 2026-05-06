@@ -51,6 +51,15 @@
             role="combobox"
             aria-expanded="false"
             aria-controls="predictive-search-results"
+            {%- comment -%}
+              aria-owns mirrors aria-controls per the WAI-ARIA 1.2
+              combobox + multi-listbox pattern Shopify's predictive-
+              search docs document. Without it, AT can't always
+              traverse from the input into the results subtree
+              when DOM focus stays on the input (aria-activedescendant
+              flow). Belt-and-braces with aria-controls.
+            {%- endcomment -%}
+            aria-owns="predictive-search-results"
             aria-autocomplete="list"
             aria-haspopup="listbox"
             data-search-input
@@ -68,16 +77,21 @@
       </form>
 
       {%- comment -%}
-        Predictive search results container. `role="listbox"` pairs
-        with the input's `role="combobox"` above — arrow-key nav +
-        aria-activedescendant highlight happens in predictive-search.js.
-        aria-live="polite" still fires SR announcements on mass-DOM
-        replacement for belt-and-braces coverage.
+        Predictive search results container. Per Shopify's predictive-
+        search docs (and WAI-ARIA combobox pattern): when the popup
+        contains MULTIPLE labelled groups (Products, Collections,
+        Articles, Pages), each group's <ul> carries role="listbox"
+        with aria-labelledby pointing to its heading id. The wrapper
+        does NOT carry role="listbox" — that would create an invalid
+        listbox-inside-listbox nesting (W3C valid only when the
+        outer is role="tree" or similar).
+
+        Kept aria-live="polite" so SR announces result-set changes
+        on mass-DOM replacement (debounced fetch responses).
       {%- endcomment -%}
       <div
         class="kt-search-overlay__results"
         id="predictive-search-results"
-        role="listbox"
         aria-live="polite"
       ></div>
 

@@ -51,7 +51,11 @@
 
 .kt-predictive-search__link:hover,
 .kt-predictive-search__link:focus-visible,
-.kt-predictive-search__link.is-active {
+/* R83 ARIA restructure — role="option" + .is-active moved from
+   <a> to <li> to match Shopify's documented predictive-search
+   pattern. The visual highlight cascades from the active option
+   to its inner link via descendant selector. */
+.kt-predictive-search__item.is-active .kt-predictive-search__link {
   background-color: var(--kt-stone-100);
 }
 
@@ -196,7 +200,9 @@
 
 .kt-search-overlay .kt-predictive-search__link:hover,
 .kt-search-overlay .kt-predictive-search__link:focus-visible,
-.kt-search-overlay .kt-predictive-search__link.is-active {
+/* Mirror R83 restructure — descendant selector reaches the link
+   when the parent option carries .is-active. */
+.kt-search-overlay .kt-predictive-search__item.is-active .kt-predictive-search__link {
   background-color: rgba(255, 255, 255, 0.06);
 }
 
