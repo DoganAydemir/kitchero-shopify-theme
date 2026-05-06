@@ -59,6 +59,17 @@
         data-media-id="{{ media.id }}"
         data-media-type="{{ media.media_type }}"
         aria-label="{{ thumb_aria }}"
+        {%- comment -%}
+          R92 — aria-current="true" announces the active thumbnail
+          to SR users so they know which media is currently displayed
+          in the main viewport. Without this, sighted users see the
+          .kt-gallery__thumb--active class styling but SR users hear
+          identical announcements for every thumb. The JS gallery
+          handler must also flip aria-current when the active thumb
+          changes (sync with the existing .is-active class toggle in
+          assets/product-gallery.js).
+        {%- endcomment -%}
+        {% if media.id == active_media_id %}aria-current="true"{% endif %}
       >
         {{
           thumb_source

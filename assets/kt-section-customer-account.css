@@ -439,6 +439,24 @@
   display: none;
 }
 
+/* R92 — No-JS escape hatch (Theme Store mandatory: "All sections...
+   should work with JavaScript disabled for basic functionality").
+   The toggle button + [hidden] attribute pattern is JS-only.
+   When JS is disabled (`html.no-js`), reveal every address form
+   and hide the toggle buttons so customers can add/edit addresses
+   via native form submission. The forgot-password modal pattern
+   (kt-section-customer-forms.css:244) uses the same approach. */
+html.no-js .kt-addresses__form[hidden] {
+  display: flex;
+}
+
+html.no-js [data-addresses-toggle-new],
+html.no-js [data-addresses-toggle-edit],
+html.no-js [data-addresses-cancel-new],
+html.no-js [data-addresses-cancel-edit] {
+  display: none;
+}
+
 .kt-addresses__form-title {
   font-family: var(--kt-f-accent-family);
   font-size: 1.25rem;

@@ -94,11 +94,20 @@
       currentIndex = index;
 
       slides.forEach(function (s) { s.classList.remove('kt-gallery__slide--active'); });
-      thumbs.forEach(function (t) { t.classList.remove('kt-gallery__thumb--active'); });
+      /* R92 — flip aria-current alongside the visual --active class so
+         SR users hear the active thumb announcement, not just the
+         visually-styled state. Liquid renders the initial
+         aria-current on the active thumb (product-media-gallery.liquid)
+         but variant change / user click must keep it in sync. */
+      thumbs.forEach(function (t) {
+        t.classList.remove('kt-gallery__thumb--active');
+        t.removeAttribute('aria-current');
+      });
 
       if (slides[index]) slides[index].classList.add('kt-gallery__slide--active');
       if (thumbs[index]) {
         thumbs[index].classList.add('kt-gallery__thumb--active');
+        thumbs[index].setAttribute('aria-current', 'true');
         /* Scroll thumb into view */
         thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       }

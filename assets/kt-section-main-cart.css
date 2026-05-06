@@ -857,3 +857,35 @@
     transform: none;
   }
 }
+
+/* R92 — Print stylesheet. Customers print cart for record-keeping
+   (especially on B2B / quote-driven flows). Without explicit print
+   rules the page prints with the full chrome (header/footer/drawers/
+   navigation) wasting ink + paper, and interactive widgets (qty
+   steppers, remove buttons, discount input, checkout button) print
+   as visible-but-useless controls. The base.css:829 global rule
+   already hides theme chrome; this section adds cart-specific
+   print refinements: hide interactive widgets, page-break protection
+   on line items + totals so rows don't split across pages. */
+@media print {
+  .kt-cart-page__qty,
+  .kt-cart-page__remove,
+  .kt-cart-page__note,
+  .kt-cart-page__note-toggle,
+  .kt-cart-page__discount-form,
+  .kt-cart-page__checkout,
+  .kt-cart-page__additional-checkout,
+  .kt-cart-page__continue,
+  .kt-cart-page__empty-cta {
+    display: none !important;
+  }
+  .kt-cart-page__item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .kt-cart-page__totals,
+  .kt-cart-page__summary {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
