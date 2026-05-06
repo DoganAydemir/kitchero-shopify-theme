@@ -42,9 +42,10 @@
 <section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
   {%- comment -%}
     Breadcrumb moved to layout/theme.liquid (global render). The
-    `show_breadcrumb` section toggle stays in schema for backwards
-    compat but no longer wires anything — the global
-    `settings.kt_show_breadcrumbs` is the source of truth.
+    legacy per-section `show_breadcrumb` toggle was removed from
+    both this section's schema AND from any JSON templates that
+    referenced it — `settings.kt_show_breadcrumbs` (theme-global)
+    is now the single source of truth (R100).
   {%- endcomment -%}
 
   <div class="page-width">
@@ -65,8 +66,9 @@
             column (where it lived before) tucked it into a narrow
             right-rail context where shoppers couldn't see it as a
             navigation aid. The user reported "no breadcrumb on PDP"
-            for that reason. The setting `show_breadcrumb` still gates
-            visibility; merchants who want a quieter PDP turn it off.
+            for that reason. The theme-global `settings.kt_show_breadcrumbs`
+            gates visibility; merchants who want a quieter PDP turn it off
+            in Theme settings → Layout.
           {%- endcomment -%}
 
           {%- for block in section.blocks -%}
