@@ -92,7 +92,15 @@
               {%- endif -%}
               {%- form 'customer', id: 'FooterNewsletter' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
-                <input type="hidden" name="contact[accepts_marketing]" value="true">
+                {%- comment -%}
+                  No `contact[accepts_marketing]=true` hidden field —
+                  pre-flagging marketing consent via a server-forced
+                  default violates GDPR Art. 7 (consent must be
+                  explicit, granular, informed) and is a Theme Store
+                  reject signal. Shopify's native double-opt-in
+                  confirmation email produces the legally-valid
+                  record. Matches Dawn's reference newsletter pattern.
+                {%- endcomment -%}
                 {%- if form.posted_successfully? -%}
                   <p class="kt-footer__newsletter-success" role="status">
                     {{ 'kt.section.newsletter-popup.success' | t | default: 'Thanks for subscribing.' }}

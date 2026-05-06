@@ -11,11 +11,15 @@
       {%- form 'customer', id: 'NewsletterPageForm', class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
         {%- comment -%}
-          GDPR opt-in flag — sets the customer's "Accepts marketing"
-          state in Shopify admin so EU/UK reviewers see explicit
-          consent on the customer record.
+          Removed the `contact[accepts_marketing]=true` hidden field.
+          Pre-flagging marketing consent via a server-forced default
+          violates GDPR Article 7 / ePrivacy (consent must be
+          explicit, granular, informed) and is a Theme Store reject
+          signal. Submitting this form creates the customer record;
+          the merchant's Shopify-native double-opt-in confirmation
+          email is what produces the legally-valid consent. Pattern
+          matches Dawn's reference newsletter form.
         {%- endcomment -%}
-        <input type="hidden" name="contact[accepts_marketing]" value="true">
 
         {%- if form.posted_successfully? -%}
           <div class="kt-newsletter-page__success" role="status">

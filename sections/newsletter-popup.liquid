@@ -280,12 +280,17 @@
               the policy title becomes a real anchor; otherwise the
               static disclosure renders alone (no broken link).
 
-              `accepts_marketing` hidden field is the GDPR opt-in
-              signal Shopify uses to flag the customer in the admin
-              "Accepts marketing" list. Required for EU/UK email-list
-              compliance.
+              We deliberately do NOT pre-flag `contact[accepts_marketing]=true`
+              via a hidden field. GDPR Article 7 + ePrivacy Directive
+              require explicit, granular, informed opt-in — a server-
+              forced flag bypasses that and is a Theme Store reject
+              signal. Instead the visible disclosure below + the
+              merchant's Shopify-native double-opt-in confirmation
+              email together produce the legally-valid consent
+              record. Pattern matches Dawn's reference newsletter
+              form which also omits the accepts_marketing hidden
+              field for the same reason.
             {%- endcomment -%}
-            <input type="hidden" name="contact[accepts_marketing]" value="true">
             <p class="kt-newsletter-popup__privacy">
               {{ section.settings.privacy_note | default: 'By subscribing, you agree to our Privacy Policy. Unsubscribe at any time.' }}
               {%- if shop.privacy_policy != blank %}
