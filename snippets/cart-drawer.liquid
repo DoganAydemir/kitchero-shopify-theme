@@ -199,7 +199,17 @@
                       <li>
                         <span>{{ property.first | escape }}:</span>
                         {%- if property.last contains '/uploads/' -%}
-                          <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last }}</a>
+                          {%- comment -%}
+                            The visible filename text after split is still
+                            user-controlled (file uploads at /cart/add).
+                            R75 caught this on main-order.liquid; R76
+                            verifies the cart-side renders. A crafted
+                            upload like `/uploads/<svg onload=...>.png`
+                            survives the path split untouched and renders
+                            raw inside the drawer DOM. `| escape` on the
+                            visible text closes that XSS path.
+                          {%- endcomment -%}
+                          <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last | escape }}</a>
                         {%- else -%}
                           {{ property.last | escape }}
                         {%- endif -%}

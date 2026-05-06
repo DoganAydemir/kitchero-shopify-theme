@@ -165,7 +165,13 @@
                             <li>
                               <span>{{ property.first | escape }}:</span>
                               {%- if property.last contains '/uploads/' -%}
-                                <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last }}</a>
+                                {%- comment -%}
+                                  Visible filename after split is still
+                                  user-controlled. Same XSS class as
+                                  R75 main-order fix; cart-drawer
+                                  parallel updated alongside.
+                                {%- endcomment -%}
+                                <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last | escape }}</a>
                               {%- else -%}
                                 {{ property.last | escape }}
                               {%- endif -%}

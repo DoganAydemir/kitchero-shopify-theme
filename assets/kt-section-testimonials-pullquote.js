@@ -125,7 +125,21 @@
   } else {
     initAll();
   }
-  document.addEventListener('shopify:section:load', function (e) { initAll(e.target); });
+  document.addEventListener('shopify:section:load', function (e) {
+    /* :load fires on settings changes without :unload. The 7s
+       setInterval per slider would keep firing on detached DOM
+       (closure prevents GC) for every editor save. Tear down any
+       pre-existing slider in this section before re-init. */
+    if (e.target && e.target.querySelectorAll) {
+      var oldNodes = e.target.querySelectorAll('.kt-testimonials-pullquote--slider');
+      Array.prototype.forEach.call(oldNodes, function (root) {
+        var ctrl = boundSliders.get(root);
+        if (ctrl) ctrl.stopAuto();
+        boundSliders.delete(root);
+      });
+    }
+    initAll(e.target);
+  });
 
   /* Theme editor: stop the autoplay interval when a section is removed
      so we don't leak a 7s timer for every deleted/re-added section. The

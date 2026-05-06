@@ -230,7 +230,17 @@ if (!window.__kitcheroSliderDragLoaded) {
       ) {
         section = event.target;
       }
-      if (section) initSection(section);
+      if (!section) return;
+      /* :load can fire without a paired :unload on settings change.
+         The window resize and pointermove/pointerup listeners are on
+         window — they do NOT GC with section DOM replacement.
+         teardowns Map gets overwritten without firing, leaking the
+         old closures permanently. Tear down before re-init. */
+      var sectionId = section.dataset.sectionId;
+      if (sectionId) {
+        teardownSection(sectionId);
+      }
+      initSection(section);
     });
 
     document.addEventListener('shopify:section:unload', function (event) {

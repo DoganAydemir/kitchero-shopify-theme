@@ -134,7 +134,25 @@
     init(el.closest('.shopify-section') || el);
   });
 
-  document.addEventListener('shopify:section:load', function (e) { init(e.target); });
+  document.addEventListener('shopify:section:load', function (e) {
+    /* :load fires on settings changes without a paired :unload.
+       The keydown handler bound at line 129 is on document (not on
+       the section node) so it does NOT GC when the section DOM is
+       replaced — without explicit removal we accumulate stranded
+       document-level keydown handlers each save. Tear down any
+       pre-existing handler for this section before re-init. */
+    if (e.target && e.target.querySelector) {
+      var existing = e.target.querySelector('[data-section-type="shop-the-look"]');
+      if (existing) {
+        var prevHandler = keydownHandlers.get(existing);
+        if (prevHandler) {
+          document.removeEventListener('keydown', prevHandler);
+          keydownHandlers.delete(existing);
+        }
+      }
+    }
+    init(e.target);
+  });
 
   document.addEventListener('shopify:section:unload', function (e) {
     if (!e.target || !e.target.querySelector) return;

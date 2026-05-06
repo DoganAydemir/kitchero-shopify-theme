@@ -261,7 +261,17 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       var root = event.target.querySelector
         ? event.target.querySelector(SECTION_SELECTOR)
         : null;
-      if (root) init(root);
+      if (!root) return;
+      /* Theme editor fires :load on every settings change without
+         a paired :unload — without first tearing down the prior
+         controller, its setInterval keeps firing on the detached
+         DOM forever (closure prevents GC) and instances Map gets
+         overwritten without destroy. Mirror the R74/R75 destroy-
+         then-recreate pattern. */
+      if (root.dataset.sectionId) {
+        teardown(root.dataset.sectionId);
+      }
+      init(root);
     });
 
     document.addEventListener('shopify:section:unload', function (event) {

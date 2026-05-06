@@ -271,6 +271,10 @@
       if (!lightbox || !lightboxImage) return;
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
+      /* Remove inert so the close/prev/next buttons re-enter the
+         focus chain. Pairs with closeLightbox() re-applying inert.
+         Markup default state is `inert` + `aria-hidden=true`. */
+      lightbox.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('product-gallery-lightbox');
       } else {
@@ -283,6 +287,9 @@
     function closeLightbox() {
       if (!lightbox) return;
       lightbox.setAttribute('aria-hidden', 'true');
+      /* Re-apply inert so the closed lightbox subtree leaves the
+         focus chain. Mirrored on openLightbox(). */
+      lightbox.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('product-gallery-lightbox');
       } else {
@@ -436,6 +443,10 @@
          load starts from a clean state. */
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
         lightbox.setAttribute('aria-hidden', 'true');
+        /* Match the close path: re-apply inert so the detached
+           lightbox doesn't leave any focusable descendant in the
+           page's focus chain after section unload. */
+        lightbox.setAttribute('inert', '');
         if (window.Kitchero && Kitchero.scrollLock) {
           Kitchero.scrollLock.unlock('product-gallery-lightbox');
         } else {

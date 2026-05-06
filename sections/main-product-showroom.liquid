@@ -160,8 +160,29 @@
           {%- endfor -%}
         </div>
 
-        {%- comment -%} Lightbox (shared) {%- endcomment -%}
-        <div class="kt-lightbox" data-lightbox aria-hidden="true" data-lenis-prevent="true">
+        {%- comment -%}
+          Lightbox (shared). The canonical version of this widget in
+          snippets/product-media-gallery.liquid:241-249 already declares
+          role="dialog" + aria-modal="true" + aria-label so screen
+          readers announce the modal correctly when JS toggles it
+          open. This duplicate render in main-product-showroom drifted
+          and shipped without the dialog ARIA — without role="dialog"
+          the SR announces the lightbox as a generic group, breaking
+          modal expectations. `inert` removes the closed lightbox
+          subtree from the focus chain (it hides via opacity:0 +
+          pointer-events:none, not display:none, so without inert the
+          inner buttons stay tab-reachable while invisible).
+        {%- endcomment -%}
+        <div
+          class="kt-lightbox"
+          data-lightbox
+          role="dialog"
+          aria-modal="true"
+          aria-label="{{ 'kt.a11y.lightbox' | t | default: 'Product image viewer' }}"
+          aria-hidden="true"
+          inert
+          data-lenis-prevent="true"
+        >
           <button type="button" class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
             <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
