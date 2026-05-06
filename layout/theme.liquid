@@ -233,6 +233,32 @@
 
     {%- render 'kt-css-variables' -%}
 
+    {%- comment -%}
+      R101 — font preloads emitted BEFORE the parser-blocking
+      base.css <link>. The preload scanner picks up these directives
+      while the main parser is still fetching/parsing base.css, so
+      the WOFF2 transfers happen in parallel with stylesheet
+      download instead of being discovered late by @font-face rules.
+      Saves ~50-150ms FCP on cold-cache mobile renders. Cite:
+      web.dev/articles/preload-critical-assets.
+
+      Theme Store performance rule (PRF-3) caps resource hints at 2
+      per template. We spend both on body-regular + heading-regular
+      because those are the LCP-critical faces. Bold body, accent,
+      and localization-form CSS load lazily via the @font-face
+      `font-display: swap` chain in kt-css-variables.liquid.
+    {%- endcomment -%}
+    {%- unless settings.kt_body_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+    {%- unless settings.kt_heading_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.kt_heading_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {%- comment -%}
       Loader CSS is ~10 KB and only styles an overlay that appears when
@@ -266,27 +292,11 @@
     {%- comment -%}
       Resource hints — Shopify Theme Store performance rule (PRF-3):
       "You can add up to two resource hints to your code per template."
-      Reduced from 5 conditional preloads (body, body-bold, heading,
-      accent, localization-form CSS) to a hard cap of 2: body regular
-      + heading. These two faces are the LCP-critical paint
-      (most pages render their hero/H1 with heading, body copy with
-      kt_body_font). The bold body weight, accent font, and
-      localization stylesheet are all below-fold or conditional —
-      kt-css-variables.liquid already emits their @font-face with
-      font-display: swap, so they load lazily without FOUT when the
-      first character of that face is needed. Trading a small CLS
-      hint for a Theme Store reviewer-mandated cap.
+      Body regular + heading regular are emitted higher up (above
+      base.css stylesheet_tag) so the preload scanner can fire them
+      in parallel with stylesheet download — see the R101 comment
+      block above. Total hints stays at 2 per template.
     {%- endcomment -%}
-    {%- unless settings.kt_body_font.system? -%}
-      {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
-      {% comment %}theme-check-enable AssetPreload{% endcomment %}
-    {%- endunless -%}
-    {%- unless settings.kt_heading_font.system? -%}
-      {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.kt_heading_font | font_url }}" type="font/woff2" crossorigin>
-      {% comment %}theme-check-enable AssetPreload{% endcomment %}
-    {%- endunless -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
