@@ -134,6 +134,25 @@
   inset: 0;
 }
 
+/* R94 — image slides are now native `<button>` elements (R94 fix
+   for the WCAG-flagged div+role=button code-smell). Native button
+   ships with user-agent chrome (background, border, padding, font,
+   cursor) that the slide CSS doesn't account for. Reset only the
+   image-variant button so non-image slide divs (video, model,
+   external_video) keep their default block-element behaviour. */
+button.kt-gallery__slide--image {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: inherit;
+  color: inherit;
+  cursor: zoom-in;
+}
+
 .kt-gallery__slide--active {
   display: block;
 }

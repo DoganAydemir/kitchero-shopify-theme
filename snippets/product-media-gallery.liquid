@@ -126,13 +126,39 @@
         renders an `<img>` so opening it on a non-image slide would
         present an empty viewer (former W11 bug).
       {%- endcomment -%}
+      {%- comment -%}
+        R94 — image slides use a native `<button type="button">`
+        wrapper instead of the previous `<div tabindex="0"
+        role="button">` (Theme Store reviewers flag the div+role
+        triplet as code-smell during deep a11y audit). Native
+        button auto-handles Enter/Space activation, focus ring,
+        and SR announcement as "button" without polyfill.
+        Non-image media (video, external_video, model) keep the
+        `<div>` wrapper because they ship their own native
+        controls — the lightbox is image-only, so opening it on
+        a video slide would render an empty viewer (former W11
+        bug — see comment at line 122).
+        CSS reset on `.kt-gallery__slide--image` (button variant)
+        added to assets/kt-product-gallery.css alongside the
+        existing slide rule.
+      {%- endcomment -%}
+      {%- if media.media_type == 'image' -%}
+      <button
+        type="button"
+        class="kt-gallery__slide kt-gallery__slide--image{% if media.id == active_media_id %} kt-gallery__slide--active{% endif %}"
+        data-gallery-slide="{{ forloop.index0 }}"
+        data-media-id="{{ media.id }}"
+        data-media-type="image"
+        aria-label="{{ 'kt.product.media.image_larger' | t | default: 'View image larger' }}"
+      >
+      {%- else -%}
       <div
         class="kt-gallery__slide kt-gallery__slide--{{ media.media_type }}{% if media.id == active_media_id %} kt-gallery__slide--active{% endif %}"
         data-gallery-slide="{{ forloop.index0 }}"
         data-media-id="{{ media.id }}"
         data-media-type="{{ media.media_type }}"
-        {% if media.media_type == 'image' %}tabindex="0" role="button" aria-label="{{ 'kt.product.media.image_larger' | t | default: 'View image larger' }}"{% endif %}
       >
+      {%- endif -%}
         {%- case media.media_type -%}
           {%- when 'image' -%}
             {%- comment -%}
@@ -228,7 +254,11 @@
             {%- comment -%} Fall-through for any future media type. {%- endcomment -%}
             {{ media | media_tag: class: 'kt-gallery__image', image_size: '1200x' }}
         {%- endcase -%}
+      {%- if media.media_type == 'image' -%}
+      </button>
+      {%- else -%}
       </div>
+      {%- endif -%}
     {%- endfor -%}
 
     {%- if product.media.size == 0 -%}
