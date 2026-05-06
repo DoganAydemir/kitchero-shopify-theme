@@ -936,7 +936,14 @@ select:-webkit-autofill {
   padding: 0;
   list-style: none;
   font-size: 0.8125rem;
-  color: var(--kt-stone-500, #78716c);
+  /* WCAG AA 4.5:1 minimum for normal-size body text. The previous
+     stone-500 (#78716c) on white renders 4.48:1 at 13px — failing
+     the threshold by 0.02 and breaking Lighthouse a11y 90+ target
+     for the home/collection/product pages where breadcrumbs render
+     above-the-fold. stone-600 (#57534e) gives 7.04:1 and matches
+     the sibling .kt-breadcrumbs__link color (line 949) so the
+     trail reads as a uniform low-emphasis row. */
+  color: var(--kt-stone-600, #57534e);
 }
 
 .kt-breadcrumbs__item {

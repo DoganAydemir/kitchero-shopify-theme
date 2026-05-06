@@ -162,9 +162,20 @@
       <span class="kt-card-product__badge kt-card-product__badge--soldout" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
       </span>
-    {%- comment -%} Sale badge — suppressed for free products. {%- endcomment -%}
-    {%- elsif product.compare_at_price > product.price and card_is_free == false -%}
-      {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+    {%- comment -%}
+      Sale badge — suppressed for free products. Uses
+      compare_at_price_max > price_min (instead of the scalar
+      compare_at_price > price) so the badge fires when ANY variant
+      is on sale, not just when the storefront-default variant
+      happens to have a compare price. Scalar compare_at_price
+      returns nil on variant products without an explicit default,
+      causing silent missed-sale on multi-variant SKUs — a
+      merchandising regression and Theme Store mandatory feature
+      gap. price_min/compare_at_price_max are the canonical pair
+      Shopify Skeleton uses for variant-aware sale detection.
+    {%- endcomment -%}
+    {%- elsif product.compare_at_price_max > product.price_min and card_is_free == false -%}
+      {%- assign discount_pct = product.compare_at_price_max | minus: product.price_min | times: 100 | divided_by: product.compare_at_price_max -%}
       <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
         {{ 'kt.product.discount_badge' | t: amount: discount_pct }}
       </span>
@@ -249,13 +260,19 @@
           </span>
         {%- else -%}
           <span class="kt-card-product__price">
-            {%- if product.compare_at_price > product.price -%}
+            {%- if product.compare_at_price_max > product.price_min -%}
               <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
             {%- endif -%}
             {{ product.price | money }}
           </span>
         {%- endif -%}
-        {%- if product.compare_at_price > product.price and card_is_free == false -%}
+        {%- comment -%}
+          Variant-aware compare-price strikethrough. Same
+          compare_at_price_max > price_min logic as the badge
+          above — ensures the <s> Regular price line shows for
+          any product with at least one variant on sale.
+        {%- endcomment -%}
+        {%- if product.compare_at_price_max > product.price_min and card_is_free == false -%}
           {%- comment -%}
             <s> makes the strikethrough semantic so screen readers
             announce the "no-longer-valid" meaning of the price.
@@ -264,7 +281,7 @@
           {%- endcomment -%}
           <s class="kt-card-product__compare-price">
             <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
-            {{ product.compare_at_price | money }}
+            {{ product.compare_at_price_max | money }}
           </s>
         {%- endif -%}
       </div>
