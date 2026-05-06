@@ -139,8 +139,34 @@
   </script>
 {%- endif -%}
 
-{%- comment -%} BreadcrumbList — output on every non-homepage template. {%- endcomment -%}
-{%- unless request.page_type == 'index' -%}
+{%- comment -%}
+  BreadcrumbList — only emit on templates where we have at least
+  two ListItems (the home rung + a real second/third rung). Schema.org
+  requires `itemListElement` to contain at least 2 items, and Google's
+  Rich Results Test rejects single-item BreadcrumbList outright with
+  "Either 'item' or 'name' is missing" / "List must have 2+ items".
+
+  Previously this block emitted on every non-homepage template — so
+  404, /search, /cart, customers/*, gift_card, policies, and list-
+  collections each shipped a single-item BreadcrumbList that fails
+  validation. Reviewers running the Rich Results Test against any of
+  these URLs see "BreadcrumbList: List must have 2+ items" → ground
+  for Theme Store rejection on the SEO criterion.
+
+  Allow-list approach (safer than deny-list — new page_types Shopify
+  introduces won't accidentally start emitting an invalid breadcrumb):
+  emit only on product, collection, article, page, blog templates,
+  where the inner branches below add at least one more rung.
+{%- endcomment -%}
+{%- assign breadcrumb_emit = false -%}
+{%- if request.page_type == 'product'
+    or request.page_type == 'collection'
+    or request.page_type == 'article'
+    or request.page_type == 'page'
+    or request.page_type == 'blog' -%}
+  {%- assign breadcrumb_emit = true -%}
+{%- endif -%}
+{%- if breadcrumb_emit -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -248,8 +274,22 @@
             "name": {{ page.title | json }},
             "item": {{ canonical_url | json }}
           }
+        {%- elsif request.page_type == 'blog' -%}
+          {%- comment -%}
+            Blog index (e.g. /blogs/news) needs its own rung; without
+            it the BreadcrumbList collapses to position 1 only and
+            Rich Results Test rejects "List must have 2+ items". Use
+            blog.title (the blog object is in scope on its own
+            template) and canonical_url for the URL.
+          {%- endcomment -%}
+          ,{
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ blog.title | json }},
+            "item": {{ canonical_url | json }}
+          }
         {%- endif -%}
       ]
     }
   </script>
-{%- endunless -%}
+{%- endif -%}
