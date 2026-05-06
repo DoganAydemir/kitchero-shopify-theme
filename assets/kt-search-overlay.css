@@ -128,16 +128,21 @@
   display: none;
 }
 
-/* Both mouse AND keyboard focus are communicated by the parent
-   .kt-search-overlay__input-wrap shifting its bottom-border colour
-   from stone-600 to white via :focus-within. That visible state-
-   change satisfies WCAG 2.4.7 (Focus Visible) on its own, so we
-   suppress the redundant rectangle outline that previously framed
-   the entire input on click — the user reported it as a visual
-   border that shouldn't be there. */
-.kt-search-overlay__input:focus,
+/* WCAG 2.4.7 (Focus Visible) requires the indicator on the focused
+   element itself; an ancestor :focus-within state change is helpful
+   but a Theme Store reviewer auditing in isolation may flag a bare
+   outline:none on the input as a fail. Mouse-:focus suppresses the
+   rectangle (visually noisy, user-reported issue). Keyboard
+   :focus-visible keeps outline:none but adds an inset 2px box-
+   shadow at the bottom edge so the focused state is unambiguous
+   even when the parent border shift is missed. */
+.kt-search-overlay__input:focus {
+  outline: none;
+}
+
 .kt-search-overlay__input:focus-visible {
   outline: none;
+  box-shadow: inset 0 -2px 0 0 var(--kt-white, #fafaf9);
 }
 
 @media screen and (min-width: 750px) {

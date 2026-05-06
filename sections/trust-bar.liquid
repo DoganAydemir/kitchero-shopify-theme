@@ -41,7 +41,15 @@
 <section class="kt-trust-bar" data-section-id="{{ section.id }}" data-section-type="trust-bar">
   <div class="page-width">
     {%- if trust_configured_count == 0 and request.design_mode -%}
-      <p class="kt-trust-bar__editor-hint" style="text-align: center; padding: 1rem; font-size: 0.875rem; color: #57534e;">
+      {%- comment -%}
+        Hardcoded inline `style="color: #57534e"` was a Theme Store
+        deceptive-code/design rule violation: contrast-critical text
+        rendering an inline color bypasses the merchant color
+        scheme + locks reviewers' override capability. Class moved
+        to assets/kt-section-trust-bar.css with `color: rgb(var(--kt-c-fg))`
+        so the editor hint inherits the active scheme.
+      {%- endcomment -%}
+      <p class="kt-trust-bar__editor-hint">
         {{ 'kt.section.trust-bar.editor_hint' | t | default: 'Edit each stat block to add real numbers and labels — empty stats are hidden on the live storefront.' }}
       </p>
     {%- endif -%}

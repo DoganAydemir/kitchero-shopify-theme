@@ -465,6 +465,23 @@
                   </div>
                 {%- endif -%}
 
+              {%- when 'pickup_availability' -%}
+                {%- comment -%}
+                  Pickup availability — Theme Store mandatory feature
+                  per shopify.dev/storefronts/themes/delivery-fulfillment/
+                  pickup-availability. The customer must be able to see
+                  in-store pickup info BEFORE adding to cart and going
+                  to checkout. main-product.liquid already renders this;
+                  the showroom variant of the PDP needs the same
+                  surface so any merchant using product.showroom.json
+                  doesn't lose the BOPIS feature. Snippet handles its
+                  own "no pickup-enabled locations" empty state, so
+                  emitting it unconditionally is safe.
+                {%- endcomment -%}
+                <div class="kt-showroom__pickup" {{ block.shopify_attributes }}>
+                  {%- render 'pickup-availability', variant: product.selected_or_first_available_variant, product: product -%}
+                </div>
+
               {%- when '@app' -%}
                 {%- render block -%}
 
@@ -589,6 +606,11 @@
       ]
     },
     {
+      "type": "pickup_availability",
+      "name": "t:sections.main-product-showroom.blocks.pickup_availability.name",
+      "limit": 1
+    },
+    {
       "type": "@app"
     }
   ],
@@ -613,7 +635,8 @@
         { "type": "accordion", "settings": { "title": "Installation" } },
         { "type": "accordion", "settings": { "title": "Delivery" } },
         { "type": "warranty" },
-        { "type": "door_sample" }
+        { "type": "door_sample" },
+        { "type": "pickup_availability" }
       ]
     }
   ]

@@ -458,14 +458,17 @@
          the previous banner in place rather than blanking the area. */
       var productUrl = container.dataset.productUrl;
       var pickupNode = container.querySelector('[data-pickup-availability]');
-      if (productUrl && pickupNode) {
-        /* `data-product-url` is the localized product URL emitted by
-           `{{ product.url }}` in Liquid, so it already carries the
-           Markets locale prefix on multi-locale storefronts (e.g.
-           /de/products/foo). Appending the variant query is enough to
-           force Shopify to render the section in the new variant's
-           context. */
-        var pickupUrl = productUrl + '?section_id=pickup-availability&variant=' + encodeURIComponent(matchedVariant.id);
+      if (pickupNode) {
+        /* Pickup-availability Section Rendering API requires the
+           canonical /variants/[variant-id]/ prefix per Shopify docs
+           (themes/delivery-fulfillment/pickup-availability), NOT the
+           product-URL?variant=X pattern used elsewhere. The variants
+           endpoint resolves stock/location data per-variant rather
+           than per-product, which is what the section reads. Use
+           Shopify.routes.root so the locale prefix (e.g. /de/) is
+           preserved on multi-locale storefronts. */
+        var routesRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+        var pickupUrl = routesRoot + 'variants/' + encodeURIComponent(matchedVariant.id) + '/?section_id=pickup-availability';
         /* AbortController — if the customer rapid-fires variant
            switches, only the LAST fetch's response should land. */
         if (container.__kitcheroPickupController) {

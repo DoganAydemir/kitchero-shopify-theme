@@ -244,6 +244,33 @@ a {
   opacity: 0.85;
 }
 
+/* WCAG 2.4.7 visible-focus indicator. Mirrors the global :focus-visible
+   rule (line 320) for the .button class so keyboard users see a
+   clearly visible 2px outline. Mouse-only :focus stays clean. */
+.button:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+/* Pressed-state feedback so click/tap registers visually. WCAG 1.4.11
+   (Non-text Contrast) wants a state difference; opacity 0.7 keeps it
+   distinct from :hover (0.85) and :disabled (0.5). */
+.button:active {
+  opacity: 0.7;
+}
+
+/* Disabled state — covers both native `disabled` attribute and the
+   ARIA-only `aria-disabled="true"` pattern used on links/divs styled
+   as buttons. Without this, an out-of-stock ATC or a submitting
+   form's button stays visually identical to its enabled state — a
+   WCAG 1.4.1 (Use of Color) and Theme Store deceptive-state issue. */
+.button:disabled,
+.button[aria-disabled='true'],
+.button.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .button--secondary {
   background-color: rgb(var(--kt-c-action-alt));
   color: rgb(var(--kt-c-action-alt-text));
