@@ -263,7 +263,21 @@
                           {{ comment.created_at | date: format: 'abbreviated_date' }}
                         </time>
                       </div>
-                      <div class="kt-article__comment-content rte">{{ comment.content }}</div>
+                      {%- comment -%}
+                        comment.content is user-supplied (anyone with
+                        the article URL can submit a comment, even
+                        when the merchant requires moderation — the
+                        moderation queue itself renders the same
+                        content). Shopify does NOT server-side
+                        sanitize this string, so a moderator's
+                        approval just publishes the raw HTML/script
+                        payload. `| escape` collapses the stored-XSS
+                        path; `| newline_to_br` keeps the visual
+                        line-break behaviour the .rte styling
+                        expects. comment.author is already escaped
+                        on line 261; this finishes the pair.
+                      {%- endcomment -%}
+                      <div class="kt-article__comment-content rte">{{ comment.content | escape | newline_to_br }}</div>
                     </div>
                   </li>
                 {%- endfor -%}

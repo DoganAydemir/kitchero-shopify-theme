@@ -64,13 +64,13 @@
                     <p class="kt-guide-teaser__card-category">{{ guide_teaser_primary_tag }}</p>
                   {%- endif -%}
                 {%- endif -%}
-                <h3 class="kt-guide-teaser__card-title">{{ article.title }}</h3>
+                <h3 class="kt-guide-teaser__card-title">{{ article.title | escape }}</h3>
                 {%- if section.settings.show_excerpt and article.excerpt_or_content != blank -%}
                   <p class="kt-guide-teaser__card-desc">{{ article.excerpt_or_content | strip_html | truncatewords: 20 }}</p>
                 {%- endif -%}
                 <div class="kt-guide-teaser__card-meta">
                   {%- if section.settings.show_author -%}
-                    <span class="kt-guide-teaser__card-author">{{ article.author }}</span>
+                    <span class="kt-guide-teaser__card-author">{{ article.author | escape }}</span>
                   {%- endif -%}
                   {%- if section.settings.show_date -%}
                     <time class="kt-guide-teaser__card-date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">

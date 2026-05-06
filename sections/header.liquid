@@ -98,6 +98,19 @@
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
+                  {%- comment -%}
+                    ARIA 1.2 disclosure pattern: aria-expanded must be
+                    paired with aria-controls pointing to the controlled
+                    region's id, and aria-haspopup describes the type
+                    of popup. Without them the SR announces a state
+                    ("collapsed/expanded") with no referent — the user
+                    hears the trigger flip but doesn't know what
+                    appeared. Pairs the trigger with the
+                    .kt-header__mega-menu element below via a generated
+                    id derived from the menu link handle.
+                  {%- endcomment -%}
+                  aria-haspopup="true"
+                  aria-controls="kt-header-mega-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
                   {{ link.title }}
@@ -118,7 +131,7 @@
                   announce "navigation", "list", "link" which matches
                   the actual interaction model.
                 {%- endcomment -%}
-                <div class="kt-header__mega-menu">
+                <div class="kt-header__mega-menu" id="kt-header-mega-{{ link.handle }}">
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
@@ -188,6 +201,13 @@
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
+                  {%- comment -%}
+                    Same ARIA 1.2 disclosure pairing as the mega-menu
+                    trigger above — aria-expanded needs aria-controls
+                    + aria-haspopup so SR users know what region opens.
+                  {%- endcomment -%}
+                  aria-haspopup="true"
+                  aria-controls="kt-header-flyout-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
                   {{ link.title }}
@@ -201,7 +221,7 @@
                   the native &lt;nav aria-label&gt; + &lt;a&gt; semantics
                   describe the standard-navigation behaviour correctly.
                 {%- endcomment -%}
-                <div class="kt-header__flyout">
+                <div class="kt-header__flyout" id="kt-header-flyout-{{ link.handle }}">
                   {%- for child_link in link.links -%}
                     <a href="{{ child_link.url }}" class="kt-header__flyout-link">
                       {{ child_link.title }}

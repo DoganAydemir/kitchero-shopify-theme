@@ -79,12 +79,19 @@
           </time>
         {%- endif -%}
         {%- if show_author -%}
-          <span class="kt-article-card__author">{{ article.author }}</span>
+          {%- comment -%}
+            article.author and article.title are merchant-controlled
+            via Shopify admin, but defence-in-depth: multi-staff
+            stores, CSV imports, and bulk-publish apps introduce
+            untrusted-author scenarios. The cost is one filter call;
+            the protection covers future B2B reseller flows.
+          {%- endcomment -%}
+          <span class="kt-article-card__author">{{ article.author | escape }}</span>
         {%- endif -%}
       </div>
     {%- endif -%}
 
-    <h2 class="kt-article-card__title">{{ article.title }}</h2>
+    <h2 class="kt-article-card__title">{{ article.title | escape }}</h2>
 
     {%- if show_excerpt and article.excerpt_or_content != blank -%}
       <p class="kt-article-card__excerpt">

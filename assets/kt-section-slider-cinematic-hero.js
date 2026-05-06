@@ -214,6 +214,17 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       if (pauseOnHover && !reducedMotion) {
         root.addEventListener('mouseenter', onEnter);
         root.addEventListener('mouseleave', onLeave);
+        /* WCAG 2.2.2 (Pause, Stop, Hide): autoplaying content must be
+           pausable by the user. Pause-on-hover alone covers pointer
+           users, but a keyboard user who tabs to an inner CTA still
+           sees the slider rotate underneath them — and on focus loss
+           the in-flight animation may move the focused control out
+           from under their cursor (motion-attached focus shift).
+           Mirror onEnter/onLeave for focusin/focusout so the
+           autoplay halts whenever any descendant has keyboard
+           focus. Pattern shared with kt-section-hero.js. */
+        root.addEventListener('focusin', onEnter);
+        root.addEventListener('focusout', onLeave);
       }
 
       /* Theme editor — react to block select */

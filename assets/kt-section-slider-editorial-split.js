@@ -132,6 +132,25 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         });
       }
 
+      /* WCAG 2.2.2 (Pause, Stop, Hide): pause autoplay whenever any
+         descendant has keyboard focus, resume on blur. Without this,
+         a keyboard user tabbing to the inner CTA sees the slider
+         rotate beneath them — the focused element may be replaced
+         mid-tab, causing focus loss (4.1.2 fail). The userPaused
+         toggle takes precedence: if the user explicitly paused via
+         the play/pause control, focus events should not auto-resume. */
+      section.addEventListener('focusin', function () {
+        stopAutoplay();
+      });
+      section.addEventListener('focusout', function (e) {
+        /* Resume only if focus is leaving the section entirely
+           (relatedTarget outside section), not when moving between
+           inner controls. Skip resume if user explicitly paused. */
+        if (e.relatedTarget && section.contains(e.relatedTarget)) return;
+        if (userPaused || prefersReducedMotion || interval <= 0 || total < 2) return;
+        startAutoplay();
+      });
+
       /* Wire nav clicks: swap slide + restart autoplay timer */
       navBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
