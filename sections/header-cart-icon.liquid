@@ -29,13 +29,22 @@
   {{ cart.item_count }}
 </span>
 
+{%- comment -%}
+  R98 — `disabled_on: { groups: ["*"], templates: ["*"] }` previously
+  blocked Shopify's Section Rendering API from invoking this section's
+  Liquid render path. cart-drawer.js POSTs add-to-cart, then GETs
+  `/?sections=cart-drawer,header-cart-icon` to swap the rendered
+  fragments back in. With the wildcard disable in place, the SRA
+  response returned an empty body for the `header-cart-icon` key — so
+  the count badge in the live header silently stopped updating after
+  any add/remove. (Same Shopify-side pitfall documented in
+  predictive-search.liquid:10-19.) The section is still hidden from
+  the editor's "Add section" picker because it has no `presets` array
+  — Shopify only surfaces sections with at least one preset entry.
+{%- endcomment -%}
 {% schema %}
 {
   "name": "t:sections.header-cart-icon.name",
-  "settings": [],
-  "disabled_on": {
-    "groups": ["*"],
-    "templates": ["*"]
-  }
+  "settings": []
 }
 {% endschema %}
