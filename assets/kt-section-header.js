@@ -193,4 +193,37 @@
     if (next && item.contains(next)) return;
     setExpanded(item, false);
   });
+
+  /* R91 — keep `--kt-header-offset` synced to the header's actual
+     rendered height. CSS uses this var for `scroll-padding-top` +
+     `scroll-margin-top` so anchor links land BELOW the sticky
+     header. Previously hardcoded to 80px default; if the merchant
+     adds an announcement bar, enlarges the logo, or rotates between
+     mobile/desktop breakpoints, the offset got stale and anchor
+     targets landed under the header. ResizeObserver handles all
+     three cases (font load, viewport resize, design-mode setting
+     changes) without polling. */
+  function syncHeaderOffset() {
+    var headerEl = document.querySelector('[data-section-type="header"]');
+    if (!headerEl) return;
+    var height = headerEl.offsetHeight;
+    if (height > 0) {
+      document.documentElement.style.setProperty('--kt-header-offset', height + 'px');
+    }
+  }
+
+  if (typeof ResizeObserver !== 'undefined') {
+    var observerHeader = document.querySelector('[data-section-type="header"]');
+    if (observerHeader) {
+      var headerOffsetObserver = new ResizeObserver(syncHeaderOffset);
+      headerOffsetObserver.observe(observerHeader);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncHeaderOffset);
+  } else {
+    syncHeaderOffset();
+  }
+  window.addEventListener('resize', syncHeaderOffset);
+  document.addEventListener('shopify:section:load', syncHeaderOffset);
 })();

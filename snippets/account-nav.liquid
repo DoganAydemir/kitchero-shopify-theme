@@ -51,8 +51,22 @@
       {{ 'kt.customer.account.addresses' | t }}
       <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
     </a>
-    <a href="{{ routes.account_logout_url }}" class="kt-account__nav-link kt-account__nav-link--logout">
-      {{ 'kt.customer.account.log_out' | t }}
-    </a>
+    {%- comment -%}
+      R91 — logout is now a POST form, not a GET <a>. GET-based
+      logout is vulnerable to:
+      - Browser link prefetchers (Chrome, Edge prefetch hovered links)
+        accidentally signing the customer out
+      - Pre-rendering / link-checker tools triggering logout
+      - CSRF-style attacks via embedded `<img src="...account/logout">`
+      The Shopify Skeleton convention is a real `{% form 'logout' %}`
+      submit button styled as a link. The CSS rule
+      `.kt-account__nav-link--logout` already styles the underlying
+      element identically; native button reset is applied below.
+    {%- endcomment -%}
+    {%- form 'logout' -%}
+      <button type="submit" class="kt-account__nav-link kt-account__nav-link--logout kt-account__nav-link--button">
+        {{ 'kt.customer.account.log_out' | t }}
+      </button>
+    {%- endform -%}
   </nav>
 </aside>

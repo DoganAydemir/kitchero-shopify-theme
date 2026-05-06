@@ -369,6 +369,57 @@ a {
   }
 }
 
+/* R91 — Windows High-Contrast / Forced Colors mode (WCAG 1.4.11).
+   When users enable Windows accessibility "Use high contrast" or
+   browser forced-colors, custom colors are replaced with system
+   palette tokens (Canvas, CanvasText, LinkText, ButtonFace, etc.)
+   and background-image SVG icons are stripped. Without explicit
+   handling: dropdown chevrons + custom-styled buttons + state
+   indicators become invisible.
+
+   Strategy:
+   - Buttons & form controls keep system border so they remain
+     visible as interactive elements.
+   - Decorative-only icons stay decorative (forced-color-adjust: auto).
+   - Active state uses Highlight token instead of brand color.
+   - SVG-via-background-image chevrons get a Unicode fallback
+     announced via ::after content (overridden per-component where
+     a real <svg> sibling exists). */
+@media (forced-colors: active) {
+  button,
+  .button,
+  input[type='submit'],
+  input[type='button'],
+  [role='button'] {
+    border: 1px solid CanvasText;
+  }
+
+  a {
+    color: LinkText;
+  }
+  a:visited {
+    color: VisitedText;
+  }
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* SVG icons render in forced-colors via currentColor inheritance.
+     Background-image chevrons need a ::after fallback per component
+     (added in respective section CSS files). */
+  [aria-current='page'],
+  [aria-current='true'] {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
 /* ============================================================
    iOS Safari auto-zoom prevention
    ============================================================

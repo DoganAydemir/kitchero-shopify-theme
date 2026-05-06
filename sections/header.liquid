@@ -559,6 +559,7 @@
               <a
                 href="{{ link.url }}"
                 class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
+                {% if link.current %}aria-current="page"{% endif %}
               >
                 <span class="kt-header__mobile-link-label">{{ link.title }}</span>
               </a>
@@ -568,6 +569,7 @@
                 data-mobile-forward="p-{{ forloop.index0 }}"
                 aria-expanded="false"
                 aria-controls="mobile-panel-p-{{ forloop.index0 }}"
+                {% if link.current %}aria-current="page"{% endif %}
               >
                 <span class="kt-header__mobile-link-label">{{ link.title }}</span>
                 <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -575,7 +577,7 @@
                 </svg>
               </button>
             {%- else -%}
-              <a href="{{ link.url }}" class="kt-header__mobile-link">
+              <a href="{{ link.url }}" class="kt-header__mobile-link" {% if link.current %}aria-current="page"{% endif %}>
                 <span class="kt-header__mobile-link-label">{{ link.title }}</span>
               </a>
             {%- endif -%}

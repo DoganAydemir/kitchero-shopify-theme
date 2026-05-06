@@ -393,11 +393,17 @@
           {%- endif -%}
         {%- endfor -%}
         {%- if has_selling_plan -%}
-          {%- assign manage_url = routes.account_url -%}
-          {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
-            {%- assign manage_url = shop.subscription_policy.url -%}
-          {%- endif -%}
-          <a href="{{ manage_url }}" class="kt-order__manage-subscription">
+          {%- comment -%}
+            R91 — link to /account where most subscription apps inject
+            their management UI. Previous fallback to
+            shop.subscription_policy.url was wrong: that URL resolves
+            to the merchant's read-only legalese page (subscription
+            policy), NOT a management surface. Customers clicking
+            "Manage subscription" expect to cancel/swap, not read
+            terms. /account is the correct primary target — the
+            shopify-subscriptions app injects its UI there.
+          {%- endcomment -%}
+          <a href="{{ routes.account_url }}" class="kt-order__manage-subscription">
             {{- 'kt.customer.order.manage_subscription' | t | default: 'Manage subscription' -}}
           </a>
         {%- endif -%}

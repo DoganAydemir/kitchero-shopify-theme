@@ -39,4 +39,19 @@
   document.addEventListener('shopify:section:load', function (event) {
     initAll(event.target);
   });
+
+  /* R91 — Escape close handler for the desktop header <details> popover.
+     Native <details> elements do NOT close on Escape — keyboard users
+     who open the country/language popover (Enter on summary) had no
+     way to dismiss it without Tab-out + click-outside. Add a global
+     keydown listener that closes any open `[data-locale-disclosure]`
+     <details> on Esc and refocuses its <summary>. */
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape' && event.key !== 'Esc') return;
+    var openLocale = document.querySelector('[data-locale-disclosure][open]');
+    if (!openLocale) return;
+    openLocale.removeAttribute('open');
+    var summary = openLocale.querySelector('summary');
+    if (summary && typeof summary.focus === 'function') summary.focus();
+  });
 })();

@@ -155,9 +155,16 @@
       try { abortCtl.abort(); } catch (e) { /* noop */ }
     }, 8000);
 
+    /* R91 — aria-busy signals "results are loading" to screen-reader
+       users while the fetch is in flight. Without it SR announces
+       the current (stale) DOM as the only state until the response
+       lands. Cleared in tail .then so success/error both release. */
+    resultsContainer.setAttribute('aria-busy', 'true');
+
     fetch(url, { signal: abortCtl.signal })
       .then(function (response) {
         clearTimeout(timeoutId);
+        resultsContainer.removeAttribute('aria-busy');
         if (response.status === 429) {
           predictiveSearchRateLimitedUntil = Date.now() + 5000;
           throw new Error('Search rate-limited');
@@ -191,6 +198,10 @@
         setExpanded(input, true);
       })
       .catch(function (err) {
+        /* R91 — release aria-busy on the error path too so SR users
+           don't hear an indefinite "loading" announcement after a
+           network failure. */
+        resultsContainer.removeAttribute('aria-busy');
         /* AbortError is expected — we cancelled the request ourselves
            on a newer keystroke. Silently ignore; any other error
            clears the results so the UI doesn't freeze on stale data. */

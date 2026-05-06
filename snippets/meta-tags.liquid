@@ -22,7 +22,12 @@
 {%- liquid
   # ── Share attributes (OG + Twitter share the same resolved values) ──
   assign share_title = page_title | default: shop.name
-  assign share_description = page_description | default: shop.description | default: shop.name
+  # R91 — truncate to 160 chars per Google SERP snippet limit. Long
+  # shop descriptions get cut off with "..." in search results;
+  # explicit truncation lets us control where the cut happens
+  # (word-boundary via | truncate, not arbitrary mid-word).
+  # 160 covers Twitter Card description max + Google desktop snippet.
+  assign share_description = page_description | default: shop.description | default: shop.name | truncate: 160
   assign share_url = canonical_url | default: request.origin
   assign share_image = page_image
   # Merchant-uploaded default social-share image (1200×630 recommended).

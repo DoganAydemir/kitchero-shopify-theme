@@ -105,6 +105,21 @@
   color: rgba(var(--kt-c-fg), 0.55);
 }
 
+/* R91 — `--button` variant resets <button> default chrome so the
+   logout POST submit (now wrapped in {% form 'logout' %}) renders
+   identically to the previous <a> link. text-align matches the
+   sibling nav <a>s; cursor:pointer signals interactivity. */
+.kt-account__nav-link--button {
+  background: transparent;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
 .kt-account__nav-count {
   font-size: 0.75rem;
   color: rgba(var(--kt-c-fg), 0.5);
@@ -212,7 +227,33 @@
 }
 
 .kt-account__pill--refunded,
-.kt-account__pill--voided {
+.kt-account__pill--voided,
+.kt-account__pill--partially_refunded {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* R91 — Shopify emits more order statuses than the original 3
+   pill variants covered. Without explicit styles these statuses
+   render with no background / muted color, looking like an
+   "unknown" state. Fold the missing statuses into the closest
+   semantic hue family so the badge stays meaningful:
+   - authorized = pre-paid pending finalization → amber (pending)
+   - partially_paid = mid-payment → amber
+   - expired = lapsed authorization → red (refunded family)
+   - unfulfilled = waiting → amber
+   - restocked = returned to inventory → red
+   Catch-all `.kt-account__pill` rule (line ~180) keeps any future
+   status visible with a default neutral background. */
+.kt-account__pill--authorized,
+.kt-account__pill--partially_paid,
+.kt-account__pill--unfulfilled {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.kt-account__pill--expired,
+.kt-account__pill--restocked {
   background: #fee2e2;
   color: #991b1b;
 }

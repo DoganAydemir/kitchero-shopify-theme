@@ -521,4 +521,28 @@
   .kt-gift-card__qr-section {
     border-color: var(--kt-stone-200);
   }
+  /* R91 — gift card code MUST print in monospace so customers can
+     transcribe without confusing 0/O, 1/l/I when typing into a
+     redemption form. The accent serif (Georgia) used on screen
+     looks elegant but is ambiguous in monospaced contexts.
+     Letter-spacing 0.15em adds visual breathing room between
+     glyphs. Font-size bumped to 18pt for at-arm's-length reading. */
+  .kt-gift-card__code {
+    font-family: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace !important;
+    font-size: 18pt;
+    letter-spacing: 0.15em;
+  }
+  /* R91 — QR code must scan reliably from print. Default 160px on
+     screen downscales to ~1.67" / 42mm at typical 96dpi which is
+     borderline for camera scanning under low light. 220px enforces
+     ~2.3" / 58mm — comfortably above QR Code 1.0 minimum. */
+  .kt-gift-card__qr {
+    width: 220px;
+    height: 220px;
+  }
+  .kt-gift-card__qr img,
+  .kt-gift-card__qr canvas {
+    width: 100%;
+    height: 100%;
+  }
 }
