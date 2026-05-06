@@ -195,6 +195,19 @@
               {%- endif -%}
               {%- if line_item.selling_plan_allocation -%}
                 <p class="kt-order__item-plan">{{ line_item.selling_plan_allocation.selling_plan.name | escape }}</p>
+                {%- comment -%}
+                  SUB-05 — checkout_charge on customer order page so
+                  subscribers see the actual charged amount alongside
+                  the plan name and recurring price. Helps reconcile
+                  bank statement vs. cart-time expectation for pre-
+                  paid / TBYB plans.
+                {%- endcomment -%}
+                {%- assign order_charge = line_item.selling_plan_allocation.checkout_charge -%}
+                {%- if order_charge and order_charge.value > 0 and order_charge.value != line_item.final_line_price -%}
+                  <p class="kt-order__item-charge">
+                    {{ 'kt.cart.checkout_charge' | t: amount: order_charge.value | money | default: 'Charged today: ' | append: order_charge.value | money }}
+                  </p>
+                {%- endif -%}
               {%- endif -%}
 
               {%- comment -%}

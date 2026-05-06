@@ -124,6 +124,18 @@
                       <p class="kt-cart-page__item-selling-plan">
                         {{ item.selling_plan_allocation.selling_plan.name }}
                       </p>
+                      {%- comment -%}
+                        SUB-05 — checkout_charge surfacing for
+                        pre-paid / TBYB plans. See cart-drawer
+                        comment for rationale. Same path
+                        + display logic.
+                      {%- endcomment -%}
+                      {%- assign cart_charge = item.selling_plan_allocation.checkout_charge -%}
+                      {%- if cart_charge and cart_charge.value > 0 and cart_charge.value != item.final_line_price -%}
+                        <p class="kt-cart-page__item-charge">
+                          {{ 'kt.cart.checkout_charge' | t: amount: cart_charge.value | money | default: 'Charged today: ' | append: cart_charge.value | money }}
+                        </p>
+                      {%- endif -%}
                     {%- endif -%}
 
                     {%- comment -%}
@@ -381,7 +393,15 @@
 
               <div class="kt-cart-page__summary-row">
                 <span class="kt-cart-page__summary-label">{{ 'kt.cart.subtotal' | t }}</span>
-                <span class="kt-cart-page__summary-value">{{ cart.items_subtotal_price | money }}</span>
+                {%- comment -%}
+                  data-cart-subtotal — Shopify Theme Store rule
+                  INS-05: the cart subtotal element must carry this
+                  attribute so Shopify's <shopify-payment-terms>
+                  custom element auto-refreshes its installment quote
+                  when cart contents change (its mutation observer
+                  watches for this attribute).
+                {%- endcomment -%}
+                <span class="kt-cart-page__summary-value" data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
               </div>
 
               {%- if cart.cart_level_discount_applications.size > 0 -%}
@@ -392,6 +412,16 @@
                   </div>
                 {%- endfor -%}
               {%- endif -%}
+
+              {%- comment -%}
+                Installments banner (INS-03): per Shopify's
+                pricing-payments/installments rule, the banner must
+                sit immediately below the cart subtotal. Uses the
+                cart form context (active inside `{% form 'cart' %}`
+                wrapping this template). Renders nothing if Shop
+                Pay Installments is not configured for the merchant.
+              {%- endcomment -%}
+              {{ form | payment_terms }}
 
               {%- comment -%}
                 Discount code entry — optional per-merchant (gated on

@@ -60,6 +60,52 @@
     var variantSelect = container.querySelector('[data-variant-select]');
     var optionInputs = container.querySelectorAll('[data-option-value]');
 
+    /* VAR-04 — Shopify supports two PDP deep-link URL formats:
+       ?variant=[variant-id] (resolved by Liquid into
+       product.selected_variant before render) and
+       ?option_values=[id-1],[id-2],... (resolved at the variant-
+       value level). Most marketing surfaces and app-block recommend-
+       ation cards now use the option_values format. If Shopify did
+       not server-redirect the option_values URL into a variant URL
+       (some Markets configurations don't), we parse it client-side
+       here and select the matching variant in the form so the page
+       shows the correct option radios + price + media on first
+       paint. Defensive: silently no-op when the URL param is absent
+       or the variant blob lacks option_value IDs. */
+    try {
+      var optionValuesParam = new URLSearchParams(window.location.search).get('option_values');
+      if (optionValuesParam) {
+        var requestedIds = optionValuesParam.split(',')
+          .map(function (s) { return parseInt(s.trim(), 10); })
+          .filter(function (n) { return !isNaN(n); });
+        if (requestedIds.length > 0) {
+          var lookupVariants = getVariantsData(container);
+          for (var lv = 0; lv < lookupVariants.length; lv++) {
+            var lookupVariant = lookupVariants[lv];
+            if (!lookupVariant || !lookupVariant.option_values) continue;
+            var lookupIds = lookupVariant.option_values.map(function (ov) {
+              return ov && ov.id;
+            }).filter(function (n) { return typeof n === 'number'; });
+            if (lookupIds.length !== requestedIds.length) continue;
+            var allMatch = true;
+            for (var li = 0; li < lookupIds.length; li++) {
+              if (lookupIds.indexOf(requestedIds[li]) === -1) { allMatch = false; break; }
+            }
+            if (allMatch) {
+              for (var oi = 0; oi < optionInputs.length; oi++) {
+                var optInput = optionInputs[oi];
+                if (lookupVariant.options &&
+                    lookupVariant.options[optInput.dataset.optionIndex] === optInput.value) {
+                  optInput.checked = true;
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) { /* URLSearchParams may throw on very old browsers — silent fall-back to default variant */ }
+
     function clearError() {
       if (!errorEl) return;
       errorEl.hidden = true;

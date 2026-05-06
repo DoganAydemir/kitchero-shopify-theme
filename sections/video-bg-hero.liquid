@@ -22,6 +22,24 @@
 >
   <div class="kt-video-bg-hero__media" aria-hidden="true">
     {%- if section.settings.video_file != blank -%}
+      {%- comment -%}
+        WCAG 1.2.2 / A11Y-15 — Captions Required is satisfied by
+        exclusion: this is a decorative, muted, autoplaying loop
+        with `controls: false`. WCAG 1.2.2 normative scope is
+        "prerecorded synchronized media (audio + visual that are
+        synchronized to present the same information)". A muted
+        background video without audio is NOT synchronized media
+        and therefore exempt — explicitly documented in WCAG 2.1
+        Understanding 1.2.2 (note "Movie clips that have no audio
+        information"). The `muted: true` flag on every render
+        below is the gating condition that keeps this section out
+        of scope. Section schema description (locale key
+        `kt.section.video_bg_hero.muted_note`) reminds merchants
+        not to use this section for audio-bearing content;
+        video-poster-modal / video-split-modal are the surfaces
+        for content with sound and need merchant-supplied caption
+        tracks (handled by Vimeo/YouTube on the embed side).
+      {%- endcomment -%}
       {%- if section.settings.poster_image != blank -%}
         {%- assign poster_url = section.settings.poster_image | image_url: width: 2000 -%}
         {{

@@ -199,53 +199,20 @@
   margin-bottom: 1rem;
 }
 
-.kt-product-form__dynamic-checkout .shopify-payment-button {
-  margin: 0;
-}
-
-.kt-product-form__dynamic-checkout .shopify-payment-button__button {
-  min-height: 3.25rem;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: opacity 0.2s ease;
-}
-
-/* Unbranded "Buy It Now" button. Shopify ships an inline stylesheet
-   for this button that uses a default slate-blue accent; we must
-   override with !important since Shopify's own rules are sometimes
-   applied inline via the accelerated checkout runtime. We DO NOT
-   override branded buttons (Shop Pay purple, PayPal yellow) — those
-   are subject to brand-guideline enforcement. */
-.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
-  background-color: rgb(var(--kt-c-action)) !important;
-  color: rgb(var(--kt-c-action-text)) !important;
-  border: 1px solid rgb(var(--kt-c-action)) !important;
-  box-shadow: 0 10px 15px -3px rgba(var(--kt-c-shadow), 0.15);
-}
-
-.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]) {
-  opacity: 0.88;
-  background-color: rgb(var(--kt-c-action)) !important;
-}
-
-.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-action));
-  outline-offset: 2px;
-}
-
-.kt-product-form__dynamic-checkout .shopify-payment-button__more-options {
-  color: rgba(var(--kt-c-fg), 0.55);
-  font-size: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.kt-product-form__dynamic-checkout .shopify-payment-button__more-options:hover {
-  color: rgb(var(--kt-c-fg));
-}
+/* The accelerated checkout buttons live inside a custom element with
+   a closed shadow DOM. Per Shopify's accelerated-checkout docs:
+   "Any styling or event tracking that targets the HTML structure
+   will not work."
+   Previously this block carried `.shopify-payment-button*` selector
+   overrides (background, color, border, !important, hover, focus-
+   visible) for the unbranded "Buy It Now" button — these silently
+   never applied through the shadow boundary AND were a Theme Store
+   reject signal (targeting Shopify's protected payment widget
+   internals). Removed in R84. The wrapper container styles
+   (margin-bottom above) stay because they affect layout outside
+   the shadow root. Branded buttons (Shop Pay, PayPal, Apple Pay,
+   Google Pay) inherit Shopify's official branded styles —
+   correct per brand-guideline enforcement. */
 
 /* ── Share row ──────────────────────────────────────────── */
 

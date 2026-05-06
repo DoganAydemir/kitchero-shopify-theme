@@ -167,6 +167,21 @@
                 <p class="kt-cart-drawer__item-selling-plan">
                   {{ item.selling_plan_allocation.selling_plan.name }}
                 </p>
+                {%- comment -%}
+                  SUB-05 — checkout charge surfacing for pre-paid /
+                  TBYB / first-payment-discount plans where the
+                  amount Shopify charges TODAY differs from the
+                  recurring total. Without this the customer sees
+                  the line price (recurring) but not what hits
+                  their card at checkout, eroding confidence on
+                  PDP→cart→checkout transitions.
+                {%- endcomment -%}
+                {%- assign charge = item.selling_plan_allocation.checkout_charge -%}
+                {%- if charge and charge.value > 0 and charge.value != item.final_line_price -%}
+                  <p class="kt-cart-drawer__item-charge">
+                    {{ 'kt.cart.checkout_charge' | t: amount: charge.value | money | default: 'Charged today: ' | append: charge.value | money }}
+                  </p>
+                {%- endif -%}
               {%- endif -%}
 
               {%- comment -%}
@@ -461,8 +476,13 @@
             to match the /cart page. On multi-currency stores the ISO
             code right above the Checkout CTA prevents customer
             confusion about which currency will be charged.
+
+            data-cart-subtotal — INS-05: Shopify's
+            <shopify-payment-terms> custom element observes this
+            attribute to refresh installment quotes after cart
+            mutations. Same hook as main-cart.liquid summary row.
           {%- endcomment -%}
-          <span class="kt-cart-drawer__subtotal-value">{{ cart.total_price | money_with_currency }}</span>
+          <span class="kt-cart-drawer__subtotal-value" data-cart-subtotal>{{ cart.total_price | money_with_currency }}</span>
         </div>
         <p class="kt-cart-drawer__taxes">
           {%- comment -%}
@@ -501,6 +521,17 @@
           at line 40; drawer now matches.
         {%- endcomment -%}
         {%- form 'cart', cart, class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
+          {%- comment -%}
+            Installments banner (INS-03): emitted inside the cart
+            form so the `form` object resolves for the
+            payment_terms filter. Renders nothing if Shop Pay
+            Installments isn't configured for the merchant.
+            Positioned at the top of the form (just above the
+            order-note details + checkout button) so the customer
+            sees the financing offer alongside the cart total.
+          {%- endcomment -%}
+          {{ form | payment_terms }}
+
           {%- comment -%}
             Optional order note — gated on the same kt_cart_show_note
             setting as /cart. Drawer checkout skips the /cart page and

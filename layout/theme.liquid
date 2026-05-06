@@ -263,23 +263,23 @@
     {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
 
+    {%- comment -%}
+      Resource hints — Shopify Theme Store performance rule (PRF-3):
+      "You can add up to two resource hints to your code per template."
+      Reduced from 5 conditional preloads (body, body-bold, heading,
+      accent, localization-form CSS) to a hard cap of 2: body regular
+      + heading. These two faces are the LCP-critical paint
+      (most pages render their hero/H1 with heading, body copy with
+      kt_body_font). The bold body weight, accent font, and
+      localization stylesheet are all below-fold or conditional —
+      kt-css-variables.liquid already emits their @font-face with
+      font-display: swap, so they load lazily without FOUT when the
+      first character of that face is needed. Trading a small CLS
+      hint for a Theme Store reviewer-mandated cap.
+    {%- endcomment -%}
     {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
       <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
-      {%- comment -%}
-        Bold body weight — used above-fold by button text (`base.css`
-        btn rule), form labels, and everywhere a `<strong>` / `<b>` /
-        `.bold` class appears. Without preloading it the browser
-        discovers the weight only when paint hits the first bold node,
-        at which point font-display: swap triggers a short FOUT and the
-        width/advance delta between the fallback and bold face shifts
-        nearby text — a CLS penalty we were paying needlessly because
-        `kt-css-variables.liquid` already emits the @font-face for it.
-      {%- endcomment -%}
-      {%- assign body_font_bold = settings.kt_body_font | font_modify: 'weight', 'bold' -%}
-      {%- if body_font_bold -%}
-        <link rel="preload" as="font" href="{{ body_font_bold | font_url }}" type="font/woff2" crossorigin>
-      {%- endif -%}
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
     {%- unless settings.kt_heading_font.system? -%}
@@ -287,14 +287,17 @@
       <link rel="preload" as="font" href="{{ settings.kt_heading_font | font_url }}" type="font/woff2" crossorigin>
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
-    {%- unless settings.kt_accent_font.system? -%}
-      {% comment %}theme-check-disable AssetPreload{% endcomment %}
-      <link rel="preload" as="font" href="{{ settings.kt_accent_font | font_url }}" type="font/woff2" crossorigin>
-      {% comment %}theme-check-enable AssetPreload{% endcomment %}
-    {%- endunless -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-      {{ 'kt-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
+      {%- comment -%}
+        Localization stylesheet was previously preloaded — counted
+        as a 5th resource hint. Now lazy-loaded via plain
+        stylesheet_tag (no preload kw), saving the hint slot for
+        body+heading fonts above. The selector is below-fold in
+        the footer (mobile drawer is opened on demand) so async
+        load is acceptable.
+      {%- endcomment -%}
+      {{ 'kt-localization-form.css' | asset_url | stylesheet_tag }}
       <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 

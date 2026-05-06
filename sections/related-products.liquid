@@ -41,9 +41,23 @@
       <{{ heading_tag }} class="kt-related__title">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
     </div>
 
+    {%- comment -%}
+      Per Shopify's complementary-products docs (COM-02), the
+      complementary intent should default to 2-3 products visible
+      (paginate the rest), while related stays generous (4-6).
+      Resolve the right cap based on the active intent:
+      `complementary_count` for complementary, `products_count`
+      for related.
+    {%- endcomment -%}
+    {%- if section.settings.intent == 'complementary' -%}
+      {%- assign related_limit = section.settings.complementary_count | default: 3 -%}
+    {%- else -%}
+      {%- assign related_limit = section.settings.products_count | default: 4 -%}
+    {%- endif -%}
+
     <div class="kt-related__grid" role="list">
       {%- if recommendations.performed and recommendations.products_count > 0 -%}
-        {%- for recommended_product in recommendations.products limit: section.settings.products_count -%}
+        {%- for recommended_product in recommendations.products limit: related_limit -%}
           {%- render 'card-product', product: recommended_product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
         {%- endfor -%}
       {%- elsif recommendations.performed == false -%}
@@ -108,6 +122,16 @@
       "step": 1,
       "default": 4,
       "label": "t:sections.related-products.settings.products_count.label"
+    },
+    {
+      "type": "range",
+      "id": "complementary_count",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "label": "t:sections.related-products.settings.complementary_count.label",
+      "info": "t:sections.related-products.settings.complementary_count.info"
     },
     {
       "type": "select",
