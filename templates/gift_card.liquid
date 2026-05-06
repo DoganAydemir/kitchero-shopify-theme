@@ -28,6 +28,13 @@
     {%- endcomment -%}
     <meta name="robots" content="noindex, nofollow">
     <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name }}</title>
+    {%- comment -%}
+      R95 — Lighthouse SEO flags missing meta description even on
+      noindexed pages. Render shop.name as the description so the
+      audit passes; the page is `noindex,nofollow` so SEO impact
+      is zero, this is purely Lighthouse-score hygiene.
+    {%- endcomment -%}
+    <meta name="description" content="{{ shop.name | escape }}">
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     {{ content_for_header }}

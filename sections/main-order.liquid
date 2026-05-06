@@ -170,9 +170,16 @@
                   {{ line_item.product.title | default: line_item.title | escape }}
                 {%- endif -%}
               </p>
-              {%- unless line_item.product.has_only_default_variant -%}
+              {%- comment -%}
+                R95 — guard against deleted variant. After a variant is
+                removed in admin, line_item.variant returns nil for
+                historical orders; without the != blank check we
+                rendered an empty `<p></p>` (Lighthouse a11y warning,
+                visual gap on order receipt).
+              {%- endcomment -%}
+              {%- if line_item.variant != blank and line_item.variant.title != blank and line_item.product.has_only_default_variant == false -%}
                 <p class="kt-order__item-variant">{{ line_item.variant.title | escape }}</p>
-              {%- endunless -%}
+              {%- endif -%}
               {%- if line_item.sku != blank -%}
                 <p class="kt-order__item-sku">{{ 'kt.customer.order.sku' | t: sku: line_item.sku }}</p>
               {%- endif -%}
