@@ -43,7 +43,19 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="why-choose-us"]');
-    if (s) instances[s.dataset.sectionId] = init(e.target);
+    if (!s) return;
+    /* Theme editor fires shopify:section:load on every settings change
+       without a paired :unload first. The parallax `scrub: true`
+       ScrollTriggers in this section are especially leak-prone — each
+       unrevert keeps firing on every scroll event. Mirror the
+       destroy-then-recreate pattern from R74
+       kt-section-how-it-works.js: revert previous context BEFORE
+       overwriting the map entry. */
+    var sectionId = s.dataset.sectionId;
+    if (instances[sectionId]) {
+      instances[sectionId].revert();
+    }
+    instances[sectionId] = init(e.target);
   });
 
   document.addEventListener('shopify:section:unload', function (e) {

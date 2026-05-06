@@ -227,14 +227,29 @@
                   {%- for property in line_item.properties -%}
                     {%- assign first_char = property.first | slice: 0 -%}
                     {%- if property.last == blank or first_char == '_' -%}{% continue %}{%- endif -%}
+                    {%- comment -%}
+                      Line item properties are user-supplied at /cart/add
+                      time (e.g. custom engraving text, gift message,
+                      uploaded file name). Even on the order page, where
+                      Shopify's customer account renders for the buyer
+                      themselves, an injected <script> in a property
+                      label/value would execute in the customer-account
+                      origin. main-cart.liquid:166-170 already escapes
+                      both ends of the pair; this template was the
+                      regression. Both `property.first` and
+                      `property.last` need `| escape`. The /uploads/
+                      filename branch already escapes via the
+                      `| split: '/' | last` chain, but extending it to
+                      `| escape` is defence-in-depth.
+                    {%- endcomment -%}
                     <li class="kt-order__item-property">
-                      <span class="kt-order__item-property-name">{{ property.first }}:</span>
+                      <span class="kt-order__item-property-name">{{ property.first | escape }}:</span>
                       {%- if property.last contains '/uploads/' -%}
                         <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">
-                          {{ property.last | split: '/' | last }}
+                          {{ property.last | split: '/' | last | escape }}
                         </a>
                       {%- else -%}
-                        <span class="kt-order__item-property-value">{{ property.last }}</span>
+                        <span class="kt-order__item-property-value">{{ property.last | escape }}</span>
                       {%- endif -%}
                     </li>
                   {%- endfor -%}

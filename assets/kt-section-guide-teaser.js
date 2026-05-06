@@ -39,7 +39,19 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="guide-teaser"]');
-    if (s) instances[s.dataset.sectionId] = init(e.target);
+    if (!s) return;
+    /* Theme editor fires shopify:section:load on every settings change
+       without a paired :unload first. If we reassign instances[id]
+       without reverting the previous gsap.context, the prior
+       ScrollTriggers stay registered — they keep firing on scroll,
+       accumulate in ScrollTrigger.getAll(), and gradually freeze the
+       editor. Mirror the destroy-then-recreate pattern from R74
+       kt-section-how-it-works.js. */
+    var sectionId = s.dataset.sectionId;
+    if (instances[sectionId]) {
+      instances[sectionId].revert();
+    }
+    instances[sectionId] = init(e.target);
   });
 
   document.addEventListener('shopify:section:unload', function (e) {

@@ -22,6 +22,23 @@
 {%- if section.settings.enabled -%}
   {%- assign newsletter_form_id = 'NewsletterPopupForm-' | append: section.id -%}
 
+  {%- comment -%}
+    The popup is hidden via CSS opacity:0 + pointer-events:none, NOT
+    display:none / visibility:hidden — that means inner focusable
+    elements (email input, submit, close button) stay in the keyboard
+    Tab order even when the popup is closed. aria-hidden alone tells
+    AT to skip the subtree but doesn't remove descendants from the
+    focus chain (that's why other dialogs in the theme — search-overlay,
+    cart-drawer, appointment-drawer, main-collection-drawer — pair it
+    with `inert`). Without `inert`, a sighted keyboard user tabbing
+    the page would move focus into the invisible popup.
+
+    `inert` is a stable HTML attribute (Safari 15.5+, Chrome 102+,
+    Firefox 112+) that removes the entire subtree from sequential
+    focus, click events, and the accessibility tree. assets/
+    newsletter-popup.js toggles it in lockstep with aria-hidden in
+    openPopup() / closePopup() so the runtime behaviour matches.
+  {%- endcomment -%}
   <div
     class="kt-newsletter-popup"
     id="NewsletterPopup-{{ section.id }}"
@@ -30,6 +47,7 @@
     data-delay-seconds="{{ section.settings.delay_seconds }}"
     data-cooldown-days="{{ section.settings.cooldown_days }}"
     aria-hidden="true"
+    inert
   >
     <div class="kt-newsletter-popup__backdrop" data-popup-close aria-hidden="true"></div>
 

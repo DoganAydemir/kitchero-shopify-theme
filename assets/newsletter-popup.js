@@ -127,6 +127,11 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
 
       lastTrigger = triggerEl || document.activeElement;
       p.setAttribute('aria-hidden', 'false');
+      /* Remove inert so inner focusables (email input, submit, close)
+         re-enter the Tab order. Paired with the closePopup() side that
+         re-applies inert. The HTML default state is `inert`+`aria-hidden=true`
+         so the subtree is fully out of focus until this runs. */
+      p.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('newsletter-popup');
       } else {
@@ -169,6 +174,10 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       if (!p || !isOpen()) return;
 
       p.setAttribute('aria-hidden', 'true');
+      /* Re-apply inert so closed-state subtree is removed from the Tab
+         order, click events, and the accessibility tree. Mirrored on
+         openPopup(). */
+      p.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('newsletter-popup');
       } else {
