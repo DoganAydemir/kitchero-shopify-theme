@@ -52,15 +52,26 @@
       {%- endif -%}
     </span>
     {%- if on_sale -%}
+      {%- comment -%}
+        R89 — Liquid filter-chain fix: `| money` was landing on the t
+        output (a string), not on `savings`/`compare_price`. Customer
+        saw raw cents in the savings/was-price labels. `| default:
+        'Save'/'Was'` after `| money` was also moot — money returns a
+        truthy string, the default never fires. Pre-assign formatted
+        money values; rely on locale keys present in en/tr/de/fr/es
+        for translation.
+      {%- endcomment -%}
+      {%- assign savings_money = savings | money -%}
       <span class="kt-showroom-price__save">
-        {{ 'kt.product.price.save_html' | t: amount: savings | money | default: 'Save' }}
+        {{ 'kt.product.price.save_html' | t: amount: savings_money }}
       </span>
     {%- endif -%}
   </div>
 
   {%- if on_sale -%}
+    {%- assign compare_price_money = compare_price | money -%}
     <span class="kt-showroom-price__was">
-      {{ 'kt.product.price.was_html' | t: amount: compare_price | money | default: 'Was' }}
+      {{ 'kt.product.price.was_html' | t: amount: compare_price_money }}
     </span>
   {%- endif -%}
 

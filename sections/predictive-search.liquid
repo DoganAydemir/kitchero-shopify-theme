@@ -78,8 +78,15 @@
                       across the discovery surfaces.
                     {%- endcomment -%}
                     {%- if product.price_varies -%}
+                      {%- comment -%}
+                        R89 — Liquid filter-chain fix: pre-format
+                        the money before t-interpolation so `| money`
+                        lands on price_min, not on the t output.
+                        Same R86/R88 SUB-05 class regression.
+                      {%- endcomment -%}
+                      {%- assign price_min_money = product.price_min | money -%}
                       <span class="kt-predictive-search__price">
-                        {{ 'kt.predictive_search.from_price' | t: price: product.price_min | money }}
+                        {{ 'kt.predictive_search.from_price' | t: price: price_min_money }}
                       </span>
                     {%- elsif product.price == 0 -%}
                       <span class="kt-predictive-search__price">{{ 'kt.cart.free' | t | default: 'Free' }}</span>

@@ -17,8 +17,8 @@
           explicit, granular, informed) and is a Theme Store reject
           signal. Submitting this form creates the customer record;
           the merchant's Shopify-native double-opt-in confirmation
-          email is what produces the legally-valid consent. Pattern
-          matches Dawn's reference newsletter form.
+          email is what produces the legally-valid consent. Follows
+          Shopify's recommended GDPR-compliant marketing-consent flow.
         {%- endcomment -%}
 
         {%- if form.posted_successfully? -%}
@@ -37,6 +37,7 @@
               placeholder="{{ 'kt.newsletter.label' | t | default: 'Email' }}"
               required
               aria-required="true"
+              maxlength="254"
               inputmode="email"
               autocomplete="email"
               aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
@@ -52,7 +53,7 @@
             {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true">
               <label for="newsletter-page-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
-              <input type="text" id="newsletter-page-website-trap" name="contact[website]" tabindex="-1" autocomplete="off">
+              <input type="text" id="newsletter-page-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
             <button type="submit" class="kt-newsletter-page__btn" name="commit">
               {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}

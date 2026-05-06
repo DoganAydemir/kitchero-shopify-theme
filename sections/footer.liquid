@@ -99,7 +99,8 @@
                   explicit, granular, informed) and is a Theme Store
                   reject signal. Shopify's native double-opt-in
                   confirmation email produces the legally-valid
-                  record. Matches Dawn's reference newsletter pattern.
+                  record. Follows Shopify's recommended GDPR-compliant
+                  marketing-consent flow.
                 {%- endcomment -%}
                 {%- if form.posted_successfully? -%}
                   <p class="kt-footer__newsletter-success" role="status">
@@ -116,6 +117,7 @@
                       placeholder="{{ 'kt.newsletter.label' | t }}"
                       required
                       aria-required="true"
+                      maxlength="254"
                       inputmode="email"
                       autocomplete="email"
                       aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"

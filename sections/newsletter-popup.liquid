@@ -245,6 +245,7 @@
                 placeholder="{{ section.settings.email_placeholder | default: 'Enter your email address' }}"
                 required
                 aria-required="true"
+                maxlength="254"
                 inputmode="email"
                 autocomplete="email"
                 value=""
@@ -260,7 +261,7 @@
             {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true">
               <label for="NewsletterPopupTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
-              <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off">
+              <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
 
             <button type="submit" class="kt-newsletter-popup__submit">
@@ -287,9 +288,9 @@
               signal. Instead the visible disclosure below + the
               merchant's Shopify-native double-opt-in confirmation
               email together produce the legally-valid consent
-              record. Pattern matches Dawn's reference newsletter
-              form which also omits the accepts_marketing hidden
-              field for the same reason.
+              record. accepts_marketing is set by the merchant's
+              double-opt-in setting in Shopify admin, not by a
+              client-side hidden field.
             {%- endcomment -%}
             <p class="kt-newsletter-popup__privacy">
               {{ section.settings.privacy_note | default: 'By subscribing, you agree to our Privacy Policy. Unsubscribe at any time.' }}
