@@ -120,6 +120,14 @@
                       maxlength="254"
                       inputmode="email"
                       autocomplete="email"
+                      {%- comment -%}
+                        R96 — preserve typed email across server-side
+                        validation errors so the customer doesn't
+                        re-type their entire address. form.email is
+                        Shopify's auto-populated previous-input state
+                        when {% form 'customer' %} fails validation.
+                      {%- endcomment -%}
+                      value="{{ form.email | escape }}"
                       aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
                       aria-describedby="FooterNewsletter-error"
                     >

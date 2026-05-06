@@ -325,7 +325,13 @@
 
 .kt-header__mega-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* R96 — auto-fit grid replaces fixed `repeat(3, 1fr)`. Merchants
+     can configure menus with 1, 2, 3, 4, 5+ child categories;
+     fixed 3-col would overflow or stuff items into a stacked 4th
+     column. minmax(min(220px, 100%), 1fr) gives each column at
+     least 220px, fits as many as possible per row, wraps cleanly
+     for narrower viewports. */
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 2rem;
 }
 

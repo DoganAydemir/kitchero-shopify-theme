@@ -248,7 +248,11 @@
                 maxlength="254"
                 inputmode="email"
                 autocomplete="email"
-                value=""
+                {%- comment -%}
+                  R96 — preserve typed email across validation errors
+                  so customer doesn't retype.
+                {%- endcomment -%}
+                value="{{ form.email | escape }}"
                 data-popup-email
                 {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ popup_email_err }}"{% endif %}
               >

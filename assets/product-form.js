@@ -85,9 +85,21 @@
     try {
       var optionValuesParam = new URLSearchParams(window.location.search).get('option_values');
       if (optionValuesParam) {
-        var requestedIds = optionValuesParam.split(',')
+        var rawIds = optionValuesParam.split(',')
           .map(function (s) { return parseInt(s.trim(), 10); })
           .filter(function (n) { return !isNaN(n); });
+        /* R96 — dedupe so URLs like ?option_values=12345,12345 don't
+           cause length mismatch in the variant-lookup loop below
+           (each variant has unique option_value IDs; duplicates
+           in the URL would never match). */
+        var seenIds = {};
+        var requestedIds = [];
+        for (var ridx = 0; ridx < rawIds.length; ridx++) {
+          if (!seenIds[rawIds[ridx]]) {
+            seenIds[rawIds[ridx]] = true;
+            requestedIds.push(rawIds[ridx]);
+          }
+        }
         if (requestedIds.length > 0) {
           var ovMapBlob = container.querySelector('script[data-option-values-map]');
           if (ovMapBlob) {
