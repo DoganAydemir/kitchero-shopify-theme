@@ -158,7 +158,20 @@
       </div>
     {%- else -%}
       <p class="kt-predictive-search__empty" role="status">
-        {{ 'kt.predictive_search.no_results' | t: terms: predictive_search.terms | default: predictive_search.terms }}
+        {%- comment -%}
+          The `| t` filter auto-escapes interpolated `terms:` in the
+          translated output, but the `| default:` fallback only fires
+          when the key resolves to blank — and at that point
+          `predictive_search.terms` (the raw `?q=` URL param) renders
+          unescaped, reflecting whatever the visitor put in the URL.
+          A crafted `?q=<svg onload=...>` survives the locale-miss
+          fallback path. Applying `| escape` to the variable BEFORE
+          the chain ensures both branches (translation-resolved and
+          default-fallback) emit safe text. The translated branch
+          would have escaped it again at no cost (idempotent).
+        {%- endcomment -%}
+        {%- assign safe_terms = predictive_search.terms | escape -%}
+        {{ 'kt.predictive_search.no_results' | t: terms: safe_terms | default: safe_terms }}
       </p>
     {%- endif -%}
   {%- endif -%}
