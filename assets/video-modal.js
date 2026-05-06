@@ -55,11 +55,22 @@ if (!window.__kitcheroVideoModalLoaded) {
       if (!url) return null;
       var ytId = parseYouTubeId(url);
       if (ytId) {
-        return 'https://www.youtube.com/embed/' + ytId + '?autoplay=1&rel=0&playsinline=1';
+        /* R102 — youtube-nocookie.com defers cookie writes
+           (VISITOR_INFO1_LIVE, YSC, __Secure-3PAPISID, etc.) until
+           the user actually starts the video. The default
+           youtube.com/embed domain drops those cookies on first
+           frame load, which triggers GDPR/ePrivacy consent
+           requirements before any user interaction. The privacy-
+           friendly domain serves the same content with no feature
+           loss; YouTube officially supports it. */
+        return 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&playsinline=1';
       }
       var vimeoId = parseVimeoId(url);
       if (vimeoId) {
-        return 'https://player.vimeo.com/video/' + vimeoId + '?autoplay=1&playsinline=1';
+        /* R102 — `dnt=1` is Vimeo's documented "do not track" flag.
+           Disables session tracking + analytics requests to
+           Vimeo's servers. Same content, no behavioral telemetry. */
+        return 'https://player.vimeo.com/video/' + vimeoId + '?autoplay=1&playsinline=1&dnt=1';
       }
       /* Unknown provider: try to use the URL as-is (some merchants may
          paste a direct embed URL). */
