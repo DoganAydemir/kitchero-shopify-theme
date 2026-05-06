@@ -123,8 +123,19 @@
                     line total.
                   {%- endcomment -%}
                   {%- if item.variant.unit_price_measurement -%}
+                    {%- comment -%}
+                      R86 UNP-03 — use Shopify's
+                      `unit_price_with_measurement` filter instead of
+                      manual `unit_price | money` + reference_value/
+                      reference_unit concatenation. The native filter
+                      handles plural rules, locale-aware separator
+                      spacing, and reference_value != 1 logic in one
+                      call. Per Shopify docs: "use the
+                      unit_price_with_measurement filter to display
+                      the unit price."
+                    {%- endcomment -%}
                     <span class="kt-cart-drawer__item-unit-measure">
-                      {{ item.variant.unit_price | money }}/{% if item.variant.unit_price_measurement.reference_value != 1 %}{{ item.variant.unit_price_measurement.reference_value }}&nbsp;{% endif %}{{ item.variant.unit_price_measurement.reference_unit }}
+                      {{ item.variant.unit_price | unit_price_with_measurement: item.variant.unit_price_measurement }}
                     </span>
                   {%- endif -%}
                   {%- comment -%}
@@ -178,8 +189,18 @@
                 {%- endcomment -%}
                 {%- assign charge = item.selling_plan_allocation.checkout_charge -%}
                 {%- if charge and charge.value > 0 and charge.value != item.final_line_price -%}
+                  {%- comment -%}
+                    R86 SUB-05 fix: pre-format the money value
+                    BEFORE passing into `t: amount: ...`. The
+                    previous chain `t: amount: charge.value |
+                    money` was parsed as `(t output) | money`,
+                    leaking raw cents into the rendered string.
+                    Pre-assigning the formatted amount keeps the
+                    `| money` filter applied to the variable.
+                  {%- endcomment -%}
+                  {%- assign charge_money = charge.value | money -%}
                   <p class="kt-cart-drawer__item-charge">
-                    {{ 'kt.cart.checkout_charge' | t: amount: charge.value | money | default: 'Charged today: ' | append: charge.value | money }}
+                    {{ 'kt.cart.checkout_charge' | t: amount: charge_money }}
                   </p>
                 {%- endif -%}
               {%- endif -%}

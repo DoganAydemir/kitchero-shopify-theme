@@ -215,13 +215,18 @@
               {%- when 'buy_buttons' -%}
                 <div {{ block.shopify_attributes }}>
                   {%- comment -%}
-                    Selling-plan (subscription) picker rendered BEFORE
-                    the product form so the picker is visually above
-                    the ATC row. Its hidden input is written into the
-                    form via assets/selling-plan-picker.js and picked
-                    up by the existing Ajax ATC path.
+                    Selling-plan picker is rendered INSIDE
+                    snippets/product-form.liquid (R86 fix —
+                    SUB-01 / SUB-03 require the `name="selling_plan"`
+                    input to live inside `{% form 'product' %}`).
+                    Previously the picker was a sibling render here
+                    BEFORE product-form, which placed the input
+                    outside the form and silently dropped
+                    selling_plan from the cart payload on non-JS
+                    submission + broke the JS plan-change handler
+                    (its `closest('[data-product-form]')` returned
+                    null because the wrapper hadn't opened yet).
                   {%- endcomment -%}
-                  {%- render 'product-selling-plans', product: product -%}
                   {%- render 'product-form', product: product, show_dynamic_checkout: block.settings.show_dynamic_checkout -%}
                   {%- comment -%}
                     Pickup availability — rendered directly beneath the

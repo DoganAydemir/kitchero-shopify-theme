@@ -184,13 +184,14 @@
                 Store Section 7 customer-page requirements.
               {%- endcomment -%}
               {%- if line_item.variant.unit_price_measurement -%}
+                {%- comment -%}
+                  R86 UNP-03 — Shopify's `unit_price_with_measurement`
+                  filter replaces the manual money/reference-unit
+                  concatenation. Handles locale spacing + plural
+                  rules natively.
+                {%- endcomment -%}
                 <p class="kt-order__item-unit-price">
-                  {{- line_item.variant.unit_price | money -}}
-                  <span aria-hidden="true">/</span>
-                  {%- if line_item.variant.unit_price_measurement.reference_value != 1 -%}
-                    {{- line_item.variant.unit_price_measurement.reference_value -}}
-                  {%- endif -%}
-                  {{- line_item.variant.unit_price_measurement.reference_unit -}}
+                  {{- line_item.variant.unit_price | unit_price_with_measurement: line_item.variant.unit_price_measurement -}}
                 </p>
               {%- endif -%}
               {%- if line_item.selling_plan_allocation -%}
@@ -204,8 +205,14 @@
                 {%- endcomment -%}
                 {%- assign order_charge = line_item.selling_plan_allocation.checkout_charge -%}
                 {%- if order_charge and order_charge.value > 0 and order_charge.value != line_item.final_line_price -%}
+                  {%- comment -%}
+                    R86 SUB-05 fix — pre-format before t-interpolation
+                    so `| money` applies to the variable, not the
+                    t output. Same root cause as cart-drawer / main-cart.
+                  {%- endcomment -%}
+                  {%- assign order_charge_money = order_charge.value | money -%}
                   <p class="kt-order__item-charge">
-                    {{ 'kt.cart.checkout_charge' | t: amount: order_charge.value | money | default: 'Charged today: ' | append: order_charge.value | money }}
+                    {{ 'kt.cart.checkout_charge' | t: amount: order_charge_money }}
                   </p>
                 {%- endif -%}
               {%- endif -%}

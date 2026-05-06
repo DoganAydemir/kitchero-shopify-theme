@@ -294,14 +294,16 @@
       {%- endcomment -%}
       {%- assign card_first_variant = product.selected_or_first_available_variant -%}
       {%- if card_first_variant.unit_price_measurement -%}
+        {%- comment -%}
+          R86 UNP-03 — collection-card unit price now uses Shopify's
+          native `unit_price_with_measurement` filter. Visually-hidden
+          announcement text remains for richer SR readout (the filter
+          output is "$X.XX/100 g"-style; the t: rendered span gives
+          screen-reader-friendly "$X per 100 grams" phrasing).
+        {%- endcomment -%}
         <div class="kt-card-product__unit-price">
-          {{- card_first_variant.unit_price | money -}}
-          <span aria-hidden="true">/</span>
+          <span aria-hidden="true">{{ card_first_variant.unit_price | unit_price_with_measurement: card_first_variant.unit_price_measurement }}</span>
           <span class="visually-hidden">{{ 'kt.product.unit_price_per_html' | t: quantity_value: card_first_variant.unit_price_measurement.quantity_value, quantity_unit: card_first_variant.unit_price_measurement.quantity_unit, reference_value: card_first_variant.unit_price_measurement.reference_value, reference_unit: card_first_variant.unit_price_measurement.reference_unit }}</span>
-          {%- if card_first_variant.unit_price_measurement.reference_value != 1 -%}
-            <span aria-hidden="true">{{ card_first_variant.unit_price_measurement.reference_value }}</span>
-          {%- endif -%}
-          <span aria-hidden="true">{{ card_first_variant.unit_price_measurement.reference_unit }}</span>
         </div>
       {%- endif -%}
 

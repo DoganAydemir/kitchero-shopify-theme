@@ -189,23 +189,32 @@
   border-radius: 9999px;
 }
 
+/* Status pills — CLR-1 (R86) regression fix: previous rgba()
+   backgrounds composited with the scheme-bound page bg meaning the
+   effective contrast varied by merchant color scheme. Switched to
+   SOLID light backgrounds (status hue at high luminance) paired with
+   a dark text from the same hue. The pill is now a self-contained
+   contrast region that delivers ≥ 6.5:1 regardless of the parent
+   scheme — light scheme: lifted from page bg; dark scheme: stands
+   out as a bright status badge. Hue families match the original
+   intent (green=paid, amber=pending, red=refunded). */
 .kt-account__pill--paid,
 .kt-account__pill--fulfilled {
-  background: rgba(5, 150, 105, 0.12);
-  color: rgb(4, 120, 87);
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .kt-account__pill--pending,
 .kt-account__pill--partial,
 .kt-account__pill--partially_fulfilled {
-  background: rgba(217, 119, 6, 0.12);
-  color: rgb(180, 83, 9);
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .kt-account__pill--refunded,
 .kt-account__pill--voided {
-  background: rgba(185, 28, 28, 0.1);
-  color: rgb(153, 27, 27);
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* Mobile-stacked table ------------------------------------ */

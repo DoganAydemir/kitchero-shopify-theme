@@ -64,14 +64,24 @@
        ?variant=[variant-id] (resolved by Liquid into
        product.selected_variant before render) and
        ?option_values=[id-1],[id-2],... (resolved at the variant-
-       value level). Most marketing surfaces and app-block recommend-
-       ation cards now use the option_values format. If Shopify did
-       not server-redirect the option_values URL into a variant URL
-       (some Markets configurations don't), we parse it client-side
-       here and select the matching variant in the form so the page
-       shows the correct option radios + price + media on first
-       paint. Defensive: silently no-op when the URL param is absent
-       or the variant blob lacks option_value IDs. */
+       value level). Most marketing surfaces and app-block
+       recommendation cards now use the option_values format.
+
+       R84 first attempt read `variant.option_values` from
+       `product.variants | json` — which doesn't serialize that
+       field — and silent-failed. R86 fix: read from the explicit
+       <script data-option-values-map> emitted by
+       product-variant-picker.liquid which IS variant→[ov-id]
+       mapping data we control.
+
+       Algorithm:
+       1. Parse ?option_values URL param into Set of requested IDs
+       2. Read the option-values-map JSON blob from the section
+       3. Find the variant whose ID-array equals the requested set
+       4. Look up that variant in the standard variants blob to
+          get its `options` string array
+       5. Programmatically check the matching option-value radios
+       Silent no-op on parse failure or missing data. */
     try {
       var optionValuesParam = new URLSearchParams(window.location.search).get('option_values');
       if (optionValuesParam) {
@@ -79,27 +89,42 @@
           .map(function (s) { return parseInt(s.trim(), 10); })
           .filter(function (n) { return !isNaN(n); });
         if (requestedIds.length > 0) {
-          var lookupVariants = getVariantsData(container);
-          for (var lv = 0; lv < lookupVariants.length; lv++) {
-            var lookupVariant = lookupVariants[lv];
-            if (!lookupVariant || !lookupVariant.option_values) continue;
-            var lookupIds = lookupVariant.option_values.map(function (ov) {
-              return ov && ov.id;
-            }).filter(function (n) { return typeof n === 'number'; });
-            if (lookupIds.length !== requestedIds.length) continue;
-            var allMatch = true;
-            for (var li = 0; li < lookupIds.length; li++) {
-              if (lookupIds.indexOf(requestedIds[li]) === -1) { allMatch = false; break; }
-            }
-            if (allMatch) {
-              for (var oi = 0; oi < optionInputs.length; oi++) {
-                var optInput = optionInputs[oi];
-                if (lookupVariant.options &&
-                    lookupVariant.options[optInput.dataset.optionIndex] === optInput.value) {
-                  optInput.checked = true;
-                }
+          var ovMapBlob = container.querySelector('script[data-option-values-map]');
+          if (ovMapBlob) {
+            var ovMap = {};
+            try { ovMap = JSON.parse(ovMapBlob.textContent) || {}; } catch (mapErr) { ovMap = {}; }
+            var matchedVariantId = null;
+            for (var variantKey in ovMap) {
+              if (!Object.prototype.hasOwnProperty.call(ovMap, variantKey)) continue;
+              var variantOvIds = ovMap[variantKey];
+              if (!variantOvIds || variantOvIds.length !== requestedIds.length) continue;
+              var allMatch = true;
+              for (var ri = 0; ri < requestedIds.length; ri++) {
+                if (variantOvIds.indexOf(requestedIds[ri]) === -1) { allMatch = false; break; }
               }
-              break;
+              if (allMatch) { matchedVariantId = parseInt(variantKey, 10); break; }
+            }
+            if (matchedVariantId !== null) {
+              var lookupVariants = getVariantsData(container);
+              for (var lv = 0; lv < lookupVariants.length; lv++) {
+                var lookupVariant = lookupVariants[lv];
+                if (!lookupVariant || lookupVariant.id !== matchedVariantId) continue;
+                if (lookupVariant.options) {
+                  for (var oi = 0; oi < optionInputs.length; oi++) {
+                    var optInput = optionInputs[oi];
+                    /* `data-option-index` lives on the parent
+                       <fieldset> (per product-variant-picker.liquid:26),
+                       not on the individual radio. Walk up via closest()
+                       to read it. */
+                    var fieldset = optInput.closest('[data-option-index]');
+                    var optIdx = fieldset ? parseInt(fieldset.dataset.optionIndex, 10) : NaN;
+                    if (!isNaN(optIdx) && lookupVariant.options[optIdx] === optInput.value) {
+                      optInput.checked = true;
+                    }
+                  }
+                }
+                break;
+              }
             }
           }
         }

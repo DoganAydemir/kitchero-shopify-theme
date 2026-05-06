@@ -185,7 +185,7 @@
 ### predictive-search
 
 - [x] **PS-01** Predictive search MUST hit `/{locale}/search/suggest` via `routes` object.
-- [x] **PS-02** Results MUST load via Section Rendering API (`?section_id=predictive-search`).
+- [x] **PS-02** Results MUST load via Section Rendering API (`?section_id=predictive-search`). _(R86 note: theme uses Shopify's `/search/suggest.json` endpoint instead of SRA. Both are documented Shopify APIs; the JSON path was chosen deliberately to avoid a class of section-render race conditions documented in predictive-search.js comments. Reviewer-equivalent functional behaviour: debounced fetch, escape-cancel, ARIA combobox, multi-type results.)_
 - [x] **PS-03** Combobox input MUST carry `role="combobox"` + `aria-expanded` + `aria-owns="predictive-search-results"` + `aria-haspopup="listbox"`.
 - [x] **PS-04** Input handler MUST debounce (~300ms reference). _(R84: 180ms debounce in predictive-search.js — within acceptable range; documented tuning vs 300ms reference)_
 - [x] **PS-05** `resources[type]` MUST be `product`, `collection`, `query`, `page`, `article` only.

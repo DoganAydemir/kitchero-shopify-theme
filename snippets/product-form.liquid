@@ -41,6 +41,22 @@
   {%- endif -%}
 
   {%- comment -%}
+    Selling-plan picker — Shopify Theme Store rule SUB-01 + SUB-03:
+    the `<input name="selling_plan">` MUST live inside the
+    `{% form 'product' %}` block. R86 moved this here from
+    main-product.liquid (which previously rendered it as a sibling
+    BEFORE invoking product-form, leaving the input outside the
+    form scope and breaking native non-JS submission + the JS
+    variant-change → plan-update path). featured-product.liquid
+    has its own form/picker pair already, so this render is gated
+    on the product actually having selling plans (silent no-op
+    otherwise).
+  {%- endcomment -%}
+  {%- if product.selling_plan_groups.size > 0 -%}
+    {%- render 'product-selling-plans', product: product, current_variant: current_variant, section: section -%}
+  {%- endif -%}
+
+  {%- comment -%}
     Quantity-rule resolution. Merchants can now declare a
     variant-level quantity rule via admin → Product → Variants →
     Quantity rules (min / max / increment, e.g. "sold in packs of 6").

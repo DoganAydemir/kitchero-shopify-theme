@@ -981,31 +981,37 @@ select:-webkit-autofill {
 
 .kt-breadcrumbs__item + .kt-breadcrumbs__item::before {
   content: '/';
-  /* stone-400 (#a8a29e) on white = 2.41:1 — fails WCAG AA (4.5:1) for
-     what `content: '/'` produces as visible text. stone-600 hits
-     6.61:1; the separator stays light enough to feel like a divider
-     rather than a primary character. */
-  color: var(--kt-stone-600, #57534e);
+  /* CLR-1 (R86) — previous stone-600 literal worked on light bg
+     but in a merchant dark scheme it's mid-grey on dark = invisible.
+     Route through rgba(var(--kt-c-fg), 0.7) so the separator stays
+     low-emphasis in BOTH schemes. 0.7 alpha on either bg produces
+     ~5.5-7:1 contrast, comfortably above 4.5:1 minimum. */
+  color: rgba(var(--kt-c-fg), 0.7);
   font-weight: 300;
 }
 
 .kt-breadcrumbs__link {
-  color: var(--kt-stone-600, #57534e);
+  /* Same CLR-1 fix — scheme-aware muted foreground replaces
+     stone-600 literal. Hover lifts to full-emphasis fg. */
+  color: rgba(var(--kt-c-fg), 0.7);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .kt-breadcrumbs__link:hover {
-  color: var(--kt-stone-900, #1c1917);
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-breadcrumbs__link:focus-visible {
-  outline: 2px solid var(--kt-stone-900, #1c1917);
+  /* CLR-1 — focus outline must be visible in dark schemes too.
+     rgb(var(--kt-c-fg)) becomes white on dark bg, dark on light bg
+     — opposite-of-bg by design, so the ring is always visible. */
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
 .kt-breadcrumbs__current {
-  color: var(--kt-stone-900, #1c1917);
+  color: rgb(var(--kt-c-fg));
   font-weight: 500;
 }
 

@@ -264,6 +264,36 @@
       is needed (application/json context, not HTML attribute).
     {%- endcomment -%}
     <script type="application/json" data-variant-data>{{ product.variants | json }}</script>
+
+    {%- comment -%}
+      VAR-04 fix (R86): `?option_values=ID1,ID2,...` deep-link
+      support. The `product.variants | json` blob above does NOT
+      include each variant's `option_values` array (it serializes
+      the variant's flat fields — id, sku, title, price, options
+      string array, etc.). The R84 JS parser tried to read
+      `lookupVariant.option_values[].id` from that blob and
+      silently failed for every variant.
+
+      This separate map renders only the data the deep-link
+      resolver needs: { variantId: [option_value_id, ...] }.
+      `variant.option_values` IS available in Liquid (just not in
+      the canonical | json output) so we iterate explicitly. JS
+      reads `Kitchero.optionValuesMap[productId]` and matches the
+      URL param against the array sets.
+
+      JSON shape: {"<variant-id>": [<ov-id>, <ov-id>, ...], ...}
+      Idempotent across re-renders. Empty object when product has
+      single default variant (no merchant options).
+    {%- endcomment -%}
+    <script type="application/json" data-option-values-map>{
+      {%- for variant in product.variants -%}
+        "{{ variant.id }}": [
+          {%- for ov in variant.option_values -%}
+            {{ ov.id }}{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        ]{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    }</script>
   </div>
 
   {%- comment -%}

@@ -132,8 +132,15 @@
                       {%- endcomment -%}
                       {%- assign cart_charge = item.selling_plan_allocation.checkout_charge -%}
                       {%- if cart_charge and cart_charge.value > 0 and cart_charge.value != item.final_line_price -%}
+                        {%- comment -%}
+                          R86 SUB-05 fix — see cart-drawer.liquid
+                          for rationale. Pre-format charge value
+                          before t-interpolation so `| money` lands
+                          on the variable, not on the t output.
+                        {%- endcomment -%}
+                        {%- assign cart_charge_money = cart_charge.value | money -%}
                         <p class="kt-cart-page__item-charge">
-                          {{ 'kt.cart.checkout_charge' | t: amount: cart_charge.value | money | default: 'Charged today: ' | append: cart_charge.value | money }}
+                          {{ 'kt.cart.checkout_charge' | t: amount: cart_charge_money }}
                         </p>
                       {%- endif -%}
                     {%- endif -%}
@@ -205,8 +212,15 @@
                         price-transparency law inspects display.
                       {%- endcomment -%}
                       {%- if item.variant.unit_price_measurement -%}
+                        {%- comment -%}
+                          R86 UNP-03 — switched to Shopify's native
+                          `unit_price_with_measurement` filter (handles
+                          plural / locale spacing / reference_value
+                          edge cases). See cart-drawer.liquid for
+                          full rationale.
+                        {%- endcomment -%}
                         <span class="kt-cart-page__item-unit-measure">
-                          {{ item.variant.unit_price | money }}/{% if item.variant.unit_price_measurement.reference_value != 1 %}{{ item.variant.unit_price_measurement.reference_value }}&nbsp;{% endif %}{{ item.variant.unit_price_measurement.reference_unit }}
+                          {{ item.variant.unit_price | unit_price_with_measurement: item.variant.unit_price_measurement }}
                         </span>
                       {%- endif -%}
                     </div>
