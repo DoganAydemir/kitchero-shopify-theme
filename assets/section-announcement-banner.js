@@ -91,6 +91,10 @@
 
     start() {
       this.stop();
+      /* R87 — pause rotation in theme editor so merchant can edit
+         a specific message block without it cycling out from under
+         them. block:select drives navigation in editor instead. */
+      if (window.Shopify && window.Shopify.designMode) return;
       var self = this;
       this.timer = window.setInterval(function () {
         if (!self.isPaused) self.next();

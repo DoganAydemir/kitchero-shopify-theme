@@ -100,6 +100,11 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         if (prefersReducedMotion) return;
         if (!interval || interval <= 0) return;
         if (total < 2) return;
+        /* R87 — Theme editor pause: don't rotate slides while the
+           merchant edits a specific slide setting. block:select
+           drives navigation in editor; this timer is only for the
+           live storefront. */
+        if (window.Shopify && window.Shopify.designMode) return;
         timer = window.setInterval(advance, interval * 1000);
         restartProgress();
       }

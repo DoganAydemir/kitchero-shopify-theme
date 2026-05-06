@@ -71,7 +71,13 @@
                 </div>
               </details>
             {%- when '@app' -%}
-              {% render block %}
+              {%- comment -%}
+                R87 — shopify_attributes wrapper for editor
+                highlight on app-block select.
+              {%- endcomment -%}
+              <div class="kt-collapsible-minimal__app-block" {{ block.shopify_attributes }}>
+                {% render block %}
+              </div>
           {%- endcase -%}
         {%- endfor -%}
       </div>

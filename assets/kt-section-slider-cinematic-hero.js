@@ -242,7 +242,12 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       setActive(root, 0);
       updateToggle();
 
-      if (playing) {
+      /* R87 — pause autoplay in theme editor so the merchant can
+         inspect a stable slide while editing. block:select handler
+         already drives navigation in editor; the timer is only for
+         real-storefront rotation. */
+      var inEditor = window.Shopify && window.Shopify.designMode;
+      if (playing && !inEditor) {
         timerId = setInterval(controller.next, interval * 1000);
       }
 

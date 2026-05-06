@@ -140,6 +140,13 @@
   line-height: 1.1;
   color: rgb(var(--kt-c-fg));
   margin-bottom: 0.75rem;
+  /* R87 — 110-char product titles or German compound words
+     overflow the right-column flex parent without min-width:0 +
+     overflow-wrap. Hyphens auto provides graceful break for
+     long marketing copy. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 @media screen and (min-width: 750px) {

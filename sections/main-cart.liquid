@@ -586,22 +586,38 @@
                   </svg>
                   <span>{{ 'kt.cart.trust.secure' | t | default: 'Secure checkout' }}</span>
                 </li>
-                <li>
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                  </svg>
-                  <span>{{ section.settings.trust_shipping_text | default: 'Add a shipping policy line' }}</span>
-                </li>
-                <li>
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                  </svg>
-                  <span>{{ section.settings.trust_returns_text | default: 'Add a returns policy line' }}</span>
-                </li>
+                {%- comment -%}
+                  R87 — gate shipping/returns trust lines on
+                  non-blank settings. Previous `| default: 'Add a
+                  shipping policy line'` fallback shipped the
+                  placeholder COPY to the live storefront when a
+                  merchant skipped these settings on first install.
+                  Now the line is hidden entirely until the
+                  merchant fills in their real policy text. The
+                  `Secure checkout` line above stays unconditional
+                  because that's a real, fixed promise the theme
+                  always honours.
+                {%- endcomment -%}
+                {%- if section.settings.trust_shipping_text != blank -%}
+                  <li>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="1" y="3" width="15" height="13"></rect>
+                      <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                      <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                      <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                    <span>{{ section.settings.trust_shipping_text }}</span>
+                  </li>
+                {%- endif -%}
+                {%- if section.settings.trust_returns_text != blank -%}
+                  <li>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                    <span>{{ section.settings.trust_returns_text }}</span>
+                  </li>
+                {%- endif -%}
               </ul>
             </div>
           </aside>

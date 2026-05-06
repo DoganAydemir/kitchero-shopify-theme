@@ -465,12 +465,20 @@
     </div>
   </div>
 
-  {%- comment -%} App block slot (required for Theme Store) {%- endcomment -%}
+  {%- comment -%}
+    App block slot (required for Theme Store).
+    R87 — every @app render needs a wrapping element with
+    `block.shopify_attributes` so the editor can highlight the
+    block when the merchant clicks it in the sidebar. Without it,
+    the "select block" affordance silently does nothing.
+  {%- endcomment -%}
   {%- assign header_app_blocks = section.blocks | where: 'type', '@app' -%}
   {%- if header_app_blocks.size > 0 -%}
     <div class="kt-header__app-blocks">
       {%- for block in header_app_blocks -%}
-        {% render block %}
+        <div class="kt-header__app-block" {{ block.shopify_attributes }}>
+          {% render block %}
+        </div>
       {%- endfor -%}
     </div>
   {%- endif -%}

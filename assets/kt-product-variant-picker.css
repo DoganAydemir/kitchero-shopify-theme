@@ -102,6 +102,13 @@
   border-radius: 4px;
   transition: all 0.2s ease;
   text-align: center;
+  /* R87 — long color names ("Burnt Sienna Tuscany Sunset") used to
+     overflow the grid track at 12px font + repeat(3, 1fr) on
+     iPhone SE (<375px). Mid-word break + min-width:0 lets the
+     button shrink and the label wrap inside. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .kt-variant-picker__btn:hover {

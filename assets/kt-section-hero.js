@@ -26,7 +26,13 @@
     if (this.total > 0) {
       this.bindEvents();
       this.animateText(0);
-      if (this.total > 1 && !this.prefersReducedMotion && this.autoplaySpeed > 0) this.startAutoplay();
+      /* R87 — pause autoplay in theme editor (Shopify.designMode)
+         so the merchant editing slide N doesn't get yanked to slide
+         N+1 every autoplaySpeed seconds. block:select still drives
+         slide navigation via the existing handler. Real storefront
+         path keeps autoplay. */
+      var inEditor = window.Shopify && window.Shopify.designMode;
+      if (this.total > 1 && !this.prefersReducedMotion && this.autoplaySpeed > 0 && !inEditor) this.startAutoplay();
       this.initGSAP();
     }
   }

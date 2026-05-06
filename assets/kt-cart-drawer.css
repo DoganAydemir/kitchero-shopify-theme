@@ -334,6 +334,11 @@ html.no-js .kt-cart-drawer {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* R87 — long unbroken tokens (60-char custom SKU, German
+     compound) escape the line-clamp without word-break. The
+     drawer narrow column makes this especially likely on mobile. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .kt-cart-drawer__item-title:hover {

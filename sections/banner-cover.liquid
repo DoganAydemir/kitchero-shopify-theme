@@ -66,9 +66,18 @@
       <span class="kt-banner-cover__eyebrow">{{ section.settings.eyebrow }}</span>
     {%- endif -%}
 
-    <{{ heading_tag }} class="kt-banner-cover__title">
-      {{- section.settings.heading -}}
-    </{{ heading_tag }}>
+    {%- comment -%}
+      R87 — gate the heading element on a non-blank value. Previous
+      code emitted an empty `<h1></h1>` when the merchant cleared
+      the heading setting — a Lighthouse a11y warning ("page
+      contains an empty heading"). Now we only emit the heading
+      tag when there's content for it.
+    {%- endcomment -%}
+    {%- if section.settings.heading != blank -%}
+      <{{ heading_tag }} class="kt-banner-cover__title">
+        {{- section.settings.heading -}}
+      </{{ heading_tag }}>
+    {%- endif -%}
 
     {%- if section.settings.description != blank -%}
       <p class="kt-banner-cover__desc">{{ section.settings.description }}</p>

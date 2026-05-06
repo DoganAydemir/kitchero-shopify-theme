@@ -47,6 +47,21 @@
   gap: 2rem;
   position: relative;
   align-items: flex-start;
+  /* R87 — long uppercase TR/DE labels ("MÜKEMMELLİĞİN YILLARI",
+     "JAHRE DER EXZELLENZ") at 0.15em letter-spacing in the 4-col
+     grid push past the grid track. min-width: 0 lets the flex item
+     shrink below its content size; overflow-wrap on the descendant
+     label allows mid-word break for unbroken compounds. */
+  min-width: 0;
+}
+
+.kt-trust-bar__stat-content {
+  min-width: 0;
+}
+
+.kt-trust-bar__label {
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 /* Theme-editor-only state for blocks that haven't been edited yet

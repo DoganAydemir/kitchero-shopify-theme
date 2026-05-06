@@ -50,6 +50,10 @@
 
     function startAuto() {
       if (reduceMotion || interval) return;
+      /* R87 — designMode pause so merchant editing a quote block
+         doesn't see the slide rotate every 7s. block:select still
+         drives navigation in editor. */
+      if (window.Shopify && window.Shopify.designMode) return;
       interval = setInterval(function () { goTo(index + 1); }, 7000);
     }
     function stopAuto() {

@@ -197,8 +197,19 @@
                     nothing visible.
                   {%- endcomment -%}
                   {%- if block.settings.truncate -%}
+                    {%- comment -%}
+                      R87 — `truncatewords: block.settings.word_limit
+                      | default: 40` parses as the `default` filter
+                      operating on the (already-truncated) string,
+                      not on `word_limit`. If the merchant clears
+                      the word_limit setting, `truncatewords: nil`
+                      raises a Liquid error or silently returns the
+                      whole description. Pre-assign a safe local
+                      so `default` lands on the variable.
+                    {%- endcomment -%}
+                    {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
                     <div class="kt-pdp__short-desc" {{ block.shopify_attributes }}>
-                      {{ product.description | strip_html | truncatewords: block.settings.word_limit | default: 40 }}
+                      {{ product.description | strip_html | truncatewords: word_limit_safe }}
                     </div>
                   {%- else -%}
                     <div class="kt-pdp__short-desc rte" {{ block.shopify_attributes }}>
@@ -366,7 +377,14 @@
                 </div>
 
               {%- when '@app' -%}
-                {%- render block -%}
+                {%- comment -%}
+                  R87 — wrap in shopify_attributes div so theme
+                  editor can highlight + scroll-to the app block
+                  on merchant click.
+                {%- endcomment -%}
+                <div class="kt-pdp__app-block" {{ block.shopify_attributes }}>
+                  {%- render block -%}
+                </div>
 
             {%- endcase -%}
           {%- endfor -%}

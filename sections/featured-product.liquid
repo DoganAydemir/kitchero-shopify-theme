@@ -70,7 +70,14 @@
             {%- when 'description' -%}
               <div class="kt-featured-product__description rte" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
-                  {{ product.description | strip_html | truncatewords: block.settings.word_limit | default: product.description }}
+                  {%- comment -%}
+                    R87 — pre-assign word_limit_safe so the `default`
+                    fallback lands on the variable, not on the
+                    truncatewords output. Default 40 matches main-
+                    product schema.
+                  {%- endcomment -%}
+                  {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
+                  {{ product.description | strip_html | truncatewords: word_limit_safe }}
                 {%- else -%}
                   {{ 'kt.onboarding.product_description' | t | default: 'Example product description goes here.' }}
                 {%- endif -%}
@@ -208,7 +215,17 @@
               </div>
 
             {%- when '@app' -%}
-              {%- render block -%}
+              {%- comment -%}
+                R87 — Theme Store rule: every block must wrap in
+                an element carrying `block.shopify_attributes` so
+                the editor can highlight + scroll-to the block on
+                merchant click. Bare `{% render block %}` works
+                functionally but breaks the editor "select block"
+                affordance entirely.
+              {%- endcomment -%}
+              <div class="kt-featured-product__app-block" {{ block.shopify_attributes }}>
+                {%- render block -%}
+              </div>
 
           {%- endcase -%}
         {%- endfor -%}

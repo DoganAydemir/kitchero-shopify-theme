@@ -81,6 +81,16 @@
   animation-direction: reverse;
 }
 
+/* R87 — Theme editor: pause the infinite scroll while the merchant
+   is editing the section so they can inspect a stable frame. The
+   `.shopify-design-mode` class is added to <html> by the inline
+   bootstrap in layout/theme.liquid:305 when Shopify.designMode is
+   true. Running infinite CSS animations in editor make it
+   impossible to align/inspect individual gallery items. */
+.shopify-design-mode .kt-gallery-marquee__track {
+  animation-play-state: paused;
+}
+
 /* Pause on hover for entire row (section-level class toggled by JS for
    keyboard focus, CSS hover for pointer users). */
 .kt-gallery-marquee__row:hover .kt-gallery-marquee__track,

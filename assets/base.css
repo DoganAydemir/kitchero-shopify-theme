@@ -971,12 +971,20 @@ select:-webkit-autofill {
      the sibling .kt-breadcrumbs__link color (line 949) so the
      trail reads as a uniform low-emphasis row. */
   color: var(--kt-stone-600, #57534e);
+  /* R87 — long article/product titles in the breadcrumb tail must
+     wrap rather than blow out the row width on mobile. */
+  flex-wrap: wrap;
 }
 
 .kt-breadcrumbs__item {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  /* R87 — min-width:0 lets the flex item shrink below its content
+     so the long-current-label child can wrap. Without it, an
+     unbroken article title (130 chars + em-dash compound) pushes
+     the row past viewport edge on mobile. */
+  min-width: 0;
 }
 
 .kt-breadcrumbs__item + .kt-breadcrumbs__item::before {
@@ -1013,6 +1021,12 @@ select:-webkit-autofill {
 .kt-breadcrumbs__current {
   color: rgb(var(--kt-c-fg));
   font-weight: 500;
+  /* R87 — long article titles (130 chars+) or product names with
+     unbroken tokens (SKUs, German compound words) must wrap mid-
+     word rather than overflow the breadcrumb row on mobile. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* ── Theme editor ergonomics ─────────────────────────────
