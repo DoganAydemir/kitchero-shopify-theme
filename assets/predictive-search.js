@@ -29,6 +29,14 @@
      fetch, abort the previous controller before firing the new one. */
   var abortCtl = null;
 
+  /* R88 — 429 backoff state. Fast typists can hammer the
+     /search/suggest.json endpoint past Shopify's rate limit; when
+     that happens we record a "skip until" timestamp and refuse to
+     fire new fetches for 5s. Without this the next keystroke just
+     hits another 429. Module-scoped so the state persists across
+     successive keypresses (per-fetch closure would reset it). */
+  var predictiveSearchRateLimitedUntil = 0;
+
   /* SR announcement helper — pushes result counts through the global
      Kitchero.announce() live region. The results container itself has
      aria-live="polite" but mass DOM replacement doesn't always fire
@@ -121,8 +129,39 @@
     if (abortCtl) abortCtl.abort();
     abortCtl = new AbortController();
 
+    /* R88 — offline gate. Browser dispatches `TypeError: Failed to
+       fetch` for offline mode; without this gate we'd repeatedly
+       hit the catch path on every keystroke, clearing results +
+       logging warnings. Bail early with a non-error UX instead. */
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      resultsContainer.innerHTML = '';
+      setExpanded(input, false);
+      return;
+    }
+
+    /* R88 — 429 (rate-limit) backoff. Fast typists triggering the
+       Shopify endpoint over its threshold get HTTP 429; without
+       backoff the next keystroke fires another fetch, hitting 429
+       again. Skip fetches for 5s after a 429 response to give the
+       endpoint room to reset. */
+    if (predictiveSearchRateLimitedUntil > Date.now()) {
+      return;
+    }
+
+    /* R88 — client-side timeout. Slow-3G stalls on /search/suggest.json
+       can leave the input hanging silently. 8s timeout aborts the
+       request and lets the next keystroke try again. */
+    var timeoutId = setTimeout(function () {
+      try { abortCtl.abort(); } catch (e) { /* noop */ }
+    }, 8000);
+
     fetch(url, { signal: abortCtl.signal })
       .then(function (response) {
+        clearTimeout(timeoutId);
+        if (response.status === 429) {
+          predictiveSearchRateLimitedUntil = Date.now() + 5000;
+          throw new Error('Search rate-limited');
+        }
         if (!response.ok) throw new Error('Search failed: HTTP ' + response.status);
         return response.json();
       })

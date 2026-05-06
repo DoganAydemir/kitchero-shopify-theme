@@ -59,6 +59,19 @@ if (!window.__kitcheroMainCartLoaded) {
         body: JSON.stringify({ id: key, quantity: quantity }),
       })
         .then(function (response) {
+          /* R88 — parse Shopify's 422 error body so the customer
+             sees the specific reason ("All 3 in stock", "Maximum
+             quantity exceeded", etc.) instead of the generic
+             "Unable to update cart". Mirrors the cart-drawer
+             pattern at cart-drawer.js:331-369. */
+          if (response.status === 422) {
+            return response.json().then(function (body) {
+              var msg = (body && (body.description || body.message)) || 'Cart change failed';
+              var cartError = new Error(msg);
+              cartError.handled = true;
+              throw cartError;
+            });
+          }
           if (!response.ok) throw new Error('Cart change failed: ' + response.status);
           return response.json();
         })

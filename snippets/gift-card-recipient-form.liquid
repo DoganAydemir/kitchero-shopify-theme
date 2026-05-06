@@ -51,23 +51,36 @@
     </span>
   </label>
 
-  <div class="kt-gift-recipient__fields" data-gift-recipient-fields hidden>
-    {%- if form.errors -%}
-      <div class="kt-form__error-summary" role="alert" tabindex="-1">
-        <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t }}</p>
-        <ul class="kt-form__error-list">
-          {%- for field in form.errors -%}
-            <li>
-              {%- if field == 'form' -%}
-                {{ form.errors.messages[field] }}
-              {%- else -%}
-                {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
-              {%- endif -%}
-            </li>
-          {%- endfor -%}
-        </ul>
-      </div>
-    {%- endif -%}
+  {%- comment -%}
+    R88 — error summary moved OUTSIDE the collapsed `hidden` panel.
+    Previously the panel was hidden by default and the JS toggle
+    expanded it on checkbox change; if the customer submitted with
+    invalid data, Shopify reloads the page with `form.errors`
+    populated but the toggle never re-fires (no checkbox event)
+    so the summary stayed hidden inside the collapsed panel —
+    customer saw no errors and had no clue why the gift card
+    didn't add. Now the summary renders OUTSIDE the wrapper and
+    the panel auto-expands when errors exist (via the
+    `unless form.errors`-gated `hidden` attribute below).
+  {%- endcomment -%}
+  {%- if form.errors -%}
+    <div class="kt-form__error-summary" role="alert" tabindex="-1">
+      <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t }}</p>
+      <ul class="kt-form__error-list">
+        {%- for field in form.errors -%}
+          <li>
+            {%- if field == 'form' -%}
+              {{ form.errors.messages[field] }}
+            {%- else -%}
+              {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endif -%}
+
+  <div class="kt-gift-recipient__fields" data-gift-recipient-fields {% unless form.errors %}hidden{% endunless %}>
 
     <div class="kt-gift-recipient__field">
       <label for="GiftRecipientEmail-{{ uid }}" class="kt-gift-recipient__label">

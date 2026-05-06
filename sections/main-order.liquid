@@ -373,6 +373,34 @@
             <span>{{ order.net_payment_set | money_with_currency }}</span>
           </div>
         {%- endif -%}
+
+        {%- comment -%}
+          R88 — "Manage subscription" CTA per Shopify subscription
+          UX guideline + Theme Store rule SUB-06 / Combo 7. When an
+          order contains any line with a selling_plan_allocation,
+          surface a path to subscription management. Shopify's
+          Subscriptions app exposes management at /a/subscriptions/...
+          but the link target depends on the merchant's app; safest
+          target is shop.subscription_policy.url (always available
+          when policy is configured) with /account fallback (where
+          most subscription apps inject their UI).
+        {%- endcomment -%}
+        {%- assign has_selling_plan = false -%}
+        {%- for line_item in order.line_items -%}
+          {%- if line_item.selling_plan_allocation -%}
+            {%- assign has_selling_plan = true -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if has_selling_plan -%}
+          {%- assign manage_url = routes.account_url -%}
+          {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
+            {%- assign manage_url = shop.subscription_policy.url -%}
+          {%- endif -%}
+          <a href="{{ manage_url }}" class="kt-order__manage-subscription">
+            {{- 'kt.customer.order.manage_subscription' | t | default: 'Manage subscription' -}}
+          </a>
+        {%- endif -%}
       </aside>
     </div>
 

@@ -65,7 +65,18 @@
         loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
-        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+        {%- comment -%}
+          R88 — sandbox attribute tightening. `allow-scripts +
+          allow-same-origin` together is the OWASP-flagged "sandbox
+          escape" combination: the embedded YouTube/Vimeo frame can
+          theoretically remove its own sandbox by editing its parent
+          via window.parent. Dropped `allow-same-origin` because
+          modern Vimeo/YouTube embeds work without it (cookies still
+          flow via the embed's own domain). `allow-presentation`
+          retained for Cast support; `allow-popups` retained for
+          "open on YouTube" affordance.
+        {%- endcomment -%}
+        sandbox="allow-scripts allow-presentation allow-popups"
       ></iframe>
     </div>
   </div>

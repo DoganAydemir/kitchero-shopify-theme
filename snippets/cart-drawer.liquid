@@ -176,7 +176,7 @@
               {%- endcomment -%}
               {%- if item.selling_plan_allocation -%}
                 <p class="kt-cart-drawer__item-selling-plan">
-                  {{ item.selling_plan_allocation.selling_plan.name }}
+                  {{- item.selling_plan_allocation.selling_plan.name | escape -}}
                 </p>
                 {%- comment -%}
                   SUB-05 — checkout charge surfacing for pre-paid /
@@ -221,7 +221,7 @@
                   {%- for component in item.item_components -%}
                     <li>
                       {%- if component.quantity > 1 -%}<span>{{ component.quantity }}&times;</span> {% endif -%}
-                      {{ component.product.title | default: component.title }}
+                      {{- component.product.title | default: component.title | escape -}}
                     </li>
                   {%- endfor -%}
                 </ul>

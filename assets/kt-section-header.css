@@ -18,7 +18,13 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  transition: background-color 0.5s ease, backdrop-filter 0.5s ease, padding 0.5s ease;
+  /* R88 — include `-webkit-backdrop-filter` in the transition list
+     so iOS Safari 14 / 15 also animates the prefixed property
+     during scroll-state transitions. Without it, the unprefixed
+     `backdrop-filter` is the only animated declaration on those
+     browsers, and the visual blur appears/disappears instantly
+     instead of fading. */
+  transition: background-color 0.5s ease, backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease, padding 0.5s ease;
   background-color: rgba(12, 10, 9, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

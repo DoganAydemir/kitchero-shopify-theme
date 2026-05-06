@@ -62,13 +62,26 @@
           Skipped for plans without an adjustment so the picker
           stays compact for one-time-only or full-price plans.
         {%- endcomment -%}
+        {%- comment -%}
+          R88 — fix two filter-chain bugs in the savings label:
+          (1) `| default: 'Save'` lands on the t output, not on a
+              missing key — `t` returns the key string itself when
+              missing, so default never fires.
+          (2) `| money` lands on the t output too, leaking raw cents
+              for fixed-amount discounts (same R86 SUB-05 class bug).
+          Pre-format the money value before t-interpolation; locale
+          keys `kt.product.selling_plan.save_percent` and
+          `kt.product.selling_plan.save_amount` are now defined in
+          locales/*.json so the missing-key fallback is unnecessary.
+        {%- endcomment -%}
         {%- assign plan_savings_label = '' -%}
         {%- if plan.price_adjustments.size > 0 -%}
           {%- assign first_adj = plan.price_adjustments | first -%}
           {%- if first_adj.value_type == 'percentage' and first_adj.value > 0 -%}
-            {%- assign plan_savings_label = 'kt.product.selling_plan.save_percent' | t: percent: first_adj.value | default: 'Save' -%}
+            {%- assign plan_savings_label = 'kt.product.selling_plan.save_percent' | t: percent: first_adj.value -%}
           {%- elsif first_adj.value_type == 'fixed_amount' and first_adj.value > 0 -%}
-            {%- assign plan_savings_label = 'kt.product.selling_plan.save_amount' | t: amount: first_adj.value | money | default: 'Save' -%}
+            {%- assign first_adj_money = first_adj.value | money -%}
+            {%- assign plan_savings_label = 'kt.product.selling_plan.save_amount' | t: amount: first_adj_money -%}
           {%- endif -%}
         {%- endif -%}
         <label class="kt-selling-plan__option">
@@ -92,7 +105,13 @@
               <span class="kt-selling-plan__option-savings">{{ plan_savings_label }}</span>
             {%- endif -%}
             {%- if plan.description != blank -%}
-              <span class="kt-selling-plan__option-desc">{{ plan.description }}</span>
+              {%- comment -%}
+                R88 — escape merchant-set plan description to close
+                stored-XSS via Admin → Subscriptions → plan description
+                field. Same defence-in-depth class as R79 line item
+                title escapes.
+              {%- endcomment -%}
+              <span class="kt-selling-plan__option-desc">{{ plan.description | escape }}</span>
             {%- endif -%}
           </span>
         </label>
@@ -107,7 +126,7 @@
     {%- endcomment -%}
     {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
       <a href="{{ shop.subscription_policy.url }}" class="kt-selling-plan__policy-link">
-        {{ shop.subscription_policy.title | default: 'Subscription policy' }}
+        {{- shop.subscription_policy.title | default: 'Subscription policy' | escape -}}
       </a>
     {%- endif -%}
   </fieldset>

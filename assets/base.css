@@ -349,6 +349,26 @@ a {
   outline-offset: 2px;
 }
 
+/* R88 — Safari 14 / iOS 14 fallback. The `:focus-visible` selector
+   was unsupported pre-Safari 15.4; on those browsers the rule above
+   is dropped entirely, leaving keyboard users with NO focus
+   indicator on any element (a hard WCAG 2.4.7 fail). The bare
+   `:focus` rule below paints a visible ring on focused elements on
+   older Safari only — modern browsers (which understand
+   :focus-visible) hit the @supports negative path and skip this. */
+@supports not selector(:focus-visible) {
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus,
+  summary:focus,
+  [tabindex]:focus {
+    outline: 2px solid rgb(var(--kt-c-fg));
+    outline-offset: 2px;
+  }
+}
+
 /* ============================================================
    iOS Safari auto-zoom prevention
    ============================================================
