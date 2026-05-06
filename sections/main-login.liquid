@@ -51,10 +51,10 @@
             {%- for field in form.errors -%}
               <li>
                 {%- if field == 'form' -%}
-                  {{ form.errors.messages[field] }}
+                  {{ form.errors.translated_messages[field] }}
                 {%- else -%}
                   <a href="#login-{{ field }}">
-                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}
                   </a>
                 {%- endif -%}
               </li>
@@ -164,7 +164,7 @@
             <div class="kt-customer__errors" role="alert" tabindex="-1">
               <ul class="kt-customer__errors-list">
                 {%- for field in form.errors -%}
-                  <li>{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}</li>
+                  <li>{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</li>
                 {%- endfor -%}
               </ul>
             </div>

@@ -80,11 +80,18 @@
                   <p class="kt-list-collections__desc">{{ collection.description | strip_html | truncate: 120 }}</p>
                 {%- endif -%}
                 <div class="kt-list-collections__footer">
+                  {%- comment -%}
+                    R99 — Shopify-native plural resolution. Passing
+                    `count: N` lets the t filter pick the right
+                    plural form per locale (one/other in EN/TR/DE/
+                    FR/ES; one/few/many/other in RU/PL/etc. when
+                    additional locales ship). The locale string
+                    embeds {{ count }} so we don't bare-output the
+                    integer + a separate noun (which would break
+                    word-ordering languages like JA/KO/TR).
+                  {%- endcomment -%}
                   <span class="kt-list-collections__count">
-                    {{ collection.all_products_count }}
-                    {%- if collection.all_products_count == 1 %} {{ 'kt.section.list-collections.product_one' | t -}}
-                    {%- else %} {{ 'kt.section.list-collections.product_other' | t -}}
-                    {%- endif -%}
+                    {{ 'kt.section.list-collections.products_count' | t: count: collection.all_products_count }}
                   </span>
                   <span class="kt-list-collections__cta">
                     {{ 'kt.section.list-collections.view_collection' | t | default: 'View collection' }}

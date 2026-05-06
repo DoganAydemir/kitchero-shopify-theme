@@ -42,7 +42,7 @@
             {%- for field in form.errors -%}
               <li>
                 {%- if field == 'form' -%}
-                  {{ form.errors.messages[field] }}
+                  {{ form.errors.translated_messages[field] }}
                 {%- else -%}
                   {%- comment -%}
                     Shopify error-field names are snake_case (first_name,
@@ -53,7 +53,7 @@
                     SR users. Replace underscores → hyphens to match.
                   {%- endcomment -%}
                   <a href="#register-{{ field | replace: '_', '-' }}">
-                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                    {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}
                   </a>
                 {%- endif -%}
               </li>
