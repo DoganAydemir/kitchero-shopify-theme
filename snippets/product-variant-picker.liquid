@@ -244,7 +244,7 @@
           {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
           {% unless variant.available %}disabled{% endunless %}
         >
-          {{ variant.title }}
+          {{ variant.title | escape }}
         </option>
       {%- endfor -%}
     </select>
@@ -309,7 +309,7 @@
             {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
             {% unless variant.available %}disabled{% endunless %}
           >
-            {{ variant.title }}
+            {{ variant.title | escape }}
             {%- unless variant.available %} — {{ 'kt.product.sold_out' | t | default: 'sold out' }}{% endunless -%}
             {%- if variant.available %} — {{ variant.price | money }}{% endif -%}
           </option>

@@ -7,7 +7,18 @@
       <h1 class="kt-customer__title">{{ 'kt.customer.account.title' | t }}</h1>
       {%- if customer.first_name != blank -%}
         <p class="kt-account__greeting">
-          {{ 'kt.customer.account.greeting_html' | t: name: customer.first_name }}
+          {%- comment -%}
+            The translation key is `_html`-suffixed so the full t-output
+            is intentionally rendered as HTML (the localized string
+            wraps the name in <strong>). That trust applies to the
+            translation template, NOT to the interpolated `name:`
+            argument — customer.first_name is set during account
+            creation and is user-supplied. Pre-escape the variable
+            before passing into t so the _html branch can't reflect
+            raw markup from a malicious sign-up.
+          {%- endcomment -%}
+          {%- assign safe_first_name = customer.first_name | escape -%}
+          {{ 'kt.customer.account.greeting_html' | t: name: safe_first_name }}
         </p>
       {%- endif -%}
 

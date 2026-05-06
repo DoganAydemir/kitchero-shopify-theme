@@ -165,13 +165,13 @@
             <div>
               <p class="kt-order__item-title">
                 {%- if line_item.url != blank -%}
-                  <a href="{{ line_item.url }}">{{ line_item.product.title | default: line_item.title }}</a>
+                  <a href="{{ line_item.url }}">{{ line_item.product.title | default: line_item.title | escape }}</a>
                 {%- else -%}
-                  {{ line_item.product.title | default: line_item.title }}
+                  {{ line_item.product.title | default: line_item.title | escape }}
                 {%- endif -%}
               </p>
               {%- unless line_item.product.has_only_default_variant -%}
-                <p class="kt-order__item-variant">{{ line_item.variant.title }}</p>
+                <p class="kt-order__item-variant">{{ line_item.variant.title | escape }}</p>
               {%- endunless -%}
               {%- if line_item.sku != blank -%}
                 <p class="kt-order__item-sku">{{ 'kt.customer.order.sku' | t: sku: line_item.sku }}</p>

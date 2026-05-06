@@ -148,9 +148,9 @@
                             {%- if component.quantity > 1 -%}
                               <span class="kt-cart-page__item-component-qty">{{ component.quantity }}&times;</span>
                             {%- endif -%}
-                            <span class="kt-cart-page__item-component-title">{{ component.product.title | default: component.title }}</span>
+                            <span class="kt-cart-page__item-component-title">{{ component.product.title | default: component.title | escape }}</span>
                             {%- unless component.product.has_only_default_variant -%}
-                              <span class="kt-cart-page__item-component-variant">{{ component.variant.title }}</span>
+                              <span class="kt-cart-page__item-component-variant">{{ component.variant.title | escape }}</span>
                             {%- endunless -%}
                           </li>
                         {%- endfor -%}
@@ -345,7 +345,7 @@
                   {%- if item.line_level_discount_allocations.size > 0 -%}
                     <ul class="kt-cart-page__item-discounts" role="list">
                       {%- for discount in item.line_level_discount_allocations -%}
-                        <li>– {{ discount.discount_application.title }} ({{ discount.amount | money }})</li>
+                        <li>– {{ discount.discount_application.title | escape }} ({{ discount.amount | money }})</li>
                       {%- endfor -%}
                     </ul>
                   {%- endif -%}
@@ -387,7 +387,7 @@
               {%- if cart.cart_level_discount_applications.size > 0 -%}
                 {%- for discount in cart.cart_level_discount_applications -%}
                   <div class="kt-cart-page__summary-row kt-cart-page__summary-row--discount">
-                    <span class="kt-cart-page__summary-label">{{ discount.title }}</span>
+                    <span class="kt-cart-page__summary-label">{{ discount.title | escape }}</span>
                     <span class="kt-cart-page__summary-value">– {{ discount.total_allocated_amount | money }}</span>
                   </div>
                 {%- endfor -%}
