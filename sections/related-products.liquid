@@ -35,10 +35,11 @@
   data-product-recommendations
   data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_count }}&intent={{ section.settings.intent | default: 'related' }}"
   {% if recommendations.performed and recommendations.products_count == 0 %}hidden{% endif %}
+  aria-labelledby="kt-related-title-{{ section.id }}"
 >
   <div class="page-width">
     <div class="kt-related__header">
-      <{{ heading_tag }} class="kt-related__title">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
+      <{{ heading_tag }} class="kt-related__title" id="kt-related-title-{{ section.id }}">{{ section.settings.heading | default: 'You may also like' }}</{{ heading_tag }}>
     </div>
 
     {%- comment -%}

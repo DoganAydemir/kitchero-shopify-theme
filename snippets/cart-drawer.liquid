@@ -28,10 +28,25 @@
       Filter drawer body uses the same attribute (kt-collection-filters
       .css pattern, see main-collection-drawer.liquid:84).
     {%- endcomment -%}
-    <div class="kt-cart-drawer__body" id="cart-drawer-items" data-lenis-prevent="true">
+    {%- comment -%}
+      R93 — wrapper carries role="list" + each item carries
+      role="listitem" so SR users hear "list, X items" instead of
+      "group" or "no list announced". Native <ul><li> would also
+      work but require CSS rewrite (current rules target the
+      `.kt-cart-drawer__body` + `.kt-cart-drawer__item` div
+      classes); ARIA roles preserve the visual styling without
+      losing list semantics. Pattern matches WAI-ARIA Authoring
+      Practices for stylistically-suppressed lists.
+    {%- endcomment -%}
+    <div
+      class="kt-cart-drawer__body"
+      id="cart-drawer-items"
+      data-lenis-prevent="true"
+      {% if cart.item_count > 0 %}role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}"{% endif %}
+    >
       {%- if cart.item_count > 0 -%}
         {%- for item in cart.items -%}
-          <div class="kt-cart-drawer__item" data-line-key="{{ item.key }}">
+          <div class="kt-cart-drawer__item" data-line-key="{{ item.key }}" role="listitem">
             {%- comment -%}
               Thumbnail. aria-hidden removed to avoid axe-core
               `aria-hidden-focus` — see sections/main-cart.liquid

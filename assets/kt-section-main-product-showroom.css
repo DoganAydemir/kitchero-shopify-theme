@@ -74,11 +74,27 @@
 }
 
 .kt-showroom__gallery-full {
+  /* R93 — gallery slide is now a native <button> for proper a11y
+     semantics (was `<div tabindex="0" role="button">`). Native button
+     ships with user-agent chrome (background, border, padding, font)
+     that we reset here so the visual stays identical. The same
+     reset applies to .kt-showroom__gallery-half and
+     .kt-showroom__gallery-mobile-slide via the comma-separated
+     :focus-visible rule at line 148+ already, so add the reset
+     declarations across all three classes via the shared
+     selector below. */
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--kt-stone-100);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: inherit;
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background-color: var(--kt-stone-100);
   cursor: zoom-in;
 }
 

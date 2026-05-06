@@ -39,8 +39,15 @@
     {%- if cart.item_count > 0 -%}
       {%- form 'cart', cart, id: 'CartPageForm', class: 'kt-cart-page__form' -%}
         <div class="kt-cart-page__layout">
-          {%- comment -%} ── Items column ─────────────────────────────── {%- endcomment -%}
-          <div class="kt-cart-page__items">
+          {%- comment -%}
+            ── Items column ───────────────────────────────
+            R93 — wrapper carries role="list" + each item
+            carries role="listitem" so SR users hear the cart as
+            a list with item count, not an unnamed group of divs.
+            ARIA roles preserve visual CSS without rewriting to
+            <ul>/<li> markup.
+          {%- endcomment -%}
+          <div class="kt-cart-page__items" role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}">
             <div class="kt-cart-page__items-header" aria-hidden="true">
               <span>{{ 'kt.cart.headers.product' | t | default: 'Product' }}</span>
               <span>{{ 'kt.cart.headers.quantity' | t | default: 'Quantity' }}</span>
@@ -48,7 +55,7 @@
             </div>
 
             {%- for item in cart.items -%}
-              <div class="kt-cart-page__item" data-line-key="{{ item.key }}">
+              <div class="kt-cart-page__item" data-line-key="{{ item.key }}" role="listitem">
                 {%- comment -%} Product: thumb + info {%- endcomment -%}
                 <div class="kt-cart-page__item-product">
                   {%- comment -%}

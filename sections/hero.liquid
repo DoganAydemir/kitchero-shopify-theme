@@ -19,6 +19,15 @@
   data-section-id="{{ section.id }}"
   data-section-type="hero"
   data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
+  {%- comment -%}
+    R93 — every `<section>` landmark needs an accessible name so SR
+    landmarks navigation (NVDA Insert+F7, VoiceOver rotor) lists
+    something more useful than "region". For sections with a
+    visible heading, prefer aria-labelledby pointing to its id;
+    for landmark-without-heading sections, use a literal aria-label.
+    Hero is heading-driven (slide H1 announces page topic).
+  {%- endcomment -%}
+  aria-label="{{ 'kt.section.hero.region_label' | t | default: 'Hero' }}"
 >
   {%- for block in section.blocks -%}
     {%- if block.type == 'slide' -%}

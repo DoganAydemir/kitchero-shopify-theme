@@ -258,7 +258,13 @@
 
         {%- comment -%} Mobile: filter button (opens drawer) {%- endcomment -%}
         <div class="kt-collection__mobile-filter-bar">
-          <p class="kt-collection__results-count">
+          {%- comment -%}
+            R93 — aria-live="polite" so SR users hear the new product
+            count after a filter or sort change. Without it, the
+            JS-driven update was visually obvious but silently
+            applied for AT users.
+          {%- endcomment -%}
+          <p class="kt-collection__results-count" role="status" aria-live="polite" aria-atomic="true">
             {{ 'kt.section.collection.showing_of' | t: showing: collection.products.size, total: collection.products_count }}
           </p>
           <button class="kt-collection__filter-btn" data-open-filter-drawer type="button">
