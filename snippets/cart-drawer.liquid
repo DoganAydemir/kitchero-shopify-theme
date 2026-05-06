@@ -18,6 +18,22 @@
         </svg>
       </button>
     </div>
+    {%- comment -%}
+      R94 — SR-only polite live region for cart-mutation announcements.
+      Item count is announced via the cart-icon badge's aria-live="polite"
+      (header.liquid:441), but item-level events (add/remove with title)
+      need their own announcer. cart-drawer.js writes text here on
+      successful add/remove/update. visually-hidden so it never paints.
+      role="status" + aria-live="polite" + aria-atomic="true" gets
+      consistent NVDA/VO behaviour across screen readers.
+    {%- endcomment -%}
+    <div
+      class="visually-hidden"
+      data-cart-drawer-announcer
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
 
     {%- comment -%}
       Cart Items.
