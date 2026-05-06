@@ -42,6 +42,8 @@
             <div
               class="kt-shop-the-look__popup{% if block.settings.vertical_position > 55 %} kt-shop-the-look__popup--above{% else %} kt-shop-the-look__popup--below{% endif %}{% if block.settings.horizontal_position > 70 %} kt-shop-the-look__popup--right{% elsif block.settings.horizontal_position < 30 %} kt-shop-the-look__popup--left{% else %} kt-shop-the-look__popup--center{% endif %}"
               data-hotspot-popup="{{ block.id }}"
+              aria-hidden="true"
+              inert
             >
               {%- if block.settings.product_image != blank -%}
                 <div class="kt-shop-the-look__popup-image-wrap">
@@ -77,7 +79,7 @@
     </div>
 
     {%- comment -%} Mobile bottom sheet {%- endcomment -%}
-    <div class="kt-shop-the-look__mobile-sheet" data-mobile-sheet>
+    <div class="kt-shop-the-look__mobile-sheet" data-mobile-sheet aria-hidden="true" inert>
       <div class="kt-shop-the-look__mobile-sheet-inner">
         <button type="button" class="kt-shop-the-look__mobile-sheet-close" data-mobile-sheet-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>

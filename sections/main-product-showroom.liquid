@@ -454,6 +454,13 @@
                         {%- if block.settings.show_dynamic_checkout and sample_variant.available -%}
                           <div class="kt-showroom__sample-payment">
                             {{ form | payment_button }}
+                            {%- comment -%}
+                              R97 — installments banner (Shop Pay / Klarna /
+                              Afterpay). Auto-hides when no provider is on
+                              or sample price is below threshold. Parity
+                              with main-product.liquid PDP.
+                            {%- endcomment -%}
+                            {{ form | payment_terms }}
                           </div>
                         {%- endif -%}
                       {%- endform -%}

@@ -26,7 +26,11 @@
 
 {%- if pickup_count > 0 -%}
   {%- assign primary = pickup_availabilities | first -%}
-  <div class="kt-pickup" data-pickup-availability>
+  <div
+    class="kt-pickup"
+    data-pickup-availability
+    {% if section_id %}data-section-id="{{ section_id }}"{% endif %}
+  >
     <div class="kt-pickup__summary">
       <svg class="kt-pickup__icon kt-pickup__icon--available" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"/>

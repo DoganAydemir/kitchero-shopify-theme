@@ -19,9 +19,16 @@
   so it stays callable from any product context (PDP, quick-view,
   cart-drawer upsell) without duplicating the markup.
 {%- endcomment -%}
+{%- comment -%}
+  R97 — pass section_id so the snippet can stamp data-section-id on
+  its outermost element when rendered as a section. JS hooks
+  (theme editor + product-form variant swap) rely on the attribute
+  for scoped lookups.
+{%- endcomment -%}
 {%- render 'pickup-availability',
   variant: product.selected_or_first_available_variant,
-  product: product
+  product: product,
+  section_id: section.id
 -%}
 
 {% schema %}

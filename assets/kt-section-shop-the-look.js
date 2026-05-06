@@ -31,8 +31,18 @@
       });
       section.querySelectorAll('.kt-shop-the-look__popup--visible').forEach(function (p) {
         p.classList.remove('kt-shop-the-look__popup--visible');
+        /* R97 — close-direction `inert` so the now-hidden popup's
+           link / close-on-second-tap CTAs are removed from sequential
+           focus + AT tree. Pairs with the open-branch removeAttribute
+           below. CSS opacity/transform alone leaves them tabbable. */
+        p.setAttribute('inert', '');
+        p.setAttribute('aria-hidden', 'true');
       });
-      if (mobileSheet) mobileSheet.classList.remove('kt-shop-the-look__mobile-sheet--visible');
+      if (mobileSheet) {
+        mobileSheet.classList.remove('kt-shop-the-look__mobile-sheet--visible');
+        mobileSheet.setAttribute('inert', '');
+        mobileSheet.setAttribute('aria-hidden', 'true');
+      }
       activeId = null;
     }
 
@@ -44,7 +54,14 @@
       var popup = section.querySelector('[data-hotspot-popup="' + id + '"]');
 
       if (btn) btn.classList.add('kt-shop-the-look__hotspot--active');
-      if (popup) popup.classList.add('kt-shop-the-look__popup--visible');
+      if (popup) {
+        popup.classList.add('kt-shop-the-look__popup--visible');
+        /* R97 — open-direction: drop `inert` + flip aria-hidden so
+           the now-visible popup's content (image, name, link) is
+           reachable via Tab and announced by AT. */
+        popup.removeAttribute('inert');
+        popup.setAttribute('aria-hidden', 'false');
+      }
 
       /* Mobile bottom sheet */
       if (mobileSheet && window.innerWidth < 750) {
@@ -94,6 +111,10 @@
         }
 
         mobileSheet.classList.add('kt-shop-the-look__mobile-sheet--visible');
+        /* R97 — mobile bottom-sheet open-direction: drop inert so
+           the close button + product link land in tab order. */
+        mobileSheet.removeAttribute('inert');
+        mobileSheet.setAttribute('aria-hidden', 'false');
       }
     }
 

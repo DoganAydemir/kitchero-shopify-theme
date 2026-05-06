@@ -127,6 +127,12 @@ if (!window.__kitcheroVideoModalLoaded) {
       if (frame) frame.setAttribute('src', embedUrl);
 
       modal.setAttribute('aria-hidden', 'false');
+      /* R97 — pair aria-hidden with `inert` removal so the modal's
+         focusable nodes are reachable. aria-hidden=false alone leaves
+         them exposed to AT but iframe/buttons could still receive focus
+         through tab order; the close direction (below) sets inert which
+         is what physically blocks focus. Keep this branch parity-clean. */
+      modal.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('video-modal');
       } else {
@@ -145,6 +151,13 @@ if (!window.__kitcheroVideoModalLoaded) {
       var frame = activeModal.querySelector('[data-video-modal-frame]');
       if (frame) frame.setAttribute('src', '');
       activeModal.setAttribute('aria-hidden', 'true');
+      /* R97 — `inert` removes the closed modal from sequential focus
+         navigation AND from the accessibility tree (Safari 15.5+,
+         Chrome 102+, Firefox 112+). Without it, screen-reader users
+         can still tab into the (visually hidden via CSS) modal close
+         button and iframe, breaking focus order. Pairs with the
+         aria-hidden flip above per WAI-ARIA APG dialog pattern. */
+      activeModal.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('video-modal');
       } else {

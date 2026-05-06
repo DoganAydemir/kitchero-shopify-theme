@@ -56,7 +56,18 @@
                 <ul class="kt-footer__link-list list-unstyled" role="list">
                   {%- for link in block.settings.menu.links -%}
                     <li>
-                      <a href="{{ link.url }}" class="kt-footer__link">
+                      {%- comment -%}
+                        R97 — aria-current="page" surfaces the active page
+                        to assistive tech. Without it, AT users navigating
+                        a long footer link list can't tell which link
+                        represents the current location. Matches the
+                        header navigation pattern.
+                      {%- endcomment -%}
+                      <a
+                        href="{{ link.url }}"
+                        class="kt-footer__link{% if link.current %} kt-footer__link--current{% endif %}"
+                        {% if link.current %}aria-current="page"{% endif %}
+                      >
                         {{ link.title }}
                       </a>
                     </li>

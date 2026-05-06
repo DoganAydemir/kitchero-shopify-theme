@@ -190,6 +190,16 @@
 
                     {%- if block.settings.show_dynamic_checkout -%}
                       {{ form | payment_button }}
+                      {%- comment -%}
+                        R97 — Shop Pay Installments / Klarna / Afterpay
+                        messaging. {{ form | payment_terms }} renders the
+                        merchant's installment provider banner inside the
+                        product form. Shopify auto-hides if no provider is
+                        active or product price is below threshold. Required
+                        on every product form for full Theme Store payment
+                        UX parity.
+                      {%- endcomment -%}
+                      {{ form | payment_terms }}
                     {%- endif -%}
                   {%- endform -%}
                 {%- else -%}

@@ -5,7 +5,13 @@
   cart icon falls back to /cart.
 {%- endcomment -%}
 
-<cart-drawer class="kt-cart-drawer" id="cart-drawer" aria-hidden="true" inert>
+<cart-drawer
+  class="kt-cart-drawer"
+  id="cart-drawer"
+  {% if section_id %}data-section-id="{{ section_id }}"{% endif %}
+  aria-hidden="true"
+  inert
+>
   <div class="kt-cart-drawer__overlay" data-cart-drawer-close></div>
   <div class="kt-cart-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="CartDrawerTitle" tabindex="-1">
     {%- comment -%} Header {%- endcomment -%}

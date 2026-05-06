@@ -18,7 +18,12 @@
 {%- endcomment -%}
 
 {%- if settings.kt_cart_type == 'drawer' -%}
-  {%- render 'cart-drawer', section: section -%}
+  {%- comment -%}
+    R97 — pass section_id so the snippet can stamp data-section-id
+    on its host custom element. Lets shopify:section:load /
+    :section:unload editor lifecycle hooks scope to the right node.
+  {%- endcomment -%}
+  {%- render 'cart-drawer', section: section, section_id: section.id -%}
 {%- endif -%}
 
 {% schema %}

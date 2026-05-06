@@ -112,6 +112,9 @@ if (!window.__kitcheroGalleryFocusLoaded) {
 
       render(active);
       lightbox.setAttribute('aria-hidden', 'false');
+      /* R97 — drop `inert` so the lightbox is focusable + reachable
+         by AT. Pairs with the close branch which re-applies it. */
+      lightbox.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('gallery-focus-wall');
       } else {
@@ -129,6 +132,11 @@ if (!window.__kitcheroGalleryFocusLoaded) {
     function close() {
       if (!active) return;
       active.lightbox.setAttribute('aria-hidden', 'true');
+      /* R97 — apply `inert` so the closed lightbox's close button
+         + image + arrow controls are removed from sequential focus
+         and the AT tree. Without this, screen-reader users can still
+         tab into the (visually hidden via CSS) modal contents. */
+      active.lightbox.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('gallery-focus-wall');
       } else {
