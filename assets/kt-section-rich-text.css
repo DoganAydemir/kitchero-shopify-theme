@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Rich Text — basic content section (Theme Store baseline)
+
+   Custom properties:
+     --kt-section-padding-top / -bottom : section padding from settings
+   ========================================================================== */
+
+.kt-rich-text {
+  padding-top: var(--kt-section-padding-top, 64px);
+  padding-bottom: var(--kt-section-padding-bottom, 64px);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-rich-text__inner {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kt-rich-text--narrow .kt-rich-text__inner { max-width: 42rem; }
+.kt-rich-text--medium .kt-rich-text__inner { max-width: 56rem; }
+.kt-rich-text--wide .kt-rich-text__inner { max-width: 75rem; }
+
+.kt-rich-text--align-left .kt-rich-text__inner {
+  text-align: left;
+  align-items: flex-start;
+}
+.kt-rich-text--align-center .kt-rich-text__inner {
+  text-align: center;
+  align-items: center;
+}
+.kt-rich-text--align-right .kt-rich-text__inner {
+  text-align: right;
+  align-items: flex-end;
+}
+
+/* Editor-only empty state */
+.kt-rich-text__editor-hint {
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  border: 1px dashed rgba(var(--kt-c-fg), 0.3);
+  border-radius: 0.75rem;
+  color: rgb(var(--kt-c-fg));
+  font-size: 0.9375rem;
+  opacity: 0.85;
+  width: 100%;
+}
+
+/* ── Block: heading ──────────────────────────────────────────────── */
+
+.kt-rich-text__heading {
+  margin: 0;
+  font-family: var(--kt-f-accent-family, var(--kt-f-heading-family, Georgia, serif));
+  font-size: clamp(1.75rem, 3vw + 1rem, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: rgb(var(--kt-c-fg));
+  /* R106 — anywhere wrap so a long custom heading doesn't break layout */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ── Block: caption (eyebrow) ────────────────────────────────────── */
+
+.kt-rich-text__caption {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.7);
+}
+
+/* ── Block: text (richtext) ──────────────────────────────────────── */
+
+.kt-rich-text__text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(var(--kt-c-fg), 0.85);
+  max-width: 100%;
+}
+
+.kt-rich-text__text > *:first-child { margin-top: 0; }
+.kt-rich-text__text > *:last-child { margin-bottom: 0; }
+
+.kt-rich-text__text a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ── Block: buttons ──────────────────────────────────────────────── */
+
+.kt-rich-text__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.kt-rich-text--align-center .kt-rich-text__buttons { justify-content: center; }
+.kt-rich-text--align-right .kt-rich-text__buttons { justify-content: flex-end; }
+
+.kt-rich-text__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* WCAG 2.5.5 — 44×44 touch target. */
+  min-height: 44px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--kt-btn-radius, 4px);
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.kt-rich-text__button:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+.kt-rich-text__button--primary {
+  background-color: rgb(var(--kt-c-fg));
+  color: rgb(var(--kt-c-bg));
+}
+
+.kt-rich-text__button--primary:hover { opacity: 0.9; }
+
+.kt-rich-text__button--secondary {
+  background-color: transparent;
+  color: rgb(var(--kt-c-fg));
+  /* R105 — WCAG 1.4.11. 0.45 alpha ≥3:1 against scheme bg. */
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
+}
+
+.kt-rich-text__button--secondary:hover {
+  background-color: rgba(var(--kt-c-fg), 0.05);
+}

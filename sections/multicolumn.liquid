@@ -1,0 +1,323 @@
+{{ 'kt-section-multicolumn.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Multicolumn — N-column layout with image / icon + text + link
+  per column. Theme Store baseline (3-of-3 reference theme intake).
+
+  Common use cases:
+    - Feature highlights (icon + label + 1-line description × 3-4)
+    - Service tiers (image + heading + description + CTA × 3)
+    - Brand pillars / values (icon + heading + paragraph × 3-4)
+
+  Block-driven so merchants can mix column count + content. Each
+  block is one column; max_blocks 6 keeps the editor responsive.
+{%- endcomment -%}
+
+{%- liquid
+  assign columns_desktop = section.settings.columns_desktop | default: 3
+  assign columns_mobile = section.settings.columns_mobile | default: 1
+  assign image_ratio = section.settings.image_ratio | default: 'adapt'
+  assign image_shape = section.settings.image_shape | default: 'square'
+  assign content_alignment = section.settings.content_alignment | default: 'center'
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+-%}
+
+<section
+  class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="multicolumn"
+  style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  {% if section.settings.heading != blank %}aria-labelledby="MulticolumnHeading-{{ section.id }}"{% endif %}
+>
+  <div class="page-width">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <header class="kt-multicolumn__header">
+        {%- if section.settings.subheading != blank -%}
+          <p class="kt-multicolumn__eyebrow">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ heading_tag }}
+            id="MulticolumnHeading-{{ section.id }}"
+            class="kt-multicolumn__title"
+          >
+            {{- section.settings.heading | escape -}}
+          </{{ heading_tag }}>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if section.blocks.size == 0 and request.design_mode -%}
+      <p class="kt-multicolumn__editor-hint">
+        {{ 'kt.section.multicolumn.editor_hint' | t | default: 'Add a column block to populate this layout.' }}
+      </p>
+    {%- else -%}
+      <ul class="kt-multicolumn__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'column' -%}
+              <li class="kt-multicolumn__column" {{ block.shopify_attributes }}>
+                {%- if block.settings.image != blank -%}
+                  {%- liquid
+                    case image_ratio
+                      when 'square'
+                        assign ratio_value = '1 / 1'
+                      when 'portrait'
+                        assign ratio_value = '3 / 4'
+                      when 'landscape'
+                        assign ratio_value = '4 / 3'
+                      else
+                        assign ratio_value = block.settings.image.aspect_ratio | default: '1' | append: ' / 1'
+                    endcase
+                  -%}
+                  <div class="kt-multicolumn__media" style="aspect-ratio: {{ ratio_value }};">
+                    {{ block.settings.image | image_url: width: 1000 | image_tag:
+                        loading: 'lazy',
+                        widths: '375, 550, 750, 1000, 1500',
+                        sizes: '(min-width: 750px) calc(100vw / var(--kt-mc-cols-desktop, 3)), 100vw',
+                        width: block.settings.image.width,
+                        height: block.settings.image.height,
+                        class: 'kt-multicolumn__image',
+                        alt: block.settings.image.alt | default: block.settings.heading | default: '' }}
+                  </div>
+                {%- elsif block.settings.icon != blank -%}
+                  <div class="kt-multicolumn__icon" aria-hidden="true">
+                    {{ block.settings.icon }}
+                  </div>
+                {%- endif -%}
+
+                <div class="kt-multicolumn__text">
+                  {%- if block.settings.heading != blank -%}
+                    {%- assign block_heading_tag = block.settings.heading_tag | default: 'h3' -%}
+                    <{{ block_heading_tag }} class="kt-multicolumn__column-heading">
+                      {{- block.settings.heading | escape -}}
+                    </{{ block_heading_tag }}>
+                  {%- endif -%}
+                  {%- if block.settings.text != blank -%}
+                    <div class="kt-multicolumn__column-text rte">
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+                  {%- if block.settings.link_label != blank -%}
+                    <a
+                      href="{{ block.settings.link_url | default: '#' }}"
+                      class="kt-multicolumn__column-link"
+                    >
+                      {{- block.settings.link_label | escape -}}
+                      <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </a>
+                  {%- endif -%}
+                </div>
+              </li>
+
+            {%- when '@app' -%}
+              <li class="kt-multicolumn__column kt-multicolumn__column--app" {{ block.shopify_attributes }}>
+                {%- render block -%}
+              </li>
+          {%- endcase -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.multicolumn.name",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 6,
+  "disabled_on": {
+    "groups": ["header", "footer"],
+    "templates": ["password"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.multicolumn.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.multicolumn.settings.subheading.label",
+      "info": "t:sections.multicolumn.settings.subheading.info"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.multicolumn.settings.heading.label",
+      "default": "Why choose us"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.multicolumn.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.multicolumn.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3,
+      "label": "t:sections.multicolumn.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.multicolumn.settings.columns_mobile.label",
+      "options": [
+        { "value": "1", "label": "t:sections.multicolumn.settings.columns_mobile.options__1.label" },
+        { "value": "2", "label": "t:sections.multicolumn.settings.columns_mobile.options__2.label" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "t:sections.multicolumn.settings.content_alignment.label",
+      "options": [
+        { "value": "left", "label": "t:sections.multicolumn.settings.content_alignment.options__left.label" },
+        { "value": "center", "label": "t:sections.multicolumn.settings.content_alignment.options__center.label" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.multicolumn.settings.header__media.content"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.multicolumn.settings.image_ratio.label",
+      "options": [
+        { "value": "adapt", "label": "t:sections.multicolumn.settings.image_ratio.options__adapt.label" },
+        { "value": "square", "label": "t:sections.multicolumn.settings.image_ratio.options__square.label" },
+        { "value": "portrait", "label": "t:sections.multicolumn.settings.image_ratio.options__portrait.label" },
+        { "value": "landscape", "label": "t:sections.multicolumn.settings.image_ratio.options__landscape.label" }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "label": "t:sections.multicolumn.settings.image_shape.label",
+      "options": [
+        { "value": "square", "label": "t:sections.multicolumn.settings.image_shape.options__square.label" },
+        { "value": "rounded", "label": "t:sections.multicolumn.settings.image_shape.options__rounded.label" },
+        { "value": "circle", "label": "t:sections.multicolumn.settings.image_shape.options__circle.label" }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.multicolumn.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.multicolumn.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.multicolumn.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.multicolumn.settings.padding_top.label",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.multicolumn.settings.padding_bottom.label",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "t:sections.multicolumn.blocks.column.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.multicolumn.blocks.column.settings.image.label",
+          "info": "t:sections.multicolumn.blocks.column.settings.image.info"
+        },
+        {
+          "type": "html",
+          "id": "icon",
+          "label": "t:sections.multicolumn.blocks.column.settings.icon.label",
+          "info": "t:sections.multicolumn.blocks.column.settings.icon.info"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.multicolumn.blocks.column.settings.heading.label",
+          "default": "Column heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.multicolumn.blocks.column.settings.heading_tag.label",
+          "options": [
+            { "value": "h3", "label": "H3" },
+            { "value": "h4", "label": "H4" }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.multicolumn.blocks.column.settings.text.label",
+          "default": "<p>Use columns to highlight features, services, or brand pillars.</p>"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "t:sections.multicolumn.blocks.column.settings.link_label.label"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "t:sections.multicolumn.blocks.column.settings.link_url.label"
+        }
+      ]
+    },
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.multicolumn.presets.name",
+      "category": "t:sections.categories.text.label",
+      "blocks": [
+        { "type": "column" },
+        { "type": "column" },
+        { "type": "column" }
+      ]
+    }
+  ]
+}
+{% endschema %}

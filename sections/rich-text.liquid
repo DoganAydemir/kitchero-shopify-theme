@@ -1,0 +1,271 @@
+{{ 'kt-section-rich-text.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Rich Text — basic content section (Theme Store baseline).
+
+  3-of-3 reference theme intake (Starlite, Concept, Essence) all
+  ship this. Merchants drop it on any page that supports sections
+  to get a wide editorial passage of styled prose with one call-to-
+  action. Block-driven so the merchant can mix headings, paragraphs,
+  and buttons in any order.
+
+  Empty state: section with zero blocks shows nothing on the live
+  storefront. Inside design_mode, an editor hint surfaces so the
+  merchant knows what to do.
+{%- endcomment -%}
+
+{%- liquid
+  assign content_alignment = section.settings.content_alignment | default: 'center'
+  assign content_width = section.settings.content_width | default: 'narrow'
+-%}
+
+<section
+  class="kt-rich-text kt-rich-text--align-{{ content_alignment }} kt-rich-text--{{ content_width }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="rich-text"
+  style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  {% if section.blocks.first.type == 'heading' %}aria-labelledby="RichTextHeading-{{ section.id }}"{% endif %}
+>
+  <div class="page-width">
+    <div class="kt-rich-text__inner">
+      {%- if section.blocks.size == 0 and request.design_mode -%}
+        <p class="kt-rich-text__editor-hint">
+          {{ 'kt.section.rich-text.editor_hint' | t | default: 'Add a heading, text, or button block in the section settings to populate this band.' }}
+        </p>
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              {%- assign heading_tag = block.settings.heading_tag | default: 'h2' -%}
+              <{{ heading_tag }}
+                {% if forloop.first %}id="RichTextHeading-{{ section.id }}"{% endif %}
+                class="kt-rich-text__heading"
+                {{ block.shopify_attributes }}
+              >
+                {{- block.settings.heading | escape -}}
+              </{{ heading_tag }}>
+
+            {%- when 'caption' -%}
+              <p class="kt-rich-text__caption" {{ block.shopify_attributes }}>
+                {{- block.settings.caption | escape -}}
+              </p>
+
+            {%- when 'text' -%}
+              <div class="kt-rich-text__text rte" {{ block.shopify_attributes }}>
+                {{ block.settings.text }}
+              </div>
+
+            {%- when 'buttons' -%}
+              <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
+                {%- if block.settings.button_label_1 != blank -%}
+                  <a
+                    href="{{ block.settings.button_link_1 | default: '#' }}"
+                    class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"
+                  >
+                    {{- block.settings.button_label_1 | escape -}}
+                  </a>
+                {%- endif -%}
+                {%- if block.settings.button_label_2 != blank -%}
+                  <a
+                    href="{{ block.settings.button_link_2 | default: '#' }}"
+                    class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_2 | default: 'secondary' }}"
+                  >
+                    {{- block.settings.button_label_2 | escape -}}
+                  </a>
+                {%- endif -%}
+              </div>
+
+            {%- when '@app' -%}
+              <div class="kt-rich-text__app-block" {{ block.shopify_attributes }}>
+                {%- render block -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.rich-text.name",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 8,
+  "disabled_on": {
+    "groups": ["header", "footer"],
+    "templates": ["password"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.rich-text.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "t:sections.rich-text.settings.content_width.label",
+      "options": [
+        { "value": "narrow", "label": "t:sections.rich-text.settings.content_width.options__narrow.label" },
+        { "value": "medium", "label": "t:sections.rich-text.settings.content_width.options__medium.label" },
+        { "value": "wide", "label": "t:sections.rich-text.settings.content_width.options__wide.label" }
+      ],
+      "default": "narrow"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "t:sections.rich-text.settings.content_alignment.label",
+      "options": [
+        { "value": "left", "label": "t:sections.rich-text.settings.content_alignment.options__left.label" },
+        { "value": "center", "label": "t:sections.rich-text.settings.content_alignment.options__center.label" },
+        { "value": "right", "label": "t:sections.rich-text.settings.content_alignment.options__right.label" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.rich-text.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.rich-text.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.rich-text.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.rich-text.settings.padding_top.label",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.rich-text.settings.padding_bottom.label",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.rich-text.blocks.heading.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.rich-text.blocks.heading.settings.heading.label",
+          "default": "Tell your story"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.rich-text.blocks.heading.settings.heading_tag.label",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h2"
+        }
+      ]
+    },
+    {
+      "type": "caption",
+      "name": "t:sections.rich-text.blocks.caption.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "t:sections.rich-text.blocks.caption.settings.caption.label",
+          "default": "Eyebrow"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.rich-text.blocks.text.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.rich-text.blocks.text.settings.text.label",
+          "default": "<p>Share details about your brand, link to your story page, or describe a key product line. Use this space to connect with shoppers.</p>"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.rich-text.blocks.buttons.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_label_1.label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_link_1.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_1",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_style_1.label",
+          "options": [
+            { "value": "primary", "label": "t:sections.rich-text.blocks.buttons.settings.button_style.options__primary.label" },
+            { "value": "secondary", "label": "t:sections.rich-text.blocks.buttons.settings.button_style.options__secondary.label" }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_label_2.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_link_2.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_2",
+          "label": "t:sections.rich-text.blocks.buttons.settings.button_style_2.label",
+          "options": [
+            { "value": "primary", "label": "t:sections.rich-text.blocks.buttons.settings.button_style.options__primary.label" },
+            { "value": "secondary", "label": "t:sections.rich-text.blocks.buttons.settings.button_style.options__secondary.label" }
+          ],
+          "default": "secondary"
+        }
+      ]
+    },
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.rich-text.presets.name",
+      "category": "t:sections.categories.text.label",
+      "blocks": [
+        { "type": "caption", "settings": { "caption": "Eyebrow" } },
+        { "type": "heading", "settings": { "heading": "Tell your story" } },
+        { "type": "text" },
+        { "type": "buttons" }
+      ]
+    }
+  ]
+}
+{% endschema %}

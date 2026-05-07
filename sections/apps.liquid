@@ -1,0 +1,138 @@
+{%- comment -%}
+  Apps — generic @app block container section (Theme Store baseline).
+
+  Theme Store reviewers expect this section to exist as a no-config
+  drop-zone for app-block extensions. Common scenarios:
+    - Reviews app injecting a "All reviews" widget on the home page
+    - Wishlist app placing its grid on a custom landing page
+    - Loyalty app adding a points display
+    - Subscription manager injecting its preference UI
+
+  Distinct from per-section @app blocks (which are scoped to specific
+  parent sections). This section is the "generic" drop-zone — merchant
+  picks an app block once, the section renders it.
+
+  Schema deliberately minimal: only color_scheme + padding settings.
+  The app block itself controls its own internal layout.
+{%- endcomment -%}
+
+{%- if section.blocks.size == 0 and request.design_mode -%}
+  <section
+    class="kt-apps kt-apps--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+    data-section-id="{{ section.id }}"
+    style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+    aria-label="{{ 'kt.section.apps.editor_hint_aria' | t | default: 'Apps section — needs configuration' }}"
+  >
+    <div class="page-width">
+      <p class="kt-apps__editor-hint">
+        {{ 'kt.section.apps.editor_hint' | t | default: 'Add an app block to populate this section.' }}
+      </p>
+    </div>
+  </section>
+{%- elsif section.blocks.size > 0 -%}
+  <section
+    class="kt-apps color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="apps"
+    style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  >
+    <div class="page-width">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            <div class="kt-apps__block" {{ block.shopify_attributes }}>
+              {%- render block -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{%- comment -%}
+  Inline scoped CSS — apps section is configuration-light so a
+  full kt-section-apps.css stylesheet would be wasteful per-page.
+  Theme-Store rule allows scoped {% style %} blocks for sections
+  that have <100 lines of CSS. R112 audit cleared this pattern.
+{%- endcomment -%}
+{%- style -%}
+  .kt-apps {
+    padding-top: var(--kt-section-padding-top, 64px);
+    padding-bottom: var(--kt-section-padding-bottom, 64px);
+    background-color: rgb(var(--kt-c-bg));
+    color: rgb(var(--kt-c-fg));
+  }
+  .kt-apps__block + .kt-apps__block {
+    margin-top: 2rem;
+  }
+  .kt-apps__editor-hint {
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed rgba(var(--kt-c-fg), 0.3);
+    border-radius: 0.75rem;
+    color: rgb(var(--kt-c-fg));
+    font-size: 0.9375rem;
+    opacity: 0.85;
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "t:sections.apps.name",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 6,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.apps.settings.paragraph_intro.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.apps.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.apps.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.apps.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.apps.settings.padding_top.label",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.apps.settings.padding_bottom.label",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.apps.presets.name"
+    }
+  ]
+}
+{% endschema %}
