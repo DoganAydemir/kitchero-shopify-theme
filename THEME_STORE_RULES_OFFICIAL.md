@@ -74,14 +74,14 @@
 
 - [x] **AC-009** Section group files MUST be valid JSON.
 - [x] **AC-010** Section group root MUST contain `type`, `name`, `sections`, `order`.
-- [x] **AC-011** Section group `type` MUST be one of `header`, `footer`, `aside`, `custom.<name>`.
+- [x] **AC-011** Section group `type` MUST be one of `header`, `footer`, `aside`, `custom.<name>`. _(R143: overlay-group.json was created in R132 with invalid `"type": "overlay"`; corrected to `"custom.overlay"` after the deep audit pass surfaced the violation.)_
 - [x] **AC-012** Section IDs within a group MUST be unique.
 - [x] **AC-013** Every ID in `order` MUST exist in `sections`.
 - [x] **AC-014** Section types referenced MUST exist as theme sections.
 - [x] **AC-015** Section group MUST render ≤ 25 sections.
 - [x] **AC-016** Section MUST contain ≤ 50 blocks.
 - [x] **AC-017** Section group `name` ≤ 50 characters.
-- [x] **AC-018** Section/block IDs MUST be alphanumeric only.
+- [x] **AC-018** Section/block IDs MUST be alphanumeric only. _(R143: overlay-group.json `cookie-banner` and `newsletter-popup` keys (hyphens) renamed to `cookiebanner` and `newsletterpopup`; section TYPE values stay unchanged because those map to file names which are not subject to the alphanumeric-only rule.)_
 
 ### app-blocks
 
@@ -290,7 +290,7 @@
 
 - [x] **PRF-1** Minified JS bundle MUST be ≤ 16 KB. (See note: applies to render-blocking; deferred scripts exempt per docs.) _(R84: all theme JS uses defer; no render-blocking bundle)_
 - [x] **PRF-2** All injected `<script>` MUST be wrapped in IIFE.
-- [x] **PRF-3** Maximum two resource hints per template. _(R84: trimmed theme.liquid from 5 conditional preloads to 2 (body + heading fonts); localization stylesheet is now lazy-loaded)_
+- [x] **PRF-3** Maximum two resource hints per template. _(R84: trimmed theme.liquid from 5 conditional preloads to 2 (body + heading fonts); localization stylesheet is now lazy-loaded. R144: removed `preload: true` from hero (slide 0), main-article (article hero), and product-media-gallery (active variant image) — those three section/snippet files were silently pushing home/article/product templates to 3 preloads each. `loading: 'eager'` + `fetchpriority: 'high'` retained so LCP optimization is unaffected.)_
 - [x] **PRF-4** Above-the-fold images MUST NOT be lazy-loaded (use `loading="eager"` + `fetchpriority="high"`).
 
 ---
@@ -323,7 +323,7 @@
 ### design
 
 - [x] **DSN-1** Theme MUST meet Shopify a11y standards.
-- [x] **DSN-2** Critical actions MUST NOT be obscurable by floating app blocks. _(R84: ATC sticky on desktop only, no fixed-bottom mobile bar conflict)_
+- [x] **DSN-2** Critical actions MUST NOT be obscurable by floating app blocks. _(R84: ATC sticky on desktop only, no fixed-bottom mobile bar conflict. R145: PDP sticky add-to-cart bar (R135) `show_sticky_atc` default flipped from `true` to `false` after the deep audit flagged the new fixed-bottom bar conflicting with cookie-banner `banner-bottom` position and corner-anchored app blocks (chat, reviews, loyalty). Merchant explicit opt-in includes seeing the surrounding controls.)_
 - [x] **DSN-3** Components MUST respect DOM order and tab order.
 - [x] **DSN-4** No dark patterns (fake countdown, fake stock, pre-checked addons, hidden fees).
 
@@ -346,7 +346,7 @@
 - [ ] **UPD-1** Themes published before 2025-05-15 MUST update file structure by 2025-06-22.
 - [ ] **UPD-2** Minimum 4 weeks between updates.
 - [ ] **UPD-3** Marketing fields on preset listing MUST be completed after approval.
-- [ ] **UPD-4** `release-notes.md` REQUIRED at theme root after first publication.
+- [x] **UPD-4** `release-notes.md` REQUIRED at theme root after first publication. _(R146: file added at theme root proactively, ahead of first publication, so the audit pass doesn't flag a missing file and so the merchant-facing changelog has a defined home from day one. Phase-4 round entries (R132–R146) seeded; the Unreleased heading flips to v1.0.0 after first review approval.)_
 - [ ] **UPD-5** Updates MUST NOT reduce section's instance limit.
 - [ ] **UPD-6** Updates MUST NOT reduce section's block limit.
 - [ ] **UPD-7** Updates MUST NOT add `disabled_on`/`enabled_on` to existing section groups.
@@ -373,8 +373,12 @@
 | Round | Cluster focus | Items closed | Commit |
 |-------|--------------|--------------|--------|
 | R84 | All clusters | 9 fixed + 19 verified | `cb67afe` |
-| R85 | TSB-001 + CLU-03 (UI restructure) | 2 fixed | (this round) |
+| R85 | TSB-001 + CLU-03 (UI restructure) | 2 fixed | (R85 round) |
+| R143 | AC-011 + AC-018 overlay-group spec | 2 fixed | `879eacb` |
+| R144 | PRF-3 image preloads removed | 1 fixed | `4a363d0` |
+| R145 | DSN-2 sticky ATC opt-in default | 1 fixed | `e15e4d5` |
+| R146 | UPD-4 release-notes.md seeded | 1 fixed | `5180436` |
 
 **Open items count:** 0.
 
-**Status:** ✅ All 160 rules verified compliant or fixed. Ready for Theme Store submission audit.
+**Status:** ✅ All 160 rules verified compliant or fixed (R84, R85, R143-R146 closure annotations on each affected rule). Ready for Theme Store submission audit.
