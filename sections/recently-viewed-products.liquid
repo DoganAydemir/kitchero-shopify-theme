@@ -1,0 +1,190 @@
+{{ 'kt-section-recently-viewed.css' | asset_url | stylesheet_tag }}
+{{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  Recently Viewed Products — customer browsing-history rail.
+
+  Standard commercial-theme pattern (2/3 reference theme intake:
+  Concept + Essence). Reviewer-tested expectation on home page,
+  account dashboard, or as PDP cross-sell. Helps shoppers return
+  to products they considered earlier.
+
+  Architecture (no server-side rendering of customer history —
+  Shopify Liquid can't read browser localStorage):
+
+    1. JS hook on PDP saves current product handle to localStorage
+       `kt_viewed` array (FIFO, last 12). See assets/recently-
+       viewed.js.
+    2. Section emits empty grid container + skeleton placeholders.
+    3. Client JS reads localStorage on page render, fetches each
+       handle via `/products/{handle}.js` (Shopify storefront
+       AJAX API), renders compact cards client-side.
+    4. Filter: skip current product on PDP (don't recommend the
+       page customer is on).
+    5. Empty state: localStorage empty OR all handles 404 → JS
+       hides the section entirely so the home page doesn't show
+       a hollow "Recently viewed" band.
+
+  Privacy: localStorage is first-party browser storage — no cookie,
+  no server transmission. GDPR-compliant by default (functional
+  storage, not behavioral tracking). The customer's viewed
+  history never leaves their device.
+{%- endcomment -%}
+
+{%- liquid
+  assign cols_desktop = section.settings.columns_desktop | default: 4
+  assign cols_mobile = section.settings.columns_mobile | default: 2
+  assign products_count = section.settings.products_count | default: 8
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign heading_id = 'RecentlyViewedTitle-' | append: section.id
+-%}
+
+<section
+  class="kt-recently-viewed color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="recently-viewed-products"
+  data-recently-viewed
+  data-max-products="{{ products_count }}"
+  data-current-product-id="{% if product %}{{ product.id }}{% endif %}"
+  style="--kt-rv-cols-desktop: {{ cols_desktop }}; --kt-rv-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="{{ heading_id }}"
+  hidden
+>
+  <div class="page-width">
+    <header class="kt-recently-viewed__header">
+      <{{ heading_tag }}
+        id="{{ heading_id }}"
+        class="kt-recently-viewed__title"
+      >
+        {{- section.settings.heading | default: 'Recently viewed' | escape -}}
+      </{{ heading_tag }}>
+    </header>
+
+    {%- comment -%}
+      Skeleton placeholders rendered server-side so the layout is
+      reserved while JS fetches. JS hides the section if no viewed
+      handles exist; otherwise replaces these skeletons with real
+      cards.
+    {%- endcomment -%}
+    <div class="kt-recently-viewed__grid" data-recently-viewed-grid role="list" aria-busy="true">
+      {%- for i in (1..products_count) -%}
+        <div class="kt-recently-viewed__skeleton" aria-hidden="true">
+          <div class="kt-recently-viewed__skeleton-image"></div>
+          <div class="kt-recently-viewed__skeleton-line kt-recently-viewed__skeleton-line--title"></div>
+          <div class="kt-recently-viewed__skeleton-line kt-recently-viewed__skeleton-line--price"></div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.recently-viewed.name",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"],
+    "templates": ["cart", "search", "password", "gift_card", "404"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.recently-viewed.settings.paragraph_intro.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.recently-viewed.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.recently-viewed.settings.heading.label",
+      "default": "Recently viewed"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.recently-viewed.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.recently-viewed.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "products_count",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "default": 8,
+      "label": "t:sections.recently-viewed.settings.products_count.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.recently-viewed.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.recently-viewed.settings.columns_mobile.label",
+      "options": [
+        { "value": "1", "label": "t:sections.recently-viewed.settings.columns_mobile.options__1.label" },
+        { "value": "2", "label": "t:sections.recently-viewed.settings.columns_mobile.options__2.label" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.recently-viewed.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.recently-viewed.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.recently-viewed.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.recently-viewed.settings.padding_top.label",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.recently-viewed.settings.padding_bottom.label",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.recently-viewed.presets.name",
+      "category": "t:sections.categories.product.label"
+    }
+  ]
+}
+{% endschema %}

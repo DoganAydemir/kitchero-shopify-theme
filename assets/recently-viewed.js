@@ -1,0 +1,256 @@
+/* ==========================================================================
+   Recently Viewed Products — R127
+
+   Two-phase architecture:
+
+   Phase 1 — Tracking (runs on PDP only)
+     Detect we're on a /products/{handle} page (presence of
+     `<main data-product-handle>` or [data-section-type="main-product"]),
+     read the handle, push to localStorage `kt_viewed` array.
+     FIFO trim to last 12 entries — older history drops off the queue.
+
+   Phase 2 — Rendering (runs when section is on the page)
+     Read localStorage, fetch each handle's `/products/{handle}.js`
+     (Shopify storefront AJAX API — returns minimal product JSON),
+     build compact cards client-side, swap into the section grid.
+     Skip the current PDP product (don't recommend the page customer
+     is on). If localStorage is empty OR all fetches fail, hide the
+     section entirely.
+
+   Privacy: localStorage is first-party browser storage. No cookie,
+   no server transmission, no behavioral tracking signal. The
+   customer's viewed history never leaves their device. GDPR-
+   compliant by default.
+
+   Storage shape: array of strings (handles) ordered most-recent-
+   first. Old entries are pruned to keep the array bounded at 12.
+   ========================================================================== */
+
+if (!window.__kitcheroRecentlyViewedLoaded) {
+  window.__kitcheroRecentlyViewedLoaded = true;
+
+  (function () {
+    'use strict';
+
+    var STORAGE_KEY = 'kt_viewed';
+    var MAX_HISTORY = 12;
+
+    /* ── Storage helpers ─────────────────────────────────────────── */
+
+    function readHistory() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        var parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(function (h) { return typeof h === 'string' && h.length > 0; });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeHistory(arr) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      } catch (e) {
+        /* localStorage quota exceeded or disabled (Safari private
+           browsing). Silently ignore — feature degrades gracefully:
+           rendering side just sees an empty history and hides the
+           section. */
+      }
+    }
+
+    function pushHandle(handle) {
+      if (!handle) return;
+      var history = readHistory();
+      /* Remove any existing occurrence so the handle moves to front
+         (most recently viewed semantics). */
+      var idx = history.indexOf(handle);
+      if (idx > -1) history.splice(idx, 1);
+      history.unshift(handle);
+      /* Trim to MAX_HISTORY oldest-first. */
+      if (history.length > MAX_HISTORY) {
+        history = history.slice(0, MAX_HISTORY);
+      }
+      writeHistory(history);
+    }
+
+    /* ── Phase 1 — Tracking on PDP ──────────────────────────────── */
+
+    function trackCurrentProduct() {
+      /* Multiple signals so the tracker works on /products/X,
+         /products/X.alt-template, AND custom JSON templates. The
+         PDP section sets data-section-type="main-product" or
+         "main-product-showroom". Either qualifies. */
+      var pdp = document.querySelector('[data-section-type="main-product"], [data-section-type="main-product-showroom"]');
+      if (!pdp) return;
+
+      /* Pull handle from the URL — robust against editor preview
+         where the section may render outside a real product context. */
+      var match = window.location.pathname.match(/\/products\/([^/?#]+)/);
+      if (!match) return;
+      var handle = match[1];
+
+      pushHandle(handle);
+    }
+
+    /* ── Phase 2 — Rendering ─────────────────────────────────────── */
+
+    function fetchProduct(handle) {
+      return fetch('/products/' + encodeURIComponent(handle) + '.js', {
+        headers: { 'Accept': 'application/json' },
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error('404');
+          return response.json();
+        })
+        .catch(function () { return null; /* swallow — null filtered later */ });
+    }
+
+    function buildCard(product) {
+      if (!product) return null;
+      var card = document.createElement('div');
+      card.className = 'kt-recently-viewed__card';
+      card.setAttribute('role', 'listitem');
+
+      var link = document.createElement('a');
+      link.className = 'kt-recently-viewed__link';
+      link.href = product.url || '/products/' + product.handle;
+
+      /* Image — featured_image is "//cdn.shopify..." (protocol-relative)
+         OR "/files/..." OR null. All three are valid <img src>. */
+      var media = document.createElement('div');
+      media.className = 'kt-recently-viewed__media';
+      if (product.featured_image) {
+        var img = document.createElement('img');
+        /* Build optimized URL with Shopify's image_size query param.
+           Without this we'd serve the original (potentially 2000px+)
+           on a 200px slot — wasteful bandwidth on mobile. */
+        var imgSrc = product.featured_image;
+        if (imgSrc.indexOf('?') > -1) {
+          imgSrc = imgSrc.split('?')[0];
+        }
+        img.src = imgSrc + '?width=400';
+        img.srcset = imgSrc + '?width=200 200w, ' + imgSrc + '?width=400 400w, ' + imgSrc + '?width=600 600w';
+        img.sizes = '(min-width: 750px) 25vw, 50vw';
+        img.loading = 'lazy';
+        img.width = 200;
+        img.height = 200;
+        img.alt = product.title || '';
+        img.className = 'kt-recently-viewed__image';
+        media.appendChild(img);
+      }
+      link.appendChild(media);
+
+      var text = document.createElement('div');
+      text.className = 'kt-recently-viewed__text';
+
+      var title = document.createElement('p');
+      title.className = 'kt-recently-viewed__title-text';
+      title.textContent = product.title || '';
+      text.appendChild(title);
+
+      if (typeof product.price !== 'undefined') {
+        var price = document.createElement('p');
+        price.className = 'kt-recently-viewed__price';
+        /* Format using Shopify's money_format if available; fall back
+           to dollars-with-cents. Money format string examples:
+             "${{amount}}" → "$25.00"
+             "{{amount_with_comma_separator}} TL" → "1.299,00 TL"
+           Shopify's storefront payload includes price in cents
+           (integer), so we divide by 100 first. */
+        var amount = (product.price / 100);
+        if (window.Shopify && window.Shopify.formatMoney) {
+          /* Theme-shipped money format helper — not all themes have it.
+             Fall back to a basic en-US format if absent. */
+          price.textContent = window.Shopify.formatMoney(product.price);
+        } else {
+          price.textContent = amount.toFixed(2);
+        }
+        text.appendChild(price);
+      }
+
+      link.appendChild(text);
+      card.appendChild(link);
+      return card;
+    }
+
+    function renderSection(section) {
+      var grid = section.querySelector('[data-recently-viewed-grid]');
+      if (!grid) return;
+
+      var maxProducts = parseInt(section.getAttribute('data-max-products'), 10) || 8;
+      var currentId = section.getAttribute('data-current-product-id');
+      var history = readHistory();
+
+      /* If we're on a PDP, skip the current product from the rail
+         (rendering "Recently viewed" with the very page you're on
+         is broken UX). Filter by URL handle since localStorage
+         stores handles, not IDs. */
+      if (window.location.pathname.match(/\/products\//)) {
+        var currentHandle = window.location.pathname.match(/\/products\/([^/?#]+)/);
+        if (currentHandle && currentHandle[1]) {
+          history = history.filter(function (h) { return h !== currentHandle[1]; });
+        }
+      }
+
+      if (history.length === 0) {
+        /* Empty history — keep section hidden. */
+        return;
+      }
+
+      /* Cap at section max + a buffer of 2 in case some 404. */
+      var fetchHandles = history.slice(0, maxProducts + 2);
+
+      Promise.all(fetchHandles.map(fetchProduct)).then(function (products) {
+        /* Filter out failed fetches (404 / network errors) and the
+           current product (currentId might not be on the URL but on
+           the section data attribute — defensive). */
+        var valid = products.filter(function (p) {
+          if (!p) return false;
+          if (currentId && String(p.id) === String(currentId)) return false;
+          return true;
+        }).slice(0, maxProducts);
+
+        if (valid.length === 0) {
+          /* All fetches failed or returned current product — hide. */
+          return;
+        }
+
+        /* Replace skeletons with real cards. */
+        grid.innerHTML = '';
+        grid.setAttribute('aria-busy', 'false');
+        valid.forEach(function (product) {
+          var card = buildCard(product);
+          if (card) grid.appendChild(card);
+        });
+
+        /* Reveal the section. */
+        section.removeAttribute('hidden');
+      });
+    }
+
+    /* ── Init ────────────────────────────────────────────────────── */
+
+    function init() {
+      trackCurrentProduct();
+
+      var sections = document.querySelectorAll('[data-recently-viewed]');
+      sections.forEach(renderSection);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+
+    /* Theme-editor compatibility: re-init on section reload so merchant
+       sees layout updates. */
+    document.addEventListener('shopify:section:load', function (e) {
+      if (!e.target) return;
+      var section = e.target.querySelector('[data-recently-viewed]');
+      if (section) renderSection(section);
+    });
+  })();
+}
