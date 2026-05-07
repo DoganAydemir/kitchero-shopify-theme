@@ -93,6 +93,10 @@
             required
             aria-required="true"
             inputmode="email"
+            {%- comment -%}
+              R104 — Return key advances to password field on mobile.
+            {%- endcomment -%}
+            enterkeyhint="next"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="login-email-error"{% endif %}
           >
@@ -108,6 +112,10 @@
             placeholder="{{ 'kt.customer.login.password' | t }}"
             required
             aria-required="true"
+            {%- comment -%}
+              R104 — Return key fires Sign in.
+            {%- endcomment -%}
+            enterkeyhint="go"
             autocomplete="current-password"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="login-password-error"{% endif %}
           >

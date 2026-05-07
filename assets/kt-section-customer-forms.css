@@ -68,7 +68,13 @@
   width: 100%;
   border: 1px solid rgba(var(--kt-c-fg), 0.18);
   padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
+  /* R104 — 16px (1rem) prevents iOS Safari from zooming the
+     viewport on focus. Anything below triggers Safari's
+     "I think you'd like this bigger" auto-zoom which then
+     leaves the field at a different position than the user
+     tapped. Affects login, register, addresses, activate-account,
+     reset-password — every customer-facing form. */
+  font-size: 1rem;
   color: rgb(var(--kt-c-fg));
   background: transparent;
   transition: border-color 0.2s ease;

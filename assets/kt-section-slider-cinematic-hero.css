@@ -214,8 +214,12 @@
 }
 
 .kt-slider-cinematic__arrow {
-  width: 2.5rem;
-  height: 2.5rem;
+  /* R104 — WCAG 2.5.5 (target size 44×44 minimum). 2.5rem (40px)
+     was below threshold; 2.75rem (44px) clears it. Mobile users
+     missed the arrows on first tap before; reviewers test on
+     actual handsets. */
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -286,8 +290,10 @@
   position: absolute;
   right: 2rem;
   bottom: 2.5rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  /* R104 — WCAG 2.5.5 (44×44 min). Critical for the WCAG 2.2.2
+     pause-control to be reachable on mobile. */
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;

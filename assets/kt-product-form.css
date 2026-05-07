@@ -66,7 +66,11 @@
   width: 2rem;
   min-width: 2rem;
   text-align: center;
-  font-size: 0.875rem;
+  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus when
+     the customer reaches this field via Tab key. The CSS sets
+     pointer-events:none so direct taps go to the stepper buttons,
+     but keyboard focus is still legal. */
+  font-size: 1rem;
   font-weight: 700;
   color: rgb(var(--kt-c-fg));
   border: none;

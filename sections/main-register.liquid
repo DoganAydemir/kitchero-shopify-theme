@@ -82,6 +82,10 @@
               value="{{ form.first_name | escape }}"
               required
               aria-required="true"
+              {%- comment -%}
+                R104 — Return advances to next field on mobile.
+              {%- endcomment -%}
+              enterkeyhint="next"
               autocomplete="given-name"
               {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="register-first-name-error"{% endif %}
             >
@@ -98,6 +102,10 @@
               value="{{ form.last_name | escape }}"
               required
               aria-required="true"
+              {%- comment -%}
+                R104 — Return advances to next field on mobile.
+              {%- endcomment -%}
+              enterkeyhint="next"
               autocomplete="family-name"
               {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="register-last-name-error"{% endif %}
             >
@@ -116,6 +124,10 @@
             required
             aria-required="true"
             inputmode="email"
+            {%- comment -%}
+              R104 — Return advances to password on mobile.
+            {%- endcomment -%}
+            enterkeyhint="next"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="register-email-error"{% endif %}
           >
@@ -142,6 +154,10 @@
             placeholder="{{ 'kt.customer.register.password' | t }}"
             required
             aria-required="true"
+            {%- comment -%}
+              R104 — Return fires Create account on mobile.
+            {%- endcomment -%}
+            enterkeyhint="go"
             autocomplete="new-password"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="register-password-error"{% endif %}
             aria-describedby="register-password-hint"
