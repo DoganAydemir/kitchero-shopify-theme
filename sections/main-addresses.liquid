@@ -86,7 +86,7 @@
             <div class="kt-addresses__row">
               <div class="kt-addresses__field">
                 <label for="AddressCountryNew" class="kt-addresses__label kt-form__label--required">{{ 'kt.customer.addresses.country' | t }}</label>
-                <select id="AddressCountryNew" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | escape }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="AddressCountryNew-error"{% endif %}>
+                <select id="AddressCountryNew" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | escape }}" autocomplete="country-name" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="AddressCountryNew-error"{% endif %}>
                   {{ country_option_tags }}
                 </select>
                 {%- render 'form-field-error', form: form, field: 'country', describedby_id: 'AddressCountryNew-error' -%}
@@ -244,7 +244,7 @@
                       <div class="kt-addresses__row">
                         <div class="kt-addresses__field">
                           <label for="AddressCountry{{ address.id }}" class="kt-addresses__label kt-form__label--required">{{ 'kt.customer.addresses.country' | t }}</label>
-                          <select id="AddressCountry{{ address.id }}" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | default: address.country | escape }}" autocomplete="country" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="{{ err_country }}"{% endif %}>
+                          <select id="AddressCountry{{ address.id }}" name="address[country]" required aria-required="true" class="kt-customer__input" data-default="{{ form.country | default: address.country | escape }}" autocomplete="country-name" {% if form.errors contains 'country' %}aria-invalid="true" aria-describedby="{{ err_country }}"{% endif %}>
                   {{ country_option_tags }}
                 </select>
                 {%- render 'form-field-error', form: form, field: 'country', describedby_id: err_country -%}

@@ -176,7 +176,7 @@ Creates a `.zip` ready for upload to Shopify admin or Theme Store submission.
 
 ## Architecture notes
 
-- **CSS:** Plain vanilla CSS with BEM naming (`.kt-*` prefix). No Sass, no Tailwind in output, no build step. Each section loads its own CSS file via `{{ 'section-*.css' | asset_url | stylesheet_tag }}`.
+- **CSS:** Plain vanilla CSS with BEM naming (`.kt-*` prefix). No Sass, no Tailwind in output, no build step. Each section loads its own CSS file via `{{ 'kt-section-*.css' | asset_url | stylesheet_tag }}` (snippets and global styles use `kt-*.css` without the `section-` infix).
 - **JavaScript:** Vanilla JS with IIFE scoping. No frameworks, no build step. One file per interactive section. GSAP, ScrollTrigger, and Lenis are self-hosted in `assets/vendor-*.js` (unminified, per Theme Store rules).
 - **Liquid:** Uses `{% render %}` (never `{% include %}`). All schemas use `t:` translation keys. All strings are localized via `{{ 'key' | t }}`.
 - **Progressive enhancement:** All forms use Shopify `{% form %}` tags (auto action/method). Navigation uses real `<a href>` links. The cart drawer falls back to `/cart` when JS is off. CSS-only dropdowns via `:hover` and `:focus-within`.
