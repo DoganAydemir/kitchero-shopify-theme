@@ -97,7 +97,14 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
     /* ── Phase 2 — Rendering ─────────────────────────────────────── */
 
     function fetchProduct(handle) {
-      return fetch('/products/' + encodeURIComponent(handle) + '.js', {
+      /* Markets locale-prefix safety: hardcoded `/products/...` 404s on
+         locale-prefixed storefronts (`/de/products/...`, `/fr-ca/...`).
+         `Shopify.routes.root` resolves to the active locale prefix —
+         primary-locale stores get `/`, secondary-locale stores get
+         `/de/`, etc. Falls back to `/` if Shopify global isn't loaded
+         yet (early-render edge cases). */
+      var root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+      return fetch(root + 'products/' + encodeURIComponent(handle) + '.js', {
         headers: { 'Accept': 'application/json' },
       })
         .then(function (response) {
