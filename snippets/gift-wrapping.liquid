@@ -1,0 +1,71 @@
+{% # theme-check-disable UndefinedObject %}
+{%- doc -%}
+  Gift wrapping checkbox — surfaces a single opt-in toggle inside the
+  cart form so customers can request gift wrapping during checkout.
+
+  R140 — picks up the merchant-editable note text + price label from
+  the calling section (`main-cart` for now). The checkbox writes a
+  cart attribute `attributes[Gift wrapping]` which Shopify echoes
+  back on the order in admin and on the customer order email; no
+  paid line item is added — that path requires a real "Gift wrap"
+  product variant + dedicated AJAX handler, which is intentionally
+  out of scope for the v1 wrapping integration. Merchants charging
+  for wrapping can either:
+
+    1. Add a flat shipping surcharge in Shopify admin → Shipping, OR
+    2. Replace this snippet with one that auto-adds a gift-wrap
+       variant via /cart/add when toggled on.
+
+  Both follow-up paths are documented in the merchant-facing info
+  copy on the section schema.
+
+  Accepts:
+    - label_text       : checkbox label string
+    - price_text       : optional small price hint shown after label
+    - description_text : optional helper paragraph below
+
+  @example
+  {%- render 'gift-wrapping',
+    label_text: section.settings.gift_wrap_label,
+    price_text: section.settings.gift_wrap_price_text,
+    description_text: section.settings.gift_wrap_description -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign gw_attribute = cart.attributes['Gift wrapping']
+  assign gw_checked = false
+  if gw_attribute == 'Yes'
+    assign gw_checked = true
+  endif
+  assign gw_id = 'CartGiftWrap-' | append: section.id | default: 'CartGiftWrap'
+  assign gw_label = label_text | default: 'Add gift wrapping'
+-%}
+
+<div class="kt-gift-wrap" data-gift-wrap>
+  <label for="{{ gw_id }}" class="kt-gift-wrap__label">
+    <input
+      type="checkbox"
+      id="{{ gw_id }}"
+      name="attributes[Gift wrapping]"
+      value="Yes"
+      class="kt-gift-wrap__checkbox"
+      {% if gw_checked %}checked{% endif %}
+      data-gift-wrap-checkbox
+    >
+    <span class="kt-gift-wrap__check-visual" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </span>
+    <span class="kt-gift-wrap__text">
+      <span class="kt-gift-wrap__title">{{ gw_label | escape }}</span>
+      {%- if price_text != blank -%}
+        <span class="kt-gift-wrap__price">{{ price_text | escape }}</span>
+      {%- endif -%}
+    </span>
+  </label>
+  {%- if description_text != blank -%}
+    <p class="kt-gift-wrap__description">{{ description_text | escape }}</p>
+  {%- endif -%}
+</div>
+{% # theme-check-enable UndefinedObject %}

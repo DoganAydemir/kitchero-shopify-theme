@@ -434,23 +434,20 @@
               {%- endif -%}
 
               {%- comment -%}
-                Gift wrapping note — R137 placeholder. Surfaces a
-                merchant-editable line under the subtotal so a
-                shopper can pre-empt the gift-wrap option without
-                hunting for it in checkout. Real gift-wrapping
-                product line + attribute integration lands in R140.
+                Gift wrapping (R137 → R140). When enabled the
+                snippet renders a real opt-in checkbox bound to
+                `attributes[Gift wrapping]`; the merchant-editable
+                message displays as the helper paragraph below the
+                checkbox. Submits with the cart form so the choice
+                lands in cart.attributes — visible to the merchant
+                in the order admin + on the customer's order email.
               {%- endcomment -%}
-              {%- if section.settings.show_gift_wrapping_message and section.settings.gift_wrapping_message != blank -%}
-                <p class="kt-cart-page__gift-note">
-                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                    <rect x="2" y="7" width="20" height="5"></rect>
-                    <line x1="12" y1="22" x2="12" y2="7"></line>
-                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                  </svg>
-                  <span>{{ section.settings.gift_wrapping_message }}</span>
-                </p>
+              {%- if section.settings.show_gift_wrapping_message -%}
+                {%- render 'gift-wrapping',
+                    section: section,
+                    label_text: section.settings.gift_wrap_label,
+                    price_text: section.settings.gift_wrap_price_text,
+                    description_text: section.settings.gift_wrapping_message -%}
               {%- endif -%}
 
               <div class="kt-cart-page__summary-row">
@@ -888,9 +885,21 @@
     },
     {
       "type": "text",
+      "id": "gift_wrap_label",
+      "label": "t:sections.main-cart.settings.gift_wrap_label.label",
+      "default": "Add gift wrapping"
+    },
+    {
+      "type": "text",
+      "id": "gift_wrap_price_text",
+      "label": "t:sections.main-cart.settings.gift_wrap_price_text.label",
+      "info": "t:sections.main-cart.settings.gift_wrap_price_text.info"
+    },
+    {
+      "type": "text",
       "id": "gift_wrapping_message",
       "label": "t:sections.main-cart.settings.gift_wrapping_message.label",
-      "default": "Need it gift-wrapped? Add a note above and we'll handle the rest."
+      "default": "We'll wrap your order in our signature paper and include a hand-tied ribbon."
     },
     {
       "type": "header",
