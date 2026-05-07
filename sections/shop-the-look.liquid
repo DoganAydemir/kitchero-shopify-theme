@@ -45,11 +45,23 @@
               aria-hidden="true"
               inert
             >
-              {%- if block.settings.product_image != blank -%}
-                <div class="kt-shop-the-look__popup-image-wrap">
+              {%- comment -%}
+                R115 — CLAUDE.md "Empty States" rule. The popup card
+                anchors visually around the product image; dropping
+                the image-wrap entirely when blank leaves the meta +
+                CTA floating without context. Fall through to
+                Shopify's product-1 SVG placeholder so the popup
+                composition stays intact on a fresh install where the
+                merchant has added a hotspot but hasn't yet picked
+                an image for the swatch / look detail.
+              {%- endcomment -%}
+              <div class="kt-shop-the-look__popup-image-wrap">
+                {%- if block.settings.product_image != blank -%}
                   {{ block.settings.product_image | image_url: width: 400 | image_tag: class: 'kt-shop-the-look__popup-image', loading: 'lazy', width: 400, height: 400, alt: block.settings.product_title | default: '' }}
-                </div>
-              {%- endif -%}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-shop-the-look__popup-image' }}
+                {%- endif -%}
+              </div>
               <div class="kt-shop-the-look__popup-meta">
                 <h3 class="kt-shop-the-look__popup-name">{{ block.settings.product_title }}</h3>
                 <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
