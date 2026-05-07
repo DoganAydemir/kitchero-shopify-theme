@@ -134,7 +134,20 @@
       crawlers that the description ends gracefully rather than
       being cropped at an arbitrary token.
     {%- endcomment -%}
-    <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape | truncate: 160, '…' }}">
+    {%- comment -%}
+      R109 — filter chain order matters. Previously
+      `| escape | truncate: 160` ran escape FIRST, expanding `&`
+      to `&amp;` (5 chars), `<` to `&lt;` (4 chars), etc., THEN
+      truncate counted the *escaped* length. If a description
+      contained `&` characters near the 160-char boundary,
+      truncate could slice through the middle of `&amp;`,
+      emitting fragments like `&am…` — invalid HTML entity
+      inside a meta attribute. Truncating FIRST counts visible
+      characters (the spec-correct semantics for "≤160 chars"
+      meta description), then escape converts any boundary `&`
+      into a complete `&amp;`.
+    {%- endcomment -%}
+    <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | truncate: 160, '…' | escape }}">
 
     {%- comment -%}
       `content_for_header` MUST appear immediately after the title +

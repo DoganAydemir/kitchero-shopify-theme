@@ -169,6 +169,20 @@
   language; merchants targeting a different region (e.g. en_GB
   rather than en_US) can override later via metafields.
 {%- endcomment -%}
+{%- comment -%}
+  R109 — og:locale spec (ogp.me) requires `language_TERRITORY`
+  format with an underscore. The previous `else` branch did
+  `replace: '-', '_'` which only worked for already-territoried
+  iso codes like `pt-BR`. A bare `pt` (no hyphen) fell through
+  unchanged → invalid `<meta property="og:locale" content="pt">`.
+  Fallback now constructs `xx_XX` by uppercasing the language
+  code (e.g. `pt → pt_PT`, `it → it_IT`). Imperfect for languages
+  whose primary territory differs from the language code (zh →
+  zh_CN, ja → ja_JP) but those merchants can override via the
+  Shopify locale-config / metafields. The 5 ship-supported
+  locales (en, tr, de, fr, es) hit the explicit case map above
+  and never reach this fallback.
+{%- endcomment -%}
 {%- liquid
   case request.locale.iso_code
     when 'en'
@@ -182,7 +196,12 @@
     when 'es'
       assign og_locale = 'es_ES'
     else
-      assign og_locale = request.locale.iso_code | replace: '-', '_'
+      if request.locale.iso_code contains '-'
+        assign og_locale = request.locale.iso_code | replace: '-', '_'
+      else
+        assign og_locale_upper = request.locale.iso_code | upcase
+        assign og_locale = request.locale.iso_code | append: '_' | append: og_locale_upper
+      endif
   endcase
 -%}
 <meta property="og:site_name" content="{{ shop.name | escape }}">
@@ -208,7 +227,12 @@
           when 'es'
             assign alt_locale = 'es_ES'
           else
-            assign alt_locale = locale.iso_code | replace: '-', '_'
+            if locale.iso_code contains '-'
+              assign alt_locale = locale.iso_code | replace: '-', '_'
+            else
+              assign alt_locale_upper = locale.iso_code | upcase
+              assign alt_locale = locale.iso_code | append: '_' | append: alt_locale_upper
+            endif
         endcase
       -%}
       <meta property="og:locale:alternate" content="{{ alt_locale }}">
