@@ -23,7 +23,7 @@ Kitchero is a premium Shopify theme built for merchants selling high-end kitchen
 - **Star ratings + color swatches** — reads Shopify's native `reviews.rating` metafield or custom fallback
 - **AJAX collection filtering** — Shopify Section Rendering API, no full-page reload
 - **AJAX cart drawer** — variant switching, quantity updates, and add-to-cart without page reload
-- **i18n-ready for 5 languages** — English translation complete; Turkish, German, French, and Spanish locale files scaffolded as empty stubs ready to translate
+- **i18n for 5 languages** — English (default), Turkish, German, French, and Spanish all fully translated (527 storefront keys + 1,720 schema keys per locale, full key parity)
 - **4 color schemes** — Light Stone, Dark, Emerald, Midnight
 - **3-font system** — Inter (headings + body) + Playfair Display (serif accent)
 - **WCAG AA accessible** — keyboard-navigable, screen-reader-friendly, visible focus rings, 4.5:1 color contrast
@@ -198,10 +198,10 @@ The theme's i18n structure supports 5 languages out of the gate:
 | `es` | Spanish | Stub |
 
 Storefront strings live in `locales/*.json`; theme editor labels live in
-`locales/*.schema.json`. When a non-English key is missing, Shopify falls
-back to the English default automatically — so the theme is fully
-functional in every language, it just renders in English until a
-translator fills in the stub files.
+`locales/*.schema.json`. All five language sets — English (default),
+Turkish, German, French, Spanish — are fully translated and verified
+at full key parity (527 storefront keys + 1,720 schema keys per locale).
+A native-speaker QA pass is recommended before GA marketing pushes.
 
 Enable languages in **Settings > Languages**.
 
