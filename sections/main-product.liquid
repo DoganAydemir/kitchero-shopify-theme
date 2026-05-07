@@ -366,6 +366,48 @@
               {%- when 'spacer' -%}
                 <div class="kt-pdp__spacer" style="height: {{ block.settings.height | default: 16 }}px;" {{ block.shopify_attributes }}></div>
 
+              {%- when 'payment_icons' -%}
+                {%- comment -%}
+                  R120 — Payment-method icons block. Surfaces the
+                  payment providers the merchant has enabled in
+                  Shopify Payments / Stripe / etc. so shoppers see
+                  trust signals (Visa, Mastercard, PayPal, Apple Pay)
+                  next to the buy button.
+
+                  `shop.enabled_payment_types` returns an array of
+                  Shopify-emitted strings like 'visa', 'master',
+                  'american_express', 'paypal', 'shopify_pay',
+                  'apple_pay', 'google_pay'. The
+                  `payment_type_svg_tag` filter outputs the
+                  corresponding official SVG with proper a11y
+                  attributes — no manual icon library needed and
+                  the visuals stay current as Shopify adds providers.
+
+                  When the merchant has zero enabled payment types
+                  (rare — devstores during initial setup), the loop
+                  renders nothing and the block is silently empty.
+                  In design_mode we surface an editor hint so the
+                  merchant knows what to configure.
+                {%- endcomment -%}
+                <div class="kt-pdp__payment-icons" {{ block.shopify_attributes }}>
+                  {%- if block.settings.heading != blank -%}
+                    <p class="kt-pdp__payment-icons-heading">{{ block.settings.heading | escape }}</p>
+                  {%- endif -%}
+                  {%- if shop.enabled_payment_types.size > 0 -%}
+                    <ul class="kt-pdp__payment-icons-list" role="list" aria-label="{{ 'kt.product.payment_icons.aria_label' | t | default: 'Accepted payment methods' }}">
+                      {%- for type in shop.enabled_payment_types -%}
+                        <li class="kt-pdp__payment-icon">
+                          {{ type | payment_type_svg_tag: class: 'kt-pdp__payment-icon-svg' }}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- elsif request.design_mode -%}
+                    <p class="kt-pdp__payment-icons-hint">
+                      {{ 'kt.product.payment_icons.editor_hint' | t | default: 'Enable payment providers in Shopify admin → Settings → Payments to populate this block.' }}
+                    </p>
+                  {%- endif -%}
+                </div>
+
               {%- when 'liquid' -%}
                 {%- comment -%}
                   Custom Liquid block — Theme Store requires Custom Liquid
@@ -581,6 +623,23 @@
           "id": "custom_liquid",
           "label": "t:sections.main-product.blocks.liquid.settings.custom_liquid.label",
           "info": "t:sections.main-product.blocks.liquid.settings.custom_liquid.info"
+        }
+      ]
+    },
+    {
+      "type": "payment_icons",
+      "name": "t:sections.main-product.blocks.payment_icons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.payment_icons.settings.paragraph.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.main-product.blocks.payment_icons.settings.heading.label",
+          "info": "t:sections.main-product.blocks.payment_icons.settings.heading.info"
         }
       ]
     },

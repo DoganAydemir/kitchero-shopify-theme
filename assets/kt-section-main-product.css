@@ -553,3 +553,60 @@ html.no-js [data-kt-pdp-anim-group] > * {
   opacity: 1;
   transform: none;
 }
+
+/* ── R120 — Payment icons block ───────────────────────────────────── */
+
+.kt-pdp__payment-icons {
+  margin-top: 0.5rem;
+}
+
+.kt-pdp__payment-icons-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+.kt-pdp__payment-icons-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.kt-pdp__payment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Shopify's payment_type_svg_tag emits ~38×24 SVG by default;
+     reserve consistent space + add a subtle border so dark and
+     light card backgrounds (Visa white-on-blue, Apple Pay black-
+     on-white) read clearly against any color scheme. */
+  width: 38px;
+  height: 24px;
+  background-color: var(--kt-white, #ffffff);
+  border: 1px solid rgba(var(--kt-c-fg), 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kt-pdp__payment-icon-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* SVG content is letterbox-fit so logos with different aspect
+     ratios (Apple Pay tall, PayPal wide) all sit centered. */
+  object-fit: contain;
+}
+
+.kt-pdp__payment-icons-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg), 0.7);
+  font-style: italic;
+}
