@@ -1,0 +1,303 @@
+{{ 'kt-section-featured-products.css' | asset_url | stylesheet_tag }}
+{{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Featured Products — cross-collection multi-product picker.
+
+  Theme Store basics tier — every commercial theme ships this
+  section. Differs from `featured-collection` in that the merchant
+  picks INDIVIDUAL products via blocks rather than a single
+  collection. Use cases:
+    - Spotlighting 4-6 hero products on the home page that span
+      multiple collections (e.g. Best of Kitchen + Best of Bath
+      mixed into one band)
+    - Editorial curation — "Editor's picks" / "Founders' favourites"
+    - Limited-time spotlights without creating a temporary collection
+
+  Each `product` block has its own product picker; the merchant adds
+  one block per spotlit product. card-product snippet (R97-R116
+  hardened) is reused for visual + a11y consistency.
+
+  Empty states:
+    - No blocks configured + design_mode → editor hint
+    - All blocks have empty product picker + design_mode → editor hint
+    - Either condition + live storefront → section emits NOTHING
+{%- endcomment -%}
+
+{%- liquid
+  assign cols_desktop = section.settings.columns_desktop | default: 4
+  assign cols_mobile = section.settings.columns_mobile | default: 2
+  assign layout = section.settings.layout | default: 'grid'
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+  assign heading_id = 'FeaturedProductsTitle-' | append: section.id
+
+  comment
+    Count configured blocks (those with a product picked) so we can
+    decide live-vs-editor render. Iterate up front to avoid double-
+    walking the blocks array later.
+  endcomment
+  assign configured_block_count = 0
+  for block in section.blocks
+    if block.type == 'product' and block.settings.product != blank
+      assign configured_block_count = configured_block_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if configured_block_count == 0 -%}
+  {%- if request.design_mode -%}
+    <section
+      class="kt-featured-products kt-featured-products--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+      data-section-id="{{ section.id }}"
+      style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+      aria-label="{{ 'kt.section.featured-products.editor_hint_aria' | t | default: 'Featured products — needs configuration' }}"
+    >
+      <div class="page-width">
+        <p class="kt-featured-products__editor-hint">
+          {{ 'kt.section.featured-products.editor_hint_empty' | t | default: 'Add a product block in the section settings, then pick a product for each block.' }}
+        </p>
+      </div>
+    </section>
+  {%- endif -%}
+{%- else -%}
+  <section
+    class="kt-featured-products kt-featured-products--{{ layout }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="featured-products"
+    style="--kt-fp-cols-desktop: {{ cols_desktop }}; --kt-fp-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+    aria-labelledby="{{ heading_id }}"
+  >
+    <div class="page-width">
+      <header class="kt-featured-products__header">
+        <div class="kt-featured-products__heading-wrap">
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="kt-featured-products__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+
+          <{{ heading_tag }}
+            id="{{ heading_id }}"
+            class="kt-featured-products__title"
+          >
+            {{- section.settings.heading | default: 'Featured products' | escape -}}
+          </{{ heading_tag }}>
+
+          {%- if section.settings.description != blank -%}
+            <div class="kt-featured-products__description rte">
+              {{ section.settings.description }}
+            </div>
+          {%- endif -%}
+        </div>
+      </header>
+
+      <div class="kt-featured-products__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'product' -%}
+              {%- if block.settings.product != blank -%}
+                {%- comment -%}
+                  shopify_attributes is necessary for the editor's
+                  block-select highlight ring. R97 pattern.
+                {%- endcomment -%}
+                <div class="kt-featured-products__item" {{ block.shopify_attributes }}>
+                  {%- render 'card-product',
+                      product: block.settings.product,
+                      show_vendor: section.settings.show_vendor,
+                      show_secondary_image: section.settings.show_secondary_image,
+                      show_quote_button: section.settings.show_quote_button,
+                      index: forloop.index0
+                  -%}
+                </div>
+              {%- elsif request.design_mode -%}
+                {%- comment -%}
+                  Per-block empty hint inside design_mode only —
+                  reviewer adding multiple blocks needs to know which
+                  block is unconfigured. Live storefront skips
+                  unconfigured blocks silently (already filtered by
+                  configured_block_count check above for full-empty
+                  case).
+                {%- endcomment -%}
+                <div class="kt-featured-products__item kt-featured-products__item--editor-hint" {{ block.shopify_attributes }}>
+                  <p class="kt-featured-products__editor-hint kt-featured-products__editor-hint--inline">
+                    {{ 'kt.section.featured-products.editor_hint_block' | t | default: 'Pick a product for this block.' }}
+                  </p>
+                </div>
+              {%- endif -%}
+
+            {%- when '@app' -%}
+              {%- comment -%}
+                @app block support — Theme Store mandatory.
+              {%- endcomment -%}
+              <div class="kt-featured-products__item kt-featured-products__item--app" {{ block.shopify_attributes }}>
+                {%- render block -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.featured-products.name",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["header", "footer"],
+    "templates": ["cart", "search", "password", "gift_card", "404"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.featured-products.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.featured-products.settings.eyebrow.label",
+      "info": "t:sections.featured-products.settings.eyebrow.info"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.featured-products.settings.heading.label",
+      "default": "Featured products"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.featured-products.settings.heading_tag.label",
+      "options": [
+        { "value": "h2", "label": "t:sections.featured-products.settings.heading_tag.options__1.label" },
+        { "value": "h3", "label": "t:sections.featured-products.settings.heading_tag.options__2.label" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.featured-products.settings.description.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured-products.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.featured-products.settings.layout.label",
+      "info": "t:sections.featured-products.settings.layout.info",
+      "options": [
+        { "value": "grid", "label": "t:sections.featured-products.settings.layout.options__grid.label" },
+        { "value": "carousel", "label": "t:sections.featured-products.settings.layout.options__carousel.label" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.featured-products.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.featured-products.settings.columns_mobile.label",
+      "options": [
+        { "value": "1", "label": "t:sections.featured-products.settings.columns_mobile.options__1.label" },
+        { "value": "2", "label": "t:sections.featured-products.settings.columns_mobile.options__2.label" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured-products.settings.header__card.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.featured-products.settings.show_vendor.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "t:sections.featured-products.settings.show_secondary_image.label",
+      "info": "t:sections.featured-products.settings.show_secondary_image.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quote_button",
+      "label": "t:sections.featured-products.settings.show_quote_button.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured-products.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.featured-products.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured-products.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.featured-products.settings.padding_top.label",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.featured-products.settings.padding_bottom.label",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "t:sections.featured-products.blocks.product.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.featured-products.blocks.product.settings.product.label"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-products.presets.name",
+      "category": "t:sections.categories.product.label",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}

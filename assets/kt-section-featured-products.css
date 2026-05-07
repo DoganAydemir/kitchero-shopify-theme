@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Featured Products — cross-collection multi-product picker
+
+   Custom properties (set inline via section style attribute):
+     --kt-fp-cols-desktop: 2-5
+     --kt-fp-cols-mobile:  1 or 2
+     --kt-section-padding-top / -bottom
+
+   Layout modes:
+     .kt-featured-products--grid     — responsive product grid
+     .kt-featured-products--carousel — horizontal-snap on mobile only
+   ========================================================================== */
+
+.kt-featured-products {
+  padding-top: var(--kt-section-padding-top, 64px);
+  padding-bottom: var(--kt-section-padding-bottom, 64px);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
+}
+
+/* Editor-only empty-state hint band */
+.kt-featured-products--empty .kt-featured-products__editor-hint,
+.kt-featured-products__editor-hint--inline {
+  display: block;
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 1px dashed rgba(var(--kt-c-fg), 0.3);
+  border-radius: 0.75rem;
+  color: rgb(var(--kt-c-fg));
+  font-size: 0.9375rem;
+  opacity: 0.85;
+}
+
+.kt-featured-products__item--editor-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.kt-featured-products__header {
+  margin-bottom: 2.5rem;
+}
+
+@media screen and (max-width: 749px) {
+  .kt-featured-products__header { margin-bottom: 1.75rem; }
+}
+
+.kt-featured-products__heading-wrap {
+  max-width: 60ch;
+}
+
+.kt-featured-products__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.7);
+}
+
+.kt-featured-products__title {
+  margin: 0;
+  font-family: var(--kt-f-accent-family, var(--kt-f-heading-family, Georgia, serif));
+  font-size: clamp(1.75rem, 3vw + 1rem, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: rgb(var(--kt-c-fg));
+  /* R106 — anywhere wrap so a long custom heading doesn't break layout */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kt-featured-products__description {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(var(--kt-c-fg), 0.75);
+}
+
+.kt-featured-products__description > *:first-child { margin-top: 0; }
+.kt-featured-products__description > *:last-child { margin-bottom: 0; }
+
+/* ── Grid ─────────────────────────────────────────────────────────── */
+
+.kt-featured-products__grid {
+  display: grid;
+  gap: var(--kt-gap-grid-y-m, 1rem) var(--kt-gap-grid-x-m, 0.75rem);
+  grid-template-columns: repeat(var(--kt-fp-cols-mobile, 2), minmax(0, 1fr));
+}
+
+@media screen and (min-width: 750px) {
+  .kt-featured-products__grid {
+    gap: var(--kt-gap-grid-y-d, 2rem) var(--kt-gap-grid-x-d, 1.5rem);
+    grid-template-columns: repeat(var(--kt-fp-cols-desktop, 4), minmax(0, 1fr));
+  }
+}
+
+/* The block wrapper — needed because card-product is rendered inside
+   it, and we need the wrapper to participate in grid layout while
+   carrying shopify_attributes for editor highlight. */
+.kt-featured-products__item {
+  min-width: 0;
+}
+
+.kt-featured-products__item--app {
+  /* App block content can be anything — let it size itself */
+  display: contents;
+}
+
+/* ── Carousel mode (mobile only) ────────────────────────────────────── */
+
+@media screen and (max-width: 749px) {
+  .kt-featured-products--carousel .kt-featured-products__grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .kt-featured-products--carousel .kt-featured-products__grid::-webkit-scrollbar {
+    display: none;
+  }
+  .kt-featured-products--carousel .kt-featured-products__grid > * {
+    flex: 0 0 calc((100% - 0.75rem) / var(--kt-fp-cols-mobile, 2));
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
