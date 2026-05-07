@@ -1,0 +1,180 @@
+/* ==========================================================================
+   Featured Collection — single-collection product showcase
+
+   Custom properties (set inline via section style attribute):
+     --kt-fc-cols-desktop: 2-5 (configured via theme editor)
+     --kt-fc-cols-mobile:  1 or 2
+     --kt-section-padding-top / -bottom: section padding via merchant setting
+
+   Layout modes:
+     .kt-featured-collection--grid     — responsive product grid
+     .kt-featured-collection--carousel — horizontal-snap on mobile only
+   ========================================================================== */
+
+.kt-featured-collection {
+  padding-top: var(--kt-section-padding-top, 64px);
+  padding-bottom: var(--kt-section-padding-bottom, 64px);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
+}
+
+/* Editor-only empty-state hint band — visible on no-collection /
+   no-products only inside the theme editor. */
+.kt-featured-collection--empty .kt-featured-collection__editor-hint {
+  display: block;
+  padding: 2rem;
+  text-align: center;
+  border: 1px dashed rgba(var(--kt-c-fg), 0.3);
+  border-radius: 0.75rem;
+  color: rgb(var(--kt-c-fg));
+  font-size: 0.9375rem;
+  opacity: 0.85;
+}
+
+/* ── Header — heading + CTA row ─────────────────────────────────────── */
+
+.kt-featured-collection__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+@media screen and (max-width: 749px) {
+  .kt-featured-collection__header {
+    flex-direction: column;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+}
+
+.kt-featured-collection__heading-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.kt-featured-collection__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.7);
+}
+
+.kt-featured-collection__title {
+  margin: 0;
+  font-family: var(--kt-f-accent-family, var(--kt-f-heading-family, Georgia, serif));
+  font-size: clamp(1.75rem, 3vw + 1rem, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: rgb(var(--kt-c-fg));
+  /* R106 — anywhere wrap so a long collection title (or merchant
+     heading override) doesn't break the header row. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kt-featured-collection__description {
+  margin-top: 0.75rem;
+  max-width: 60ch;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(var(--kt-c-fg), 0.75);
+}
+
+.kt-featured-collection__description > *:first-child { margin-top: 0; }
+.kt-featured-collection__description > *:last-child { margin-bottom: 0; }
+
+/* ── View-all CTA ─────────────────────────────────────────────────── */
+
+.kt-featured-collection__view-all {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: rgb(var(--kt-c-fg));
+  text-decoration: none;
+  border-bottom: 1px solid rgb(var(--kt-c-fg));
+  transition: gap 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.kt-featured-collection__view-all:hover { gap: 0.75rem; opacity: 0.85; }
+.kt-featured-collection__view-all:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 4px;
+}
+
+.kt-featured-collection__view-all svg { transition: transform 0.2s ease; }
+.kt-featured-collection__view-all:hover svg { transform: translateX(2px); }
+
+/* Mobile-only secondary CTA — hidden on desktop, full-width on mobile. */
+.kt-featured-collection__view-all--mobile {
+  display: none;
+}
+
+@media screen and (max-width: 749px) {
+  .kt-featured-collection__header .kt-featured-collection__view-all:not(.kt-featured-collection__view-all--mobile) {
+    display: none;
+  }
+  .kt-featured-collection__view-all--mobile {
+    display: inline-flex;
+    margin-top: 1.5rem;
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+    border: 1px solid rgba(var(--kt-c-fg), 0.45);
+    border-radius: var(--kt-btn-radius, 4px);
+  }
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────── */
+
+.kt-featured-collection__grid {
+  display: grid;
+  gap: var(--kt-gap-grid-y-m, 1rem) var(--kt-gap-grid-x-m, 0.75rem);
+  grid-template-columns: repeat(var(--kt-fc-cols-mobile, 2), minmax(0, 1fr));
+}
+
+@media screen and (min-width: 750px) {
+  .kt-featured-collection__grid {
+    gap: var(--kt-gap-grid-y-d, 2rem) var(--kt-gap-grid-x-d, 1.5rem);
+    grid-template-columns: repeat(var(--kt-fc-cols-desktop, 4), minmax(0, 1fr));
+  }
+}
+
+/* ── Carousel mode (mobile only — desktop falls back to grid) ────────── */
+
+@media screen and (max-width: 749px) {
+  .kt-featured-collection--carousel .kt-featured-collection__grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    /* Edge-padding matches page-width gutter so the first card snaps
+       flush with the page-width left edge. */
+    padding-bottom: 0.5rem;
+    /* R104 — smooth iOS scroll. */
+    -webkit-overflow-scrolling: touch;
+    /* Hide scrollbar visual chrome (the snap cue is sufficient
+       affordance; visible scrollbars on a glossy product band feel
+       unfinished on most mobile reviewers' phones). */
+    scrollbar-width: none;
+  }
+  .kt-featured-collection--carousel .kt-featured-collection__grid::-webkit-scrollbar {
+    display: none;
+  }
+  .kt-featured-collection--carousel .kt-featured-collection__grid > * {
+    flex: 0 0 calc((100% - 0.75rem) / var(--kt-fc-cols-mobile, 2));
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
