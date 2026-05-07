@@ -48,7 +48,14 @@ html.no-js .kt-cart-drawer {
   background-color: rgba(28, 25, 23, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 2000;
+  /* R113 — cart-drawer sits at drawer-tier + 900 so it wins
+     over other drawers (search, mobile-nav, appointment). The
+     cart is the most important drawer in the commerce flow —
+     a customer adding to cart from inside the search overlay
+     should see the cart drawer paint OVER the search overlay,
+     not behind it. Preserves the previous numerical
+     relationship (1100 + 900 = 2000). */
+  z-index: calc(var(--kt-z-drawer) + 900);
   opacity: 0;
   /* Same global-cascade defense as the panel rule above — without
    * !important, base.css's `* { transition-duration: 0.01ms }` under
@@ -73,7 +80,9 @@ html.no-js .kt-cart-drawer {
   width: 100%;
   background-color: var(--kt-white);
   color: var(--kt-stone-900);
-  z-index: 2100;
+  /* R113 — panel sits +100 above the overlay (preserves the
+     2000 → 2100 relationship). */
+  z-index: calc(var(--kt-z-drawer) + 1000);
   display: flex;
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);

@@ -175,6 +175,23 @@
     --kt-c-status-error-bg: #fee2e2;       /* red-100 */
     --kt-c-status-error-fg: #991b1b;       /* red-800 */
 
+    /* R113 — z-index token tier. Internal stacking contexts
+       (0, 1, 2, 3, 10, 20) intentionally remain as raw integers
+       because they're scoped within a section and don't compete
+       with merchant-injected third-party widgets. The HIGH tiers
+       below are the ones that merchants need to reason about
+       when integrating cookie banners, chat widgets, or A/B test
+       overlays — those typically sit at z-index 9999 or higher,
+       and the theme should expose its drawer/lightbox/loader
+       tier so merchants can place their layer correctly without
+       fighting !important. */
+    --kt-z-sticky: 100;       /* sticky header, sticky filter bar */
+    --kt-z-drawer: 1100;      /* cart drawer, mobile nav, filter drawer, appointment drawer */
+    --kt-z-popover: 1500;     /* newsletter popup, tooltips */
+    --kt-z-lightbox: 5000;    /* product gallery lightbox, gallery focus-wall */
+    --kt-z-toast: 9000;       /* SR-only announcer, future toast surface */
+    --kt-z-loader: 9999;      /* intro loader (top-most) */
+
     /* Pure endpoints */
     --kt-white: #ffffff;
     --kt-black: #000000;

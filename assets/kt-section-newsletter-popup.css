@@ -7,12 +7,12 @@
 .kt-newsletter-popup {
   position: fixed;
   inset: 0;
-  /* Lifted above the sticky header (z-index ≤1100 in kt-section-header
-     .css) so the popup actually paints over the header's brand bar
-     instead of behind it. Auto-opened popups at z-index:100 used to be
-     half-hidden under the announcement bar + header chrome. Cart drawer
-     (2000+) still wins if both happen to be open. */
-  z-index: 1500;
+  /* R113 — popover tier (above drawers, below lightbox). The
+     newsletter popup is auto-opened on session entry; placing it
+     in the popover layer keeps it above the sticky header but
+     below product-gallery lightboxes (so a customer who opened
+     a lightbox first never sees the popup paint over it). */
+  z-index: var(--kt-z-popover);
   display: flex;
   align-items: center;
   justify-content: center;

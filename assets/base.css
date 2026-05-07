@@ -351,7 +351,10 @@ a {
   position: fixed !important;
   top: 1rem;
   left: 1rem;
-  z-index: 9999;
+  /* R113 — skip-link sits at loader tier so it paints above any
+     active drawer/lightbox/popover. WCAG 2.4.1 (Bypass Blocks)
+     is meaningless if the link is hidden behind another layer. */
+  z-index: var(--kt-z-loader);
   width: auto !important;
   height: auto !important;
   padding: 1rem 2rem !important;

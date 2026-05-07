@@ -191,7 +191,9 @@
   padding: 1.25rem;
   border-radius: 1rem;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
-  z-index: 900;
+  /* R113 — sticky tier (popup sits above section content but
+     below drawers / lightboxes if those open over it). */
+  z-index: calc(var(--kt-z-sticky) + 800);
   pointer-events: auto;
   opacity: 0;
   transform: translateY(10px);
@@ -324,7 +326,8 @@
   display: none;
   position: fixed;
   inset: auto 0 0 0;
-  z-index: 1100;
+  /* R113 — drawer tier (mobile bottom-sheet IS a drawer). */
+  z-index: var(--kt-z-drawer);
   padding: 1.5rem;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);

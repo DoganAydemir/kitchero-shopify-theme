@@ -14,7 +14,8 @@
 .kt-appointment-drawer__overlay {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  /* R113 — drawer tier; +1 above for the panel itself. */
+  z-index: var(--kt-z-drawer);
   background-color: rgba(28, 25, 23, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -26,7 +27,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 1101;
+  z-index: calc(var(--kt-z-drawer) + 1);
   width: 100%;
   max-width: 480px;
   background-color: var(--kt-white);

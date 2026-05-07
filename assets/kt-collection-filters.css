@@ -351,7 +351,10 @@
 .kt-filter-drawer {
   position: fixed;
   inset: 0;
-  z-index: 9000;
+  /* R113 — toast tier (above lightbox, below loader). Filter
+     drawer needs to win over product-card lightboxes opened
+     prior to the customer engaging filters. */
+  z-index: var(--kt-z-toast);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;

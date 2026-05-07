@@ -24,7 +24,10 @@
 .kt-loader {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  /* R113 — loader is the top-most layer; it should paint above
+     ALL other UI including merchant chat widgets and cookie
+     banners during the brief intro window. */
+  z-index: var(--kt-z-loader);
   /* Colors are driven by theme settings via inline style on the
      loader element (--kt-loader-bg / text / accent). Fallbacks make
      the loader usable even if the variables are missing. */

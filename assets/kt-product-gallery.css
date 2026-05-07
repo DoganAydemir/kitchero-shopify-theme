@@ -181,7 +181,9 @@ button.kt-gallery__slide--image {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 5000;
+  /* R113 — lightbox tier; close + nav buttons sit +10 above so
+     they paint over the lightbox content. */
+  z-index: var(--kt-z-lightbox);
   background-color: rgba(0, 0, 0, 0.95);
   align-items: center;
   justify-content: center;
@@ -195,7 +197,7 @@ button.kt-gallery__slide--image {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  z-index: 5010;
+  z-index: calc(var(--kt-z-lightbox) + 10);
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -225,7 +227,7 @@ button.kt-gallery__slide--image {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 5010;
+  z-index: calc(var(--kt-z-lightbox) + 10);
   /* Equal width + height keeps the `border-radius: 50%` rendering
      as a perfect circle. The previous `padding: 0.75rem 1rem` was
      asymmetric (vertical 12px / horizontal 16px), which produced
