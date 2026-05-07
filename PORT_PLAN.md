@@ -215,10 +215,10 @@ Work in phases. Finish a phase entirely, commit, test in `shopify theme dev`, th
 **Goal:** three collection listing variants (horizontal, drawer, vertical), countdown pills on deal cards, filter/sort functional.
 
 **Tasks:**
-- [ ] `sections/main-collection-horizontal.liquid` — default listing, top filter bar with dropdowns, 2/3/4 column toggle, product card with hover image swap, countdown pill for limited offers
+- [ ] `sections/main-collection.liquid` — default listing, top filter bar with dropdowns, 2/3/4 column toggle, product card with hover image swap, countdown pill for limited offers
 - [ ] `sections/main-collection-drawer.liquid` — listing with filter drawer (right side)
 - [ ] `sections/main-collection-vertical.liquid` — listing with left sidebar filters
-- [ ] `templates/collection.json` → main-collection-horizontal
+- [ ] `templates/collection.json` → main-collection
 - [ ] `templates/collection.drawer.json` → main-collection-drawer
 - [ ] `templates/collection.vertical.json` → main-collection-vertical
 - [ ] Implement standard Shopify `{% paginate %}` logic across all grid views using `snippets/pagination.liquid` (max limit 50 per page).

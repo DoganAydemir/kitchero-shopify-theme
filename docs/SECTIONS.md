@@ -1,11 +1,16 @@
 # Sections catalogue
 
-Every merchant-droppable section in Kitchero, grouped by intent. All sections
-support presets, app blocks, theme-editor live editing, translatable labels
-(5 languages: EN, TR, DE, FR, ES), and WCAG AA accessibility.
+Curated catalogue of the headline merchant-droppable sections in Kitchero,
+grouped by intent. All sections support presets, theme-editor live editing,
+translatable labels (5 languages: EN, TR, DE, FR, ES), and WCAG AA
+accessibility.
 
 Template-bound sections (`main-*.liquid`) are not listed here — they only
 render on their associated template (product, collection, cart, etc.).
+Some smaller utility / page-specific sections (rich-text, multicolumn,
+financing-* family, recently-viewed-products, etc.) ship in the repo but
+are not given dedicated catalogue entries below; their schemas describe
+them in the theme editor when merchants browse the section picker.
 
 ---
 
@@ -117,8 +122,13 @@ All sections follow the same patterns:
   it in and see meaningful content immediately.
 - **Placeholders:** Empty image settings render Shopify's built-in
   `placeholder_svg_tag` — never blank boxes.
-- **App blocks:** Every section includes `{"type": "@app"}` in its blocks
-  array so merchants can attach app blocks (Theme Store requirement).
+- **App blocks:** The Theme Store mandatory surfaces — main-product,
+  featured-product, header, footer, main-cart, main-blog, main-article,
+  main-collection — all expose `{"type": "@app"}` in their blocks array.
+  Merchant-droppable sections that host third-party app blocks (cart
+  drawer, newsletter popup, recently-viewed, etc.) include the same
+  declaration; smaller utility sections that wouldn't reasonably host an
+  app block omit it.
 - **JS:** Vanilla, no framework, no build step. Every interactive section
   re-initializes on `shopify:section:load` and cleans up on `unload`.
   Idempotent load guards (`window.__kitchero*Loaded`) prevent double-binding.
