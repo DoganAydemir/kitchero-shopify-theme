@@ -192,10 +192,10 @@ The theme's i18n structure supports 5 languages out of the gate:
 | Code | Language | Translations |
 |---|---|---|
 | `en` | English | Complete (default) |
-| `tr` | Turkish | Stub (ready to translate) |
-| `de` | German | Stub |
-| `fr` | French | Stub |
-| `es` | Spanish | Stub |
+| `tr` | Turkish | Complete (full key parity, native-speaker QA recommended) |
+| `de` | German | Complete (full key parity, native-speaker QA recommended) |
+| `fr` | French | Complete (full key parity, native-speaker QA recommended) |
+| `es` | Spanish | Complete (full key parity, native-speaker QA recommended) |
 
 Storefront strings live in `locales/*.json`; theme editor labels live in
 `locales/*.schema.json`. All five language sets — English (default),

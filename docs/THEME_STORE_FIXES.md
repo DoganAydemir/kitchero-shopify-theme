@@ -39,7 +39,7 @@ annotated in `THEME_STORE_RULES_OFFICIAL.md`.
 | 9 | `sections/featured-product.liquid` with @app block | ✅ Resolved (section + CSS + 5-locale parity) |
 | 10 | Address country `<select>` autocomplete token | ✅ Resolved (R117: `country` → `country-name` for spec-correct match) |
 | 11 | Settings preset declared with at least one named entry | ✅ Resolved (single `Kitchero` preset, name takes parent theme name per Shopify rule) |
-| 12 | Locale schema strings (en/tr/de/fr/es) | ✅ Resolved (3470 schema keys × 5 locales, full parity verified R117) |
+| 12 | Locale schema strings (en/tr/de/fr/es) | ✅ Resolved (1,720 schema keys + 527 storefront keys × 5 locales, full parity verified R117) |
 
 ---
 
