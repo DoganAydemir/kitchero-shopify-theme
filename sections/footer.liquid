@@ -150,6 +150,28 @@
                       {{ 'kt.newsletter.button_label' | t }}
                     </button>
                   </div>
+                  {%- comment -%}
+                    R122 — GDPR consent gate. Block-level setting
+                    (footer newsletter is per-block configurable).
+                    Same R96/R122-B3 rationale: HTML5 required gates
+                    submission until customer ticks; submit then
+                    sends accepts_marketing=true legitimately.
+                  {%- endcomment -%}
+                  {%- if block.settings.show_consent_checkbox -%}
+                    <p class="kt-footer__newsletter-consent">
+                      <input
+                        type="checkbox"
+                        id="footer-newsletter-consent"
+                        name="contact[accepts_marketing]"
+                        value="true"
+                        required
+                        aria-required="true"
+                      >
+                      <label for="footer-newsletter-consent" class="kt-footer__newsletter-consent-label">
+                        {{- block.settings.consent_label | default: 'I agree to receive marketing emails. I can unsubscribe at any time.' -}}
+                      </label>
+                    </p>
+                  {%- endif -%}
                   {%- if form.errors -%}
                     <p class="kt-footer__newsletter-error" id="FooterNewsletter-error" role="alert">
                       {%- for field in form.errors -%}
@@ -470,6 +492,28 @@
           "id": "heading",
           "label": "t:sections.footer.blocks.newsletter.settings.heading.label",
           "default": "Subscribe"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.newsletter.settings.header__consent.content"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.footer.blocks.newsletter.settings.header__consent.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_consent_checkbox",
+          "label": "t:sections.footer.blocks.newsletter.settings.show_consent_checkbox.label",
+          "info": "t:sections.footer.blocks.newsletter.settings.show_consent_checkbox.info",
+          "default": false
+        },
+        {
+          "type": "richtext",
+          "id": "consent_label",
+          "label": "t:sections.footer.blocks.newsletter.settings.consent_label.label",
+          "info": "t:sections.footer.blocks.newsletter.settings.consent_label.info",
+          "default": "<p>I agree to receive marketing emails. I can unsubscribe at any time.</p>"
         }
       ]
     },

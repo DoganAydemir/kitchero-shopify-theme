@@ -272,6 +272,28 @@
               <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
 
+            {%- comment -%}
+              R122 — GDPR consent gate. Same R96/R122-B3 rationale as
+              newsletter-signup section. Default-OFF for non-EU
+              merchants; merchants in EU/UK/Brazil enable + provide
+              localized text with privacy-policy link.
+            {%- endcomment -%}
+            {%- if section.settings.show_consent_checkbox -%}
+              <p class="kt-newsletter-popup__consent">
+                <input
+                  type="checkbox"
+                  id="NewsletterPopupConsent-{{ section.id }}"
+                  name="contact[accepts_marketing]"
+                  value="true"
+                  required
+                  aria-required="true"
+                >
+                <label for="NewsletterPopupConsent-{{ section.id }}" class="kt-newsletter-popup__consent-label">
+                  {{- section.settings.consent_label | default: 'I agree to receive marketing emails. I can unsubscribe at any time.' -}}
+                </label>
+              </p>
+            {%- endif -%}
+
             <button type="submit" class="kt-newsletter-popup__submit">
               <span>{{ section.settings.submit_button_text | default: 'Subscribe' }}</span>
               <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -476,6 +498,28 @@
       "step": 1,
       "unit": "d",
       "default": 7
+    },
+    {
+      "type": "header",
+      "content": "t:sections.newsletter-popup.settings.header__consent.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.newsletter-popup.settings.header__consent.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_consent_checkbox",
+      "label": "t:sections.newsletter-popup.settings.show_consent_checkbox.label",
+      "info": "t:sections.newsletter-popup.settings.show_consent_checkbox.info",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "consent_label",
+      "label": "t:sections.newsletter-popup.settings.consent_label.label",
+      "info": "t:sections.newsletter-popup.settings.consent_label.info",
+      "default": "<p>I agree to receive marketing emails. I can unsubscribe at any time.</p>"
     }
   ],
   "blocks": [
