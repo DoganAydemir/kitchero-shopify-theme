@@ -1,9 +1,14 @@
 {{ 'kt-section-how-it-works.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-how-it-works" data-section-id="{{ section.id }}" data-section-type="how-it-works">
+<section
+  class="kt-how-it-works"
+  data-section-id="{{ section.id }}"
+  data-section-type="how-it-works"
+  aria-labelledby="HowItWorksTitle-{{ section.id }}"
+>
   <div class="page-width">
     {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-    <{{ heading_tag }} class="kt-how-it-works__title">{{ section.settings.heading | default: 'How It Works' }}</{{ heading_tag }}>
+    <{{ heading_tag }} id="HowItWorksTitle-{{ section.id }}" class="kt-how-it-works__title">{{ section.settings.heading | default: 'How It Works' }}</{{ heading_tag }}>
     <p class="kt-how-it-works__subtitle">{{ section.settings.subtitle | default: 'From vision to reality in four steps' }}</p>
 
     <div class="kt-how-it-works__cards">

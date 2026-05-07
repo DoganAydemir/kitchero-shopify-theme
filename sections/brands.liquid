@@ -1,6 +1,14 @@
 {{ 'kt-section-brands.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-brands" data-section-id="{{ section.id }}">
+{%- comment -%}
+  R115 — brands marquee has no visible heading (just a logo
+  parade), so aria-label provides the AT landmark name.
+{%- endcomment -%}
+<section
+  class="kt-brands"
+  data-section-id="{{ section.id }}"
+  aria-label="{{ 'kt.section.brands.aria_label' | t | default: 'Featured brands' }}"
+>
   {%- comment -%}
     Empty-block guard. The brands marquee renders empty fade gradients
     over a blank track when the merchant has 0 logo blocks; in the

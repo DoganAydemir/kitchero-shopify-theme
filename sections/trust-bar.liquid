@@ -38,7 +38,21 @@
 {%- endfor -%}
 
 {%- if trust_configured_count > 0 or request.design_mode -%}
-<section class="kt-trust-bar" data-section-id="{{ section.id }}" data-section-type="trust-bar">
+{%- comment -%}
+  R115 — `<section>` is a region landmark in the AT tree. Adding
+  aria-label gives the trust-bar an accessible name so SR users
+  navigating landmarks (NVDA D / VO Ctrl+Opt+U) hear "Trust
+  signals, region" instead of an unnamed section. Trust-bar has
+  no visible heading (just stat tiles), so aria-label is the
+  correct pattern here (vs aria-labelledby for sections with a
+  visible heading).
+{%- endcomment -%}
+<section
+  class="kt-trust-bar"
+  data-section-id="{{ section.id }}"
+  data-section-type="trust-bar"
+  aria-label="{{ 'kt.section.trust-bar.aria_label' | t | default: 'Trust signals' }}"
+>
   <div class="page-width">
     {%- if trust_configured_count == 0 and request.design_mode -%}
       {%- comment -%}

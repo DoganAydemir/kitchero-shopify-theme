@@ -1,10 +1,15 @@
 {{ 'kt-section-before-after.css' | asset_url | stylesheet_tag }}
 
-<section class="kt-before-after" data-section-id="{{ section.id }}" data-section-type="before-after">
+<section
+  class="kt-before-after"
+  data-section-id="{{ section.id }}"
+  data-section-type="before-after"
+  aria-labelledby="BeforeAfterTitle-{{ section.id }}"
+>
   <div class="page-width">
     <div class="kt-before-after__header">
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-before-after__title">{{ section.settings.heading | default: 'See the Difference' }}</{{ heading_tag }}>
+      <{{ heading_tag }} id="BeforeAfterTitle-{{ section.id }}" class="kt-before-after__title">{{ section.settings.heading | default: 'See the Difference' }}</{{ heading_tag }}>
       <p class="kt-before-after__subtitle">{{ section.settings.subtitle | default: 'Drag to compare before and after' }}</p>
     </div>
 
