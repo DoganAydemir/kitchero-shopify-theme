@@ -13,7 +13,10 @@
   --kt-iwt-card-radius: 14px;
   --kt-iwt-image-radius: 18px;
 
-  padding-block: var(--kt-iwt-padding);
+  /* R-density — additive top/bottom from merchant settings.
+     Stacks with the existing vertical_padding setting via +. */
+  padding-top: calc(var(--kt-iwt-padding) + var(--kt-iwt-pad-top, 0px));
+  padding-bottom: calc(var(--kt-iwt-padding) + var(--kt-iwt-pad-bottom, 0px));
   background-color: var(--kt-stone-50);
 }
 
