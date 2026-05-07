@@ -46,12 +46,22 @@
 -%}
 
 <section class="kt-search-page" data-section-id="{{ section.id }}" data-section-type="main-search">
+  {%- comment -%}
+    R106 — XSS hardening. Shopify's `t` filter does NOT
+    auto-escape interpolated arguments. A search URL of
+    `/search?q=<img src=x onerror=alert(1)>` would otherwise
+    inject markup into the H1, the result-count line, and the
+    no-results message. Pre-escaping search.terms ONCE makes
+    every downstream `t: terms: safe_terms` call safe.
+    Same R96 SUB-05 class as predictive-search.liquid:187.
+  {%- endcomment -%}
+  {%- assign safe_terms = search.terms | escape -%}
   <div class="page-width">
     <header class="kt-search-page__header">
       <span class="kt-search-page__eyebrow">{{ 'kt.search.eyebrow' | t }}</span>
       <h1 class="kt-search-page__title">
         {%- if search.performed -%}
-          {{ 'kt.search.results_for' | t: terms: search.terms }}
+          {{ 'kt.search.results_for' | t: terms: safe_terms }}
         {%- else -%}
           {{ 'kt.search.search' | t }}
         {%- endif -%}
@@ -152,7 +162,7 @@
           <div class="kt-search-page__main">
             <div class="kt-search-page__meta-bar">
               <p class="kt-search-page__results-count">
-                {{ 'kt.search.results_count' | t: count: search.results_count, terms: search.terms }}
+                {{ 'kt.search.results_count' | t: count: search.results_count, terms: safe_terms }}
               </p>
 
               {%- if active_scope == 'product' and search.sort_options.size > 0 -%}
@@ -197,7 +207,7 @@
         </div>
       {%- else -%}
         <div class="kt-search-page__empty">
-          <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: search.terms }}</p>
+          <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: safe_terms }}</p>
           {%- comment -%}
             Recovery path. A 0-result search shouldn't dead-end the
             customer — give them a guaranteed escape hatch to the

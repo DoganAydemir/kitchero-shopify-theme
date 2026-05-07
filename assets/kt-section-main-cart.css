@@ -145,6 +145,13 @@
   line-height: 1.25;
   letter-spacing: -0.01em;
   transition: color 0.15s ease;
+  /* R106 — long unbroken tokens (60-char custom SKUs, German
+     compound nouns, unbroken Asian character chains) overflow
+     the cart row's two-column grid on mobile (~360px viewports)
+     and push the qty stepper / line-total off-screen. Cart-drawer
+     applies the same protection at kt-cart-drawer.css:340. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media screen and (min-width: 750px) {

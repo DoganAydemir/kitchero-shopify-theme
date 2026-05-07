@@ -40,6 +40,12 @@
   letter-spacing: -0.03em;
   color: var(--kt-stone-900);
   margin: 0;
+  /* R106 — H1 interpolates `safe_terms` (escaped search query).
+     A 200-char query like "shoes shoes shoes shoes ..." breaks
+     out of the viewport without word-break. anywhere mode
+     guarantees we never render an unbreakable line. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ── Form ──────────────────────────────────────────────── */
