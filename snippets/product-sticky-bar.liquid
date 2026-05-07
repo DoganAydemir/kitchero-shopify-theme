@@ -1,0 +1,96 @@
+{%- doc -%}
+  Sticky add-to-cart bar — appears at the bottom of the viewport when
+  the in-page product form scrolls out of sight. Mirrors the modern
+  commerce pattern (Concept's mobile-dock + Essence's sticky-add-to-
+  cart) so a customer browsing long PDP content always has a one-tap
+  return path to the buy controls.
+
+  R135 / CR-B reject vector — Kitchero previously had no sticky ATC
+  surface on PDP, which is a Theme Store competitive-parity gap.
+
+  Renders nothing when:
+    • the merchant disabled `show_sticky_atc` on main-product, OR
+    • the product has zero variants (gift cards / archived /
+      preview-only products).
+
+  The bar starts hidden + inert; product-sticky-bar.js promotes it
+  to visible the first time the in-page product form's bounding box
+  leaves the viewport, and demotes it again when the form re-enters.
+  Both `hidden` AND `inert` are toggled in lockstep with aria-hidden
+  so a keyboard / screen-reader user never tabs into an off-screen
+  control.
+
+  @param {object} product - Product (defaults to current product context)
+  @param {object} section - Section (passes settings through)
+
+  @example
+  {%- render 'product-sticky-bar', product: product, section: section -%}
+{%- enddoc -%}
+
+{%- if section.settings.show_sticky_atc and product != blank and product.variants.size > 0 -%}
+  {{ 'kt-product-sticky-bar.css' | asset_url | stylesheet_tag }}
+
+  {%- assign sticky_variant = product.selected_or_first_available_variant -%}
+  {%- assign sticky_image = product.featured_media | default: product.featured_image -%}
+
+  <div
+    class="kt-pdp-sticky"
+    data-pdp-sticky
+    data-product-handle="{{ product.handle }}"
+    aria-hidden="true"
+    hidden
+    inert
+  >
+    <div class="kt-pdp-sticky__inner page-width">
+      <div class="kt-pdp-sticky__product">
+        {%- if sticky_image != blank -%}
+          {{
+            sticky_image
+            | image_url: width: 96
+            | image_tag:
+              class: 'kt-pdp-sticky__image',
+              loading: 'lazy',
+              widths: '48, 96, 144',
+              sizes: '48px',
+              width: 48,
+              height: 48,
+              alt: ''
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-pdp-sticky__image' }}
+        {%- endif -%}
+
+        <div class="kt-pdp-sticky__text">
+          <span class="kt-pdp-sticky__title">{{ product.title | escape }}</span>
+          <span class="kt-pdp-sticky__price" data-pdp-sticky-price>
+            {%- if sticky_variant.compare_at_price > sticky_variant.price -%}
+              <s class="kt-pdp-sticky__price-was">{{ sticky_variant.compare_at_price | money }}</s>
+            {%- endif -%}
+            <span class="kt-pdp-sticky__price-now">{{ sticky_variant.price | money }}</span>
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="kt-pdp-sticky__cta"
+        data-pdp-sticky-cta
+        aria-label="{{ 'kt.product.sticky.cta_aria' | t | default: 'Scroll to add-to-cart' }}"
+      >
+        <span class="kt-pdp-sticky__cta-label">
+          {%- if sticky_variant.available -%}
+            {{ 'kt.product.add_to_cart' | t }}
+          {%- else -%}
+            {{ 'kt.product.sold_out' | t }}
+          {%- endif -%}
+        </span>
+        <svg class="kt-pdp-sticky__cta-icon" aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="{{ 'product-sticky-bar.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}

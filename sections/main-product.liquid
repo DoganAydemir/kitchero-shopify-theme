@@ -535,6 +535,14 @@
   </div>
 </section>
 
+{%- comment -%}
+  Sticky add-to-cart bar (R135 / CR-B). Rendered outside the section
+  wrapper so it can position fixed-bottom across the entire viewport
+  without being clipped by section padding. The snippet itself gates
+  on `section.settings.show_sticky_atc` and product availability.
+{%- endcomment -%}
+{%- render 'product-sticky-bar', product: product, section: section -%}
+
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
@@ -574,7 +582,19 @@
     "templates": ["product"]
   },
   "limit": 1,
-  "settings": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main-product.settings.header__sticky.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sticky_atc",
+      "label": "t:sections.main-product.settings.show_sticky_atc.label",
+      "info": "t:sections.main-product.settings.show_sticky_atc.info",
+      "default": true
+    }
+  ],
   "blocks": [
     {
       "type": "title",
