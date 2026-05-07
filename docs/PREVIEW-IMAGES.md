@@ -79,7 +79,8 @@ These are the minimum required. All shots come from the live demo store.
 
 ## Showcase shots (sections catalogue)
 
-These demonstrate the 22 merchant-droppable sections added in Phase 3. Not
+These demonstrate the merchant-droppable sections grouped into 10 categories
+per `docs/SECTIONS.md`. Not
 strictly required by the Theme Store, but they massively increase conversion
 on the listing page.
 

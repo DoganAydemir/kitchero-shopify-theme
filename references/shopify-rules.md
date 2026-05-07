@@ -272,19 +272,29 @@ fetch(`${window.location.pathname}?section_id=${sectionId}`)
 ```
 
 ### Cart AJAX API
+
+> **Markets-locale safety.** Always prefix the cart endpoints with
+> `Shopify.routes.root` so locale-prefixed storefronts (`/de/`,
+> `/fr-ca/`, etc.) hit the right path. Bare `/cart/...` literals 404
+> on every non-primary market — flagged as REJ-JS-003 / REJ-JS-004 in
+> REJECT_RULES.md. The repo's actual cart code (`assets/cart-drawer.js`,
+> `assets/product-form.js`) follows this pattern.
+
 ```javascript
+const root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+
 // Add to cart
-fetch('/cart/add.js', {
+fetch(root + 'cart/add.js', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ id: variantId, quantity: 1 })
 });
 
 // Get cart
-fetch('/cart.js').then(res => res.json());
+fetch(root + 'cart.js').then(res => res.json());
 
 // Update quantity
-fetch('/cart/change.js', {
+fetch(root + 'cart/change.js', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ id: lineItemKey, quantity: newQty })
