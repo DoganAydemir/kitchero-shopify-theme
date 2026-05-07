@@ -163,7 +163,12 @@ if (!window.__kitcheroCollapsibleAccordionLoaded) {
       }
       /* Scroll the opened item into view so the merchant can see their edits */
       try {
-        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        /* R107 — Safari 15-17 (WebKit bug 218927) ignores the CSS
+           `scroll-behavior: auto` rule from prefers-reduced-motion
+           when JS explicitly passes `'smooth'`. Gate at runtime. */
+        var prm = window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        item.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest' });
       } catch (e) {
         item.scrollIntoView();
       }

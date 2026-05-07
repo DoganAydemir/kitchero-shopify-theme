@@ -244,7 +244,18 @@
       var fullyVisible = rect.top >= 0 && rect.bottom <= viewportH;
       if (!fullyVisible && typeof block.scrollIntoView === 'function') {
         try {
-          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          /* R107 — Safari 15-17 (WebKit bug 218927) ignores the
+             CSS-imposed `scroll-behavior: auto` from the
+             prefers-reduced-motion media query when a JS call
+             passes `behavior: 'smooth'` explicitly. WCAG 2.3.3
+             requires we honor the user's motion preference, so
+             gate the smooth pass on a runtime matchMedia check.
+             Same pattern applied to the other 4 scrollIntoView
+             call sites (collapsible-accordion, testimonials,
+             testimonials-marquee, product-gallery). */
+          var prm = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          block.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center' });
         } catch (_) { block.scrollIntoView(); }
       }
 

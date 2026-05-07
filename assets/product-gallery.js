@@ -108,8 +108,13 @@
       if (thumbs[index]) {
         thumbs[index].classList.add('kt-gallery__thumb--active');
         thumbs[index].setAttribute('aria-current', 'true');
-        /* Scroll thumb into view */
-        thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        /* Scroll thumb into view.
+           R107 — runtime prefers-reduced-motion gate. CSS rule is
+           ignored by Safari 15-17 when JS passes 'smooth' (WebKit
+           bug 218927). WCAG 2.3.3 — honor user motion preference. */
+        var prm = window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        thumbs[index].scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' });
       }
 
       /* Update lightbox image if open */

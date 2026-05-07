@@ -124,7 +124,11 @@ if (!window.__kitcheroTestimonialsMarqueeLoaded) {
       if (!section) return;
       section.classList.add(PAUSE_CLASS);
       try {
-        block.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        /* R107 — runtime prefers-reduced-motion gate; CSS-only
+           override is ignored by Safari 15-17 (WebKit 218927). */
+        var prm = window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        block.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center', inline: 'center' });
       } catch (e) {
         block.scrollIntoView();
       }

@@ -152,7 +152,12 @@
     var card = e.target;
     if (!card || !card.classList || !card.classList.contains('kt-testimonials__card')) return;
     try {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      /* R107 — runtime prefers-reduced-motion gate; CSS rule is
+         not honored by Safari 15-17 (WebKit 218927) when the
+         JS call passes `'smooth'` explicitly. */
+      var prm = window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      card.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center' });
     } catch (err) {
       card.scrollIntoView();
     }
