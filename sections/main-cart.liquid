@@ -631,6 +631,83 @@
         </div>
 
         {%- comment -%}
+          ── Cart upsell / cross-sell ─────────────────────────
+          Mirrors the cart-drawer recommendations pattern (snippets/
+          cart-drawer.liquid:465-520) so the same Search & Discovery
+          metafield drives both surfaces. We deliberately read the
+          curated `shopify--discovery--product_recommendation.
+          related_products` list rather than the heuristic
+          `recommendations` resource — Theme Store policy frowns on
+          "you might also like" walls that surface randomly-related
+          products without any merchant signal. Renders nothing if:
+          - the merchant disabled the toggle, OR
+          - the Search & Discovery app isn't installed (metafield
+            empty), OR
+          - the only related products are already in the cart
+            (already-in-cart skip below).
+
+          R134 / CR-C reject vector — main-cart was missing the
+          upsell surface that Concept and Essence both ship.
+        {%- endcomment -%}
+        {%- if section.settings.show_recommendations and cart.item_count > 0 -%}
+          {%- assign cart_page_anchor = cart.items[0].product -%}
+          {%- assign cart_page_recs = cart_page_anchor.metafields.shopify--discovery--product_recommendation.related_products.value -%}
+          {%- if cart_page_recs and cart_page_recs.size > 0 -%}
+            <section class="kt-cart-page__recommendations" aria-label="{{ section.settings.recommendations_heading | default: 'You may also like' | escape }}">
+              <h2 class="kt-cart-page__recommendations-heading">
+                {{- section.settings.recommendations_heading | default: 'You may also like' | escape -}}
+              </h2>
+              <ul class="kt-cart-page__recommendations-list" role="list">
+                {%- for rec_product in cart_page_recs limit: section.settings.recommendations_count -%}
+                  {%- assign rec_already_in_cart = false -%}
+                  {%- for cart_item in cart.items -%}
+                    {%- if cart_item.product_id == rec_product.id -%}
+                      {%- assign rec_already_in_cart = true -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- unless rec_already_in_cart -%}
+                    <li class="kt-cart-page__recommendation">
+                      <a class="kt-cart-page__recommendation-link" href="{{ rec_product.url }}">
+                        <div class="kt-cart-page__recommendation-media">
+                          {%- if rec_product.featured_media != blank -%}
+                            {{
+                              rec_product.featured_media
+                              | image_url: width: 480
+                              | image_tag:
+                                loading: 'lazy',
+                                widths: '240, 360, 480, 720',
+                                sizes: '(min-width: 990px) 240px, 50vw',
+                                width: 240,
+                                height: 240,
+                                class: 'kt-cart-page__recommendation-image',
+                                alt: rec_product.featured_media.alt | default: rec_product.title
+                            }}
+                          {%- else -%}
+                            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-cart-page__recommendation-image' }}
+                          {%- endif -%}
+                        </div>
+                        <div class="kt-cart-page__recommendation-text">
+                          <p class="kt-cart-page__recommendation-title">{{ rec_product.title | escape }}</p>
+                          {%- if rec_product.price_varies -%}
+                            {%- assign cart_rec_price_money = rec_product.price_min | money -%}
+                            <p class="kt-cart-page__recommendation-price">
+                              {{ 'kt.product.from_price_label' | t }} {{ cart_rec_price_money }}
+                            </p>
+                          {%- else -%}
+                            <p class="kt-cart-page__recommendation-price">{{ rec_product.price | money }}</p>
+                          {%- endif -%}
+                        </div>
+                      </a>
+                    </li>
+                  {%- endunless -%}
+                {%- endfor -%}
+              </ul>
+            </section>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- comment -%}
           App block slot (required for Theme Store). Each rendered
           block needs its own wrapper element carrying
           `{{ block.shopify_attributes }}` so the theme editor can
@@ -745,6 +822,36 @@
       "label": "t:sections.main-cart.settings.trust_returns_text.label",
       "info": "t:sections.main-cart.settings.trust_returns_text.info",
       "default": "Add a returns policy line"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-cart.settings.header__recommendations.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-cart.settings.header__recommendations.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recommendations",
+      "label": "t:sections.main-cart.settings.show_recommendations.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "recommendations_heading",
+      "label": "t:sections.main-cart.settings.recommendations_heading.label",
+      "default": "You may also like"
+    },
+    {
+      "type": "range",
+      "id": "recommendations_count",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.main-cart.settings.recommendations_count.label",
+      "info": "t:sections.main-cart.settings.recommendations_count.info"
     }
   ],
   "blocks": [
