@@ -40,8 +40,18 @@
 -%}
 
 {%- if color_option and color_option.values.size > 0 -%}
+  {%- comment -%}
+    R131 — kt_swatch_max_visible (theme setting, default 5) caps the
+    visible swatch count so a 12-color product doesn't push the card
+    title off the row. Hidden swatches surface as a "+N" indicator,
+    inviting the customer to click through to the PDP for the full
+    range.
+  {%- endcomment -%}
+  {%- assign max_visible = settings.kt_swatch_max_visible | default: 5 -%}
+  {%- assign total_count = color_option.values.size -%}
+  {%- assign hidden_count = total_count | minus: max_visible -%}
   <div class="kt-swatches" aria-label="{{ color_option.name }}">
-    {%- for value in color_option.values -%}
+    {%- for value in color_option.values limit: max_visible -%}
       {%- liquid
         # 1. Native OS 2.0 swatch on the option value. `value` here is
         #    a ProductOptionValue object when the option is of Color
@@ -142,5 +152,17 @@
         ></span>
       {%- endif -%}
     {%- endfor -%}
+    {%- if hidden_count > 0 -%}
+      {%- comment -%}
+        "+N" indicator. Clicking the card itself navigates to the
+        PDP where all swatches are visible — no separate link needed.
+      {%- endcomment -%}
+      <span
+        class="kt-swatches__more"
+        aria-label="{{ 'kt.product.swatches.more_html' | t: count: hidden_count | default: hidden_count }}"
+      >
+        +{{ hidden_count }}
+      </span>
+    {%- endif -%}
   </div>
 {%- endif -%}

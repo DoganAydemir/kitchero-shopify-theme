@@ -230,6 +230,26 @@
 
     --kt-badge-radius: {{ settings.kt_badge_radius | divided_by: 10.0 }}rem;
 
+    {%- comment -%}
+      R131 — Swatch tokens. `kt_swatch_shape` is a select setting
+      that maps option values to CSS border-radius values:
+        circle  → 50%
+        rounded → 4px
+        square  → 0
+      We emit the resolved CSS value directly so the consumer
+      (kt-card-product.css `.kt-swatches__dot`) can use
+      var(--kt-swatch-shape) without a per-shape class.
+    {%- endcomment -%}
+    --kt-swatch-size: {{ settings.kt_swatch_size | default: 18 }}px;
+    {%- case settings.kt_swatch_shape -%}
+      {%- when 'rounded' -%}
+        --kt-swatch-shape: 4px;
+      {%- when 'square' -%}
+        --kt-swatch-shape: 0;
+      {%- else -%}
+        --kt-swatch-shape: 50%;
+    {%- endcase %}
+
     --kt-pcard-img-pad: {{ settings.kt_pcard_img_pad | divided_by: 10.0 }}rem;
     --kt-pcard-radius: {{ settings.kt_pcard_radius | divided_by: 10.0 }}rem;
     --kt-pcard-text-align: {{ settings.kt_pcard_text_align }};

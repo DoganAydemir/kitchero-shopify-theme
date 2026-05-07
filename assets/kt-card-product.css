@@ -362,7 +362,13 @@
   color: var(--kt-stone-500);
 }
 
-/* Color Swatches */
+/* ── Color swatches (R131 — driven by theme-wide settings) ────────
+   Custom properties read from settings_schema.json's kt_swatches
+   group (via kt-css-variables.liquid):
+     --kt-swatch-size  (range 16-32 px, default 18)
+     --kt-swatch-shape ('50%' / '4px' / '0' for circle/rounded/square)
+   Background-image / background-color come from the swatch source
+   (Shopify OS 2.0 swatch metafield, fallback name→hex). */
 .kt-swatches {
   display: flex;
   align-items: center;
@@ -371,13 +377,32 @@
 }
 
 .kt-swatches__dot {
-  width: 0.875rem;
-  height: 0.875rem;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  width: var(--kt-swatch-size, 18px);
+  height: var(--kt-swatch-size, 18px);
+  border-radius: var(--kt-swatch-shape, 50%);
+  /* R105 — WCAG 1.4.11. 0.45 alpha ≥3:1 against any scheme bg
+     so the swatch ring stays visible on light AND dark cards. */
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
   cursor: default;
+  background-size: cover;
+  background-position: center;
+}
+
+/* "+N more" indicator — when swatch list exceeds kt_swatch_max_visible.
+   Same dimensions as a swatch dot but text-only. */
+.kt-swatches__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--kt-swatch-size, 18px);
+  padding: 0 0.4rem;
+  border-radius: var(--kt-swatch-shape, 50%);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: rgba(var(--kt-c-fg), 0.7);
+  background-color: rgba(var(--kt-c-fg), 0.08);
 }
 
 /* Price row */
