@@ -213,24 +213,29 @@
    scheme — light scheme: lifted from page bg; dark scheme: stands
    out as a bright status badge. Hue families match the original
    intent (green=paid, amber=pending, red=refunded). */
+/* R112 — status pill colors moved to semantic tokens
+   (--kt-c-status-*-bg/fg in kt-css-variables.liquid) so
+   merchants can rebrand pill states via Custom CSS without
+   forking the section file. Bare hex literals previously
+   blocked override without !important. */
 .kt-account__pill--paid,
 .kt-account__pill--fulfilled {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--kt-c-status-paid-bg);
+  color: var(--kt-c-status-paid-fg);
 }
 
 .kt-account__pill--pending,
 .kt-account__pill--partial,
 .kt-account__pill--partially_fulfilled {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--kt-c-status-pending-bg);
+  color: var(--kt-c-status-pending-fg);
 }
 
 .kt-account__pill--refunded,
 .kt-account__pill--voided,
 .kt-account__pill--partially_refunded {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--kt-c-status-error-bg);
+  color: var(--kt-c-status-error-fg);
 }
 
 /* R91 — Shopify emits more order statuses than the original 3
@@ -248,14 +253,14 @@
 .kt-account__pill--authorized,
 .kt-account__pill--partially_paid,
 .kt-account__pill--unfulfilled {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--kt-c-status-pending-bg);
+  color: var(--kt-c-status-pending-fg);
 }
 
 .kt-account__pill--expired,
 .kt-account__pill--restocked {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--kt-c-status-error-bg);
+  color: var(--kt-c-status-error-fg);
 }
 
 /* Mobile-stacked table ------------------------------------ */

@@ -65,12 +65,25 @@ button,
 [role="button"],
 select,
 summary {
-  cursor: pointer !important;
+  /* R112 — `cursor: pointer` here used to carry `!important` which
+     blocked component-level `cursor: not-allowed` on disabled
+     buttons and `cursor: default` on styled non-link anchors. The
+     UA default for these elements is already `pointer` (or
+     auto-resolved to it via :hover); the bare declaration suffices
+     and merchants regain override capability via Custom CSS. */
+  cursor: pointer;
   /* Kill iOS Safari's default grey tap flash on every interactive
      surface — the UA default looks unpolished on a premium theme and
      Theme Store reviewers mention it on mobile QA. Component-level
      :active / :focus-visible styles remain the intentional feedback. */
   -webkit-tap-highlight-color: transparent;
+}
+
+/* R112 — explicit override for `:disabled` so the cursor declaration
+   above doesn't fight the disabled state semantically. */
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
 }
 
 /* Mobile horizontal-overflow safety net — a rogue long URL, wide
@@ -196,8 +209,19 @@ h6, .h6 { font-size: calc(var(--kt-f-heading-scale) * 1.4rem); }
   h3, .h3 { font-size: calc(var(--kt-f-heading-scale) * 2.4rem); }
 }
 
-a {
+/* R112 — was a tag-only `a { color: ... }` rule that styled EVERY
+   anchor on the page including merchant-authored content inside
+   richtext blocks, app-block fragments, and arbitrary section
+   settings. `:where(body) a:not([class])` matches the same
+   "unstyled anchor" surface (zero specificity contribution from
+   :where + :not), but downstream rules with any class selector
+   beat it without `!important`. text-underline-offset stays as a
+   typographic default. */
+:where(body) a:not([class]) {
   color: rgb(var(--kt-c-link));
+}
+
+a {
   text-underline-offset: 0.3rem;
 }
 
