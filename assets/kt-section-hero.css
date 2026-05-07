@@ -5,16 +5,47 @@
 
 .kt-hero {
   position: relative;
-  /* 100vh on iOS Safari includes the collapsing address bar, so the
-     hero height jumps 80-100px between scroll-idle and scroll-active.
-     100svh (small viewport height) locks to the minimum visible area,
-     eliminating the jump. 100vh remains as a fallback for browsers
-     that don't implement dvh/svh/lvh (pre-Safari 15.4, pre-Chrome 108). */
-  height: 100vh;
-  height: 100svh;
+  /* R-density — section_height_desktop / _mobile from settings.
+     Defaults: 90vh desktop, 70vh mobile (preserves prior visual).
+     iOS Safari: 100vh fallback for browsers without svh support. */
+  height: var(--kt-hero-height-m, 70vh);
   width: 100%;
   overflow: hidden;
   background-color: var(--kt-black);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-hero {
+    height: var(--kt-hero-height-d, 90vh);
+  }
+}
+
+/* R-density — overlay color/opacity from merchant settings.
+   Default 30% black so heading text reads against any image. */
+.kt-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--kt-hero-overlay, #000000);
+  opacity: var(--kt-hero-overlay-op, 0.3);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* R-density — content positioning from merchant select. */
+.kt-hero--position-top-left .kt-hero__slide-content { align-items: flex-start; justify-content: flex-start; text-align: left; }
+.kt-hero--position-top-center .kt-hero__slide-content { align-items: flex-start; justify-content: center; text-align: center; }
+.kt-hero--position-top-right .kt-hero__slide-content { align-items: flex-start; justify-content: flex-end; text-align: right; }
+.kt-hero--position-middle-left .kt-hero__slide-content { align-items: center; justify-content: flex-start; text-align: left; }
+.kt-hero--position-middle-center .kt-hero__slide-content { align-items: center; justify-content: center; text-align: center; }
+.kt-hero--position-middle-right .kt-hero__slide-content { align-items: center; justify-content: flex-end; text-align: right; }
+.kt-hero--position-bottom-left .kt-hero__slide-content { align-items: flex-end; justify-content: flex-start; text-align: left; }
+.kt-hero--position-bottom-center .kt-hero__slide-content { align-items: flex-end; justify-content: center; text-align: center; }
+.kt-hero--position-bottom-right .kt-hero__slide-content { align-items: flex-end; justify-content: flex-end; text-align: right; }
+
+/* R-density — text color from merchant setting. */
+.kt-hero__slide-content {
+  color: var(--kt-hero-text, #ffffff);
 }
 
 /* Slide */

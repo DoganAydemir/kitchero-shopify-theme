@@ -14,11 +14,33 @@
   them would waste critical-resource budget.
 {%- endcomment -%}
 
+{%- comment -%}
+  R-density: pre-compute style-vars from new merchant settings.
+  Inline `style` attribute carries CSS custom properties that
+  the kt-section-hero.css (and inline rules below) consume.
+  Defaults match the previous hardcoded behaviour so existing
+  storefronts don't regress visually after this density bump.
+{%- endcomment -%}
+{%- liquid
+  assign hero_height_d = section.settings.section_height_desktop | default: 90
+  assign hero_height_m = section.settings.section_height_mobile | default: 70
+  assign hero_position = section.settings.content_position | default: 'middle-center'
+  assign hero_overlay_color = section.settings.overlay_color | default: '#000000'
+  assign hero_overlay_opacity = section.settings.overlay_opacity | default: 30 | divided_by: 100.0
+  assign hero_text_color = section.settings.text_color | default: '#ffffff'
+  assign hero_autoplay = section.settings.autoplay
+  if hero_autoplay == nil
+    assign hero_autoplay = true
+  endif
+-%}
 <section
-  class="kt-hero"
+  class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="hero"
+  data-autoplay="{{ hero_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
+  data-show-pagination="{{ section.settings.show_pagination | default: true }}"
+  style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};"
   {%- comment -%}
     R93 — every `<section>` landmark needs an accessible name so SR
     landmarks navigation (NVDA Insert+F7, VoiceOver rotor) lists
@@ -247,6 +269,58 @@
   "class": "section-hero",
   "settings": [
     {
+      "type": "header",
+      "content": "t:sections.hero.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "section_height_desktop",
+      "min": 60,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.hero.settings.section_height_desktop.label",
+      "info": "t:sections.hero.settings.section_height_desktop.info",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.hero.settings.section_height_mobile.label",
+      "default": 70
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "t:sections.hero.settings.content_position.label",
+      "options": [
+        { "value": "top-left", "label": "t:sections.hero.settings.content_position.options__top_left.label" },
+        { "value": "top-center", "label": "t:sections.hero.settings.content_position.options__top_center.label" },
+        { "value": "top-right", "label": "t:sections.hero.settings.content_position.options__top_right.label" },
+        { "value": "middle-left", "label": "t:sections.hero.settings.content_position.options__middle_left.label" },
+        { "value": "middle-center", "label": "t:sections.hero.settings.content_position.options__middle_center.label" },
+        { "value": "middle-right", "label": "t:sections.hero.settings.content_position.options__middle_right.label" },
+        { "value": "bottom-left", "label": "t:sections.hero.settings.content_position.options__bottom_left.label" },
+        { "value": "bottom-center", "label": "t:sections.hero.settings.content_position.options__bottom_center.label" },
+        { "value": "bottom-right", "label": "t:sections.hero.settings.content_position.options__bottom_right.label" }
+      ],
+      "default": "middle-center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.hero.settings.header__autoplay.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.hero.settings.autoplay.label",
+      "default": true
+    },
+    {
       "type": "range",
       "id": "autoplay_speed",
       "min": 3,
@@ -262,6 +336,52 @@
       "label": "t:sections.hero.settings.show_play_toggle.label",
       "info": "t:sections.hero.settings.show_play_toggle.info",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination",
+      "label": "t:sections.hero.settings.show_pagination.label",
+      "info": "t:sections.hero.settings.show_pagination.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.hero.settings.header__overlay.content"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "t:sections.hero.settings.overlay_color.label",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.hero.settings.overlay_opacity.label",
+      "info": "t:sections.hero.settings.overlay_opacity.info",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "t:sections.hero.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.hero.settings.color_scheme.label",
+      "info": "t:sections.hero.settings.color_scheme.info",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.hero.settings.text_color.label",
+      "info": "t:sections.hero.settings.text_color.info",
+      "default": "#ffffff"
     }
   ],
   "blocks": [
