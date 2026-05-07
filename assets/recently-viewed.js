@@ -122,7 +122,16 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
 
       var link = document.createElement('a');
       link.className = 'kt-recently-viewed__link';
-      link.href = product.url || '/products/' + product.handle;
+      /* Markets locale-prefix safety. `product.url` from products/<handle>.js
+         is root-relative (no locale prefix), and the fallback path used to
+         hardcode `/products/...` — both 404 on `/de/`, `/fr-ca/`, etc.
+         Always prepend `Shopify.routes.root` so the link resolves to the
+         active market. Mirrors the fetchProduct() fix at line 106. */
+      var linkRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+      var linkPath = product.url
+        ? product.url.replace(/^\//, '')
+        : 'products/' + product.handle;
+      link.href = linkRoot + linkPath;
 
       /* Image — featured_image is "//cdn.shopify..." (protocol-relative)
          OR "/files/..." OR null. All three are valid <img src>. */
