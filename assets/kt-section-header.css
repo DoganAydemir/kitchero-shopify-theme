@@ -551,6 +551,20 @@
   stroke-width: 1.5;
 }
 
+/* R110 — `<shopify-account>` upgrade fallback. Before the web
+   component class is registered (Shopify CDN slow / blocked / not
+   yet defined), the browser treats it as HTMLUnknownElement and
+   renders both slotted children as adjacent siblings, so the
+   header briefly shows TWO stacked account icons. Hide the
+   signed-in slot until the component upgrades (`:defined` matches
+   the registered custom element), so only the signed-out variant
+   shows during the upgrade window. After upgrade, the component's
+   Shadow DOM places the correct one based on auth state and this
+   rule no longer applies. */
+shopify-account:not(:defined) [slot="signed-in-avatar"] {
+  display: none;
+}
+
 .kt-header__cart-count {
   position: absolute;
   top: 0;

@@ -662,12 +662,25 @@ html.no-js [data-addresses-cancel-edit] {
   align-self: start;
 }
 
+/* R110 — the totals `<dl>` is wrapped in this aside. Browsers
+   give `<dl>` and `<dd>` default margins (UA stylesheet); zero
+   them so the visual layout matches the previous span-based
+   markup exactly. */
+.kt-order__totals-list {
+  margin: 0;
+}
+
 .kt-order__totals-row {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
   font-size: 0.875rem;
   color: rgba(var(--kt-c-fg), 0.75);
+}
+
+.kt-order__totals-row dt,
+.kt-order__totals-row dd {
+  margin: 0;
 }
 
 .kt-order__totals-row--grand {
@@ -1054,7 +1067,11 @@ html.no-js [data-addresses-cancel-edit] {
 
 /* ── Totals row variants ─────────────────────────────── */
 
-.kt-order__totals-row--discount span:first-child {
+/* R110 — was `span:first-child` before the <dl> refactor; now
+   targets the discount row's <dt> label (the description-list
+   term). The CSS layout is unchanged because .kt-order__totals-row
+   still uses flex, just with <dt>/<dd> as flex children. */
+.kt-order__totals-row--discount dt {
   font-size: 0.8125rem;
   color: var(--kt-stone-700);
 }

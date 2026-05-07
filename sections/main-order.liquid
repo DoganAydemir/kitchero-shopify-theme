@@ -138,9 +138,19 @@
 
     <div class="kt-order__layout">
       {%- comment -%} Line items {%- endcomment -%}
-      <div class="kt-order__items" role="table" aria-label="{{ 'kt.customer.order.product' | t }}">
+      {%- comment -%}
+        R110 — semantic list, not bolted-on `role="table"`. The
+        visual rendering is a card list (image + stacked product/
+        variant/sku/qty/price), not a tabular grid with column
+        headers. Native `<ul role="list">` matches the visual and
+        passes WCAG 1.3.1 (Info and Relationships) without
+        requiring the missing role="rowgroup"/role="columnheader"/
+        role="cell" markup that the previous div-with-role table
+        was missing.
+      {%- endcomment -%}
+      <ul class="kt-order__items" role="list" aria-label="{{ 'kt.customer.order.product' | t }}">
         {%- for line_item in order.line_items -%}
-          <div class="kt-order__item" role="row">
+          <li class="kt-order__item">
             {%- if line_item.image -%}
               {{ line_item.image | image_url: width: 160 | image_tag:
                 loading: 'lazy',
@@ -305,17 +315,43 @@
             </div>
 
             <div class="kt-order__item-price">
-              {{ line_item.final_line_price | money }}
+              {%- comment -%}
+                R110 — money_with_currency in customer-facing
+                order receipts. Shopify renders historical orders
+                in their original presentment currency; bare
+                `money` filter strips the ISO code, so a EUR-
+                shop customer viewing a USD receipt sees `$50.00`
+                with no currency hint. Markets multi-currency
+                Theme Store requirement.
+              {%- endcomment -%}
+              {{ line_item.final_line_price | money_with_currency }}
             </div>
-          </div>
+          </li>
         {%- endfor -%}
-      </div>
+      </ul>
 
       {%- comment -%} Totals {%- endcomment -%}
+      {%- comment -%}
+        R110 — money_with_currency on every totals row.
+        Multi-currency Markets requirement (same rationale as
+        line-item price filter swap above).
+      {%- endcomment -%}
+      {%- comment -%}
+        R110 — `<dl>` (description list) is the HTML5 semantic
+        for key/value pair groups. Order totals — Subtotal: $X,
+        Tax: $Y, Total: $Z — are textbook key-value pairs. Native
+        AT announces "term: Subtotal, definition: $50.00" instead
+        of two unconnected spans. Each row wraps `<dt>` + `<dd>`
+        in a `<div>` to preserve the existing flex layout (the
+        spec allows `<div>` directly inside `<dl>` for
+        presentational grouping per html.spec.whatwg.org/multipage/
+        grouping-content.html#the-dl-element).
+      {%- endcomment -%}
       <aside class="kt-order__totals" aria-label="{{ 'kt.customer.order.total' | t }}">
+        <dl class="kt-order__totals-list">
         <div class="kt-order__totals-row">
-          <span>{{ 'kt.customer.order.subtotal' | t }}</span>
-          <span>{{ order.line_items_subtotal_price | money }}</span>
+          <dt>{{ 'kt.customer.order.subtotal' | t }}</dt>
+          <dd>{{ order.line_items_subtotal_price | money_with_currency }}</dd>
         </div>
 
         {%- comment -%}
@@ -331,34 +367,34 @@
         {%- if order.cart_level_discount_applications.size > 0 -%}
           {%- for discount in order.cart_level_discount_applications -%}
             <div class="kt-order__totals-row kt-order__totals-row--discount">
-              <span>{{ 'kt.customer.order.discount' | t }} ({{ discount.title }})</span>
-              <span>-{{ discount.total_allocated_amount | money }}</span>
+              <dt>{{ 'kt.customer.order.discount' | t }} ({{ discount.title }})</dt>
+              <dd>-{{ discount.total_allocated_amount | money_with_currency }}</dd>
             </div>
           {%- endfor -%}
         {%- elsif order.total_discounts > 0 -%}
           <div class="kt-order__totals-row">
-            <span>{{ 'kt.customer.order.discount' | t }}</span>
-            <span>-{{ order.total_discounts | money }}</span>
+            <dt>{{ 'kt.customer.order.discount' | t }}</dt>
+            <dd>-{{ order.total_discounts | money_with_currency }}</dd>
           </div>
         {%- endif -%}
 
         {%- for shipping_method in order.shipping_methods -%}
           <div class="kt-order__totals-row">
-            <span>{{ 'kt.customer.order.shipping' | t }}{% if shipping_method.title %} ({{ shipping_method.title }}){% endif %}</span>
-            <span>{{ shipping_method.price | money }}</span>
+            <dt>{{ 'kt.customer.order.shipping' | t }}{% if shipping_method.title %} ({{ shipping_method.title }}){% endif %}</dt>
+            <dd>{{ shipping_method.price | money_with_currency }}</dd>
           </div>
         {%- endfor -%}
 
         {%- for tax_line in order.tax_lines -%}
           <div class="kt-order__totals-row">
-            <span>{{ 'kt.customer.order.tax' | t }}{% if tax_line.title %} ({{ tax_line.title }}){% endif %}</span>
-            <span>{{ tax_line.price | money }}</span>
+            <dt>{{ 'kt.customer.order.tax' | t }}{% if tax_line.title %} ({{ tax_line.title }}){% endif %}</dt>
+            <dd>{{ tax_line.price | money_with_currency }}</dd>
           </div>
         {%- endfor -%}
 
         <div class="kt-order__totals-row kt-order__totals-row--grand">
-          <span>{{ 'kt.customer.order.total' | t }}</span>
-          <span>{{ order.total_price | money_with_currency }}</span>
+          <dt>{{ 'kt.customer.order.total' | t }}</dt>
+          <dd>{{ order.total_price | money_with_currency }}</dd>
         </div>
 
         {%- comment -%}
@@ -372,14 +408,15 @@
         {%- endcomment -%}
         {%- if order.total_refunded_set.shop_money.amount > 0 -%}
           <div class="kt-order__totals-row kt-order__totals-row--refund">
-            <span>{{ 'kt.customer.order.refunded' | t | default: 'Refunded' }}</span>
-            <span>– {{ order.total_refunded_set | money_with_currency }}</span>
+            <dt>{{ 'kt.customer.order.refunded' | t | default: 'Refunded' }}</dt>
+            <dd>– {{ order.total_refunded_set | money_with_currency }}</dd>
           </div>
           <div class="kt-order__totals-row kt-order__totals-row--net">
-            <span>{{ 'kt.customer.order.net_payment' | t | default: 'Net paid' }}</span>
-            <span>{{ order.net_payment_set | money_with_currency }}</span>
+            <dt>{{ 'kt.customer.order.net_payment' | t | default: 'Net paid' }}</dt>
+            <dd>{{ order.net_payment_set | money_with_currency }}</dd>
           </div>
         {%- endif -%}
+        </dl>
 
         {%- comment -%}
           R88 — "Manage subscription" CTA per Shopify subscription
