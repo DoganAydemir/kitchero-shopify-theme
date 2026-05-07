@@ -295,5 +295,36 @@ if (!window.__kitcheroGalleryFocusLoaded) {
         active = null;
       }
     });
+
+    /* R103 — Theme editor block-select feedback. When the merchant
+       clicks the sidebar entry for an `image` block (one tile), open
+       that tile's lightbox so they can preview the click flow without
+       leaving the editor sidebar. event.target is the block's wrapper
+       node (the [data-focus-tile] button itself, since the tile lives
+       at block-root); event.detail.sectionId scopes us to the right
+       section.
+
+       block:deselect closes the lightbox so the merchant moving on to
+       a different block doesn't get stuck on the old preview.
+       Doc: shopify.dev/docs/storefronts/themes/architecture/sections/
+       section-assets#shopify-block-select-event
+    */
+    document.addEventListener('shopify:block:select', function (e) {
+      var block = e.target;
+      if (!block) return;
+      var tile = block.matches && block.matches(SELECTORS.tile)
+        ? block
+        : block.querySelector && block.querySelector(SELECTORS.tile);
+      if (!tile) return;
+      var section = tile.closest(SELECTORS.section);
+      if (!section) return;
+      var idx = parseInt(tile.getAttribute('data-tile-index'), 10);
+      if (isNaN(idx)) idx = 0;
+      open(section, idx, tile);
+    });
+
+    document.addEventListener('shopify:block:deselect', function () {
+      if (active) close();
+    });
   })();
 }

@@ -79,9 +79,18 @@ if (!window.__kitcheroCountdownLoaded) {
     initAll();
 
     document.addEventListener('shopify:section:load', initAll);
-    document.addEventListener('shopify:section:unload', function () {
-      timers.forEach(function (id) { clearInterval(id); });
-      timers = [];
+    document.addEventListener('shopify:section:unload', function (event) {
+      /* R103 — re-init from the surviving DOM instead of wiping ALL
+         countdowns. The previous handler called clearInterval on every
+         active timer regardless of which section unloaded, which froze
+         every countdown elsewhere on the page when the merchant
+         deleted/reordered ANY section in the theme editor. initAll()
+         is idempotent — it clears all timers, then re-creates one per
+         [data-countdown] element still present in the DOM. The
+         unloaded section's elements are gone by the time this fires,
+         so they naturally drop out; siblings get fresh intervals
+         and keep ticking. */
+      initAll();
     });
     /* External re-init trigger — dispatched by collection-filters.js
      * after AJAX-swapping the product grid. Newly rendered cards that
