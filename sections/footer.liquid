@@ -258,6 +258,8 @@
           <div class="kt-footer__selectors">
             {%- if localization.available_languages.size > 1 -%}
               {%- form 'localization', id: 'FooterLanguageForm', class: 'kt-footer__localization-form' -%}
+                {%- comment -%} R122 — return_to. {%- endcomment -%}
+                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <div class="localization-selector">
                   <select name="language_code" id="FooterLanguageSelector" aria-label="{{ 'kt.locale.language_label' | t | default: 'Language' }}">
                     {%- for language in localization.available_languages -%}
@@ -275,6 +277,8 @@
 
             {%- if localization.available_countries.size > 1 -%}
               {%- form 'localization', id: 'FooterCountryForm', class: 'kt-footer__localization-form' -%}
+                {%- comment -%} R122 — return_to. {%- endcomment -%}
+                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <div class="localization-selector">
                   <select name="country_code" id="FooterCountrySelector" aria-label="{{ 'kt.locale.country_label' | t | default: 'Country/region' }}">
                     {%- for country in localization.available_countries -%}

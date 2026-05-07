@@ -373,6 +373,15 @@
           <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
             {%- if localization.available_languages.size > 1 -%}
               {%- form 'localization', id: 'HeaderLanguageForm', class: 'kt-header__locale-form' -%}
+                {%- comment -%}
+                  R122 — `return_to` so Shopify lands the customer
+                  back on the same URL after the locale switch.
+                  Without it, every language change redirects to the
+                  homepage — a Theme Store reject UX defect.
+                  Shopify Help Center "Add a country/region selector"
+                  documents this as the spec field.
+                {%- endcomment -%}
+                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderLanguageSelector" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
                 <select name="language_code" id="HeaderLanguageSelector" class="kt-header__locale-form-select">
                   {%- for language in localization.available_languages -%}
@@ -389,6 +398,8 @@
 
             {%- if localization.available_countries.size > 1 -%}
               {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
+                {%- comment -%} R122 — return_to lands customer back on the same URL after country switch. {%- endcomment -%}
+                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderCountrySelector" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
                 <select name="country_code" id="HeaderCountrySelector" class="kt-header__locale-form-select">
                   {%- for country in localization.available_countries -%}
@@ -712,6 +723,8 @@
     <div class="kt-header__mobile-locale">
       {%- if localization.available_languages.size > 1 -%}
         {%- form 'localization', id: 'MobileLanguageForm', class: 'kt-header__mobile-locale-form' -%}
+          {%- comment -%} R122 — return_to. {%- endcomment -%}
+          <input type="hidden" name="return_to" value="{{ request.path | escape }}">
           <label for="MobileLanguageSelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
           <select name="language_code" id="MobileLanguageSelector" class="kt-header__mobile-locale-select">
             {%- for language in localization.available_languages -%}
@@ -728,6 +741,8 @@
 
       {%- if localization.available_countries.size > 1 -%}
         {%- form 'localization', id: 'MobileCountryForm', class: 'kt-header__mobile-locale-form' -%}
+          {%- comment -%} R122 — return_to. {%- endcomment -%}
+          <input type="hidden" name="return_to" value="{{ request.path | escape }}">
           <label for="MobileCountrySelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
           <select name="country_code" id="MobileCountrySelector" class="kt-header__mobile-locale-select">
             {%- for country in localization.available_countries -%}

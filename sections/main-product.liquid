@@ -104,7 +104,25 @@
                     <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
                   {%- endif -%}
                   {%- if block.settings.show_stock -%}
-                    {%- if current_variant.available -%}
+                    {%- comment -%}
+                      R122 — three-state stock indicator with low-stock
+                      "Only N left" messaging when:
+                      1. Variant has Shopify-managed inventory
+                      2. Has stock left (>0)
+                      3. Stock count is at-or-below the merchant-set
+                         threshold (settings.kt_low_stock_threshold)
+                      4. Merchant has the kt_show_low_stock toggle on
+                      Real inventory (not deceptive/fake counter) —
+                      Theme Store rule allows this when backed by
+                      Shopify's actual inventory_quantity.
+                    {%- endcomment -%}
+                    {%- assign show_low_stock = false -%}
+                    {%- if settings.kt_show_low_stock and current_variant.available and current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= settings.kt_low_stock_threshold -%}
+                      {%- assign show_low_stock = true -%}
+                    {%- endif -%}
+                    {%- if show_low_stock -%}
+                      <span class="kt-pdp__stock kt-pdp__stock--low" role="status">{{ 'kt.product.low_stock_html' | t: count: current_variant.inventory_quantity | default: 'Only a few left' }}</span>
+                    {%- elsif current_variant.available -%}
                       <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'kt.product.in_stock' | t | default: 'In Stock' }}</span>
                     {%- else -%}
                       <span class="kt-pdp__stock kt-pdp__stock--out">{{ 'kt.product.sold_out' | t }}</span>
