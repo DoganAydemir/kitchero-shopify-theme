@@ -441,6 +441,84 @@
       </div>
     {%- endif -%}
 
+    {%- comment -%}
+      R122 — Cart drawer recommendations / upsell. Reads the
+      curated complementary products of the cart's most-recent
+      item (cart.items[0] is the most-recently-added per Shopify
+      conventions). Synchronous server-render — no async fetch
+      needed because the metafield is loaded with the cart payload.
+
+      Uses Shopify Search & Discovery's curated complementary
+      products metafield (same source as PDP complementary_products
+      block in R121). When the metafield is empty OR the merchant
+      hasn't installed the Search & Discovery app, the
+      recommendations section emits NOTHING — no broken band, no
+      fallback to deceptive "Customers also bought".
+
+      Empty-state: zero recommendations + design_mode would also
+      emit nothing (cart drawer's editor preview is rare; the
+      merchant tests this on a populated dev store anyway).
+
+      Settings come from `section.settings` (passed through to this
+      snippet via section: arg in sections/cart-drawer.liquid:26).
+    {%- endcomment -%}
+    {%- if cart.item_count > 0 and section.settings.show_recommendations -%}
+      {%- assign cart_anchor_product = cart.items[0].product -%}
+      {%- assign cart_recs = cart_anchor_product.metafields.shopify--discovery--product_recommendation.related_products.value -%}
+      {%- if cart_recs and cart_recs.size > 0 -%}
+        <div class="kt-cart-drawer__recommendations" data-cart-recommendations>
+          <h3 class="kt-cart-drawer__recommendations-heading">
+            {{- section.settings.recommendations_heading | default: 'You may also like' | escape -}}
+          </h3>
+          <ul class="kt-cart-drawer__recommendations-list" role="list">
+            {%- for rec_product in cart_recs limit: section.settings.recommendations_count -%}
+              {%- comment -%}
+                Skip products already in the cart — recommending an
+                item the customer just added is noise and reads as
+                broken UX. Iterate cart.items to check.
+              {%- endcomment -%}
+              {%- assign rec_in_cart = false -%}
+              {%- for cart_item in cart.items -%}
+                {%- if cart_item.product_id == rec_product.id -%}
+                  {%- assign rec_in_cart = true -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- unless rec_in_cart -%}
+                <li class="kt-cart-drawer__recommendation">
+                  <a class="kt-cart-drawer__recommendation-link" href="{{ rec_product.url }}">
+                    <div class="kt-cart-drawer__recommendation-media">
+                      {%- if rec_product.featured_media != blank -%}
+                        {{ rec_product.featured_media | image_url: width: 200 | image_tag:
+                            loading: 'lazy',
+                            widths: '100, 200, 300',
+                            sizes: '100px',
+                            width: 100,
+                            height: 100,
+                            class: 'kt-cart-drawer__recommendation-image',
+                            alt: rec_product.featured_media.alt | default: rec_product.title }}
+                      {%- else -%}
+                        {{ 'product-1' | placeholder_svg_tag: 'kt-cart-drawer__recommendation-image kt-cart-drawer__recommendation-image--placeholder' }}
+                      {%- endif -%}
+                    </div>
+                    <div class="kt-cart-drawer__recommendation-text">
+                      <p class="kt-cart-drawer__recommendation-title">{{ rec_product.title | escape }}</p>
+                      {%- if rec_product.price_varies -%}
+                        {%- assign rec_price_money = rec_product.price_min | money -%}
+                        <p class="kt-cart-drawer__recommendation-price">{{ 'kt.product.from_price_label' | t }} {{ rec_price_money }}</p>
+                      {%- else -%}
+                        <p class="kt-cart-drawer__recommendation-price">{{ rec_product.price | money }}</p>
+                      {%- endif -%}
+                    </div>
+                  </a>
+                </li>
+              {%- endunless -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
     {%- comment -%} Footer {%- endcomment -%}
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">
