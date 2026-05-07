@@ -136,7 +136,7 @@ For collections and products, you can assign alternate templates in the admin:
 │                                       reset_password, order, addresses
 │
 ├── sections/            ← 85 sections (63 merchant-droppable + 22 template-bound)
-├── snippets/            ← 32 snippets (card-product, countdown, search-overlay, video-modal, etc.)
+├── snippets/            ← 34 snippets (card-product, countdown, search-overlay, video-modal, etc.)
 ├── assets/              ← CSS, JS, vendor libraries
 ├── config/
 │   ├── settings_schema.json
