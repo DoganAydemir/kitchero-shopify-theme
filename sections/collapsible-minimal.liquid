@@ -86,6 +86,45 @@
   </div>
 </section>
 
+{%- comment -%}
+  FAQ structured data (R139 / HG-1). See collapsible-accordion.liquid
+  for the full rationale. Same opt-in / opt-out toggle, same two-pass
+  loop, same `strip_html | json` defence. Defaults to OFF.
+{%- endcomment -%}
+{%- if section.settings.enable_faq_schema -%}
+  {%- assign faq_items_total = 0 -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'item' -%}
+      {%- assign faq_items_total = faq_items_total | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if faq_items_total > 0 -%}
+    {%- assign faq_item_index = 0 -%}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'item' -%}
+            {%- assign faq_item_index = faq_item_index | plus: 1 -%}
+            {
+              "@type": "Question",
+              "name": {{ block.settings.title | default: 'Question' | strip_html | json }},
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": {{ block.settings.content | default: 'Answer' | strip_html | json }}
+              }
+            }{% if faq_item_index < faq_items_total %},{% endif %}
+          {%- endif -%}
+        {%- endfor -%}
+      ]
+    }
+    </script>
+  {%- endif -%}
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.collapsible_minimal.name",
@@ -130,6 +169,17 @@
       "max": 3,
       "step": 1,
       "default": 2
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collapsible_minimal.settings.header_seo.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_faq_schema",
+      "label": "t:sections.collapsible_minimal.settings.enable_faq_schema.label",
+      "info": "t:sections.collapsible_minimal.settings.enable_faq_schema.info",
+      "default": false
     }
   ],
   "blocks": [

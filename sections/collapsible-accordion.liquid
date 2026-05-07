@@ -112,6 +112,60 @@
   </div>
 </section>
 
+{%- comment -%}
+  FAQ structured data (R139 / HG-1). When the merchant opts in via
+  `enable_faq_schema` we emit a Schema.org FAQPage JSON-LD payload so
+  Google can surface the questions as rich results in search.
+
+  Default OFF — emitting FAQPage on a section that contains anything
+  other than genuine FAQ content (returns policy, shipping table, etc.)
+  triggers Google's "Misleading or incorrect content" penalty per
+  https://developers.google.com/search/docs/appearance/structured-data/faqpage
+  Merchants opt in only on real FAQ accordions.
+
+  Implementation notes:
+  - Two-pass loop. First pass counts `item` blocks so the second pass
+    knows when to omit the trailing comma; @app blocks are skipped.
+  - `strip_html` on title + content so Schema.org receives plain text
+    (FAQ schema allows HTML in `acceptedAnswer.text`, but stripping
+    keeps the payload compact and never trips on unbalanced markup).
+  - `| json` emits a fully quoted, JSON-escape-safe string — handles
+    embedded quotes / newlines / `<` characters without manual escaping.
+{%- endcomment -%}
+{%- if section.settings.enable_faq_schema -%}
+  {%- assign faq_items_total = 0 -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'item' -%}
+      {%- assign faq_items_total = faq_items_total | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if faq_items_total > 0 -%}
+    {%- assign faq_item_index = 0 -%}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'item' -%}
+            {%- assign faq_item_index = faq_item_index | plus: 1 -%}
+            {
+              "@type": "Question",
+              "name": {{ block.settings.title | default: 'Question' | strip_html | json }},
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": {{ block.settings.content | default: 'Answer' | strip_html | json }}
+              }
+            }{% if faq_item_index < faq_items_total %},{% endif %}
+          {%- endif -%}
+        {%- endfor -%}
+      ]
+    }
+    </script>
+  {%- endif -%}
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.collapsible_accordion.name",
@@ -165,6 +219,17 @@
         { "value": "none", "label": "t:sections.collapsible_accordion.settings.numbering_style.options__none.label" }
       ],
       "default": "padded_two"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collapsible_accordion.settings.header_seo.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_faq_schema",
+      "label": "t:sections.collapsible_accordion.settings.enable_faq_schema.label",
+      "info": "t:sections.collapsible_accordion.settings.enable_faq_schema.info",
+      "default": false
     }
   ],
   "blocks": [
