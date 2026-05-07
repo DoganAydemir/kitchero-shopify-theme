@@ -378,6 +378,7 @@
 | R144 | PRF-3 image preloads removed | 1 fixed | `4a363d0` |
 | R145 | DSN-2 sticky ATC opt-in default | 1 fixed | `e15e4d5` |
 | R146 | UPD-4 release-notes.md seeded | 1 fixed | `5180436` |
+| R147 | Text-style ampersand removal | 1 fixed | `b412525` |
 
 **Open items count:** 0.
 
