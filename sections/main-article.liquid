@@ -387,6 +387,27 @@
               <button type="submit" class="kt-article__comment-submit">
                 {{ 'kt.blog.article.post_comment' | t | default: 'Post Comment' }}
               </button>
+
+              {%- comment -%}
+                Shopify's reCAPTCHA disclaimer (R133 / A-3 reject vector).
+                The platform protects every comment form with reCAPTCHA
+                automatically. When a theme renders the localized
+                disclaimer string it suppresses the visible badge in
+                the bottom-right corner. Without this string Shopify
+                falls back to the default reCAPTCHA badge, which sits
+                on every article page and clashes with editorial
+                designs — a recurring Theme Store reviewer flag.
+
+                The translation key lives in Shopify's platform-level
+                locales (not in this theme's `locales/*.schema.json`),
+                so the TranslationKeyExists check is intentionally
+                muted across this single output.
+              {%- endcomment -%}
+              <p class="kt-article__comment-recaptcha-note rte">
+                {% # theme-check-disable TranslationKeyExists %}
+                {{- 'shopify.online_store.spam_detection.disclaimer_html' | t -}}
+                {% # theme-check-enable TranslationKeyExists %}
+              </p>
             {%- endform -%}
           </div>
         </div>
