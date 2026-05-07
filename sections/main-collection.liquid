@@ -2,7 +2,30 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
 
-<div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
+{%- comment -%}
+  R136 / HG-3 — wired settings:
+  - color_scheme  → applies a `.color-scheme-X` class so the body
+                    surface inherits the merchant-picked palette.
+  - padding_top / padding_bottom  → CSS custom properties consumed
+                                    by `.kt-collection { padding: }`
+                                    in kt-section-main-collection.css.
+  - cols_desktop  → grid modifier class (`--cols-3` / `--cols-4`).
+  - cols_mobile   → grid modifier class (`--cols-mobile-1`).
+  - show_collection_count / description / filter_bar / sort  →
+    visibility gates on the matching elements below.
+{%- endcomment -%}
+{%- assign cols_desktop = section.settings.cols_desktop | default: 3 -%}
+{%- assign cols_mobile = section.settings.cols_mobile | default: 2 -%}
+{%- assign coll_pad_top = section.settings.padding_top | default: 0 -%}
+{%- assign coll_pad_bottom = section.settings.padding_bottom | default: 0 -%}
+{%- assign coll_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
+
+<div
+  class="kt-collection color-{{ coll_scheme }} kt-collection--cols-d-{{ cols_desktop }} kt-collection--cols-m-{{ cols_mobile }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="main-collection"
+  style="--kt-coll-pad-top: {{ coll_pad_top }}px; --kt-coll-pad-bottom: {{ coll_pad_bottom }}px;"
+>
   {%- comment -%}
     Visible breadcrumb that mirrors the BreadcrumbList JSON-LD emitted
     by snippets/structured-data.liquid. Google Search Console warns
@@ -38,24 +61,35 @@
           <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
           {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
           <{{ heading_tag }} class="kt-collection__title">{{ collection.title }}</{{ heading_tag }}>
-          {%- if collection.description != blank -%}
-            <p class="kt-collection__desc">{{ collection.description }}</p>
-          {%- else -%}
-            <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
+          {%- if section.settings.show_collection_description -%}
+            {%- if collection.description != blank -%}
+              <p class="kt-collection__desc">{{ collection.description }}</p>
+            {%- else -%}
+              <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
+            {%- endif -%}
           {%- endif -%}
         </div>
-        <span class="kt-collection__count">
-          {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
-        </span>
+        {%- if section.settings.show_collection_count -%}
+          <span class="kt-collection__count">
+            {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
+          </span>
+        {%- endif -%}
       </div>
     </div>
   </section>
 
-  {%- comment -%} Sticky Control Bar {%- endcomment -%}
+  {%- comment -%}
+    Sticky Control Bar.
+    R136 — wrap the entire bar in `enable_filter_bar` / `enable_sorting`
+    gates so a merchant who wants a flat catalogue (no filters, no
+    sort) can hide both. Bar still renders empty when filters exist
+    but enable_filter_bar is off — sort can still surface in that case.
+  {%- endcomment -%}
   <div class="kt-collection__controls" data-collection-controls>
     <div class="page-width">
       <div class="kt-collection__controls-inner">
         {%- comment -%} Desktop: horizontal filter dropdowns {%- endcomment -%}
+        {%- if section.settings.enable_filter_bar -%}
         <div class="kt-filter-bar">
           <span class="kt-filter-bar__label">{{ 'kt.section.collection.filter' | t | default: 'Filter:' }}</span>
           {%- for filter in collection.filters -%}
@@ -255,8 +289,10 @@
             {%- endif -%}
           {%- endfor -%}
         </div>
+        {%- endif -%}
 
         {%- comment -%} Mobile: filter button (opens drawer) {%- endcomment -%}
+        {%- if section.settings.enable_filter_bar -%}
         <div class="kt-collection__mobile-filter-bar">
           {%- comment -%}
             R93 — aria-live="polite" so SR users hear the new product
@@ -272,9 +308,11 @@
             <span>{{ 'kt.section.collection.filters' | t | default: 'Filters' }}</span>
           </button>
         </div>
+        {%- endif -%}
 
         {%- comment -%} Desktop right: sort + grid toggle + count {%- endcomment -%}
         <div class="kt-collection__controls-right">
+          {%- if section.settings.enable_sorting -%}
           {%- comment -%}
             Sort is wrapped in its own GET form so it works with JS off
             (the select's change handler is a JS enhancement). Active
@@ -313,7 +351,9 @@
               </button>
             </noscript>
           </form>
+          {%- endif -%}
 
+          {%- if section.settings.show_grid_toggle -%}
           <div class="kt-collection__grid-toggle" aria-label="{{ 'kt.section.collection.grid_view' | t | default: 'Grid view' }}">
             {%- comment -%} 2-col: two tall rectangles side by side {%- endcomment -%}
             <button class="kt-collection__grid-btn kt-collection__grid-btn--active" data-grid-cols="2" aria-label="{{ 'kt.a11y.grid_columns.two' | t }}" aria-pressed="true" type="button">
@@ -340,6 +380,7 @@
               </svg>
             </button>
           </div>
+          {%- endif -%}
 
           <span class="kt-collection__bar-count">
             {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
@@ -553,7 +594,7 @@
   <div class="page-width">
     {%- paginate collection.products by section.settings.products_per_page -%}
       {%- if collection.products.size > 0 -%}
-        <div class="kt-collection__grid" id="product-grid" role="list" aria-busy="false">
+        <div class="kt-collection__grid kt-collection__grid--cols-{{ cols_desktop }} kt-collection__grid--cols-m-{{ cols_mobile }}" id="product-grid" role="list" aria-busy="false">
           {%- for product in collection.products -%}
             {%- render 'card-product', product: product, show_vendor: section.settings.kt_pdp_show_vendor, show_secondary_image: section.settings.show_secondary_image, show_quote_button: section.settings.show_quote_button, index: forloop.index0 -%}
           {%- endfor -%}
@@ -601,6 +642,10 @@
   },
   "settings": [
     {
+      "type": "header",
+      "content": "t:sections.main-collection.settings.header__hero.content"
+    },
+    {
       "type": "select",
       "id": "heading_tag",
       "label": "t:sections.main-collection.settings.heading_tag.label",
@@ -617,6 +662,43 @@
       "default": "h1"
     },
     {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "label": "t:sections.main-collection.settings.show_collection_description.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_count",
+      "label": "t:sections.main-collection.settings.show_collection_count.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "cols_desktop",
+      "label": "t:sections.main-collection.settings.cols_desktop.label",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "cols_mobile",
+      "label": "t:sections.main-collection.settings.cols_mobile.label",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
       "type": "range",
       "id": "products_per_page",
       "min": 4,
@@ -624,6 +706,30 @@
       "step": 2,
       "default": 12,
       "label": "t:sections.main-collection.settings.products_per_page.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection.settings.header__filtering.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filter_bar",
+      "label": "t:sections.main-collection.settings.enable_filter_bar.label",
+      "info": "t:sections.main-collection.settings.enable_filter_bar.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "t:sections.main-collection.settings.enable_sorting.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_grid_toggle",
+      "label": "t:sections.main-collection.settings.show_grid_toggle.label",
+      "info": "t:sections.main-collection.settings.show_grid_toggle.info",
+      "default": true
     },
     {
       "type": "header",
@@ -648,6 +754,40 @@
       "id": "show_quote_button",
       "label": "t:sections.main-collection.settings.show_quote_button.label",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.global.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings_schema.global.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.global.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:settings_schema.global.settings.padding_top.label",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "t:settings_schema.global.settings.padding_bottom.label",
+      "default": 0
     }
   ],
   "blocks": [

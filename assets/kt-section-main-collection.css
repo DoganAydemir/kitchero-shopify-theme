@@ -11,7 +11,12 @@
      browsers without svh support. */
   min-height: 100vh;
   min-height: 100svh;
-  padding-bottom: 10rem;
+  padding-top: var(--kt-coll-pad-top, 0px);
+  /* R136 — additive bottom padding from merchant settings on top of
+     the existing 10rem editorial baseline. Merchant slider stays
+     at 0 → 120px range with 0 default, so behaviour matches before
+     the density bump unless the merchant explicitly raises it. */
+  padding-bottom: calc(10rem + var(--kt-coll-pad-bottom, 0px));
 }
 
 /* Hero header: from PageHeader.tsx — pt adjusted for solid header spacer */
@@ -406,6 +411,12 @@
   min-width: 0;
 }
 
+/* Mobile cols modifier — when merchant picks 2-up mobile (R136). */
+.kt-collection__grid--cols-m-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem 1rem;
+}
+
 /* Tablet: 2 columns */
 @media screen and (min-width: 750px) {
   .kt-collection__grid {
@@ -415,16 +426,16 @@
   }
 }
 
-/* Desktop: 3 columns */
+/* Desktop modifiers (R136 added cols-2 alongside the existing 3 / 4) */
 @media screen and (min-width: 990px) {
+  .kt-collection__grid--cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4rem 3rem;
+  }
   .kt-collection__grid--cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 3rem 2rem;
   }
-}
-
-/* Desktop: 4 columns */
-@media screen and (min-width: 990px) {
   .kt-collection__grid--cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2.5rem 1.5rem;
