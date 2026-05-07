@@ -10,13 +10,21 @@
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: 'Inspiration and guides' }}</{{ heading_tag }}>
       </div>
+      {%- comment -%}
+        R116 — hoist the `blogs[handle]` lookup once at the
+        section root. Previously fired twice (header CTA + grid
+        data resolution), each triggering a blog object hydration.
+        Single assign reuses the resolved object across both
+        branches.
+      {%- endcomment -%}
+      {%- assign blog_obj = nil -%}
       {%- if section.settings.blog != blank -%}
         {%- assign blog_obj = blogs[section.settings.blog] -%}
-        {%- if blog_obj -%}
-          <a href="{{ blog_obj.url }}" class="kt-guide-teaser__view-all">
-            {{ 'kt.section.guide_teaser.view_all' | t | default: 'View All Journals' }}
-          </a>
-        {%- endif -%}
+      {%- endif -%}
+      {%- if blog_obj -%}
+        <a href="{{ blog_obj.url }}" class="kt-guide-teaser__view-all">
+          {{ 'kt.section.guide_teaser.view_all' | t | default: 'View All Journals' }}
+        </a>
       {%- endif -%}
     </div>
 
@@ -30,10 +38,6 @@
         settings/blocks the merchant has toggled in the editor — fixes the
         "turning on a checkbox makes the whole section disappear" bug.
       {%- endcomment -%}
-      {%- assign blog_obj = nil -%}
-      {%- if section.settings.blog != blank -%}
-        {%- assign blog_obj = blogs[section.settings.blog] -%}
-      {%- endif -%}
       {%- assign has_live_articles = false -%}
       {%- if blog_obj and blog_obj.articles_count > 0 -%}
         {%- assign has_live_articles = true -%}

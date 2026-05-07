@@ -48,10 +48,18 @@
           </li>
 
         {%- when 'product' -%}
-          {%- if product.collections.first -%}
+          {%- comment -%}
+            R116 — hoist `product.collections.first` once. The
+            previous code accessed `.first` three times (truthy
+            check + .url + .title), each triggering list
+            materialization on the underlying collection list.
+            Single assign reuses the materialized object.
+          {%- endcomment -%}
+          {%- assign first_collection = product.collections.first -%}
+          {%- if first_collection -%}
             <li class="kt-breadcrumbs__item">
-              <a href="{{ product.collections.first.url }}" class="kt-breadcrumbs__link">
-                {{ product.collections.first.title }}
+              <a href="{{ first_collection.url }}" class="kt-breadcrumbs__link">
+                {{ first_collection.title }}
               </a>
             </li>
           {%- else -%}

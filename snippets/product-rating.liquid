@@ -8,6 +8,18 @@
   - product: {Object} Shopify product
 {%- endcomment -%}
 
+{%- comment -%}
+  R116 — early-return guard. The previous logic always read
+  4 metafield properties (rating.value.rating + scale_max +
+  rating_count + custom.rating) per call, even on products
+  with no rating set. On a 50-card collection grid that's 200
+  metafield property accesses for the no-rating case. Single
+  cheap-property check at the top short-circuits the
+  expensive property unpacking when no rating exists.
+{%- endcomment -%}
+{%- if product.metafields.reviews.rating.value == blank and product.metafields.custom.rating.value == blank -%}
+  {%- comment -%} Nothing to render — skip the rest of the snippet. {%- endcomment -%}
+{%- else -%}
 {%- liquid
   assign rating_value = product.metafields.reviews.rating.value.rating
   assign rating_scale_max = product.metafields.reviews.rating.value.scale_max | default: 5
@@ -89,4 +101,5 @@
       <span class="kt-rating__count">({{ rating_count | escape }})</span>
     {%- endif -%}
   </div>
+{%- endif -%}
 {%- endif -%}
