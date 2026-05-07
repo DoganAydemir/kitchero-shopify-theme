@@ -1,0 +1,185 @@
+{{ 'kt-section-cookie-banner.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cookie-banner.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  Cookie / Privacy Consent Banner — Shopify Customer Privacy API.
+
+  Theme Store hard requirement (post-2024) — themes that target EU/
+  UK/Brazil/California markets must surface a customer-facing
+  consent UI for cookie tracking. Without it, GDPR / UK GDPR /
+  LGPD / CPRA non-compliance is on the merchant's liability sheet,
+  and the Theme Store reviewer flags the gap.
+
+  Implementation contract: this banner ONLY communicates with
+  Shopify's `customerPrivacy` API — NOT a custom cookie or
+  localStorage state. Theme Store explicitly forbids competing
+  consent layers because they confuse Shopify's own analytics +
+  Web Pixels gating. Doc: shopify.dev/api/customer-privacy.
+
+  API surface used:
+    Shopify.loadFeatures(['consent-tracking-api', ...])
+    Shopify.customerPrivacy.setTrackingConsent(true|false, cb)
+    Shopify.customerPrivacy.userTrackingConsent()
+       — returns 'allow' | 'no_interaction' | 'declined'
+    Shopify.customerPrivacy.userCanBeTracked()
+
+  States:
+    1. userTrackingConsent === 'no_interaction' → show banner
+    2. 'allow' or 'declined' → suppress banner (decision made)
+  No localStorage cooldown — Shopify's API IS the source of truth.
+
+  Editor preview: section is hidden in design_mode unless the
+  merchant explicitly clicks the section in the sidebar
+  (shopify:section:select). Otherwise the banner would interfere
+  with editor-side preview clicks.
+{%- endcomment -%}
+
+{%- if section.settings.enabled -%}
+  <div
+    class="kt-cookie-banner kt-cookie-banner--{{ section.settings.position | default: 'bottom-right' }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="cookie-banner"
+    data-cookie-banner
+    data-delay="{{ section.settings.delay_seconds | default: 2 }}"
+    role="region"
+    aria-labelledby="CookieBannerHeading-{{ section.id }}"
+    aria-live="polite"
+    hidden
+    inert
+  >
+    <div class="kt-cookie-banner__inner">
+      <div class="kt-cookie-banner__content">
+        {%- if section.settings.heading != blank -%}
+          <h2
+            id="CookieBannerHeading-{{ section.id }}"
+            class="kt-cookie-banner__heading"
+          >
+            {{- section.settings.heading | escape -}}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.body != blank -%}
+          <div class="kt-cookie-banner__body rte">
+            {{ section.settings.body }}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="kt-cookie-banner__actions">
+        <button
+          type="button"
+          class="kt-cookie-banner__btn kt-cookie-banner__btn--decline"
+          data-cookie-decline
+          aria-label="{{ 'kt.cookie_banner.decline_aria' | t | default: 'Decline cookies' }}"
+        >
+          {{- section.settings.decline_label | default: 'Decline' | escape -}}
+        </button>
+        <button
+          type="button"
+          class="kt-cookie-banner__btn kt-cookie-banner__btn--accept"
+          data-cookie-accept
+          aria-label="{{ 'kt.cookie_banner.accept_aria' | t | default: 'Accept cookies' }}"
+        >
+          {{- section.settings.accept_label | default: 'Accept all' | escape -}}
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="kt-cookie-banner__close"
+        data-cookie-decline
+        aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
+      >
+        <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.cookie-banner.name",
+  "tag": "div",
+  "class": "kt-cookie-banner-section",
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.cookie-banner.settings.paragraph_intro.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "t:sections.cookie-banner.settings.enabled.label",
+      "info": "t:sections.cookie-banner.settings.enabled.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.cookie-banner.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.cookie-banner.settings.heading.label",
+      "default": "Cookie preferences"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "t:sections.cookie-banner.settings.body.label",
+      "info": "t:sections.cookie-banner.settings.body.info",
+      "default": "<p>We use cookies to improve your experience and to analyze site traffic. By clicking \"Accept all\", you consent to our use of cookies.</p>"
+    },
+    {
+      "type": "text",
+      "id": "accept_label",
+      "label": "t:sections.cookie-banner.settings.accept_label.label",
+      "default": "Accept all"
+    },
+    {
+      "type": "text",
+      "id": "decline_label",
+      "label": "t:sections.cookie-banner.settings.decline_label.label",
+      "default": "Decline"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.cookie-banner.settings.header__behavior.content"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "t:sections.cookie-banner.settings.position.label",
+      "options": [
+        { "value": "bottom-left", "label": "t:sections.cookie-banner.settings.position.options__bottom_left.label" },
+        { "value": "bottom-right", "label": "t:sections.cookie-banner.settings.position.options__bottom_right.label" },
+        { "value": "bottom-center", "label": "t:sections.cookie-banner.settings.position.options__bottom_center.label" },
+        { "value": "banner-top", "label": "t:sections.cookie-banner.settings.position.options__banner_top.label" },
+        { "value": "banner-bottom", "label": "t:sections.cookie-banner.settings.position.options__banner_bottom.label" }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "range",
+      "id": "delay_seconds",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "s",
+      "default": 2,
+      "label": "t:sections.cookie-banner.settings.delay_seconds.label",
+      "info": "t:sections.cookie-banner.settings.delay_seconds.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.cookie-banner.presets.name"
+    }
+  ]
+}
+{% endschema %}
