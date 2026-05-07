@@ -14,19 +14,45 @@
 .kt-cart-page {
   background-color: rgb(var(--kt-c-bg));
   color: rgb(var(--kt-c-fg));
-  padding: 2rem 0 5rem;
+  /* R137 — additive padding from merchant settings on top of the
+     editorial baseline. `--kt-cart-pad-top/-bottom` come from the
+     section schema's padding_top/padding_bottom range; defaults to 0
+     so behaviour matches before the density bump unless the
+     merchant explicitly raises it. */
+  padding: calc(2rem + var(--kt-cart-pad-top, 0px)) 0 calc(5rem + var(--kt-cart-pad-bottom, 0px));
 }
 
 @media screen and (min-width: 750px) {
   .kt-cart-page {
-    padding: 3rem 0 7rem;
+    padding: calc(3rem + var(--kt-cart-pad-top, 0px)) 0 calc(7rem + var(--kt-cart-pad-bottom, 0px));
   }
 }
 
 @media screen and (min-width: 990px) {
   .kt-cart-page {
-    padding: 4rem 0 8rem;
+    padding: calc(4rem + var(--kt-cart-pad-top, 0px)) 0 calc(8rem + var(--kt-cart-pad-bottom, 0px));
   }
+}
+
+/* Gift-wrapping note (R137 placeholder; R140 will pair this with the
+   real wrapping line item integration). */
+.kt-cart-page__gift-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 0.875rem;
+  background-color: var(--kt-warm-50, #fafaf9);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--kt-stone-700);
+}
+
+.kt-cart-page__gift-note svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--kt-stone-500);
 }
 
 /* ── Grid ───────────────────────────────────────────────── */
