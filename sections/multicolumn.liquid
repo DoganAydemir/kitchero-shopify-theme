@@ -83,6 +83,31 @@
                   <div class="kt-multicolumn__icon" aria-hidden="true">
                     {{ block.settings.icon }}
                   </div>
+                {%- else -%}
+                  {%- comment -%}
+                    R114 — CLAUDE.md "Empty States" rule. When the
+                    merchant hasn't picked an image AND hasn't filled
+                    in an icon character, fall through to Shopify's
+                    SVG placeholder so the column never ships as a
+                    blank media slot. Mirrors the placeholder pattern
+                    used elsewhere in the theme (rich-text variants,
+                    multicolumn-with-image, banner sections).
+                  {%- endcomment -%}
+                  {%- liquid
+                    case image_ratio
+                      when 'square'
+                        assign ratio_value = '1 / 1'
+                      when 'portrait'
+                        assign ratio_value = '3 / 4'
+                      when 'landscape'
+                        assign ratio_value = '4 / 3'
+                      else
+                        assign ratio_value = '1 / 1'
+                    endcase
+                  -%}
+                  <div class="kt-multicolumn__media" style="aspect-ratio: {{ ratio_value }};">
+                    {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-multicolumn__image' }}
+                  </div>
                 {%- endif -%}
 
                 <div class="kt-multicolumn__text">
