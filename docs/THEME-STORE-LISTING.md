@@ -176,6 +176,6 @@ Known behaviors worth noting:
 - All interactive sections re-init on `shopify:section:load` and cleanup on
   unload, per the editor compatibility rule.
 
-Theme Check: 0 errors, 1 informational warning (intentional empty `src=""` on
-the gallery-focus-wall lightbox image — JS swaps src at runtime).
+Theme Check: 0 errors, 0 warnings on the `theme-check:recommended`
+ruleset (165 files inspected).
 ```

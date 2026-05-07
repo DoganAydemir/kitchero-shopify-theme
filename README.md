@@ -135,7 +135,7 @@ For collections and products, you can assign alternate templates in the admin:
 │   └── customers/                    ← login, register, account, activate_account,
 │                                       reset_password, order, addresses
 │
-├── sections/            ← 76 sections (57 merchant-droppable + 19 template-bound)
+├── sections/            ← 85 sections (63 merchant-droppable + 22 template-bound)
 ├── snippets/            ← 32 snippets (card-product, countdown, search-overlay, video-modal, etc.)
 ├── assets/              ← CSS, JS, vendor libraries
 ├── config/
@@ -221,8 +221,8 @@ Graceful degradation for older browsers: animations disabled, but all content an
 
 ## Sections
 
-Kitchero ships with **57 sections** — 15 template-bound (13 `main-*` sections
-plus `header` and `footer`) and **42 merchant-droppable sections** grouped into
+Kitchero ships with **85 sections** — 22 template-bound (20 `main-*` sections
+plus `header` and `footer`) and **63 merchant-droppable sections** grouped into
 10 categories (heroes + banners, sliders, video, galleries, testimonials,
 image + text, collapsibles, commerce + marketing, PDP-adjacent, newsletter + forms).
 

@@ -102,8 +102,7 @@ These need concrete answers before or during the phases that touch them. Flag th
    - **Open:** who creates the metafield definition? → Document in Phase 4 deliverable: include a `config/metafields.json` or manual setup instructions in the theme's setup guide.
 2. **Color schemes.** Shopify's `color_scheme` setting type ties to a `color_scheme_group` declared in `config/settings_schema.json`. The Next.js theme uses stone/emerald/amber palette.
    - **Open:** define 3–5 schemes (e.g., "Light Stone", "Dark", "Emerald Accent") so merchants can switch.
-3. **Fonts.** Next.js uses Geist Sans + Geist Mono + serif (default system). Shopify best practice: use `settings.type_header_font_*` and `settings.type_body_font_*` with `font_picker` setting type.
-   - **Open:** self-host Geist in `assets/` (Geist is open source, OFL license) OR use Shopify's `font_picker` and accept whatever the merchant picks. Recommend: self-host as default, provide `font_picker` fallbacks.
+3. **Fonts.** [RESOLVED] The shipped defaults use Shopify-hosted Inter (heading + body) and Playfair Display (accent serif), wired through `font_picker` settings (`kt_heading_font` = `inter_n6`, `kt_body_font` = `inter_n4`, `kt_accent_font` = `playfair_display_n4`). Geist was the early Next.js source font but was dropped in favour of Inter to stay inside Shopify's font library — no self-hosting overhead, no licensing question, and merchants can swap to any Shopify-listed font through the picker.
 4. **Two product templates (showroom vs e-commerce).** Shopify supports alternate templates per product via the template suffix. Each product in the admin can be assigned one.
    - **Open:** which is the default? Recommend: `product.json` = e-commerce style (default), `product.showroom.json` = showroom style (optional). Document in setup guide.
 5. **Collection card data.** Current Next.js data has `rating`, `isLimitedOffer`, `discount`, `colors` arrays. Shopify products don't have these natively.
@@ -151,7 +150,7 @@ Work in phases. Finish a phase entirely, commit, test in `shopify theme dev`, th
 - [ ] Create `config/settings_schema.json` with:
   - `theme_info` metadata block (name, version, theme_author, theme_documentation_url)
   - Color schemes (Light Stone default, Dark, Emerald, Midnight — 4 schemes)
-  - Typography settings (heading font, body font — font_picker with Geist fallback)
+  - Typography settings (heading font, body font, accent font — `font_picker` settings defaulting to Inter + Playfair Display)
   - Layout settings (container width, spacing scale)
   - Social links
 - [ ] Create `layout/header-group.json` and `layout/footer-group.json` as section groups.

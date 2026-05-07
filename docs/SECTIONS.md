@@ -134,9 +134,9 @@ All sections follow the same patterns:
 
 1. Copy the closest existing section as a starting point.
 2. Rename files: `sections/<slug>.liquid`, `assets/kt-section-<slug>.css`,
-   optionally `assets/section-<slug>.js`. The `kt-section-` prefix is
-   the established convention; the existing repo's section CSS files
-   all use it.
+   optionally `assets/kt-section-<slug>.js`. The `kt-section-` prefix is
+   the established convention for both CSS and JS — the existing repo's
+   section assets all use it.
 3. Update BEM prefix to `.kt-<slug>__`.
 4. Add translation keys under `sections.<slug_with_underscores>` in both
    `locales/en.default.json` (customer-facing strings via `| t`) and
