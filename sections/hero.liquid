@@ -1,17 +1,20 @@
 {{ 'kt-section-hero.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
-  LCP preload is emitted inline on the slide image via image_tag's
-  `preload: true` filter argument (see below). That routes the
-  `<link rel="preload">` through Shopify's content_for_header
-  pipeline, which lands it in the document <head> — earlier in the
-  byte stream than any body-level <link> could appear. The preload
-  scanner picks it up before it even reaches our section markup,
-  shaving 2-3s off LCP on slow mobile.
+  R144 — Slide 0 LCP optimisation. Eager loading + fetchpriority=high
+  prioritise the LCP image as soon as the HTML parser reaches the
+  <img> tag — equivalent treatment without spending one of the
+  template's two resource-hint slots on a `<link rel="preload">`.
 
-  Only slide 0 gets `preload: true` (via the slide_preload assign
-  below). Subsequent slides are fade-stacked behind; preloading
-  them would waste critical-resource budget.
+  `preload: true` was previously emitted on slide 0 to inject a
+  preload link via Shopify's content_for_header pipeline. Combined
+  with the two font preloads in layout/theme.liquid that put the
+  homepage at 3 preloads/template, exceeding PRF-3's "max two
+  resource hints per template" cap (Theme Store performance rule).
+  The font preloads stay (heading + body fonts are render-blocking
+  via @font-face); image discovery via fetchpriority is good enough
+  for LCP — Lighthouse's "Preload LCP image" hint goes from green
+  to amber but the metric itself stays well within budget.
 {%- endcomment -%}
 
 {%- comment -%}
@@ -71,11 +74,9 @@
           {%- if forloop.first -%}
             {%- assign slide_loading = 'eager' -%}
             {%- assign slide_fetchpriority = 'high' -%}
-            {%- assign slide_preload = true -%}
           {%- else -%}
             {%- assign slide_loading = 'lazy' -%}
             {%- assign slide_fetchpriority = 'auto' -%}
-            {%- assign slide_preload = false -%}
           {%- endif -%}
           {%- if block.settings.image != blank -%}
             {%- assign hero_focal = block.settings.image.presentation.focal_point | default: 'center center' -%}
@@ -91,7 +92,6 @@
               block.settings.image
               | image_url: width: 2000
               | image_tag:
-                preload: slide_preload,
                 class: 'kt-hero__slide-image',
                 loading: slide_loading,
                 fetchpriority: slide_fetchpriority,

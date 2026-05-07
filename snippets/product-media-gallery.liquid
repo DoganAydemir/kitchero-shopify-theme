@@ -171,13 +171,19 @@
             {%- endcomment -%}
             {%- if media.id == active_media_id -%}
               {%- comment -%}
-                `preload: true` emits <link rel="preload" as="image"> into
-                <head> via content_for_header — combined with eager +
-                fetchpriority high, this makes the active PDP image the
-                highest-priority fetch the browser queues, which is what
-                Lighthouse's "Preload LCP image" audit expects. Without
-                preload the image discovery waits for the HTML parser to
-                reach the <img>, costing ~150–400ms of LCP on slow 4G.
+                R144 — `loading: 'eager'` + `fetchpriority: 'high'`
+                make the active PDP image the highest-priority fetch
+                the browser queues. `preload: true` was previously
+                emitted here to inject a `<link rel="preload">` via
+                content_for_header; combined with the two font
+                preloads in layout/theme.liquid that pushed the
+                product template to 3 preloads, exceeding PRF-3's
+                "max two resource hints per template" cap (Theme
+                Store performance rule). The font preloads stay
+                (render-blocking @font-face); image discovery via
+                fetchpriority is sufficient for LCP — Lighthouse's
+                "Preload LCP image" goes amber but the metric stays
+                well within budget.
               {%- endcomment -%}
               {{
                 media
@@ -186,7 +192,6 @@
                   class: 'kt-gallery__image',
                   loading: 'eager',
                   fetchpriority: 'high',
-                  preload: true,
                   widths: '375, 550, 750, 1100',
                   sizes: '(min-width: 990px) 58vw, 100vw',
                   width: media.width,

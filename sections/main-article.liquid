@@ -103,12 +103,19 @@
     {%- if article.image -%}
       {%- comment -%}
         Article hero is the article's LCP element — full-bleed above
-        the fold on every template variant. `preload: true` routes a
-        <link rel="preload" as="image"> through content_for_header so
-        the browser discovers the image before the HTML parser reaches
-        the <img> tag. Eager + fetchpriority already ensure immediate
-        fetch; preload closes the discovery-latency gap that keeps
-        Lighthouse's "Preload LCP image" from turning green.
+        the fold on every template variant. `loading: eager` +
+        `fetchpriority: high` ensure immediate fetch as soon as the
+        HTML parser reaches the <img> tag.
+
+        R144 — `preload: true` was previously emitted here to inject
+        a `<link rel="preload">` via content_for_header. Combined with
+        the two font preloads in layout/theme.liquid that pushed the
+        article template to 3 preloads, exceeding PRF-3's "max two
+        resource hints per template" cap (Theme Store performance
+        rule). The font preloads stay (render-blocking @font-face);
+        image discovery via fetchpriority is sufficient for LCP —
+        Lighthouse's "Preload LCP image" hint goes amber but the
+        metric itself stays well within budget.
       {%- endcomment -%}
       {{
         article.image
@@ -117,7 +124,6 @@
           class: 'kt-article__hero-img',
           loading: 'eager',
           fetchpriority: 'high',
-          preload: true,
           widths: '750, 1100, 1500, 2000, 2400',
           sizes: '100vw',
           width: article.image.width,
