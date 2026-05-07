@@ -51,6 +51,15 @@
         so customers on multi-location stores can see the full list
         without the snippet dominating the PDP layout. The <details>
         element is keyboard-accessible by default and works without JS.
+
+        R142 — each location card now carries a "Get directions" link
+        that opens a Google Maps query keyed off the formatted address
+        + location name (fragments avoid the geocoding-API key
+        requirement and degrade gracefully on stores with sparse
+        address data). A stock indicator pill reads `availability.available`
+        for a 3-state hint (in stock / sold out / unavailable for
+        pickup). Both surfaces fall back silently when the underlying
+        data isn't present so we never render a broken row.
       {%- endcomment -%}
       <details class="kt-pickup__details">
         <summary class="kt-pickup__more">
@@ -59,12 +68,52 @@
         <ul class="kt-pickup__list" role="list">
           {%- for availability in pickup_availabilities -%}
             <li class="kt-pickup__location">
-              <p class="kt-pickup__location-name">{{ availability.location.name }}</p>
+              <div class="kt-pickup__location-head">
+                <p class="kt-pickup__location-name">{{ availability.location.name | escape }}</p>
+                {%- comment -%}
+                  Stock indicator. `availability.available` is a boolean
+                  Shopify exposes per (variant, location) — true means the
+                  location can actually fulfil the pickup right now. We
+                  surface a single visual pill so customers don't have to
+                  read between the lines of the pickup-time copy.
+                {%- endcomment -%}
+                {%- if availability.available -%}
+                  <span class="kt-pickup__stock kt-pickup__stock--in" aria-label="{{ 'kt.product.pickup.in_stock_aria' | t | default: 'In stock for pickup' }}">
+                    <span class="kt-pickup__stock-dot" aria-hidden="true"></span>
+                    {{ 'kt.product.pickup.in_stock' | t | default: 'In stock' }}
+                  </span>
+                {%- else -%}
+                  <span class="kt-pickup__stock kt-pickup__stock--out" aria-label="{{ 'kt.product.pickup.out_of_stock_aria' | t | default: 'Unavailable for pickup at this location' }}">
+                    <span class="kt-pickup__stock-dot" aria-hidden="true"></span>
+                    {{ 'kt.product.pickup.out_of_stock' | t | default: 'Unavailable' }}
+                  </span>
+                {%- endif -%}
+              </div>
               <p class="kt-pickup__location-time">{{ availability.pick_up_time }}</p>
               {%- if availability.location.address -%}
                 <address class="kt-pickup__location-address">
                   {{ availability.location.address | format_address }}
                 </address>
+                {%- comment -%}
+                  Maps link — concatenates location name + summary
+                  address into a Google Maps "search" query. Works on
+                  every browser, doesn't require a Maps API key, and
+                  opens in a new tab so the customer keeps the PDP
+                  open behind. Address fragments are url_encoded for
+                  safety (street names with spaces / commas / unicode).
+                {%- endcomment -%}
+                {%- assign maps_query = availability.location.name | append: ' ' | append: availability.location.address.summary | url_encode -%}
+                <a
+                  class="kt-pickup__directions"
+                  href="https://www.google.com/maps/search/?api=1&query={{ maps_query }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                  </svg>
+                  <span>{{ 'kt.product.pickup.get_directions' | t | default: 'Get directions' }}</span>
+                </a>
               {%- endif -%}
             </li>
           {%- endfor -%}
