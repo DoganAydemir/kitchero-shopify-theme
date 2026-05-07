@@ -66,7 +66,12 @@
 
 .kt-customer__input {
   width: 100%;
-  border: 1px solid rgba(var(--kt-c-fg), 0.18);
+  /* R105 — WCAG 1.4.11 (3:1 UI component contrast). 0.18 alpha
+     against the scheme background was ~1.18:1 on default light
+     scheme; 0.45 lifts it to ≥3:1 across all 4 ship-default
+     schemes (light, ivory, slate, midnight) without making the
+     border feel heavy. */
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
   padding: 0.75rem 1rem;
   /* R104 — 16px (1rem) prevents iOS Safari from zooming the
      viewport on focus. Anything below triggers Safari's
@@ -81,7 +86,11 @@
 }
 
 .kt-customer__input::placeholder {
-  color: rgba(var(--kt-c-fg), 0.5);
+  /* R105 — WCAG 1.4.3 (4.5:1 normal text). 0.5 alpha on default
+     light scheme was ~3.4:1 — fails AA. 0.65 ≈ 4.6:1, clears AA
+     across all 4 ship-default schemes. Placeholders stay visibly
+     "lighter than typed text" but become readable. */
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .kt-customer__input:focus {

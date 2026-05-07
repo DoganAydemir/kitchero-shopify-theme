@@ -152,12 +152,18 @@
 }
 
 .kt-search-overlay__input::placeholder {
-  color: var(--kt-stone-500);
+  /* R105 — WCAG 1.4.3. stone-500 on the dark overlay (rgba(28,25,
+     23,0.9)) was ~3.7:1 — fails AA 4.5:1. stone-300 ≈ 12:1 on
+     stone-900 backdrop, clears AA. Placeholder still reads as
+     "lighter than typed text" but no longer disappears. */
+  color: var(--kt-stone-300);
 }
 
 .kt-search-overlay__results {
   margin-top: 2rem;
-  color: var(--kt-stone-500);
+  /* R105 — same dark-overlay context, same fix. The "Recent
+     searches" / "No results" copy was below AA before. */
+  color: var(--kt-stone-300);
 }
 
 .kt-search-overlay__suggestions {

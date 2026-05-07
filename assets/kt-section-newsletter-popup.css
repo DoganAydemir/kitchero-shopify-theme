@@ -299,7 +299,11 @@
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
   background: var(--kt-stone-50);
-  border: 1px solid var(--kt-stone-200);
+  /* R105 — WCAG 1.4.11 (3:1). stone-200 on stone-50 was ~1.07:1
+     (essentially invisible on the same off-white tone). stone-500
+     ≈ 3.7:1 on stone-50; identifies the input field while keeping
+     the soft popup aesthetic. */
+  border: 1px solid var(--kt-stone-500);
   border-radius: 0.75rem;
   color: var(--kt-stone-900);
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */

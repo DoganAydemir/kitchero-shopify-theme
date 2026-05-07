@@ -107,9 +107,15 @@
   <div class="page-width">
     <div class="kt-collection__vertical-layout">
 
-      {%- comment -%} Left Sidebar — filters {%- endcomment -%}
-      <aside class="kt-filter-sidebar">
-        <h2 class="kt-filter-sidebar__title">{{ 'kt.section.collection.filter' | t | default: 'Filter' }}</h2>
+      {%- comment -%}
+        R105 — `aside` becomes a "complementary" landmark in the AT
+        tree. Without an accessible name, screen readers announce it
+        as bare "complementary" and AT users with multiple <aside>
+        regions can't distinguish them. aria-labelledby points to
+        the inner h2 so the SR announces "Filter, complementary".
+      {%- endcomment -%}
+      <aside class="kt-filter-sidebar" aria-labelledby="FilterSidebarTitle">
+        <h2 id="FilterSidebarTitle" class="kt-filter-sidebar__title">{{ 'kt.section.collection.filter' | t | default: 'Filter' }}</h2>
         {%- render 'collection-filters', collection: collection -%}
       </aside>
 

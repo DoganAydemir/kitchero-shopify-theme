@@ -511,7 +511,12 @@ html.no-js .kt-cart-drawer {
   height: 2.75rem;
   background: transparent;
   border: 0;
-  color: var(--kt-stone-400);
+  /* R105 — WCAG 1.4.11 (3:1 UI component). stone-400 (#a8a29e)
+     on white was ~2.6:1 — the trash icon was barely visible
+     against the drawer panel. stone-600 (#57534e) ≈ 7.4:1 on
+     white, identifies the icon clearly without competing with
+     the active-state red on hover. */
+  color: var(--kt-stone-600);
   cursor: pointer;
   border-radius: 0.25rem;
   transition: color 0.2s ease, background-color 0.2s ease;

@@ -50,7 +50,11 @@
 .kt-newsletter-page__input {
   flex: 1;
   padding: 1rem 1.25rem;
-  border: 1px solid var(--kt-stone-300);
+  /* R105 — WCAG 1.4.11 (UI component contrast 3:1). stone-300
+     (#d6d3d1) on white is ~1.4:1 — the customer can barely see
+     where to type. stone-500 (#78716c) is ~3.74:1 on white,
+     clears the threshold with no visual heaviness change. */
+  border: 1px solid var(--kt-stone-500);
   border-radius: 4px;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;

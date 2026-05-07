@@ -4,7 +4,14 @@
   <div class="page-width">
     <div class="kt-newsletter-page__inner">
       <span class="kt-newsletter-page__label">{{ section.settings.label | default: 'Stay Connected' }}</span>
-      {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
+      {%- comment -%}
+        R105 — fallback aligned with schema default (h2). Schema's
+        `heading_tag` setting defaults to "h2" but the liquid
+        fallback was "h1" — if a merchant programmatically cleared
+        the value, the page would emit a duplicate h1 (next to
+        page-header-dotted's h1) and break heading hierarchy.
+      {%- endcomment -%}
+      {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
       <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: 'Join our newsletter' }}</{{ heading_tag }}>
       <p class="kt-newsletter-page__desc">{{ section.settings.description | default: 'Be the first to receive new collection launches, exclusive design insights, and member-only offers.' }}</p>
 

@@ -327,15 +327,23 @@
 .kt-footer__newsletter-input {
   flex: 1;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* R105 — WCAG 1.4.11. white@0.15 on dark footer was ~1.1:1.
+     0.45 alpha lifts to ~3:1 against the kt-footer dark scheme. */
+  border: 1px solid rgba(255, 255, 255, 0.45);
   color: var(--kt-stone-50);
   border-radius: 4px;
   padding: 0.75rem 1rem;
-  font-size: 0.875rem;
+  /* R104 — 1rem prevents iOS Safari zoom-on-focus on the
+     footer newsletter email input. */
+  font-size: 1rem;
 }
 
 .kt-footer__newsletter-input::placeholder {
-  color: var(--kt-stone-500);
+  /* R105 — WCAG 1.4.3 (4.5:1). stone-500 on stone-900 was ~3.7:1
+     — fails AA. stone-300 (#d6d3d1) ≈ 12:1 on dark footer,
+     comfortably clears AA while keeping the placeholder visibly
+     dimmer than typed text. */
+  color: var(--kt-stone-300);
 }
 
 .kt-footer__newsletter-btn {
