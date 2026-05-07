@@ -447,6 +447,25 @@
 
     {% sections 'footer-group' %}
 
+    {%- comment -%}
+      Overlay-group — globally-rendered surfaces that float above the
+      main page flow: cookie consent banner (GDPR / CPRA / LGPD), the
+      newsletter capture popup, and any future age-verifier / promo
+      modals. Section group lets the merchant reorder/disable members
+      from the theme editor without us hard-coding `{% section %}`
+      calls per overlay.
+
+      Why this exists (R132 reject vector fix): cookie-banner.liquid
+      and newsletter-popup.liquid existed as section files but were
+      not statically rendered anywhere. Theme Store reviewers landing
+      on a fresh install would never see a consent UI — even with
+      `enabled_on.groups = ["footer"]`, footer-group is auto-generated
+      and may not include the cookie banner. Promoting both surfaces
+      into a dedicated overlay group guarantees they render on every
+      page from install, while still letting merchants configure them.
+    {%- endcomment -%}
+    {% sections 'overlay-group' %}
+
     {%- comment -%} Structured Data (JSON-LD) {%- endcomment -%}
     {%- render 'structured-data' -%}
 
