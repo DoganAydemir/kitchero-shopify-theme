@@ -122,3 +122,42 @@
   font-weight: 500;
   text-align: center;
 }
+
+/* R122 — GDPR consent checkbox row.
+   Inline with the Subscribe button on desktop, stacks above on mobile.
+   Checkbox 18×18 (WCAG 2.5.5 — touch target via the surrounding label
+   click-area which is full-width). */
+.kt-newsletter-page__consent {
+  margin: 1rem 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--kt-stone-700);
+  text-align: left;
+}
+
+.kt-newsletter-page__consent input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 0.1875rem;
+  /* WCAG 1.4.11 — input border 3:1 against bg.
+     Stone-500 (#78716c) on white ≈ 3.7:1, clears AA. */
+  accent-color: var(--kt-stone-900);
+}
+
+.kt-newsletter-page__consent-label {
+  flex: 1;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.kt-newsletter-page__consent-label > *:first-child { margin-top: 0; }
+.kt-newsletter-page__consent-label > *:last-child { margin-bottom: 0; }
+
+.kt-newsletter-page__consent-label a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
