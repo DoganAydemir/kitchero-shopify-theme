@@ -6,6 +6,14 @@
 {{ 'kt-section-main-product-showroom.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-gallery.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  R166 SHOWROOM-BUY-PARITY-1: the buy_controls block now renders the
+  canonical snippets/product-form.liquid. Its styles live in
+  kt-product-form.css (shared with main-product.liquid). Loading
+  unconditionally is safe — file is small and the block is part of
+  the default preset, so virtually every showroom render needs it.
+{%- endcomment -%}
+{{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
 
 <link
   rel="stylesheet"
@@ -503,73 +511,37 @@
 
               {%- when 'buy_controls' -%}
                 {%- comment -%}
-                  R157 SHOWROOM-BUY-BLOCK-1: showroom template's
-                  primary UX is appointment / consultation flow,
-                  but Shopify Theme Store reviewers test EVERY
-                  product template against the standard product-
-                  page checklist (Add to cart, dynamic checkout,
-                  variant + quantity selection). Without these,
-                  reject as "product page shopping interaction
-                  incomplete." This block surfaces a real Shopify
-                  product form so the compliance bar is met. UX
-                  positioning intentionally secondary — sits at
-                  the bottom of the showroom card with smaller
-                  styling so the appointment CTA stays primary.
-                  Merchant can rename ATC label ("Reserve item",
-                  "Order now", "Start order") via block setting.
-                  show_dynamic_checkout exposes Shop Pay / Apple
-                  Pay / Google Pay via payment_button filter.
-                  Hidden when product has only the default
-                  "Default Title" variant + show_quantity off
-                  doesn't suppress the form (qty=1 still posts).
+                  R157 SHOWROOM-BUY-BLOCK-1 / R166 SHOWROOM-BUY-PARITY-1:
+                  showroom template's primary UX is the appointment /
+                  consultation flow, but Shopify Theme Store reviewers
+                  test EVERY product template against the standard
+                  product-page checklist (variant integration, selling
+                  plans, quantity rules, dynamic checkout, gift card
+                  recipient form, payment_terms / installments). The
+                  R157 first-pass shipped an INLINE minimal form that
+                  bypassed the canonical snippets/product-form.liquid,
+                  so the variant picker (which writes to
+                  `[data-variant-id]` via product-form.js scoped to
+                  `[data-product-form]`) couldn't reach this form, and
+                  selling plans / payment_terms / gift card recipient
+                  / pre-order badge / error sentinel were all missing.
+                  R166 collapses the inline form into a single
+                  canonical render call so this surface inherits every
+                  PDP feature transparently. UX positioning still
+                  intentionally secondary — appointment CTA is the
+                  primary action above; this block sits beneath it.
+                  show_quantity = false posts a hidden qty=1 from
+                  inside the snippet, keeping the form submit shape
+                  consistent.
                 {%- endcomment -%}
                 <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
-                  {%- form 'product', product, id: 'ShowroomBuyForm', class: 'kt-showroom__buy-form' -%}
-                    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-variant-id>
-                    {%- if block.settings.show_quantity -%}
-                      {%- assign sb_qty_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1 -%}
-                      {%- assign sb_qty_step = product.selected_or_first_available_variant.quantity_rule.increment | default: 1 -%}
-                      {%- assign sb_qty_max = product.selected_or_first_available_variant.quantity_rule.max -%}
-                      <label for="ShowroomBuyQuantity" class="kt-showroom__buy-qty-label">
-                        {{ 'kt.product.quantity.label' | t | default: 'Quantity' }}
-                      </label>
-                      <input
-                        type="number"
-                        id="ShowroomBuyQuantity"
-                        name="quantity"
-                        value="{{ sb_qty_min }}"
-                        min="{{ sb_qty_min }}"
-                        step="{{ sb_qty_step }}"
-                        {% if sb_qty_max != blank %}max="{{ sb_qty_max }}"{% endif %}
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        class="kt-showroom__buy-qty"
-                      >
-                    {%- endif -%}
-                    <button
-                      type="submit"
-                      name="add"
-                      class="kt-showroom__buy-atc"
-                      {% unless product.available %}disabled aria-disabled="true"{% endunless %}
-                    >
-                      {%- if product.available -%}
-                        {{ block.settings.atc_label | default: 'Add to cart' | escape }}
-                      {%- else -%}
-                        {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
-                      {%- endif -%}
-                    </button>
-                    {%- if block.settings.show_dynamic_checkout and product.available -%}
-                      {%- comment -%}
-                        Dynamic checkout buttons (Shop Pay / Apple
-                        Pay / Google Pay / PayPal) — Shopify
-                        injects these via payment_button when
-                        accelerated checkout is enabled in admin.
-                        Theme Store paid-tier expects this on every
-                        purchasable product surface.
-                      {%- endcomment -%}
-                      {{ form | payment_button }}
-                    {%- endif -%}
-                  {%- endform -%}
+                  {%- render 'product-form',
+                    product: product,
+                    section: section,
+                    show_dynamic_checkout: block.settings.show_dynamic_checkout,
+                    show_quantity: block.settings.show_quantity,
+                    atc_label: block.settings.atc_label
+                  -%}
                 </div>
 
               {%- when '@app' -%}
@@ -594,6 +566,15 @@
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
+{%- comment -%}
+  R166 SHOWROOM-BUY-PARITY-1: product-form.js handles variant-
+  change wiring (rewrites the hidden id input + price/SKU/availability
+  surfaces on option select) and the AJAX cart submit path. The
+  showroom buy_controls block depends on this for the variant picker
+  → form bridge. Same script powers main-product.liquid; safe to
+  load on every showroom render.
+{%- endcomment -%}
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

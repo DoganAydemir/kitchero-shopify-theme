@@ -7,11 +7,26 @@
   - product:              {Object}  Shopify product
   - show_dynamic_checkout {Boolean} render the Shop Pay / Buy it now button.
                                     Defaults to true (Theme Store best practice).
+  - show_quantity         {Boolean} render the quantity stepper.
+                                    Defaults to true. Pass false to hide the
+                                    stepper for layouts where qty=1 is implied
+                                    (showroom buy block, etc).
+                                    R166: snippet still posts qty=1 via a
+                                    hidden input when stepper is hidden so
+                                    the form submit shape stays consistent.
+  - atc_label             {String}  Override the Add-to-cart button label.
+                                    Defaults to `kt.product.add_to_cart` t-key.
+                                    Lets the showroom's "Reserve this item"
+                                    / "Order sample" copy reach the same
+                                    canonical product form.
 {%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 {%- if show_dynamic_checkout == nil -%}
   {%- assign show_dynamic_checkout = true -%}
+{%- endif -%}
+{%- if show_quantity == nil -%}
+  {%- assign show_quantity = true -%}
 {%- endif -%}
 
 {%- comment -%}
@@ -76,33 +91,47 @@
   {%- assign qty_max = current_variant.quantity_rule.max -%}
 
   {%- comment -%} Quantity + Add to Cart row {%- endcomment -%}
-  <div class="kt-product-form__row">
-    {%- comment -%} Quantity selector {%- endcomment -%}
-    <div class="kt-product-form__qty">
-      <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: product.title }}">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      </button>
-      <input
-        type="number"
-        name="quantity"
-        id="Quantity-{{ product.id }}"
-        value="{{ qty_min }}"
-        min="{{ qty_min }}"
-        step="{{ qty_step }}"
-        {% if qty_max != blank %}max="{{ qty_max }}"{% endif %}
-        inputmode="numeric"
-        pattern="[0-9]*"
-        class="kt-product-form__qty-input"
-        data-qty-input
-        data-qty-min="{{ qty_min }}"
-        data-qty-step="{{ qty_step }}"
-        {% if qty_max != blank %}data-qty-max="{{ qty_max }}"{% endif %}
-        aria-label="{{ 'kt.product.quantity.label' | t }}"
-      >
-      <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'kt.product.quantity.increase' | t: title: product.title }}">
-        {% render 'icon-plus' %}
-      </button>
-    </div>
+  <div class="kt-product-form__row{% unless show_quantity %} kt-product-form__row--no-qty{% endunless %}">
+    {%- comment -%}
+      Quantity selector — gated on `show_quantity`. When the host
+      layout opts out of the visible stepper (showroom buy block,
+      "1-click reserve" surface, etc.) we still post a hidden
+      `quantity` input so /cart/add receives the canonical form
+      shape. Without that hidden input the form submit would post
+      no quantity, and Shopify's cart endpoint defaults to qty=1
+      silently — which works today but breaks the moment the
+      product has a quantity_rule.min > 1 (case-of-6 items),
+      because the default qty=1 gets rejected at the cart layer.
+    {%- endcomment -%}
+    {%- if show_quantity -%}
+      <div class="kt-product-form__qty">
+        <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: product.title }}">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <input
+          type="number"
+          name="quantity"
+          id="Quantity-{{ product.id }}"
+          value="{{ qty_min }}"
+          min="{{ qty_min }}"
+          step="{{ qty_step }}"
+          {% if qty_max != blank %}max="{{ qty_max }}"{% endif %}
+          inputmode="numeric"
+          pattern="[0-9]*"
+          class="kt-product-form__qty-input"
+          data-qty-input
+          data-qty-min="{{ qty_min }}"
+          data-qty-step="{{ qty_step }}"
+          {% if qty_max != blank %}data-qty-max="{{ qty_max }}"{% endif %}
+          aria-label="{{ 'kt.product.quantity.label' | t }}"
+        >
+        <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'kt.product.quantity.increase' | t: title: product.title }}">
+          {% render 'icon-plus' %}
+        </button>
+      </div>
+    {%- else -%}
+      <input type="hidden" name="quantity" value="{{ qty_min }}">
+    {%- endif -%}
 
     {%- comment -%}
       Add to Cart button — two icons rendered, CSS swaps based on :disabled.
@@ -143,7 +172,18 @@
       </svg>
       <span data-add-to-cart-text>
         {%- if current_variant.available -%}
-          {{ 'kt.product.add_to_cart' | t }}
+          {%- comment -%}
+            R166: `atc_label` lets the showroom buy block surface
+            "Reserve this item" / "Order sample" copy through the
+            same canonical form. Falls back to the localized
+            default. Escaped because the value can come from
+            merchant input.
+          {%- endcomment -%}
+          {%- if atc_label != blank -%}
+            {{ atc_label | escape }}
+          {%- else -%}
+            {{ 'kt.product.add_to_cart' | t }}
+          {%- endif -%}
         {%- else -%}
           {{ 'kt.product.sold_out' | t }}
         {%- endif -%}
