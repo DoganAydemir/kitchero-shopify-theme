@@ -500,6 +500,10 @@
     /* Keyboard: Escape close, arrows navigate */
     function onKeydown(e) {
       if (!lightbox || lightbox.getAttribute('aria-hidden') !== 'false') return;
+      // Only handle Escape / arrow keys if this lightbox is the
+      // top-most stacked modal — otherwise let the inner modal own
+      // the keypress.
+      if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(lightbox)) return;
       if (e.code === 'Escape') closeLightbox();
       if (e.code === 'ArrowLeft') goTo(currentIndex - 1);
       if (e.code === 'ArrowRight') goTo(currentIndex + 1);

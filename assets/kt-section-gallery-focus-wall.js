@@ -203,6 +203,7 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       if (!active) return;
 
       if (e.key === 'Escape' || e.code === 'Escape') {
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(active.lightbox)) return;
         e.preventDefault();
         close();
         return;

@@ -276,6 +276,7 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
     document.addEventListener('keydown', function (e) {
       if (!isOpen()) return;
       if (e.key === 'Escape' || e.code === 'Escape') {
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(popup)) return;
         e.preventDefault();
         closePopup(true);
         return;

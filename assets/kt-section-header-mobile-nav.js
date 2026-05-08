@@ -216,6 +216,8 @@
     var els = getElements();
     if (!els.panel) return;
     if (!els.panel.classList.contains('kt-header__mobile-panel--open')) return;
+    // Only close if this panel is the top-most stacked modal.
+    if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(els.panel)) return;
     closePanel(els.panel, els.toggle);
     setTimeout(resetStack, 500);
   }

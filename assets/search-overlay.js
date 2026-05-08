@@ -137,6 +137,8 @@ if (!window.__kitcheroSearchOverlayLoaded) {
       if (!overlay || overlay.getAttribute('aria-hidden') !== 'false') return;
 
       if (e.key === 'Escape' || e.code === 'Escape') {
+        // Only handle Escape if this overlay is the top-most stacked modal.
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(overlay)) return;
         e.preventDefault();
         closeOverlay();
         return;

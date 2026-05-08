@@ -89,9 +89,12 @@
          key listener on the drawer itself would miss because focus may
          be inside a descendant input when Esc is pressed. */
       this._keyHandler = function (event) {
-        if (event.code === 'Escape' && self.isOpen()) {
-          self.close();
-        }
+        if (event.code !== 'Escape' || !self.isOpen()) return;
+        // Only close the cart drawer if it's the top-most stacked
+        // modal — otherwise let the inner modal's own handler take
+        // the Escape press.
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(self.panel)) return;
+        self.close();
       };
       document.addEventListener('keydown', this._keyHandler);
 

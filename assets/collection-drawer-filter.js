@@ -83,9 +83,9 @@
     });
 
     function onKeyDown(e) {
-      if (e.code === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
-        close();
-      }
+      if (e.code !== 'Escape' || drawer.getAttribute('aria-hidden') !== 'false') return;
+      if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(drawer)) return;
+      close();
     }
     document.addEventListener('keydown', onKeyDown);
 

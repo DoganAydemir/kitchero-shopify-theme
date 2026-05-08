@@ -155,6 +155,20 @@
     if (newTop) setActiveFocusin(newTop);
   }
 
+  // Used by every modal's ESC handler so a single Escape press only
+  // closes the inner-most stacked modal, not every open one.
+  // Returns true ONLY when there's a deeper modal stacked above the
+  // caller — empty stack OR caller IS the top both fall through, so
+  // modals that never registered a focus trap keep their existing
+  // ESC behaviour. Without this gate, `cart drawer + appointment
+  // drawer` both close on a single Escape (they each register their
+  // own document-level keydown listener and both fire). WCAG 2.1.2
+  // + 2.4.3 expectation: ESC closes the focused dialog, not all.
+  function shouldSuppressEscape(container) {
+    if (trapStack.length === 0) return false;
+    return trapStack[trapStack.length - 1] !== container;
+  }
+
   /* ------------------------------------------------------------------ */
   /* Event bus                                                          */
   /* ------------------------------------------------------------------ */
@@ -406,7 +420,8 @@
   global.Kitchero.focusTrap = {
     enable: enableFocusTrap,
     disable: disableFocusTrap,
-    focusable: listFocusable
+    focusable: listFocusable,
+    shouldSuppressEscape: shouldSuppressEscape
   };
   global.Kitchero.bus = { on: on, off: off, emit: emit };
   global.Kitchero.escapeCloseDetails = escapeCloseDetails;

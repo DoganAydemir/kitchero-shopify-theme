@@ -97,9 +97,10 @@
 
   // Escape key closes the drawer
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && isOpen()) {
-      closeDrawer();
-    }
+    if (e.key !== 'Escape' || !isOpen()) return;
+    // Only close if this drawer is the top-most stacked modal.
+    if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(drawer)) return;
+    closeDrawer();
   });
 
   /* Safety net: if the drawer (or a containing section) is removed

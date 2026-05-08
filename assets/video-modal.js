@@ -202,6 +202,7 @@ if (!window.__kitcheroVideoModalLoaded) {
     document.addEventListener('keydown', function (e) {
       if (!activeModal) return;
       if (e.key === 'Escape' || e.code === 'Escape') {
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(activeModal)) return;
         e.preventDefault();
         closeActive();
         return;
