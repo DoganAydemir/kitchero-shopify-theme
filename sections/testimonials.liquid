@@ -61,7 +61,18 @@
         </p>
       {%- endif -%}
       {%- for block in section.blocks -%}
-        {%- if block.type == 'testimonial' -%}
+        {%- comment -%}
+          R167 DEMO-PLACEHOLDER-COPY-1: skip blocks where the
+          merchant hasn't supplied a quote yet. Prior behaviour
+          rendered an empty `&ldquo;&rdquo;` blockquote — visible
+          to Theme Store reviewers as a "broken" demo card on the
+          storefront preview. With the schema defaults stripped of
+          instruction-style placeholder copy ("Add your customer's
+          testimonial here…"), an unconfigured block now has an
+          empty quote field and we cleanly elide it instead of
+          shipping an empty-quote card.
+        {%- endcomment -%}
+        {%- if block.type == 'testimonial' and block.settings.quote != blank -%}
           <div class="kt-testimonials__card" {{ block.shopify_attributes }}>
             <div class="kt-testimonials__quote-icon" aria-hidden="true">
               <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
@@ -71,31 +82,40 @@
               &ldquo;{{ block.settings.quote }}&rdquo;
             </blockquote>
 
-            <div class="kt-testimonials__author">
-              {%- if block.settings.avatar != blank -%}
-                {{ block.settings.avatar | image_url: width: 96 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: block.settings.name | default: '' }}
-              {%- else -%}
-                {%- comment -%}
-                  Avatar is optional in the schema; when the merchant
-                  doesn't supply one we still render a circular slot
-                  with Shopify's lifestyle placeholder so the card
-                  composition stays balanced (without it, the name +
-                  role text floats on the left edge with no visual
-                  anchor and the card layout looks broken in design
-                  mode and in production previews on freshly-installed
-                  themes).
-                {%- endcomment -%}
-                <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
-                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-                </div>
-              {%- endif -%}
-              <div>
-                <cite class="kt-testimonials__author-name">{{ block.settings.name }}</cite>
-                {%- if block.settings.role != blank -%}
-                  <p class="kt-testimonials__author-role">{{ block.settings.role }}</p>
+            {%- comment -%}
+              Author block — only render when the merchant has
+              filled in at least the name. Without this gate, an
+              author-less testimonial (a brand-voice quote, for
+              example) would render an empty `<cite>` with the
+              avatar placeholder still drawn beside it, which
+              looks like a broken card in production previews.
+            {%- endcomment -%}
+            {%- if block.settings.name != blank or block.settings.avatar != blank -%}
+              <div class="kt-testimonials__author">
+                {%- if block.settings.avatar != blank -%}
+                  {{ block.settings.avatar | image_url: width: 96 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: block.settings.name | default: '' }}
+                {%- elsif block.settings.name != blank -%}
+                  {%- comment -%}
+                    Avatar is optional; when the merchant gave us a
+                    name but no image we render the lifestyle
+                    placeholder so the card composition stays
+                    balanced (without it, the name + role text
+                    floats on the left edge with no visual anchor).
+                  {%- endcomment -%}
+                  <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                {%- endif -%}
+                {%- if block.settings.name != blank -%}
+                  <div>
+                    <cite class="kt-testimonials__author-name">{{ block.settings.name }}</cite>
+                    {%- if block.settings.role != blank -%}
+                      <p class="kt-testimonials__author-role">{{ block.settings.role }}</p>
+                    {%- endif -%}
+                  </div>
                 {%- endif -%}
               </div>
-            </div>
+            {%- endif -%}
           </div>
         {%- endif -%}
       {%- endfor -%}
@@ -262,20 +282,17 @@
         {
           "type": "textarea",
           "id": "quote",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.quote.label",
-          "default": "Add your customer’s testimonial here. Use a real quote from a verified customer."
+          "label": "t:sections.testimonials.blocks.testimonial.settings.quote.label"
         },
         {
           "type": "text",
           "id": "name",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.name.label",
-          "default": "Customer name"
+          "label": "t:sections.testimonials.blocks.testimonial.settings.name.label"
         },
         {
           "type": "text",
           "id": "role",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.role.label",
-          "default": "Title or role"
+          "label": "t:sections.testimonials.blocks.testimonial.settings.role.label"
         },
         {
           "type": "image_picker",
@@ -308,25 +325,19 @@
         {
           "type": "testimonial",
           "settings": {
-            "quote": "Add your customer’s testimonial here. A great quote highlights one specific value the customer experienced.",
-            "name": "Customer name",
-            "role": "Title or role"
+            "quote": "Quality you can see, craftsmanship you can feel."
           }
         },
         {
           "type": "testimonial",
           "settings": {
-            "quote": "Add your customer’s testimonial here. A great quote highlights one specific value the customer experienced.",
-            "name": "Customer name",
-            "role": "Title or role"
+            "quote": "Designed for your home, built to last."
           }
         },
         {
           "type": "testimonial",
           "settings": {
-            "quote": "Add your customer’s testimonial here. A great quote highlights one specific value the customer experienced.",
-            "name": "Customer name",
-            "role": "Title or role"
+            "quote": "From design to delivery, every detail matters."
           }
         }
       ]
