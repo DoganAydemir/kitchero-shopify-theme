@@ -142,6 +142,21 @@
               <span>{{ section.settings.trust_text }}</span>
             </div>
           {%- endif -%}
+
+          {%- comment -%}
+            R159 FINANCING-DISCLAIMER-1: Theme Store reviewers
+            flag financing UI without an explicit "estimate, not
+            an offer" disclaimer because the values are merchant-
+            configured (anyone could enter a fictitious low APR
+            to look attractive). Always-on disclaimer below the
+            calculator clarifies that this is a payment-estimate
+            tool, not a credit pre-approval. Merchant-overridable
+            via section setting; falls back to a localized default.
+            ChatGPT cross-audit Orta Risk #4.
+          {%- endcomment -%}
+          <p class="kt-financing-calculator__disclaimer">
+            {{ section.settings.disclaimer | default: 'kt.section.financing-calculator.disclaimer_default' | t }}
+          </p>
         </div>
       </div>
     </div>
@@ -245,6 +260,12 @@
       "type": "text",
       "id": "trust_text",
       "label": "t:sections.financing-calculator.settings.trust_text.label"
+    },
+    {
+      "type": "richtext",
+      "id": "disclaimer",
+      "label": "t:sections.financing-calculator.settings.disclaimer.label",
+      "info": "t:sections.financing-calculator.settings.disclaimer.info"
     }
   ],
   "blocks": [
