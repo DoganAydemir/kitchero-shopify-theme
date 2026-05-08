@@ -109,11 +109,45 @@
                   error list instead of being stranded on document.body
                   (WCAG 2.4.3 Focus Order + 3.3.1 Error Identification).
                 {%- endcomment -%}
-                <div class="kt-contact__form-errors" role="alert" tabindex="-1" data-form-error-summary>
+                {%- comment -%}
+                  R151 CONTACT-A11Y-1: scope role="alert" to the
+                  inner <ul> + wrap each error in an anchor link to
+                  the field. Pattern matches main-login / main-
+                  register / addresses (R145 ADDRESSES-ALERT-ROLE-1
+                  fix). Customer can click any error to jump to the
+                  broken field — WCAG 3.3.1 / 2.4.1 affordance.
+                  Anchor target depends on which field errored.
+                {%- endcomment -%}
+                {%- capture contact_id_first %}contact-first-name-{{ section.id }}{% endcapture -%}
+                {%- capture contact_id_last %}contact-last-name-{{ section.id }}{% endcapture -%}
+                {%- capture contact_id_email %}contact-email-{{ section.id }}{% endcapture -%}
+                {%- capture contact_id_phone %}contact-phone-{{ section.id }}{% endcapture -%}
+                {%- capture contact_id_message %}contact-message-{{ section.id }}{% endcapture -%}
+                <div class="kt-contact__form-errors" tabindex="-1" data-form-error-summary>
                   <strong>{{ 'kt.contact.form.error_heading' | t | default: 'Please fix the following:' }}</strong>
-                  <ul>
+                  <ul role="alert">
                     {%- for field in form.errors -%}
-                      <li>{{ form.errors.translated_messages[field] }}</li>
+                      <li>
+                        {%- assign anchor_target = '' -%}
+                        {%- if field == 'first_name' or field == 'name' -%}
+                          {%- assign anchor_target = contact_id_first -%}
+                        {%- elsif field == 'last_name' -%}
+                          {%- assign anchor_target = contact_id_last -%}
+                        {%- elsif field == 'email' -%}
+                          {%- assign anchor_target = contact_id_email -%}
+                        {%- elsif field == 'phone' -%}
+                          {%- assign anchor_target = contact_id_phone -%}
+                        {%- elsif field == 'body' or field == 'message' -%}
+                          {%- assign anchor_target = contact_id_message -%}
+                        {%- endif -%}
+                        {%- if anchor_target != '' and field != 'form' -%}
+                          <a href="#{{ anchor_target }}">
+                            {{- form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] -}}
+                          </a>
+                        {%- else -%}
+                          {{ form.errors.translated_messages[field] }}
+                        {%- endif -%}
+                      </li>
                     {%- endfor -%}
                   </ul>
                 </div>

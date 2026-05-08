@@ -221,8 +221,34 @@
             {%- endif -%}
 
             {%- if form.errors -%}
-              <div class="kt-newsletter-popup__errors" role="alert">
-                {{ form.errors | default_errors }}
+              {%- comment -%}
+                R151 NEWSLETTER-POPUP-1: error summary now uses the
+                `data-form-error-summary` + `tabindex="-1"` pattern
+                consistent with main-login / main-register / address
+                forms. global.js focusFirstFormError() finds this on
+                submit and moves keyboard/SR focus to it. role="alert"
+                is scoped to the inner UL only (per R145
+                ADDRESSES-ALERT-ROLE-1 fix) so NVDA/JAWS don't
+                announce the heading + every list item as one
+                run-on string. Replaces the previous bare
+                `default_errors` blob which had no focus management
+                and no inline anchor links.
+              {%- endcomment -%}
+              <div class="kt-newsletter-popup__errors" tabindex="-1" data-form-error-summary>
+                <h3 class="kt-newsletter-popup__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h3>
+                <ul class="kt-newsletter-popup__errors-list" role="alert">
+                  {%- for field in form.errors -%}
+                    <li>
+                      {%- if field == 'form' -%}
+                        {{ form.errors.translated_messages[field] }}
+                      {%- else -%}
+                        <a href="#NewsletterPopupEmail-{{ section.id }}">
+                          {{- form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] -}}
+                        </a>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
               </div>
             {%- endif -%}
 

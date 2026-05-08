@@ -184,7 +184,15 @@
             </div>
           {%- endif -%}
           <div class="kt-customer__field">
-            <label for="forgot-email" class="visually-hidden">{{ 'kt.customer.login.email' | t }}</label>
+            {%- comment -%}
+              R151 FORGOT-MODAL-LABEL-1: drop visually-hidden so the
+              label is visible — codebase moved to visible-label
+              policy (see lines 68-77 above). Forgot-modal email field
+              was the only remaining customer-form input with a hidden
+              label; aligning with the rest of the customer flow.
+              WCAG 2.5.3 / 3.3.2 polish.
+            {%- endcomment -%}
+            <label for="forgot-email" class="kt-customer__label">{{ 'kt.customer.login.email' | t }}</label>
             <input
               type="email"
               autocapitalize="off"
