@@ -338,7 +338,8 @@
 
 .kt-countdown__time {
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 0.625rem;
+  /* R153 EYEBROW-FONT-1: 10px → 11px iPhone SE legibility */
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--kt-white);
@@ -421,7 +422,8 @@
   height: var(--kt-swatch-size, 18px);
   padding: 0 0.4rem;
   border-radius: var(--kt-swatch-shape, 50%);
-  font-size: 0.625rem;
+  /* R153 EYEBROW-FONT-1: 10px → 11px iPhone SE legibility */
+  font-size: 0.6875rem;
   font-weight: 600;
   color: rgba(var(--kt-c-fg), 0.7);
   background-color: rgba(var(--kt-c-fg), 0.08);
@@ -447,13 +449,16 @@
   text-decoration: line-through;
 }
 
-/* View details link: border-b border-stone-800 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium */
+/* View details link: border-b border-stone-800 uppercase tracking-[0.2em] font-medium.
+   R153 EYEBROW-FONT-1: was 10px / md:text-sm — bumped mobile to
+   clamp(0.6875rem, 2vw, 0.75rem) → 11px-12px range so iPhone SE
+   readable while retaining the editorial wide-spacing aesthetic. */
 .kt-card-product__view-link {
   display: inline-block;
   border-bottom: 1px solid var(--kt-stone-900);
   color: var(--kt-stone-900);
   padding-bottom: 0.125rem;
-  font-size: 0.625rem;
+  font-size: clamp(0.6875rem, 2vw, 0.75rem);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 500;

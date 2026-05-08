@@ -112,7 +112,12 @@
   display: block;
   margin-bottom: 1rem;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 10px;
+  /* R153 EYEBROW-FONT-1: 10px is below WCAG 1.4.4 reflow comfort
+     on iPhone SE (375px). Bump to 11px (0.6875rem) so eyebrow
+     copy stays legible on the smallest viewports without breaking
+     the visual scale (4em letter-spacing keeps the wide-spaced
+     editorial feel). */
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
@@ -124,21 +129,17 @@
   color: var(--kt-white);
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-weight: 400;
-  font-size: 1.875rem; /* 30px — mobile */
+  /* R153 HEADING-CLAMP-1: replaced 3-step media-query scale with
+     a single `clamp(min, vw-derived, max)` so heading glides
+     across breakpoints (no jump at 750/990px) AND so long
+     translations (DE "Donaudampfschifffahrt", FR with accents)
+     don't overflow the viewport on narrow screens. `overflow-wrap`
+     + `hyphens: auto` allow break inside long words. */
+  font-size: clamp(1.875rem, 4vw + 1rem, 3.75rem);
   line-height: 1.1;
   letter-spacing: -0.01em;
-}
-
-@media (min-width: 750px) {
-  .kt-banner-hero__heading {
-    font-size: 3rem; /* 48px */
-  }
-}
-
-@media (min-width: 990px) {
-  .kt-banner-hero__heading {
-    font-size: 3.75rem; /* 60px */
-  }
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .kt-banner-hero__heading-line {

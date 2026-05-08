@@ -366,7 +366,24 @@
     Gated on the metafield existing — new stores without reviews
     installed get nothing extra.
   {%- endcomment -%}
-  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.custom.rating.value -%}
+  {%- comment -%}
+    R153 AGGREGATE-RATING-PATH-1: Shopify's Standard product
+    `reviews.rating` metafield is type `rating` — the value is an
+    object whose accessor is `.value.rating` / `.value.scale_max`.
+    But many stores use a plain `decimal` or `number_decimal`
+    metafield instead — the `.value.rating` access returns nil
+    on those, so the if-gate dropped the schema even though the
+    UI star rating worked. Fall through three sources:
+      1. Shopify Standard `reviews.rating.value.rating` (rating type)
+      2. Shopify Standard `reviews.rating.value` (decimal type)
+      3. Custom `custom.rating.value` (legacy app-stored)
+    First non-blank wins. Same fallback for scale_max with default
+    5 when neither path resolves.
+
+    R153 RATING-WORST-NUM-1: emit numeric `worstRating` (was string
+    "1"). Schema.org/RichResults prefers numeric. Drop quotes.
+  {%- endcomment -%}
+  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: product.metafields.custom.rating.value -%}
   {%- assign sd_rating_count = product.metafields.reviews.rating_count.value -%}
   {%- assign sd_rating_scale = product.metafields.reviews.rating.value.scale_max | default: 5 -%}
   {%- if sd_rating and sd_rating_count and sd_rating_count > 0 -%}
@@ -379,7 +396,7 @@
           "@type": "AggregateRating",
           "ratingValue": {{ sd_rating | json }},
           "bestRating": {{ sd_rating_scale | json }},
-          "worstRating": "1",
+          "worstRating": 1,
           "reviewCount": {{ sd_rating_count | json }}
         }
       }

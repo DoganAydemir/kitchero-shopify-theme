@@ -82,7 +82,8 @@
   display: block;
   margin-bottom: 1.5rem;
   color: var(--kt-banner-split-eyebrow);
-  font-size: 0.625rem; /* 10px */
+  /* R153 EYEBROW-FONT-1: bump 10px → 11px for iPhone SE legibility. */
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
@@ -93,16 +94,14 @@
   margin: 0 0 1.5rem;
   font-family: var(--kt-f-accent-family, 'Playfair Display', Georgia, 'Times New Roman', serif);
   font-weight: 400;
-  font-size: 1.875rem; /* 30px mobile */
+  /* R153 HEADING-CLAMP-1: clamp() + overflow-wrap so long
+     translations don't overflow the split layout's narrow column. */
+  font-size: clamp(1.875rem, 3.5vw + 1rem, 3rem);
   line-height: 1.1;
   letter-spacing: -0.015em;
   color: var(--kt-banner-split-fg);
-}
-
-@media (min-width: 750px) {
-  .kt-banner-split__heading {
-    font-size: 3rem; /* 48px desktop */
-  }
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .kt-banner-split__heading-line {
