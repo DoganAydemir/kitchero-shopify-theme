@@ -17,7 +17,11 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  /* R129 — use the design-system z-index token (--kt-z-sticky = 100)
+     instead of a literal 1000 that bypassed the ladder defined in
+     kt-css-variables.liquid. Falls back to 100 when the token is
+     undefined (e.g. early-paint before the variables snippet runs). */
+  z-index: var(--kt-z-sticky, 100);
   /* R88 — include `-webkit-backdrop-filter` in the transition list
      so iOS Safari 14 / 15 also animates the prefixed property
      during scroll-state transitions. Without it, the unprefixed

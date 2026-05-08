@@ -95,10 +95,18 @@
           >
           <span class="kt-selling-plan__option-body">
             <span class="kt-selling-plan__option-name">
+              {%- comment -%}
+                R129 — escape merchant-set selling-plan group/plan
+                names. Same stored-XSS defence-in-depth class as the
+                plan.description escape at line 114 (R88) — Admin →
+                Subscriptions lets the merchant freely type group
+                and plan names; without escape, an HTML/JS payload
+                lands in the variant picker DOM verbatim.
+              {%- endcomment -%}
               {%- if group.name != blank and group.name != plan.name -%}
-                {{ group.name }} — {{ plan.name }}
+                {{ group.name | escape }} — {{ plan.name | escape }}
               {%- else -%}
-                {{ plan.name }}
+                {{ plan.name | escape }}
               {%- endif -%}
             </span>
             {%- if plan_savings_label != '' -%}

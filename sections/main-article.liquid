@@ -80,7 +80,7 @@
           {%- endif -%}
         </div>
 
-        <h1 class="kt-article__title">{{ article.title }}</h1>
+        <h1 class="kt-article__title">{{ article.title | escape }}</h1>
 
         {%- if article.excerpt != blank -%}
           <p class="kt-article__excerpt">{{ article.excerpt | strip_html }}</p>
@@ -221,7 +221,7 @@
           {%- if blog.previous_article -%}
             <a href="{{ blog.previous_article.url }}" class="kt-article__pager-link kt-article__pager-link--prev" rel="prev">
               <span class="kt-article__pager-eyebrow">{{ 'kt.blog.article.previous' | t | default: 'Previous' }}</span>
-              <span class="kt-article__pager-title">{{ blog.previous_article.title }}</span>
+              <span class="kt-article__pager-title">{{ blog.previous_article.title | escape }}</span>
             </a>
           {%- else -%}
             <span class="kt-article__pager-spacer" aria-hidden="true"></span>
@@ -229,7 +229,7 @@
           {%- if blog.next_article -%}
             <a href="{{ blog.next_article.url }}" class="kt-article__pager-link kt-article__pager-link--next" rel="next">
               <span class="kt-article__pager-eyebrow">{{ 'kt.blog.article.next' | t | default: 'Next' }}</span>
-              <span class="kt-article__pager-title">{{ blog.next_article.title }}</span>
+              <span class="kt-article__pager-title">{{ blog.next_article.title | escape }}</span>
             </a>
           {%- else -%}
             <span class="kt-article__pager-spacer" aria-hidden="true"></span>
