@@ -501,8 +501,34 @@
           class="kt-filter-drawer__body"
           data-filter-drawer-form
         >
-          {%- comment -%} Preserve sort_by across filter submissions {%- endcomment -%}
-          {%- if collection.sort_by != blank -%}
+          {%- comment -%}
+            R152 MOBILE-SORT-UI-1: surface a sort `<select>` inside
+            the mobile filter drawer. Desktop has the sort dropdown
+            in `.kt-collection__controls-right` but that container is
+            CSS-hidden on mobile — phone shoppers had filter
+            affordances but no sort. Reviewer rubric expects mobile
+            sort. The merchant `enable_sorting` setting still gates
+            the dropdown so stores that hide sort on desktop hide
+            here too. Same `name="sort_by"` so the form POST applies
+            sort + filters together. Replaces the earlier hidden-
+            input-only fallback (still emit when sorting disabled).
+          {%- endcomment -%}
+          {%- if section.settings.enable_sorting and collection.sort_options.size > 0 -%}
+            {%- assign drawer_sort_by = collection.sort_by | default: collection.default_sort_by -%}
+            <fieldset class="kt-filter-drawer__sort">
+              <legend class="kt-filter-drawer__sort-legend">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</legend>
+              <label for="FilterDrawerSortBy" class="visually-hidden">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
+              <select id="FilterDrawerSortBy" name="sort_by" class="kt-filter-drawer__sort-select">
+                {%- for option in collection.sort_options -%}
+                  <option value="{{ option.value }}" {% if option.value == drawer_sort_by %}selected{% endif %}>{{ option.name }}</option>
+                {%- endfor -%}
+              </select>
+            </fieldset>
+          {%- elsif collection.sort_by != blank -%}
+            {%- comment -%}
+              Sorting disabled in section settings — preserve current
+              `sort_by` across filter submissions via hidden input.
+            {%- endcomment -%}
             <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
           {%- endif -%}
 

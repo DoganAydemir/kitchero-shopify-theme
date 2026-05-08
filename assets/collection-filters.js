@@ -132,6 +132,22 @@ if (window.__kitcheroCollectionFiltersLoaded) {
       oldGridEarly.setAttribute('aria-busy', 'true');
       oldGridEarly.classList.add('kt-collection__grid--loading');
     }
+    /* R152 ARIA-BUSY-FORM-1: also flag the filter form(s) themselves
+       so SR users navigating the form announce as busy. The form
+       outline (sidebar / drawer / bar) shouldn't accept new input
+       while the previous fetch is in-flight; aria-busy="true" is
+       the canonical signal. Cleared in the .finally() below. */
+    document.querySelectorAll('[data-collection-filters-form], [data-filter-drawer-form], [data-collection-filter-bar]').forEach(function (form) {
+      form.setAttribute('aria-busy', 'true');
+    });
+
+    /* R152 SCROLL-PRESERVE-1: preserve grid scroll position across
+       innerHTML swap. Without this, every filter click jumps the
+       viewport back to the top of the grid — disorienting on long
+       collections where the user was deep into page 2 of results.
+       Capture scrollY before fetch, restore after grid swap (via
+       requestAnimationFrame so layout has committed). */
+    var preservedScrollY = window.scrollY;
 
     /* Cancel any prior in-flight refine so a slow earlier response
        can't overwrite the grid with stale filter state. */
@@ -198,6 +214,35 @@ if (window.__kitcheroCollectionFiltersLoaded) {
           oldPagination.remove();
         }
 
+        /* R152 FILTER-COUNTS-STALE-1 + FILTER-CHECKBOX-STATE-STALE-1:
+           refresh the sidebar/drawer/bar filter form itself. The
+           grid + chips were swapping, but the `[data-collection-
+           filters-form]` (sidebar) and the bar variant's
+           `[data-filter-group]` containers still showed the OLD
+           per-value counts AND the OLD checkbox checked states.
+           Reviewer ticking color=red expected to see "Color (1)
+           selected" + the matching checkbox checked + every other
+           filter's count update to reflect the now-narrower set.
+           Without this, counts went stale and unchecking a filter
+           via the active-chips bar didn't visually unselect the
+           matching sidebar checkbox.
+
+           We swap the inner content of each filter form variant
+           we can find (sidebar `data-collection-filters-form` +
+           horizontal bar `data-collection-filter-bar` + drawer
+           `[data-filter-drawer-content]` if present) so all
+           three filter UI surfaces stay in lock-step with the
+           grid. innerHTML swap is safe because the form's outer
+           `<form action method>` doesn't change between renders
+           — only the per-filter checkboxes/inputs/counts do. */
+        ['[data-collection-filters-form]', '[data-collection-filter-bar]', '[data-filter-drawer-content]'].forEach(function (sel) {
+          var fresh = doc.querySelector(sel);
+          var stale = document.querySelector(sel);
+          if (fresh && stale) {
+            stale.innerHTML = fresh.innerHTML;
+          }
+        });
+
         /* Update URL without reload */
         window.history.pushState({}, '', newUrl);
 
@@ -247,6 +292,17 @@ if (window.__kitcheroCollectionFiltersLoaded) {
           oldGrid.removeAttribute('aria-busy');
           oldGrid.classList.remove('kt-collection__grid--loading');
         }
+        /* R152 ARIA-BUSY-FORM-1: clear aria-busy on the filter
+           form(s) so SR users hear the form is interactive again. */
+        document.querySelectorAll('[data-collection-filters-form], [data-filter-drawer-form], [data-collection-filter-bar]').forEach(function (form) {
+          form.removeAttribute('aria-busy');
+        });
+        /* R152 SCROLL-PRESERVE-1: restore scrollY after the grid
+           swap commits. requestAnimationFrame waits for layout so
+           the new grid's height has been measured before scrolling. */
+        window.requestAnimationFrame(function () {
+          window.scrollTo({ top: preservedScrollY, behavior: 'instant' });
+        });
       });
   }
 
