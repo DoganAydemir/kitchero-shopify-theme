@@ -504,3 +504,23 @@
   background-color: var(--kt-stone-700);
   transform: scale(1.05);
 }
+
+/* R132 — badge corner modifiers replace inline `style="top:auto; bottom:1.5rem; left:1.5rem"`
+   that used to be repeated on every card-product badge state
+   (sold-out, sale, bestseller, new). Single class modifier so the
+   corner stays consistent across all four states and merchant
+   theme-editor color overrides cascade through one rule, not four. */
+.kt-card-product__badge--corner-bl {
+  top: auto;
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+/* Title link inside card — strips default <a> typography so the
+   card heading inherits its parent's typography stack. Replaces an
+   inline `style="text-decoration: none; color: inherit;"` that had
+   to be repeated on every card. */
+.kt-card-product__title-link {
+  color: inherit;
+  text-decoration: none;
+}

@@ -16,8 +16,14 @@
      min-height so the heading + image stay proportionate. */
   padding-top: var(--kt-cb-pad-top, 0px);
   padding-bottom: var(--kt-cb-pad-bottom, 0px);
-  background-color: var(--kt-stone-900, #1c1917);
-  color: #ffffff;
+  /* Default banner palette is dark on white, but keep both values
+     scheme-aware so a merchant flipping the section's color_scheme
+     to a light-on-dark variant gets the inverse without bypassing
+     the design tokens. Falls back to brand stone-900 / white when
+     the scheme variables aren't yet wired (e.g. early-paint or a
+     fresh-install merchant who hasn't picked a scheme yet). */
+  background-color: var(--kt-color-background, var(--kt-stone-900, #1c1917));
+  color: var(--kt-color-foreground, var(--kt-white, #ffffff));
 }
 
 .kt-collection-banner--small {

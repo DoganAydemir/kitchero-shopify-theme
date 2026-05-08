@@ -172,7 +172,7 @@
       {%- assign card_is_free = true -%}
     {%- endif -%}
     {%- if product.available == false -%}
-      <span class="kt-card-product__badge kt-card-product__badge--soldout" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+      <span class="kt-card-product__badge kt-card-product__badge--soldout kt-card-product__badge--corner-bl">
         {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
       </span>
     {%- comment -%}
@@ -189,7 +189,7 @@
     {%- endcomment -%}
     {%- elsif card_on_sale and card_is_free == false -%}
       {%- assign discount_pct = product.compare_at_price_max | minus: product.price_min | times: 100 | divided_by: product.compare_at_price_max -%}
-      <span class="kt-card-product__badge kt-card-product__badge--sale" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+      <span class="kt-card-product__badge kt-card-product__badge--sale kt-card-product__badge--corner-bl">
         {{ 'kt.product.discount_badge' | t: amount: discount_pct }}
       </span>
     {%- comment -%}
@@ -200,11 +200,11 @@
       corner. Matches the Next.js source's CollectionsGrid behaviour.
     {%- endcomment -%}
     {%- elsif product.tags contains 'Bestseller' -%}
-      <span class="kt-card-product__badge kt-card-product__badge--bestseller" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+      <span class="kt-card-product__badge kt-card-product__badge--bestseller kt-card-product__badge--corner-bl">
         {{ 'kt.product.bestseller' | t }}
       </span>
     {%- elsif product.tags contains 'New' -%}
-      <span class="kt-card-product__badge kt-card-product__badge--new" style="top: auto; bottom: 1.5rem; left: 1.5rem;">
+      <span class="kt-card-product__badge kt-card-product__badge--new kt-card-product__badge--corner-bl">
         {{ 'kt.product.new' | t }}
       </span>
     {%- endif -%}
@@ -259,7 +259,7 @@
         targets, so SR navigation parity is preserved.
       {%- endcomment -%}
       <h2 class="kt-card-product__title">
-        <a href="{{ product.url }}" tabindex="-1" style="text-decoration: none; color: inherit;">{{ product.title | escape }}</a>
+        <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__title-link">{{ product.title | escape }}</a>
       </h2>
 
       {%- comment -%} Star rating {%- endcomment -%}
