@@ -188,5 +188,40 @@ if (!window.__kitcheroCookieBannerLoaded) {
         }
       }
     });
+
+    /* R139 PRIVACY-1: re-access hook for "Cookie preferences" links.
+       EU/UK GDPR Recital 42 + ePrivacy Directive require consent to
+       be withdrawable as easily as it was given. Once a customer
+       Accepts/Declines the banner, the dismissed state hides it
+       forever — without a re-open path the customer is locked out
+       of changing their decision. Expose a global function +
+       delegated click handler so a footer link or any [data-cookie-
+       preferences] element re-shows the banner with the customer's
+       current consent state pre-applied (so they can flip toggles
+       without re-confirming the unchanged ones). */
+    function openCookieBanner() {
+      var banner = document.querySelector(SELECTORS.banner);
+      if (!banner) return false;
+      showBanner(banner);
+      return true;
+    }
+    /* Expose under Kitchero namespace for theme code AND on
+       window.openCookieBanner for app blocks / external footer
+       links that don't know the namespace. Both names point to
+       the same function so callers don't need to feature-test. */
+    window.Kitchero = window.Kitchero || {};
+    window.Kitchero.openCookieBanner = openCookieBanner;
+    if (typeof window.openCookieBanner !== 'function') {
+      window.openCookieBanner = openCookieBanner;
+    }
+    /* Delegated click handler — any element with
+       [data-cookie-preferences] (button, anchor) re-opens the
+       banner. Prevents default so anchor href="#" doesn't scroll. */
+    document.addEventListener('click', function (event) {
+      var trigger = event.target.closest('[data-cookie-preferences]');
+      if (!trigger) return;
+      event.preventDefault();
+      openCookieBanner();
+    });
   })();
 }

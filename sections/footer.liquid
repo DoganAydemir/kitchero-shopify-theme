@@ -122,6 +122,9 @@
                     <label for="footer-newsletter-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
                     <input
                       type="email"
+                      autocapitalize="off"
+                      autocorrect="off"
+                      spellcheck="false"
                       id="footer-newsletter-email"
                       name="contact[email]"
                       class="field__input kt-footer__newsletter-input"
@@ -143,8 +146,19 @@
                         when {% form 'customer' %} fails validation.
                       {%- endcomment -%}
                       value="{{ form.email | escape }}"
-                      aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
-                      aria-describedby="FooterNewsletter-error"
+                      {%- comment -%}
+                        R139 ARIA-DBY-1: only emit aria-describedby when
+                        FooterNewsletter-error actually renders. The
+                        target `<p>` lives inside `{%- if form.errors -%}`;
+                        emitting the attribute unconditionally points at
+                        a missing ID. Pattern matches newsletter-signup.
+                      {%- endcomment -%}
+                      {%- if form.errors -%}
+                        aria-invalid="true"
+                        aria-describedby="FooterNewsletter-error"
+                      {%- else -%}
+                        aria-invalid="false"
+                      {%- endif -%}
                     >
                     <button type="submit" class="button kt-footer__newsletter-btn">
                       {{ 'kt.newsletter.button_label' | t }}
@@ -273,6 +287,42 @@
             target on the powered-by link, let the user choose).
           {%- endcomment -%}
           {{ powered_by_link }}
+
+          {%- comment -%}
+            R139 PRIVACY-1: Cookie preferences re-access. Once a
+            customer accepts/declines the consent banner, it stays
+            dismissed forever — without a re-open path the customer
+            can't change their decision. EU/UK GDPR Recital 42 +
+            ePrivacy Directive require consent to be withdrawable as
+            easily as it was given. This button calls
+            window.Kitchero.openCookieBanner (or the global
+            openCookieBanner alias) registered by cookie-banner.js;
+            the data-cookie-preferences attribute also fires the
+            same handler via delegated click in cookie-banner.js.
+
+            Gated on `section.settings.show_cookie_preferences` so
+            merchants who don't use a cookie banner don't ship a
+            dead button. Hidden when JS off — the button is useless
+            without the JS hook, and JS-off visitors don't have
+            consent stored anyway. Rendered as a real <button>
+            (not <a href="#">) so screen readers and bots don't
+            misclassify it as navigation.
+          {%- endcomment -%}
+          {%- if section.settings.show_cookie_preferences -%}
+            {%- comment -%}
+              JS-off case: the button has no functioning hook, so
+              `html.no-js .kt-footer__cookie-preferences` rule in
+              kt-section-footer.css hides it. JS-on: the global
+              click handler in cookie-banner.js re-opens the banner.
+            {%- endcomment -%}
+            <button
+              type="button"
+              class="kt-footer__cookie-preferences"
+              data-cookie-preferences
+            >
+              {{ 'kt.cookie_banner.manage_link' | t | default: 'Cookie preferences' }}
+            </button>
+          {%- endif -%}
         </div>
 
         {%- comment -%} Language/Country Selectors (Shopify native localization) {%- endcomment -%}
@@ -429,6 +479,13 @@
       "id": "show_follow_on_shop",
       "label": "t:sections.footer.settings.show_follow_on_shop.label",
       "info": "t:sections.footer.settings.show_follow_on_shop.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cookie_preferences",
+      "label": "t:sections.footer.settings.show_cookie_preferences.label",
+      "info": "t:sections.footer.settings.show_cookie_preferences.info",
       "default": true
     },
     {

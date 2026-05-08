@@ -26,6 +26,13 @@
   assign filter_list = filters | default: collection.filters
   assign filter_action = action_url | default: collection.url
   assign filter_form_id = form_id | default: 'CollectionFiltersForm'
+
+  # R139 CURR-DECIMAL-1: ISO list of zero-decimal currencies. Used by
+  # the price-range step= attribute below to fall back to integer
+  # steps for currencies that don't accept fractional values (JPY,
+  # KRW, etc). Source: Shopify Money formats reference + Stripe's
+  # canonical zero-decimal currency list (intersection).
+  assign kt_zero_decimal_currencies = 'BIF,CLP,DJF,GNF,IDR,ISK,JPY,KMF,KRW,PYG,RWF,UGX,UYI,VND,VUV,XAF,XOF,XPF'
 -%}
 
 {%- if filter_list.size > 0 -%}
@@ -131,7 +138,21 @@
                       min="0"
                       max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                       inputmode="decimal"
+                      {%- comment -%}
+                        R139 CURR-DECIMAL-1: gate fractional step on
+                        currency. JPY / KRW / HUF / ISK / CLP and a
+                        dozen others are zero-decimal currencies in
+                        Shopify; `step="0.01"` is invalid for those
+                        and the browser refuses to submit any value.
+                        Detected via the canonical zero-decimal ISO
+                        list. Variable is assigned once at the top of
+                        this snippet (search for kt_zero_decimal).
+                      {%- endcomment -%}
+                      {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                      step="1"
+                      {%- else -%}
                       step="0.01"
+                      {%- endif -%}
                       class="kt-filter__price-input"
                       data-filter-price
                     >
@@ -149,7 +170,21 @@
                       min="0"
                       max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                       inputmode="decimal"
+                      {%- comment -%}
+                        R139 CURR-DECIMAL-1: gate fractional step on
+                        currency. JPY / KRW / HUF / ISK / CLP and a
+                        dozen others are zero-decimal currencies in
+                        Shopify; `step="0.01"` is invalid for those
+                        and the browser refuses to submit any value.
+                        Detected via the canonical zero-decimal ISO
+                        list. Variable is assigned once at the top of
+                        this snippet (search for kt_zero_decimal).
+                      {%- endcomment -%}
+                      {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                      step="1"
+                      {%- else -%}
                       step="0.01"
+                      {%- endif -%}
                       class="kt-filter__price-input"
                       data-filter-price
                     >

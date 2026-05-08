@@ -20,6 +20,15 @@
 {%- assign coll_pad_bottom = section.settings.padding_bottom | default: 0 -%}
 {%- assign coll_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
 
+{%- comment -%}
+  R139 CURR-DECIMAL-1: ISO list of zero-decimal currencies. Used by
+  the price-range filter inputs (bar + drawer variants below) so the
+  step= attribute falls back to integer steps for currencies that
+  don't accept fractional values (JPY, KRW, ISK, HUF, CLP, etc).
+  Source: Shopify Money formats reference + Stripe's canonical list.
+{%- endcomment -%}
+{%- assign kt_zero_decimal_currencies = 'BIF,CLP,DJF,GNF,IDR,ISK,JPY,KMF,KRW,PYG,RWF,UGX,UYI,VND,VUV,XAF,XOF,XPF' -%}
+
 <div
   class="kt-collection color-{{ coll_scheme }} kt-collection--cols-d-{{ cols_desktop }} kt-collection--cols-m-{{ cols_mobile }}"
   data-section-id="{{ section.id }}"
@@ -236,7 +245,19 @@
                             min="0"
                             max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                             inputmode="decimal"
+                            {%- comment -%}
+                              R139 CURR-DECIMAL-1: gate fractional step
+                              on currency. Zero-decimal currencies (JPY,
+                              KRW, ISK, HUF, CLP and a dozen others)
+                              reject `step="0.01"` browsers; the
+                              `kt_zero_decimal_currencies` ISO list is
+                              the canonical detection.
+                            {%- endcomment -%}
+                            {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                            step="1"
+                            {%- else -%}
                             step="0.01"
+                            {%- endif -%}
                             class="kt-filter__price-input"
                             data-filter-price
                           >
@@ -254,7 +275,19 @@
                             min="0"
                             max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                             inputmode="decimal"
+                            {%- comment -%}
+                              R139 CURR-DECIMAL-1: gate fractional step
+                              on currency. Zero-decimal currencies (JPY,
+                              KRW, ISK, HUF, CLP and a dozen others)
+                              reject `step="0.01"` browsers; the
+                              `kt_zero_decimal_currencies` ISO list is
+                              the canonical detection.
+                            {%- endcomment -%}
+                            {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                            step="1"
+                            {%- else -%}
                             step="0.01"
+                            {%- endif -%}
                             class="kt-filter__price-input"
                             data-filter-price
                           >
@@ -547,7 +580,12 @@
                       min="0"
                       max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                       inputmode="decimal"
+                      {%- comment -%} R139 CURR-DECIMAL-1: zero-decimal currency gate. {%- endcomment -%}
+                      {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                      step="1"
+                      {%- else -%}
                       step="0.01"
+                      {%- endif -%}
                       class="kt-filter-drawer__price-input"
                     >
                   </div>
@@ -563,7 +601,12 @@
                       min="0"
                       max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
                       inputmode="decimal"
+                      {%- comment -%} R139 CURR-DECIMAL-1: zero-decimal currency gate. {%- endcomment -%}
+                      {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
+                      step="1"
+                      {%- else -%}
                       step="0.01"
+                      {%- endif -%}
                       class="kt-filter-drawer__price-input"
                     >
                   </div>

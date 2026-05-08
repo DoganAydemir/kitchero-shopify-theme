@@ -38,6 +38,9 @@
             <label for="newsletter-page-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
             <input
               type="email"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
               id="newsletter-page-email"
               name="contact[email]"
               class="kt-newsletter-page__input"
@@ -59,8 +62,23 @@
                 R96 — preserve typed email across validation errors.
               {%- endcomment -%}
               value="{{ form.email | escape }}"
-              aria-invalid="{% if form.errors %}true{% else %}false{% endif %}"
-              aria-describedby="NewsletterPageForm-error"
+              {%- comment -%}
+                R139 ARIA-DBY-1: only emit aria-describedby when the
+                referenced error region actually renders. The
+                `<p id="NewsletterPageForm-error">` only exists inside
+                `{%- if form.errors -%}`; emitting the attribute
+                unconditionally pointed at a missing ID and NVDA logged
+                a "described element not found" warning while AXE
+                flagged it as a 4.1.2 issue. Conditional emission keeps
+                the binding sound while still describing the field
+                whenever errors render.
+              {%- endcomment -%}
+              {%- if form.errors -%}
+                aria-invalid="true"
+                aria-describedby="NewsletterPageForm-error"
+              {%- else -%}
+                aria-invalid="false"
+              {%- endif -%}
             >
 
             {%- comment -%}
