@@ -114,9 +114,7 @@
                   {% if link.current %}aria-current="page"{% endif %}
                 >
                   {{ link.title | escape }}
-                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </a>
                 {%- comment -%}
                   Previously emitted role="menu" + role="menuitem" here
@@ -211,9 +209,7 @@
                   {% if link.current %}aria-current="page"{% endif %}
                 >
                   {{ link.title | escape }}
-                  <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </a>
                 {%- comment -%}
                   Same fix as the mega-menu above: drop role="menu"/
@@ -385,9 +381,7 @@
                 {{ localization.country.currency.iso_code }}
               {%- endif -%}
             </span>
-            <svg class="kt-header__locale-chevron" aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            {% render 'icon-chevron-down', width: 12, height: 12, class: 'kt-header__locale-chevron' %}
           </summary>
           <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
             {%- if show_locale_select -%}
@@ -487,10 +481,7 @@
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
-        <svg class="kt-header__menu-toggle-close hidden" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+        {% render 'icon-close', width: 28, height: 28, stroke_width: 1.5, class: 'kt-header__menu-toggle-close hidden' %}
       </button>
     </div>
   </div>
@@ -550,10 +541,7 @@
       class="kt-header__mobile-panel-close"
       aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
     >
-      <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
+      {% render 'icon-close', width: 28, height: 28, stroke_width: 1.5 %}
     </button>
   </div>
 
@@ -602,9 +590,7 @@
                 {% if link.current %}aria-current="page"{% endif %}
               >
                 <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
-                <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                {% render 'icon-chevron-right', width: 20, height: 20, stroke_width: 1.5 %}
               </button>
             {%- else -%}
               <a href="{{ link.url }}" class="kt-header__mobile-link" {% if link.current %}aria-current="page"{% endif %}>
@@ -674,9 +660,7 @@
                     aria-controls="mobile-panel-p-{{ l1_index }}-{{ forloop.index0 }}"
                   >
                     <span class="kt-header__mobile-link-label">{{ child.title }}</span>
-                    <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
+                    {% render 'icon-chevron-right', width: 20, height: 20, stroke_width: 1.5 %}
                   </button>
                 {%- else -%}
                   <a href="{{ child.url }}" class="kt-header__mobile-link">

@@ -1,0 +1,16 @@
+{%- comment -%}
+  Plus icon. Used in qty stepper increase, accordion expand, hotspot
+  reveal, "Add" affordances.
+
+  Accepts:
+    width  : Number  (default 16)
+    height : Number  (default 16)
+    stroke_width : Number  (default 2)
+    class : String  (optional)
+{%- endcomment -%}
+{%- liquid
+  assign icon_w = width | default: 16
+  assign icon_h = height | default: 16
+  assign icon_sw = stroke_width | default: 2
+-%}
+<svg{% if class %} class="{{ class }}"{% endif %} aria-hidden="true" focusable="false" width="{{ icon_w }}" height="{{ icon_h }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ icon_sw }}" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

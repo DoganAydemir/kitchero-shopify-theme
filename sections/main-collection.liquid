@@ -130,7 +130,7 @@
                   {%- if filter.active_values.size > 0 -%}
                     <span class="kt-filter__count">{{ filter.active_values.size }}</span>
                   {%- endif -%}
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </button>
                 <div class="kt-filter-bar__panel">
                   <div class="kt-filter-bar__panel-inner">
@@ -232,7 +232,7 @@
                   {%- if has_price_active -%}
                     <span class="kt-filter__count" aria-label="{{ 'kt.section.collection.selected' | t | default: 'selected' }}">•</span>
                   {%- endif -%}
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </button>
                 <div class="kt-filter-bar__panel">
                   <div class="kt-filter-bar__panel-inner">
@@ -449,7 +449,7 @@
                   aria-label="{{ 'kt.section.collection.remove_filter' | t: filter: value.label }}"
                 >
                   {{ value.label | escape }}
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  {% render 'icon-close', width: 12, height: 12 %}
                 </a>
               {%- endfor -%}
             {%- endfor -%}
@@ -490,7 +490,7 @@
             data-close-filter-drawer
             aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}"
           >
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            {% render 'icon-close', width: 22, height: 22, stroke_width: 1.5 %}
           </button>
         </header>
 
@@ -583,7 +583,7 @@
                           {% if value.count == 0 and value.active == false %}disabled{% endif %}
                         >
                         <span class="kt-filter-drawer__check-box" aria-hidden="true">
-                          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          {% render 'icon-check', width: 12, height: 12 %}
                         </span>
                         <span class="kt-filter-drawer__check-text">{{ value.label | escape }}</span>
                         <span class="kt-filter-drawer__check-count">({{ value.count }})</span>

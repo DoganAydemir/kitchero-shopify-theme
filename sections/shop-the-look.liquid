@@ -35,7 +35,7 @@
               data-hotspot-toggle="{{ block.id }}"
               aria-label="{{ block.settings.product_title | default: 'Product' | escape }}"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              {% render 'icon-plus', width: 18, height: 18 %}
             </button>
 
             {%- comment -%} Desktop popup {%- endcomment -%}
@@ -87,7 +87,7 @@
               {%- if block.settings.product_link != blank -%}
                 <a href="{{ block.settings.product_link | escape }}" class="kt-shop-the-look__popup-link">
                   {{ 'kt.section.shop_the_look.view_details' | t | default: 'View Details' }}
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  {% render 'icon-arrow-right', width: 12, height: 12 %}
                 </a>
               {%- elsif request.design_mode -%}
                 <p class="kt-shop-the-look__popup-empty">
@@ -104,7 +104,7 @@
     <div class="kt-shop-the-look__mobile-sheet" data-mobile-sheet aria-hidden="true" inert>
       <div class="kt-shop-the-look__mobile-sheet-inner">
         <button type="button" class="kt-shop-the-look__mobile-sheet-close" data-mobile-sheet-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          {% render 'icon-close', width: 20, height: 20, stroke_width: 1.5 %}
         </button>
         <div class="kt-shop-the-look__mobile-sheet-content">
           <div class="kt-shop-the-look__mobile-sheet-img" data-mobile-sheet-img></div>
@@ -129,7 +129,7 @@
             {%- endcomment -%}
             <a href="{{ routes.root_url }}" class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link>
               {{ 'kt.section.shop_the_look.view_product' | t | default: 'View Product' }}
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              {% render 'icon-arrow-right', width: 14, height: 14 %}
             </a>
           </div>
         </div>

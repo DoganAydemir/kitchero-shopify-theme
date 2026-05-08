@@ -1,0 +1,22 @@
+{%- comment -%}
+  Chevron-down icon. Used in mega-menu, accordions, dropdowns,
+  filter summaries. Decorative — `aria-hidden="true"` baked in;
+  callers wrap interactive controls with their own labels.
+
+  Accepts:
+    width  : Number  (default 16)
+    height : Number  (default 16)
+    stroke_width : Number  (default 2)
+    class : String  (optional class on the <svg>)
+
+  Caller examples:
+    {% render 'icon-chevron-down' %}
+    {% render 'icon-chevron-down', width: 14, height: 14 %}
+    {% render 'icon-chevron-down', class: 'kt-filter__chevron' %}
+{%- endcomment -%}
+{%- liquid
+  assign icon_w = width | default: 16
+  assign icon_h = height | default: 16
+  assign icon_sw = stroke_width | default: 2
+-%}
+<svg{% if class %} class="{{ class }}"{% endif %} aria-hidden="true" focusable="false" width="{{ icon_w }}" height="{{ icon_h }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ icon_sw }}" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>

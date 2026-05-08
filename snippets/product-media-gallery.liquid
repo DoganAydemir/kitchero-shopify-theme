@@ -319,7 +319,7 @@
     data-lenis-prevent="true"
   >
     <button type="button" class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
-      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      {% render 'icon-close', stroke_width: 1.5 %}
     </button>
     {%- comment -%}
       Hide prev/next on single-media products — looping through
@@ -329,7 +329,7 @@
     {%- endcomment -%}
     {%- if product.media.size > 1 -%}
       <button type="button" class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'kt.section.hero.previous_slide' | t | default: 'Previous' }}">
-        <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        {% render 'icon-chevron-left', width: 32, height: 32, stroke_width: 1.5 %}
       </button>
       <button type="button" class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'kt.section.hero.next_slide' | t | default: 'Next' }}">
         <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>

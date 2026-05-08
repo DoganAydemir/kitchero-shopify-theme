@@ -1,0 +1,16 @@
+{%- comment -%}
+  Check (tick) icon. Used in filter checkbox visual, success badges,
+  pickup-availability + gift-wrapping affirmations.
+
+  Accepts:
+    width  : Number  (default 16)
+    height : Number  (default 16)
+    stroke_width : Number  (default 2.4)
+    class : String  (optional)
+{%- endcomment -%}
+{%- liquid
+  assign icon_w = width | default: 16
+  assign icon_h = height | default: 16
+  assign icon_sw = stroke_width | default: 2.4
+-%}
+<svg{% if class %} class="{{ class }}"{% endif %} aria-hidden="true" focusable="false" width="{{ icon_w }}" height="{{ icon_h }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ icon_sw }}" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

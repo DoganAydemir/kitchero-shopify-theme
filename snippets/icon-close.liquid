@@ -1,0 +1,19 @@
+{%- comment -%}
+  Close (X) icon. Used in modal/drawer/banner close buttons,
+  active filter chip removers, dismiss controls.
+
+  Accepts:
+    width  : Number  (default 24)
+    height : Number  (default 24)
+    stroke_width : Number  (default 2)
+    class : String  (optional)
+
+  Caller wraps in a `<button aria-label="Close">` for AT semantics —
+  this snippet is the visual glyph only.
+{%- endcomment -%}
+{%- liquid
+  assign icon_w = width | default: 24
+  assign icon_h = height | default: 24
+  assign icon_sw = stroke_width | default: 2
+-%}
+<svg{% if class %} class="{{ class }}"{% endif %} aria-hidden="true" focusable="false" width="{{ icon_w }}" height="{{ icon_h }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ icon_sw }}" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

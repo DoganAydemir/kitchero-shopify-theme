@@ -64,7 +64,7 @@
                 {%- if filter.active_values.size > 0 -%}
                   <span class="kt-filter__count">{{ filter.active_values.size }}</span>
                 {%- endif -%}
-                <svg class="kt-filter__chevron" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                {% render 'icon-chevron-down', width: 14, height: 14, class: 'kt-filter__chevron' %}
               </summary>
               <div class="kt-filter__content">
                 {%- comment -%}
@@ -122,7 +122,7 @@
             <details class="kt-filter__details"{% if filter.min_value.value or filter.max_value.value %} open{% endif %}>
               <summary class="kt-filter__summary">
                 <span class="kt-filter__title">{{ filter.label | escape }}</span>
-                <svg class="kt-filter__chevron" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                {% render 'icon-chevron-down', width: 14, height: 14, class: 'kt-filter__chevron' %}
               </summary>
               <div class="kt-filter__content">
                 <div class="kt-filter__price-range">

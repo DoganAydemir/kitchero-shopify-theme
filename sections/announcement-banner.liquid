@@ -78,21 +78,7 @@
               {%- if block.settings.link != blank and block.settings.text != blank -%}
                 <a href="{{ block.settings.link | escape }}" class="kt-announcement-banner__link"{% if announcement_index > 0 %} tabindex="-1"{% endif %}>
                   <span class="kt-announcement-banner__text">{{ block.settings.text | escape }}</span>
-                  <svg
-                    class="kt-announcement-banner__arrow"
-                    aria-hidden="true"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
+                  {% render 'icon-arrow-right', width: 14, height: 14, class: 'kt-announcement-banner__arrow' %}
                 </a>
               {%- elsif block.settings.text != blank -%}
                 <span class="kt-announcement-banner__text">{{ block.settings.text | escape }}</span>
