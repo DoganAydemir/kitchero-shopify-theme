@@ -59,6 +59,10 @@
   max-height: calc(100vh - 2rem);
   max-height: calc(100dvh - 2rem - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
+  /* iOS rubber-band containment — see kt-cart-drawer / kt-appointment-drawer
+     for rationale. Without `contain`, scrolling past the dialog's edge
+     surfaces as visible judder behind the open popup on iOS Safari. */
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 

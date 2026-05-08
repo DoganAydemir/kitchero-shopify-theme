@@ -165,9 +165,12 @@
         <p class="kt-customer__modal-desc">{{ 'kt.customer.login.reset_desc' | t | default: 'We will send you an email to reset your password.' }}</p>
         {%- form 'recover_customer_password', id: 'RecoverPasswordForm' -%}
           {%- if form.posted_successfully? -%}
-            <p class="kt-customer__form-success" role="status">
-              {{ 'kt.customer.login.reset_sent' | t | default: 'We’ve sent you an email with a link to update your password.' }}
-            </p>
+            <div class="kt-customer__form-success" role="status">
+              <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m5 12 4 4 10-10"/>
+              </svg>
+              <span>{{ 'kt.customer.login.reset_sent' | t | default: 'We’ve sent you an email with a link to update your password.' }}</span>
+            </div>
           {%- elsif form.errors -%}
             <div class="kt-customer__errors" role="alert" tabindex="-1">
               <ul class="kt-customer__errors-list">

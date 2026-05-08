@@ -137,6 +137,11 @@
             <div class="kt-collection__empty">
               <h2 class="kt-collection__empty-title">{{ 'kt.section.collection.no_products' | t | default: 'No products found' }}</h2>
               <p class="kt-collection__empty-text">{{ 'kt.section.collection.no_products_desc' | t }}</p>
+              {%- if active_filters_count > 0 -%}
+                <a href="{{ collection.url }}" class="kt-collection__clear-all">
+                  {{ 'kt.section.collection.clear_all' | t | default: 'Clear all filters' }}
+                </a>
+              {%- endif -%}
             </div>
           {%- endif -%}
         {%- endpaginate -%}

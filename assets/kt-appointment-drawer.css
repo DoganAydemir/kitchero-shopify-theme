@@ -91,6 +91,11 @@
 .kt-appointment-drawer__body {
   flex: 1;
   overflow-y: auto;
+  /* iOS rubber-band containment — without `contain`, scrolling past the
+     drawer's edge propagates to the locked body, surfacing as visible
+     judder behind the open drawer. Mirrors the kt-cart-drawer.css
+     pattern. */
+  overscroll-behavior: contain;
   padding: 1.5rem;
 }
 

@@ -280,9 +280,16 @@
       openLightbox();
     });
 
+    /* R128 — track the element that opened the lightbox so closeLightbox()
+       can restore focus there. Every other modal in the theme follows this
+       pattern; without it, keyboard / SR users get focus stranded on the
+       closed lightbox subtree. */
+    var lightboxLastTrigger = null;
+
     /* Lightbox open */
     function openLightbox() {
       if (!lightbox || !lightboxImage) return;
+      lightboxLastTrigger = document.activeElement;
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
       /* Remove inert so the close/prev/next buttons re-enter the
@@ -318,9 +325,25 @@
         lightboxImage.style.transform = '';
       }
       if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.disable(lightbox);
+      /* R128 — restore focus to the trigger that opened the lightbox.
+         Document.contains guard handles the rare case where the trigger
+         was removed from the DOM (e.g. variant change replaced the
+         gallery thumb). Falls back silently when missing. */
+      if (lightboxLastTrigger && document.contains(lightboxLastTrigger) && typeof lightboxLastTrigger.focus === 'function') {
+        lightboxLastTrigger.focus();
+      }
+      lightboxLastTrigger = null;
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    /* R128 — backdrop click closes the lightbox to match every other modal
+       in the theme (cart-drawer, search-overlay, video-modal, etc.). The
+       click is gated to events that target the kt-lightbox root (not
+       descendants) so clicks on viewport / image / nav buttons don't
+       accidentally close. */
+    lightbox.addEventListener('click', function (event) {
+      if (event.target === lightbox) closeLightbox();
+    });
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener('click', function () { goTo(currentIndex + 1); });
 
