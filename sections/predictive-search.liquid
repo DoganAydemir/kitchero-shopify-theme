@@ -68,7 +68,7 @@
                     </span>
                   {%- endif -%}
                   <span class="kt-predictive-search__text">
-                    <span class="kt-predictive-search__title">{{ product.title }}</span>
+                    <span class="kt-predictive-search__title">{{ product.title | escape }}</span>
                     {%- comment -%}
                       Free-product guard — surface "Free" instead of
                       "$0.00" for 0-priced products in dropdown results.
@@ -112,7 +112,7 @@
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ collection.url }}">
                   <span class="kt-predictive-search__text">
-                    <span class="kt-predictive-search__title">{{ collection.title }}</span>
+                    <span class="kt-predictive-search__title">{{ collection.title | escape }}</span>
                   </span>
                 </a>
               </li>
@@ -132,7 +132,7 @@
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ article.url }}">
                   <span class="kt-predictive-search__text">
-                    <span class="kt-predictive-search__title">{{ article.title }}</span>
+                    <span class="kt-predictive-search__title">{{ article.title | escape }}</span>
                     {%- if article.excerpt != blank -%}
                       <span class="kt-predictive-search__excerpt">{{ article.excerpt | strip_html | truncate: 80 }}</span>
                     {%- endif -%}
@@ -155,7 +155,7 @@
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ page.url }}">
                   <span class="kt-predictive-search__text">
-                    <span class="kt-predictive-search__title">{{ page.title }}</span>
+                    <span class="kt-predictive-search__title">{{ page.title | escape }}</span>
                   </span>
                 </a>
               </li>

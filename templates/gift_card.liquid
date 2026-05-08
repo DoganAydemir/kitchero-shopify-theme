@@ -27,7 +27,7 @@
       never renders here. Emit the meta directly.
     {%- endcomment -%}
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name }}</title>
+    <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name | escape }}</title>
     {%- comment -%}
       R95 — Lighthouse SEO flags missing meta description even on
       noindexed pages. Render shop.name as the description so the
@@ -66,7 +66,7 @@
               alt: shop.name
           }}
         {%- else -%}
-          <span class="kt-gift-card__wordmark">{{ shop.name }}</span>
+          <span class="kt-gift-card__wordmark">{{ shop.name | escape }}</span>
         {%- endif -%}
       </a>
 

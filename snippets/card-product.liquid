@@ -147,7 +147,7 @@
 
     {%- comment -%} Style badge (first tag or product type) {%- endcomment -%}
     {%- if product.type != blank -%}
-      <span class="kt-card-product__badge">{{ product.type }}</span>
+      <span class="kt-card-product__badge">{{ product.type | escape }}</span>
     {%- endif -%}
 
     {%- comment -%}
@@ -227,7 +227,7 @@
     {%- comment -%} Hover info (vendor + material) {%- endcomment -%}
     {%- if show_vendor and product.vendor != blank -%}
       <div class="kt-card-product__hover-info">
-        <p class="kt-card-product__vendor">{{ product.vendor }}</p>
+        <p class="kt-card-product__vendor">{{ product.vendor | escape }}</p>
       </div>
     {%- endif -%}
   </a>
@@ -259,7 +259,7 @@
         targets, so SR navigation parity is preserved.
       {%- endcomment -%}
       <h2 class="kt-card-product__title">
-        <a href="{{ product.url }}" tabindex="-1" style="text-decoration: none; color: inherit;">{{ product.title }}</a>
+        <a href="{{ product.url }}" tabindex="-1" style="text-decoration: none; color: inherit;">{{ product.title | escape }}</a>
       </h2>
 
       {%- comment -%} Star rating {%- endcomment -%}

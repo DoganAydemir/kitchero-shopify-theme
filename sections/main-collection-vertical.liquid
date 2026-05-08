@@ -18,7 +18,7 @@
       <div class="kt-collection__hero-inner">
         <div>
           <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
-          <h1 class="kt-collection__title">{{ collection.title }}</h1>
+          <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
           {%- if collection.description != blank -%}
             <p class="kt-collection__desc">{{ collection.description }}</p>
           {%- else -%}
@@ -52,7 +52,7 @@
           {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
           {%- for filter in collection.filters -%}
             {%- for active_value in filter.active_values -%}
-              <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value }}">
+              <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value | escape }}">
             {%- endfor -%}
             {%- if filter.type == 'price_range' -%}
               {%- if filter.min_value.value != blank -%}
@@ -92,7 +92,7 @@
                 class="kt-collection__active-filter"
                 aria-label="{{ 'kt.section.collection.remove_filter' | t: filter: value.label }}"
               >
-                {{ value.label }}
+                {{ value.label | escape }}
                 <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </a>
             {%- endfor -%}

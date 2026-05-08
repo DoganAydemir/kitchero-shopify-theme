@@ -76,7 +76,7 @@
 
               {%- when 'title' -%}
                 {%- assign heading_tag = block.settings.heading_tag | default: 'h1' -%}
-                <{{ heading_tag }} class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title }}</{{ heading_tag }}>
+                <{{ heading_tag }} class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</{{ heading_tag }}>
                 {%- comment -%}
                   Variant SKU rendered for B2B / wholesale shoppers and
                   inventory tracking — Theme Store Section 7 expects SKU
@@ -149,7 +149,7 @@
                       <span class="kt-pdp__vendor-label">{{ 'kt.product.vendor_label' | t | default: 'By' }}</span>
                     {%- endif -%}
                     <a href="{{ product.vendor | url_for_vendor }}" class="kt-pdp__vendor-link">
-                      {{ product.vendor }}
+                      {{ product.vendor | escape }}
                     </a>
                   </div>
                 {%- endif -%}

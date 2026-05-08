@@ -113,7 +113,7 @@
                   aria-controls="kt-header-mega-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title }}
+                  {{ link.title | escape }}
                   <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
@@ -135,20 +135,20 @@
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
-                        <h3 class="kt-header__mega-column-title">{{ child_link.title }}</h3>
+                        <h3 class="kt-header__mega-column-title">{{ child_link.title | escape }}</h3>
                         {%- if child_link.links.size > 0 -%}
                           <ul class="kt-header__mega-list list-unstyled" role="list">
                             {%- for grandchild_link in child_link.links -%}
                               <li>
                                 <a href="{{ grandchild_link.url }}" class="kt-header__mega-link">
-                                  {{ grandchild_link.title }}
+                                  {{ grandchild_link.title | escape }}
                                 </a>
                               </li>
                             {%- endfor -%}
                           </ul>
                         {%- else -%}
                           <a href="{{ child_link.url }}" class="kt-header__mega-link">
-                            {{ child_link.title }}
+                            {{ child_link.title | escape }}
                           </a>
                         {%- endif -%}
                       </div>
@@ -210,7 +210,7 @@
                   aria-controls="kt-header-flyout-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title }}
+                  {{ link.title | escape }}
                   <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
@@ -224,7 +224,7 @@
                 <div class="kt-header__flyout" id="kt-header-flyout-{{ link.handle }}">
                   {%- for child_link in link.links -%}
                     <a href="{{ child_link.url }}" class="kt-header__flyout-link">
-                      {{ child_link.title }}
+                      {{ child_link.title | escape }}
                     </a>
                   {%- endfor -%}
                 </div>
@@ -236,7 +236,7 @@
                   class="kt-header__menu-link"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title }}
+                  {{ link.title | escape }}
                 </a>
               {%- endif -%}
             </li>
@@ -572,7 +572,7 @@
                 class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
                 {% if link.current %}aria-current="page"{% endif %}
               >
-                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
               </a>
               <button
                 type="button"
@@ -582,14 +582,14 @@
                 aria-controls="mobile-panel-p-{{ forloop.index0 }}"
                 {% if link.current %}aria-current="page"{% endif %}
               >
-                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
                 <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
               </button>
             {%- else -%}
               <a href="{{ link.url }}" class="kt-header__mobile-link" {% if link.current %}aria-current="page"{% endif %}>
-                <span class="kt-header__mobile-link-label">{{ link.title }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
               </a>
             {%- endif -%}
           {%- endfor -%}
@@ -623,12 +623,12 @@
                 </svg>
                 <span class="kt-header__mobile-back-label">{{ 'kt.general.back' | t | default: 'Back' }}</span>
               </button>
-              <h3 class="kt-header__mobile-view-title">{{ link.title }}</h3>
+              <h3 class="kt-header__mobile-view-title">{{ link.title | escape }}</h3>
 
               {%- if link.url != blank and link.url != '#' -%}
                 <a href="{{ link.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
                   <span class="kt-header__mobile-link-label">
-                    {{ 'kt.general.view_all' | t | default: 'View all' }} {{ link.title }}
+                    {{ 'kt.general.view_all' | t | default: 'View all' }} {{ link.title | escape }}
                   </span>
                 </a>
               {%- endif -%}

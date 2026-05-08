@@ -52,7 +52,7 @@
               {%- assign heading_tag = block.settings.heading_tag | default: 'h2' -%}
               <{{ heading_tag }} class="kt-featured-product__title" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
-                  {{ product.title }}
+                  {{ product.title | escape }}
                 {%- else -%}
                   {{ 'kt.onboarding.product_title' | t | default: 'Example product title' }}
                 {%- endif -%}

@@ -70,25 +70,25 @@
             </li>
           {%- endif -%}
           <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
-            <span aria-current="page" class="kt-breadcrumbs__current">{{ product.title }}</span>
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ product.title | escape }}</span>
           </li>
 
         {%- when 'blog' -%}
           <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
-            <span aria-current="page" class="kt-breadcrumbs__current">{{ blog.title }}</span>
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ blog.title | escape }}</span>
           </li>
 
         {%- when 'article' -%}
           <li class="kt-breadcrumbs__item">
-            <a href="{{ blog.url }}" class="kt-breadcrumbs__link">{{ blog.title }}</a>
+            <a href="{{ blog.url }}" class="kt-breadcrumbs__link">{{ blog.title | escape }}</a>
           </li>
           <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
-            <span aria-current="page" class="kt-breadcrumbs__current">{{ article.title }}</span>
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ article.title | escape }}</span>
           </li>
 
         {%- when 'page' -%}
           <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
-            <span aria-current="page" class="kt-breadcrumbs__current">{{ page.title }}</span>
+            <span aria-current="page" class="kt-breadcrumbs__current">{{ page.title | escape }}</span>
           </li>
 
         {%- when 'search' -%}

@@ -118,7 +118,7 @@
               {%- comment -%} Row 1: title + price on same line {%- endcomment -%}
               <div class="kt-cart-drawer__item-top">
                 <a href="{{ item.url }}" class="kt-cart-drawer__item-title">
-                  {{- item.product.title -}}
+                  {{- item.product.title | escape -}}
                 </a>
                 <div class="kt-cart-drawer__item-price-stack">
                   {%- comment -%}
@@ -199,7 +199,7 @@
               {%- unless item.product.has_only_default_variant -%}
                 <p class="kt-cart-drawer__item-variant">
                   {%- for option in item.options_with_values -%}
-                    {{- option.value -}}
+                    {{- option.value | escape -}}
                     {%- unless forloop.last %}<br>{% endunless -%}
                   {%- endfor -%}
                 </p>

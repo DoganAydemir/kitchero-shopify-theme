@@ -68,7 +68,7 @@
                         class="kt-footer__link{% if link.current %} kt-footer__link--current{% endif %}"
                         {% if link.current %}aria-current="page"{% endif %}
                       >
-                        {{ link.title }}
+                        {{ link.title | escape }}
                       </a>
                     </li>
                   {%- endfor -%}
@@ -219,7 +219,7 @@
                 {%- endif -%}
                 {%- if block.settings.show_email and shop.email != blank -%}
                   <li class="kt-footer__contact-item">
-                    <a href="mailto:{{ shop.email }}" class="kt-footer__contact-link">{{ shop.email }}</a>
+                    <a href="mailto:{{ shop.email | escape }}" class="kt-footer__contact-link">{{ shop.email | escape }}</a>
                   </li>
                 {%- endif -%}
                 {%- if block.settings.show_phone and shop.phone != blank -%}
@@ -230,7 +230,7 @@
                       and dashes in the href), while the visible text
                       keeps the merchant's formatting.
                     {%- endcomment -%}
-                    <a href="tel:{{ shop.phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}" class="kt-footer__contact-link">{{ shop.phone }}</a>
+                    <a href="tel:{{ shop.phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | escape }}" class="kt-footer__contact-link">{{ shop.phone | escape }}</a>
                   </li>
                 {%- endif -%}
               </ul>
@@ -262,7 +262,7 @@
       <div class="kt-footer__bottom">
         {%- comment -%} Copyright {%- endcomment -%}
         <div class="kt-footer__copyright">
-          <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}.</span>
+          <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.</span>
           {%- comment -%}
             `{{ powered_by_link }}` emits a fully localized `<a>` tag
             pointing at the correct Shopify URL for the current locale,

@@ -36,8 +36,9 @@
         <div class="kt-account__b2b" role="note">
           <span class="kt-account__b2b-badge">{{ 'kt.customer.account.b2b_badge' | t | default: 'Business account' }}</span>
           {%- if customer.current_location and customer.current_location.company.name != blank -%}
+            {%- assign b2b_company_name = customer.current_location.company.name | escape -%}
             <span class="kt-account__b2b-company">
-              {{ 'kt.customer.account.b2b_company' | t: name: customer.current_location.company.name | default: customer.current_location.company.name }}
+              {{ 'kt.customer.account.b2b_company' | t: name: b2b_company_name | default: b2b_company_name }}
             </span>
           {%- endif -%}
         </div>
