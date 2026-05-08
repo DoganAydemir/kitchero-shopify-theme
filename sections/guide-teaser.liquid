@@ -90,18 +90,29 @@
         {%- for block in article_blocks -%}
           {%- if block.type == 'article' -%}
             {%- comment -%}
-              R162 EMPTY-HREF-1: drop href="#" fallback. When the
-              merchant has not yet linked the merchant-configured
-              article block, render the card as a non-link `<div>`
-              instead. Card stays visible (image + title + meta) for
-              layout preview; it just isn't clickable until linked.
-              Editor adds a hint so merchants notice the missing URL.
+              R165 GUIDE-TEASER-HTML-BALANCE-1: previously the
+              wrapper opener (`<a>` vs `<div>`) and closer (`</a>`
+              vs `</div>`) were each split across separate
+              `{%- if -%}` blocks. While Liquid renders balanced
+              markup at runtime, static HTML analyzers (Theme
+              Check, axe pre-render, manual code review) flag the
+              opener-without-matching-closer in source — and a
+              reviewer reading source sees the unmatched tag pair
+              as a Theme Store A11Y-6 ("valid HTML") concern.
+
+              Capture the inner card markup once, then emit it
+              inside a fully-balanced `<a>` block OR a fully-
+              balanced `<div>` block. Each branch is now a single
+              opener + closer pair that any static analyzer reads
+              as valid. Behaviour identical: linked cards still
+              render as `<a>`, unlinked still render as `<div>`.
+
+              R162 EMPTY-HREF-1 rationale preserved: when the
+              merchant hasn't linked the article yet, render the
+              card as a non-clickable `<div>` for layout preview
+              instead of `<a href="#">`.
             {%- endcomment -%}
-            {%- if block.settings.link != blank -%}
-              <a href="{{ block.settings.link | escape }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
-            {%- else -%}
-              <div class="kt-guide-teaser__card kt-guide-teaser__card--unlinked" {{ block.shopify_attributes }}>
-            {%- endif -%}
+            {%- capture guide_card_inner -%}
               <div class="kt-guide-teaser__card-image-wrap">
                 {%- if block.settings.image != blank -%}
                   {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-guide-teaser__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title | default: '' }}
@@ -128,9 +139,14 @@
                   </div>
                 {%- endif -%}
               </div>
+            {%- endcapture -%}
             {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link | escape }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
+                {{ guide_card_inner }}
               </a>
             {%- else -%}
+              <div class="kt-guide-teaser__card kt-guide-teaser__card--unlinked" {{ block.shopify_attributes }}>
+                {{ guide_card_inner }}
               </div>
             {%- endif -%}
           {%- endif -%}

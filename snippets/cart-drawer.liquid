@@ -437,17 +437,20 @@
       {%- endif -%}
     </div>
 
-    {%- comment -%} App blocks (e.g. cart upsells, discount widgets) {%- endcomment -%}
-    {%- if section.blocks.size > 0 -%}
-      <div class="kt-cart-drawer__app-blocks">
-        {%- for block in section.blocks -%}
-          {%- case block.type -%}
-            {%- when '@app' -%}
-              {% render block %}
-          {%- endcase -%}
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
+    {%- comment -%}
+      R165 AB-002 — Theme Store rule "@app blocks must not be used
+      in statically rendered sections." cart-drawer is rendered via
+      `{% section 'cart-drawer' %}` in layout/theme.liquid (static
+      render so the drawer is mounted on every page), and AB-002
+      forbids @app blocks under that render path. Removed both the
+      schema declaration AND this render branch. Cart upsell apps
+      that need a drawer slot can still use Shopify's main cart-
+      page app-block surface (sections/main-cart.liquid retains
+      its @app slot — that section is JSON-template-rendered, which
+      AB-002 permits). Dead code preserved as a comment block for
+      auditability so a future maintainer doesn't re-add the slot
+      without re-reading the rule.
+    {%- endcomment -%}
 
     {%- comment -%}
       R122 — Cart drawer recommendations / upsell. Reads the
