@@ -501,6 +501,77 @@
                   {%- render 'pickup-availability', variant: product.selected_or_first_available_variant, product: product -%}
                 </div>
 
+              {%- when 'buy_controls' -%}
+                {%- comment -%}
+                  R157 SHOWROOM-BUY-BLOCK-1: showroom template's
+                  primary UX is appointment / consultation flow,
+                  but Shopify Theme Store reviewers test EVERY
+                  product template against the standard product-
+                  page checklist (Add to cart, dynamic checkout,
+                  variant + quantity selection). Without these,
+                  reject as "product page shopping interaction
+                  incomplete." This block surfaces a real Shopify
+                  product form so the compliance bar is met. UX
+                  positioning intentionally secondary — sits at
+                  the bottom of the showroom card with smaller
+                  styling so the appointment CTA stays primary.
+                  Merchant can rename ATC label ("Reserve item",
+                  "Order now", "Start order") via block setting.
+                  show_dynamic_checkout exposes Shop Pay / Apple
+                  Pay / Google Pay via payment_button filter.
+                  Hidden when product has only the default
+                  "Default Title" variant + show_quantity off
+                  doesn't suppress the form (qty=1 still posts).
+                {%- endcomment -%}
+                <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
+                  {%- form 'product', product, id: 'ShowroomBuyForm', class: 'kt-showroom__buy-form' -%}
+                    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-variant-id>
+                    {%- if block.settings.show_quantity -%}
+                      {%- assign sb_qty_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1 -%}
+                      {%- assign sb_qty_step = product.selected_or_first_available_variant.quantity_rule.increment | default: 1 -%}
+                      {%- assign sb_qty_max = product.selected_or_first_available_variant.quantity_rule.max -%}
+                      <label for="ShowroomBuyQuantity" class="kt-showroom__buy-qty-label">
+                        {{ 'kt.product.quantity.label' | t | default: 'Quantity' }}
+                      </label>
+                      <input
+                        type="number"
+                        id="ShowroomBuyQuantity"
+                        name="quantity"
+                        value="{{ sb_qty_min }}"
+                        min="{{ sb_qty_min }}"
+                        step="{{ sb_qty_step }}"
+                        {% if sb_qty_max != blank %}max="{{ sb_qty_max }}"{% endif %}
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        class="kt-showroom__buy-qty"
+                      >
+                    {%- endif -%}
+                    <button
+                      type="submit"
+                      name="add"
+                      class="kt-showroom__buy-atc"
+                      {% unless product.available %}disabled aria-disabled="true"{% endunless %}
+                    >
+                      {%- if product.available -%}
+                        {{ block.settings.atc_label | default: 'Add to cart' | escape }}
+                      {%- else -%}
+                        {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
+                      {%- endif -%}
+                    </button>
+                    {%- if block.settings.show_dynamic_checkout and product.available -%}
+                      {%- comment -%}
+                        Dynamic checkout buttons (Shop Pay / Apple
+                        Pay / Google Pay / PayPal) — Shopify
+                        injects these via payment_button when
+                        accelerated checkout is enabled in admin.
+                        Theme Store paid-tier expects this on every
+                        purchasable product surface.
+                      {%- endcomment -%}
+                      {{ form | payment_button }}
+                    {%- endif -%}
+                  {%- endform -%}
+                </div>
+
               {%- when '@app' -%}
                 {%- comment -%}
                   R87 — shopify_attributes wrapper for editor
@@ -634,6 +705,36 @@
       "type": "pickup_availability",
       "name": "t:sections.main-product-showroom.blocks.pickup_availability.name",
       "limit": 1
+    },
+    {
+      "type": "buy_controls",
+      "name": "t:sections.main-product-showroom.blocks.buy_controls.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.buy_controls.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "atc_label",
+          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.atc_label.label",
+          "default": "Add to cart"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_quantity",
+          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_quantity.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_dynamic_checkout.label",
+          "info": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_dynamic_checkout.info",
+          "default": true
+        }
+      ]
     },
     {
       "type": "@app"

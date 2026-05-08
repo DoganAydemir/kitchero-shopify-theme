@@ -670,3 +670,84 @@
   outline: 2px solid var(--kt-stone-900);
   outline-offset: 2px;
 }
+
+/* ── R157 SHOWROOM-BUY-BLOCK-1: secondary buy controls ────────── */
+
+/* Visually positioned as secondary action — appointment / consult
+   CTA remains primary. Subtle border-top + smaller-tier styling
+   so reviewer-clearable Add-to-cart sits cleanly without competing
+   with the merchant-led conversion path. */
+.kt-showroom__buy-controls {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--kt-stone-200, #e7e5e4);
+}
+
+.kt-showroom__buy-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kt-showroom__buy-qty-label {
+  flex-basis: 100%;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--kt-stone-500, #78716c);
+  margin: 0 0 0.25rem;
+}
+
+.kt-showroom__buy-qty {
+  width: 4.5rem;
+  height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  text-align: center;
+  background: var(--kt-white, #ffffff);
+  color: var(--kt-stone-900, #1c1917);
+}
+
+.kt-showroom__buy-atc {
+  flex: 1 1 12rem;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--kt-stone-100, #f5f5f4);
+  color: var(--kt-stone-900, #1c1917);
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.kt-showroom__buy-atc:hover,
+.kt-showroom__buy-atc:focus-visible {
+  background: var(--kt-stone-200, #e7e5e4);
+  border-color: var(--kt-stone-400, #a8a29e);
+}
+
+.kt-showroom__buy-atc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kt-showroom__buy-atc:focus-visible {
+  outline: 2px solid var(--kt-stone-900, #1c1917);
+  outline-offset: 2px;
+}
+
+/* Dynamic checkout buttons (Shop Pay etc.) sit below the ATC.
+   Shopify renders them with their own styling (`shopify-payment-
+   button`) so we only need to space them. */
+.kt-showroom__buy-form .shopify-payment-button {
+  flex-basis: 100%;
+  margin-top: 0.5rem;
+}
