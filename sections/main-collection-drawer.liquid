@@ -148,7 +148,16 @@
             <a href="{{ collection.url }}" class="kt-filter__reset">{{ 'kt.section.collection.clear_all' | t | default: 'Clear All' }}</a>
           {%- endif -%}
         </div>
-        <button type="button" class="kt-filter-drawer__apply" data-close-filter-drawer>
+        {%- comment -%}
+          R149 FILTER-DRAWER-JS-OFF-1: button must `type="submit"` so
+          JS-off customers can submit the filter form natively.
+          Previously `type="button"` paired with `data-close-filter-
+          drawer` only ran the JS close handler — JS-off shoppers had
+          no way to apply filter selections. The form's surrounding
+          submit handles GET method navigation; the close drawer
+          attribute is preserved for JS-on UX.
+        {%- endcomment -%}
+        <button type="submit" class="kt-filter-drawer__apply" data-close-filter-drawer>
           {{ 'kt.section.collection.show_results' | t | default: 'Show Results' }}
         </button>
       </div>

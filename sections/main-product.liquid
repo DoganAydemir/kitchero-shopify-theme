@@ -420,7 +420,20 @@
                       pointing at Search & Discovery app.
                     - Metafield empty + live → block emits NOTHING.
                 {%- endcomment -%}
-                {%- assign comp_products = product.metafields.shopify--discovery--product_recommendation.related_products.value -%}
+                {%- comment -%}
+                  R149 COMPLEMENTARY-METAFIELD-1: read the
+                  `complementary_products` metafield, not
+                  `related_products`. Search & Discovery stores
+                  curated complementary picks at
+                  `shopify--discovery--product_recommendation.complementary_products`
+                  — this block is named "complementary" so it must
+                  read that key. Reading `related_products` was a
+                  data mismatch (the same key as the related-products
+                  section), so the "Pairs well with" block surfaced
+                  related-not-complementary picks → reviewer flag
+                  for misleading feature wiring.
+                {%- endcomment -%}
+                {%- assign comp_products = product.metafields.shopify--discovery--product_recommendation.complementary_products.value -%}
                 {%- if comp_products and comp_products.size > 0 -%}
                   <div class="kt-pdp__complementary" {{ block.shopify_attributes }}>
                     {%- if block.settings.heading != blank -%}

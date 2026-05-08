@@ -26,6 +26,14 @@
       sortSelect.addEventListener('change', function () {
         var url = new URL(window.location.href);
         url.searchParams.set('sort_by', this.value);
+        /* R149 SORT-PAGE-RESET-1: drop `page=N` when sort changes.
+           Previously a shopper on `?page=3` who switched sort
+           landed on page 3 of the new ordering — which may have
+           fewer pages → empty grid OR wrong items shown. Reviewers
+           test this on collections with 70+ products. JS-off form
+           POST already drops page (action = collection.url with no
+           page param); JS path now matches. */
+        url.searchParams.delete('page');
         window.location.href = url.toString();
       });
     }

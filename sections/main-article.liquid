@@ -49,7 +49,19 @@
             {%- endunless -%}
           {%- endfor -%}
           {%- if article_primary_tag != blank -%}
-            <span class="kt-article__meta-item">{{ article_primary_tag }}</span>
+            {%- comment -%}
+              R149 ARTICLE-TAGS-LINKS-1: link the tag to the
+              filtered blog view (`/blogs/<handle>/tagged/<tag>`).
+              Previously a bare `<span>` — no discoverability path
+              for readers exploring tag-based content. Theme Store
+              paid-tier expects browsable tags for blog navigation.
+              `tag | handle` URL-safes the slug; `tag | escape` on
+              the visible text guards against XSS via tag names
+              that may contain reserved chars.
+            {%- endcomment -%}
+            <a class="kt-article__meta-item kt-article__meta-tag" href="{{ blog.url }}/tagged/{{ article_primary_tag | handle }}">
+              {{ article_primary_tag | escape }}
+            </a>
             {%- if section.settings.show_date -%}
               <span class="kt-article__meta-rule" aria-hidden="true"></span>
             {%- endif -%}
