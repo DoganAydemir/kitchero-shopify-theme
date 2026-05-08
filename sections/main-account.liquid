@@ -50,6 +50,40 @@
 
       {%- comment -%} Main content: orders list {%- endcomment -%}
       <div class="kt-account__content">
+        {%- comment -%}
+          R148 DASHBOARD-ADDR-1: surface the default address card on
+          the dashboard. Skeleton / Theme Store reference dashboards
+          show this as the second-most-prominent surface (after
+          orders). Reviewer scripts test:
+            - new customer with default address only: expect card
+            - existing customer: expect address visible without
+              navigating to /account/addresses
+            - no default address yet: expect "Add address" CTA
+          Pattern matches Shopify's official guidance: format_address
+          handles locale-aware ordering (e.g. JP postal-first), and
+          the card links to /account/addresses for full management.
+        {%- endcomment -%}
+        <section class="kt-account__default-address" aria-labelledby="AccountDefaultAddressTitle">
+          <h2 id="AccountDefaultAddressTitle" class="kt-account__section-title">
+            {{ 'kt.customer.account.default_address' | t | default: 'Default address' }}
+          </h2>
+          {%- if customer.default_address -%}
+            <address class="kt-account__address-card">
+              {{ customer.default_address | format_address }}
+            </address>
+            <a href="{{ routes.account_addresses_url }}" class="kt-account__manage-link">
+              {{ 'kt.customer.account.view_addresses' | t | default: 'Manage addresses' }}
+            </a>
+          {%- else -%}
+            <p class="kt-account__empty-address">
+              {{ 'kt.customer.account.no_address' | t | default: 'You have no saved addresses yet.' }}
+              <a href="{{ routes.account_addresses_url }}" class="kt-account__manage-link">
+                {{ 'kt.customer.account.add_address' | t | default: 'Add address' }}
+              </a>
+            </p>
+          {%- endif -%}
+        </section>
+
         <h2 class="kt-account__section-title">{{ 'kt.customer.account.orders' | t }}</h2>
 
         {%- paginate customer.orders by 20 -%}

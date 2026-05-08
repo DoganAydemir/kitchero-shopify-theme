@@ -117,18 +117,30 @@
           {%- for fulfillment in order.fulfillments -%}
             <li class="kt-order__tracking-item">
               {%- if fulfillment.tracking_company != blank -%}
-                <span class="kt-order__tracking-carrier">{{ fulfillment.tracking_company }}</span>
+                <span class="kt-order__tracking-carrier">{{ fulfillment.tracking_company | escape }}</span>
               {%- endif -%}
-              {%- if fulfillment.tracking_url != blank -%}
-                <a href="{{ fulfillment.tracking_url | escape }}" class="kt-order__tracking-link" target="_blank" rel="noopener noreferrer">
-                  {%- if fulfillment.tracking_number != blank -%}
-                    {{ 'kt.customer.order.track_package_with_number' | t: number: fulfillment.tracking_number }}
-                  {%- else -%}
-                    {{ 'kt.customer.order.track_package' | t }}
-                  {%- endif -%}
-                </a>
+              {%- comment -%}
+                R148 TRACKING-URLS-1: iterate `tracking_urls` (plural)
+                instead of `tracking_url` (singular). Carriers like UPS
+                that split a single fulfillment into multiple packages
+                return multiple URLs — singular returned only the first
+                package's link, hiding the rest from customers. Now
+                emits one tracking link per package. Defence-in-depth
+                escape on `tracking_company` (merchant- and carrier-
+                set string) to match the rest of the order page.
+              {%- endcomment -%}
+              {%- if fulfillment.tracking_urls != blank and fulfillment.tracking_urls.size > 0 -%}
+                {%- for tracking_url in fulfillment.tracking_urls -%}
+                  <a href="{{ tracking_url | escape }}" class="kt-order__tracking-link" target="_blank" rel="noopener noreferrer">
+                    {%- if fulfillment.tracking_number != blank -%}
+                      {{ 'kt.customer.order.track_package_with_number' | t: number: fulfillment.tracking_number }}
+                    {%- else -%}
+                      {{ 'kt.customer.order.track_package' | t }}
+                    {%- endif -%}
+                  </a>
+                {%- endfor -%}
               {%- elsif fulfillment.tracking_number != blank -%}
-                <span class="kt-order__tracking-number">{{ fulfillment.tracking_number }}</span>
+                <span class="kt-order__tracking-number">{{ fulfillment.tracking_number | escape }}</span>
               {%- endif -%}
             </li>
           {%- endfor -%}

@@ -320,6 +320,35 @@
                   <label for="updates_{{ item.key }}" class="visually-hidden">
                     {{ 'kt.product.quantity.label' | t }}
                   </label>
+                  {%- comment -%}
+                    R148 B2B-CART-INC-1: hoist quantity-rule
+                    derivation ABOVE the +/- buttons so the buttons
+                    can compute their delta against the merchant's
+                    configured `quantity_rule.increment` (B2B
+                    case-of-N). Previously the `+` button hardcoded
+                    `plus: 1` which meant a cart line at qty 6 (case
+                    of 6) bumping to 7 would 422 on /cart/change.js
+                    with "Quantity must be a multiple of 6". Drawer
+                    already has this fix (snippets/cart-drawer.liquid:
+                    326-337); cart page now matches. Compute next-up
+                    and next-down values clamped to the variant's
+                    quantity_rule range, then bind the buttons to
+                    those values + disable + flag at-max state.
+                  {%- endcomment -%}
+                  {%- assign cart_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
+                  {%- assign cart_qty_max = item.variant.quantity_rule.max -%}
+                  {%- assign cart_qty_next_up = item.quantity | plus: cart_qty_step -%}
+                  {%- if cart_qty_max != blank and cart_qty_next_up > cart_qty_max -%}
+                    {%- assign cart_qty_next_up = cart_qty_max -%}
+                  {%- endif -%}
+                  {%- assign cart_qty_next_down = item.quantity | minus: cart_qty_step -%}
+                  {%- if cart_qty_next_down < 0 -%}
+                    {%- assign cart_qty_next_down = 0 -%}
+                  {%- endif -%}
+                  {%- assign cart_qty_at_max = false -%}
+                  {%- if cart_qty_max != blank and item.quantity >= cart_qty_max -%}
+                    {%- assign cart_qty_at_max = true -%}
+                  {%- endif -%}
                   <div class="kt-cart-page__qty-stepper">
                     <button
                       type="button"
@@ -327,20 +356,10 @@
                       aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
-                      data-qty="{{ item.quantity | minus: 1 }}"
+                      data-qty="{{ cart_qty_next_down }}"
                     >
                       <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
-                    {%- comment -%}
-                      Honour per-variant quantity rules on the cart
-                      input too. Customers can still set 0 to remove
-                      the line, but otherwise the stepper enforces
-                      the merchant's configured min/step/max so the
-                      cart AJAX update doesn't bounce with "quantity
-                      must be a multiple of N" from Shopify's server.
-                    {%- endcomment -%}
-                    {%- assign cart_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
-                    {%- assign cart_qty_max = item.variant.quantity_rule.max -%}
                     <input
                       type="number"
                       id="updates_{{ item.key }}"
@@ -364,7 +383,8 @@
                       aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
-                      data-qty="{{ item.quantity | plus: 1 }}"
+                      data-qty="{{ cart_qty_next_up }}"
+                      {% if cart_qty_at_max %}disabled aria-disabled="true"{% endif %}
                     >
                       <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
