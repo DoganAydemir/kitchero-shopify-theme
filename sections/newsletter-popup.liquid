@@ -204,11 +204,11 @@
             {%- endif -%}
 
             <h2 class="kt-newsletter-popup__heading" id="NewsletterPopupHeading-{{ section.id }}">
-              {{ section.settings.heading_part1 | default: 'Join our' }}
+              {{ section.settings.heading_part1 | default: 'kt.section.newsletter_popup.heading_part1_default' | t }}
               {%- if section.settings.heading_italic_word != blank -%}
                 <span class="kt-newsletter-popup__heading-italic">{{ section.settings.heading_italic_word }}</span>
               {%- endif -%}
-              {{ section.settings.heading_part2 | default: 'Discount' }}
+              {{ section.settings.heading_part2 | default: 'kt.section.newsletter_popup.heading_part2_default' | t }}
             </h2>
 
             {%- if section.settings.description != blank -%}
@@ -268,7 +268,7 @@
                 id="NewsletterPopupEmail-{{ section.id }}"
                 name="contact[email]"
                 class="kt-newsletter-popup__input"
-                placeholder="{{ section.settings.email_placeholder | default: 'Enter your email address' }}"
+                placeholder="{{ section.settings.email_placeholder | default: 'kt.section.newsletter.email_placeholder_default' | t }}"
                 required
                 aria-required="true"
                 maxlength="254"
@@ -315,13 +315,13 @@
                   aria-required="true"
                 >
                 <label for="NewsletterPopupConsent-{{ section.id }}" class="kt-newsletter-popup__consent-label">
-                  {{- section.settings.consent_label | default: 'I agree to receive marketing emails. I can unsubscribe at any time.' -}}
+                  {{- section.settings.consent_label | default: 'kt.section.newsletter.consent_label_default' | t -}}
                 </label>
               </p>
             {%- endif -%}
 
             <button type="submit" class="kt-newsletter-popup__submit">
-              <span>{{ section.settings.submit_button_text | default: 'Subscribe' }}</span>
+              <span>{{ section.settings.submit_button_text | default: 'kt.section.newsletter.subscribe_default' | t }}</span>
               {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.5 %}
             </button>
 
@@ -346,7 +346,7 @@
               client-side hidden field.
             {%- endcomment -%}
             <p class="kt-newsletter-popup__privacy">
-              {{ section.settings.privacy_note | default: 'By subscribing, you agree to our Privacy Policy. Unsubscribe at any time.' }}
+              {{ section.settings.privacy_note | default: 'kt.section.newsletter.privacy_note_default' | t }}
               {%- if shop.privacy_policy != blank %}
                 <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-popup__privacy-link">{{ shop.privacy_policy.title }}</a>
               {%- endif -%}

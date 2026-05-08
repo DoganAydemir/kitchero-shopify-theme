@@ -3,7 +3,7 @@
 <section class="kt-newsletter-page" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-newsletter-page__inner">
-      <span class="kt-newsletter-page__label">{{ section.settings.label | default: 'Stay Connected' }}</span>
+      <span class="kt-newsletter-page__label">{{ section.settings.label | default: 'kt.section.newsletter_signup.label_default' | t }}</span>
       {%- comment -%}
         R105 — fallback aligned with schema default (h2). Schema's
         `heading_tag` setting defaults to "h2" but the liquid
@@ -12,8 +12,8 @@
         page-header-dotted's h1) and break heading hierarchy.
       {%- endcomment -%}
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: 'Join our newsletter' }}</{{ heading_tag }}>
-      <p class="kt-newsletter-page__desc">{{ section.settings.description | default: 'Be the first to receive new collection launches, exclusive design insights, and member-only offers.' }}</p>
+      <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: 'kt.section.newsletter_signup.heading_default' | t }}</{{ heading_tag }}>
+      <p class="kt-newsletter-page__desc">{{ section.settings.description | default: 'kt.section.newsletter_signup.description_default' | t }}</p>
 
       {%- form 'customer', id: 'NewsletterPageForm', class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
@@ -116,7 +116,7 @@
                   aria-required="true"
                 >
                 <label for="newsletter-page-consent" class="kt-newsletter-page__consent-label">
-                  {{- section.settings.consent_label | default: 'I agree to receive marketing emails. I can unsubscribe at any time.' -}}
+                  {{- section.settings.consent_label | default: 'kt.section.newsletter.consent_label_default' | t -}}
                 </label>
               </p>
             {%- endif -%}
@@ -136,7 +136,7 @@
       {%- endform -%}
 
       <p class="kt-newsletter-page__note">
-        {{ section.settings.note | default: 'We respect your privacy. Unsubscribe at any time.' }}
+        {{ section.settings.note | default: 'kt.section.newsletter_signup.note_default' | t }}
         {%- if shop.privacy_policy != blank %}
           <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-page__note-link">{{ shop.privacy_policy.title }}</a>
         {%- endif -%}

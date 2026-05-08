@@ -111,10 +111,10 @@
             {%- assign faq_item_index = faq_item_index | plus: 1 -%}
             {
               "@type": "Question",
-              "name": {{ block.settings.title | default: 'Question' | strip_html | json }},
+              "name": {{ block.settings.title | default: 'kt.section.faq.question_default' | t | strip_html | json }},
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": {{ block.settings.content | default: 'Answer' | strip_html | json }}
+                "text": {{ block.settings.content | default: 'kt.section.faq.answer_default' | t | strip_html | json }}
               }
             }{% if faq_item_index < faq_items_total %},{% endif %}
           {%- endif -%}
