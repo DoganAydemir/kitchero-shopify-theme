@@ -472,8 +472,8 @@
                  the server's last-saved values, wiping unsubmitted
                  input. The cart note is the most common loss case
                  (customer types a gift message, bumps qty, message
-                 disappears mid-sentence) — well-known reject vector
-                 reported on most "near-Theme-Store-ready" themes. */
+                 disappears mid-sentence) — well-documented edge case
+                 reported on many themes during Theme Store review. */
               var noteEl = currentPanel.querySelector('[name="note"]');
               var preservedNote = noteEl ? noteEl.value : null;
               var serverNote = newPanel.querySelector('[name="note"]');

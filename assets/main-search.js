@@ -40,7 +40,8 @@
     init();
   }
 
-  /* Shopify theme-editor lifecycle hooks — required by CLAUDE.md. */
+  /* Shopify theme-editor lifecycle hooks — required so the section
+     re-binds on `shopify:section:load` and tears down on unload. */
   document.addEventListener('shopify:section:load', function (event) {
     bindSortForms(event.target || document);
   });

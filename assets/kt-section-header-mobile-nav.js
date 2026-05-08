@@ -13,7 +13,7 @@
  *  - Play nicely with the theme editor: re-initialize on
  *    `shopify:section:load`, clean up on `shopify:section:unload`.
  *
- * Per CLAUDE.md: no inline <script>, no build step, vanilla JS only.
+ * Per project conventions: no inline <script>, no build step, vanilla JS only.
  */
 
 (function () {

@@ -19,8 +19,8 @@
  *
  * Previously this script hand-rolled a hidden `input name="selling_plan"`
  * at runtime because the radios used a non-standard name. That pattern
- * broke ATC for JS-off visitors on subscription-only products (R13
- * Agent C REJECT); now obviated.
+ * broke ATC for JS-off visitors on subscription-only products; now
+ * obviated by emitting the radios with the correct name from Liquid.
  */
 (function () {
   'use strict';

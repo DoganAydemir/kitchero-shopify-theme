@@ -8,8 +8,9 @@
       Lets us style no-JS fallbacks via `html:not(.js) .foo {...}`
       without FOUC. 46 bytes uncompressed; negligible parse cost.
 
-      Inline <script> is justified here (CLAUDE.md "strictly
-      necessary") because an external JS would execute AFTER the
+      Inline <script> is justified here (Theme Store rule: only
+      "strictly necessary" inline JS) because an external JS would
+      execute AFTER the
       stylesheet is applied — by then the class would have already
       triggered a flash of the no-JS layout on the JS-enabled
       majority of visitors.
@@ -455,9 +456,9 @@
       from the theme editor without us hard-coding `{% section %}`
       calls per overlay.
 
-      Why this exists (R132 reject vector fix): cookie-banner.liquid
-      and newsletter-popup.liquid existed as section files but were
-      not statically rendered anywhere. Theme Store reviewers landing
+      Why this exists: cookie-banner.liquid and newsletter-popup.liquid
+      need to render globally on every page, not just where a merchant
+      manually added them through the editor. Theme Store reviewers landing
       on a fresh install would never see a consent UI — even with
       `enabled_on.groups = ["footer"]`, footer-group is auto-generated
       and may not include the cookie banner. Promoting both surfaces
