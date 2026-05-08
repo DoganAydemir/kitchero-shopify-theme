@@ -321,8 +321,27 @@
     {%- if settings.kt_cart_type == 'drawer' -%}
       {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
-    {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
-    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%}
+      R142 PERF-CSS-1: search overlay + appointment drawer CSS were
+      previously loaded unconditionally — render-blocking on every
+      page even when the merchant has the search overlay disabled
+      OR doesn't sell appointment-bookable products. Lighthouse's
+      "Eliminate render-blocking resources" diagnostic flagged
+      ~150-300ms savings on cold-cache mobile. Both surfaces are
+      hidden until JS opens them, so we gate the head load behind
+      merchant settings. Defaults are TRUE so existing stores
+      upgrading don't lose styling silently. Merchants who don't
+      use appointments / search overlay can disable for the speed
+      gain. CSS comment above explains the head-load decision (vs
+      onload-swap) — same rationale applies here.
+    {%- endcomment -%}
+    {%- if settings.kt_search_overlay_enabled == nil or settings.kt_search_overlay_enabled -%}
+      {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
+    {%- if settings.kt_appointment_enabled == nil or settings.kt_appointment_enabled -%}
+      {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {%- comment -%}
       Resource hints — Shopify Theme Store performance rule (PRF-3):
