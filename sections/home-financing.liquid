@@ -1,5 +1,8 @@
 {{ 'kt-section-home-financing.css' | asset_url | stylesheet_tag }}
 
+{%- assign home_financing_heading_line1_default = 'kt.section.home_financing.heading_line1_default' | t -%}
+{%- assign home_financing_heading_line2_default = 'kt.section.home_financing.heading_line2_default' | t -%}
+
 <section class="kt-home-financing" data-section-id="{{ section.id }}">
   {%- comment -%} Background image (right half only) {%- endcomment -%}
   <div class="kt-home-financing__bg">
@@ -19,8 +22,8 @@
 
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
       <{{ heading_tag }} class="kt-home-financing__title">
-        {{ section.settings.heading_line1 | default: 'kt.section.home_financing.heading_line1_default' | t }}
-        <span class="kt-home-financing__title-sub">{{ section.settings.heading_line2 | default: 'kt.section.home_financing.heading_line2_default' | t }}</span>
+        {{ section.settings.heading_line1 | default: home_financing_heading_line1_default }}
+        <span class="kt-home-financing__title-sub">{{ section.settings.heading_line2 | default: home_financing_heading_line2_default }}</span>
       </{{ heading_tag }}>
 
       {%- if section.settings.description != blank -%}

@@ -10,6 +10,9 @@
 {{ 'kt-section-financing-calculator.css' | asset_url | stylesheet_tag }}
 
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign financing_amount_label_default = 'kt.section.financing_calculator.amount_label_default' | t -%}
+{%- assign financing_months_label_default = 'kt.section.financing_calculator.months_label_default' | t -%}
+{%- assign financing_disclaimer_default = 'kt.section.financing-calculator.disclaimer_default' | t -%}
 
 <section
   class="kt-financing-calculator"
@@ -38,7 +41,7 @@
               class="kt-financing-calculator__amount-label"
               for="FinancingCalcAmount-{{ section.id }}"
             >
-              {{ section.settings.amount_label | default: 'kt.section.financing_calculator.amount_label_default' | t }}
+              {{ section.settings.amount_label | default: financing_amount_label_default }}
             </label>
             <div class="kt-financing-calculator__amount-field">
               {%- comment -%}
@@ -61,7 +64,7 @@
                 max="{{ section.settings.max_amount | default: 200000 }}"
                 step="100"
                 inputmode="numeric"
-                aria-label="{{ section.settings.amount_label | default: 'kt.section.financing_calculator.amount_label_default' | t | escape }}"
+                aria-label="{{ section.settings.amount_label | default: financing_amount_label_default | escape }}"
               >
             </div>
           </div>
@@ -89,7 +92,7 @@
                     {{ block.shopify_attributes }}
                   >
                     <span class="kt-financing-calculator__term-months">
-                      {{- block.settings.months }} {{ section.settings.months_label | default: 'kt.section.financing_calculator.months_label_default' | t -}}
+                      {{- block.settings.months }} {{ section.settings.months_label | default: financing_months_label_default -}}
                     </span>
                     <span class="kt-financing-calculator__term-price">
                       {%- comment -%}
@@ -155,7 +158,7 @@
             ChatGPT cross-audit Orta Risk #4.
           {%- endcomment -%}
           <p class="kt-financing-calculator__disclaimer">
-            {{ section.settings.disclaimer | default: 'kt.section.financing-calculator.disclaimer_default' | t }}
+            {{ section.settings.disclaimer | default: financing_disclaimer_default }}
           </p>
         </div>
       </div>

@@ -38,6 +38,7 @@
   assign products_count = section.settings.products_count | default: 8
   assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign heading_id = 'RecentlyViewedTitle-' | append: section.id
+  assign heading_default = 'kt.section.recently_viewed.heading_default' | t
 -%}
 
 <section
@@ -57,7 +58,7 @@
         id="{{ heading_id }}"
         class="kt-recently-viewed__title"
       >
-        {{- section.settings.heading | default: 'kt.section.recently_viewed.heading_default' | t | escape -}}
+        {{- section.settings.heading | default: heading_default | escape -}}
       </{{ heading_tag }}>
     </header>
 

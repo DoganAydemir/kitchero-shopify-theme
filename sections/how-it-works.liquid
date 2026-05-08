@@ -8,8 +8,10 @@
 >
   <div class="page-width">
     {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-    <{{ heading_tag }} id="HowItWorksTitle-{{ section.id }}" class="kt-how-it-works__title">{{ section.settings.heading | default: 'kt.section.how_it_works.heading_default' | t }}</{{ heading_tag }}>
-    <p class="kt-how-it-works__subtitle">{{ section.settings.subtitle | default: 'kt.section.how_it_works.subtitle_default' | t }}</p>
+    {%- assign heading_default = 'kt.section.how_it_works.heading_default' | t -%}
+    {%- assign subtitle_default = 'kt.section.how_it_works.subtitle_default' | t -%}
+    <{{ heading_tag }} id="HowItWorksTitle-{{ section.id }}" class="kt-how-it-works__title">{{ section.settings.heading | default: heading_default }}</{{ heading_tag }}>
+    <p class="kt-how-it-works__subtitle">{{ section.settings.subtitle | default: subtitle_default }}</p>
 
     <div class="kt-how-it-works__cards">
       {%- for block in section.blocks -%}

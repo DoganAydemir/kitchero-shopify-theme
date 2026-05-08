@@ -419,10 +419,11 @@
                 {%- assign sample_product = block.settings.sample_product | default: product -%}
                 {%- if sample_product != blank -%}
                   {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
+                  {%- assign sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
                   <div class="kt-showroom__sample-box" {{ block.shopify_attributes }}>
                     <div class="kt-showroom__sample-header">
                       <span class="kt-showroom__sample-header-title">
-                        {{ block.settings.header_title | default: 'kt.section.product_showroom.sample_header_default' | t }}
+                        {{ block.settings.header_title | default: sample_header_default }}
                       </span>
                       {%- if block.settings.ships_badge != blank -%}
                         <span class="kt-showroom__sample-ships-badge">{{ block.settings.ships_badge }}</span>

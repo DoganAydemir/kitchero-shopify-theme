@@ -9,6 +9,7 @@
     request.page_type — merchants own the call.
   endcomment
   assign header_style = section.settings.header_style | default: 'solid'
+  assign header_menu_link_default = 'kt.section.header.menu_link_default' | t
 -%}
 
 {%- comment -%}
@@ -179,7 +180,7 @@
                             {%- endif -%}
                             {%- if block.settings.link != blank -%}
                               <a href="{{ block.settings.link | escape }}" class="kt-header__mega-featured-cta">
-                                {{ block.settings.link_text | default: 'kt.section.header.menu_link_default' | t }}
+                                {{ block.settings.link_text | default: header_menu_link_default }}
                                 <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <polyline points="9 6 15 12 9 18"></polyline>
                                 </svg>

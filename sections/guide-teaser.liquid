@@ -1,5 +1,7 @@
 {{ 'kt-section-guide-teaser.css' | asset_url | stylesheet_tag }}
 
+{%- assign guide_teaser_heading_default = 'kt.section.guide_teaser.heading_default' | t -%}
+
 <section class="kt-guide-teaser" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
   <div class="page-width">
     <div class="kt-guide-teaser__header">
@@ -8,7 +10,7 @@
           <p class="kt-guide-teaser__label">{{ section.settings.label }}</p>
         {%- endif -%}
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-        <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: 'kt.section.guide_teaser.heading_default' | t }}</{{ heading_tag }}>
+        <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: guide_teaser_heading_default }}</{{ heading_tag }}>
       </div>
       {%- comment -%}
         R116 — hoist the `blogs[handle]` lookup once at the

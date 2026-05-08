@@ -178,8 +178,9 @@
               an undefined `heading` setting that would silently
               resolve to nil.
             {%- endcomment -%}
+            {%- assign visualize_subject_default = 'kt.section.visualize_studio.subject_default' | t -%}
             {%- capture visualize_body_message -%}
-              Visualize Studio consultation request — section: {{ section.settings.heading_line1 | default: 'kt.section.visualize_studio.subject_default' | t }}
+              Visualize Studio consultation request — section: {{ section.settings.heading_line1 | default: visualize_subject_default }}
             {%- endcapture -%}
             <input
               type="hidden"
@@ -187,8 +188,9 @@
               value="{{ visualize_body_message | strip | escape }}"
             >
 
+            {%- assign visualize_submit_default = 'kt.section.visualize_studio.submit_default' | t -%}
             <button type="submit" class="kt-visualize-studio__submit">
-              {{ section.settings.submit_text | default: 'kt.section.visualize_studio.submit_default' | t }}
+              {{ section.settings.submit_text | default: visualize_submit_default }}
             </button>
             {%- endif -%}{%- comment -%} R151 close form posted_successfully? swap branch {%- endcomment -%}
           {%- endform -%}

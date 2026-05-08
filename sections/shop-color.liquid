@@ -1,11 +1,15 @@
 {{ 'kt-section-shop-color.css' | asset_url | stylesheet_tag }}
 
+{%- assign shop_color_label_default = 'kt.section.shop_color.label_default' | t -%}
+{%- assign shop_color_heading_default = 'kt.section.shop_color.heading_default' | t -%}
+{%- assign shop_color_description_default = 'kt.section.shop_color.description_default' | t -%}
+
 <section class="kt-shop-color" data-section-id="{{ section.id }}" data-section-type="shop-color">
   <div class="page-width">
     <div class="kt-shop-color__intro">
-      <p class="kt-shop-color__label">{{ section.settings.label | default: 'kt.section.shop_color.label_default' | t }}</p>
+      <p class="kt-shop-color__label">{{ section.settings.label | default: shop_color_label_default }}</p>
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-shop-color__title">{{ section.settings.heading | default: 'kt.section.shop_color.heading_default' | t }}</{{ heading_tag }}>
+      <{{ heading_tag }} class="kt-shop-color__title">{{ section.settings.heading | default: shop_color_heading_default }}</{{ heading_tag }}>
     </div>
 
     <div class="kt-shop-color__layout">
@@ -53,7 +57,7 @@
           </div>
 
           <p class="kt-shop-color__image-desc">
-            {{ section.settings.description | default: 'kt.section.shop_color.description_default' | t }}
+            {{ section.settings.description | default: shop_color_description_default }}
           </p>
         </div>
       </div>

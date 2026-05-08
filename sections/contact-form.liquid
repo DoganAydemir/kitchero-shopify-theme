@@ -14,18 +14,25 @@
   page can have multiple sub-regions (showrooms / contact form);
   the section-level label scopes the whole region.
 {%- endcomment -%}
+{%- assign contact_region_label = 'kt.contact.region_label' | t -%}
+{%- assign contact_showrooms_label_default = 'kt.section.contact.showrooms_label_default' | t -%}
+{%- assign contact_showrooms_heading_default = 'kt.section.contact.showrooms_heading_default' | t -%}
+{%- assign contact_form_label_default = 'kt.section.contact.form_label_default' | t -%}
+{%- assign contact_form_heading_line1_default = 'kt.section.contact.form_heading_line1_default' | t -%}
+{%- assign contact_form_heading_line2_default = 'kt.section.contact.form_heading_line2_default' | t -%}
+{%- assign contact_form_description_default = 'kt.section.contact.form_description_default' | t -%}
 <section
   class="kt-contact"
   data-section-id="{{ section.id }}"
-  aria-label="{{ section.settings.heading | default: 'kt.contact.region_label' | t | default: 'Contact us' }}"
+  aria-label="{{ section.settings.heading | default: contact_region_label }}"
 >
   {%- comment -%} Showrooms Grid {%- endcomment -%}
   {%- if section.blocks.size > 0 -%}
     <div class="kt-contact__showrooms">
       <div class="page-width">
         <div class="kt-contact__showrooms-header">
-          <span class="kt-contact__label">{{ section.settings.showrooms_label | default: 'kt.section.contact.showrooms_label_default' | t }}</span>
-          <h2 class="kt-contact__showrooms-title">{{ section.settings.showrooms_heading | default: 'kt.section.contact.showrooms_heading_default' | t }}</h2>
+          <span class="kt-contact__label">{{ section.settings.showrooms_label | default: contact_showrooms_label_default }}</span>
+          <h2 class="kt-contact__showrooms-title">{{ section.settings.showrooms_heading | default: contact_showrooms_heading_default }}</h2>
         </div>
 
         <div class="kt-contact__showrooms-grid">
@@ -79,9 +86,9 @@
     <div class="page-width">
       <div class="kt-contact__form-layout">
         <div class="kt-contact__form-intro">
-          <span class="kt-contact__label">{{ section.settings.form_label | default: 'kt.section.contact.form_label_default' | t }}</span>
-          <h2 class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: 'kt.section.contact.form_heading_line1_default' | t }}<br>{{ section.settings.form_heading_line2 | default: 'kt.section.contact.form_heading_line2_default' | t }}</h2>
-          <p class="kt-contact__form-desc">{{ section.settings.form_description | default: 'kt.section.contact.form_description_default' | t }}</p>
+          <span class="kt-contact__label">{{ section.settings.form_label | default: contact_form_label_default }}</span>
+          <h2 class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: contact_form_heading_line1_default }}<br>{{ section.settings.form_heading_line2 | default: contact_form_heading_line2_default }}</h2>
+          <p class="kt-contact__form-desc">{{ section.settings.form_description | default: contact_form_description_default }}</p>
 
           <div class="kt-contact__form-social">
             <span class="kt-contact__label">{{ 'kt.section.contact.follow_us' | t | default: 'Follow Us' }}</span>

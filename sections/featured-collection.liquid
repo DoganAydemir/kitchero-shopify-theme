@@ -35,6 +35,7 @@
   assign layout = section.settings.layout | default: 'grid'
   assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign heading_id = 'FeaturedCollectionTitle-' | append: section.id
+  assign view_all_default = 'kt.section.featured_collection.view_all_default' | t
 -%}
 
 {%- comment -%}
@@ -102,7 +103,7 @@
             class="kt-featured-collection__view-all"
             aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: section_collection.title | default: section_collection.title }}"
           >
-            {{- section.settings.view_all_label | default: 'kt.section.featured_collection.view_all_default' | t | escape -}}
+            {{- section.settings.view_all_label | default: view_all_default | escape -}}
             {% render 'icon-arrow-right', stroke_width: 1.5 %}
           </a>
         {%- endif -%}
@@ -137,7 +138,7 @@
           class="kt-featured-collection__view-all kt-featured-collection__view-all--mobile"
           aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: section_collection.title | default: section_collection.title }}"
         >
-          {{- section.settings.view_all_label | default: 'kt.section.featured_collection.view_all_default' | t | escape -}}
+          {{- section.settings.view_all_label | default: view_all_default | escape -}}
         </a>
       {%- endif -%}
     </div>

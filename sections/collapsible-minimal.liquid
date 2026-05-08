@@ -16,6 +16,8 @@
   assign eyebrow = section.settings.eyebrow
   assign heading = section.settings.heading
   assign col_count = section.settings.column_count_desktop | default: 2
+  assign faq_question_default = 'kt.section.faq.question_default' | t
+  assign faq_answer_default = 'kt.section.faq.answer_default' | t
 -%}
 
 <section
@@ -111,10 +113,10 @@
             {%- assign faq_item_index = faq_item_index | plus: 1 -%}
             {
               "@type": "Question",
-              "name": {{ block.settings.title | default: 'kt.section.faq.question_default' | t | strip_html | json }},
+              "name": {{ block.settings.title | default: faq_question_default | strip_html | json }},
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": {{ block.settings.content | default: 'kt.section.faq.answer_default' | t | strip_html | json }}
+                "text": {{ block.settings.content | default: faq_answer_default | strip_html | json }}
               }
             }{% if faq_item_index < faq_items_total %},{% endif %}
           {%- endif -%}

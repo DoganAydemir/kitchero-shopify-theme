@@ -1,14 +1,17 @@
 {{ 'kt-section-shop-categories.css' | asset_url | stylesheet_tag }}
 
+{%- assign shop_categories_heading_default = 'kt.section.shop_categories.heading_default' | t -%}
+{%- assign shop_categories_subtitle_default = 'kt.section.shop_categories.subtitle_default' | t -%}
+
 <section class="kt-shop-categories" data-section-id="{{ section.id }}" data-section-type="shop-categories">
   <div class="page-width">
     <div class="kt-shop-categories__header">
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
       <{{ heading_tag }} class="kt-shop-categories__title">
-        {{ section.settings.heading | default: 'kt.section.shop_categories.heading_default' | t }}
+        {{ section.settings.heading | default: shop_categories_heading_default }}
       </{{ heading_tag }}>
       <div class="kt-shop-categories__subtitle-row">
-        <p class="kt-shop-categories__subtitle">{{ section.settings.subtitle | default: 'kt.section.shop_categories.subtitle_default' | t }}</p>
+        <p class="kt-shop-categories__subtitle">{{ section.settings.subtitle | default: shop_categories_subtitle_default }}</p>
         {% render 'icon-arrow-right', width: 24, height: 24, stroke_width: 1.5 %}
       </div>
     </div>

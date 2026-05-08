@@ -8,6 +8,7 @@
     assign media_ratio = product.featured_media.preview_image.aspect_ratio | default: 1
     assign media_height = 1200 | divided_by: media_ratio | round
   endif
+  assign featured_product_add_to_cart_default = 'kt.product.add_to_cart' | t
 -%}
 
 <section
@@ -168,7 +169,7 @@
                       >
                         <span data-add-to-cart-text>
                           {%- if current_variant.available -%}
-                            {{ block.settings.button_text | default: 'kt.product.add_to_cart' | t }}
+                            {{ block.settings.button_text | default: featured_product_add_to_cart_default }}
                           {%- else -%}
                             {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
                           {%- endif -%}
@@ -204,7 +205,7 @@
                   {%- endform -%}
                 {%- else -%}
                   <button type="button" class="kt-featured-product__submit button button--primary" disabled>
-                    <span>{{ block.settings.button_text | default: 'kt.product.add_to_cart' | t }}</span>
+                    <span>{{ block.settings.button_text | default: featured_product_add_to_cart_default }}</span>
                   </button>
                 {%- endif -%}
               </div>

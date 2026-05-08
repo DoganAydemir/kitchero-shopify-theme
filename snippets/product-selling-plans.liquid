@@ -23,6 +23,7 @@
 {%- endcomment -%}
 
 {%- if product.selling_plan_groups.size > 0 -%}
+  {%- assign selling_plan_policy_link_default = 'kt.product.selling_plan.policy_link' | t -%}
   <fieldset class="kt-selling-plan" data-selling-plan-picker>
     <legend class="kt-selling-plan__legend">
       {{ 'kt.product.selling_plan.legend' | t | default: 'Purchase options' }}
@@ -142,7 +143,7 @@
         translated key. Final escape on output for HTML safety.
       {%- endcomment -%}
       <a href="{{ shop.subscription_policy.url }}" class="kt-selling-plan__policy-link">
-        {{- shop.subscription_policy.title | default: 'kt.product.selling_plan.policy_link' | t | escape -}}
+        {{- shop.subscription_policy.title | default: selling_plan_policy_link_default | escape -}}
       </a>
     {%- endif -%}
   </fieldset>

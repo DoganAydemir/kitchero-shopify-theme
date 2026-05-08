@@ -27,6 +27,7 @@
 {%- endcomment -%}
 
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
+{%- assign related_products_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 
 <section
   class="kt-related"
@@ -39,7 +40,7 @@
 >
   <div class="page-width">
     <div class="kt-related__header">
-      <{{ heading_tag }} class="kt-related__title" id="kt-related-title-{{ section.id }}">{{ section.settings.heading | default: 'kt.section.recommendations.heading_default' | t }}</{{ heading_tag }}>
+      <{{ heading_tag }} class="kt-related__title" id="kt-related-title-{{ section.id }}">{{ section.settings.heading | default: related_products_heading_default }}</{{ heading_tag }}>
     </div>
 
     {%- comment -%}

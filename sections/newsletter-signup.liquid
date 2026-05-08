@@ -1,9 +1,15 @@
 {{ 'kt-section-newsletter-signup.css' | asset_url | stylesheet_tag }}
 
+{%- assign newsletter_signup_label_default = 'kt.section.newsletter_signup.label_default' | t -%}
+{%- assign newsletter_signup_heading_default = 'kt.section.newsletter_signup.heading_default' | t -%}
+{%- assign newsletter_signup_description_default = 'kt.section.newsletter_signup.description_default' | t -%}
+{%- assign newsletter_signup_consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
+{%- assign newsletter_signup_note_default = 'kt.section.newsletter_signup.note_default' | t -%}
+
 <section class="kt-newsletter-page" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-newsletter-page__inner">
-      <span class="kt-newsletter-page__label">{{ section.settings.label | default: 'kt.section.newsletter_signup.label_default' | t }}</span>
+      <span class="kt-newsletter-page__label">{{ section.settings.label | default: newsletter_signup_label_default }}</span>
       {%- comment -%}
         R105 — fallback aligned with schema default (h2). Schema's
         `heading_tag` setting defaults to "h2" but the liquid
@@ -12,8 +18,8 @@
         page-header-dotted's h1) and break heading hierarchy.
       {%- endcomment -%}
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: 'kt.section.newsletter_signup.heading_default' | t }}</{{ heading_tag }}>
-      <p class="kt-newsletter-page__desc">{{ section.settings.description | default: 'kt.section.newsletter_signup.description_default' | t }}</p>
+      <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: newsletter_signup_heading_default }}</{{ heading_tag }}>
+      <p class="kt-newsletter-page__desc">{{ section.settings.description | default: newsletter_signup_description_default }}</p>
 
       {%- form 'customer', id: 'NewsletterPageForm', class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
@@ -116,7 +122,7 @@
                   aria-required="true"
                 >
                 <label for="newsletter-page-consent" class="kt-newsletter-page__consent-label">
-                  {{- section.settings.consent_label | default: 'kt.section.newsletter.consent_label_default' | t -}}
+                  {{- section.settings.consent_label | default: newsletter_signup_consent_label_default -}}
                 </label>
               </p>
             {%- endif -%}
@@ -136,7 +142,7 @@
       {%- endform -%}
 
       <p class="kt-newsletter-page__note">
-        {{ section.settings.note | default: 'kt.section.newsletter_signup.note_default' | t }}
+        {{ section.settings.note | default: newsletter_signup_note_default }}
         {%- if shop.privacy_policy != blank %}
           <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-page__note-link">{{ shop.privacy_policy.title }}</a>
         {%- endif -%}

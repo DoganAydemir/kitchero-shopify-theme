@@ -40,6 +40,10 @@
   assign brand_chars = brand_raw | split: ''
   assign brand_length = brand_chars | size
   assign current_year = 'now' | date: '%Y'
+  assign kt_loader_word_1_default = 'kt.loader.word_1' | t
+  assign kt_loader_word_2_default = 'kt.loader.word_2' | t
+  assign kt_loader_word_3_default = 'kt.loader.word_3' | t
+  assign kt_loader_word_4_default = 'kt.loader.word_4' | t
 -%}
 
 <div
@@ -86,10 +90,10 @@
         <span class="kt-loader__words-prefix">{{ 'kt.loader.prefix' | t | default: '—' }}</span>
         <span class="kt-loader__words-clip">
           <span class="kt-loader__words-track">
-            <span class="kt-loader__word">{{ settings.kt_loader_word_1 | default: 'kt.loader.word_1' | t }}</span>
-            <span class="kt-loader__word">{{ settings.kt_loader_word_2 | default: 'kt.loader.word_2' | t }}</span>
-            <span class="kt-loader__word">{{ settings.kt_loader_word_3 | default: 'kt.loader.word_3' | t }}</span>
-            <span class="kt-loader__word">{{ settings.kt_loader_word_4 | default: 'kt.loader.word_4' | t }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_1 | default: kt_loader_word_1_default }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_2 | default: kt_loader_word_2_default }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_3 | default: kt_loader_word_3_default }}</span>
+            <span class="kt-loader__word">{{ settings.kt_loader_word_4 | default: kt_loader_word_4_default }}</span>
           </span>
         </span>
       </div>

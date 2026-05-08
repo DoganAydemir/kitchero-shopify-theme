@@ -5,6 +5,8 @@
   cart icon falls back to /cart.
 {%- endcomment -%}
 
+{%- assign cart_drawer_recommendations_default = 'kt.section.recommendations.heading_default' | t -%}
+
 <cart-drawer
   class="kt-cart-drawer"
   id="cart-drawer"
@@ -479,7 +481,7 @@
       {%- if cart_recs and cart_recs.size > 0 -%}
         <div class="kt-cart-drawer__recommendations" data-cart-recommendations>
           <h3 class="kt-cart-drawer__recommendations-heading">
-            {{- section.settings.recommendations_heading | default: 'kt.section.recommendations.heading_default' | t | escape -}}
+            {{- section.settings.recommendations_heading | default: cart_drawer_recommendations_default | escape -}}
           </h3>
           <ul class="kt-cart-drawer__recommendations-list" role="list">
             {%- for rec_product in cart_recs limit: section.settings.recommendations_count -%}

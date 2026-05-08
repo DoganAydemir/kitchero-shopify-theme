@@ -21,6 +21,12 @@
 
 {%- if section.settings.enabled -%}
   {%- assign newsletter_form_id = 'NewsletterPopupForm-' | append: section.id -%}
+  {%- assign email_placeholder_default = 'kt.section.newsletter.email_placeholder_default' | t -%}
+  {%- assign consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
+  {%- assign subscribe_default = 'kt.section.newsletter.subscribe_default' | t -%}
+  {%- assign privacy_note_default = 'kt.section.newsletter.privacy_note_default' | t -%}
+  {%- assign heading_part1_default = 'kt.section.newsletter_popup.heading_part1_default' | t -%}
+  {%- assign heading_part2_default = 'kt.section.newsletter_popup.heading_part2_default' | t -%}
 
   {%- comment -%}
     The popup is hidden via CSS opacity:0 + pointer-events:none, NOT
@@ -204,11 +210,11 @@
             {%- endif -%}
 
             <h2 class="kt-newsletter-popup__heading" id="NewsletterPopupHeading-{{ section.id }}">
-              {{ section.settings.heading_part1 | default: 'kt.section.newsletter_popup.heading_part1_default' | t }}
+              {{ section.settings.heading_part1 | default: heading_part1_default }}
               {%- if section.settings.heading_italic_word != blank -%}
                 <span class="kt-newsletter-popup__heading-italic">{{ section.settings.heading_italic_word }}</span>
               {%- endif -%}
-              {{ section.settings.heading_part2 | default: 'kt.section.newsletter_popup.heading_part2_default' | t }}
+              {{ section.settings.heading_part2 | default: heading_part2_default }}
             </h2>
 
             {%- if section.settings.description != blank -%}
@@ -268,7 +274,7 @@
                 id="NewsletterPopupEmail-{{ section.id }}"
                 name="contact[email]"
                 class="kt-newsletter-popup__input"
-                placeholder="{{ section.settings.email_placeholder | default: 'kt.section.newsletter.email_placeholder_default' | t }}"
+                placeholder="{{ section.settings.email_placeholder | default: email_placeholder_default }}"
                 required
                 aria-required="true"
                 maxlength="254"
@@ -315,13 +321,13 @@
                   aria-required="true"
                 >
                 <label for="NewsletterPopupConsent-{{ section.id }}" class="kt-newsletter-popup__consent-label">
-                  {{- section.settings.consent_label | default: 'kt.section.newsletter.consent_label_default' | t -}}
+                  {{- section.settings.consent_label | default: consent_label_default -}}
                 </label>
               </p>
             {%- endif -%}
 
             <button type="submit" class="kt-newsletter-popup__submit">
-              <span>{{ section.settings.submit_button_text | default: 'kt.section.newsletter.subscribe_default' | t }}</span>
+              <span>{{ section.settings.submit_button_text | default: subscribe_default }}</span>
               {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.5 %}
             </button>
 
@@ -346,7 +352,7 @@
               client-side hidden field.
             {%- endcomment -%}
             <p class="kt-newsletter-popup__privacy">
-              {{ section.settings.privacy_note | default: 'kt.section.newsletter.privacy_note_default' | t }}
+              {{ section.settings.privacy_note | default: privacy_note_default }}
               {%- if shop.privacy_policy != blank %}
                 <a href="{{ shop.privacy_policy.url }}" class="kt-newsletter-popup__privacy-link">{{ shop.privacy_policy.title }}</a>
               {%- endif -%}

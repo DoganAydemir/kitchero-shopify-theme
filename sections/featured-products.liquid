@@ -67,6 +67,7 @@
     style="--kt-fp-cols-desktop: {{ cols_desktop }}; --kt-fp-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
     aria-labelledby="{{ heading_id }}"
   >
+    {%- assign featured_products_heading_default = 'kt.section.featured_products.heading_default' | t -%}
     <div class="page-width">
       <header class="kt-featured-products__header">
         <div class="kt-featured-products__heading-wrap">
@@ -78,7 +79,7 @@
             id="{{ heading_id }}"
             class="kt-featured-products__title"
           >
-            {{- section.settings.heading | default: 'kt.section.featured_products.heading_default' | t | escape -}}
+            {{- section.settings.heading | default: featured_products_heading_default | escape -}}
           </{{ heading_tag }}>
 
           {%- if section.settings.description != blank -%}

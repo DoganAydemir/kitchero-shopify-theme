@@ -24,6 +24,10 @@
 >
 <noscript>{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}</noscript>
 
+{%- assign main_product_countdown_label_default = 'kt.product.countdown.limited_time' | t -%}
+{%- assign main_product_sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
+{%- assign main_product_add_sample_default = 'kt.section.product_showroom.add_sample_default' | t -%}
+
 {%- comment -%}
   Main Product — E-commerce PDP.
   Ported from product/[id]/page.tsx but refactored so every element in
@@ -183,7 +187,7 @@
                         class="kt-pdp__countdown-timer"
                         data-countdown
                         data-ends-at="{{ deal_ends_at | date: '%Y-%m-%dT%H:%M:%S%z' }}"
-                        aria-label="{{ block.settings.label | default: 'kt.product.countdown.limited_time' | t | escape }}"
+                        aria-label="{{ block.settings.label | default: main_product_countdown_label_default | escape }}"
                       >
                         <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">D</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
@@ -327,7 +331,7 @@
                   {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
                   <div class="kt-pdp__door-sample" {{ block.shopify_attributes }}>
                     <div class="kt-pdp__door-sample-header">
-                      <span class="kt-pdp__door-sample-title">{{ block.settings.header_title | default: 'kt.section.product_showroom.sample_header_default' | t }}</span>
+                      <span class="kt-pdp__door-sample-title">{{ block.settings.header_title | default: main_product_sample_header_default }}</span>
                       {%- if block.settings.ships_badge != blank -%}
                         <span class="kt-pdp__door-sample-badge">{{ block.settings.ships_badge }}</span>
                       {%- endif -%}
@@ -350,7 +354,7 @@
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="kt-pdp__door-sample-btn" {% unless sample_variant.available %}disabled{% endunless %}>
                           {%- if sample_variant.available -%}
-                            {{ block.settings.button_text | default: 'kt.section.product_showroom.add_sample_default' | t }}
+                            {{ block.settings.button_text | default: main_product_add_sample_default }}
                           {%- else -%}
                             {{ 'kt.product.sold_out' | t }}
                           {%- endif -%}

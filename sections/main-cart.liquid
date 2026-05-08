@@ -39,10 +39,13 @@
 {%- endcomment -%}
 {% # theme-check-disable UnusedAssign %}
 {%- assign cart_count_label = 'kt.header.cart.item_count' | t: count: cart.item_count -%}
+{%- assign cart_eyebrow_default = 'kt.section.main_cart.eyebrow_default' | t -%}
+{%- assign cart_heading_default = 'kt.section.main_cart.heading_default' | t -%}
+{%- assign cart_recommendations_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 {% # theme-check-enable UnusedAssign %}
 {%- render 'page-header-dotted',
-  eyebrow: section.settings.eyebrow | default: 'kt.section.main_cart.eyebrow_default' | t,
-  title: section.settings.heading | default: 'kt.section.main_cart.heading_default' | t,
+  eyebrow: section.settings.eyebrow | default: cart_eyebrow_default,
+  title: section.settings.heading | default: cart_heading_default,
   description: section.settings.description,
   count_text: cart_count_label,
   heading_tag: section.settings.heading_tag | default: 'h1'
@@ -750,9 +753,9 @@
           {%- assign cart_page_anchor = cart.items[0].product -%}
           {%- assign cart_page_recs = cart_page_anchor.metafields.shopify--discovery--product_recommendation.related_products.value -%}
           {%- if cart_page_recs and cart_page_recs.size > 0 -%}
-            <section class="kt-cart-page__recommendations" aria-label="{{ section.settings.recommendations_heading | default: 'kt.section.recommendations.heading_default' | t | escape }}">
+            <section class="kt-cart-page__recommendations" aria-label="{{ section.settings.recommendations_heading | default: cart_recommendations_heading_default | escape }}">
               <h2 class="kt-cart-page__recommendations-heading">
-                {{- section.settings.recommendations_heading | default: 'kt.section.recommendations.heading_default' | t | escape -}}
+                {{- section.settings.recommendations_heading | default: cart_recommendations_heading_default | escape -}}
               </h2>
               <ul class="kt-cart-page__recommendations-list" role="list">
                 {%- for rec_product in cart_page_recs limit: section.settings.recommendations_count -%}

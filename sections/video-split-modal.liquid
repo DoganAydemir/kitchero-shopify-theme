@@ -18,6 +18,7 @@
   assign video_position = section.settings.video_position | default: 'left'
   assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign modal_id = 'VideoModal-' | append: section.id
+  assign play_button_default = 'kt.section.video_split.play_button_default' | t
 -%}
 
 <section
@@ -128,7 +129,7 @@
               </svg>
             </span>
             <span class="kt-video-split__play-label">
-              {{ section.settings.play_button_text | default: 'kt.section.video_split.play_button_default' | t }}
+              {{ section.settings.play_button_text | default: play_button_default }}
             </span>
           </button>
         {%- endif -%}

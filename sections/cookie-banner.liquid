@@ -35,6 +35,8 @@
 {%- endcomment -%}
 
 {%- if section.settings.enabled -%}
+  {%- assign cookie_decline_default = 'kt.section.cookie_banner.decline_default' | t -%}
+  {%- assign cookie_accept_default = 'kt.section.cookie_banner.accept_default' | t -%}
   <div
     class="kt-cookie-banner kt-cookie-banner--{{ section.settings.position | default: 'bottom-right' }}"
     data-section-id="{{ section.id }}"
@@ -71,7 +73,7 @@
           data-cookie-decline
           aria-label="{{ 'kt.cookie_banner.decline_aria' | t | default: 'Decline cookies' }}"
         >
-          {{- section.settings.decline_label | default: 'kt.section.cookie_banner.decline_default' | t | escape -}}
+          {{- section.settings.decline_label | default: cookie_decline_default | escape -}}
         </button>
         {%- comment -%}
           R160 GRANULAR-GDPR-CONSENT: Customize button toggles a
@@ -99,7 +101,7 @@
           data-cookie-accept
           aria-label="{{ 'kt.cookie_banner.accept_aria' | t | default: 'Accept cookies' }}"
         >
-          {{- section.settings.accept_label | default: 'kt.section.cookie_banner.accept_default' | t | escape -}}
+          {{- section.settings.accept_label | default: cookie_accept_default | escape -}}
         </button>
       </div>
 

@@ -1,5 +1,10 @@
 {{ 'kt-section-footer.css' | asset_url | stylesheet_tag }}
 
+{%- assign footer_heading_line1_default = 'kt.section.footer.heading_line1_default' | t -%}
+{%- assign footer_heading_line2_default = 'kt.section.footer.heading_line2_default' | t -%}
+{%- assign footer_description_default = 'kt.section.footer.description_default' | t -%}
+{%- assign footer_consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
+
 <footer class="kt-footer{% if section.settings.color_scheme != blank %} color-{{ section.settings.color_scheme }}{% endif %}" data-section-id="{{ section.id }}">
   <div class="kt-footer__inner page-width">
     <div class="kt-footer__grid">
@@ -8,10 +13,10 @@
       <div class="kt-footer__brand">
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         <{{ heading_tag }} class="kt-footer__brand-heading">
-          {{ section.settings.heading_line1 | default: 'kt.section.footer.heading_line1_default' | t }}<br>{{ section.settings.heading_line2 | default: 'kt.section.footer.heading_line2_default' | t }}
+          {{ section.settings.heading_line1 | default: footer_heading_line1_default }}<br>{{ section.settings.heading_line2 | default: footer_heading_line2_default }}
         </{{ heading_tag }}>
         <p class="kt-footer__brand-text">
-          {{ section.settings.description | default: 'kt.section.footer.description_default' | t }}
+          {{ section.settings.description | default: footer_description_default }}
         </p>
 
         <div class="kt-footer__social">
@@ -182,7 +187,7 @@
                         aria-required="true"
                       >
                       <label for="footer-newsletter-consent" class="kt-footer__newsletter-consent-label">
-                        {{- block.settings.consent_label | default: 'kt.section.newsletter.consent_label_default' | t -}}
+                        {{- block.settings.consent_label | default: footer_consent_label_default -}}
                       </label>
                     </p>
                   {%- endif -%}

@@ -1,11 +1,15 @@
 {{ 'kt-section-shop-the-look.css' | asset_url | stylesheet_tag }}
 
+{%- assign shop_the_look_label_default = 'kt.section.shop_the_look.label_default' | t -%}
+{%- assign shop_the_look_heading_default = 'kt.section.shop_the_look.heading_default' | t -%}
+{%- assign shop_the_look_product_aria_default = 'kt.section.shop_the_look.product_aria_default' | t -%}
+
 <section class="kt-shop-the-look" data-section-id="{{ section.id }}" data-section-type="shop-the-look">
   <div class="page-width">
     <div class="kt-shop-the-look__header">
-      <span class="kt-shop-the-look__label">{{ section.settings.label | default: 'kt.section.shop_the_look.label_default' | t }}</span>
+      <span class="kt-shop-the-look__label">{{ section.settings.label | default: shop_the_look_label_default }}</span>
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-      <{{ heading_tag }} class="kt-shop-the-look__title">{{ section.settings.heading | default: 'kt.section.shop_the_look.heading_default' | t }}</{{ heading_tag }}>
+      <{{ heading_tag }} class="kt-shop-the-look__title">{{ section.settings.heading | default: shop_the_look_heading_default }}</{{ heading_tag }}>
     </div>
 
     {%- comment -%} Wrapper is NOT overflow-hidden so popups escape {%- endcomment -%}
@@ -33,7 +37,7 @@
               type="button"
               class="kt-shop-the-look__hotspot"
               data-hotspot-toggle="{{ block.id }}"
-              aria-label="{{ block.settings.product_title | default: 'kt.section.shop_the_look.product_aria_default' | t | escape }}"
+              aria-label="{{ block.settings.product_title | default: shop_the_look_product_aria_default | escape }}"
             >
               {% render 'icon-plus', width: 18, height: 18 %}
             </button>
