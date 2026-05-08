@@ -64,7 +64,17 @@
               </div>
               <div class="kt-shop-the-look__popup-meta">
                 <h3 class="kt-shop-the-look__popup-name">{{ block.settings.product_title }}</h3>
-                <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
+                {%- comment -%}
+                  R143 SHOP-THE-LOOK-1: hide the price element entirely
+                  when blank rather than rendering an empty `<span>`.
+                  Empty span on fresh install (no merchant value yet)
+                  reads as a layout glitch — reviewer flag for "missing
+                  data". Suppressing keeps the popup card clean until
+                  merchant fills it in.
+                {%- endcomment -%}
+                {%- if block.settings.product_price != blank -%}
+                  <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
+                {%- endif -%}
               </div>
               {%- comment -%}
                 Only emit the CTA when the merchant actually supplied a

@@ -87,7 +87,19 @@
                         </time>
                       </td>
                       <td data-label="{{ 'kt.customer.orders.payment_status' | t }}">
-                        <span class="kt-account__pill kt-account__pill--{{ order.financial_status }}">
+                        {%- comment -%}
+                          R143 ACCOUNT-STATUS-1: legacy / archived
+                          orders can have a nil `financial_status`
+                          (rare but possible — Shopify's pre-2014
+                          orders + archived edge cases). Bare nil
+                          interpolation would emit
+                          `class="kt-account__pill kt-account__pill--"`
+                          — a dangling modifier that the BEM CSS
+                          can't style and reviewers flag as broken
+                          markup. `default: 'unknown'` parity with
+                          fulfillment_status path on line 95.
+                        {%- endcomment -%}
+                        <span class="kt-account__pill kt-account__pill--{{ order.financial_status | default: 'unknown' }}">
                           {{ order.financial_status_label }}
                         </span>
                       </td>
