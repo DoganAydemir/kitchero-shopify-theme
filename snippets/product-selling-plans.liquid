@@ -133,8 +133,16 @@
       policy in admin (Settings → Policies → Subscription policy).
     {%- endcomment -%}
     {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
+      {%- comment -%}
+        R154 SUBSCRIPTION-POLICY-T-1: locale key `kt.product
+        .selling_plan.policy_link` instead of raw English literal.
+        Falls back through 3 sources: merchant-configured policy
+        title (rare), shop.subscription_policy.title default
+        ("Subscription policy" — Shopify default), or our own
+        translated key. Final escape on output for HTML safety.
+      {%- endcomment -%}
       <a href="{{ shop.subscription_policy.url }}" class="kt-selling-plan__policy-link">
-        {{- shop.subscription_policy.title | default: 'Subscription policy' | escape -}}
+        {{- shop.subscription_policy.title | default: 'kt.product.selling_plan.policy_link' | t | escape -}}
       </a>
     {%- endif -%}
   </fieldset>
