@@ -2,6 +2,18 @@
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
     {%- comment -%}
+      R146 HEAD-CHARSET-1: charset MUST be in the first 1024 bytes
+      AND ideally the first <head> child. Some browsers begin
+      tentative parsing under a default encoding before the charset
+      is seen — Theme Store reviewers running W3C validators flag
+      this. The no-js→js swap script previously ran BEFORE charset;
+      moved AFTER so encoding declaration is reached first. The
+      script is still parser-blocking by design (the FOUC rationale
+      below applies regardless of placement order).
+    {%- endcomment -%}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {%- comment -%}
       no-js → js class swap. Runs before any <link> so the <head>
       parser paints under `.js` if scripting is on, or stays on
       `.no-js` if the browser has scripting disabled / blocked.
@@ -16,8 +28,6 @@
       majority of visitors.
     {%- endcomment -%}
     <script>document.documentElement.className='js';</script>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     {%- comment -%}
       `viewport-fit=cover` is required for `env(safe-area-inset-*)`
       to return non-zero values on iPhone X and newer. Without it

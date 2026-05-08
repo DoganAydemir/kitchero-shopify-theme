@@ -68,7 +68,18 @@
       <div class="kt-collection__hero-inner">
         <div>
           <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
-          {%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
+          {%- comment -%}
+            R146 HEADING-TAG-LOCK-1: collection page MUST have an
+            <h1> for SEO + WCAG 2.4.6. The schema lets merchants
+            pick h1/h2 (for layout flexibility) but a collection
+            page that ships without an h1 is a hard Theme Store
+            reject. Force `h1` regardless of merchant choice when
+            this is the page's primary heading. Schema setting
+            kept as-is for backward compatibility but the value is
+            ignored here — the schema can be tightened to h1-only
+            in a future release without breaking existing settings.
+          {%- endcomment -%}
+          {%- assign heading_tag = 'h1' -%}
           <{{ heading_tag }} class="kt-collection__title">{{ collection.title | escape }}</{{ heading_tag }}>
           {%- if section.settings.show_collection_description -%}
             {%- if collection.description != blank -%}
