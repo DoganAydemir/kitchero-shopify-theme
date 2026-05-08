@@ -28,7 +28,16 @@
   else
     assign primary_loading = 'lazy'
   endif
-  if card_index == 0
+  comment
+    Caller can opt out of the LCP fetchpriority hint by passing
+    `lcp_priority: false` — necessary on collection pages where
+    `main-collection-banner` already claims the LCP slot. Without
+    coordination, the banner image AND the first product card both
+    set fetchpriority="high", which Lighthouse calls out as
+    priority-confusion that wastes the preload-scanner budget.
+  endcomment
+  assign card_lcp_priority = lcp_priority | default: true
+  if card_index == 0 and card_lcp_priority
     assign primary_fetchpriority = 'high'
   else
     assign primary_fetchpriority = 'auto'

@@ -57,6 +57,18 @@ if (!window.__kitcheroCountdownLoaded) {
       /* Initial tick */
       if (!tick()) return null;
 
+      /* Theme editor preview — render a one-shot frame and skip the
+         per-second interval. Without this guard, the editor preview
+         iframe repaints every second while the merchant edits the
+         metafield-driven offer date, hammering the editor's idle CPU
+         budget and triggering needless layout shifts as the digits
+         change. The frozen value still reflects the metafield because
+         we already called tick() once above. Mirrors the
+         announcement-banner.js Shopify.designMode short-circuit. */
+      if (window.Shopify && window.Shopify.designMode) {
+        return null;
+      }
+
       /* Start interval */
       var intervalId = setInterval(function () {
         if (!tick()) clearInterval(intervalId);

@@ -107,44 +107,60 @@
                 </div>
               {%- endif -%}
 
+              {%- comment -%}
+                Section-id-suffixed input IDs so a merchant who places
+                two contact-form sections on the same page (e.g. a
+                short variant in the page header + a full variant
+                inline) doesn't collide on `contact-first-name`,
+                `contact-email`, etc. Without this suffix, axe's
+                `duplicate-id-active` rule flags the page and labels
+                resolve to the wrong input. Same convention as
+                main-addresses + newsletter-popup + appointment-drawer.
+              {%- endcomment -%}
+              {%- assign contact_id_first = 'contact-first-name-' | append: section.id -%}
+              {%- assign contact_id_last = 'contact-last-name-' | append: section.id -%}
+              {%- assign contact_id_email = 'contact-email-' | append: section.id -%}
+              {%- assign contact_id_phone = 'contact-phone-' | append: section.id -%}
+              {%- assign contact_id_message = 'contact-message-' | append: section.id -%}
+              {%- assign contact_id_trap = 'contact-website-trap-' | append: section.id -%}
               <div class="kt-contact__form-row">
                 <div class="kt-contact__form-field">
-                  <label for="contact-first-name" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.first_name' | t | default: 'First Name' }}</label>
+                  <label for="{{ contact_id_first }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.first_name' | t | default: 'First Name' }}</label>
                   <input
                     type="text"
-                    id="contact-first-name"
+                    id="{{ contact_id_first }}"
                     name="contact[first_name]"
                     class="kt-contact__form-input"
                     required
                     aria-required="true"
                     autocomplete="given-name"
                     value="{% if form.first_name %}{{ form.first_name | escape }}{% elsif customer %}{{ customer.first_name | escape }}{% endif %}"
-                    {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="contact-first-name-error"{% endif %}
+                    {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="{{ contact_id_first }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: 'contact-first-name-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: contact_id_first | append: '-error' -%}
                 </div>
                 <div class="kt-contact__form-field">
-                  <label for="contact-last-name" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.last_name' | t | default: 'Last Name' }}</label>
+                  <label for="{{ contact_id_last }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.last_name' | t | default: 'Last Name' }}</label>
                   <input
                     type="text"
-                    id="contact-last-name"
+                    id="{{ contact_id_last }}"
                     name="contact[last_name]"
                     class="kt-contact__form-input"
                     required
                     aria-required="true"
                     autocomplete="family-name"
                     value="{% if form.last_name %}{{ form.last_name | escape }}{% elsif customer %}{{ customer.last_name | escape }}{% endif %}"
-                    {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="contact-last-name-error"{% endif %}
+                    {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="{{ contact_id_last }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: 'contact-last-name-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: contact_id_last | append: '-error' -%}
                 </div>
               </div>
               <div class="kt-contact__form-row">
                 <div class="kt-contact__form-field">
-                  <label for="contact-email" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.email' | t | default: 'Email Address' }}</label>
+                  <label for="{{ contact_id_email }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.email' | t | default: 'Email Address' }}</label>
                   <input
                     type="email"
-                    id="contact-email"
+                    id="{{ contact_id_email }}"
                     name="contact[email]"
                     class="kt-contact__form-input"
                     required
@@ -152,37 +168,37 @@
                     inputmode="email"
                     autocomplete="email"
                     value="{% if form.email %}{{ form.email | escape }}{% elsif customer %}{{ customer.email | escape }}{% endif %}"
-                    {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="contact-email-error"{% endif %}
+                    {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ contact_id_email }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'contact-email-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'email', describedby_id: contact_id_email | append: '-error' -%}
                 </div>
                 <div class="kt-contact__form-field">
-                  <label for="contact-phone" class="kt-contact__form-label">{{ 'kt.section.contact.phone' | t | default: 'Phone Number' }}</label>
+                  <label for="{{ contact_id_phone }}" class="kt-contact__form-label">{{ 'kt.section.contact.phone' | t | default: 'Phone Number' }}</label>
                   <input
                     type="tel"
-                    id="contact-phone"
+                    id="{{ contact_id_phone }}"
                     name="contact[phone]"
                     class="kt-contact__form-input"
                     inputmode="tel"
                     autocomplete="tel"
                     value="{% if form.phone %}{{ form.phone | escape }}{% elsif customer %}{{ customer.phone | escape }}{% endif %}"
-                    {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="contact-phone-error"{% endif %}
+                    {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="{{ contact_id_phone }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'phone', describedby_id: 'contact-phone-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'phone', describedby_id: contact_id_phone | append: '-error' -%}
                 </div>
               </div>
               <div class="kt-contact__form-field">
-                <label for="contact-message" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.message' | t | default: 'How can we assist you?' }}</label>
+                <label for="{{ contact_id_message }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.message' | t | default: 'How can we assist you?' }}</label>
                 <textarea
-                  id="contact-message"
+                  id="{{ contact_id_message }}"
                   name="contact[body]"
                   class="kt-contact__form-textarea"
                   rows="4"
                   required
                   aria-required="true"
-                  {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="contact-message-error"{% endif %}
+                  {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="{{ contact_id_message }}-error"{% endif %}
                 >{% if form.body %}{{ form.body | escape }}{% endif %}</textarea>
-                {%- render 'form-field-error', form: form, field: 'body', describedby_id: 'contact-message-error' -%}
+                {%- render 'form-field-error', form: form, field: 'body', describedby_id: contact_id_message | append: '-error' -%}
               </div>
 
               {%- comment -%}
@@ -193,8 +209,8 @@
                 hidden fields by inspecting computed style).
               {%- endcomment -%}
               <p class="kt-form__honeypot" aria-hidden="true" inert>
-                <label for="contact-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
-                <input type="text" id="contact-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <label for="{{ contact_id_trap }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+                <input type="text" id="{{ contact_id_trap }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
               </p>
               <button type="submit" class="kt-contact__form-submit">
                 {{ 'kt.section.contact.submit' | t | default: 'Submit Inquiry' }}

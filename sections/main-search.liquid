@@ -170,6 +170,31 @@
                   <input type="hidden" name="q" value="{{ search.terms | escape }}">
                   <input type="hidden" name="type" value="product">
                   <input type="hidden" name="options[prefix]" value="last">
+                  {%- comment -%}
+                    Preserve every active filter as a hidden input so
+                    submitting the sort form doesn't wipe color / size /
+                    price-range / vendor selections. Without this loop,
+                    a search query like
+                    `?q=X&filter.v.option.color=Red&sort_by=price-asc`
+                    becomes `?q=X&type=product&sort_by=price-asc` after
+                    a sort change — silently dropping the colour
+                    filter. Mirrors the
+                    `sections/main-collection.liquid` sort-form filter-
+                    preservation pattern.
+                  {%- endcomment -%}
+                  {%- for filter in search.filters -%}
+                    {%- for active_value in filter.active_values -%}
+                      <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value | escape }}">
+                    {%- endfor -%}
+                    {%- if filter.type == 'price_range' -%}
+                      {%- if filter.min_value.value != blank -%}
+                        <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}">
+                      {%- endif -%}
+                      {%- if filter.max_value.value != blank -%}
+                        <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}">
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- endfor -%}
                   <label for="SearchSortBy" class="kt-search-page__sort-label">{{ 'kt.section.collection.sort_by' | t }}</label>
                   <select id="SearchSortBy" name="sort_by" class="kt-search-page__sort-select" data-search-sort-select>
                     {%- for option in search.sort_options -%}
