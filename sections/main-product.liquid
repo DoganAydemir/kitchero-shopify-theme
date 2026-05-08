@@ -526,6 +526,55 @@
                   {%- endif -%}
                 </div>
 
+              {%- when 'metafield' -%}
+                {%- comment -%}
+                  R156 PDP-METAFIELD-BLOCK-1: surface arbitrary
+                  product metafields without code edits. Theme Store
+                  paid-tier expects merchants to render Material /
+                  Dimensions / Care Instructions / Country of Origin
+                  / Sustainability Notes etc. as info rows on the PDP
+                  via a configurable block. Block accepts namespace
+                  + key + visible label; reads
+                  `product.metafields[ns][key]`. Renders only when
+                  the metafield exists AND is non-blank — silent on
+                  fresh installs without configuration.
+
+                  Type-aware rendering via `metafield_tag`-like
+                  fallback: pages/products/collections/files become
+                  links via Shopify's auto-coercion of reference
+                  metafields; rich_text / single_line_text /
+                  multi_line_text render as text. The .value
+                  accessor handles type-coercion for native types.
+                {%- endcomment -%}
+                {%- assign mf_ns = block.settings.namespace | default: 'custom' -%}
+                {%- assign mf_key = block.settings.key -%}
+                {%- if mf_ns != blank and mf_key != blank -%}
+                  {%- assign mf_value = product.metafields[mf_ns][mf_key].value -%}
+                  {%- if mf_value != blank -%}
+                    <div class="kt-pdp__metafield" {{ block.shopify_attributes }}>
+                      {%- if block.settings.label != blank -%}
+                        <p class="kt-pdp__metafield-label">{{ block.settings.label | escape }}</p>
+                      {%- endif -%}
+                      <div class="kt-pdp__metafield-value">
+                        {{- product.metafields[mf_ns][mf_key] -}}
+                      </div>
+                    </div>
+                  {%- elsif request.design_mode -%}
+                    {%- comment -%} Editor hint when block is unconfigured {%- endcomment -%}
+                    <div class="kt-pdp__metafield kt-pdp__metafield--placeholder" {{ block.shopify_attributes }}>
+                      <p class="kt-pdp__metafield-hint">
+                        {{ 'kt.product.metafield.editor_hint' | t | default: 'Configure namespace + key in the editor sidebar to surface a product metafield.' }}
+                      </p>
+                    </div>
+                  {%- endif -%}
+                {%- elsif request.design_mode -%}
+                  <div class="kt-pdp__metafield kt-pdp__metafield--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__metafield-hint">
+                      {{ 'kt.product.metafield.editor_hint' | t | default: 'Configure namespace + key in the editor sidebar to surface a product metafield.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
               {%- when 'liquid' -%}
                 {%- comment -%}
                   Custom Liquid block — Theme Store requires Custom Liquid
@@ -805,6 +854,34 @@
           "default": 3,
           "label": "t:sections.main-product.blocks.complementary_products.settings.products_count.label",
           "info": "t:sections.main-product.blocks.complementary_products.settings.products_count.info"
+        }
+      ]
+    },
+    {
+      "type": "metafield",
+      "name": "t:sections.main-product.blocks.metafield.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.metafield.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.main-product.blocks.metafield.settings.label.label",
+          "info": "t:sections.main-product.blocks.metafield.settings.label.info"
+        },
+        {
+          "type": "text",
+          "id": "namespace",
+          "label": "t:sections.main-product.blocks.metafield.settings.namespace.label",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "key",
+          "label": "t:sections.main-product.blocks.metafield.settings.key.label",
+          "info": "t:sections.main-product.blocks.metafield.settings.key.info"
         }
       ]
     },
