@@ -40,6 +40,14 @@
     a small type-indicator icon so customers can tell at a glance
     that the thumb represents a non-image medium.
   {%- endcomment -%}
+  {%- comment -%}
+    Single-media products don't need a thumb strip — there's nothing
+    to switch between. Hiding the strip avoids a "1 thumb that does
+    nothing" UX that Theme Store reviewers flag as broken/useless UI.
+    Zero-media is already filtered upstream (the `if product.media.size > 0`
+    around the gallery wrapper takes that branch out).
+  {%- endcomment -%}
+  {%- if product.media.size > 1 -%}
   <div class="kt-gallery__thumbs" data-gallery-thumbs>
     {%- for media in product.media -%}
       {%- assign thumb_alt = media.alt | default: product.title -%}
@@ -96,6 +104,7 @@
       </button>
     {%- endfor -%}
   </div>
+  {%- endif -%}
 
   {%- comment -%}
     Main media column. Dispatches on media_type:
@@ -297,12 +306,20 @@
     <button type="button" class="kt-lightbox__close" data-lightbox-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
       <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <button type="button" class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'kt.section.hero.previous_slide' | t | default: 'Previous' }}">
-      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-    <button type="button" class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'kt.section.hero.next_slide' | t | default: 'Next' }}">
-      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
-    </button>
+    {%- comment -%}
+      Hide prev/next on single-media products — looping through
+      one image is meaningless and reads as broken UI to reviewers.
+      The close button stays so the customer can dismiss the
+      lightbox normally.
+    {%- endcomment -%}
+    {%- if product.media.size > 1 -%}
+      <button type="button" class="kt-lightbox__nav kt-lightbox__nav--prev" data-lightbox-prev aria-label="{{ 'kt.section.hero.previous_slide' | t | default: 'Previous' }}">
+        <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'kt.section.hero.next_slide' | t | default: 'Next' }}">
+        <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
+      </button>
+    {%- endif -%}
     <div class="kt-lightbox__viewport" data-lightbox-viewport>
       <div class="kt-lightbox__spinner" data-lightbox-spinner aria-hidden="true"></div>
       {%- comment -%}

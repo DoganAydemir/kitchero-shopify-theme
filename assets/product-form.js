@@ -276,6 +276,16 @@
         atcBtn.setAttribute('aria-disabled', 'true');
       }
 
+      /* Section Rendering API — request the cart-drawer + header
+         markup in the SAME response so we don't have to fire a
+         secondary GET after the POST. Saves one round-trip on every
+         add-to-cart. The server returns
+         `{ items: [...], sections: { 'cart-drawer': '<aside…>' } }`
+         when `sections` is on the body; we read it in the success
+         handler below. */
+      formData.append('sections', 'cart-drawer');
+      formData.append('sections_url', window.location.pathname);
+
       fetch(Kitchero.routes.cartAdd + '.js', {
         method: 'POST',
         /* No Content-Type header — FormData triggers the browser to

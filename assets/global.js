@@ -47,10 +47,42 @@
   // focusin handlers; teardown only removes its own listeners.
   var activeTraps = new WeakMap();
 
+  // Stack of currently-open trap containers, ordered oldest-first.
+  // Only the top container's `focusin` listener is attached at any
+  // moment — without this, two stacked modals (e.g. cart drawer +
+  // appointment drawer) trigger BOTH focusin listeners on every Tab
+  // press, causing focus to oscillate between the two trapped
+  // panels indefinitely. Push on enable, pop on disable, and rebind
+  // the new top's focusin so the stack always has exactly one
+  // active focus enforcer.
+  var trapStack = [];
+
+  function setActiveFocusin(container) {
+    if (!container) return;
+    var state = activeTraps.get(container);
+    if (state && state.onFocusIn) {
+      document.addEventListener('focusin', state.onFocusIn);
+      state.focusInBound = true;
+    }
+  }
+
+  function clearActiveFocusin(container) {
+    if (!container) return;
+    var state = activeTraps.get(container);
+    if (state && state.onFocusIn && state.focusInBound) {
+      document.removeEventListener('focusin', state.onFocusIn);
+      state.focusInBound = false;
+    }
+  }
+
   function enableFocusTrap(container, focusTarget) {
     if (!container) return;
     // Re-entrant call on the same container: tear down the previous trap first.
     if (activeTraps.has(container)) disableFocusTrap(container);
+    // Suspend the previous top's focusin while we push the new top —
+    // only one focus enforcer should be active at a time.
+    var previousTop = trapStack[trapStack.length - 1];
+    if (previousTop) clearActiveFocusin(previousTop);
 
     var state = { container: container };
 
@@ -83,7 +115,9 @@
 
     container.addEventListener('keydown', state.onKeyDown);
     document.addEventListener('focusin', state.onFocusIn);
+    state.focusInBound = true;
     activeTraps.set(container, state);
+    trapStack.push(container);
 
     var initial = focusTarget || listFocusable(container)[0] || container;
     if (initial && typeof initial.focus === 'function') {
@@ -107,8 +141,18 @@
     var state = activeTraps.get(container);
     if (!state) return;
     container.removeEventListener('keydown', state.onKeyDown);
-    document.removeEventListener('focusin', state.onFocusIn);
+    if (state.focusInBound) {
+      document.removeEventListener('focusin', state.onFocusIn);
+      state.focusInBound = false;
+    }
     activeTraps.delete(container);
+    // Pop from the stack and re-bind the new top's focusin so the
+    // outer modal regains focus enforcement after the inner one
+    // closes.
+    var idx = trapStack.indexOf(container);
+    if (idx > -1) trapStack.splice(idx, 1);
+    var newTop = trapStack[trapStack.length - 1];
+    if (newTop) setActiveFocusin(newTop);
   }
 
   /* ------------------------------------------------------------------ */

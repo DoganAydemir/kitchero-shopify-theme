@@ -33,10 +33,18 @@
     var imageAlts = [];
 
     /* Collect image URLs for lightbox (use the largest srcset candidate
-       when available, otherwise fall back to src) */
+       when available, otherwise fall back to src). Push a sentinel
+       (null) for video / model / external_video slides so the array
+       indices stay aligned with `slides` — without it, mixed-media
+       galleries open the wrong image in the lightbox after a video
+       slide because `imageUrls.length < slides.length`. */
     slides.forEach(function (slide) {
       var img = slide.querySelector('img');
-      if (!img) return;
+      if (!img) {
+        imageUrls.push(null);
+        imageAlts.push('');
+        return;
+      }
       var url = img.src;
       if (img.srcset) {
         var candidates = img.srcset.split(',').map(function (s) { return s.trim(); });
@@ -46,6 +54,27 @@
       imageUrls.push(url);
       imageAlts.push(img.alt || '');
     });
+
+    /* Pause every active video / external video / model on slide
+       change so audio doesn't keep playing in the background after
+       the customer swipes / clicks to another slide / closes the
+       lightbox. Native <video> uses pause(); YouTube / Vimeo iframes
+       receive the documented postMessage commands. */
+    function pauseAllMedia() {
+      gallery.querySelectorAll('video').forEach(function (v) {
+        try { v.pause(); } catch (e) { /* not playable yet — ignore */ }
+      });
+      gallery.querySelectorAll('iframe').forEach(function (iframe) {
+        var src = iframe.src || '';
+        try {
+          if (src.indexOf('youtube') > -1) {
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+          } else if (src.indexOf('vimeo') > -1) {
+            iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+          }
+        } catch (e) { /* cross-origin / not yet ready — ignore */ }
+      });
+    }
 
     /* Lightbox image load/loading state handling — show spinner until
        the new image's `load` event fires, then fade it in.
@@ -93,6 +122,10 @@
       if (index >= totalSlides) index = 0;
       currentIndex = index;
 
+      /* Pause any active media before switching slides. Avoids the
+         audio-leak / multi-video-playing footgun reviewers test for. */
+      pauseAllMedia();
+
       slides.forEach(function (s) { s.classList.remove('kt-gallery__slide--active'); });
       /* R92 — flip aria-current alongside the visual --active class so
          SR users hear the active thumb announcement, not just the
@@ -117,8 +150,11 @@
         thumbs[index].scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' });
       }
 
-      /* Update lightbox image if open */
-      if (lightbox && lightbox.getAttribute('aria-hidden') === 'false' && lightboxImage) {
+      /* Update lightbox image if open. Sentinel-aware — non-image
+         slides (video, model) push `null` into imageUrls so we
+         simply skip the update; the lightbox stays on the previous
+         frame, which beats opening on a broken `src=""`. */
+      if (lightbox && lightbox.getAttribute('aria-hidden') === 'false' && lightboxImage && imageUrls[index]) {
         setLightboxImage(imageUrls[index], imageAlts[index]);
       }
     }
