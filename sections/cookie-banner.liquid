@@ -73,6 +73,26 @@
         >
           {{- section.settings.decline_label | default: 'Decline' | escape -}}
         </button>
+        {%- comment -%}
+          R160 GRANULAR-GDPR-CONSENT: Customize button toggles a
+          per-purpose consent panel (analytics, marketing,
+          preferences, sale_of_data). EU GDPR Art. 7(2) requires
+          consent to be granular per processing purpose — single
+          "Accept all" / "Decline" pair = pre-bundled consent =
+          regulator-flagged ePrivacy violation. Customize panel
+          provides the per-purpose granularity; Accept all and
+          Decline remain as quick paths for customers who don't
+          need granular control.
+        {%- endcomment -%}
+        <button
+          type="button"
+          class="kt-cookie-banner__btn kt-cookie-banner__btn--customize"
+          data-cookie-customize
+          aria-expanded="false"
+          aria-controls="CookieBannerCustomize-{{ section.id }}"
+        >
+          {{- 'kt.cookie_banner.customize' | t | default: 'Customize' -}}
+        </button>
         <button
           type="button"
           class="kt-cookie-banner__btn kt-cookie-banner__btn--accept"
@@ -80,6 +100,105 @@
           aria-label="{{ 'kt.cookie_banner.accept_aria' | t | default: 'Accept cookies' }}"
         >
           {{- section.settings.accept_label | default: 'Accept all' | escape -}}
+        </button>
+      </div>
+
+      {%- comment -%}
+        Customize panel — hidden by default; revealed on click of
+        the Customize button via JS aria-expanded toggle. Each
+        purpose has a checkbox + label + description; submit via
+        the Save preferences button writes the granular consent
+        through Shopify.customerPrivacy.setTrackingConsent({
+          analytics, marketing, preferences, sale_of_data
+        }).
+      {%- endcomment -%}
+      <div
+        class="kt-cookie-banner__customize"
+        id="CookieBannerCustomize-{{ section.id }}"
+        data-cookie-customize-panel
+        hidden
+      >
+        <fieldset class="kt-cookie-banner__purpose">
+          <legend class="visually-hidden">{{ 'kt.cookie_banner.purposes_legend' | t | default: 'Cookie purposes' }}</legend>
+
+          <label class="kt-cookie-banner__toggle">
+            <input
+              type="checkbox"
+              class="kt-cookie-banner__toggle-input"
+              data-cookie-purpose="analytics"
+              checked
+            >
+            <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
+            <span class="kt-cookie-banner__toggle-text">
+              <span class="kt-cookie-banner__toggle-title">
+                {{ 'kt.cookie_banner.purpose_analytics_title' | t | default: 'Analytics' }}
+              </span>
+              <span class="kt-cookie-banner__toggle-desc">
+                {{ 'kt.cookie_banner.purpose_analytics_desc' | t | default: 'Help us understand how visitors use the site so we can improve it.' }}
+              </span>
+            </span>
+          </label>
+
+          <label class="kt-cookie-banner__toggle">
+            <input
+              type="checkbox"
+              class="kt-cookie-banner__toggle-input"
+              data-cookie-purpose="marketing"
+              checked
+            >
+            <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
+            <span class="kt-cookie-banner__toggle-text">
+              <span class="kt-cookie-banner__toggle-title">
+                {{ 'kt.cookie_banner.purpose_marketing_title' | t | default: 'Marketing' }}
+              </span>
+              <span class="kt-cookie-banner__toggle-desc">
+                {{ 'kt.cookie_banner.purpose_marketing_desc' | t | default: 'Personalize ads and measure their performance.' }}
+              </span>
+            </span>
+          </label>
+
+          <label class="kt-cookie-banner__toggle">
+            <input
+              type="checkbox"
+              class="kt-cookie-banner__toggle-input"
+              data-cookie-purpose="preferences"
+              checked
+            >
+            <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
+            <span class="kt-cookie-banner__toggle-text">
+              <span class="kt-cookie-banner__toggle-title">
+                {{ 'kt.cookie_banner.purpose_preferences_title' | t | default: 'Preferences' }}
+              </span>
+              <span class="kt-cookie-banner__toggle-desc">
+                {{ 'kt.cookie_banner.purpose_preferences_desc' | t | default: 'Remember your country, language, and product picks across visits.' }}
+              </span>
+            </span>
+          </label>
+
+          <label class="kt-cookie-banner__toggle">
+            <input
+              type="checkbox"
+              class="kt-cookie-banner__toggle-input"
+              data-cookie-purpose="sale_of_data"
+            >
+            <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
+            <span class="kt-cookie-banner__toggle-text">
+              <span class="kt-cookie-banner__toggle-title">
+                {{ 'kt.cookie_banner.purpose_sale_title' | t | default: 'Sale or sharing of personal data' }}
+              </span>
+              <span class="kt-cookie-banner__toggle-desc">
+                {{ 'kt.cookie_banner.purpose_sale_desc' | t | default: 'Allow this store to share or sell your data with third parties (CPRA / CCPA scope).' }}
+              </span>
+            </span>
+          </label>
+        </fieldset>
+
+        <button
+          type="button"
+          class="kt-cookie-banner__btn kt-cookie-banner__btn--save"
+          data-cookie-save
+        >
+          {{- 'kt.cookie_banner.save_preferences' | t | default: 'Save preferences' -}}
         </button>
       </div>
 

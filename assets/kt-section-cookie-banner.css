@@ -282,3 +282,133 @@
     transform: translateX(-50%) !important;
   }
 }
+
+/* ── R160 GRANULAR-GDPR-CONSENT: Customize panel + toggle switches ──
+   EU GDPR Art. 7(2) requires per-purpose consent. The customize
+   panel reveals 4 toggle switches (analytics / marketing /
+   preferences / sale_of_data); Save preferences button writes the
+   granular payload to Shopify.customerPrivacy.setTrackingConsent.
+   ─────────────────────────────────────────────────────────────── */
+
+.kt-cookie-banner__btn--customize {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  color: inherit;
+}
+
+.kt-cookie-banner__btn--customize:hover,
+.kt-cookie-banner__btn--customize:focus-visible {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+.kt-cookie-banner__customize {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.kt-cookie-banner__customize[hidden] {
+  display: none;
+}
+
+.kt-cookie-banner__purpose {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.875rem;
+}
+
+.kt-cookie-banner__toggle {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.kt-cookie-banner__toggle-input {
+  /* Visually hidden checkbox — keyboard-focusable, SR-readable, but
+     the visible affordance is the .kt-cookie-banner__toggle-track
+     pill below. Pattern matches other modern consent UIs. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kt-cookie-banner__toggle-track {
+  display: inline-block;
+  width: 2.25rem;
+  height: 1.25rem;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.kt-cookie-banner__toggle-track::after {
+  content: '';
+  position: absolute;
+  left: 0.125rem;
+  top: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background: var(--kt-white, #ffffff);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.kt-cookie-banner__toggle-input:checked + .kt-cookie-banner__toggle-track {
+  background: rgb(var(--kt-c-fg, 28 25 23));
+}
+
+.kt-cookie-banner__toggle-input:checked + .kt-cookie-banner__toggle-track::after {
+  transform: translateX(1rem);
+}
+
+.kt-cookie-banner__toggle-input:focus-visible + .kt-cookie-banner__toggle-track {
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
+  outline-offset: 3px;
+}
+
+.kt-cookie-banner__toggle-text {
+  display: block;
+}
+
+.kt-cookie-banner__toggle-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin-bottom: 0.125rem;
+}
+
+.kt-cookie-banner__toggle-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.45;
+}
+
+.kt-cookie-banner__btn--save {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-cookie-banner__toggle-track,
+  .kt-cookie-banner__toggle-track::after {
+    transition: none;
+  }
+}

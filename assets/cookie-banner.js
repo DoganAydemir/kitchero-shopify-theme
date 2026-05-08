@@ -25,7 +25,17 @@ if (!window.__kitcheroCookieBannerLoaded) {
       banner: '[data-cookie-banner]',
       accept: '[data-cookie-accept]',
       decline: '[data-cookie-decline]',
+      /* R160 GRANULAR-GDPR-CONSENT: per-purpose customize panel. */
+      customize: '[data-cookie-customize]',
+      customizePanel: '[data-cookie-customize-panel]',
+      purposeInput: '[data-cookie-purpose]',
+      save: '[data-cookie-save]',
     };
+
+    /* R160 GRANULAR-GDPR-CONSENT: 4 consent purposes per Shopify
+       Customer Privacy API. Maps the data-cookie-purpose attribute
+       value to the granular setTrackingConsent payload key. */
+    var PURPOSES = ['analytics', 'marketing', 'preferences', 'sale_of_data'];
 
     function getBanner() {
       return document.querySelector(SELECTORS.banner);
@@ -66,6 +76,95 @@ if (!window.__kitcheroCookieBannerLoaded) {
            still hides — the customer's UI choice was made. Shopify
            retries the consent write on its own next page load. */
       }
+    }
+
+    /* R160 GRANULAR-GDPR-CONSENT: write per-purpose consent payload.
+       Shopify's `setTrackingConsent({analytics, marketing,
+       preferences, sale_of_data}, cb)` accepts the granular shape;
+       partial objects are valid (omitted purposes default to the
+       current consent state per Shopify docs). */
+    function setGranularConsent(purposes) {
+      try {
+        if (window.Shopify && window.Shopify.customerPrivacy) {
+          window.Shopify.customerPrivacy.setTrackingConsent(purposes, noop);
+        }
+      } catch (e) {
+        /* Same fallback rationale as setConsent. */
+      }
+    }
+
+    /* R160 GRANULAR-GDPR-CONSENT: read current per-purpose state from
+       Shopify's API and pre-fill the customize panel checkboxes so
+       a customer re-opening the banner via [data-cookie-preferences]
+       sees their existing decisions instead of the default-true
+       baseline. Uses the per-purpose getter functions exposed by
+       the Customer Privacy API: analyticsProcessingAllowed(),
+       marketingAllowed(), preferencesProcessingAllowed(),
+       saleOfDataAllowed(). On first paint (no prior decision) all
+       4 read true / undefined → checkboxes stay at their HTML
+       default-true state which mirrors the implied "everything is
+       allowed" first-visit baseline that Shopify's API treats as
+       'no_interaction'. */
+    function syncCustomizePanelToCurrentConsent(banner) {
+      if (!banner) return;
+      var cp = window.Shopify && window.Shopify.customerPrivacy;
+      if (!cp) return;
+      banner.querySelectorAll(SELECTORS.purposeInput).forEach(function (input) {
+        var purpose = input.getAttribute('data-cookie-purpose');
+        try {
+          var allowed;
+          switch (purpose) {
+            case 'analytics':
+              allowed = typeof cp.analyticsProcessingAllowed === 'function' ? cp.analyticsProcessingAllowed() : null;
+              break;
+            case 'marketing':
+              allowed = typeof cp.marketingAllowed === 'function' ? cp.marketingAllowed() : null;
+              break;
+            case 'preferences':
+              allowed = typeof cp.preferencesProcessingAllowed === 'function' ? cp.preferencesProcessingAllowed() : null;
+              break;
+            case 'sale_of_data':
+              allowed = typeof cp.saleOfDataAllowed === 'function' ? cp.saleOfDataAllowed() : null;
+              break;
+          }
+          /* Only override the checkbox when the API returns a
+             definite boolean. Null/undefined preserves the HTML
+             default — important for first-visit (no_interaction). */
+          if (allowed === true || allowed === false) {
+            input.checked = allowed;
+          }
+        } catch (e) {
+          /* Per-purpose getter not available on this Shopify
+             version. Leave the checkbox at its HTML default. */
+        }
+      });
+    }
+
+    function setCustomizePanelExpanded(banner, expanded) {
+      if (!banner) return;
+      var btn = banner.querySelector(SELECTORS.customize);
+      var panel = banner.querySelector(SELECTORS.customizePanel);
+      if (!btn || !panel) return;
+      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      if (expanded) {
+        panel.removeAttribute('hidden');
+        /* Pre-fill checkboxes from current consent state on open. */
+        syncCustomizePanelToCurrentConsent(banner);
+      } else {
+        panel.setAttribute('hidden', '');
+      }
+    }
+
+    function readPanelToPayload(banner) {
+      var payload = {};
+      if (!banner) return payload;
+      banner.querySelectorAll(SELECTORS.purposeInput).forEach(function (input) {
+        var purpose = input.getAttribute('data-cookie-purpose');
+        if (PURPOSES.indexOf(purpose) > -1) {
+          payload[purpose] = !!input.checked;
+        }
+      });
+      return payload;
     }
 
     function initBanner() {
@@ -143,15 +242,41 @@ if (!window.__kitcheroCookieBannerLoaded) {
       var accept = e.target.closest(SELECTORS.accept);
       if (accept) {
         var banner = accept.closest(SELECTORS.banner);
-        setConsent(true);
+        /* R160 GRANULAR-GDPR-CONSENT: Accept all → all purposes
+           true via the granular API. Old binary `setConsent(true)`
+           also still emits the legacy true value on Shopify's side
+           but the granular form ensures the per-purpose state is
+           explicitly set so the customize panel reflects "all on"
+           on next open. */
+        setGranularConsent({ analytics: true, marketing: true, preferences: true, sale_of_data: true });
         hideBanner(banner);
         return;
       }
       var decline = e.target.closest(SELECTORS.decline);
       if (decline) {
         var dBanner = decline.closest(SELECTORS.banner);
-        setConsent(false);
+        /* R160: Decline → all purposes false (granular). */
+        setGranularConsent({ analytics: false, marketing: false, preferences: false, sale_of_data: false });
         hideBanner(dBanner);
+        return;
+      }
+      /* R160 GRANULAR-GDPR-CONSENT: Customize toggle button. */
+      var customize = e.target.closest(SELECTORS.customize);
+      if (customize) {
+        var cBanner = customize.closest(SELECTORS.banner);
+        var expanded = customize.getAttribute('aria-expanded') === 'true';
+        setCustomizePanelExpanded(cBanner, !expanded);
+        return;
+      }
+      /* R160 GRANULAR-GDPR-CONSENT: Save preferences button —
+         reads each toggle's checked state and writes the granular
+         payload to Shopify. */
+      var save = e.target.closest(SELECTORS.save);
+      if (save) {
+        var sBanner = save.closest(SELECTORS.banner);
+        var payload = readPanelToPayload(sBanner);
+        setGranularConsent(payload);
+        hideBanner(sBanner);
       }
     });
 
