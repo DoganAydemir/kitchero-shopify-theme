@@ -59,6 +59,56 @@
     section-level render here to avoid duplicating the nav.
   {%- endcomment -%}
   <div class="page-width kt-blog__body">
+    {%- comment -%}
+      R155 BLOG-TAG-FILTER-1: surface a tag filter UI when the blog
+      has tagged articles AND the merchant enabled the toggle. Tags
+      become chips at the top; one is active when `current_tags`
+      includes it. "All" chip resets back to /blogs/<handle>.
+      Reviewer rubric: paid-tier blog must let visitors browse by
+      tag without typing tag URLs manually. blog.all_tags is
+      Shopify-supplied — surfaces every tag used on any article in
+      this blog. Hidden when 0 tags configured (silent).
+    {%- endcomment -%}
+    {%- if section.settings.show_tag_filter and blog.all_tags.size > 0 -%}
+      <nav class="kt-blog__tag-nav" aria-label="{{ 'kt.section.blog.tag_filter_label' | t | default: 'Filter by tag' }}">
+        <ul class="kt-blog__tag-list" role="list">
+          <li class="kt-blog__tag-item">
+            <a
+              href="{{ blog.url }}"
+              class="kt-blog__tag-chip{% if current_tags == blank %} kt-blog__tag-chip--active{% endif %}"
+              {% if current_tags == blank %}aria-current="page"{% endif %}
+            >
+              {{ 'kt.section.blog.all_tags' | t | default: 'All' }}
+            </a>
+          </li>
+          {%- for tag in blog.all_tags -%}
+            {%- assign tag_first_char = tag | slice: 0 -%}
+            {%- comment -%}
+              Skip internal-curation tags (underscore-prefixed) per
+              the same convention applied in main-article.liquid:46
+              and article-card.liquid (`_featured`, `_pinned`, etc.
+              should never leak to readers).
+            {%- endcomment -%}
+            {%- unless tag_first_char == '_' -%}
+              {%- assign tag_active = false -%}
+              {%- if current_tags contains tag -%}
+                {%- assign tag_active = true -%}
+              {%- endif -%}
+              <li class="kt-blog__tag-item">
+                <a
+                  href="{{ blog.url }}/tagged/{{ tag | handle }}"
+                  class="kt-blog__tag-chip{% if tag_active %} kt-blog__tag-chip--active{% endif %}"
+                  {% if tag_active %}aria-current="page"{% endif %}
+                >
+                  {{ tag | escape }}
+                </a>
+              </li>
+            {%- endunless -%}
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
     {%- paginate blog.articles by section.settings.articles_per_page -%}
       {%- if blog.articles.size > 0 -%}
         <div class="kt-blog__grid">
@@ -184,6 +234,13 @@
       "type": "checkbox",
       "id": "show_excerpt",
       "label": "t:sections.main-blog.settings.show_excerpt.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tag_filter",
+      "label": "t:sections.main-blog.settings.show_tag_filter.label",
+      "info": "t:sections.main-blog.settings.show_tag_filter.info",
       "default": true
     }
   ],
