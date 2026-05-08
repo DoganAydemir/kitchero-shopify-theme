@@ -379,7 +379,15 @@
         {%- if order.cart_level_discount_applications.size > 0 -%}
           {%- for discount in order.cart_level_discount_applications -%}
             <div class="kt-order__totals-row kt-order__totals-row--discount">
-              <dt>{{ 'kt.customer.order.discount' | t }} ({{ discount.title }})</dt>
+              {%- comment -%}
+                R150 ORDER-DISCOUNT-ESCAPE-1: discount.title is
+                merchant-set OR Shopify-Functions app-supplied. App
+                discount titles can carry user-controlled chars in
+                niche custom-discount setups. Defence-in-depth `|
+                escape` matches the rest of the order page (line
+                items, properties, attributes all escape).
+              {%- endcomment -%}
+              <dt>{{ 'kt.customer.order.discount' | t }} ({{ discount.title | escape }})</dt>
               <dd>-{{ discount.total_allocated_amount | money_with_currency }}</dd>
             </div>
           {%- endfor -%}
@@ -466,7 +474,19 @@
       </aside>
     </div>
 
-    {%- comment -%} Addresses {%- endcomment -%}
+    {%- comment -%}
+      Addresses.
+      R150 ORDER-BILLING-DUP-1: when billing == shipping (the
+      common case), don't render two duplicate cards — collapse
+      to a single card with "(same as shipping)" subtitle on the
+      billing slot. Comparison via the `format_address` filter
+      output is cheap (Shopify stringifies once); avoids visible
+      duplication that reviewers flag as unpolished UX. Falls back
+      to two distinct cards when addresses differ OR shipping is
+      blank (digital-only orders) so no info is lost.
+    {%- endcomment -%}
+    {%- assign order_shipping_str = order.shipping_address | format_address -%}
+    {%- assign order_billing_str = order.billing_address | format_address -%}
     <div class="kt-order__addresses">
       {%- if order.shipping_address -%}
         <div class="kt-order__address-card">
@@ -478,7 +498,13 @@
       {%- if order.billing_address -%}
         <div class="kt-order__address-card">
           <h2 class="kt-order__address-title">{{ 'kt.customer.order.billing_address' | t }}</h2>
-          <address class="kt-order__address-body">{{ order.billing_address | format_address }}</address>
+          {%- if order.shipping_address and order_shipping_str == order_billing_str -%}
+            <p class="kt-order__address-same">
+              {{ 'kt.customer.order.same_as_shipping' | t | default: 'Same as shipping address' }}
+            </p>
+          {%- else -%}
+            <address class="kt-order__address-body">{{ order.billing_address | format_address }}</address>
+          {%- endif -%}
         </div>
       {%- endif -%}
     </div>

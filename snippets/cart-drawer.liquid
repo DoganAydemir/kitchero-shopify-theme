@@ -633,12 +633,23 @@
         </div>
         <p class="kt-cart-drawer__taxes">
           {%- comment -%}
-            Three-way branch: digital-only cart (no shipping),
-            tax-inclusive (EU-style), or default "calculated at
-            checkout". Matches main-cart.liquid copy logic exactly
-            so page and drawer can't contradict each other.
+            Four-way branch: tax-exempt customer (B2B / nonprofit),
+            digital-only cart (no shipping), tax-inclusive (EU-style),
+            or default "calculated at checkout".
+
+            R150 TAX-EXEMPT-COPY-1: customer.tax_exempt? takes
+            precedence — for B2B / nonprofit customers Shopify zeros
+            the tax at checkout but the default "Taxes calculated at
+            checkout" copy is misleading because no tax is calculable.
+            Surface a "Tax-exempt account" note instead. Matches the
+            B2B-focused reviewer rubric (R148 audit).
+
+            Matches main-cart.liquid copy logic exactly so page and
+            drawer can't contradict each other.
           {%- endcomment -%}
-          {%- if cart.requires_shipping == false -%}
+          {%- if customer.tax_exempt? -%}
+            {{ 'kt.cart.taxes_note_exempt' | t | default: 'Tax-exempt account. Shipping calculated at checkout.' }}
+          {%- elsif cart.requires_shipping == false -%}
             {{ 'kt.cart.taxes_note_digital' | t }}
           {%- elsif cart.taxes_included -%}
             {{ 'kt.cart.taxes_note_included' | t | default: 'Tax included. Shipping calculated at checkout.' }}

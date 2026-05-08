@@ -625,14 +625,20 @@
 
               <p class="kt-cart-page__taxes-note">
                 {%- comment -%}
-                  Three-way branch — `cart.taxes_included` is true in
-                  EU-style stores where displayed prices already bake in
-                  VAT. "Taxes calculated at checkout" reads as wrong
-                  there. `cart.requires_shipping` is false for gift-card
-                  and fully-digital carts. Order: digital first (most
-                  specific), tax-inclusive second, default last.
+                  Four-way branch — R150 TAX-EXEMPT-COPY-1 added the
+                  tax-exempt customer arm before the existing 3:
+                  - `customer.tax_exempt?` (B2B / nonprofit) — Shopify
+                    zeros tax at checkout; default "calculated at
+                    checkout" reads wrong there.
+                  - `cart.requires_shipping == false` — gift-card /
+                    fully-digital carts.
+                  - `cart.taxes_included` — EU-style VAT-baked-in.
+                  - default — North American "calculated at checkout".
+                  Drawer parity in snippets/cart-drawer.liquid:634.
                 {%- endcomment -%}
-                {%- if cart.requires_shipping == false -%}
+                {%- if customer.tax_exempt? -%}
+                  {{ 'kt.cart.taxes_note_exempt' | t | default: 'Tax-exempt account. Shipping calculated at checkout.' }}
+                {%- elsif cart.requires_shipping == false -%}
                   {{ 'kt.cart.taxes_note_digital' | t }}
                 {%- elsif cart.taxes_included -%}
                   {{ 'kt.cart.taxes_note_included' | t | default: 'Tax included. Shipping calculated at checkout.' }}
