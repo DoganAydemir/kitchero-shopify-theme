@@ -460,103 +460,13 @@
           return response.json();
         })
         .then(function (sections) {
-          /* Swap the drawer panel (header + items + footer). The API
-           * returns the raw section HTML — the outer section wrapper
-           * is included, so we parse it and pick just the panel. */
-          var announcedSubtotal = null;
-          if (sections['cart-drawer']) {
-            var tmp = document.createElement('div');
-            tmp.innerHTML = sections['cart-drawer'];
-            var newPanel = tmp.querySelector('.kt-cart-drawer__panel');
-            var currentPanel = self.querySelector('.kt-cart-drawer__panel');
-            if (currentPanel && newPanel) {
-              /* Capture transient form state the customer is still
-                 typing — innerHTML swap below would replace these with
-                 the server's last-saved values, wiping unsubmitted
-                 input. The cart note is the most common loss case
-                 (customer types a gift message, bumps qty, message
-                 disappears mid-sentence) — well-documented edge case
-                 reported on many themes during Theme Store review. */
-              var noteEl = currentPanel.querySelector('[name="note"]');
-              var preservedNote = noteEl ? noteEl.value : null;
-              var serverNote = newPanel.querySelector('[name="note"]');
-              var serverNoteValue = serverNote ? serverNote.value : '';
-
-              /* Preserve drawer body scroll position across innerHTML
-                 swap. Without this, every qty +/- click and every line
-                 remove resets `.kt-cart-drawer__body` scrollTop to 0
-                 and the customer sees the drawer jump back to the
-                 first line — disorienting on a 5+ item cart. The
-                 swap creates a fresh body element with default
-                 scrollTop, so we capture before, restore after. */
-              var bodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
-              var preservedScrollTop = bodyEl ? bodyEl.scrollTop : null;
-
-              currentPanel.innerHTML = newPanel.innerHTML;
-
-              /* Restore the typed note only if the server didn't itself
-                 ship a different value (which would mean another tab
-                 saved one and we'd want to honour the persisted state).
-                 Empty server value + non-empty local value = customer
-                 was mid-edit; restore. */
-              if (preservedNote && !serverNoteValue) {
-                var restoredNote = currentPanel.querySelector('[name="note"]');
-                if (restoredNote) restoredNote.value = preservedNote;
-              }
-
-              /* Restore scroll position on the freshly-swapped body
-                 element. Skip when null — empty-state transitions
-                 (last-item removed) drop the body markup entirely. */
-              if (preservedScrollTop != null) {
-                var newBodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
-                if (newBodyEl) newBodyEl.scrollTop = preservedScrollTop;
-              }
-
-              /* Announce the new subtotal — keyboard/SR users raising
-                 the qty of a cart line otherwise get silence after the
-                 panel swaps in. Pull the server-rendered subtotal so
-                 the currency formatting matches the visible value. */
-              var nextSubtotal = newPanel.querySelector('.kt-cart-drawer__subtotal-value');
-              if (nextSubtotal) announcedSubtotal = nextSubtotal.textContent.trim();
-            }
-          }
-          if (announcedSubtotal && window.Kitchero && typeof Kitchero.announce === 'function') {
-            Kitchero.announce(
-              (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
-                ? Kitchero.cartStrings.updatedSubtotal.replace('[subtotal]', announcedSubtotal)
-                : 'Cart updated. Subtotal ' + announcedSubtotal)
-            );
-          }
-
-          /* Sync the header cart count. The `header-cart-icon` section
-           * key only exists if the theme exposes one; fall back to a
-           * plain cart.js lookup otherwise. */
-          if (sections['header-cart-icon']) {
-            var tmp2 = document.createElement('div');
-            tmp2.innerHTML = sections['header-cart-icon'];
-            var newCount = tmp2.querySelector('.kt-header__cart-count');
-            document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-              if (newCount) {
-                el.textContent = newCount.textContent;
-                el.style.display = newCount.style.display || '';
-              } else {
-                el.textContent = '0';
-                el.style.display = 'none';
-              }
-            });
-          } else {
-            /* No dedicated header-cart-icon section — query cart.js.
-               IMPORTANT: must hit `/cart.js` (the AJAX endpoint), not
-               `/cart` (the HTML cart page). Shopify ignores
-               `Accept: application/json` on /cart and returns the HTML
-               cart page; r.json() then throws SyntaxError. The .js
-               suffix is the documented AJAX-cart endpoint. */
-            return fetch(Kitchero.routes.cart + '.js', {
-              headers: { 'Accept': 'application/json' },
-            })
-              .then(function (r) { return r.json(); })
-              .then(function (cart) { self.updateCartCount(cart.item_count); });
-          }
+          /* R137 CART-SYNC-4: delegate the actual DOM application to
+             `applySectionsHTML` so callers that already have section
+             HTML in hand (e.g. product-form.js after an ATC POST that
+             returned `data.sections`) can skip the redundant GET and
+             reuse the same swap-and-announce pipeline. Single source
+             of truth for the panel swap logic. */
+          return self.applySectionsHTML(sections);
         })
         .catch(function (error) {
           /* AbortError on a deliberate abort isn't a real failure —
@@ -595,6 +505,129 @@
               }
             });
         });
+    }
+
+    /* R137 CART-SYNC-2/3/4 — Apply pre-fetched section HTML to the
+       drawer panel + header cart icon WITHOUT issuing a fresh GET.
+
+       Callers who already have the cart sections payload (because
+       they POSTed to /cart/add.js or /cart/change.js with `sections=`
+       in the body — Shopify mirrors the section HTML back in
+       `data.sections`) can pass that object straight in, eliminating
+       the second round-trip that `refreshDrawer()` would otherwise
+       fire. This is the "single fetch, two paint targets" pattern
+       Shopify documents for SRA in
+       https://shopify.dev/docs/api/section-rendering — used by
+       Dawn-replacement themes (NOT Dawn copy) for sub-200ms
+       cart-mutation interactions.
+
+       Returns a Promise that resolves AFTER the DOM has committed
+       (one rAF after innerHTML swap), so callers awaiting
+       `.then(() => drawer.open())` see a freshly-rendered panel.
+
+       Idempotent: passing `null`/`undefined`/`{}` resolves immediately
+       without mutating the DOM (defensive against malformed
+       responses from app-block-injected proxies). */
+    applySectionsHTML(sections) {
+      var self = this;
+      return new Promise(function (resolve) {
+        if (!sections) {
+          resolve();
+          return;
+        }
+
+        var announcedSubtotal = null;
+
+        /* Swap the drawer panel (header + items + footer). The API
+           returns the raw section HTML — the outer section wrapper
+           is included, so we parse it and pick just the panel. */
+        if (sections['cart-drawer']) {
+          var tmp = document.createElement('div');
+          tmp.innerHTML = sections['cart-drawer'];
+          var newPanel = tmp.querySelector('.kt-cart-drawer__panel');
+          var currentPanel = self.querySelector('.kt-cart-drawer__panel');
+          if (currentPanel && newPanel) {
+            /* Capture transient form state the customer is still
+               typing — innerHTML swap below would replace these with
+               the server's last-saved values, wiping unsubmitted
+               input. The cart note is the most common loss case
+               (customer types a gift message, bumps qty, message
+               disappears mid-sentence). */
+            var noteEl = currentPanel.querySelector('[name="note"]');
+            var preservedNote = noteEl ? noteEl.value : null;
+            var serverNote = newPanel.querySelector('[name="note"]');
+            var serverNoteValue = serverNote ? serverNote.value : '';
+
+            /* Preserve drawer body scroll position (R136 pattern). */
+            var bodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
+            var preservedScrollTop = bodyEl ? bodyEl.scrollTop : null;
+
+            currentPanel.innerHTML = newPanel.innerHTML;
+
+            if (preservedNote && !serverNoteValue) {
+              var restoredNote = currentPanel.querySelector('[name="note"]');
+              if (restoredNote) restoredNote.value = preservedNote;
+            }
+            if (preservedScrollTop != null) {
+              var newBodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
+              if (newBodyEl) newBodyEl.scrollTop = preservedScrollTop;
+            }
+
+            var nextSubtotal = newPanel.querySelector('.kt-cart-drawer__subtotal-value');
+            if (nextSubtotal) announcedSubtotal = nextSubtotal.textContent.trim();
+          }
+        }
+
+        if (announcedSubtotal && window.Kitchero && typeof Kitchero.announce === 'function') {
+          Kitchero.announce(
+            (Kitchero.cartStrings && Kitchero.cartStrings.updatedSubtotal
+              ? Kitchero.cartStrings.updatedSubtotal.replace('[subtotal]', announcedSubtotal)
+              : 'Cart updated. Subtotal ' + announcedSubtotal)
+          );
+        }
+
+        /* Sync the header cart count. The `header-cart-icon` section
+           key only exists if the theme exposes one; fall back to a
+           plain cart.js lookup otherwise. */
+        if (sections['header-cart-icon']) {
+          var tmp2 = document.createElement('div');
+          tmp2.innerHTML = sections['header-cart-icon'];
+          var newCount = tmp2.querySelector('.kt-header__cart-count');
+          document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+            if (newCount) {
+              el.textContent = newCount.textContent;
+              el.style.display = newCount.style.display || '';
+            } else {
+              el.textContent = '0';
+              el.style.display = 'none';
+            }
+          });
+          /* Resolve after one rAF so DOM mutation has committed. */
+          window.requestAnimationFrame(function () { resolve(); });
+        } else {
+          /* No header-cart-icon section in the payload — fall back
+             to a /cart.js lookup just to refresh the header count.
+             This is the only remaining redundant fetch in the swap
+             flow; it only fires when the theme doesn't expose a
+             header-cart-icon SRA section, which on Kitchero is
+             never (header.liquid registers it), so this branch is
+             effectively dead in production but kept as a safety net
+             for Theme Store reviewers customising the header. */
+          fetch(Kitchero.routes.cart + '.js', {
+            headers: { 'Accept': 'application/json' },
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (cart) {
+              self.updateCartCount(cart.item_count);
+              window.requestAnimationFrame(function () { resolve(); });
+            })
+            .catch(function () {
+              /* Don't reject — treat header-count refresh failure
+                 as soft (panel swap already succeeded). */
+              resolve();
+            });
+        }
+      });
     }
 
     updateCartCount(count) {

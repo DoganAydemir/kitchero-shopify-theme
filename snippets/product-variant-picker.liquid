@@ -7,7 +7,15 @@
   - product: {Object} Shopify product
 {%- endcomment -%}
 
-{%- unless product.has_only_default_variant -%}
+{%- comment -%}
+  R137 VARIANT-1: also hide the picker when the product has only a
+  single variant (one option, one value). `has_only_default_variant`
+  is true ONLY when the product literally uses Shopify's "Default
+  Title" variant — a one-option / one-value product still has a real
+  option, so the unless above doesn't suppress the awkward
+  single-radio fieldset. The size==1 guard catches that case.
+{%- endcomment -%}
+{%- unless product.has_only_default_variant or product.variants.size == 1 -%}
   <div class="kt-variant-picker" data-variant-picker>
     {%- for option in product.options_with_values -%}
       {%- assign option_name_lower = option.name | downcase -%}
@@ -176,10 +184,24 @@
               {%- capture swatch_a11y_label -%}
                 {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
+              {%- comment -%}
+                R137 VARIANT-5: include the option's parent-loop index
+                in the radio `name` attribute. Without it, two options
+                whose names collapse to the same handle (e.g. "Color"
+                and "color"; "Size *" and "Size!") share a radio group
+                and selecting one unchecks the other — variant matching
+                breaks because selectedOptions arrays only retain the
+                last interaction. forloop.parentloop.index0 is the
+                option index (0, 1, 2…); forloop.index0 alone here
+                would be the VALUE index and would put each value into
+                its own group entirely. data-option-index on the
+                fieldset already uses parentloop.index0 — name attr
+                now matches.
+              {%- endcomment -%}
               <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}">
                 <input
                   type="radio"
-                  name="option-{{ option.name | handle }}"
+                  name="option-{{ forloop.parentloop.index0 }}-{{ option.name | handle }}"
                   value="{{ value | escape }}"
                   aria-label="{{ swatch_a11y_label | strip | escape }}"
                   {% if value == current_option_value %}checked{% endif %}
@@ -210,11 +232,28 @@
                   endif
                 endfor
               -%}
+              {%- comment -%}
+                R137 VARIANT-2: SR users navigating the grid radios
+                hear "Size: XL, dimmed" with no semantic indication
+                that the variant is sold out — only the disabled
+                state. Mirror the swatch pattern's aria-label so
+                grid radios announce option name + value + sold-out
+                status consistently. Sighted users still get the
+                visible value text inside the span.
+
+                R137 VARIANT-5: forloop.parentloop.index0 disambiguates
+                radio groups when two option handles collide (see swatch
+                input above for full rationale).
+              {%- endcomment -%}
+              {%- capture btn_a11y_label -%}
+                {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
+              {%- endcapture -%}
               <label class="kt-variant-picker__btn-label{% unless option_available %} kt-variant-picker__btn-label--soldout{% endunless %}">
                 <input
                   type="radio"
-                  name="option-{{ option.name | handle }}"
+                  name="option-{{ forloop.parentloop.index0 }}-{{ option.name | handle }}"
                   value="{{ value | escape }}"
+                  aria-label="{{ btn_a11y_label | strip | escape }}"
                   {% if value == current_option_value %}checked{% endif %}
                   {% unless option_available %}disabled{% endunless %}
                   class="kt-variant-picker__btn-input visually-hidden"

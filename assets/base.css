@@ -912,7 +912,12 @@ select:-webkit-autofill {
     -webkit-print-color-adjust: exact;
   }
 
-  /* Hide page chrome — site shell + drawers + overlays. */
+  /* Hide page chrome — site shell + drawers + overlays.
+     R137 PRINT-1: cookie banner is fixed-positioned and would print
+     across every page footer if not suppressed. The cookie banner has
+     its own CSS file (kt-section-cookie-banner.css) without a print
+     block, so we hide it from this central list. Also adds toast +
+     consent overlay defensive entries. */
   .kt-header,
   .kt-section-footer,
   .kt-footer,
@@ -924,12 +929,18 @@ select:-webkit-autofill {
   .kt-newsletter-popup,
   .kt-mobile-nav,
   .kt-filter-drawer,
+  .kt-cookie-banner,
+  .kt-toast,
+  .kt-notification,
   cart-drawer,
   announcement-banner,
   [data-cart-drawer-open],
   [data-search-open],
   [data-mobile-nav-toggle],
   [data-collection-controls],
+  [data-cookie-banner],
+  [data-toast],
+  [data-section-type="cookie-banner"],
   [data-section-type="newsletter-popup"] {
     display: none !important;
   }

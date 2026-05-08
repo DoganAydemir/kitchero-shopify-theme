@@ -354,15 +354,34 @@
         block to desktop only (≥ 990px); mobile users still get
         the in-drawer selector at the bottom of the mobile-nav.
       {%- endcomment -%}
-      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+      {%- comment -%}
+        R137 SCHEMA-1: gate the country/language selector on the new
+        merchant-toggleable settings (kt_show_country_selector,
+        kt_show_locale_selector). Theme Store paid-tier baseline expects
+        per-theme switches so merchants can hide one or both selectors
+        without editing code (e.g. mono-locale stores that publish
+        multiple shipping countries don't need a language selector).
+        Setting defaults are TRUE so existing stores upgrading to R137
+        see no behavioural change — selectors keep showing when the
+        store is multi-locale / multi-country.
+      {%- endcomment -%}
+      {%- assign show_locale_select = false -%}
+      {%- if settings.kt_show_locale_selector and localization.available_languages.size > 1 -%}
+        {%- assign show_locale_select = true -%}
+      {%- endif -%}
+      {%- assign show_country_select = false -%}
+      {%- if settings.kt_show_country_selector and localization.available_countries.size > 1 -%}
+        {%- assign show_country_select = true -%}
+      {%- endif -%}
+      {%- if show_locale_select or show_country_select -%}
         <details class="kt-header__locale" data-locale-disclosure>
           <summary class="kt-header__icon kt-header__locale-summary" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
             <span class="kt-header__locale-current" aria-hidden="true">
-              {%- if localization.available_languages.size > 1 -%}
+              {%- if show_locale_select -%}
                 {{ localization.language.iso_code | upcase }}
               {%- endif -%}
-              {%- if localization.available_languages.size > 1 and localization.available_countries.size > 1 %} / {% endif -%}
-              {%- if localization.available_countries.size > 1 -%}
+              {%- if show_locale_select and show_country_select %} / {% endif -%}
+              {%- if show_country_select -%}
                 {{ localization.country.currency.iso_code }}
               {%- endif -%}
             </span>
@@ -371,7 +390,7 @@
             </svg>
           </summary>
           <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
-            {%- if localization.available_languages.size > 1 -%}
+            {%- if show_locale_select -%}
               {%- form 'localization', id: 'HeaderLanguageForm', class: 'kt-header__locale-form' -%}
                 {%- comment -%}
                   R122 — `return_to` so Shopify lands the customer
@@ -396,7 +415,7 @@
               {%- endform -%}
             {%- endif -%}
 
-            {%- if localization.available_countries.size > 1 -%}
+            {%- if show_country_select -%}
               {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
                 {%- comment -%} R122 — return_to lands customer back on the same URL after country switch. {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">

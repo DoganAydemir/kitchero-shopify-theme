@@ -283,7 +283,13 @@
          `{ items: [...], sections: { 'cart-drawer': '<aside…>' } }`
          when `sections` is on the body; we read it in the success
          handler below. */
-      formData.append('sections', 'cart-drawer');
+      /* R137 CART-SYNC-3 expansion: include `header-cart-icon` in the
+         sections= request so the response carries BOTH the drawer panel
+         and the header cart count markup. Then applySectionsHTML can
+         handle the count update inline without falling through to its
+         /cart.js header-count fallback fetch. Two paint targets, ONE
+         network round-trip. */
+      formData.append('sections', 'cart-drawer,header-cart-icon');
       formData.append('sections_url', window.location.pathname);
 
       fetch(Kitchero.routes.cartAdd + '.js', {
@@ -310,7 +316,12 @@
             return data;
           });
         })
-        .then(function () {
+        .then(function (data) {
+          /* R137 CART-SYNC-3: Capture the parsed `data` payload from
+             the upstream resolver so we can hand `data.sections` to
+             the drawer's applySectionsHTML below — eliminating the
+             redundant secondary fetch the drawer-mode branch used to
+             fire via refreshCartDrawer(). */
           /* Show success state */
           var addedLabel = (Kitchero.variantStrings && Kitchero.variantStrings.addedToCart) || 'Added to cart!';
           if (atcBtn) {
@@ -342,18 +353,48 @@
                blips visibly, then navigate. The delay keeps the
                "Added to Cart!" success state on the button long
                enough for the customer to register what happened.
-               The .catch belt-and-braces the navigation: if the
-               header-count fetch fails (offline, blocked) we still
-               navigate to /cart so the customer isn't stranded on
-               the success state forever. */
-            fetch(Kitchero.routes.cart + '.js')
-              .then(function (r) { return r.json(); })
-              .then(function (cart) {
+
+               R137 CART-SYNC-7: the ATC response (`data`) already
+               returns the full cart payload — the variant just added
+               carries `items_count` (older Shopify) and modern
+               responses include the `data.items` array. Prefer
+               reading the count from the existing payload instead of
+               firing a redundant /cart.js GET. We also have
+               data.sections['header-cart-icon'] from the upstream
+               sections= body — apply that markup first; if absent
+               (proxy stripped, app block intercepted) fall through
+               to the legacy /cart.js refresh. */
+            var pageHeaderApplied = false;
+            if (data && data.sections && data.sections['header-cart-icon']) {
+              try {
+                var pageTmp = document.createElement('div');
+                pageTmp.innerHTML = data.sections['header-cart-icon'];
+                var pageNewCount = pageTmp.querySelector('.kt-header__cart-count');
                 document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-                  el.textContent = cart.item_count;
-                  el.style.display = cart.item_count > 0 ? '' : 'none';
+                  if (pageNewCount) {
+                    el.textContent = pageNewCount.textContent;
+                    el.style.display = pageNewCount.style.display || '';
+                  }
                 });
-              })
+                pageHeaderApplied = true;
+              } catch (_) {
+                /* Parse failed — fall through to the /cart.js path. */
+              }
+            }
+            var pageRefresh;
+            if (pageHeaderApplied) {
+              pageRefresh = Promise.resolve();
+            } else {
+              pageRefresh = fetch(Kitchero.routes.cart + '.js')
+                .then(function (r) { return r.json(); })
+                .then(function (cart) {
+                  document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+                    el.textContent = cart.item_count;
+                    el.style.display = cart.item_count > 0 ? '' : 'none';
+                  });
+                });
+            }
+            pageRefresh
               .catch(function () {
                 /* header count refresh failed; still navigate. */
               })
@@ -363,12 +404,48 @@
                 }, 700);
               });
           } else {
-            /* Drawer mode — refresh the drawer DOM (items + totals)
-               by fetching the current page and replacing the drawer's
-               inner content with the freshly-rendered HTML. Falls
-               back to a JSON count-only update if the page fetch
-               fails. Open the drawer only after the refresh resolves. */
-            refreshCartDrawer()
+            /* Drawer mode — apply the cart-drawer + header-cart-icon
+               section HTML returned by the SAME ATC POST (we appended
+               `sections=cart-drawer` to the body on line 286 so the
+               response carries pre-rendered markup). R137 CART-SYNC-3
+               eliminates the secondary `refreshCartDrawer()` fetch
+               that previously fired here — saves one full
+               round-trip on every add-to-cart, the most-instrumented
+               interaction in any Lighthouse cart-flow trace.
+
+               Fallback chain: if drawer.applySectionsHTML is missing
+               (custom element not yet upgraded — script eval race),
+               OR data.sections is missing (server-side proxy stripped
+               it), we drop back to the legacy refreshCartDrawer()
+               path so behaviour stays correct in degraded environments.
+               That fallback in turn catches its own errors with a
+               JSON count-only refresh. */
+            var drawerForApply = (window.Kitchero && window.Kitchero.cartDrawer)
+              || window.kitcheroCartDrawer
+              || document.querySelector('cart-drawer')
+              || document.getElementById('cart-drawer');
+
+            var drawerRefresh;
+            if (
+              drawerForApply
+              && typeof drawerForApply.applySectionsHTML === 'function'
+              && data
+              && data.sections
+              && data.sections['cart-drawer']
+            ) {
+              /* Append a second sections request body to ATC so the
+                 header cart icon refreshes too — no, can't do here at
+                 .then time. Instead, applySectionsHTML's header-fallback
+                 branch fires a /cart.js for the count when
+                 sections['header-cart-icon'] is missing. Acceptable:
+                 only one extra request total (the count fallback)
+                 vs the old two requests (full drawer fetch + count). */
+              drawerRefresh = drawerForApply.applySectionsHTML(data.sections);
+            } else {
+              drawerRefresh = refreshCartDrawer();
+            }
+
+            drawerRefresh
               .catch(function () {
                 return fetch(Kitchero.routes.cart + '.js')
                   .then(function (r) { return r.json(); })
