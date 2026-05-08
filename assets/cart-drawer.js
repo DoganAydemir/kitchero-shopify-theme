@@ -552,9 +552,9 @@
        the second round-trip that `refreshDrawer()` would otherwise
        fire. This is the "single fetch, two paint targets" pattern
        Shopify documents for SRA in
-       https://shopify.dev/docs/api/section-rendering — used by
-       Dawn-replacement themes (NOT Dawn copy) for sub-200ms
-       cart-mutation interactions.
+       https://shopify.dev/docs/api/section-rendering — the
+       canonical SRA-aware pattern for sub-200ms cart-mutation
+       interactions.
 
        Returns a Promise that resolves AFTER the DOM has committed
        (one rAF after innerHTML swap), so callers awaiting

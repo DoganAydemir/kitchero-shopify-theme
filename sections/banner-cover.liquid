@@ -17,10 +17,20 @@
   assign padding_bottom = section.settings.padding_bottom | default: 0
 -%}
 
+{%- comment -%}
+  R145 REGION-NAME-1: <section> landmark needs an accessible name.
+  Prefer aria-labelledby pointing at the visible heading (so SR
+  announces the actual banner copy as the region name). Fall back
+  to a generic aria-label when heading is blank — banner-cover is
+  often used with image-only / no heading, so a stable label is
+  needed for the empty-heading case.
+{%- endcomment -%}
+{%- assign banner_cover_heading_id = 'BannerCoverHeading-' | append: section.id -%}
 <section
   class="kt-banner-cover color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="banner-cover"
+  {% if section.settings.heading != blank %}aria-labelledby="{{ banner_cover_heading_id }}"{% else %}aria-label="{{ 'kt.banner_cover.region_label' | t | default: 'Banner' }}"{% endif %}
   style="--kt-banner-cover-min-height-mobile: {{ min_h_mobile }}px; --kt-banner-cover-min-height-desktop: {{ min_h_desktop }}px; --kt-banner-cover-overlay-opacity: {{ overlay_opacity }}; --kt-banner-cover-pad-top: {{ padding_top }}px; --kt-banner-cover-pad-bottom: {{ padding_bottom }}px;"
 >
   <div class="kt-banner-cover__media" aria-hidden="true">
@@ -76,7 +86,7 @@
       tag when there's content for it.
     {%- endcomment -%}
     {%- if section.settings.heading != blank -%}
-      <{{ heading_tag }} class="kt-banner-cover__title">
+      <{{ heading_tag }} id="{{ banner_cover_heading_id }}" class="kt-banner-cover__title">
         {{- section.settings.heading -}}
       </{{ heading_tag }}>
     {%- endif -%}

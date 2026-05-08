@@ -11,8 +11,18 @@
       {%- render 'account-nav', current: 'addresses' -%}
 
       <div class="kt-account__content">
+        {%- comment -%}
+          R145 ADDRESSES-DUP-H1-1: previously emitted both `<h1>`
+          (line 7) and `<h2>` (here) with the same translated string
+          ("Addresses"), creating a duplicate-heading defect that
+          reviewers running axe-core / Lighthouse a11y flagged. The
+          h1 in the page header is sufficient to name the region;
+          the visual styling on the actions row is preserved by the
+          surrounding flex container without needing a heading. SR
+          users no longer hear "Addresses, heading 1, Addresses,
+          heading 2".
+        {%- endcomment -%}
         <div class="kt-addresses__actions">
-          <h2 class="kt-account__section-title">{{ 'kt.customer.addresses.title' | t }}</h2>
           <button type="button" class="kt-addresses__btn" data-addresses-toggle-new aria-expanded="false" aria-controls="AddressNewForm">
             {{ 'kt.customer.addresses.add_new' | t }}
           </button>
@@ -23,9 +33,22 @@
           <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_add_title' | t }}</h3>
           {%- form 'customer_address', customer.new_address -%}
             {%- if form.errors -%}
-              <div class="kt-customer__errors" role="alert" tabindex="-1">
+              {%- comment -%}
+                R145 ADDRESSES-ALERT-ROLE-1: scope `role="alert"` to
+                the dynamic `<ul>` only — placing it on the outer
+                `<div>` causes NVDA/JAWS to re-announce the static
+                heading + every list item as one run-on string on
+                submit. Pattern matches main-login / main-register /
+                main-reset-password / main-activate-account which
+                already have this fix; addresses was the laggard
+                flagged by R139 and remediated here.
+                tabindex="-1" stays on the outer div for focus
+                management (focusFirstFormError targets it).
+                data-form-error-summary tag added for parity.
+              {%- endcomment -%}
+              <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
                 <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
-                <ul class="kt-customer__errors-list">
+                <ul class="kt-customer__errors-list" role="alert">
                   {%- for field in form.errors -%}
                     <li>
                       {%- if field == 'form' -%}
@@ -159,9 +182,14 @@
                     <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_edit_title' | t }}</h3>
                     {%- form 'customer_address', address -%}
                       {%- if form.errors -%}
-                        <div class="kt-customer__errors" role="alert" tabindex="-1">
+                        {%- comment -%}
+                          R145 ADDRESSES-ALERT-ROLE-1: same fix as
+                          new-address form above — role="alert" on
+                          the dynamic <ul>, not the outer div.
+                        {%- endcomment -%}
+                        <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
                           <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t | default: 'There was a problem with your submission' }}</h2>
-                          <ul class="kt-customer__errors-list">
+                          <ul class="kt-customer__errors-list" role="alert">
                             {%- for field in form.errors -%}
                               <li>
                                 {%- if field == 'form' -%}

@@ -6,7 +6,19 @@
   Uses {% form 'contact' %} for Shopify form submission.
 {%- endcomment -%}
 
-<section class="kt-contact" data-section-id="{{ section.id }}">
+{%- comment -%}
+  R145 REGION-NAME-1: every <section> landmark must have an
+  accessible name. axe-core's `region` rule flags unnamed sections.
+  Use aria-label with the merchant's heading setting (or a stable
+  locale fallback so a fresh install still has a name). The contact
+  page can have multiple sub-regions (showrooms / contact form);
+  the section-level label scopes the whole region.
+{%- endcomment -%}
+<section
+  class="kt-contact"
+  data-section-id="{{ section.id }}"
+  aria-label="{{ section.settings.heading | default: 'kt.contact.region_label' | t | default: 'Contact us' }}"
+>
   {%- comment -%} Showrooms Grid {%- endcomment -%}
   {%- if section.blocks.size > 0 -%}
     <div class="kt-contact__showrooms">

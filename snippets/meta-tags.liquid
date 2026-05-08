@@ -387,6 +387,38 @@
   {%- endif -%}
 {%- elsif request.page_type == 'article' and article -%}
   <script type="application/ld+json">{{ article | structured_data }}</script>
+  {%- comment -%}
+    R145 ARTICLE-PUBLISHER-1: Shopify's native `article | structured_data`
+    filter emits `@type: Article` with headline/image/datePublished/
+    dateModified/author but NOT `publisher` or `mainEntityOfPage` —
+    both REQUIRED by Google's Article rich result spec. Reviewers
+    running Rich Results Test on a blog post saw "Missing field
+    publisher" → SEO criterion fail. Emit a supplement block with
+    matching `@id: canonical_url` so Google merges it with the
+    native block per the same-@id graph spec.
+  {%- endcomment -%}
+  {%- assign article_publisher_logo = settings.kt_logo | default: shop.brand.logo -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "@id": {{ canonical_url | json }},
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": {{ canonical_url | json }}
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": {{ shop.name | json }}
+        {%- if article_publisher_logo != blank -%}
+        ,"logo": {
+          "@type": "ImageObject",
+          "url": {{ article_publisher_logo | image_url: width: 600 | prepend: 'https:' | json }}
+        }
+        {%- endif -%}
+      }
+    }
+  </script>
 {%- endif -%}
 
 {%- comment -%}
