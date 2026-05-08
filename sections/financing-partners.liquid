@@ -28,7 +28,22 @@
       {%- if section.blocks.size > 0 -%}
         <ul class="kt-financing-partners__list" role="list">
           {%- for block in section.blocks -%}
-            {%- if block.type == 'partner' -%}
+            {%- comment -%}
+              R168 DEMO-PLACEHOLDER-COPY-2: skip partner blocks
+              the merchant hasn't configured. Without this guard,
+              an empty `<span class="…__wordmark">` (no name, no
+              logo image) renders as a visible-but-empty list
+              item — Theme Store reviewers see an unfinished
+              partner row on the storefront preview. Schema
+              defaults are now null (the previous "Lender name"
+              instruction copy was a demo-content reject vector),
+              so the merchant has to actively fill in either the
+              name OR the logo image for the block to render at
+              all. Both branches of the wordmark/logo conditional
+              already exist below; this just gates the entire
+              list-item render on at least one being supplied.
+            {%- endcomment -%}
+            {%- if block.type == 'partner' and block.settings.name != blank or block.settings.logo_image != blank -%}
               <li class="kt-financing-partners__item" {{ block.shopify_attributes }}>
                 {%- if block.settings.logo_image != blank -%}
                   {%- comment -%}
@@ -94,8 +109,7 @@
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.financing-partners.settings.description.label",
-      "default": "Add a description that lists your actual financing partners and terms."
+      "label": "t:sections.financing-partners.settings.description.label"
     }
   ],
   "blocks": [
@@ -107,8 +121,7 @@
         {
           "type": "text",
           "id": "name",
-          "label": "t:sections.financing-partners.blocks.partner.settings.name.label",
-          "default": "Lender name"
+          "label": "t:sections.financing-partners.blocks.partner.settings.name.label"
         },
         {
           "type": "image_picker",
@@ -132,12 +145,7 @@
   ],
   "presets": [
     {
-      "name": "t:sections.financing-partners.presets.name",
-      "blocks": [
-        { "type": "partner", "settings": { "name": "Lender 1", "style": "default" } },
-        { "type": "partner", "settings": { "name": "Lender 2", "style": "icon_prefix" } },
-        { "type": "partner", "settings": { "name": "Lender 3", "style": "italic" } }
-      ]
+      "name": "t:sections.financing-partners.presets.name"
     }
   ]
 }
