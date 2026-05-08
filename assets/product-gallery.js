@@ -74,6 +74,25 @@
           }
         } catch (e) { /* cross-origin / not yet ready — ignore */ }
       });
+      /* R140 PDP-MODEL-PAUSE-1: Shopify 3D models render via the
+         <model-viewer> custom element. The previous pause sweep
+         only stopped <video> + iframes — `auto-rotate` keeps
+         spinning AND any model-viewer audio (rare but possible
+         for animated GLB clips with audio tracks) keeps playing
+         across slide changes. model-viewer exposes a `pause()`
+         method that halts both animation and audio. Wrapped in
+         try/catch because the element may not have upgraded yet
+         when slide change fires immediately after first paint. */
+      gallery.querySelectorAll('model-viewer').forEach(function (mv) {
+        try {
+          if (typeof mv.pause === 'function') mv.pause();
+          /* Also clear auto-rotate so the model returns to its
+             initial pose on next view rather than spinning where
+             we left it. Setting the property to false is the
+             documented model-viewer toggle. */
+          if ('autoRotate' in mv) mv.autoRotate = false;
+        } catch (e) { /* model-viewer not upgraded — ignore */ }
+      });
     }
 
     /* Lightbox image load/loading state handling — show spinner until

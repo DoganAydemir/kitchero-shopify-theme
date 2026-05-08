@@ -222,6 +222,19 @@
               }}
             {%- endif -%}
           {%- when 'video' -%}
+            {%- comment -%}
+              R140 PDP-VIDEO-POSTER-1: explicit `poster:` so Mobile
+              Safari paints the preview image instead of a black
+              square pre-play. Shopify's `video_tag` filter pre-1.0
+              auto-emitted a poster from `image_size`; later versions
+              dropped it for upstream-image-only behaviour. Pass the
+              media's preview_image at 1200w which matches the
+              `image_size: '1200x'` poster size used elsewhere.
+              `title:` adds an SR-friendly accessible name (was
+              "video, no description" otherwise — WCAG 1.1.1).
+            {%- endcomment -%}
+            {%- assign video_poster_url = media.preview_image | image_url: width: 1200 -%}
+            {%- assign video_a11y_title = media_alt | default: product.title -%}
             {{
               media
               | video_tag:
@@ -229,7 +242,9 @@
                 controls: true,
                 preload: 'metadata',
                 loop: false,
-                image_size: '1200x'
+                image_size: '1200x',
+                poster: video_poster_url,
+                title: video_a11y_title
             }}
           {%- when 'external_video' -%}
             {%- comment -%}

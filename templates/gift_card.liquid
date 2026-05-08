@@ -94,7 +94,16 @@
                 width="720"
                 height="{{ 720 | divided_by: gift_card.image.aspect_ratio | ceil }}"
                 loading="eager"
-                alt=""
+                {%- comment -%}
+                  R140 GIFT-IMG-1: meaningful alt for the gift card
+                  artwork. Empty alt previously implied "decorative",
+                  but a gift card design IS the visual identity of
+                  the page — Lighthouse a11y flagged it as a
+                  non-decorative image with empty alt. Locale key
+                  interpolates the shop name so customers using
+                  assistive tech hear "Acme gift card design".
+                {%- endcomment -%}
+                alt="{{ 'kt.giftcard.issued.image_alt' | t: shop_name: shop.name }}"
                 class="kt-gift-card__card-image"
               >
             {%- else -%}

@@ -134,9 +134,25 @@
         <div class="kt-showroom__gallery-mobile">
           {%- for media in product.media -%}
             {%- if media.media_type == 'image' -%}
+              {%- comment -%}
+                R140 SHOWROOM-DUAL-LCP-1: both desktop AND mobile
+                gallery branches render in DOM and CSS toggles them
+                with display:none. Browsers still fetch <img> resources
+                inside display:none containers — the desktop branch
+                already claims `fetchpriority: 'high'` (line 60), and
+                the mobile branch claiming the same makes them compete
+                with each other on every page load. Browsers then
+                downgrade BOTH to "auto" because the LCP candidate is
+                ambiguous, defeating the optimization. Keep mobile
+                branch eager-loading (so the image is in cache when CSS
+                reveals it on small viewports) but downgrade
+                fetchpriority to "auto" — the desktop branch claims
+                priority single-handedly, and on mobile viewports CSS
+                hides desktop and mobile takes over from cache.
+              {%- endcomment -%}
               {%- if forloop.first -%}
                 {%- assign mob_loading = 'eager' -%}
-                {%- assign mob_fetchpriority = 'high' -%}
+                {%- assign mob_fetchpriority = 'auto' -%}
               {%- else -%}
                 {%- assign mob_loading = 'lazy' -%}
                 {%- assign mob_fetchpriority = 'auto' -%}
