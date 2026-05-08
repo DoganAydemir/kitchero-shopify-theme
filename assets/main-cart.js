@@ -85,33 +85,58 @@ if (!window.__kitcheroMainCartLoaded) {
              qty/note the user typed would vanish. Instead: surface the
              error via the assertive announcer + revert the row's visual
              loading state. The user can retry the qty change from the
-             rolled-back UI state. Only suppress console.error for
-             classified `cartError` (422) — unclassified errors still
-             surface to console for debugging.
+             rolled-back UI state.
 
-             The fetch's .ok check at line 55 throws for non-2xx; that
-             error lands here without a `cartError` flag. Net effect:
-             422 stays quiet (handled in the inner JSON read in a later
-             commit, or we can classify here), 5xx/network failures
-             show the user an error but keep the page intact. */
+             R138 CART-422-1: previously this announced ONLY the generic
+             "Unable to update cart" string, even when the response
+             carried a specific Shopify 422 reason ("All 3 in stock",
+             "Maximum quantity exceeded", "Adjusted from 5 to 3 because
+             of stock") classified as `error.handled` on line 71. Cart
+             page lost the specific reason while the cart-drawer (per
+             cart-drawer.js:343-369) surfaced it correctly — page
+             customers got worse error UX than drawer customers for the
+             same Shopify response. Branch on `error.handled`: when
+             true, the message is Shopify-localized + customer-relevant,
+             use it directly as the announcement string AND paint the
+             same text into the inline error region for sighted users. */
           var errMsg = (error && error.message) || '';
-          var isQuotaErr = errMsg.indexOf('422') !== -1;
-          if (!isQuotaErr) {
+          var isShopifyMsg = !!(error && error.handled);
+          if (!isShopifyMsg) {
             console.error(error);
           }
           if (row) {
             row.style.opacity = '';
             row.style.pointerEvents = '';
           }
+          /* Inline error region — sighted-user feedback parity with
+             the drawer's `data-cart-drawer-error` slot. The cart page
+             already exposes a `[data-cart-page-error]` region (see
+             sections/main-cart.liquid); reveal it with the message
+             when present. Fallback: skip silently if the slot
+             doesn't exist on this template render. */
+          var pageErrorSlot = document.querySelector('[data-cart-page-error]');
+          if (pageErrorSlot) {
+            pageErrorSlot.textContent = isShopifyMsg && errMsg
+              ? errMsg
+              : ((Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.');
+            pageErrorSlot.hidden = false;
+            /* Auto-clear the inline error after 6s so it doesn't
+               persist forever after the customer has read + retried. */
+            clearTimeout(pageErrorSlot._kitcheroClearTimer);
+            pageErrorSlot._kitcheroClearTimer = setTimeout(function () {
+              pageErrorSlot.hidden = true;
+              pageErrorSlot.textContent = '';
+            }, 6000);
+          }
           if (window.Kitchero && typeof Kitchero.announce === 'function') {
             /* Urgency must be the string 'assertive' — object form is
                not recognized by global.js announce(). Wrong form landed
                cart errors on the polite announcer, which SRs don't
                interrupt speech for. */
-            Kitchero.announce(
-              (Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.',
-              'assertive'
-            );
+            var announceMsg = isShopifyMsg && errMsg
+              ? errMsg
+              : ((Kitchero.cartStrings && Kitchero.cartStrings.error) || 'Unable to update cart.');
+            Kitchero.announce(announceMsg, 'assertive');
           }
         })
         .then(function () {

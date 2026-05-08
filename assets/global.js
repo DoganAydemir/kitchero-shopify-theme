@@ -525,4 +525,98 @@
   } else {
     global.addEventListener('resize', triggerReflow);
   }
+
+  /* ------------------------------------------------------------------ */
+  /* R138 FORM-DBL-1 — global double-submit guard                       */
+  /*                                                                    */
+  /* Native HTML forms (newsletter, login, register, contact, password) */
+  /* POST and navigate. On a slow connection the browser keeps the      */
+  /* "Submit" button live for the duration of the round-trip, so a      */
+  /* visitor who clicks twice (or more) sends 2-3 POSTs before the      */
+  /* navigation kicks in. Outcomes:                                     */
+  /*   - Shopify customer-create rate limiter trips → success path      */
+  /*     silently fails on subsequent clicks.                           */
+  /*   - Two contact submissions land in the merchant inbox.            */
+  /*   - Newsletter dupe signup 422s on the second click.               */
+  /*                                                                    */
+  /* This guard scopes itself to forms that POST to known Shopify       */
+  /* endpoints (cart, account, contact, password) plus any form that    */
+  /* opts in via `data-double-submit-guard`. On submit it disables the  */
+  /* submit button + sets aria-busy on the form. Forms that handle      */
+  /* their own lifecycle (product-form.js ATC, customer-forms.js login) */
+  /* opt out by carrying `data-skip-double-submit-guard`.               */
+  /* On bfcache restore the pageshow listener re-enables so back/       */
+  /* forward navigations don't leave permanently-disabled buttons.      */
+  /* ------------------------------------------------------------------ */
+
+  var GUARD_ENDPOINTS_RE = /(\/contact$|\/contact\?|\/cart(\?|$|\/add|\/update|\/clear)|\/account\/(login|recover|register)|\/password$|\/password\?)/;
+
+  function shouldGuardForm(form) {
+    if (!form || form.tagName !== 'FORM') return false;
+    if (form.hasAttribute('data-skip-double-submit-guard')) return false;
+    if (form.hasAttribute('data-double-submit-guard')) return true;
+    var action = form.getAttribute('action') || '';
+    return GUARD_ENDPOINTS_RE.test(action);
+  }
+
+  document.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (!shouldGuardForm(form)) return;
+    if (form._kitcheroSubmitting) {
+      /* Already submitting — block the duplicate. preventDefault()
+         on the second submit so the browser doesn't fire another
+         POST. The original submission continues uninterrupted. */
+      event.preventDefault();
+      return;
+    }
+    form._kitcheroSubmitting = true;
+
+    /* Defer the visual-disable decision until after bubble phase,
+       so JS-intercepted forms (product-form.js ATC, customer-forms.js
+       login, etc.) that call preventDefault() in their own submit
+       handler don't get their button stuck in `disabled` state.
+       Microtask runs synchronously after the current task's bubble
+       handlers but before any async fetch resolves. */
+    Promise.resolve().then(function () {
+      if (event.defaultPrevented) {
+        /* JS-intercepted form. The handling code manages its own
+           button state (loading class, aria-busy) and will resolve
+           via fetch — there is no navigation. Clear the guard flag
+           after a generous window so a customer who hits a slow
+           network can retry once the JS handler reports failure. */
+        setTimeout(function () {
+          form._kitcheroSubmitting = false;
+        }, 8000);
+        return;
+      }
+      /* Native navigation — disable the submit button visually so
+         the customer doesn't click it again before the browser
+         leaves the page. CSS :disabled handles the styled state.
+         Keep button label intact for SR announcement. */
+      form.setAttribute('aria-busy', 'true');
+      var submitButtons = form.querySelectorAll(
+        'button[type="submit"], input[type="submit"]'
+      );
+      submitButtons.forEach(function (btn) {
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+      });
+    });
+  }, true /* capture phase, runs before form-specific submit handlers */);
+
+  /* On bfcache restore (back/forward), the form is rehydrated with
+     stale disabled buttons. Reset state so visitors can resubmit. */
+  global.addEventListener('pageshow', function (event) {
+    if (!event.persisted) return;
+    document.querySelectorAll('form[aria-busy="true"]').forEach(function (form) {
+      form._kitcheroSubmitting = false;
+      form.removeAttribute('aria-busy');
+      form.querySelectorAll(
+        'button[type="submit"][disabled][aria-busy="true"], input[type="submit"][disabled][aria-busy="true"]'
+      ).forEach(function (btn) {
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+      });
+    });
+  });
 })(window);

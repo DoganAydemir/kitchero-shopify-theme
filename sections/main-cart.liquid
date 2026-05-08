@@ -66,6 +66,23 @@
             ARIA roles preserve visual CSS without rewriting to
             <ul>/<li> markup.
           {%- endcomment -%}
+          {%- comment -%}
+            R138 CART-422-1: visible inline error region — sighted users
+            updating cart qty on a slow connection previously got NO
+            feedback when Shopify returned a 422 ("All 3 in stock",
+            "Maximum quantity exceeded"); only the assertive SR announce
+            surfaced the message. This region is `hidden` by default,
+            revealed by main-cart.js's catch path with the Shopify-
+            localized error string. Auto-clears after 6s. role="alert"
+            so the message is announced when first revealed.
+          {%- endcomment -%}
+          <div
+            class="kt-cart-page__error"
+            data-cart-page-error
+            role="alert"
+            aria-live="assertive"
+            hidden
+          ></div>
           <div class="kt-cart-page__items" role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}">
             <div class="kt-cart-page__items-header" aria-hidden="true">
               <span>{{ 'kt.cart.headers.product' | t | default: 'Product' }}</span>

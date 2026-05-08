@@ -126,6 +126,33 @@
       </section>
 
       <section class="kt-gift-card__meta">
+        {%- comment -%}
+          R138 GIFT-1: visible balance line OUTSIDE the artwork overlay.
+          Previously the balance was painted only inside the card image
+          (line 117), so customers with images blocked, low-vision users
+          relying on screen readers, and reviewers running the page with
+          image-loading disabled saw no balance figure at all. The
+          numeric value MUST be reachable via plain text — emit it as a
+          definition list so SR users hear "Balance: $50". Hidden when
+          gift card is fully spent (balance == 0) since the artwork
+          already shows the empty state.
+        {%- endcomment -%}
+        {%- if gift_card.balance > 0 -%}
+          <dl class="kt-gift-card__balance-row">
+            <dt class="kt-gift-card__balance-label">
+              {{ 'kt.giftcard.issued.balance_label' | t | default: 'Balance' }}
+            </dt>
+            <dd class="kt-gift-card__balance-value">
+              {{ formatted_current_balance }}
+              {%- if gift_card.balance != gift_card.initial_value -%}
+                <span class="kt-gift-card__balance-initial">
+                  / {{ gift_card.initial_value | money_without_trailing_zeros }}
+                </span>
+              {%- endif -%}
+            </dd>
+          </dl>
+        {%- endif -%}
+
         <div class="kt-gift-card__code-row">
           <label for="GiftCardCode" class="kt-gift-card__code-label">
             {{ 'kt.giftcard.issued.copy_code' | t | default: 'Gift card code' }}

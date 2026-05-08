@@ -44,7 +44,28 @@
       endif
     -%}
     <meta name="theme-color" content="{{ theme_color }}">
-    <link rel="canonical" href="{{ canonical_url }}">
+    {%- comment -%}
+      R138 SEO-1: faceted collection canonical correction. On a URL
+      like `/collections/all?filter.v.option.color=red`, Shopify's
+      raw `canonical_url` resolves to that filtered URL — emitting it
+      as the canonical fragments link equity across every filter
+      permutation (each filter combination claims to be its own
+      canonical page). The companion `noindex,follow` (snippets/
+      meta-tags.liquid:155-156) prevents the filter pages from being
+      indexed, but Google still sees competing canonical declarations
+      and may choose the filtered URL over the parent collection in
+      search results. Branch: when a collection URL carries `filter.`
+      query params, point the canonical at the un-filtered collection
+      so all filter permutations consolidate to the parent. Same
+      pattern when /search carries `q=` — point canonical at /search.
+    {%- endcomment -%}
+    {%- if request.path contains '/collections/' and request.query_string contains 'filter.' and collection -%}
+      <link rel="canonical" href="{{ shop.url }}{{ collection.url }}">
+    {%- elsif request.page_type == 'search' and request.query_string != '' -%}
+      <link rel="canonical" href="{{ shop.url }}{{ routes.search_url }}">
+    {%- else -%}
+      <link rel="canonical" href="{{ canonical_url }}">
+    {%- endif -%}
 
     {%- comment -%}
       cdn.shopify.com hosts product and section images — the critical

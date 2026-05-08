@@ -66,6 +66,18 @@
           </a>
         {%- endif -%}
       </div>
+
+      {%- comment -%}
+        R138 404-3: app block slot so merchants can drop a "popular
+        products" / recommendation app block onto the 404. Theme
+        Store paid-tier requires extensibility on stripped templates
+        — a 404 reviewer expects to see a fallback shelf they can
+        wire up via Search & Discovery, Bold Recommendations, etc.
+        section-app-blocks snippet renders nothing when no @app
+        blocks are configured (silent on stock 404), so behaviour
+        unchanged for fresh installs but extensibility added.
+      {%- endcomment -%}
+      {%- render 'section-app-blocks' -%}
     </div>
   </div>
 </section>
@@ -115,6 +127,12 @@
       "label": "t:sections.main-404.settings.browse_link_text.label",
       "default": "t:sections.main-404.settings.browse_link_text.default"
     }
-  ]
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "max_blocks": 6
 }
 {% endschema %}
