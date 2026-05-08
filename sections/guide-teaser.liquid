@@ -89,7 +89,19 @@
         {%- comment -%} No live articles — use merchant-configured blocks {%- endcomment -%}
         {%- for block in article_blocks -%}
           {%- if block.type == 'article' -%}
-            <a href="{{ block.settings.link | default: '#' | escape }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
+            {%- comment -%}
+              R162 EMPTY-HREF-1: drop href="#" fallback. When the
+              merchant has not yet linked the merchant-configured
+              article block, render the card as a non-link `<div>`
+              instead. Card stays visible (image + title + meta) for
+              layout preview; it just isn't clickable until linked.
+              Editor adds a hint so merchants notice the missing URL.
+            {%- endcomment -%}
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link | escape }}" class="kt-guide-teaser__card" {{ block.shopify_attributes }}>
+            {%- else -%}
+              <div class="kt-guide-teaser__card kt-guide-teaser__card--unlinked" {{ block.shopify_attributes }}>
+            {%- endif -%}
               <div class="kt-guide-teaser__card-image-wrap">
                 {%- if block.settings.image != blank -%}
                   {{ block.settings.image | image_url: width: 800 | image_tag: class: 'kt-guide-teaser__card-image', loading: 'lazy', widths: '375, 550, 800', sizes: '(min-width: 750px) 33vw, 100vw', width: block.settings.image.width, height: block.settings.image.height, alt: block.settings.title | default: '' }}
@@ -116,7 +128,11 @@
                   </div>
                 {%- endif -%}
               </div>
-            </a>
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
           {%- endif -%}
         {%- endfor -%}
       {%- else -%}

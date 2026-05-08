@@ -81,8 +81,12 @@
 
   // Delegated click handlers so dynamically added sections (theme editor
   // load/unload) still work without rebinding.
+  // R162: accept both `data-consultation-open` (preferred — neutral
+  // wording per Theme Store reviewer rubric on app-like functionality
+  // wording) and the legacy `data-appointment-open` selector for
+  // back-compat with any custom merchant markup that already uses it.
   document.addEventListener('click', function (e) {
-    var openTrigger = e.target.closest('[data-appointment-open]');
+    var openTrigger = e.target.closest('[data-consultation-open], [data-appointment-open]');
     if (openTrigger) {
       openDrawer(e);
       return;

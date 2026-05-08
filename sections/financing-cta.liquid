@@ -30,23 +30,36 @@
     {%- endif -%}
 
     <div class="kt-financing-cta__buttons">
-      {%- if section.settings.primary_text != blank -%}
+      {%- comment -%}
+        R162 EMPTY-HREF-1: each CTA emits ONLY when both label AND
+        URL are configured. Theme Store flags `<a href="#">` as a
+        broken link. Editor hint surfaces the gap to merchants.
+      {%- endcomment -%}
+      {%- if section.settings.primary_text != blank and section.settings.primary_link != blank -%}
         <a
-          href="{{ section.settings.primary_link | default: '#' | escape }}"
+          href="{{ section.settings.primary_link | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--primary"
         >
           {{ section.settings.primary_text }}
           {% render 'icon-arrow-right', width: 14, height: 14 %}
         </a>
+      {%- elsif section.settings.primary_text != blank and request.design_mode -%}
+        <p class="kt-financing-cta__btn-empty">
+          {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
+        </p>
       {%- endif -%}
 
-      {%- if section.settings.secondary_text != blank -%}
+      {%- if section.settings.secondary_text != blank and section.settings.secondary_link != blank -%}
         <a
-          href="{{ section.settings.secondary_link | default: '#' | escape }}"
+          href="{{ section.settings.secondary_link | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--secondary"
         >
           {{ section.settings.secondary_text }}
         </a>
+      {%- elsif section.settings.secondary_text != blank and request.design_mode -%}
+        <p class="kt-financing-cta__btn-empty">
+          {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
+        </p>
       {%- endif -%}
     </div>
   </div>

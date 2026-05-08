@@ -56,22 +56,35 @@
               </div>
 
             {%- when 'buttons' -%}
+              {%- comment -%}
+                R162 EMPTY-HREF-1: gate each button on URL presence.
+                Empty `href="#"` scrolls to page top — Theme Store
+                broken-link reject vector.
+              {%- endcomment -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
-                {%- if block.settings.button_label_1 != blank -%}
+                {%- if block.settings.button_label_1 != blank and block.settings.button_link_1 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_1 | default: '#' }}"
+                    href="{{ block.settings.button_link_1 | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"
                   >
                     {{- block.settings.button_label_1 | escape -}}
                   </a>
+                {%- elsif block.settings.button_label_1 != blank and request.design_mode -%}
+                  <p class="kt-rich-text__button-empty">
+                    {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
+                  </p>
                 {%- endif -%}
-                {%- if block.settings.button_label_2 != blank -%}
+                {%- if block.settings.button_label_2 != blank and block.settings.button_link_2 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_2 | default: '#' }}"
+                    href="{{ block.settings.button_link_2 | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_2 | default: 'secondary' }}"
                   >
                     {{- block.settings.button_label_2 | escape -}}
                   </a>
+                {%- elsif block.settings.button_label_2 != blank and request.design_mode -%}
+                  <p class="kt-rich-text__button-empty">
+                    {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
+                  </p>
                 {%- endif -%}
               </div>
 
