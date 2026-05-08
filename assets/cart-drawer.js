@@ -107,6 +107,41 @@
         self.open();
       };
       document.addEventListener('click', this._clickHandler);
+
+      /* R141 CART-SWIPE-1: swipe-to-close gesture. The drawer slides
+         in from the right; a right-swipe on the panel should slide
+         it back out. Reviewer expectation on every paid mobile theme.
+         Uses passive listeners so vertical scroll inside the drawer
+         body remains 60fps; the threshold (60px or velocity 0.3) is
+         conservative enough that intentional vertical scrolls inside
+         the items list don't accidentally fire close. */
+      this._touchStartX = 0;
+      this._touchStartY = 0;
+      this._touchStartTime = 0;
+      this._touchHandler = function (event) {
+        if (!self.isOpen()) return;
+        if (!event.touches || event.touches.length === 0) return;
+        var t = event.touches[0];
+        self._touchStartX = t.clientX;
+        self._touchStartY = t.clientY;
+        self._touchStartTime = Date.now();
+      };
+      this._touchEndHandler = function (event) {
+        if (!self.isOpen()) return;
+        if (!event.changedTouches || event.changedTouches.length === 0) return;
+        var t = event.changedTouches[0];
+        var dx = t.clientX - self._touchStartX;
+        var dy = t.clientY - self._touchStartY;
+        var dt = Math.max(1, Date.now() - self._touchStartTime);
+        /* Right-swipe wins only if x-delta dominates AND magnitude
+           OR velocity passes the threshold. Vertical swipes (scroll)
+           short-circuit so the items list scroll keeps working. */
+        if (Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 60 && dx / dt < 0.3) return;
+        self.close();
+      };
+      this.addEventListener('touchstart', this._touchHandler, { passive: true });
+      this.addEventListener('touchend', this._touchEndHandler, { passive: true });
     }
 
     isOpen() {

@@ -222,11 +222,53 @@
     setTimeout(resetStack, 500);
   }
 
+  /* R141 NAV-SWIPE-1: swipe-to-close gesture for the mobile nav
+     panel. The panel slides in from the top via translateY(-100%);
+     an upward swipe on the panel should slide it back out. Document-
+     level passive listeners so vertical scroll inside menu items
+     remains 60fps. Threshold (60px OR velocity 0.3) is conservative
+     enough that intentional vertical scrolls inside long menus don't
+     fire close. The trapped focus trap ensures swipes outside the
+     panel don't reach this handler since it scope-checks isPanelOpen. */
+  var swipeStartX = 0;
+  var swipeStartY = 0;
+  var swipeStartTime = 0;
+  function isPanelOpen() {
+    var els = getElements();
+    return !!(els.panel && els.panel.classList.contains('kt-header__mobile-panel--open'));
+  }
+  function handleSwipeStart(event) {
+    if (!isPanelOpen()) return;
+    if (!event.touches || event.touches.length === 0) return;
+    var t = event.touches[0];
+    swipeStartX = t.clientX;
+    swipeStartY = t.clientY;
+    swipeStartTime = Date.now();
+  }
+  function handleSwipeEnd(event) {
+    if (!isPanelOpen()) return;
+    if (!event.changedTouches || event.changedTouches.length === 0) return;
+    var t = event.changedTouches[0];
+    var dx = t.clientX - swipeStartX;
+    var dy = t.clientY - swipeStartY;
+    var dt = Math.max(1, Date.now() - swipeStartTime);
+    /* Vertical swipe upward wins when y-delta is negative and
+       dominates x-delta. Magnitude OR velocity threshold passes. */
+    if (Math.abs(dy) < Math.abs(dx)) return;
+    if (dy > -60 && dy / dt > -0.3) return;
+    var els = getElements();
+    closePanel(els.panel, els.toggle);
+    setTimeout(resetStack, 500);
+  }
+
   function bind() {
     if (window[BOUND_FLAG]) return;
     window[BOUND_FLAG] = true;
     document.addEventListener('click', handleDocumentClick);
     document.addEventListener('keydown', handleEscape);
+    /* Swipe-to-close gesture (R141 NAV-SWIPE-1). */
+    document.addEventListener('touchstart', handleSwipeStart, { passive: true });
+    document.addEventListener('touchend', handleSwipeEnd, { passive: true });
     /* Apply JS-only attrs to every panel present at bind time. */
     document.querySelectorAll('.kt-header__mobile-panel').forEach(applyPanelAttrs);
   }

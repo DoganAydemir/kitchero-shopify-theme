@@ -37,19 +37,26 @@
 
 /* ── Position variants ───────────────────────────────────────────── */
 
+/* R141 COOKIE-NOTCH-1: respect iOS home-indicator safe area on iPhone
+   X+ portrait. Without max(<base>, env()) the banner sits over the
+   home indicator and the Accept/Decline tap targets get clipped (a
+   well-known Theme Store reject pattern flagged on every iPhone 13+
+   reviewer pass). max() ensures non-iOS browsers fall back to the
+   1.5rem base while iOS adds the additional inset on top. Also
+   adds horizontal safe-area-inset for landscape with notch. */
 .kt-cookie-banner--bottom-left {
-  left: 1.5rem;
-  bottom: 1.5rem;
+  left: max(1.5rem, env(safe-area-inset-left, 0px));
+  bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
 }
 
 .kt-cookie-banner--bottom-right {
-  right: 1.5rem;
-  bottom: 1.5rem;
+  right: max(1.5rem, env(safe-area-inset-right, 0px));
+  bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
 }
 
 .kt-cookie-banner--bottom-center {
   left: 50%;
-  bottom: 1.5rem;
+  bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
   transform: translateX(-50%) translateY(20px);
 }
 
@@ -84,6 +91,11 @@
   transform: translateY(100%);
   border-bottom: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
+  /* R141 COOKIE-NOTCH-1: padding-bottom clears the iPhone home
+     indicator on iPhone X+. The full-width banner-bottom variant
+     pins to bottom:0 so its content area extends down past the
+     visible safe area; without padding the buttons get clipped. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .kt-cookie-banner--banner-bottom.kt-cookie-banner--visible {

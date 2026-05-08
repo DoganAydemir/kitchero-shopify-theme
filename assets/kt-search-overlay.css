@@ -3,12 +3,36 @@
    Ported from SearchOverlay.tsx
    ============================================================ */
 
+/* R141 SEARCH-OVERLAY-ANIM-1: fade + slide transition for
+   reviewer-tier polish. Previously the overlay snapped from
+   display:none to display:block — instant, abrupt, mismatched
+   the cart-drawer / newsletter-popup polish. Use opacity +
+   transform pair instead of display, gated by aria-hidden so
+   the closed state stays unfocusable + transparent. visibility
+   prevents tab-focus while the overlay is still fading out. */
 .kt-search-overlay {
-  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--kt-z-drawer);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out, visibility 0s linear 0.25s;
 }
 
 .kt-search-overlay[aria-hidden="false"] {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.25s ease-out, visibility 0s linear 0s;
+}
+
+/* Reduced-motion respects: instant show/hide. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-search-overlay,
+  .kt-search-overlay[aria-hidden="false"] {
+    transition: none;
+  }
 }
 
 .kt-search-overlay__backdrop {

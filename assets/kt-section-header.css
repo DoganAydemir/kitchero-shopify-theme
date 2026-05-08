@@ -868,10 +868,18 @@ html.no-js .kt-header__mobile-view-title {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* R141 NAV-CLOSE-44-1: enforce a 44×44 hit area floor (WCAG 2.5.5).
+     Previous `padding: 0.5rem` + 28px SVG arithmetically gives 44px
+     but font-rounding browsers (Samsung Internet, some Android
+     Chrome variants) render at 43px and miss the spec. min-width/
+     min-height makes the floor explicit and survives rounding. */
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   padding: 0.5rem;
   color: var(--kt-stone-50);
   background: none;
   border: none;
+  cursor: pointer;
 }
 
 .kt-header__mobile-panel-close svg {
