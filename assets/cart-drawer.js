@@ -482,6 +482,16 @@
               var serverNote = newPanel.querySelector('[name="note"]');
               var serverNoteValue = serverNote ? serverNote.value : '';
 
+              /* Preserve drawer body scroll position across innerHTML
+                 swap. Without this, every qty +/- click and every line
+                 remove resets `.kt-cart-drawer__body` scrollTop to 0
+                 and the customer sees the drawer jump back to the
+                 first line — disorienting on a 5+ item cart. The
+                 swap creates a fresh body element with default
+                 scrollTop, so we capture before, restore after. */
+              var bodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
+              var preservedScrollTop = bodyEl ? bodyEl.scrollTop : null;
+
               currentPanel.innerHTML = newPanel.innerHTML;
 
               /* Restore the typed note only if the server didn't itself
@@ -492,6 +502,14 @@
               if (preservedNote && !serverNoteValue) {
                 var restoredNote = currentPanel.querySelector('[name="note"]');
                 if (restoredNote) restoredNote.value = preservedNote;
+              }
+
+              /* Restore scroll position on the freshly-swapped body
+                 element. Skip when null — empty-state transitions
+                 (last-item removed) drop the body markup entirely. */
+              if (preservedScrollTop != null) {
+                var newBodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
+                if (newBodyEl) newBodyEl.scrollTop = preservedScrollTop;
               }
 
               /* Announce the new subtotal — keyboard/SR users raising

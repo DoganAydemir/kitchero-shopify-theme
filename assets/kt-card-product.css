@@ -186,14 +186,26 @@
   color: var(--kt-white);
 }
 
-/* Reveal on hover OR when any child (e.g. the image link) receives
-   keyboard focus. WCAG 1.4.13 — content shown on hover must also be
-   reachable via keyboard so sighted keyboard users see the same
-   vendor/material metadata mouse users get on hover. */
-.kt-card-product:hover .kt-card-product__hover-info,
+/* Keyboard focus reveal — works on every device (touch, mouse, keyboard).
+   WCAG 1.4.13: content shown on hover must also be reachable via
+   keyboard so sighted keyboard users see the same vendor/material
+   metadata mouse users get on hover. */
 .kt-card-product:focus-within .kt-card-product__hover-info {
   transform: translateY(0);
   opacity: 1;
+}
+
+/* Hover reveal — gated to fine-pointer devices so a tap on iPad
+   doesn't trigger sticky :hover and leave the overlay visible
+   indefinitely. Same pattern the image-swap rules above this block
+   already use. Without the gate, mobile/tablet customers tap a
+   product card → overlay slides up → stays up until they tap
+   somewhere else; reviewers flag this as broken touch UX. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-card-product:hover .kt-card-product__hover-info {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Vendor: text-sm font-medium tracking-widest uppercase mb-1 */
