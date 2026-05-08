@@ -7,11 +7,22 @@
   section.id so multiple ecosystem sections on one page (rare but
   possible) stay distinct.
 {%- endcomment -%}
+{%- comment -%}
+  R144 ECOSYSTEM-NO-HEADERS-1: section now consumes the new
+  color_scheme + padding_top + padding_bottom merchant settings
+  introduced in this round. CSS reads `--kt-eco-pad-top/-bottom`
+  on the section host and the `color-scheme-X` class hooks into
+  the global scheme palette defined in kt-css-variables.liquid.
+{%- endcomment -%}
+{%- assign eco_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
+{%- assign eco_pad_top = section.settings.padding_top | default: 60 -%}
+{%- assign eco_pad_bottom = section.settings.padding_bottom | default: 60 -%}
 <section
-  class="kt-ecosystem"
+  class="kt-ecosystem color-{{ eco_scheme }}"
   data-section-id="{{ section.id }}"
   data-section-type="ecosystem"
   aria-labelledby="EcosystemTitle-{{ section.id }}"
+  style="--kt-eco-pad-top: {{ eco_pad_top }}px; --kt-eco-pad-bottom: {{ eco_pad_bottom }}px;"
 >
   {%- comment -%} Background grid pattern {%- endcomment -%}
   <div class="kt-ecosystem__grid-pattern" aria-hidden="true">
@@ -87,6 +98,10 @@
   },
   "settings": [
     {
+      "type": "header",
+      "content": "t:sections.ecosystem.settings.header__content.content"
+    },
+    {
       "type": "inline_richtext",
       "id": "heading",
       "label": "t:sections.ecosystem.settings.heading.label",
@@ -121,6 +136,10 @@
       "label": "t:sections.ecosystem.settings.image.label"
     },
     {
+      "type": "header",
+      "content": "t:sections.ecosystem.settings.header__cta.content"
+    },
+    {
       "type": "text",
       "id": "cta_text",
       "label": "t:sections.ecosystem.settings.cta_text.label",
@@ -130,6 +149,40 @@
       "type": "url",
       "id": "cta_link",
       "label": "t:sections.ecosystem.settings.cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ecosystem.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme-1",
+      "label": "t:sections.ecosystem.settings.color_scheme.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ecosystem.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 60,
+      "unit": "px",
+      "label": "t:sections.ecosystem.settings.padding_top.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 60,
+      "unit": "px",
+      "label": "t:sections.ecosystem.settings.padding_bottom.label"
     }
   ],
   "blocks": [

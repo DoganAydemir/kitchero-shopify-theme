@@ -5,8 +5,10 @@
   parade), so aria-label provides the AT landmark name.
 {%- endcomment -%}
 <section
-  class="kt-brands"
+  class="kt-brands color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
+  data-section-type="brands"
+  style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 60 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 60 }}px;"
   aria-label="{{ 'kt.section.brands.aria_label' | t | default: 'Featured brands' }}"
 >
   {%- comment -%}
@@ -74,7 +76,42 @@
   "name": "t:sections.brands.name",
   "tag": "div",
   "class": "section",
-  "settings": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header__appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme-1",
+      "label": "t:sections.brands.settings.color_scheme.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 60,
+      "unit": "px",
+      "label": "t:sections.brands.settings.padding_top.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 60,
+      "unit": "px",
+      "label": "t:sections.brands.settings.padding_bottom.label"
+    }
+  ],
   "blocks": [
     {
       "type": "logo",

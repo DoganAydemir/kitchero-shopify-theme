@@ -1,9 +1,15 @@
 /* Ecosystem — Birebir from Ecosystem.tsx
    Every Tailwind class mapped line by line. */
 
-/* section: py-32 bg-stone-900 text-stone-50 relative overflow-hidden */
+/* section: py-32 bg-stone-900 text-stone-50 relative overflow-hidden.
+   R144: padding now driven by merchant `padding_top` / `padding_bottom`
+   range settings (default 60px) via inline custom properties from the
+   section template. Falls back to the original 8rem (128px) baseline
+   when CSS vars are missing (e.g. legacy section.json without the
+   new settings). */
 .kt-ecosystem {
-  padding: 8rem 0;
+  padding-top: var(--kt-eco-pad-top, 8rem);
+  padding-bottom: var(--kt-eco-pad-bottom, 8rem);
   background-color: var(--kt-stone-900);
   color: var(--kt-stone-50);
   position: relative;
