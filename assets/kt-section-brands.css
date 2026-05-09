@@ -79,29 +79,14 @@
   white-space: nowrap;
 }
 
-/* Placeholder when no logo image uploaded */
-.kt-brands__placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  width: 100%;
-  height: 100%;
-}
-
-.kt-brands__placeholder .placeholder-svg {
-  width: 3rem;
-  height: 2rem;
-  opacity: 0.3;
-}
-
+/* R197 — Placeholder name (text-only fallback when no logo image
+   uploaded). Previous svg-and-name placeholder column was dropped;
+   .kt-brands__placeholder wrapper div is no longer rendered, the
+   <span> sits directly inside .kt-brands__item which centres it.
+   Explicit line-height: 1 collapses default-normal half-leading so
+   the text's geometric box matches its visual ink. */
 .kt-brands__placeholder-name {
   font-size: 0.625rem;
-  /* R195 — explicit line-height: 1 collapses the default-normal
-     half-leading so the text's geometric box matches its visual
-     ink. Combined with the item-level padding fix, the svg + name
-     pair sits exactly between the section's top + bottom paddings. */
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0.05em;

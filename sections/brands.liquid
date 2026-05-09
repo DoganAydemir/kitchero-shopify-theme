@@ -56,12 +56,19 @@
               {%- assign brand_logo_width = block.settings.image.width | times: 40 | divided_by: block.settings.image.height -%}
               {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: brand_logo_width, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
             {%- else -%}
-              <div class="kt-brands__placeholder">
-                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
-                {%- if block.settings.alt != blank -%}
-                  <span class="kt-brands__placeholder-name">{{ block.settings.alt }}</span>
-                {%- endif -%}
-              </div>
+              {%- comment -%}
+                R197 — dropped the placeholder_svg from the no-image
+                fallback. The svg + name pair was creating a stacked
+                column inside the fixed-height marquee item, and the
+                svg's intrinsic viewBox padding shifted the visual
+                centre off the row's baseline. Brand text alone is a
+                cleaner fallback (matches the Next.js source pattern)
+                and centres exactly inside .kt-brands__item without
+                any extra layout math.
+              {%- endcomment -%}
+              {%- if block.settings.alt != blank -%}
+                <span class="kt-brands__placeholder-name">{{ block.settings.alt }}</span>
+              {%- endif -%}
             {%- endif -%}
           </div>
         {%- endif -%}
