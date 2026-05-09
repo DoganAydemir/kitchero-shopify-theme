@@ -55,6 +55,29 @@
   object-fit: cover;
 }
 
+/* R182 PLACEHOLDER-CONTRAST-1: when the merchant hasn't uploaded
+   a before/after image yet, the snippet falls back to Shopify's
+   `lifestyle-1` / `lifestyle-2` placeholder SVG. Those SVGs paint
+   with a transparent background and a low-contrast outline — fine
+   on the surrounding stone-50 storefront, but invisible against
+   this section's stone-900 backdrop, which made the slider look
+   completely empty (just two centred labels and a divider). Give
+   the placeholder layer its own light fill so the BEFORE/AFTER
+   composition reads on a fresh-install demo. Once a real image
+   is uploaded the `.placeholder-svg` class is gone and these
+   rules no longer match. */
+.kt-before-after__image.placeholder-svg {
+  background-color: var(--kt-stone-100, #f5f5f4);
+  color: var(--kt-stone-400, #a8a29e);
+}
+
+.kt-before-after__image.placeholder-svg svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  opacity: 0.7;
+}
+
 .kt-before-after__before-wrap {
   position: absolute;
   inset: 0;

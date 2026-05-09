@@ -103,7 +103,18 @@
                 alt: block.settings.subtitle | default: shop.name
             }}
           {%- else -%}
-            {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-hero__slide-image' }}
+            {%- comment -%}
+              R182 PLACEHOLDER-VERTICAL-1: `hero-apparel-1` is
+              Shopify's fashion-vertical placeholder (mannequin /
+              apparel imagery). Using it on a generic kitchen /
+              home-goods theme produces an off-brand first
+              impression for reviewers and merchants who don't
+              run apparel stores. `lifestyle-1` is the vertical-
+              neutral interior/space placeholder, suitable for
+              kitchen, home goods, furniture, and other lifestyle
+              verticals — same set Shopify uses across Skeleton.
+            {%- endcomment -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-hero__slide-image' }}
           {%- endif -%}
         </div>
         <div class="kt-hero__slide-overlay" aria-hidden="true"></div>

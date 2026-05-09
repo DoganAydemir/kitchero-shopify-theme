@@ -17,6 +17,15 @@
     </div>
   </div>
 
+  {%- comment -%}
+    R182 PLACEHOLDER-ROTATE-1: rotate Shopify's `collection-1`/`-2`/
+    `-3` placeholder set across the visible category cards so a
+    fresh-install demo storefront doesn't render three identical
+    placeholder images side-by-side. `forloop.index0` modulo 3
+    cycles through the trio; once the merchant configures real
+    images this code path goes inactive.
+  {%- endcomment -%}
+  {%- assign shop_cat_placeholders = 'collection-1,collection-2,collection-3' | split: ',' -%}
   <div class="kt-shop-categories__scroll">
     {%- for block in section.blocks -%}
       {%- if block.type == 'category' -%}
@@ -40,7 +49,8 @@
                   alt: block.settings.title | default: ''
               }}
             {%- else -%}
-              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- assign shop_cat_ph_index = forloop.index0 | modulo: 3 -%}
+              {{ shop_cat_placeholders[shop_cat_ph_index] | placeholder_svg_tag: 'placeholder-svg' }}
             {%- endif -%}
           </div>
           <div class="kt-shop-categories__card-overlay" aria-hidden="true"></div>
