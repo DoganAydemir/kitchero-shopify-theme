@@ -1,0 +1,17 @@
+{%- comment -%}
+  Arrow-up-right icon (diagonal ↗). Mirrors lucide-react's
+  ArrowUpRight — used in "View all" CTAs that lead to a deeper
+  destination (journals index, full collection, external).
+
+  Accepts:
+    width        : Number  (default 16)
+    height       : Number  (default 16)
+    stroke_width : Number  (default 2)
+    class        : String  (optional)
+{%- endcomment -%}
+{%- liquid
+  assign icon_w = width | default: 16
+  assign icon_h = height | default: 16
+  assign icon_sw = stroke_width | default: 2
+-%}
+<svg{% if class %} class="{{ class }}"{% endif %} aria-hidden="true" focusable="false" width="{{ icon_w }}" height="{{ icon_h }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ icon_sw }}" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>

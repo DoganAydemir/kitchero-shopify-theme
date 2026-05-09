@@ -41,17 +41,37 @@
   .kt-guide-teaser__title { font-size: 4.375rem; }
 }
 
+/* R205 — birebir Tailwind from GuideTeaser.tsx:
+   `flex items-center gap-3 text-lg font-medium text-stone-600
+    hover:text-stone-900 transition-colors uppercase tracking-widest
+    border-b-2 border-transparent hover:border-stone-900 pb-1`.
+   Previous Shopify port had it as a stone-900 underlined link with
+   opacity-fade hover — visually a different component. Now matches
+   the source: muted-grey default, darkens + draws an underline on
+   hover, with a 24px diagonal-up-right arrow next to the wordmark. */
 .kt-guide-teaser__view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 1.125rem;
   font-weight: 500;
-  color: var(--kt-stone-900);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--kt-stone-600);
   text-decoration: none;
-  border-bottom: 1px solid var(--kt-stone-900);
+  border-bottom: 2px solid transparent;
   padding-bottom: 0.25rem;
-  transition: opacity 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.kt-guide-teaser__view-all:hover { opacity: 0.7; }
+.kt-guide-teaser__view-all:hover {
+  color: var(--kt-stone-900);
+  border-bottom-color: var(--kt-stone-900);
+}
+
+.kt-guide-teaser__view-all svg {
+  flex-shrink: 0;
+}
 
 .kt-guide-teaser__grid {
   display: grid;
