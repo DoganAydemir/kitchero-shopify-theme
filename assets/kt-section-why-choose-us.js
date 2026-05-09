@@ -15,7 +15,14 @@
     gsap.registerPlugin(ScrollTrigger);
 
     var ctx = gsap.context(function () {
-      var image = section.querySelector('.kt-why-choose-us__hero-image');
+      /* R201 — selector also matches the placeholder svg, so the
+         parallax fires both for merchants who've uploaded a real
+         hero image AND for the editor-demo state where the
+         placeholder_svg renders. The original selector was
+         `.kt-why-choose-us__hero-image` which never matched anything
+         the Liquid template emits (it writes `.kt-why-choose-us__image`),
+         so parallax was silently dead since day one. */
+      var image = section.querySelector('.kt-why-choose-us__image, .kt-why-choose-us__image-wrap .placeholder-svg');
       if (!image) return;
 
       gsap.fromTo(image,

@@ -116,19 +116,31 @@
 .kt-why-choose-us__image-wrap .placeholder-svg {
   position: absolute;
   inset: 0;
+  /* R201 — placeholder geometry now mirrors the real `<img>` rule
+     (height: 130%; top: -15%) so GSAP's yPercent ±15 parallax has
+     headroom in both directions. Without this the placeholder was
+     locked at 100%×100% and the scroll trigger animated a fully
+     contained element with nowhere to travel — the demo looked
+     static even after the JS selector was fixed. */
   width: 100%;
-  height: 100%;
+  height: 130%;
+  top: -15%;
   /* R198 PLACEHOLDER-CONTRAST-4: same fix pattern as R182
      (before-after), R187 (hero), R193 (ecosystem). Section
      background is stone-950 (near-black) and the placeholder svg
      paints transparent — so on a fresh-install demo the entire
      hero image area rendered as a solid black rectangle. Classic
-     Shopify bordered-grey treatment so reviewers see "image will
-     go here" instead of an empty void. The .placeholder-svg class
-     is gone the moment a real image is uploaded, so this rule
-     auto-disables in production. */
+     Shopify grey treatment so reviewers see "image will go here"
+     instead of an empty void. The .placeholder-svg class is gone
+     the moment a real image is uploaded, so this rule
+     auto-disables in production.
+     R201 — border was removed: with height:130% + top:-15% the
+     element overflows the wrap by 15% top/bottom, and the wrap's
+     `overflow:hidden` clipped the border's top/bottom edges,
+     leaving only left/right rules visible. Solid bg colour alone
+     keeps WCAG-tier contrast against stone-950 and reads as a
+     real placeholder surface. */
   background-color: var(--kt-stone-100, #f5f5f4);
-  border: 1px solid var(--kt-stone-300, #d6d3d1);
   color: var(--kt-stone-400, #a8a29e);
   opacity: 1;
 }
