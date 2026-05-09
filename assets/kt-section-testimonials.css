@@ -26,35 +26,51 @@
 }
 
 .kt-testimonials__bg-base--placeholder {
-  /* R208 — R207 kept the dark section bg and rendered a small
-     centred svg at 18% white fill. User feedback: the bg still
-     read as "just black" — the icon was too subtle to register
-     as a configurable image area. Switched to the Shopify-default
-     empty-image-state vocabulary used across hero, before-after,
-     ecosystem, why-choose-us (R182/R187/R193/R198): full-bleed
-     light grey panel (stone-100) with a centred svg in a darker
-     grey (stone-400). Reviewers immediately read this as "image
-     goes here". Card readability over the light bg is handled by
-     a state-scoped opacity bump on `.kt-testimonials--no-bg
-     .kt-testimonials__card` below.
-
-     The .placeholder-svg modifier class is dropped the moment a
-     merchant uploads an image, so this rule auto-disables in
-     production. R207's `display: flex` + cascade overrides
-     (`opacity: 1; filter: none;`) are preserved. */
+  /* R209 — placeholder mode now mirrors the merchant-image dim
+     cascade exactly. R207's centred-icon approach + R208's full-
+     bleed light grey panel both fought the section's dark
+     cinematic mood. The right answer is to let the parent
+     `.kt-testimonials__bg-base` rule do its job: opacity 0.1
+     normally, 0.2 on section hover, grayscale always. Render the
+     `lifestyle-1` placeholder svg full-bleed at solid white fill
+     and the cascade dims it like a real 10%-opacity merchant
+     kitchen photo — kitchen line-art faintly visible by default,
+     slightly brighter on hover. Spotlight reveal layer (sibling
+     selector below) handles the mouse-follow brightening the
+     same way it does for merchant images. */
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 1;
-  filter: none;
-  background-color: var(--kt-stone-100);
 }
 
 .kt-testimonials__bg-base--placeholder .placeholder-svg {
-  width: 25%;
-  max-width: 320px;
-  height: auto;
-  fill: var(--kt-stone-400);
+  width: 100%;
+  height: 100%;
+  fill: rgba(255, 255, 255, 1);
+}
+
+/* R209 — spotlight layer also renders a placeholder svg when no
+   merchant image is picked, so the mouse-follow reveal effect
+   works in placeholder mode. Pre-R209 the spotlight only had a
+   CSS `background-image` set inline for merchant images — the
+   placeholder state had nothing for the mask to reveal, so
+   hovering produced no feedback. JS sets `mask-image:
+   radial-gradient(450px circle at X Y, black 0%, transparent
+   100%)` on this element each animation frame; the mask clips
+   the inline svg the same way it clips a CSS bg-image, so the
+   reveal effect mirrors the merchant-image experience exactly.
+   Layer's parent transition (opacity 0 → 0.6 on section hover)
+   is preserved. */
+.kt-testimonials__spotlight--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kt-testimonials__spotlight--placeholder .placeholder-svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(255, 255, 255, 1);
 }
 
 /* Layer 2: spotlight reveal — mouse-follow mask
@@ -189,23 +205,15 @@
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* R208 — when the section has no merchant background image, the
-   placeholder panel behind the cards is light grey (stone-100). At
-   the original 0.4 alpha (the frosted-glass treatment matched
-   birebir from the Next.js source), cards become washed-out medium
-   grey on light grey, with quote-text contrast collapsing well
-   below WCAG AA. Bumping to 0.85 alpha for the no-bg state keeps
-   cards solidly dark and readable on the light placeholder
-   surface. Hover bumps to ~0.92 for the same reason. The 0.4
-   frosted-glass aesthetic returns the moment a merchant uploads a
-   real bg image (the `--no-bg` modifier disappears with it). */
-.kt-testimonials--no-bg .kt-testimonials__card {
-  background: rgba(28, 25, 23, 0.85);
-}
-
-.kt-testimonials--no-bg .kt-testimonials__card:hover {
-  background: rgba(28, 25, 23, 0.92);
-}
+/* R209 — R208 added a `.kt-testimonials--no-bg .kt-testimonials__card`
+   alpha bump (0.4 → 0.85) to keep cards readable over the
+   light grey placeholder panel. R209 dropped the panel in
+   favour of the dim-cascade placeholder svg approach (which
+   keeps the section bg dark like the with-image state), so the
+   readability override is no longer needed and the card alpha
+   stays at the source's 0.4 frosted-glass value across both
+   states. The `--no-bg` section modifier was also removed in
+   R209 since nothing else scoped to it. */
 
 /* Editor-only highlight added by JS when the merchant selects a
    block in the theme editor. Pulses briefly so the card is easy

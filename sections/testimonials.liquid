@@ -7,7 +7,7 @@
 
 {%- comment -%} Testimonials section {%- endcomment -%}
 <section
-  class="kt-testimonials{% if section.settings.background_image == blank %} kt-testimonials--no-bg{% endif %}"
+  class="kt-testimonials"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials"
 >
@@ -21,16 +21,18 @@
   >
     {%- if section.settings.background_image == blank -%}
       {%- comment -%}
-        R207 — switched from `'lifestyle-1'` (kitchen scene
-        line-art) to the generic `'image'` placeholder. The
-        lifestyle illustration was thematically loaded for a
-        section that hasn't yet had its bg image picked; the
-        generic mountain-frame icon reads universally as "image
-        goes here" the way Shopify's default upload-empty state
-        does. Visibility tweaks live in the CSS rule for
-        .kt-testimonials__bg-base--placeholder (R207).
+        R209 — back to `'lifestyle-1'` (kitchen scene line-art).
+        R207 had switched to `'image'` (generic Shopify mountain-
+        frame); R208 wrapped that in a light grey panel — both
+        broke the section's dark cinematic mood. Now the
+        kitchen-scene svg renders inside the bg-base layer at
+        full white fill, and the parent's existing 0.1/0.2 dim
+        cascade does its job exactly as it would with a real
+        merchant photo: faintly visible by default, slightly
+        brighter on hover. Spotlight reveal handled by the
+        sibling layer below.
       {%- endcomment -%}
-      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
     {%- endif -%}
   </div>
 
@@ -43,13 +45,27 @@
     silently breaks both the selector and the inline background image.
   {%- endcomment -%}
   <div
-    class="kt-testimonials__spotlight"
+    class="kt-testimonials__spotlight{% if section.settings.background_image == blank %} kt-testimonials__spotlight--placeholder{% endif %}"
     data-testimonials-spotlight=""
     {%- if section.settings.background_image != blank -%}
       style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
     {%- endif -%}
     aria-hidden="true"
-  ></div>
+  >
+    {%- comment -%}
+      R209 — render the kitchen-scene placeholder svg inside the
+      spotlight layer too. Pre-R209 the spotlight only had a CSS
+      `background-image` set inline for merchant images, so the
+      mouse-follow reveal effect had nothing to reveal in the
+      placeholder state — visitors got no spotlight feedback.
+      The JS-driven radial-gradient mask on this element clips
+      the inline svg the same way it does a CSS bg-image, so the
+      reveal effect now mirrors the merchant-image experience.
+    {%- endcomment -%}
+    {%- if section.settings.background_image == blank -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
 
   <div class="page-width kt-testimonials__content">
     {%- comment -%} Header {%- endcomment -%}
