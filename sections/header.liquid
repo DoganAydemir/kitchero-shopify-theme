@@ -114,7 +114,7 @@
                   aria-controls="kt-header-mega-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title | escape }}
+                  {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </a>
                 {%- comment -%}
@@ -209,7 +209,7 @@
                   aria-controls="kt-header-flyout-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title | escape }}
+                  {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </a>
                 {%- comment -%}
@@ -233,7 +233,7 @@
                   class="kt-header__menu-link"
                   {% if link.current %}aria-current="page"{% endif %}
                 >
-                  {{ link.title | escape }}
+                  {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                 </a>
               {%- endif -%}
             </li>
@@ -580,7 +580,7 @@
                 class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
                 {% if link.current %}aria-current="page"{% endif %}
               >
-                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
               </a>
               <button
                 type="button"
@@ -590,12 +590,12 @@
                 aria-controls="mobile-panel-p-{{ forloop.index0 }}"
                 {% if link.current %}aria-current="page"{% endif %}
               >
-                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
                 {% render 'icon-chevron-right', width: 20, height: 20, stroke_width: 1.5 %}
               </button>
             {%- else -%}
               <a href="{{ link.url }}" class="kt-header__mobile-link" {% if link.current %}aria-current="page"{% endif %}>
-                <span class="kt-header__mobile-link-label">{{ link.title | escape }}</span>
+                <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
               </a>
             {%- endif -%}
           {%- endfor -%}
@@ -848,6 +848,41 @@
           "id": "link_text",
           "label": "t:sections.header.blocks.mega_menu_featured.settings.link_text.label",
           "default": "Explore"
+        }
+      ]
+    },
+    {
+      "type": "menu_link_badge",
+      "name": "t:sections.header.blocks.menu_link_badge.name",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.header.blocks.menu_link_badge.info"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "t:sections.header.blocks.menu_link_badge.settings.link_text.label",
+          "info": "t:sections.header.blocks.menu_link_badge.settings.link_text.info"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "t:sections.header.blocks.menu_link_badge.settings.badge_text.label",
+          "default": "SALE"
+        },
+        {
+          "type": "color",
+          "id": "badge_bg",
+          "label": "t:sections.header.blocks.menu_link_badge.settings.badge_bg.label",
+          "default": "#dc2626"
+        },
+        {
+          "type": "color",
+          "id": "badge_fg",
+          "label": "t:sections.header.blocks.menu_link_badge.settings.badge_fg.label",
+          "default": "#ffffff"
         }
       ]
     },

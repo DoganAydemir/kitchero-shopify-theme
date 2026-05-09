@@ -161,6 +161,41 @@
   color: var(--kt-white);
 }
 
+/* R184 MENU-BADGE-1: small inline pill rendered next to the
+   matched menu link's text. Block-driven (snippets/menu-link-
+   badge.liquid + header schema `menu_link_badge` block) so
+   merchants can flag a "Deals" item with a "SALE" badge,
+   "New Arrivals" with "NEW", etc. — without smuggling raw
+   `<span>` HTML through the linklist title (which is `| escape`d
+   for XSS safety per REJ-SEC-002). Background + text color come
+   from merchant `color` picker settings, applied via inline
+   style (per-block, can't be moved to a class). */
+.kt-header__menu-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  line-height: 1.4;
+  /* The badge sits inside an underline-on-hover link. Pull it out
+     of the underline run so the colored pill keeps its rectangular
+     edges. */
+  text-decoration: none;
+}
+
+/* Mobile drawer variant — bigger touch context, sit at the row's
+   trailing edge (`margin-left: auto`) instead of hugging the label. */
+.kt-header__mobile-link-label .kt-header__menu-badge {
+  margin-left: 0.625rem;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+}
+
 .kt-header__menu-link svg {
   width: 14px;
   height: 14px;

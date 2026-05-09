@@ -1,0 +1,42 @@
+{%- doc -%}
+  Inline pill badge for a menu link (e.g. red "SALE" next to a
+  "Deals" item). Resolves badge by case-insensitive title match
+  against `menu_link_badge` blocks declared in the header section
+  schema.
+
+  Required to satisfy REJ-SEC-002: `link.title` MUST be `| escape`d
+  on render — that prevented merchants from baking raw `<span>`
+  HTML into the linklist title to get a visual badge. This block-
+  driven escape-safe alternative gives them the same visual without
+  punching a hole in the XSS guard.
+
+  Multiple matches: if two badge blocks both match a link's title,
+  the first one in block order wins. The `{%- break -%}` enforces
+  this so a merchant who duplicates a configuration sees a stable,
+  predictable result rather than a doubled-up pill.
+
+  @param {link} link        - the linklist link being rendered
+  @param {section} section  - the header section (for blocks lookup)
+{%- enddoc -%}
+{%- if section.blocks.size > 0 -%}
+  {%- assign link_title_lower = link.title | downcase | strip -%}
+  {%- for badge_block in section.blocks -%}
+    {%- if badge_block.type == 'menu_link_badge' and badge_block.settings.link_text != blank -%}
+      {%- assign target_lower = badge_block.settings.link_text | downcase | strip -%}
+      {%- if target_lower == link_title_lower -%}
+        {%- comment -%}
+          Inline `style` attribute carries merchant-picked colors.
+          Falls back to red bg / white fg if the picker was cleared.
+          The `| escape` filter on `badge_text` keeps user input out
+          of the HTML stream — same reason `link.title` is escaped.
+        {%- endcomment -%}
+        <span
+          class="kt-header__menu-badge"
+          style="background-color: {{ badge_block.settings.badge_bg | default: '#dc2626' }}; color: {{ badge_block.settings.badge_fg | default: '#ffffff' }};"
+          {{ badge_block.shopify_attributes }}
+        >{{ badge_block.settings.badge_text | default: 'SALE' | escape }}</span>
+        {%- break -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
