@@ -247,6 +247,25 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* R193 PLACEHOLDER-CONTRAST-3: same fix as R187 (hero) and
+     R182 (before-after). When no merchant image is uploaded the
+     ecosystem section falls back to a `collection-3` placeholder
+     SVG that paints transparent — invisible against the section's
+     stone-900 backdrop. Give the placeholder the classic Shopify
+     bordered-grey treatment so the right column shows a real
+     "image will go here" surface on a fresh-install demo.
+     Once a real image uploads, `.placeholder-svg` is gone and
+     these properties no longer match. */
+  background-color: var(--kt-stone-100, #f5f5f4);
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  color: var(--kt-stone-400, #a8a29e);
+}
+
+.kt-ecosystem__image-wrap .placeholder-svg svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  opacity: 0.7;
 }
 
 /* Overlay: absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent pointer-events-none */
