@@ -20,7 +20,17 @@
     aria-hidden="true"
   >
     {%- if section.settings.background_image == blank -%}
-      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- comment -%}
+        R207 — switched from `'lifestyle-1'` (kitchen scene
+        line-art) to the generic `'image'` placeholder. The
+        lifestyle illustration was thematically loaded for a
+        section that hasn't yet had its bg image picked; the
+        generic mountain-frame icon reads universally as "image
+        goes here" the way Shopify's default upload-empty state
+        does. Visibility tweaks live in the CSS rule for
+        .kt-testimonials__bg-base--placeholder (R207).
+      {%- endcomment -%}
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
     {%- endif -%}
   </div>
 
@@ -102,13 +112,18 @@
                 {%- elsif block.settings.name != blank -%}
                   {%- comment -%}
                     Avatar is optional; when the merchant gave us a
-                    name but no image we render the lifestyle
-                    placeholder so the card composition stays
-                    balanced (without it, the name + role text
-                    floats on the left edge with no visual anchor).
+                    name but no image we render an inline user
+                    silhouette so the card composition stays
+                    balanced. R207 swapped Shopify's lifestyle-1
+                    placeholder out — squashing a kitchen scene
+                    SVG into a 48px circle read as visual noise
+                    rather than "no avatar yet". A simple
+                    head-and-shoulders glyph (lucide User pattern)
+                    centred inside the same circular slot makes
+                    the missing-photo state unambiguous.
                   {%- endcomment -%}
                   <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
-                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                 {%- endif -%}
                 {%- if block.settings.name != blank -%}

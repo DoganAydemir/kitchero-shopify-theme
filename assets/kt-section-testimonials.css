@@ -26,15 +26,30 @@
 }
 
 .kt-testimonials__bg-base--placeholder {
+  /* R207 — when no merchant background image is picked, override
+     the dim merchant-image cascade (opacity 0.1 + grayscale) so
+     the placeholder reads as a clear "image goes here" indicator.
+     Original Next.js paints a kitchen photo at 10% opacity behind
+     the cards; without an actual image to dim, the same settings
+     pushed the placeholder svg's already-3% white fill to ~0.3%
+     visibility — practically invisible. With the cascade neutered
+     and a centred placeholder icon at readable opacity, reviewers
+     immediately see this is a configurable image area, while the
+     section's dark mood is preserved (no full-bleed light panel).
+     The modifier class is dropped the moment an image uploads, so
+     this rule auto-disables in production. */
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  filter: none;
 }
 
 .kt-testimonials__bg-base--placeholder .placeholder-svg {
-  width: 100%;
-  height: 100%;
-  fill: rgba(255, 255, 255, 0.03);
+  width: 30%;
+  max-width: 280px;
+  height: auto;
+  fill: rgba(255, 255, 255, 0.18);
 }
 
 /* Layer 2: spotlight reveal — mouse-follow mask
@@ -91,11 +106,19 @@
   margin-bottom: 1.5rem;
 }
 
-/* h2: text-4xl md:text-6xl font-serif italic text-white leading-tight */
+/* h2: text-4xl md:text-6xl font-serif italic text-white leading-tight.
+   R207 — explicit `font-weight: 400` overrides the global
+   `h1..h6 { font-weight: var(--kt-f-heading-weight) }` rule from
+   base.css, which was rendering the source's regular-weight serif
+   italic ("Living with Kitchero.") as a heavier display weight.
+   Same cascade race we hit on the home-financing partner header
+   in R202 — fix is the same shape: declare the desired weight
+   explicitly so the global heading rule doesn't win. */
 .kt-testimonials__title {
   font-family: var(--kt-f-accent-family);
   font-size: 2.25rem;
   font-style: italic;
+  font-weight: 400;
   color: var(--kt-white);
   line-height: 1.1;
   margin: 0;
@@ -240,13 +263,24 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.05);
+  /* R207 — slightly lifted from 0.05 to 0.08 so the circular
+     no-photo slot reads more clearly against the card's
+     translucent stone-900 surface. */
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .kt-testimonials__avatar--placeholder svg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  /* R207 — was filling the circle 100%×100% with a stretched
+     `lifestyle-1` placeholder svg (kitchen scene). Now uses an
+     inline head-and-shoulders glyph that needs to sit centred at
+     ~60% of the slot — small enough to read as an icon, large
+     enough to anchor the card's name + role text beside it.
+     `currentColor` flows from the rule below so the silhouette
+     gets a muted near-white tint rather than the raw stroke
+     default. */
+  width: 60%;
+  height: 60%;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* Author name: text-sm font-bold text-white uppercase tracking-widest */
