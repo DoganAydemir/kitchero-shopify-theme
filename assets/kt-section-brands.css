@@ -2,14 +2,15 @@
    Birebir from Brands.tsx */
 
 .kt-brands {
-  /* R194 — defaults trimmed from 60px to 40px each side. The
-     marquee row content (placeholder svg ~32px + gap + tiny text
-     ~12px ≈ 48px tall) was floating inside a ~184px white band,
-     reading as content-light + padding-heavy with subjective
-     vertical asymmetry. 40px each side is still ample breathing
-     room without dwarfing the content. Merchants can still
-     override per-section via padding_top / padding_bottom range
-     settings. */
+  /* R196 — section made into a flex container so the track is
+     vertically centred by the layout, not by padding math.
+     Padding defaults still drive the merchant range setting (so
+     the editor toggle keeps working). align-items: center
+     guarantees the track sits at the geometric centre of the
+     section regardless of any internal content asymmetry (svg
+     viewBox padding, glyph half-leading, etc). */
+  display: flex;
+  align-items: center;
   padding-top: var(--kt-brands-pad-top, 40px);
   padding-bottom: var(--kt-brands-pad-bottom, 40px);
   background-color: var(--kt-stone-50);
@@ -33,16 +34,13 @@
   justify-content: center;
   margin: 0 2rem;
   width: 10rem;
-  /* R195 — replaced fixed `height: 4rem` with `min-height` + explicit
-     vertical padding. The fixed height combined with descendant
-     content (svg + text-with-default-line-height) was producing a
-     subtle vertical asymmetry: line-height: normal (1.2) gives the
-     text-name span a half-leading top/bottom that doesn't match the
-     svg's geometric centre, so flex centering inside a fixed box
-     ended up looking off. Padding-driven sizing puts the breathing
-     room OUTSIDE the content box, which is symmetric by definition. */
-  min-height: 4rem;
-  padding: 0.75rem 0;
+  /* R196 — back to a fixed height now that section-level flex
+     centring (R196) handles the macro vertical alignment. Fixed
+     item height keeps the marquee track row uniform regardless of
+     which fallback path each block takes (image vs placeholder vs
+     plain text), so adjacent items don't render at different
+     heights and create a wavy baseline. */
+  height: 4rem;
   flex-shrink: 0;
   color: var(--kt-stone-500);
   user-select: none;
