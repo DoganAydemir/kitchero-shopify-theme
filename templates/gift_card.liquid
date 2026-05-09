@@ -82,30 +82,34 @@
         <div class="kt-gift-card__card">
           <div class="kt-gift-card__card-media">
             {%- if gift_card.image -%}
-              <img
-                src="{{ gift_card.image | image_url: width: 720 }}"
-                srcset="
-                  {{ gift_card.image | image_url: width: 400 }} 400w,
-                  {{ gift_card.image | image_url: width: 600 }} 600w,
-                  {{ gift_card.image | image_url: width: 900 }} 900w,
-                  {{ gift_card.image | image_url: width: 1200 }} 1200w
-                "
-                sizes="(min-width: 750px) 540px, 90vw"
-                width="720"
-                height="{{ 720 | divided_by: gift_card.image.aspect_ratio | ceil }}"
-                loading="eager"
-                {%- comment -%}
-                  R140 GIFT-IMG-1: meaningful alt for the gift card
-                  artwork. Empty alt previously implied "decorative",
-                  but a gift card design IS the visual identity of
-                  the page — Lighthouse a11y flagged it as a
-                  non-decorative image with empty alt. Locale key
-                  interpolates the shop name so customers using
-                  assistive tech hear "Acme gift card design".
-                {%- endcomment -%}
-                alt="{{ 'kt.giftcard.issued.image_alt' | t: shop_name: shop.name }}"
-                class="kt-gift-card__card-image"
-              >
+              {%- comment -%}
+                R178 GIFT-IMG-TAG-1: switch from hand-rolled `<img>`
+                to Shopify's `image_tag` filter. CLAUDE.md hard rule:
+                "All <img> tags must use Shopify's image_tag filter
+                with explicit width and height". The hand-rolled
+                form here predated R140's alt fix and was missed
+                during the codebase-wide audit. `image_tag` emits
+                width / height / srcset / sizes / loading / alt /
+                class as a single filter call.
+
+                R140 GIFT-IMG-1 alt rationale preserved: the gift
+                card design IS the visual identity of the page (not
+                decorative); the locale key interpolates the shop
+                name so AT users hear "Acme gift card design".
+              {%- endcomment -%}
+              {%- assign giftcard_image_alt = 'kt.giftcard.issued.image_alt' | t: shop_name: shop.name -%}
+              {{
+                gift_card.image
+                | image_url: width: 720
+                | image_tag:
+                  class: 'kt-gift-card__card-image',
+                  loading: 'eager',
+                  widths: '400, 600, 900, 1200',
+                  sizes: '(min-width: 750px) 540px, 90vw',
+                  width: gift_card.image.width,
+                  height: gift_card.image.height,
+                  alt: giftcard_image_alt
+              }}
             {%- else -%}
               {%- comment -%} Editorial placeholder — a luxe gradient with a serif monogram {%- endcomment -%}
               <div class="kt-gift-card__card-placeholder">
