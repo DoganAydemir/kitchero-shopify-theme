@@ -552,9 +552,16 @@
 
 @media screen and (min-width: 990px) {
   .kt-header__icons {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-    padding-left: 1rem;
-    margin-left: 0.5rem;
+    /* R187 HEADER-ICON-CLUSTER-1: removed the `border-left` divider
+       between the menu and the icon cluster. The 44x44 hit-area
+       icons + 1rem flex gap already provide enough spatial
+       separation; the divider read as visual noise on the dark
+       header and conflicted with the breathing room the cluster
+       needs. Padding-left + margin-left also dropped — they only
+       existed to push the cluster off the divider; without the
+       divider those spacers cause the icons to drift toward the
+       cart edge. Rely on the parent layout's `space-between` /
+       gap to position the cluster instead. */
     gap: 1rem;
   }
 }
