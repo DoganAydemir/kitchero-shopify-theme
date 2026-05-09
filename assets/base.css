@@ -1,6 +1,63 @@
 /* Kitchero Theme — Base Styles
-   Design tokens come from theme.liquid :root via settings_schema.
    This file provides foundational layout, typography, and utility classes. */
+
+/* ============================================================
+   R183 PALETTE-TOKENS-1: Brand palette CSS variables.
+
+   The theme renders against a Tailwind-derived neutrals/accents
+   palette (stone scale + emerald). Sections, snippets and
+   layout reference these via `var(--kt-stone-900)`,
+   `var(--kt-white)`, `var(--kt-emerald-400)` etc. — 1500+
+   call-sites across the asset bundle.
+
+   Earlier base.css carried only a comment claiming the tokens
+   were emitted from `theme.liquid :root via settings_schema`,
+   but no `:root { --kt-white: ... }` block actually existed in
+   either layout/theme.liquid or anywhere in assets/. With the
+   tokens undefined, every rule like
+   `background-color: var(--kt-white)` resolved to the CSS
+   `unset` initial value (transparent for color properties),
+   which is why a fresh-install storefront audit reported
+   "mega menu renders as plain grey boxes" — the white panel
+   background was never actually being painted, the rules were
+   silently failing.
+
+   Defining the palette here, on `:root`, fixes every undefined-
+   token site in one place. Values match the Tailwind stone +
+   white/black + emerald scale that the Next.js source theme
+   was built against, so no visual drift from the design system.
+
+   Theme settings can still override individual scheme tokens
+   via the `color_scheme_group` setting (which emits its own
+   `:root { --kt-c-* }` declarations from Shopify's runtime —
+   `--kt-c-fg`, `--kt-c-bg`, etc.). Those are layered ABOVE
+   this palette: scheme tokens reference palette tokens.
+   ============================================================ */
+:root {
+  --kt-white: #ffffff;
+  --kt-black: #000000;
+
+  /* Tailwind stone scale — the theme's neutral spine. */
+  --kt-stone-50:  #fafaf9;
+  --kt-stone-100: #f5f5f4;
+  --kt-stone-200: #e7e5e4;
+  --kt-stone-300: #d6d3d1;
+  --kt-stone-400: #a8a29e;
+  --kt-stone-500: #78716c;
+  --kt-stone-600: #57534e;
+  --kt-stone-700: #44403c;
+  --kt-stone-800: #292524;
+  --kt-stone-900: #1c1917;
+  --kt-stone-950: #0c0a09;
+
+  /* Tailwind emerald — accent for financing / "free shipping
+     unlocked" / success state ribbons. */
+  --kt-emerald-400: #34d399;
+  --kt-emerald-500: #10b981;
+  --kt-emerald-600: #059669;
+  --kt-emerald-700: #047857;
+  --kt-emerald-800: #065f46;
+}
 
 /* ============================================================
    Reset & Box Model

@@ -78,8 +78,17 @@
 .kt-hero__heading-clip {
   display: block;
   overflow: hidden;
-  margin: -0.1em -0.15em;
-  padding: 0.1em 0.15em;
+  /* R183 HERO-ITALIC-CLIP-1: bump horizontal margin/padding so the
+     italic serif glyph (`serif_word` slot — e.g. "daily") doesn't
+     get clipped on the right edge. Italic slope extends the visual
+     bounding box past the typographic advance-width by ~10-15% of
+     font-size; 0.15em wasn't enough room — letters with descender
+     slope (y, j, g) were bleeding into the next clip pane and
+     visually overlapping the bold sans-serif word that follows.
+     Negative horizontal margin cancels the extra padding's layout
+     impact so the gap between words stays visually consistent. */
+  margin: -0.1em -0.3em;
+  padding: 0.1em 0.3em;
 }
 
 .kt-hero__anim-slide {
@@ -196,13 +205,19 @@
 .kt-hero__heading-row {
   display: flex;
   align-items: baseline;
-  gap: 1rem;
+  /* R183 HERO-ITALIC-GAP-1: gap was 1rem mobile / 2rem desktop —
+     too tight when the serif italic word (`serif_word`) sits next
+     to the bold sans-serif word (`line2`). At display sizes
+     (clamp 3-7.5rem) the italic slope made the two words
+     visually merge. Bumped to 1.5rem / 2.5rem so they read as
+     two distinct words even at the largest desktop size. */
+  gap: 1.5rem;
   padding: 0.5rem 0.25rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-hero__heading-row {
-    gap: 2rem;
+    gap: 2.5rem;
   }
 }
 
@@ -257,10 +272,19 @@
 }
 
 /* CTA Button */
+/* R183 HERO-CTA-SPACING-1: the CTA was rendering visually
+   "disconnected" from the description above — the wrapper
+   `.kt-hero__anim` div has no margin and the `.kt-hero__desc`
+   max-width clip means the CTA can sit hard against the description's
+   bottom edge with no breathing room. Adding margin-top on the CTA
+   itself (rather than the wrapper) means it works whether the
+   description is rendered or not, AND survives changes to the
+   surrounding markup. */
 .kt-hero__cta {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
+  margin-top: 2rem;
   padding: 1rem 2rem;
   background-color: var(--kt-white);
   color: var(--kt-black);
