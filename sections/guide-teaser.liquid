@@ -23,8 +23,22 @@
       {%- if section.settings.blog != blank -%}
         {%- assign blog_obj = blogs[section.settings.blog] -%}
       {%- endif -%}
-      {%- if blog_obj -%}
-        <a href="{{ blog_obj.url }}" class="kt-guide-teaser__view-all">
+      {%- comment -%}
+        R204 — "View All Journals" CTA was previously gated entirely
+        on `blog_obj` resolving. With no blog selected (the
+        fresh-install demo state), the button vanished even though
+        the original Next.js source always shows it next to the
+        heading. Two-tier resolution now: merchant's explicit URL
+        setting wins, blog page is the natural fallback. If neither
+        is set the button stays hidden so we don't render a dead
+        link.
+      {%- endcomment -%}
+      {%- assign view_all_url = section.settings.view_all_link -%}
+      {%- if view_all_url == blank and blog_obj -%}
+        {%- assign view_all_url = blog_obj.url -%}
+      {%- endif -%}
+      {%- if view_all_url != blank -%}
+        <a href="{{ view_all_url }}" class="kt-guide-teaser__view-all">
           {{ 'kt.section.guide_teaser.view_all' | t | default: 'View All Journals' }}
         </a>
       {%- endif -%}
@@ -230,6 +244,11 @@
       "type": "blog",
       "id": "blog",
       "label": "t:sections.guide-teaser.settings.blog.label"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "t:sections.guide-teaser.settings.view_all_link.label"
     },
     {
       "type": "range",
