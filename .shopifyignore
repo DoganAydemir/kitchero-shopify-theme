@@ -1,26 +1,39 @@
 # .shopifyignore — files excluded from `shopify theme push` and `shopify theme dev`
 #
-# Purpose: protect merchant-edited content from being overwritten by local pushes.
-# These JSON files store section blocks, images, text, and theme settings that
-# merchants fill in via the Shopify admin theme editor. If you push the local
-# (default placeholder) versions, you'll wipe the merchant's content.
-#
 # Strategy:
 #   - Code files (sections/, snippets/, assets/, layout/, locales/, config/settings_schema.json)
-#     are always pushed — this is the "theme logic".
-#   - Data files (config/settings_data.json, templates/*.json) are ignored —
-#     this is the "merchant content".
+#     are always pushed.
+#   - Data files (config/settings_data.json, templates/*.json) WERE previously
+#     ignored to protect merchant edits. Now allowed because:
+#       1. `shopify theme dev` needs templates/*.json to render the storefront
+#          preview locally — without them every page returns 404.
+#       2. The submission workflow uses `shopify theme package` from a clean
+#          baseline tag (e.g. submission-baseline-r185), not from the live
+#          working tree, so placeholder content is preserved at packaging time.
+#       3. Production merchant content lives in a separate non-GitHub-connected
+#          store, never pushed from this codebase.
 #
-# If you need to push a NEW template structure (e.g. adding a new section type to
-# templates/index.json), temporarily comment out the relevant line below, push,
-# then restore.
+# Theme Store-banned patterns below (.md files, docs/) MUST stay ignored —
+# Shopify rejects uploads containing them.
 
-# Merchant-editable theme settings (colors, logo, fonts, layout values)
-config/settings_data.json
+# Theme Store ban-list — never push any of these
+*.md
+docs/*
+references/*
+.github/*
+.theme-check.yml
+.editorconfig
+.gitignore
+.prettierrc*
 
-# Merchant-editable JSON templates (section blocks, content, images)
-templates/*.json
-templates/customers/*.json
+# Dev-time theme-check config that Shopify's backend doesn't need
+.shopifyrc.json
+
+# Node / local dev artefacts
+node_modules/*
+*.log
+.env
+.env.*
 
 # OS files
 .DS_Store
@@ -31,32 +44,10 @@ Thumbs.db
 *~
 *.bak
 
-# Developer documentation — not part of the runtime theme. Shopify will
-# reject uploads that include arbitrary .md files or a docs/ tree.
-*.md
-docs/
-references/
-.github/
-.theme-check.yml
-.editorconfig
-.gitignore
-.prettierrc*
-
-# Dev-time theme-check config that Shopify's backend doesn't need
-.shopifyrc.json
-
-# Node / local dev artefacts (in case anything sneaks in)
-node_modules/
-*.log
-.env
-.env.*
-
 # Local theme-package zip artefacts (output of `shopify theme package`).
-# These are submission bundles, not files Shopify expects to find inside
-# the theme — pushing one in would create an infinite-recursion-looking
-# nest of zipped themes inside the live theme.
+# Pushing one in would create a nested-zip recursion in the live theme.
 *.zip
 
 # Local Claude Code agent state — never ship to storefront
-.claude/
-.claude-code/
+.claude/*
+.claude-code/*
