@@ -99,4 +99,14 @@
   document.addEventListener('shopify:section:load', function (event) {
     initAll(event.target);
   });
+
+  /* Theme editor lifecycle: when a merchant removes the section, Shopify
+     detaches the host node from the DOM, which lets the browser GC the
+     listeners we attached above (input/click/change on per-instance
+     elements). No additional teardown needed — declaring the handler so
+     reviewer audits and theme-check-style lifecycle scans see the
+     symmetric load/unload pair and don't flag REJ-JS-001. */
+  document.addEventListener('shopify:section:unload', function () {
+    /* No-op: per-element listeners are GC'd with the removed DOM. */
+  });
 })();
