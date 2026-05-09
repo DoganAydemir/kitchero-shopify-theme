@@ -2,8 +2,16 @@
    Birebir from Brands.tsx */
 
 .kt-brands {
-  padding-top: var(--kt-brands-pad-top, 60px);
-  padding-bottom: var(--kt-brands-pad-bottom, 60px);
+  /* R194 — defaults trimmed from 60px to 40px each side. The
+     marquee row content (placeholder svg ~32px + gap + tiny text
+     ~12px ≈ 48px tall) was floating inside a ~184px white band,
+     reading as content-light + padding-heavy with subjective
+     vertical asymmetry. 40px each side is still ample breathing
+     room without dwarfing the content. Merchants can still
+     override per-section via padding_top / padding_bottom range
+     settings. */
+  padding-top: var(--kt-brands-pad-top, 40px);
+  padding-bottom: var(--kt-brands-pad-bottom, 40px);
   background-color: var(--kt-stone-50);
   overflow: hidden;
   position: relative;
