@@ -124,6 +124,31 @@
   object-fit: cover;
 }
 
+/* R187 PLACEHOLDER-CONTRAST-2: when no merchant image is uploaded
+   for a hero slide, the snippet falls through to Shopify's
+   `lifestyle-1` placeholder SVG. Those SVGs paint with a
+   transparent background — fine on the surrounding stone-50
+   storefront, but invisible against this section's stone-900
+   backdrop (R183 palette tokens made `--kt-black` resolve, which
+   surfaced this latent issue). Give the placeholder layer the
+   classic Shopify bordered-grey treatment so the BEFORE-image
+   composition reads on a fresh-install demo.
+
+   Once a real image uploads, the `.placeholder-svg` class is gone
+   and these rules no longer match — zero impact on production. */
+.kt-hero__slide-image.placeholder-svg {
+  background-color: var(--kt-stone-100, #f5f5f4);
+  border: 1px solid var(--kt-stone-300, #d6d3d1);
+  color: var(--kt-stone-400, #a8a29e);
+}
+
+.kt-hero__slide-image.placeholder-svg svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  opacity: 0.7;
+}
+
 .kt-hero__slide-overlay {
   position: absolute;
   inset: 0;
