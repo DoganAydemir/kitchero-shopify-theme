@@ -160,7 +160,17 @@
   padding-right: 1.5rem;
 }
 
-/* h4: flex items-center gap-3 text-sm font-bold tracking-widest uppercase */
+/* h4 in source, promoted to h3 in Liquid for heading-order. The
+   tag swap surfaced a base.css bug: the global `h1..h6 { color:
+   rgb(var(--kt-c-fg)) }` rule wins over the section's inherited
+   `color: var(--kt-white)`, so partner names rendered near-black
+   on the stone-800 surface (LENDER 1 / LENDER 2 were almost
+   invisible against the dark bg). Other section headings escape
+   this because they each declare an explicit colour on their own
+   class (e.g. .kt-why-choose-us__feature-title sets white) — this
+   one was relying on inheritance and lost the cascade race. R202
+   makes the white explicit so the partner name reads at the same
+   contrast as the section h2 above it. */
 .kt-home-financing__partner-header {
   display: flex;
   align-items: center;
@@ -169,6 +179,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: var(--kt-white);
 }
 
 .kt-home-financing__partner-header svg {
