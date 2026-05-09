@@ -44,6 +44,21 @@
     rendered HTML becomes `data-testimonials-spotlightstyle="..."` which
     silently breaks both the selector and the inline background image.
   {%- endcomment -%}
+  {%- comment -%}
+    R210 — spotlight layer in placeholder state is just a flat
+    white wash. R209 tried rendering the lifestyle-1 svg as an
+    inline child here, but `mask-image` reliably clips an
+    element's CSS background (color or image) — propagation to
+    inline-svg children is browser-inconsistent, and Chrome on
+    the user's setup wasn't masking the svg. Net effect: no
+    visible spotlight reveal.
+
+    Switched to a flat `background-color` instead; the JS-driven
+    radial-gradient mask clips it cleanly into the feathered
+    mouse-follow circle. The CSS rule lives on the
+    `--placeholder` modifier so the merchant-image branch
+    (which uses background-image url) is untouched.
+  {%- endcomment -%}
   <div
     class="kt-testimonials__spotlight{% if section.settings.background_image == blank %} kt-testimonials__spotlight--placeholder{% endif %}"
     data-testimonials-spotlight=""
@@ -51,21 +66,7 @@
       style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
     {%- endif -%}
     aria-hidden="true"
-  >
-    {%- comment -%}
-      R209 — render the kitchen-scene placeholder svg inside the
-      spotlight layer too. Pre-R209 the spotlight only had a CSS
-      `background-image` set inline for merchant images, so the
-      mouse-follow reveal effect had nothing to reveal in the
-      placeholder state — visitors got no spotlight feedback.
-      The JS-driven radial-gradient mask on this element clips
-      the inline svg the same way it does a CSS bg-image, so the
-      reveal effect now mirrors the merchant-image experience.
-    {%- endcomment -%}
-    {%- if section.settings.background_image == blank -%}
-      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-    {%- endif -%}
-  </div>
+  ></div>
 
   <div class="page-width kt-testimonials__content">
     {%- comment -%} Header {%- endcomment -%}

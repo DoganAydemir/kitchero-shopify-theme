@@ -49,28 +49,28 @@
   fill: rgba(255, 255, 255, 1);
 }
 
-/* R209 — spotlight layer also renders a placeholder svg when no
-   merchant image is picked, so the mouse-follow reveal effect
-   works in placeholder mode. Pre-R209 the spotlight only had a
-   CSS `background-image` set inline for merchant images — the
-   placeholder state had nothing for the mask to reveal, so
-   hovering produced no feedback. JS sets `mask-image:
-   radial-gradient(450px circle at X Y, black 0%, transparent
-   100%)` on this element each animation frame; the mask clips
-   the inline svg the same way it clips a CSS bg-image, so the
-   reveal effect mirrors the merchant-image experience exactly.
-   Layer's parent transition (opacity 0 → 0.6 on section hover)
-   is preserved. */
-.kt-testimonials__spotlight--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* R210 — spotlight reveal in placeholder mode now uses a plain
+   white background-colour. R209 tried inline svg as a spotlight
+   child, but `mask-image` reliably clips only an element's CSS
+   background (color or image) — propagation to inline-svg
+   children is inconsistent across browsers, and Chrome on the
+   user's setup wasn't masking the svg, so no visible spotlight
+   formed. A flat `rgba(255,255,255,0.65)` is unambiguously
+   masked by the JS-driven radial-gradient (450px circle at
+   mouseX mouseY, black 0% → transparent 100%) into a soft
+   feathered circle that follows the cursor.
 
-.kt-testimonials__spotlight--placeholder .placeholder-svg {
-  width: 100%;
-  height: 100%;
-  fill: rgba(255, 255, 255, 1);
+   Combined effect: the section-hover bg-base lift (0.1 → 0.2)
+   slightly brightens the dim kitchen line-art across the whole
+   section, AND the spotlight wash adds a brighter feathered
+   circle directly under the cursor — same visual goal as the
+   merchant-image experience (which composites the same image
+   at low + high opacity, mask-clipped). The brightness tracks
+   what the spotlight reveals over a real photo: ~60% × white
+   when the parent's hover opacity hits 0.6 in the masked
+   region. */
+.kt-testimonials__spotlight--placeholder {
+  background-color: rgba(255, 255, 255, 0.65);
 }
 
 /* Layer 2: spotlight reveal — mouse-follow mask
