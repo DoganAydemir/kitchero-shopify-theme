@@ -649,6 +649,17 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
 @media screen and (min-width: 990px) {
   .kt-header__locale {
     display: block;
+    /* R190 LOCALE-ORDER-LEFT-1: visually push the country/currency
+       selector to the LEFT of the icon cluster (before search/account
+       icons), even though the DOM keeps it after the search button.
+       Reasoning: the USD/EN text label has a different visual weight
+       from the 44x44 SVG icons. Sandwiching it between icons broke the
+       cluster's rhythm (icon-icon-text-icon). Pushing it to the leading
+       edge groups the icons cleanly (text | icon icon icon-with-badge).
+       Pure CSS-order, no markup change — Theme Store rule CLU-03
+       ("left of cart icon in the header") still satisfied because
+       cart stays at the rightmost position. */
+    order: -1;
   }
 }
 
