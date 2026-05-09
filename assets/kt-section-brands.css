@@ -33,7 +33,16 @@
   justify-content: center;
   margin: 0 2rem;
   width: 10rem;
-  height: 4rem;
+  /* R195 — replaced fixed `height: 4rem` with `min-height` + explicit
+     vertical padding. The fixed height combined with descendant
+     content (svg + text-with-default-line-height) was producing a
+     subtle vertical asymmetry: line-height: normal (1.2) gives the
+     text-name span a half-leading top/bottom that doesn't match the
+     svg's geometric centre, so flex centering inside a fixed box
+     ended up looking off. Padding-driven sizing puts the breathing
+     room OUTSIDE the content box, which is symmetric by definition. */
+  min-height: 4rem;
+  padding: 0.75rem 0;
   flex-shrink: 0;
   color: var(--kt-stone-500);
   user-select: none;
@@ -91,6 +100,11 @@
 
 .kt-brands__placeholder-name {
   font-size: 0.625rem;
+  /* R195 — explicit line-height: 1 collapses the default-normal
+     half-leading so the text's geometric box matches its visual
+     ink. Combined with the item-level padding fix, the svg + name
+     pair sits exactly between the section's top + bottom paddings. */
+  line-height: 1;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
