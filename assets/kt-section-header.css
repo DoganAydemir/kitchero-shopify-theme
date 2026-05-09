@@ -554,15 +554,20 @@
   .kt-header__icons {
     /* R187 HEADER-ICON-CLUSTER-1: removed the `border-left` divider
        between the menu and the icon cluster. The 44x44 hit-area
-       icons + 1rem flex gap already provide enough spatial
-       separation; the divider read as visual noise on the dark
-       header and conflicted with the breathing room the cluster
-       needs. Padding-left + margin-left also dropped — they only
-       existed to push the cluster off the divider; without the
-       divider those spacers cause the icons to drift toward the
-       cart edge. Rely on the parent layout's `space-between` /
-       gap to position the cluster instead. */
-    gap: 1rem;
+       icons + flex gap already provide enough spatial separation;
+       the divider read as visual noise on the dark header and
+       conflicted with the breathing room the cluster needs.
+       Padding-left + margin-left also dropped — they only existed
+       to push the cluster off the divider; without the divider
+       those spacers cause the icons to drift toward the cart edge.
+       R191 — gap tightened from 1rem to 0.5rem. With the 0.5rem
+       padding on each icon, edge-to-edge separation is still
+       0.5rem padding + 0.5rem gap + 0.5rem padding = 24px (WCAG
+       2.5.8 minimum recommended). The previous 1rem gap (32px
+       edge-to-edge) read as too loose, especially after R190
+       moved USD to the leading edge — the cluster looked spread
+       out rather than coherent. */
+    gap: 0.5rem;
   }
 }
 
@@ -667,11 +672,14 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   /* Inherit the .kt-header__icon look (44×44 hit area, hover color)
      but stretch horizontally to fit the EN / USD label. <summary>
      defaults to list-item display — kill the marker and use flex
-     to align the label and chevron. */
+     to align the label and chevron.
+     R191 — horizontal padding equalised with the 0.5rem padding on
+     the SVG icons so the spacing between USD and the next icon
+     matches the spacing between the icon pair. */
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.5rem;
   list-style: none;
   white-space: nowrap;
 }
