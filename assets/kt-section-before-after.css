@@ -12,16 +12,18 @@
 }
 
 .kt-before-after__title {
-  font-size: 3rem;
+  /* R214 FLUID-TYPO: was stepped 3rem mobile / 4.375rem ≥750px
+     (R213 sweep skipped this one by mistake). Migrated to clamp()
+     so iPad portrait (~768px) lands around 3.6rem instead of
+     jumping straight to the 4.375rem desktop ceiling — "SEE THE
+     DIFFERENCE" was reading as oversized title-band on iPad
+     portrait. */
+  font-size: clamp(3rem, 4vw + 1rem, 4.375rem);
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--kt-white);
   margin-bottom: 0.5rem;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-before-after__title { font-size: 4.375rem; }
 }
 
 .kt-before-after__subtitle {

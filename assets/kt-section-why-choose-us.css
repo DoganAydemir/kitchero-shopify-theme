@@ -25,7 +25,16 @@
   gap: 2.5rem;
 }
 
-@media screen and (min-width: 750px) {
+/* R214 — pushed the row layout from 750px to 990px. iPad portrait
+   (768-989px) was switching to row at 750px, splitting the heading
+   column with the description column to its right. The heading
+   then ran out of horizontal room and the title's clamp floor
+   (3.75rem) caused "HEADING 1" to wrap mid-string with the digit
+   dropping to its own line. Keeping iPad portrait on the stacked
+   column layout fixes the wrap and reads as a more comfortable
+   single-narrative band. Row layout returns at 990px+ where the
+   heading column is wide enough for the display title. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__header {
     flex-direction: row;
     align-items: flex-end;
@@ -44,12 +53,14 @@
   margin: 0;
 }
 
-/* Fluid scale tablet → desktop. iPad (768-1024px) was reading
- * "THE STANDARD." cropped past the right viewport edge — desktop's
- * 10rem fired immediately when viewport crossed 750px. clamp()
- * keeps iPad in the ~5-6.5rem band; full desktop reaches 10rem at
- * very wide viewports (1440px+). */
-@media screen and (min-width: 750px) {
+/* R214 — title clamp now scoped to 990px+ alongside the row
+   header layout. At iPad portrait the header is full-width
+   stacked, but the clamp would still run at 8vw which read as
+   too aggressive for the heading column's tighter context. Floor
+   3.75rem at iPad portrait sits comfortably; clamp resumes at
+   990px where the heading shares space with the description
+   column. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__title {
     font-size: clamp(3.75rem, 8vw + 0.5rem, 10rem);
   }
@@ -67,7 +78,11 @@
   margin: 0;
 }
 
-@media screen and (min-width: 750px) {
+/* R214 — desc bump + right-align scoped to 990px+ alongside the
+   row header layout. At iPad portrait the desc sits below the
+   heading in a stacked layout — left-aligned at 1.25rem reads
+   naturally there. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__desc {
     font-size: 1.5rem;
     text-align: right;
@@ -160,7 +175,13 @@
   border-top: 1px solid var(--kt-stone-800);
 }
 
-@media screen and (min-width: 750px) {
+/* R214 — 3-up grid pushed from 750px to 990px. At iPad portrait
+   (768-989px), 3 columns × ~256px each made the feature title
+   "Feature title" wrap as "Feature / title" with the description
+   collapsing into a tight column. 1-up stack at iPad portrait is
+   easier to read; 3-up resumes at 990px+ where each column is
+   wide enough to hold the title on a single line. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -174,7 +195,12 @@
   border-top: 1px solid var(--kt-stone-800);
 }
 
-@media screen and (min-width: 750px) {
+/* R214 — feature horizontal-divider layout scoped to 990px+
+   alongside the 3-up grid. At iPad portrait the features stack
+   vertically and the horizontal-padding scheme would create
+   weird off-centre indents — the mobile-style stack rule
+   (top-border, padding-top) is the right pattern there. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__feature {
     padding-bottom: 2rem;
     border-top: none;
@@ -219,7 +245,10 @@
   color: var(--kt-white);
 }
 
-@media screen and (min-width: 750px) {
+/* R214 — feature title bump scoped to 990px+ alongside 3-up grid.
+   At iPad portrait the 1-up stack gives each card the full
+   container width — the mobile 1.875rem reads naturally there. */
+@media screen and (min-width: 990px) {
   .kt-why-choose-us__feature-title {
     font-size: 2.25rem;
   }
