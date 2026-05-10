@@ -86,9 +86,19 @@
      slope (y, j, g) were bleeding into the next clip pane and
      visually overlapping the bold sans-serif word that follows.
      Negative horizontal margin cancels the extra padding's layout
-     impact so the gap between words stays visually consistent. */
-  margin: -0.1em -0.3em;
-  padding: 0.1em 0.3em;
+     impact so the gap between words stays visually consistent.
+
+     R211 HERO-ITALIC-DESCENDER-CLIP: same pattern bottom-side now.
+     R183 left vertical padding at 0.1em — that's ~12px at 7.5rem
+     display size, far short of the italic serif's descender depth
+     for "y", "g", "j", "p" (typically ~25-30% of em). The "y" tail
+     in `daily` was visibly cut at the baseline. Bumped bottom
+     padding to 0.25em with a matching -0.25em margin so layout
+     stays tight while the painted glyph fits inside the
+     overflow:hidden clip. Top stays at 0.1em — sans-serif clips
+     above it have no top-clipping issue. */
+  margin: -0.1em -0.3em -0.25em;
+  padding: 0.1em 0.3em 0.25em;
 }
 
 .kt-hero__anim-slide {
@@ -203,7 +213,13 @@
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  /* R211 HERO-LINE-SPACING: was 0.5rem flex column gap which, on
+     top of the row's 0.5rem vertical padding (below) and the
+     italic clip's 0.1em vertical breathing room, stacked into
+     ~24px of extra air between line 1 and line 2 at base font
+     size. Display heading wants near-zero gap so the two lines
+     read as one tightly-set headline. */
+  gap: 0;
   margin: 0;
 }
 
@@ -237,7 +253,13 @@
      visually merge. Bumped to 1.5rem / 2.5rem so they read as
      two distinct words even at the largest desktop size. */
   gap: 1.5rem;
-  padding: 0.5rem 0.25rem;
+  /* R211 HERO-LINE-SPACING: vertical padding dropped from 0.5rem
+     to 0 — it was vestigial overflow buffer that R183 already
+     handled at the heading-clip level. Keeping it added 1rem of
+     unnecessary air between line 1 and the row containing line
+     2, fighting the tight display-heading rhythm. Horizontal
+     0.25rem stays as a safety margin against italic slope. */
+  padding: 0 0.25rem;
 }
 
 @media screen and (min-width: 750px) {
