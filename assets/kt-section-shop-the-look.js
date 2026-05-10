@@ -96,17 +96,37 @@
             }
           }
           if (mobileImg && imgEl) {
-            /* Build the <img> via DOM nodes (not innerHTML interpolation)
+            /* Build the image node via DOM (not innerHTML interpolation)
                so an alt attribute containing HTML-active characters can
                never be parsed as markup. Clear existing children first. */
             while (mobileImg.firstChild) mobileImg.removeChild(mobileImg.firstChild);
-            var cloneImg = document.createElement('img');
-            cloneImg.src = imgEl.src;
-            cloneImg.alt = imgEl.alt || '';
-            cloneImg.style.width = '100%';
-            cloneImg.style.height = '100%';
-            cloneImg.style.objectFit = 'cover';
-            mobileImg.appendChild(cloneImg);
+            /* R215 — desktop popup falls through to a Shopify
+               `placeholder_svg_tag` when the merchant hasn't picked
+               a product image, so `imgEl` can be either an `<img>`
+               or an `<svg>`. Previously this branch always created
+               an `<img>` and assigned `imgEl.src` — which is
+               undefined on an SVG node, leaving the cloned `<img>`
+               with no source and the browser painting a broken-
+               image icon in the mobile sheet. Now branch on the
+               element's tag: real images get cloned as `<img>`
+               with src/alt copied; SVG placeholders get cloned as
+               an SVG node, with width/height styles re-applied so
+               the mobile sheet keeps the same square layout. */
+            var tag = imgEl.tagName && imgEl.tagName.toLowerCase();
+            if (tag === 'img') {
+              var cloneImg = document.createElement('img');
+              cloneImg.src = imgEl.src;
+              cloneImg.alt = imgEl.alt || '';
+              cloneImg.style.width = '100%';
+              cloneImg.style.height = '100%';
+              cloneImg.style.objectFit = 'cover';
+              mobileImg.appendChild(cloneImg);
+            } else {
+              var cloneSvg = imgEl.cloneNode(true);
+              cloneSvg.style.width = '100%';
+              cloneSvg.style.height = '100%';
+              mobileImg.appendChild(cloneSvg);
+            }
           }
         }
 

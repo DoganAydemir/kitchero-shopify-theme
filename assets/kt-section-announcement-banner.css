@@ -17,8 +17,12 @@
   /* Hairline separator from the header below. Translucent white reads
      as a thin lighter line on dark themes (where the dark bar collides
      with a dark header) and is invisible on light themes (where tonal
-     contrast already separates the two surfaces). Auto-adaptive. */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+     contrast already separates the two surfaces). Auto-adaptive.
+     R215 — alpha pulled from 0.08 to 0.04. Mobile retina rendering
+     (a 1px CSS line painted into 2-3 device pixels) made the 0.08
+     value read as a sharp white rule against the dark bar. 0.04 is
+     enough to suggest separation without becoming a visible stroke. */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   font-family: inherit;
