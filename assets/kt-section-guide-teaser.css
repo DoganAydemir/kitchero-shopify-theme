@@ -30,15 +30,15 @@
 }
 
 .kt-guide-teaser__title {
-  font-size: 3rem;
+  /* R213 FLUID-TYPO: was stepped 3rem mobile / 4.375rem ≥750px.
+     Migrated to clamp() so laptop widths (~1024px) land around
+     3.5rem instead of jumping straight to the 4.375rem desktop
+     ceiling. */
+  font-size: clamp(3rem, 4vw + 1rem, 4.375rem);
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--kt-stone-900);
-}
-
-@media screen and (min-width: 750px) {
-  .kt-guide-teaser__title { font-size: 4.375rem; }
 }
 
 /* R205 — birebir Tailwind from GuideTeaser.tsx:

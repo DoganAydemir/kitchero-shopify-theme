@@ -65,17 +65,22 @@
 
 .kt-mid-cta__heading {
   font-family: var(--kt-f-accent-family);
-  font-size: 3rem;
+  /* R213 FLUID-TYPO: was a stepped 3rem (mobile) → 4.375rem
+     (≥750px) declaration. At laptop widths (~1024px) the desktop
+     ceiling kicked in too early, leaving no intermediate scale —
+     italic words like "heading" wrapped mid-glyph as "head-/ing"
+     because the font outgrew the column. clamp() gives smooth
+     fluid scaling: 3rem floor on mobile, ~3.6rem at 1024px,
+     ceilings at 4.375rem on full desktop. */
+  font-size: clamp(3rem, 4vw + 1rem, 4.375rem);
   letter-spacing: -0.025em;
   color: var(--kt-stone-900);
   margin-bottom: 1.5rem;
   line-height: 1.1;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-mid-cta__heading {
-    font-size: 4.375rem;
-  }
+  /* R213 — italic serif "heading" was breaking mid-word at
+     intermediate widths via UA hyphenation. Force `manual` so
+     only soft-hyphens (none in this content) trigger breaks. */
+  hyphens: manual;
 }
 
 .kt-mid-cta__heading em {

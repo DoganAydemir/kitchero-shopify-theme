@@ -137,18 +137,13 @@
    explicitly so the global heading rule doesn't win. */
 .kt-testimonials__title {
   font-family: var(--kt-f-accent-family);
-  font-size: 2.25rem;
+  /* R213 FLUID-TYPO: 2.25rem → 3.75rem stepped → clamp() fluid. */
+  font-size: clamp(2.25rem, 3vw + 1rem, 3.75rem);
   font-style: italic;
   font-weight: 400;
   color: var(--kt-white);
   line-height: 1.1;
   margin: 0;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-testimonials__title {
-    font-size: 3.75rem;
-  }
 }
 
 /* Right description: max-w-xs text-stone-400 font-light leading-relaxed */
@@ -180,7 +175,15 @@
   }
 }
 
-@media screen and (min-width: 1024px) {
+/* R213 — pushed 3-up breakpoint from 1024px to 1180px. At
+   1024px-1180px the 3-column layout left ~152px text width per
+   card after avatar (48px) + gap (16px) + side padding (32px×2),
+   not enough for "CUSTOMER NAME" with letter-spacing 0.1em — the
+   author name wrapped onto two lines. 1180px gives ~200px text
+   width, comfortably wider than the 168px name string at full
+   size. Below 1180px the 2-up grid (already declared above) keeps
+   each card wide enough for single-line author names. */
+@media screen and (min-width: 1180px) {
   .kt-testimonials__grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 5rem;

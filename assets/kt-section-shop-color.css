@@ -30,15 +30,10 @@
 
 .kt-shop-color__title {
   font-family: var(--kt-f-accent-family);
-  font-size: 2.25rem;
+  /* R213 FLUID-TYPO: 2.25rem → 3.75rem stepped → clamp() fluid. */
+  font-size: clamp(2.25rem, 3vw + 1rem, 3.75rem);
   font-style: italic;
   color: var(--kt-stone-900);
-}
-
-@media screen and (min-width: 750px) {
-  .kt-shop-color__title {
-    font-size: 3.75rem;
-  }
 }
 
 /* Main layout */
@@ -192,19 +187,14 @@
 }
 
 .kt-shop-color__category-title {
-  font-size: 1.875rem;
+  /* R213 FLUID-TYPO: 1.875rem → 3rem stepped → clamp() fluid. */
+  font-size: clamp(1.875rem, 2.5vw + 0.5rem, 3rem);
   font-weight: 700;
   letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--kt-stone-500);
   transition: color 0.5s ease;
   margin: 0;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-shop-color__category-title {
-    font-size: 3rem;
-  }
 }
 
 .kt-shop-color__category--active .kt-shop-color__category-title {
