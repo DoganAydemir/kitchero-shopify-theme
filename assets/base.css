@@ -1107,17 +1107,46 @@ select:-webkit-autofill {
   padding: 1rem 0;
 }
 
-/* Wrapper around the global breadcrumb render in layout/theme.liquid.
-   `:has()` only collapses the wrap when the snippet returns nothing
-   (page-types in `hidden_page_types` like cart, 404, customer/*).
-   Without :has(), the wrap would emit a stray padding row on those
-   templates because Liquid still renders the parent <div>. */
-.kt-breadcrumbs-wrap {
-  padding-top: 0;
+/* R216 — `<main>` runs as a flex column so we can re-order the
+   breadcrumb visually without moving it in the DOM. The breadcrumb
+   renders FIRST in the source so it's an early landmark for screen
+   readers, but we want it to APPEAR right after the first content
+   section (intro hero / banner / dotted page header). The `order`
+   tiers below pin the first section to slot 1, the breadcrumb to
+   slot 2, and every subsequent section to slot 3 — so the visual
+   flow is: intro → breadcrumb → body, regardless of how many
+   sections follow.
+
+   Children that aren't sections or the breadcrumb (none today, but
+   defensive) inherit the default `order: 0` and would sit before
+   slot 1 — there are no such children in our layout, so this is a
+   theoretical concern only. */
+.kt-main-flex {
+  display: flex;
+  flex-direction: column;
 }
 
-.kt-breadcrumbs-wrap:not(:has(.kt-breadcrumbs)) {
-  display: none;
+.kt-main-flex > .shopify-section:first-of-type {
+  order: 1;
+}
+
+.kt-main-flex > .kt-breadcrumbs-wrap {
+  order: 2;
+}
+
+.kt-main-flex > .shopify-section:not(:first-of-type) {
+  order: 3;
+}
+
+/* The breadcrumb itself is now the `<nav>` direct child of `<main>`
+   (no <div> wrapper) — the `.kt-breadcrumbs-wrap` modifier class is
+   forwarded onto the nav from layout/theme.liquid for spacing /
+   width-clamp parity with the previous wrapper. The snippet skips
+   render entirely on hidden page-types (index, cart, 404, etc.)
+   so we no longer need the old empty-wrapper safety rule. */
+.kt-breadcrumbs-wrap {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .kt-breadcrumbs__list {

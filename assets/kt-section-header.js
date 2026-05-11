@@ -38,27 +38,22 @@
     if (!cachedHeader) return;
     var scrolled = window.scrollY > SCROLL_THRESHOLD;
     cachedHeader.classList.toggle('kt-header--scrolled', scrolled);
-    /* R216 — `kt-header--transparent` is no longer toggled on scroll.
-       Previously we removed it past the threshold so the base
-       `.kt-header { position: sticky }` rule could take over, but
-       that swap caused a flow-reflow jump: the header went from
-       `position: fixed` (0 flow height) to `position: sticky` (~76px
-       flow height) at the threshold, and the hero below it visibly
-       jumped down by the header's height. Keeping --transparent
-       throughout means the header stays `position: fixed` the whole
-       time; only the background/text-shadow change via the
-       --scrolled class. The CSS rule
-       `.kt-header--transparent.kt-header--scrolled` pins position
-       explicitly so the combo selector is unambiguous.
-
-       The smooth scroll-follow effect (header sliding up with the
-       banner) is handled by updateHeaderTop below — it writes a
-       running `--kt-header-top` value to the root that the CSS
-       consumes via var(). */
-    var isTransparent = cachedHeader.dataset.headerStyle === 'transparent';
-    if (isTransparent) {
+    /* R216 — auto-detect transparent state from the DOM (no more
+       `data-header-style` attribute on the header element). The CSS
+       `:has()` selector lights up the transparent visual whenever
+       the first `.shopify-section` inside `<main>` carries a
+       `[data-allows-transparent-header="true"]` element, so we
+       mirror the same check here to decide whether the smooth
+       scroll-follow `--kt-header-top` machinery should run. */
+    if (isTransparentPage()) {
       updateHeaderTop();
     }
+  }
+
+  function isTransparentPage() {
+    return !!document.querySelector(
+      'main > .shopify-section:first-of-type [data-allows-transparent-header="true"]'
+    );
   }
 
   /* R216 — drive the transparent header's `top` from scrollY so it

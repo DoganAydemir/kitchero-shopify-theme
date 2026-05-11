@@ -494,26 +494,36 @@
 
     {% sections 'header-group' %}
 
-    <main id="MainContent" class="content-for-layout focus-none" tabindex="-1">
+    <main id="MainContent" class="content-for-layout focus-none kt-main-flex" tabindex="-1">
       {%- comment -%}
-        Global breadcrumb — single render at the top of `<main>`,
-        following Shopify's official liquid-code-examples pattern.
-        snippets/breadcrumbs.liquid filters out page types where a
-        breadcrumb adds no value (index, cart, list-collections, 404,
-        password, gift_card, customer/*). One render here keeps the
-        navigation aid consistent across every product, collection,
-        article, blog, page (default + alt-template), and search
-        result — no template-by-template wiring, no inconsistency
-        when a custom layout (banner-cover hero, etc.) skips the
-        main-* section that previously hosted the breadcrumb.
+        Global breadcrumb — rendered at the TOP of `<main>` in DOM
+        order, but visually positioned AFTER the first content
+        section via CSS flex `order` (.kt-main-flex rule in
+        base.css). The effect: on a page that opens with a dotted
+        page header or a cover photo / hero section, the breadcrumb
+        sits in its own row right below that intro section, ABOVE
+        the rest of the body — matching the "menu → intro → trail →
+        body" rhythm of premium DTC themes.
 
-        Merchants who want a quieter site can flip
-        `settings.kt_show_breadcrumbs` off in Theme Settings.
+        Why DOM-top, visually-after:
+          * Keeps `<nav class="kt-breadcrumbs">` as the FIRST
+            non-section element of <main>, accessible to screen
+            readers as an early landmark.
+          * The breadcrumb wrapper renders as a <nav> (not <div>),
+            so the `body:has(main > .shopify-section:first-of-type
+            [data-allows-transparent-header="true"])` auto-detect
+            in kt-section-header.css still resolves the first
+            `.shopify-section` correctly — <nav> doesn't compete
+            with <div> for `:first-of-type` matching.
+
+        snippets/breadcrumbs.liquid filters out page types where a
+        breadcrumb adds no value (index, cart, list-collections,
+        404, password, gift_card, customer/*). Merchants who want
+        a quieter site flip `settings.kt_show_breadcrumbs` off in
+        Theme Settings.
       {%- endcomment -%}
       {%- if settings.kt_show_breadcrumbs -%}
-        <div class="page-width kt-breadcrumbs-wrap">
-          {%- render 'breadcrumbs' -%}
-        </div>
+        {%- render 'breadcrumbs', class_extra: 'page-width kt-breadcrumbs-wrap' -%}
       {%- endif -%}
 
       {{ content_for_layout }}

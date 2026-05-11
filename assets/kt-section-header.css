@@ -69,7 +69,7 @@
    Adds a subtle text-shadow on the logo + nav links so they stay
    legible over light backgrounds too (not just dark heroes). The
    shadow disappears once the header becomes solid on scroll. */
-.kt-header--transparent {
+body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
   /* R216 — `position: fixed` keeps the header out of flow so the
      hero can bleed up behind it (transparent overlay use case).
 
@@ -105,12 +105,12 @@
 
    Once JS hydrates, `--kt-header-top` overrides this with the
    actual scroll-aware computed top. */
-body:has(.kt-announcement-banner) .kt-header--transparent {
+body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
   top: var(--kt-header-top, var(--kt-banner-height, 40px));
 }
 
 @media (max-width: 639px) {
-  body:has(.kt-announcement-banner) .kt-header--transparent {
+  body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
     top: var(--kt-header-top, var(--kt-banner-height, 34px));
   }
 }
@@ -123,16 +123,16 @@ body:has(.kt-announcement-banner) .kt-header--transparent {
    .kt-header--scrolled rule further down already does that, but
    without an explicit override here it would be ambiguous whether
    `position: sticky` (base .kt-header) or `position: fixed`
-   (.kt-header--transparent) wins on the combo selector — they have
+   (body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header) wins on the combo selector — they have
    identical specificity. Pin the position explicitly on the combo
    to remove that ambiguity. */
-.kt-header--transparent.kt-header--scrolled {
+body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header.kt-header--scrolled {
   position: fixed;
 }
 
-.kt-header--transparent:not(.kt-header--scrolled) .kt-header__logo-text,
-.kt-header--transparent:not(.kt-header--scrolled) .kt-header__menu-link,
-.kt-header--transparent:not(.kt-header--scrolled) .kt-header__action-btn {
+body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__logo-text,
+body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__menu-link,
+body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__action-btn {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 

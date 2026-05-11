@@ -12,13 +12,39 @@
 
 {%- liquid
   comment
-    Header style is fully merchant-controlled. Pick "transparent" on
-    templates whose first section is a full-bleed hero that wants the
-    header to float over it (home, /about banner-cover, landing pages).
-    Pick "solid" everywhere else. We do NOT force a value based on
-    request.page_type — merchants own the call.
+    Header style — pure CSS auto-detection. No settings, no metafields,
+    no template variants, no toggles. Behaviour:
+
+      1) Every hero/banner/cover section in this theme renders with
+         `data-allows-transparent-header="true"` on its root element.
+         The list: hero, banner-cover, banner-hero, banner-minimal,
+         banner-split, video-bg-hero, slider-cinematic-hero,
+         main-collection-banner.
+      2) The header CSS uses a `:has()` selector to look at the
+         FIRST `.shopify-section` inside `<main>`. If it contains a
+         `[data-allows-transparent-header="true"]` element, the
+         header renders transparent (overlay over the hero). If not,
+         the header renders solid.
+      3) `:has()` is a relational CSS selector — universally
+         supported in 2026 (Chrome 105+ / Safari 15.4+ / Firefox
+         121+) — and evaluates server-rendered DOM with zero JS.
+
+    Result: merchants don't touch ANY header setting. A page with a
+    banner/hero as its first section automatically gets a transparent
+    header floating over it; a page without one (Contact form, FAQ,
+    Policies, dotted page header, etc.) keeps the solid header. The
+    visual rule "transparent only makes sense over a hero image" is
+    enforced by the page composition itself — exactly the WordPress-
+    feeling per-page behaviour the merchant kept asking for, but
+    without the per-page configuration burden.
+
+    The `data-header-style` attribute is still emitted on the
+    `<header>` element for backwards compatibility with the JS
+    scroll-state handler, but its value is now deterministic from
+    CSS, not Liquid — the JS reads from the resolved CSS state
+    instead. See kt-section-header.css `:has()` rule for the
+    matching logic.
   endcomment
-  assign header_style = section.settings.header_style | default: 'solid'
   assign header_menu_link_default = 'kt.section.header.menu_link_default' | t
 -%}
 
@@ -31,10 +57,9 @@
 {%- endcomment -%}
 
 <header
-  class="kt-header{% if header_style == 'transparent' %} kt-header--transparent{% endif %}"
+  class="kt-header"
   data-section-id="{{ section.id }}"
   data-section-type="header"
-  data-header-style="{{ header_style }}"
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
@@ -782,17 +807,6 @@
   "name": "t:sections.header.name",
   "class": "section-header",
   "settings": [
-    {
-      "type": "select",
-      "id": "header_style",
-      "label": "t:sections.header.settings.header_style.label",
-      "options": [
-        { "value": "transparent", "label": "t:sections.header.settings.header_style.options__1.label" },
-        { "value": "solid", "label": "t:sections.header.settings.header_style.options__2.label" }
-      ],
-      "default": "solid",
-      "info": "t:sections.header.settings.header_style.info"
-    },
     {
       "type": "header",
       "content": "t:sections.header.settings.header__navigation.content"
