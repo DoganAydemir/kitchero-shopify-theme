@@ -1,20 +1,44 @@
 # .shopifyignore — files excluded from `shopify theme push` and `shopify theme dev`
 #
-# Strategy:
-#   - Code files (sections/, snippets/, assets/, layout/, locales/, config/settings_schema.json)
-#     are always pushed.
-#   - Data files (config/settings_data.json, templates/*.json) WERE previously
-#     ignored to protect merchant edits. Now allowed because:
-#       1. `shopify theme dev` needs templates/*.json to render the storefront
-#          preview locally — without them every page returns 404.
-#       2. The submission workflow uses `shopify theme package` from a clean
-#          baseline tag (e.g. submission-baseline-r185), not from the live
-#          working tree, so placeholder content is preserved at packaging time.
-#       3. Production merchant content lives in a separate non-GitHub-connected
-#          store, never pushed from this codebase.
+# Strategy (R216 — production phase):
+#   - Code files (sections/, snippets/, assets/, layout/, locales/,
+#     config/settings_schema.json) are always pushed.
+#   - Merchant-content files (templates/*.json, config/settings_data.json,
+#     sections/*-group.json) are IGNORED on push to the live theme so code
+#     revisions never wipe out merchant edits made in the theme editor.
+#
+# Why these specific files:
+#   * templates/*.json — every page's section composition + per-section
+#     settings (heading text, image refs, color pickers, etc.). When a
+#     merchant edits via the theme editor, the JSON is rewritten with
+#     their inputs. A `shopify theme push` from this codebase would
+#     overwrite all of that with placeholder defaults.
+#   * config/settings_data.json — global theme settings (active color
+#     scheme, brand colours, fonts, social URLs, etc.). Merchant tunes
+#     these in Theme Settings; a push from this codebase would reset
+#     everything to the defaults declared in settings_schema.json.
+#   * sections/*-group.json — header-group / footer-group composition,
+#     announcement-banner copy, footer menu links, payment-icon toggle,
+#     etc. Same overwrite risk as templates/*.json.
+#
+# Trade-off: `shopify theme dev` reads these from disk too — so the local
+# dev preview shows placeholder content (the defaults committed in this
+# repo) rather than what's on the live store. That's the right trade-off
+# for our workflow: the dev preview is for code testing, the live store
+# is for merchant content; the two stay independent.
+#
+# When you DO want to push a content-file change (e.g. adjusting a
+# placeholder default for a fresh-install demo), bypass with --only:
+#   shopify theme push --only "templates/index.json" --theme <ID>
+# Or comment out the matching ignore line below, push, then restore.
 #
 # Theme Store-banned patterns below (.md files, docs/) MUST stay ignored —
 # Shopify rejects uploads containing them.
+
+# Merchant content — preserve live-theme edits across code pushes
+templates/*.json
+config/settings_data.json
+sections/*-group.json
 
 # Theme Store ban-list — never push any of these
 *.md
