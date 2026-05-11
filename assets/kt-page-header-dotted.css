@@ -157,6 +157,22 @@
   overflow: hidden;
 }
 
+/* Optional inline meta row between title and description. The
+   `__meta-wrap` is just a padding holder — the actual content
+   styling lives wherever the caller defines its meta markup
+   (e.g. main-article.liquid uses .kt-article__meta inside the
+   slot). Top margin gives the row breathing room from the
+   title without crowding the description below. */
+.kt-page-header-dotted__meta-wrap {
+  margin-top: 1.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__meta-wrap {
+    margin-top: 1.5rem;
+  }
+}
+
 /* The title uses a serif display face with long descenders on letters
    like g / y / p / italic tails. `overflow: hidden` on the reveal mask
    was clipping those descenders, so we add a padding-bottom large

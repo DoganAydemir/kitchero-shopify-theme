@@ -30,76 +30,85 @@
     global `settings.kt_show_breadcrumbs` is the source of truth.
   {%- endcomment -%}
 
-  {%- comment -%} Hero Header — centered, editorial {%- endcomment -%}
-  <header class="kt-article__header">
-    <div class="page-width">
-      <div class="kt-article__header-inner">
-        <div class="kt-article__meta">
-          {%- comment -%}
-            Underscore-prefixed tags are Shopify's hidden-meta
-            convention (_featured etc.) — filter them out so
-            internal curation tags don't leak to readers.
-          {%- endcomment -%}
-          {%- assign article_primary_tag = blank -%}
-          {%- for tag in article.tags -%}
-            {%- assign tag_first_char = tag | slice: 0 -%}
-            {%- unless tag_first_char == '_' -%}
-              {%- assign article_primary_tag = tag -%}
-              {%- break -%}
-            {%- endunless -%}
-          {%- endfor -%}
-          {%- if article_primary_tag != blank -%}
-            {%- comment -%}
-              R149 ARTICLE-TAGS-LINKS-1: link the tag to the
-              filtered blog view (`/blogs/<handle>/tagged/<tag>`).
-              Previously a bare `<span>` — no discoverability path
-              for readers exploring tag-based content. Theme Store
-              paid-tier expects browsable tags for blog navigation.
-              `tag | handle` URL-safes the slug; `tag | escape` on
-              the visible text guards against XSS via tag names
-              that may contain reserved chars.
-            {%- endcomment -%}
-            <a class="kt-article__meta-item kt-article__meta-tag" href="{{ blog.url }}/tagged/{{ article_primary_tag | handle }}">
-              {{ article_primary_tag | escape }}
-            </a>
-            {%- if section.settings.show_date -%}
-              <span class="kt-article__meta-rule" aria-hidden="true"></span>
-            {%- endif -%}
-          {%- endif -%}
-          {%- if section.settings.show_date -%}
-            <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
-              {{ article.published_at | date: format: 'abbreviated_date' }}
-            </time>
-          {%- endif -%}
-          {%- comment -%}
-            Author byline — Google's NewsArticle/BlogPosting rich result
-            heavily weights a visible author string; without it, Search
-            Console reports "Missing field 'author'" on every article.
-            Shopify's native `article | structured_data` filter already
-            populates the JSON-LD author — this adds the human-visible
-            byline so the page itself matches the structured data.
-            Merchant can hide the visible byline via `show_author`; the
-            JSON-LD still carries the author (Shopify filter handles it)
-            so the structured-data-missing-author warning doesn't return.
-          {%- endcomment -%}
-          {%- if section.settings.show_author and article.author != blank -%}
-            {%- if article_primary_tag != blank or section.settings.show_date -%}
-              <span class="kt-article__meta-rule" aria-hidden="true"></span>
-            {%- endif -%}
-            <span class="kt-article__meta-item kt-article__meta-author">
-              {{ 'kt.blog.article.by_author_html' | t: author: article.author }}
-            </span>
-          {%- endif -%}
-        </div>
+  {%- comment -%}
+    Editorial header rendered via the shared page-header-dotted
+    snippet so every list / detail / collection / page lands on
+    the same dotted intro vocabulary. The snippet also renders
+    the breadcrumb at its tail, so we don't repeat it in this
+    section. Eyebrow = parent blog name (links the article back
+    to the listing), title = article.title, description =
+    article.excerpt (drops gracefully when blank). Meta (tag +
+    date + author) is built here and passed into the snippet's
+    `meta_html` slot so it renders INSIDE the dotted band,
+    between the title and description, instead of floating on a
+    separate strip below — keeps the article hero as one calm
+    editorial block.
 
-        <h1 class="kt-article__title">{{ article.title | escape }}</h1>
+    Underscore-prefixed tags are Shopify's hidden-meta convention
+    (_featured etc.); filter them out so internal curation tags
+    don't leak to readers.
+  {%- endcomment -%}
+  {%- assign article_primary_tag = blank -%}
+  {%- for tag in article.tags -%}
+    {%- assign tag_first_char = tag | slice: 0 -%}
+    {%- unless tag_first_char == '_' -%}
+      {%- assign article_primary_tag = tag -%}
+      {%- break -%}
+    {%- endunless -%}
+  {%- endfor -%}
 
-        {%- if article.excerpt != blank -%}
-          <p class="kt-article__excerpt">{{ article.excerpt | strip_html }}</p>
+  {%- capture article_meta -%}
+    <div class="kt-article__meta">
+      {%- if article_primary_tag != blank -%}
+        {%- comment -%}
+          R149 ARTICLE-TAGS-LINKS-1 — link the tag to the
+          filtered blog view (`/blogs/<handle>/tagged/<tag>`).
+          `tag | handle` URL-safes the slug; `tag | escape` on
+          the visible text guards against XSS via tag names that
+          may contain reserved chars.
+        {%- endcomment -%}
+        <a class="kt-article__meta-item kt-article__meta-tag" href="{{ blog.url }}/tagged/{{ article_primary_tag | handle }}">
+          {{ article_primary_tag | escape }}
+        </a>
+        {%- if section.settings.show_date -%}
+          <span class="kt-article__meta-rule" aria-hidden="true"></span>
         {%- endif -%}
-      </div>
+      {%- endif -%}
+      {%- if section.settings.show_date -%}
+        <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+          {{ article.published_at | date: format: 'abbreviated_date' }}
+        </time>
+      {%- endif -%}
+      {%- comment -%}
+        Author byline — Google's NewsArticle/BlogPosting rich
+        result heavily weights a visible author string; without
+        it, Search Console reports "Missing field 'author'" on
+        every article. Shopify's native `article | structured_data`
+        filter already populates the JSON-LD author — this adds
+        the human-visible byline so the page itself matches the
+        structured data. Merchant can hide the visible byline via
+        `show_author`; the JSON-LD still carries the author so the
+        structured-data-missing-author warning doesn't return.
+      {%- endcomment -%}
+      {%- if section.settings.show_author and article.author != blank -%}
+        {%- if article_primary_tag != blank or section.settings.show_date -%}
+          <span class="kt-article__meta-rule" aria-hidden="true"></span>
+        {%- endif -%}
+        <span class="kt-article__meta-item kt-article__meta-author">
+          {{ 'kt.blog.article.by_author_html' | t: author: article.author }}
+        </span>
+      {%- endif -%}
     </div>
-  </header>
+  {%- endcapture -%}
+
+  {%- render 'page-header-dotted',
+    eyebrow: blog.title,
+    title: article.title,
+    description: article.excerpt,
+    meta_html: article_meta,
+    heading_tag: 'h1',
+    compact: false
+  -%}
 
   {%- comment -%}
     Full-bleed featured image. Previously gated entirely on

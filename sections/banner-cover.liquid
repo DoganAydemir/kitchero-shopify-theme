@@ -98,6 +98,22 @@
   </div>
 </section>
 
+{%- comment -%}
+  Breadcrumb trail rendered immediately after the cover banner
+  closes — sits between the full-bleed intro hero and the rest
+  of the template body. Mirrors the placement used by every
+  other intro component (page-header-dotted snippet, collection
+  banner, article header, search hero) so the trail always sits
+  in the same slot regardless of which intro the merchant picks.
+  Gated by the theme-global toggle. Breadcrumb snippet self-
+  skips on `index` / `cart` / `404` page types, so dropping the
+  banner-cover on the homepage doesn't accidentally render a
+  stray trail.
+{%- endcomment -%}
+{%- if settings.kt_show_breadcrumbs -%}
+  {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.banner-cover.name",

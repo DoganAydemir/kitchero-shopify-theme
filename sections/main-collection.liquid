@@ -99,6 +99,21 @@
   </section>
 
   {%- comment -%}
+    Breadcrumb trail rendered immediately after the inline hero
+    header closes — sits between the editorial intro (label +
+    title + description + product count) and the sticky control
+    bar / filter sidebar / product grid below. Banner section
+    (main-collection-banner) is optional and ships disabled by
+    default, so rendering the breadcrumb here guarantees the
+    trail shows up on every /collections/* URL regardless of
+    whether the merchant adds the banner. Gated by the theme-
+    global breadcrumb toggle.
+  {%- endcomment -%}
+  {%- if settings.kt_show_breadcrumbs -%}
+    {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+  {%- endif -%}
+
+  {%- comment -%}
     Sticky Control Bar.
     R136 — wrap the entire bar in `enable_filter_bar` / `enable_sorting`
     gates so a merchant who wants a flat catalogue (no filters, no

@@ -48,6 +48,17 @@
     </div>
   </section>
 
+  {%- comment -%}
+    Breadcrumb trail rendered immediately after the drawer hero
+    closes and before the filter bar + product grid. Mirrors the
+    placement used in the default collection template (main-
+    collection-banner) so the visual rhythm reads identically
+    regardless of which collection layout the merchant picks.
+  {%- endcomment -%}
+  {%- if settings.kt_show_breadcrumbs -%}
+    {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+  {%- endif -%}
+
   {%- comment -%} Sticky Control Bar — simple with Filter button {%- endcomment -%}
   <div class="kt-collection__controls" data-collection-controls>
     <div class="page-width">

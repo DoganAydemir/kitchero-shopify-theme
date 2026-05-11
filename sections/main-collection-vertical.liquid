@@ -32,6 +32,16 @@
     </div>
   </section>
 
+  {%- comment -%}
+    Breadcrumb trail rendered after the vertical-layout hero and
+    before the sticky control bar + product grid. Matches the
+    treatment used by the other two collection templates so the
+    trail always sits in the same visual slot.
+  {%- endcomment -%}
+  {%- if settings.kt_show_breadcrumbs -%}
+    {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+  {%- endif -%}
+
   {%- comment -%} Sticky Control Bar — sort only {%- endcomment -%}
   <div class="kt-collection__controls" data-collection-controls>
     <div class="page-width">

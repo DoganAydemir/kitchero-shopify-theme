@@ -67,7 +67,21 @@
         {%- endif -%}
       </h1>
     </header>
+  </div>
 
+  {%- comment -%}
+    Breadcrumb trail sits between the centered search hero
+    (eyebrow + heading) and the input + results below. The
+    .page-width container is split intentionally so the trail's
+    white band paints edge-to-edge across the stone-50 search
+    page background, matching the breadcrumb treatment used on
+    the other templates.
+  {%- endcomment -%}
+  {%- if settings.kt_show_breadcrumbs -%}
+    {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+  {%- endif -%}
+
+  <div class="page-width">
     <form action="{{ routes.search_url }}" method="get" role="search" class="kt-search-page__form">
       <label for="search-page-input" class="visually-hidden">{{ 'kt.search.search' | t }}</label>
       <svg class="kt-search-page__input-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>

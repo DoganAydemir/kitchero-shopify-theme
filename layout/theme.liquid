@@ -494,38 +494,29 @@
 
     {% sections 'header-group' %}
 
-    <main id="MainContent" class="content-for-layout focus-none kt-main-flex" tabindex="-1">
-      {%- comment -%}
-        Global breadcrumb — rendered at the TOP of `<main>` in DOM
-        order, but visually positioned AFTER the first content
-        section via CSS flex `order` (.kt-main-flex rule in
-        base.css). The effect: on a page that opens with a dotted
-        page header or a cover photo / hero section, the breadcrumb
-        sits in its own row right below that intro section, ABOVE
-        the rest of the body — matching the "menu → intro → trail →
-        body" rhythm of premium DTC themes.
+    {%- comment -%}
+      Breadcrumb is NOT rendered at the top of `<main>` anymore.
+      Earlier iterations tried two reorder strategies — DOM-first
+      with `.kt-main-flex` flex `order` shuffling, then DOM-first
+      with CSS `:has()` — but both broke on single-section
+      templates (blog, article, search, collection, product)
+      where the whole main-* section is one `<div class="shopify-
+      section">` wrapping both the intro hero AND the body grid:
+      flex order only reshuffles section-level siblings, so the
+      breadcrumb would slide visually past the entire body grid
+      and land just above the footer.
 
-        Why DOM-top, visually-after:
-          * Keeps `<nav class="kt-breadcrumbs">` as the FIRST
-            non-section element of <main>, accessible to screen
-            readers as an early landmark.
-          * The breadcrumb wrapper renders as a <nav> (not <div>),
-            so the `body:has(main > .shopify-section:first-of-type
-            [data-allows-transparent-header="true"])` auto-detect
-            in kt-section-header.css still resolves the first
-            `.shopify-section` correctly — <nav> doesn't compete
-            with <div> for `:first-of-type` matching.
-
-        snippets/breadcrumbs.liquid filters out page types where a
-        breadcrumb adds no value (index, cart, list-collections,
-        404, password, gift_card, customer/*). Merchants who want
-        a quieter site flip `settings.kt_show_breadcrumbs` off in
-        Theme Settings.
-      {%- endcomment -%}
-      {%- if settings.kt_show_breadcrumbs -%}
-        {%- render 'breadcrumbs', class_extra: 'page-width kt-breadcrumbs-wrap' -%}
-      {%- endif -%}
-
+      The reliable fix is to render the breadcrumb INSIDE the
+      intro component itself. `snippets/page-header-dotted.liquid`
+      renders the breadcrumb as its last visual element, so every
+      template that uses that snippet (page, blog, collection,
+      cart, deals, newsletter) auto-positions the trail right
+      under the dotted header. For templates with their own intro
+      design (main-article, main-search, main-product, main-
+      collection-banner) the breadcrumb is rendered inside each
+      section liquid at the right insertion point.
+    {%- endcomment -%}
+    <main id="MainContent" class="content-for-layout focus-none" tabindex="-1">
       {{ content_for_layout }}
     </main>
 

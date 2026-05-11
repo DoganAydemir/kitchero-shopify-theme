@@ -10,6 +10,8 @@
   - description: {String} supporting paragraph (optional)
   - count_text: {String} small pill badge on the right (optional, e.g. "4 Variants")
   - heading_tag: {String} semantic tag — 'h1' (default) or 'h2'
+  - meta_html: {String} pre-built HTML row rendered between title and description
+                (optional, e.g. article date + author from main-article.liquid)
 
   Visual layers:
     1. Base matrix grid (static 24px radial-gradient dots, opacity 0.18)
@@ -82,6 +84,20 @@
           </div>
         {%- endif -%}
 
+        {%- comment -%}
+          Optional inline meta row (article date + author, etc.).
+          Callers pass pre-built HTML via the `meta_html` parameter
+          using a `{%- capture -%}` block; renders right under the
+          title and above the description, inside the dotted band
+          itself so editorial pages keep one cohesive hero rather
+          than splitting meta onto a separate strip below.
+        {%- endcomment -%}
+        {%- if meta_html != blank -%}
+          <div class="kt-page-header-dotted__meta-wrap" data-dotted-anim>
+            {{ meta_html }}
+          </div>
+        {%- endif -%}
+
         {%- if description != blank -%}
           <div class="kt-page-header-dotted__desc-wrap">
             <p class="kt-page-header-dotted__desc" data-dotted-anim>{{ description }}</p>
@@ -97,5 +113,19 @@
     </div>
   </div>
 </section>
+
+{%- comment -%}
+  Breadcrumb trail. The dotted header is the canonical intro
+  component for page / blog / collection / cart / deals / news-
+  letter templates, so rendering the breadcrumb HERE — right
+  after the dotted `<section>` closes and before whatever body
+  the template puts next — guarantees the trail always sits
+  directly below the intro and above the body, on every template
+  that uses this snippet. Gated by the theme-global toggle so
+  merchants can hide all breadcrumbs from one switch.
+{%- endcomment -%}
+{%- if settings.kt_show_breadcrumbs -%}
+  {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+{%- endif -%}
 
 <script src="{{ 'kt-page-header-dotted.js' | asset_url }}" defer="defer"></script>

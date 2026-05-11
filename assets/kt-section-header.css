@@ -115,19 +115,22 @@ body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [dat
   }
 }
 
-/* When scrolled, `kt-header--scrolled` is added on top of
-   `kt-header--transparent` (we no longer remove --transparent on
-   scroll — see header JS comment for the rationale). Position stays
-   fixed via the --transparent rule above; the scrolled class only
-   needs to swap the background back in. The base
-   .kt-header--scrolled rule further down already does that, but
-   without an explicit override here it would be ambiguous whether
-   `position: sticky` (base .kt-header) or `position: fixed`
-   (body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header) wins on the combo selector — they have
-   identical specificity. Pin the position explicitly on the combo
-   to remove that ambiguity. */
+/* On a transparent-header page, scroll-to-solid requires an
+   explicit override on the high-specificity body:has() chain.
+   The base `.kt-header--scrolled` rule below (specificity 0,1,0)
+   would lose to `body:has(...) .kt-header { background: transparent }`
+   above (specificity 0,2,1), leaving the header transparent
+   even after the user scrolls past the hero. Bumping the scroll
+   state to `body:has(...) .kt-header.kt-header--scrolled`
+   (specificity 0,2,2) wins over both the transparent override
+   AND the base scrolled rule, so the dark bg + blur + shadow
+   come back as expected. Position stays `fixed` throughout. */
 body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header.kt-header--scrolled {
   position: fixed;
+  background-color: rgba(12, 10, 9, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__logo-text,

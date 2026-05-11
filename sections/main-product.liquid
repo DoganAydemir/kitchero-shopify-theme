@@ -45,12 +45,15 @@
 
 <section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
   {%- comment -%}
-    Breadcrumb moved to layout/theme.liquid (global render). The
-    legacy per-section `show_breadcrumb` toggle was removed from
-    both this section's schema AND from any JSON templates that
-    referenced it — `settings.kt_show_breadcrumbs` (theme-global)
-    is now the single source of truth (R100).
+    Breadcrumb at the very top of the PDP — sits between the
+    header above and the gallery + info layout below, so the
+    navigation trail is the first thing the shopper sees on the
+    product page (collection → product name). Gated by the
+    theme-global `settings.kt_show_breadcrumbs` toggle.
   {%- endcomment -%}
+  {%- if settings.kt_show_breadcrumbs -%}
+    {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+  {%- endif -%}
 
   <div class="page-width">
     <div class="kt-pdp__layout">

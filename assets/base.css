@@ -577,8 +577,19 @@ select:-webkit-autofill {
   display: none !important;
 }
 
+/* `body.gradient` is the body element. We pin it to the theme
+   white token instead of the active color scheme's surface
+   gradient (`--kt-c-bg-gradient`) so the page chrome behind
+   sections is always pure white. Section bgs (dotted header,
+   banner, collection-banner, etc.) still paint their own
+   stone-50 / image / scheme colours locally — the chrome
+   between sections stays white regardless of which color
+   scheme the merchant picks. This keeps the breadcrumb wrap
+   (transparent) reading as white on the page chrome while
+   blending into a stone-50 dotted section when rendered
+   inside one. */
 .gradient {
-  background: var(--kt-c-bg-gradient);
+  background: var(--kt-white, #ffffff);
 }
 
 /* Color scheme application — reserved for future use when
@@ -1107,54 +1118,55 @@ select:-webkit-autofill {
   padding: 1rem 0;
 }
 
-/* R216 — `<main>` runs as a flex column so we can re-order the
-   breadcrumb visually without moving it in the DOM. The breadcrumb
-   renders FIRST in the source so it's an early landmark for screen
-   readers, but we want it to APPEAR right after the first content
-   section (intro hero / banner / dotted page header). The `order`
-   tiers below pin the first section to slot 1, the breadcrumb to
-   slot 2, and every subsequent section to slot 3 — so the visual
-   flow is: intro → breadcrumb → body, regardless of how many
-   sections follow.
+/* The breadcrumb wrapper is no longer rendered as a direct child
+   of `<main>` — it's rendered INSIDE each intro component
+   (page-header-dotted snippet, main-collection-banner, main-
+   article hero, main-search hero, main-product info), so the
+   trail naturally appears RIGHT under the intro and ABOVE the
+   body without any flex-order trickery. See layout/theme.liquid
+   comment for the full rationale.
 
-   Children that aren't sections or the breadcrumb (none today, but
-   defensive) inherit the default `order: 0` and would sit before
-   slot 1 — there are no such children in our layout, so this is a
-   theoretical concern only. */
-.kt-main-flex {
-  display: flex;
-  flex-direction: column;
-}
-
-.kt-main-flex > .shopify-section:first-of-type {
-  order: 1;
-}
-
-.kt-main-flex > .kt-breadcrumbs-wrap {
-  order: 2;
-}
-
-.kt-main-flex > .shopify-section:not(:first-of-type) {
-  order: 3;
-}
-
-/* The breadcrumb itself is now the `<nav>` direct child of `<main>`
-   (no <div> wrapper) — the `.kt-breadcrumbs-wrap` modifier class is
-   forwarded onto the nav from layout/theme.liquid for spacing /
-   width-clamp parity with the previous wrapper. The snippet skips
-   render entirely on hidden page-types (index, cart, 404, etc.)
-   so we no longer need the old empty-wrapper safety rule. */
+   Full-width transparent band, left-aligned trail. The breadcrumb
+   wrapper inherits whatever colour sits behind it: when the
+   surrounding body is pure white the strip reads white, when a
+   section above carries stone-50 the strip blends with the
+   section. Body is forced to var(--kt-white) below (see the
+   `body` rule) so the breadcrumb reads white on the page
+   chrome by default, but a dotted/banner section's bg still
+   shows through unchanged when the trail is rendered inside
+   that section. */
 .kt-breadcrumbs-wrap {
-  padding-top: 1.5rem;
-  padding-bottom: 0.5rem;
+  background-color: transparent;
+  padding: 1.25rem 1.5rem;
 }
+
+@media screen and (min-width: 750px) {
+  .kt-breadcrumbs-wrap {
+    padding: 1.25rem 2rem;
+  }
+}
+
+/* R216 — Breadcrumb-aware section top-padding rule removed.
+   Previously the breadcrumb sat ABOVE the first section on non-
+   page templates, so we shrank that section's top padding to
+   keep the visual rhythm tight. With the unified layout
+   (breadcrumb ALWAYS reorders to slot 2, below the first
+   section, on every template) the first section is back at the
+   top under the header and needs its full original top padding
+   to compensate for the fixed header. No override needed. */
 
 .kt-breadcrumbs__list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  /* Left-aligned trail clamped to the page-width column. The
+     wrapping nav paints the full-width band; the list inside is
+     constrained by max-width + auto margins so it never crosses
+     the same horizontal column the page content uses. */
+  justify-content: flex-start;
+  max-width: 1536px;
+  margin: 0 auto;
   gap: 0.5rem;
-  margin: 0;
   padding: 0;
   list-style: none;
   font-size: 0.8125rem;
