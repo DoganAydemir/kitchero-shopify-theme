@@ -1249,18 +1249,18 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* Transparent mode gets taller padding (py-5 md:py-8) */
-.kt-header--transparent .kt-header__inner {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-}
-
-@media screen and (min-width: 750px) {
-  .kt-header--transparent .kt-header__inner {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-}
+/* R216 — transparent mode used to get an extra-tall padding band
+   (py-5 mobile / py-8 desktop) inherited from the Next.js Navbar,
+   on the theory that a header floating over a hero needs more
+   breathing room. In practice that taller band created a visual
+   asymmetry against the solid variant — when merchants flipped
+   the header style in the editor, the row appeared to jump and
+   the content read as "not vertically centered" because the
+   inner row grew by ~32px in desktop while the action-icon row
+   stayed at the same 44px min-height. Match the solid padding
+   exactly so both modes paint the same row height; the floating
+   feel still comes from the transparent background + text-shadow,
+   no extra height needed. */
 
 /* Mobile locale + country selector — lives at the bottom of the
    mobile panel. Small, subtle, full-width controls so they don't

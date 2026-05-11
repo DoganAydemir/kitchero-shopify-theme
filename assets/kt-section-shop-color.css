@@ -209,16 +209,26 @@
   color: var(--kt-stone-900);
 }
 
-/* Mini swatch in header */
+/* Mini swatch in header — hidden on mobile because the same swatch
+   is already painted on top of the inline photo card (.__mobile-swatch),
+   so showing it next to the category title duplicates the colour cue
+   and crowds the narrow header row. Shows from 990px upward where the
+   inline mobile photo (and its swatch) is hidden. */
 .kt-shop-color__category-swatch {
+  display: none;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
   border: 1px solid var(--kt-stone-200);
   overflow: hidden;
-  display: flex;
   flex-shrink: 0;
   margin-left: 1rem;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-shop-color__category-swatch {
+    display: flex;
+  }
 }
 
 [dir="rtl"] .kt-shop-color__category-swatch {

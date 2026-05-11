@@ -4,6 +4,12 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  /* Inherited by the ::after chevron via currentColor. Explicitly
+     anchored to stone-500 (matching the select's foreground) so the
+     pseudo-element renders the right tone in any context the wrapper
+     lands in (footer dark surface, etc.). The mobile-panel override
+     below bumps this to stone-50 to match its brighter select text. */
+  color: var(--kt-stone-500);
 }
 
 .localization-selector select {
@@ -21,6 +27,40 @@
   transition: border-color 0.2s ease;
 }
 
+/* Custom chevron — appearance:none above strips the native arrow,
+   leaving an unmarked dropdown. This pseudo-element draws an SVG
+   caret in the right padding gutter we already reserved (2rem on
+   the right of the select). `mask-image` + `currentColor` lets the
+   chevron tone follow the wrapper's color, so the same rule works
+   on dark and light contexts when the wrapper's color is set. */
+.localization-selector::after {
+  content: '';
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  width: 10px;
+  height: 6px;
+  margin-top: -3px;
+  pointer-events: none;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition: opacity 0.2s ease;
+}
+
+[dir="rtl"] .localization-selector::after {
+  right: auto;
+  left: 0.875rem;
+}
+
+[dir="rtl"] .localization-selector select {
+  padding: 0.625rem 1.25rem 0.625rem 2rem;
+}
+
 .localization-selector select:hover {
   border-color: rgba(255, 255, 255, 0.2);
 }
@@ -35,6 +75,12 @@
  * was unreadable — user reported the dropdown rendered as a solid
  * black block. Override to a brighter foreground (stone-50) and
  * ensure the chevron caret stays visible too. */
+.kt-header__mobile-panel .localization-selector {
+  /* Brighter wrapper color so the ::after chevron lands on stone-50
+     to match the select's bumped foreground in this context. */
+  color: var(--kt-stone-50);
+}
+
 .kt-header__mobile-panel .localization-selector select {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.15);
