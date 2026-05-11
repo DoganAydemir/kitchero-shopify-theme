@@ -38,10 +38,46 @@
     if (!cachedHeader) return;
     var scrolled = window.scrollY > SCROLL_THRESHOLD;
     cachedHeader.classList.toggle('kt-header--scrolled', scrolled);
+    /* R216 — `kt-header--transparent` is no longer toggled on scroll.
+       Previously we removed it past the threshold so the base
+       `.kt-header { position: sticky }` rule could take over, but
+       that swap caused a flow-reflow jump: the header went from
+       `position: fixed` (0 flow height) to `position: sticky` (~76px
+       flow height) at the threshold, and the hero below it visibly
+       jumped down by the header's height. Keeping --transparent
+       throughout means the header stays `position: fixed` the whole
+       time; only the background/text-shadow change via the
+       --scrolled class. The CSS rule
+       `.kt-header--transparent.kt-header--scrolled` pins position
+       explicitly so the combo selector is unambiguous.
+
+       The smooth scroll-follow effect (header sliding up with the
+       banner) is handled by updateHeaderTop below — it writes a
+       running `--kt-header-top` value to the root that the CSS
+       consumes via var(). */
     var isTransparent = cachedHeader.dataset.headerStyle === 'transparent';
     if (isTransparent) {
-      cachedHeader.classList.toggle('kt-header--transparent', !scrolled);
+      updateHeaderTop();
     }
+  }
+
+  /* R216 — drive the transparent header's `top` from scrollY so it
+     follows the announcement banner up smoothly instead of staying
+     pinned at banner-height while the banner scrolls away (which
+     left a visible gap between the disappearing banner and the
+     still-fixed header, then resolved with a jarring snap when the
+     scroll threshold fired and the class toggled).
+     Formula: `top = max(0, bannerHeight - scrollY)` — mirrors the
+     sticky behavior the user expects but stays out of flow so the
+     hero can still bleed behind the header. */
+  var cachedBannerEl = null;
+  function updateHeaderTop() {
+    if (!cachedBannerEl || !cachedBannerEl.isConnected) {
+      cachedBannerEl = document.querySelector('.kt-announcement-banner');
+    }
+    var bannerHeight = cachedBannerEl ? cachedBannerEl.offsetHeight : 0;
+    var newTop = Math.max(0, bannerHeight - window.scrollY);
+    document.documentElement.style.setProperty('--kt-header-top', newTop + 'px');
   }
 
   function updateScrollState() {
@@ -212,18 +248,53 @@
     }
   }
 
+  /* R216 — keep `--kt-banner-height` synced to the announcement
+     banner's actual rendered height. The transparent-mode header
+     CSS uses this variable (with a 40px desktop / 34px mobile
+     fallback that lands at first paint via :has() detection, so
+     there's no FOUC) to drop the fixed header just below the
+     banner. ResizeObserver refines the value once a banner present
+     case differs from the fallback — multi-line copy, larger
+     padding, app blocks attached to the banner section, etc. */
+  function syncBannerHeight() {
+    var bannerEl = document.querySelector('.kt-announcement-banner');
+    if (!bannerEl) return;
+    var height = bannerEl.offsetHeight;
+    if (height > 0) {
+      document.documentElement.style.setProperty('--kt-banner-height', height + 'px');
+    }
+  }
+
   if (typeof ResizeObserver !== 'undefined') {
     var observerHeader = document.querySelector('[data-section-type="header"]');
     if (observerHeader) {
       var headerOffsetObserver = new ResizeObserver(syncHeaderOffset);
       headerOffsetObserver.observe(observerHeader);
     }
+    var observerBanner = document.querySelector('.kt-announcement-banner');
+    if (observerBanner) {
+      /* When the banner resizes (font-load reflow, rotation between
+         differently-sized slides, app block attached at runtime, the
+         editor adding/removing blocks), recompute BOTH the cached
+         banner-height variable AND the transparent header's `top` so
+         the header stays visually anchored to the banner's bottom
+         edge across the size change. */
+      var bannerHeightObserver = new ResizeObserver(function () {
+        syncBannerHeight();
+        updateHeaderTop();
+      });
+      bannerHeightObserver.observe(observerBanner);
+    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', syncHeaderOffset);
+    document.addEventListener('DOMContentLoaded', syncBannerHeight);
   } else {
     syncHeaderOffset();
+    syncBannerHeight();
   }
   window.addEventListener('resize', syncHeaderOffset);
+  window.addEventListener('resize', syncBannerHeight);
   document.addEventListener('shopify:section:load', syncHeaderOffset);
+  document.addEventListener('shopify:section:load', syncBannerHeight);
 })();

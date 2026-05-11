@@ -354,6 +354,29 @@
     {%- endif -%}
 
     {%- comment -%}
+      R216 — header CSS lifted from `sections/header.liquid` (body)
+      into the <head>. The header is the FIRST visible element on
+      every page (sticky top OR fixed-overlay), and in transparent
+      mode it relies on `position: fixed` to remove itself from
+      flow so the hero can bleed up behind it. When the stylesheet
+      lives in the body, there's a one-frame window during HTML
+      streaming where:
+        • <header> is in the DOM
+        • The body-located <link> for kt-section-header.css has
+          NOT been parsed yet
+        • The header element falls back to default `display: block`
+          inside flow, pushing the hero down
+        • The body background (white) paints in the area where the
+          transparent header should be revealing the hero
+      Moving the stylesheet to <head> makes the header CSS apply
+      AT FIRST PAINT, eliminating that flash. ~25KB cost on every
+      page, but it's the most critical first-paint stylesheet (logo
+      + nav are above the fold on 100% of routes), so this is the
+      right trade-off.
+    {%- endcomment -%}
+    {{ 'kt-section-header.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%}
       Resource hints — Shopify Theme Store performance rule (PRF-3):
       "You can add up to two resource hints to your code per template."
       Body regular + heading regular are emitted higher up (above

@@ -1,4 +1,14 @@
-{{ 'kt-section-header.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  R216 — `kt-section-header.css` is now <head>-loaded from
+  layout/theme.liquid so the rule set (especially
+  `.kt-header--transparent { position: fixed }`) applies at first
+  paint, before the parser reaches this section. Loading it here in
+  the body left a one-frame FOUC where the header briefly fell back
+  to default `<header>` flow positioning and the body bg (white)
+  painted in the area where the transparent header should have
+  revealed the hero behind it. Body-side <link> removed to avoid a
+  duplicate stylesheet request.
+{%- endcomment -%}
 
 {%- liquid
   comment

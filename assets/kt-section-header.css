@@ -4,6 +4,23 @@
    BEM naming: .kt-header, .kt-header__*
    ============================================================ */
 
+/* R216 — Shopify wraps every section in `<div id="shopify-section-…"
+   class="shopify-section">`, and that wrapper's natural height is
+   exactly the header's height (~76px). `position: sticky` inside
+   that wrapper can't pin to viewport top:0 because the sticky
+   element can't offset within a parent that's the same height as
+   itself — the moment the user scrolls past the header's flow
+   position, the wrapper (with the sticky element inside) scrolls
+   up and out of view. `display: contents` flattens the wrapper
+   so the header's containing block becomes the body (full
+   document height), restoring sticky's expected behavior. The
+   wrapper still exists in the DOM (the editor's section-select
+   click target works fine via the id), but layout treats the
+   header as a direct child of body. */
+.shopify-section:has(> .kt-header) {
+  display: contents;
+}
+
 /* Solid mode (default): bg-stone-950/95 shadow-lg.
    Sticky instead of fixed so the announcement-banner (which renders
    first in the header-group) can sit in natural flow above the
@@ -44,20 +61,73 @@
 
 /* Transparent mode: no background until scrolled — floats over hero.
    Needs `position: fixed` (not sticky) so it literally overlaps the
-   hero instead of pushing it down in flow. Banner offset does NOT
-   apply in transparent mode because the transparent header is meant
-   for hero-first pages where an announcement-banner above the hero
-   is conceptually wrong (merchants can swap to solid mode if they
-   want both). Adds a subtle text-shadow on the logo + nav links so
-   they stay legible over light backgrounds too (not just dark heroes).
-   The shadow disappears once the header becomes solid on scroll. */
+   hero instead of pushing it down in flow. When an announcement
+   banner is also present, the `body:has(.kt-announcement-banner)`
+   override below offsets `top` by the banner's height so the
+   header drops just below the banner instead of painting on top of
+   it — letting merchants run both features simultaneously.
+   Adds a subtle text-shadow on the logo + nav links so they stay
+   legible over light backgrounds too (not just dark heroes). The
+   shadow disappears once the header becomes solid on scroll. */
 .kt-header--transparent {
+  /* R216 — `position: fixed` keeps the header out of flow so the
+     hero can bleed up behind it (transparent overlay use case).
+
+     `top` is driven by `--kt-header-top`, which a scroll handler
+     in kt-section-header.js updates each rAF tick to
+     `max(0, bannerHeight - scrollY)`. The effect: at scrollY=0 the
+     header sits just below the announcement banner; as the user
+     scrolls, the banner moves out of the viewport in flow AND the
+     header's `top` follows it down to 0 at the SAME rate — no
+     wasted gap between banner and header, no jump when the banner
+     fully scrolls off, no class-swap reflow (the header stays
+     `position: fixed` the whole time, only its background and
+     text-shadow change on the scrolled state).
+
+     Fallback chain ensures correctness at first paint:
+       --kt-header-top  → set by JS once it hydrates
+       --kt-banner-height → set by JS, falls back to 40px below
+       last fallback (0px) → no banner → header flush at top */
   position: fixed;
-  top: 0;
+  top: var(--kt-header-top, var(--kt-banner-height, 0px));
   background-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
+}
+
+/* Banner-aware first-paint default. `:has()` is the modern CSS
+   relational selector (Chrome 105+, Safari 15.4+, Firefox 121+ —
+   universal in 2026). It detects the announcement-banner element
+   anywhere in the document and seeds `--kt-banner-height` with a
+   sensible default (matching the banner's CSS min-height) so the
+   header lands in the right spot at first paint, before JS runs.
+
+   Once JS hydrates, `--kt-header-top` overrides this with the
+   actual scroll-aware computed top. */
+body:has(.kt-announcement-banner) .kt-header--transparent {
+  top: var(--kt-header-top, var(--kt-banner-height, 40px));
+}
+
+@media (max-width: 639px) {
+  body:has(.kt-announcement-banner) .kt-header--transparent {
+    top: var(--kt-header-top, var(--kt-banner-height, 34px));
+  }
+}
+
+/* When scrolled, `kt-header--scrolled` is added on top of
+   `kt-header--transparent` (we no longer remove --transparent on
+   scroll — see header JS comment for the rationale). Position stays
+   fixed via the --transparent rule above; the scrolled class only
+   needs to swap the background back in. The base
+   .kt-header--scrolled rule further down already does that, but
+   without an explicit override here it would be ambiguous whether
+   `position: sticky` (base .kt-header) or `position: fixed`
+   (.kt-header--transparent) wins on the combo selector — they have
+   identical specificity. Pin the position explicitly on the combo
+   to remove that ambiguity. */
+.kt-header--transparent.kt-header--scrolled {
+  position: fixed;
 }
 
 .kt-header--transparent:not(.kt-header--scrolled) .kt-header__logo-text,
