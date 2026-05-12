@@ -15,6 +15,18 @@
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return null;
 
+    /* Skip pinning entirely inside Shopify's theme editor. `pin:
+       rightCol` locks the image column for the duration of the
+       left-column scroll, which creates a "scroll dead-zone" when
+       the merchant is adding / reordering the section from the
+       editor — the editor iframe reads it as "I can't scroll past
+       this section to the footer". Same gate is the canonical
+       Shopify recommendation for any pinned ScrollTrigger and
+       matches the one in kt-section-shop-categories.js. The live
+       storefront still gets the full pinned right-column behaviour
+       because Shopify.designMode is only ever true in the editor. */
+    if (window.Shopify && window.Shopify.designMode) return null;
+
     gsap.registerPlugin(ScrollTrigger);
 
     var mm = gsap.matchMedia();

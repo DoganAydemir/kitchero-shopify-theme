@@ -233,16 +233,27 @@
 .kt-collapsible-accordion__content {
   padding: 0 0 1.5rem 0;
   padding-top: 1rem;
+  /* Matches the muted body-copy treatment used elsewhere (image-
+     with-text alternating, etc.) — stone-500 base with an opacity
+     nudge to soften the on-screen contrast so the answer reads as
+     subordinate body text under the bold serif question. Without
+     the opacity step the stone-500 ink looked indistinguishable
+     from the question title on warm backdrops. */
   color: var(--kt-stone-500);
-  font-size: 1rem;
+  opacity: 0.85;
+  font-size: 0.875rem;
   font-weight: 300;
   line-height: 1.7;
+  letter-spacing: 0.005em;
   max-width: 44rem;
 }
 
 @media (min-width: 768px) {
   .kt-collapsible-accordion__content {
-    font-size: 1.125rem;
+    /* Holds at editorial sub-text size on desktop instead of bumping
+       up to 1.125rem — keeps the answer paragraph clearly secondary
+       to the serif title across every breakpoint. */
+    font-size: 0.9375rem;
     padding-left: 2.25rem; /* align with title indent after number */
   }
 }

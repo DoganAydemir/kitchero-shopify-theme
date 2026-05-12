@@ -16,6 +16,23 @@
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return null;
 
+    /* Skip pinning entirely inside Shopify's theme editor (`design
+       mode`). ScrollTrigger `pin: true` rewrites the page-scroll
+       behaviour to lock the section while the user drags through it
+       horizontally — which is the desired effect on the live store,
+       but inside the editor's iframe it produces a "scroll dead-
+       zone" that the merchant reads as "I can't scroll past this
+       section to reach the footer". Even with the mm.revert()
+       cleanup on shopify:section:unload, the editor's rapid add /
+       reorder / remove cycle can leave a half-torn-down pin if the
+       events fire in an unexpected order — the safest contract is
+       to never install the pin in design mode at all. The live
+       storefront still gets the full pinned-horizontal experience
+       because Shopify.designMode is only ever true inside the
+       editor. Same gate is the canonical Shopify recommendation
+       for any scroll-disturbing animation.  */
+    if (window.Shopify && window.Shopify.designMode) return null;
+
     gsap.registerPlugin(ScrollTrigger);
 
     var mm = gsap.matchMedia();

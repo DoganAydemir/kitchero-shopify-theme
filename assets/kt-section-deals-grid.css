@@ -111,6 +111,13 @@
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1rem;
+  /* Background colour now ships from an inline `style` attribute
+     fed by the merchant's color-picker setting (see deals-grid.liquid).
+     The previous `[data-color-theme]` attribute selectors only knew
+     four hard-coded tones (emerald / dark / amber / red); the color
+     picker accepts any hex. The fallback below catches the rare case
+     where the inline style is missing — keeps the badge readable on
+     fresh-install demos before any colour is set. */
   background-color: var(--kt-emerald-600);
   color: var(--kt-white);
   font-size: 0.625rem;
@@ -119,18 +126,6 @@
   text-transform: uppercase;
   border-radius: 9999px;
   box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.35);
-}
-
-.kt-deals__card-tier[data-color-theme='dark'] {
-  background-color: var(--kt-stone-950);
-}
-
-.kt-deals__card-tier[data-color-theme='amber'] {
-  background-color: var(--kt-amber-500);
-}
-
-.kt-deals__card-tier[data-color-theme='red'] {
-  background-color: var(--kt-red-600);
 }
 
 /* ── Popular badge (top-right) ──────────────────────────── */
@@ -170,9 +165,14 @@
 }
 
 .kt-deals__card-price-big {
-  font-family: var(--kt-f-accent-family, Georgia, serif);
+  /* Switched off the editorial accent serif onto the body sans family
+     because price numerals in the serif face (Playfair Display) read
+     awkwardly — figures like $123 hit the cap-height inconsistently,
+     and the long dollar sign descender looked broken on tile-thin
+     prices. Sans-serif keeps the value crisp and aligned. */
+  font-family: inherit;
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
   margin: 0 0 0.75rem 0;

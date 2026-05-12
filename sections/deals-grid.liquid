@@ -17,8 +17,9 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'deal' -%}
           {%- assign includes_list = block.settings.includes | newline_to_br | split: '<br />' -%}
-          {%- assign tier_text = block.settings.tier | default: block.settings.title -%}
+          {%- assign tier_text = block.settings.tier -%}
           {%- assign card_link = block.settings.link | default: routes.collections_url -%}
+          {%- assign badge_bg = block.settings.badge_color | default: '#10b981' -%}
 
           <a href="{{ card_link | escape }}" class="kt-deals__card" {{ block.shopify_attributes }}>
 
@@ -43,14 +44,24 @@
 
               <div class="kt-deals__card-gradient" aria-hidden="true"></div>
 
-              {%- comment -%} Tier badge (top-left) {%- endcomment -%}
+              {%- comment -%}
+                Tier badge (top-left). Background colour is rendered as
+                an inline style fed from the merchant's color-picker
+                setting so any hex is supported — previously the badge
+                colour was a 4-option select (emerald/dark/amber/red)
+                that fed into CSS `[data-color-theme]` attribute rules,
+                which capped merchants at four brand tones. The badge
+                text itself is now the verbatim `tier` field (no
+                hardcoded "Package" suffix) so a merchant who wants
+                "Premium", "Tier 1 Package", or just "Pro" gets exactly
+                that — and no surprise word appended on render.
+              {%- endcomment -%}
               {%- if tier_text != blank -%}
                 <span
                   class="kt-deals__card-tier"
-                  data-color-theme="{{ block.settings.badge_color | default: 'emerald' }}"
+                  style="background-color: {{ badge_bg }};"
                 >
                   {{- tier_text -}}
-                  {%- if block.settings.tier != blank %} {{ 'kt.section.deals.package_suffix' | t | default: 'Package' }}{% endif -%}
                 </span>
               {%- endif -%}
 
@@ -88,25 +99,21 @@
 
             {%- comment -%} Info block (below image) {%- endcomment -%}
             <div class="kt-deals__card-body">
-              <div class="kt-deals__card-heading">
-                {%- comment -%}
-                  Card title rendered as <p role="heading" aria-level="2">
-                  rather than <h3>. The deals-grid section ships with no
-                  intrinsic h2/parent heading; on /deals (templates/
-                  page.deals.json) this section sits directly under the
-                  page-header-dotted h1, so an h3 here would create an
-                  h1 → h3 skip (WCAG 2.4.6). Using ARIA-level=2 keeps the
-                  semantic level matching the page outline without
-                  forcing a visible section heading.
-                {%- endcomment -%}
-                <p class="kt-deals__card-title" role="heading" aria-level="2">
-                  {{- tier_text -}}
-                  {%- if block.settings.price != blank %} : {{ block.settings.price | escape }}{% endif -%}
-                </p>
-                {%- if block.settings.original_price != blank -%}
+              {%- comment -%}
+                Original-price strikethrough only — tier badge + active
+                price already render on the image overlay above, so the
+                old "TIER X : $PRICE" heading line was a redundant
+                restatement that confused merchants ("why is it
+                concatenating those?"). Dropped entirely. Strikethrough
+                original price stays so a merchant who wants to advertise
+                a discount can still show the higher pre-deal figure
+                without sacrificing the cleaner card body.
+              {%- endcomment -%}
+              {%- if block.settings.original_price != blank -%}
+                <div class="kt-deals__card-heading">
                   <s class="kt-deals__card-original-price">{{ block.settings.original_price | escape }}</s>
-                {%- endif -%}
-              </div>
+                </div>
+              {%- endif -%}
 
               {%- if block.settings.accent_text != blank -%}
                 <div class="kt-deals__card-accent">
@@ -246,16 +253,10 @@
           "default": "Tier 1"
         },
         {
-          "type": "select",
+          "type": "color",
           "id": "badge_color",
           "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.label",
-          "options": [
-            { "value": "emerald", "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.options__1.label" },
-            { "value": "dark", "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.options__2.label" },
-            { "value": "amber", "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.options__3.label" },
-            { "value": "red", "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.options__4.label" }
-          ],
-          "default": "emerald"
+          "default": "#10b981"
         },
         {
           "type": "checkbox",
@@ -283,12 +284,6 @@
         {
           "type": "header",
           "content": "t:sections.deals-grid.blocks.deal.settings.header__content.content"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "t:sections.deals-grid.blocks.deal.settings.title.label",
-          "info": "t:sections.deals-grid.blocks.deal.settings.title.info"
         },
         {
           "type": "textarea",
@@ -331,12 +326,6 @@
           "type": "url",
           "id": "link",
           "label": "t:sections.deals-grid.blocks.deal.settings.link.label"
-        },
-        {
-          "type": "text",
-          "id": "badge",
-          "label": "t:sections.deals-grid.blocks.deal.settings.badge.label",
-          "info": "t:sections.deals-grid.blocks.deal.settings.badge.info"
         }
       ]
     },
@@ -351,7 +340,7 @@
           "type": "deal",
           "settings": {
             "tier": "Tier 1",
-            "badge_color": "emerald",
+            "badge_color": "#10b981",
             "is_popular": true,
             "includes": "Feature one\nFeature two\nFeature three",
             "accent_text": "Accent text"
@@ -361,7 +350,7 @@
           "type": "deal",
           "settings": {
             "tier": "Tier 2",
-            "badge_color": "dark",
+            "badge_color": "#1c1917",
             "is_popular": false,
             "includes": "Feature one\nFeature two\nFeature three",
             "accent_text": "Accent text"

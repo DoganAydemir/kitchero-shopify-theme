@@ -14,13 +14,25 @@
   assign per_row_desktop = section.settings.columns_desktop | default: 3
   assign sort_order = section.settings.sort_by | default: 'alphabetical'
 
-  assign collection_list = collections
-
+  comment
+    Shopify's global `collections` object is alphabetical by default;
+    every sort branch below builds on top of that, including the
+    `reverse_alphabetical` branch which now produces a Z→A list
+    instead of the silently-broken `admin_order` placeholder it
+    replaced (Shopify exposes no merchant-pinned sort order on
+    the global `collections` array — `admin_order` resolved to the
+    same alphabetical default, so the dropdown looked dead to the
+    merchant).
+  endcomment
   case sort_order
     when 'alphabetical'
-      assign collection_list = collection_list | sort: 'title'
+      assign collection_list = collections | sort: 'title'
+    when 'reverse_alphabetical'
+      assign collection_list = collections | sort: 'title' | reverse
     when 'product_count'
-      assign collection_list = collection_list | sort: 'all_products_count' | reverse
+      assign collection_list = collections | sort: 'all_products_count' | reverse
+    else
+      assign collection_list = collections | sort: 'title'
   endcase
 -%}
 
@@ -141,8 +153,8 @@
       "label": "t:sections.list-collections-grid.settings.sort_by.label",
       "options": [
         { "value": "alphabetical", "label": "t:sections.list-collections-grid.settings.sort_by.options__alpha.label" },
-        { "value": "product_count", "label": "t:sections.list-collections-grid.settings.sort_by.options__count.label" },
-        { "value": "admin_order", "label": "t:sections.list-collections-grid.settings.sort_by.options__admin.label" }
+        { "value": "reverse_alphabetical", "label": "t:sections.list-collections-grid.settings.sort_by.options__reverse_alpha.label" },
+        { "value": "product_count", "label": "t:sections.list-collections-grid.settings.sort_by.options__count.label" }
       ],
       "default": "alphabetical"
     }
