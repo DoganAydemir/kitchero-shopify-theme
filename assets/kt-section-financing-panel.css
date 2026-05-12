@@ -95,9 +95,14 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* Inverted (dark mode) variant — only the surface treatment changes:
+   a deeper shadow + a thin inner ring so the media frame separates
+   cleanly from the dark backdrop. Aspect ratio stays at 4/5 to match
+   the light variant — the previous `4/3` override here was a leftover
+   from an early Next.js mock and made the image visibly resize as
+   merchants flipped the "Invert (dark mode)" switch on/off. Layout
+   should never depend on a colour-mode toggle. */
 .kt-financing-panel--inverted .kt-financing-panel__media {
-  aspect-ratio: 4 / 3;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 

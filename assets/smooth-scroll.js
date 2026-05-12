@@ -21,6 +21,17 @@
      corrupting the scroll state. */
   if (window.kitcheroLenis) return;
 
+  /* Disable smooth scroll entirely inside Shopify's theme editor.
+     Lenis hijacks the page scroll via a custom RAF easing loop;
+     inside the editor iframe that competes with Shopify's own
+     scroll handling — every shopify:section:load fires a
+     ScrollTrigger.refresh() that Lenis can't keep in sync with,
+     and the symptom merchants saw was "I drop in section X and
+     suddenly I can't scroll past it to the footer". The live
+     storefront still gets smooth scroll because Shopify.designMode
+     is undefined there. */
+  if (window.Shopify && window.Shopify.designMode) return;
+
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 

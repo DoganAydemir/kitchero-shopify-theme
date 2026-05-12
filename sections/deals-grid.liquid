@@ -77,8 +77,24 @@
 
               {%- comment -%} Price + includes overlay (bottom-left) {%- endcomment -%}
               <div class="kt-deals__card-overlay">
+                {%- comment -%}
+                  Price row — when both the current and original price
+                  are set, render them on the same baseline (big current
+                  + small struck-through original) so the discount reads
+                  inline rather than floating in the card body. Earlier
+                  the original price sat alone on a separate line under
+                  the body padding, far from the price it was supposed
+                  to qualify. The new <s> sits inline next to the big
+                  figure, scaled down per the .kt-deals__card-price-
+                  original CSS rule.
+                {%- endcomment -%}
                 {%- if block.settings.price != blank -%}
-                  <p class="kt-deals__card-price-big">{{ block.settings.price | escape }}</p>
+                  <p class="kt-deals__card-price-row">
+                    <span class="kt-deals__card-price-big">{{ block.settings.price | escape }}</span>
+                    {%- if block.settings.original_price != blank -%}
+                      <s class="kt-deals__card-price-original">{{ block.settings.original_price | escape }}</s>
+                    {%- endif -%}
+                  </p>
                 {%- endif -%}
 
                 {%- if block.settings.includes != blank -%}
@@ -97,24 +113,14 @@
               </div>
             </div>
 
-            {%- comment -%} Info block (below image) {%- endcomment -%}
+            {%- comment -%}
+              Info block (below image). The card body now starts with
+              accent text → description → CTA — every price detail
+              (current + struck-through original) is already on the
+              image overlay above, so there is nothing price-related
+              to repeat here.
+            {%- endcomment -%}
             <div class="kt-deals__card-body">
-              {%- comment -%}
-                Original-price strikethrough only — tier badge + active
-                price already render on the image overlay above, so the
-                old "TIER X : $PRICE" heading line was a redundant
-                restatement that confused merchants ("why is it
-                concatenating those?"). Dropped entirely. Strikethrough
-                original price stays so a merchant who wants to advertise
-                a discount can still show the higher pre-deal figure
-                without sacrificing the cleaner card body.
-              {%- endcomment -%}
-              {%- if block.settings.original_price != blank -%}
-                <div class="kt-deals__card-heading">
-                  <s class="kt-deals__card-original-price">{{ block.settings.original_price | escape }}</s>
-                </div>
-              {%- endif -%}
-
               {%- if block.settings.accent_text != blank -%}
                 <div class="kt-deals__card-accent">
                   <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

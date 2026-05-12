@@ -5,6 +5,17 @@
 (function () {
   'use strict';
 
+  /* Theme-editor flag — set once at IIFE scope and consulted at the
+     GSAP/ScrollTrigger block inside init() rather than gating the
+     entire IIFE. This section also wires the filter drawer toggle
+     and the sort listener, which merchants should still be able to
+     exercise inside the editor; only the scroll-bound parallax +
+     reveal animations need to stand down to avoid the editor's
+     ScrollTrigger.refresh() lifecycle quirks (which surfaced as
+     the "page won't scroll to the footer after I drop in / remove
+     a section" reports). */
+  var IN_THEME_EDITOR = !!(window.Shopify && window.Shopify.designMode);
+
   /* WeakMap<section, { onScroll, onKeydown, ctx }> — handles and gsap
      context we attached per section, stored so shopify:section:unload
      can detach them. Without this, every re-render in the editor leaks
@@ -119,9 +130,11 @@
       state.onKeydown = onKeydown;
     }
 
-    /* GSAP parallax + reveal animations */
+    /* GSAP parallax + reveal animations. Gated on the theme-editor
+       flag captured at IIFE top — see IN_THEME_EDITOR comment above
+       for the rationale (editor-only scroll dead-zone reports). */
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    if (!IN_THEME_EDITOR && !prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
       gsap.registerPlugin(ScrollTrigger);
 
       var hero = section.querySelector('[data-collection-hero]');

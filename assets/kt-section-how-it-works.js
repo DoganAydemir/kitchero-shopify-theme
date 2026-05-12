@@ -5,6 +5,17 @@
 (function () {
   'use strict';
 
+
+  /* Skip scroll-bound animations entirely inside Shopify's theme
+     editor (Shopify.designMode is true only in the editor iframe).
+     Editor lifecycle quirks — section adds, removes, re-renders —
+     fire shopify:section:load / unload in rapid sequence and can
+     trigger ScrollTrigger.refresh() against half-torn-down DOM,
+     which has surfaced as "page won't scroll to the footer after
+     I drop in this section" reports across multiple sections that
+     don't even use pinning. The live storefront still gets every
+     animation because designMode is undefined there. */
+  if (window.Shopify && window.Shopify.designMode) return;
   function initHowItWorks(container) {
     var section = container.querySelector('[data-section-type="how-it-works"]');
     if (!section || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return null;

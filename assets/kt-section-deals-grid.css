@@ -164,6 +164,19 @@
   color: var(--kt-white);
 }
 
+/* Price row — baseline-aligned flex container so the current price
+   (big sans) and the optional original price (small, strikethrough)
+   sit side-by-side as one editorial number block. Spacing is tight
+   so the two figures read as a related pair, not two unrelated bits
+   of information. */
+.kt-deals__card-price-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 0.75rem 0;
+}
+
 .kt-deals__card-price-big {
   /* Switched off the editorial accent serif onto the body sans family
      because price numerals in the serif face (Playfair Display) read
@@ -175,13 +188,34 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
-  margin: 0 0 0.75rem 0;
   color: var(--kt-white);
 }
 
 @media screen and (min-width: 750px) {
   .kt-deals__card-price-big {
     font-size: 3.5rem;
+  }
+}
+
+/* Original price (strikethrough) rendered inline next to the big
+   current price on the image overlay. Smaller font, dimmed white so
+   the eye locks onto the current price first and reads the original
+   as supporting context. The previous .kt-deals__card-original-price
+   rule was sized for the card body (stone-500 on light background)
+   and would have been illegible against the dark image overlay; this
+   is the overlay-context counterpart. */
+.kt-deals__card-price-original {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-deals__card-price-original {
+    font-size: 1.25rem;
   }
 }
 
