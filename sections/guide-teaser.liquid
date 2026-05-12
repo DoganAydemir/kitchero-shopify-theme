@@ -2,7 +2,7 @@
 
 {%- assign guide_teaser_heading_default = 'kt.section.guide_teaser.heading_default' | t -%}
 
-<section class="kt-guide-teaser" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
+<section class="kt-guide-teaser {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
   <div class="page-width">
     <div class="kt-guide-teaser__header">
       <div>
@@ -197,7 +197,8 @@
     {
       "type": "text",
       "id": "label",
-      "label": "t:sections.guide-teaser.settings.label.label"
+      "label": "t:sections.guide-teaser.settings.label.label",
+      "default": "Label"
     },
     {
       "type": "text",
@@ -287,6 +288,26 @@
       "id": "show_date",
       "label": "t:sections.guide-teaser.settings.show_date.label",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -310,7 +331,8 @@
         {
           "type": "textarea",
           "id": "description",
-          "label": "t:sections.guide-teaser.blocks.article.settings.description.label"
+          "label": "t:sections.guide-teaser.blocks.article.settings.description.label",
+          "default": "Add a description for this section."
         },
         {
           "type": "image_picker",
@@ -325,19 +347,30 @@
         {
           "type": "text",
           "id": "author",
-          "label": "t:sections.guide-teaser.blocks.article.settings.author.label"
+          "label": "t:sections.guide-teaser.blocks.article.settings.author.label",
+          "default": "Author"
         },
         {
           "type": "text",
           "id": "date",
-          "label": "t:sections.guide-teaser.blocks.article.settings.date.label"
+          "label": "t:sections.guide-teaser.blocks.article.settings.date.label",
+          "default": "Date"
         }
       ]
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "cart",
+      "search",
+      "password",
+      "gift_card",
+      "404"
+    ]
   },
   "presets": [
     {

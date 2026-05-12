@@ -11,7 +11,7 @@
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
 <section
-  class="kt-financing-partners"
+  class="kt-financing-partners {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="financing-partners"
 >
@@ -43,7 +43,8 @@
               already exist below; this just gates the entire
               list-item render on at least one being supplied.
             {%- endcomment -%}
-            {%- if block.type == 'partner' and block.settings.name != blank or block.settings.logo_image != blank -%}
+            {%- if block.type != 'partner' -%}{% continue %}{%- endif -%}
+            {%- if block.settings.name == blank and block.settings.logo_image == blank -%}{% continue %}{%- endif -%}
               <li class="kt-financing-partners__item" {{ block.shopify_attributes }}>
                 {%- if block.settings.logo_image != blank -%}
                   {%- comment -%}
@@ -76,7 +77,6 @@
                   </span>
                 {%- endif -%}
               </li>
-            {%- endif -%}
           {%- endfor -%}
         </ul>
       {%- endif -%}
@@ -101,15 +101,42 @@
       "id": "heading_tag",
       "label": "t:sections.financing-partners.settings.heading_tag.label",
       "options": [
-        { "value": "h2", "label": "H2" },
-        { "value": "h3", "label": "H3" }
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        }
       ],
       "default": "h2"
     },
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.financing-partners.settings.description.label"
+      "label": "t:sections.financing-partners.settings.description.label",
+      "default": "Add a description for this section."
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -134,9 +161,18 @@
           "id": "style",
           "label": "t:sections.financing-partners.blocks.partner.settings.style.label",
           "options": [
-            { "value": "default", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__default.label" },
-            { "value": "icon_prefix", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__icon_prefix.label" },
-            { "value": "italic", "label": "t:sections.financing-partners.blocks.partner.settings.style.options__italic.label" }
+            {
+              "value": "default",
+              "label": "t:sections.financing-partners.blocks.partner.settings.style.options__default.label"
+            },
+            {
+              "value": "icon_prefix",
+              "label": "t:sections.financing-partners.blocks.partner.settings.style.options__icon_prefix.label"
+            },
+            {
+              "value": "italic",
+              "label": "t:sections.financing-partners.blocks.partner.settings.style.options__italic.label"
+            }
           ],
           "default": "default"
         }
@@ -145,7 +181,30 @@
   ],
   "presets": [
     {
-      "name": "t:sections.financing-partners.presets.name"
+      "name": "t:sections.financing-partners.presets.name",
+      "blocks": [
+        {
+          "type": "partner",
+          "settings": {
+            "name": "affirm",
+            "style": "default"
+          }
+        },
+        {
+          "type": "partner",
+          "settings": {
+            "name": "bread pay",
+            "style": "icon_prefix"
+          }
+        },
+        {
+          "type": "partner",
+          "settings": {
+            "name": "KLARNA.",
+            "style": "italic"
+          }
+        }
+      ]
     }
   ]
 }

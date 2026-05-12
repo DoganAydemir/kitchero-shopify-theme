@@ -7,7 +7,7 @@
 -%}
 
 <section
-  class="kt-testimonials-marquee"
+  class="kt-testimonials-marquee {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
@@ -155,21 +155,32 @@
     {
       "type": "text",
       "id": "eyebrow",
-      "label": "t:sections.testimonials-marquee.settings.eyebrow.label"
+      "label": "t:sections.testimonials-marquee.settings.eyebrow.label",
+      "default": "Eyebrow"
     },
     {
       "type": "text",
       "id": "heading",
-      "label": "t:sections.testimonials-marquee.settings.heading.label"
+      "label": "t:sections.testimonials-marquee.settings.heading.label",
+      "default": "Section heading"
     },
     {
       "type": "select",
       "id": "heading_tag",
       "label": "t:sections.testimonials-marquee.settings.heading_tag.label",
       "options": [
-        { "value": "h1", "label": "H1" },
-        { "value": "h2", "label": "H2" },
-        { "value": "h3", "label": "H3" }
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        }
       ],
       "default": "h2"
     },
@@ -193,6 +204,26 @@
       "id": "pause_on_hover",
       "label": "t:sections.testimonials-marquee.settings.pause_on_hover.label",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -204,22 +235,26 @@
         {
           "type": "textarea",
           "id": "quote",
-          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.quote.label"
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.quote.label",
+          "default": "Add a customer testimonial here."
         },
         {
           "type": "text",
           "id": "author_name",
-          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_name.label"
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_name.label",
+          "default": "Customer name"
         },
         {
           "type": "text",
           "id": "author_role",
-          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_role.label"
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_role.label",
+          "default": "Author role"
         },
         {
           "type": "text",
           "id": "author_brand",
-          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_brand.label"
+          "label": "t:sections.testimonials-marquee.blocks.testimonial.settings.author_brand.label",
+          "default": "Author brand"
         },
         {
           "type": "range",

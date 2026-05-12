@@ -13,7 +13,7 @@
 -%}
 
 <section
-  class="kt-featured-product color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="kt-featured-product color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="featured-product"
   aria-label="{{ 'kt.section.featured_product.region_label' | t | default: 'Featured product' }}"
@@ -293,13 +293,34 @@
     {
       "type": "text",
       "id": "eyebrow",
-      "label": "t:sections.featured-product.settings.eyebrow.label"
+      "label": "t:sections.featured-product.settings.eyebrow.label",
+      "default": "Eyebrow"
     },
     {
       "type": "checkbox",
       "id": "view_product_link",
       "label": "t:sections.featured-product.settings.view_product_link.label",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -373,7 +394,8 @@
         {
           "type": "richtext",
           "id": "text",
-          "label": "t:sections.featured-product.blocks.text.settings.text.label"
+          "label": "t:sections.featured-product.blocks.text.settings.text.label",
+          "default": "<p>Add your text here.</p>"
         }
       ]
     },

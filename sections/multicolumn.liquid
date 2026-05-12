@@ -23,7 +23,7 @@
 -%}
 
 <section
-  class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }}"
+  class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="multicolumn"
   style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
@@ -182,7 +182,8 @@
       "type": "text",
       "id": "subheading",
       "label": "t:sections.multicolumn.settings.subheading.label",
-      "info": "t:sections.multicolumn.settings.subheading.info"
+      "info": "t:sections.multicolumn.settings.subheading.info",
+      "default": "Subheading"
     },
     {
       "type": "text",
@@ -326,6 +327,26 @@
       "unit": "px",
       "label": "t:sections.multicolumn.settings.padding_bottom.label",
       "default": 64
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -343,7 +364,8 @@
           "type": "html",
           "id": "icon",
           "label": "t:sections.multicolumn.blocks.column.settings.icon.label",
-          "info": "t:sections.multicolumn.blocks.column.settings.icon.info"
+          "info": "t:sections.multicolumn.blocks.column.settings.icon.info",
+          "default": "Icon"
         },
         {
           "type": "text",
@@ -376,7 +398,8 @@
         {
           "type": "text",
           "id": "link_label",
-          "label": "t:sections.multicolumn.blocks.column.settings.link_label.label"
+          "label": "t:sections.multicolumn.blocks.column.settings.link_label.label",
+          "default": "Label"
         },
         {
           "type": "url",

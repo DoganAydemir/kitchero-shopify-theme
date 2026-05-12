@@ -121,11 +121,13 @@
 /* Bento sizing — only kicks in at the 4-column breakpoint.
    The `large` tile is sized by row-span + col-span (NOT aspect-ratio)
    so it stretches to match the combined height of the two-row right
-   column. The `wide` tile uses aspect-ratio: 16/9 to mirror the
-   Next.js reference `md:aspect-[16/9]`. Without this alignment there
-   was visible empty space under the right-column "wide" tile because
-   the large tile forced a 3/4 aspect that didn't match the right
-   column's (1/1 + 16/9) stacked height. */
+   column. Wide tile aspect-ratio is 2/1 (NOT 16/9): wide spans 2 cols
+   and 1 row, and on a 4-col grid where medium tiles are 1/1, the
+   matching row height is `colWidth` — so wide width = 2·colWidth+gap
+   and wide height = colWidth, giving an aspect of ≈ 2/1. Using 16/9
+   here made the wide row taller than the medium row, which is what
+   produced uneven gaps between rows (the dikey gap visually shifted
+   because each row's tile-height didn't match). */
 @media (min-width: 1024px) {
   .kt-gallery-focus__tile--large {
     grid-column: span 2;
@@ -135,7 +137,7 @@
   }
   .kt-gallery-focus__tile--wide {
     grid-column: span 2;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 2 / 1;
   }
   .kt-gallery-focus__tile--medium {
     grid-column: span 1;

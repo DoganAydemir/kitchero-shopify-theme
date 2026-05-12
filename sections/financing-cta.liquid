@@ -11,7 +11,7 @@
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
 <section
-  class="kt-financing-cta"
+  class="kt-financing-cta {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="financing-cta"
 >
@@ -88,15 +88,22 @@
       "id": "heading_tag",
       "label": "t:sections.financing-cta.settings.heading_tag.label",
       "options": [
-        { "value": "h2", "label": "H2" },
-        { "value": "h3", "label": "H3" }
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        }
       ],
       "default": "h2"
     },
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.financing-cta.settings.description.label"
+      "label": "t:sections.financing-cta.settings.description.label",
+      "default": "Add a description for this section."
     },
     {
       "type": "header",
@@ -123,6 +130,26 @@
       "type": "url",
       "id": "secondary_link",
       "label": "t:sections.financing-cta.settings.secondary_link.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "presets": [

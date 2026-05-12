@@ -34,7 +34,7 @@
 -%}
 
 <section
-  class="kt-collapsible-accordion"
+  class="kt-collapsible-accordion {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-allow-multiple="{% if allow_multiple %}true{% else %}false{% endif %}"
 >
@@ -195,8 +195,14 @@
       "id": "heading_tag",
       "label": "t:sections.collapsible_accordion.settings.heading_tag.label",
       "options": [
-        { "value": "h2", "label": "t:sections.collapsible_accordion.settings.heading_tag.options__h2.label" },
-        { "value": "h3", "label": "t:sections.collapsible_accordion.settings.heading_tag.options__h3.label" }
+        {
+          "value": "h2",
+          "label": "t:sections.collapsible_accordion.settings.heading_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.collapsible_accordion.settings.heading_tag.options__h3.label"
+        }
       ],
       "default": "h2"
     },
@@ -216,9 +222,18 @@
       "id": "numbering_style",
       "label": "t:sections.collapsible_accordion.settings.numbering_style.label",
       "options": [
-        { "value": "padded_two", "label": "t:sections.collapsible_accordion.settings.numbering_style.options__padded_two.label" },
-        { "value": "plain", "label": "t:sections.collapsible_accordion.settings.numbering_style.options__plain.label" },
-        { "value": "none", "label": "t:sections.collapsible_accordion.settings.numbering_style.options__none.label" }
+        {
+          "value": "padded_two",
+          "label": "t:sections.collapsible_accordion.settings.numbering_style.options__padded_two.label"
+        },
+        {
+          "value": "plain",
+          "label": "t:sections.collapsible_accordion.settings.numbering_style.options__plain.label"
+        },
+        {
+          "value": "none",
+          "label": "t:sections.collapsible_accordion.settings.numbering_style.options__none.label"
+        }
       ],
       "default": "padded_two"
     },
@@ -232,6 +247,26 @@
       "label": "t:sections.collapsible_accordion.settings.enable_faq_schema.label",
       "info": "t:sections.collapsible_accordion.settings.enable_faq_schema.info",
       "default": false
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -259,7 +294,9 @@
         }
       ]
     },
-    { "type": "@app" }
+    {
+      "type": "@app"
+    }
   ],
   "max_blocks": 12,
   "presets": [

@@ -37,7 +37,7 @@
 -%}
 
 <section
-  class="kt-list-collections"
+  class="kt-list-collections {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="list-collections-grid"
   style="--kt-list-collections-columns: {{ per_row_desktop }};"
@@ -152,11 +152,40 @@
       "id": "sort_by",
       "label": "t:sections.list-collections-grid.settings.sort_by.label",
       "options": [
-        { "value": "alphabetical", "label": "t:sections.list-collections-grid.settings.sort_by.options__alpha.label" },
-        { "value": "reverse_alphabetical", "label": "t:sections.list-collections-grid.settings.sort_by.options__reverse_alpha.label" },
-        { "value": "product_count", "label": "t:sections.list-collections-grid.settings.sort_by.options__count.label" }
+        {
+          "value": "alphabetical",
+          "label": "t:sections.list-collections-grid.settings.sort_by.options__alpha.label"
+        },
+        {
+          "value": "reverse_alphabetical",
+          "label": "t:sections.list-collections-grid.settings.sort_by.options__reverse_alpha.label"
+        },
+        {
+          "value": "product_count",
+          "label": "t:sections.list-collections-grid.settings.sort_by.options__count.label"
+        }
       ],
       "default": "alphabetical"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "presets": [
@@ -165,7 +194,11 @@
     }
   ],
   "enabled_on": {
-    "templates": ["list-collections", "page", "index"]
+    "templates": [
+      "list-collections",
+      "page",
+      "index"
+    ]
   }
 }
 {% endschema %}

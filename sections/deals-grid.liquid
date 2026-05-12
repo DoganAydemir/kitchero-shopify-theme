@@ -11,7 +11,7 @@
 {%- endcomment -%}
 
 {%- assign deals_cta_default = 'kt.section.deals_grid.cta_default' | t -%}
-<section class="kt-deals" data-section-id="{{ section.id }}">
+<section class="kt-deals {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-deals__grid">
       {%- for block in section.blocks -%}
@@ -212,7 +212,8 @@
       "type": "textarea",
       "id": "bottom_description",
       "label": "t:sections.deals-grid.settings.bottom_description.label",
-      "visible_if": "{{ section.settings.show_bottom_cta }}"
+      "visible_if": "{{ section.settings.show_bottom_cta }}",
+      "default": "Add a description for this section."
     },
     {
       "type": "text",
@@ -239,6 +240,26 @@
       "id": "bottom_cta_secondary_link",
       "label": "t:sections.deals-grid.settings.bottom_cta_secondary_link.label",
       "visible_if": "{{ section.settings.show_bottom_cta }}"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -279,13 +300,15 @@
           "type": "text",
           "id": "price",
           "label": "t:sections.deals-grid.blocks.deal.settings.price.label",
-          "info": "t:sections.deals-grid.blocks.deal.settings.price.info"
+          "info": "t:sections.deals-grid.blocks.deal.settings.price.info",
+          "default": "Price"
         },
         {
           "type": "text",
           "id": "original_price",
           "label": "t:sections.deals-grid.blocks.deal.settings.original_price.label",
-          "info": "t:sections.deals-grid.blocks.deal.settings.original_price.info"
+          "info": "t:sections.deals-grid.blocks.deal.settings.original_price.info",
+          "default": "Original price"
         },
         {
           "type": "header",
@@ -294,7 +317,8 @@
         {
           "type": "textarea",
           "id": "description",
-          "label": "t:sections.deals-grid.blocks.deal.settings.description.label"
+          "label": "t:sections.deals-grid.blocks.deal.settings.description.label",
+          "default": "Add a description for this section."
         },
         {
           "type": "textarea",
@@ -335,7 +359,9 @@
         }
       ]
     },
-    { "type": "@app" }
+    {
+      "type": "@app"
+    }
   ],
   "max_blocks": 12,
   "presets": [

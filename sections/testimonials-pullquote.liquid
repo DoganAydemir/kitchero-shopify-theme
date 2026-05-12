@@ -12,7 +12,7 @@
 {%- assign quote_blocks = section.blocks | where: 'type', 'quote' -%}
 
 <section
-  class="kt-testimonials-pullquote{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}"
+  class="kt-testimonials-pullquote{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-pullquote"
   style="--kt-pullquote-padding: {{ vertical_padding }}px;"
@@ -153,17 +153,20 @@
       "type": "textarea",
       "id": "quote",
       "label": "t:sections.testimonials-pullquote.settings.quote.label",
-      "info": "t:sections.testimonials-pullquote.settings.quote.info"
+      "info": "t:sections.testimonials-pullquote.settings.quote.info",
+      "default": "Add a customer testimonial here."
     },
     {
       "type": "text",
       "id": "author_name",
-      "label": "t:sections.testimonials-pullquote.settings.author_name.label"
+      "label": "t:sections.testimonials-pullquote.settings.author_name.label",
+      "default": "Customer name"
     },
     {
       "type": "text",
       "id": "author_title",
-      "label": "t:sections.testimonials-pullquote.settings.author_title.label"
+      "label": "t:sections.testimonials-pullquote.settings.author_title.label",
+      "default": "Section heading"
     },
     {
       "type": "select",
@@ -171,9 +174,18 @@
       "label": "t:sections.testimonials-pullquote.settings.heading_tag.label",
       "info": "t:sections.testimonials-pullquote.settings.heading_tag.info",
       "options": [
-        { "value": "h2", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__1.label" },
-        { "value": "h3", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__2.label" },
-        { "value": "blockquote", "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__3.label" }
+        {
+          "value": "h2",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__1.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__2.label"
+        },
+        {
+          "value": "blockquote",
+          "label": "t:sections.testimonials-pullquote.settings.heading_tag.options__3.label"
+        }
       ],
       "default": "h3"
     },
@@ -190,6 +202,26 @@
       "step": 8,
       "unit": "px",
       "default": 128
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -201,17 +233,20 @@
         {
           "type": "textarea",
           "id": "quote",
-          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.quote.label"
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.quote.label",
+          "default": "Add a customer testimonial here."
         },
         {
           "type": "text",
           "id": "author_name",
-          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_name.label"
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_name.label",
+          "default": "Customer name"
         },
         {
           "type": "text",
           "id": "author_title",
-          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_title.label"
+          "label": "t:sections.testimonials-pullquote.blocks.quote.settings.author_title.label",
+          "default": "Section heading"
         }
       ]
     }

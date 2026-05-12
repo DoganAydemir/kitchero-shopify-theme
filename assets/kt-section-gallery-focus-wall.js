@@ -188,6 +188,13 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       /* Tile opener */
       var tile = e.target.closest(SELECTORS.tile);
       if (tile) {
+        /* In the theme editor, intercepting the canvas click steals
+           focus from Shopify's "select the block in the sidebar"
+           behavior — the merchant clicks a tile to edit it and
+           instead gets a fullscreen lightbox blocking the canvas.
+           Skip the open() call entirely when designMode is on and
+           let Shopify's native block-select flow run. */
+        if (window.Shopify && window.Shopify.designMode) return;
         var section = tile.closest(SELECTORS.section);
         if (!section) return;
         var idx = parseInt(tile.getAttribute('data-tile-index'), 10);
@@ -297,35 +304,15 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       }
     });
 
-    /* R103 — Theme editor block-select feedback. When the merchant
-       clicks the sidebar entry for an `image` block (one tile), open
-       that tile's lightbox so they can preview the click flow without
-       leaving the editor sidebar. event.target is the block's wrapper
-       node (the [data-focus-tile] button itself, since the tile lives
-       at block-root); event.detail.sectionId scopes us to the right
-       section.
-
-       block:deselect closes the lightbox so the merchant moving on to
-       a different block doesn't get stuck on the old preview.
-       Doc: shopify.dev/docs/storefronts/themes/architecture/sections/
-       section-assets#shopify-block-select-event
-    */
-    document.addEventListener('shopify:block:select', function (e) {
-      var block = e.target;
-      if (!block) return;
-      var tile = block.matches && block.matches(SELECTORS.tile)
-        ? block
-        : block.querySelector && block.querySelector(SELECTORS.tile);
-      if (!tile) return;
-      var section = tile.closest(SELECTORS.section);
-      if (!section) return;
-      var idx = parseInt(tile.getAttribute('data-tile-index'), 10);
-      if (isNaN(idx)) idx = 0;
-      open(section, idx, tile);
-    });
-
-    document.addEventListener('shopify:block:deselect', function () {
-      if (active) close();
-    });
+    /* R103 (reverted) — earlier this handler opened the tile's
+       lightbox on `shopify:block:select` as a "click-flow preview"
+       for merchants editing from the sidebar. In practice it
+       *blocked* editing: every time the merchant clicked an image
+       block to change its settings, the lightbox covered the
+       canvas and the sidebar inputs lost relevance. The merchant
+       just wants to edit the block — Shopify already scrolls the
+       block into view on select, so no JS hook is needed here.
+       Keeping the close-on-deselect would be useless without a
+       matching open, so both handlers are removed. */
   })();
 }

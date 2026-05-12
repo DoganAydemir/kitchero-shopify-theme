@@ -1384,3 +1384,37 @@ html:not(.js) .kt-loader {
     outline-color: rgba(16, 185, 129, 0.85);
   }
 }
+
+/* ============================================================
+   Per-section background override modifiers
+   ============================================================
+   Plain-background section schemas ship an optional `bg_color`
+   select setting (Auto / White / Stone-50). When merchant picks
+   White or Stone-50, the section's root element gets
+   `kt-section-bg--white` or `kt-section-bg--stone-50` appended
+   to its class list, and these rules force-paint the surface
+   regardless of whatever ships in the section's own CSS.
+
+   Default `auto` does NOT add the modifier — the section falls
+   back to its own original background (transparent, stone-50,
+   white, image, etc.), so existing storefronts don't change
+   appearance unless the merchant actively picks an override.
+
+   Banner / hero / image-driven sections deliberately omit this
+   setting from their schema (full-bleed imagery means a colour
+   override would be invisible or wrong), so the modifier never
+   gets added there even if the class accidentally landed.
+
+   `!important` is the trade-off — section CSS routinely declares
+   `background-color: stone-50` (or transparent) on the root, and
+   without the bump the override would lose to its own per-section
+   selector. Scoped to two literal modifier classes only, so this
+   is a controlled override surface, not a sweeping one.
+*/
+.kt-section-bg--white {
+  background-color: var(--kt-white) !important;
+}
+
+.kt-section-bg--stone-50 {
+  background-color: var(--kt-stone-50) !important;
+}

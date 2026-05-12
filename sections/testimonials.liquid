@@ -7,7 +7,7 @@
 
 {%- comment -%} Testimonials section {%- endcomment -%}
 <section
-  class="kt-testimonials"
+  class="kt-testimonials {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials"
 >
@@ -258,7 +258,8 @@
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.testimonials.settings.description.label"
+      "label": "t:sections.testimonials.settings.description.label",
+      "default": "Add a description for this section."
     },
     {
       "type": "image_picker",
@@ -307,6 +308,26 @@
       "id": "cta_button_link",
       "label": "t:sections.testimonials.settings.cta_button_link.label",
       "visible_if": "{{ section.settings.show_cta_block }}"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -318,17 +339,20 @@
         {
           "type": "textarea",
           "id": "quote",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.quote.label"
+          "label": "t:sections.testimonials.blocks.testimonial.settings.quote.label",
+          "default": "Add a customer testimonial here."
         },
         {
           "type": "text",
           "id": "name",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.name.label"
+          "label": "t:sections.testimonials.blocks.testimonial.settings.name.label",
+          "default": "Name"
         },
         {
           "type": "text",
           "id": "role",
-          "label": "t:sections.testimonials.blocks.testimonial.settings.role.label"
+          "label": "t:sections.testimonials.blocks.testimonial.settings.role.label",
+          "default": "Role"
         },
         {
           "type": "image_picker",
@@ -339,8 +363,17 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "cart",
+      "search",
+      "password",
+      "gift_card",
+      "404"
+    ]
   },
   "max_blocks": 12,
   "presets": [

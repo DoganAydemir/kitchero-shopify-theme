@@ -18,7 +18,7 @@
 
 {%- if section.blocks.size == 0 and request.design_mode -%}
   <section
-    class="kt-apps kt-apps--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+    class="kt-apps kt-apps--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
     data-section-id="{{ section.id }}"
     style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
     aria-label="{{ 'kt.section.apps.editor_hint_aria' | t | default: 'Apps section — needs configuration' }}"
@@ -121,6 +121,26 @@
       "unit": "px",
       "label": "t:sections.apps.settings.padding_bottom.label",
       "default": 32
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

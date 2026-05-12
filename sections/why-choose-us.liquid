@@ -3,7 +3,7 @@
 {%- assign why_choose_us_heading_line1_default = 'kt.section.why_choose_us.heading_line1_default' | t -%}
 {%- assign why_choose_us_heading_line2_default = 'kt.section.why_choose_us.heading_line2_default' | t -%}
 
-<section class="kt-why-choose-us" data-section-id="{{ section.id }}" data-section-type="why-choose-us">
+<section class="kt-why-choose-us {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="why-choose-us">
   <div class="page-width">
 
     {%- comment -%} Header: title left, description right {%- endcomment -%}
@@ -83,12 +83,33 @@
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.why-choose-us.settings.description.label"
+      "label": "t:sections.why-choose-us.settings.description.label",
+      "default": "Add a description for this section."
     },
     {
       "type": "image_picker",
       "id": "image",
       "label": "t:sections.why-choose-us.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -112,14 +133,24 @@
         {
           "type": "textarea",
           "id": "description",
-          "label": "t:sections.why-choose-us.blocks.feature.settings.description.label"
+          "label": "t:sections.why-choose-us.blocks.feature.settings.description.label",
+          "default": "Add a description for this section."
         }
       ]
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "cart",
+      "search",
+      "password",
+      "gift_card",
+      "404"
+    ]
   },
   "presets": [
     {

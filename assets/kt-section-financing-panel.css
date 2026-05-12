@@ -322,6 +322,14 @@
   color: var(--kt-stone-700);
 }
 
+/* Dark-mode override — feature checklist lines were locked at
+   stone-700 (dark grey on white) and stayed unreadable on the
+   inverted stone-950 backdrop. stone-200 keeps the lines clearly
+   muted vs the title above but legible against the dark surface. */
+.kt-financing-panel--inverted .kt-financing-panel__feature-text {
+  color: var(--kt-stone-200);
+}
+
 @media screen and (min-width: 750px) {
   .kt-financing-panel__feature-text {
     font-size: 1rem;
@@ -342,6 +350,16 @@
   .kt-financing-panel__steps {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* Dark-mode override — the default stone-100 divider rule above was
+   tuned for the light surface (subtle hairline on near-white) but
+   reads as a hard white slash on the inverted stone-950 backdrop.
+   `rgba(255,255,255,0.08)` keeps the same visual purpose (a quiet
+   separation between the icon-grid and the step row) without
+   shouting at the eye on the dark variant. */
+.kt-financing-panel--inverted .kt-financing-panel__steps {
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .kt-financing-panel__step-icon {
@@ -365,6 +383,15 @@
   letter-spacing: 0.2em;
   color: var(--kt-stone-900);
   margin: 0 0 0.25rem 0;
+}
+
+/* Dark-mode override — step row titles were locked at stone-900
+   (near-black) and stayed invisible against the inverted stone-950
+   backdrop ("SELECT FINANCING", "PREQUALIFY", "PAY OVER TIME"
+   appeared as faint outlines). White brings them back to full
+   contrast on the dark surface, matching the editorial title above. */
+.kt-financing-panel--inverted .kt-financing-panel__step-title {
+  color: var(--kt-white);
 }
 
 .kt-financing-panel__step-desc {

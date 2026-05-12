@@ -5,7 +5,7 @@
   parade), so aria-label provides the AT landmark name.
 {%- endcomment -%}
 <section
-  class="kt-brands color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="kt-brands color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="brands"
   style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px;"
@@ -111,6 +111,26 @@
       "default": 40,
       "unit": "px",
       "label": "t:sections.brands.settings.padding_bottom.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

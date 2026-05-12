@@ -48,7 +48,7 @@
   visible heading).
 {%- endcomment -%}
 <section
-  class="kt-trust-bar"
+  class="kt-trust-bar {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="trust-bar"
   aria-label="{{ 'kt.section.trust-bar.aria_label' | t | default: 'Trust signals' }}"
@@ -128,7 +128,28 @@
   "name": "t:sections.trust-bar.name",
   "tag": "div",
   "class": "section",
-  "settings": [],
+  "settings": [
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
+    }
+  ],
   "max_blocks": 4,
   "blocks": [
     {
@@ -145,7 +166,8 @@
         {
           "type": "text",
           "id": "prefix",
-          "label": "t:sections.trust-bar.blocks.stat.settings.prefix.label"
+          "label": "t:sections.trust-bar.blocks.stat.settings.prefix.label",
+          "default": "Prefix"
         },
         {
           "type": "text",
@@ -157,8 +179,17 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "cart",
+      "search",
+      "password",
+      "gift_card",
+      "404"
+    ]
   },
   "presets": [
     {

@@ -47,7 +47,7 @@
 {%- if configured_block_count == 0 -%}
   {%- if request.design_mode -%}
     <section
-      class="kt-featured-products kt-featured-products--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+      class="kt-featured-products kt-featured-products--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
       data-section-id="{{ section.id }}"
       style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
       aria-label="{{ 'kt.section.featured-products.editor_hint_aria' | t | default: 'Featured products — needs configuration' }}"
@@ -166,7 +166,8 @@
       "type": "text",
       "id": "eyebrow",
       "label": "t:sections.featured-products.settings.eyebrow.label",
-      "info": "t:sections.featured-products.settings.eyebrow.info"
+      "info": "t:sections.featured-products.settings.eyebrow.info",
+      "default": "Eyebrow"
     },
     {
       "type": "text",
@@ -193,7 +194,8 @@
     {
       "type": "richtext",
       "id": "description",
-      "label": "t:sections.featured-products.settings.description.label"
+      "label": "t:sections.featured-products.settings.description.label",
+      "default": "<p>Add a description for this section.</p>"
     },
     {
       "type": "header",
@@ -291,6 +293,26 @@
       "unit": "px",
       "label": "t:sections.featured-products.settings.padding_bottom.label",
       "default": 64
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

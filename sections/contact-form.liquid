@@ -22,7 +22,7 @@
 {%- assign contact_form_heading_line2_default = 'kt.section.contact.form_heading_line2_default' | t -%}
 {%- assign contact_form_description_default = 'kt.section.contact.form_description_default' | t -%}
 <section
-  class="kt-contact"
+  class="kt-contact {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   aria-label="{{ section.settings.heading | default: contact_region_label }}"
 >
@@ -285,14 +285,70 @@
   "tag": "div",
   "class": "section",
   "settings": [
-    { "type": "header", "content": "t:sections.contact-form.settings.header__showrooms.content" },
-    { "type": "text", "id": "showrooms_label", "label": "t:sections.contact-form.settings.showrooms_label.label", "default": "Our Locations" },
-    { "type": "text", "id": "showrooms_heading", "label": "t:sections.contact-form.settings.showrooms_heading.label", "default": "Visit our locations" },
-    { "type": "header", "content": "t:sections.contact-form.settings.header__contact_form.content" },
-    { "type": "text", "id": "form_label", "label": "t:sections.contact-form.settings.form_label.label" },
-    { "type": "text", "id": "form_heading_line1", "label": "t:sections.contact-form.settings.form_heading_line1.label" },
-    { "type": "text", "id": "form_heading_line2", "label": "t:sections.contact-form.settings.form_heading_line2.label" },
-    { "type": "textarea", "id": "form_description", "label": "t:sections.contact-form.settings.form_description.label" }
+    {
+      "type": "header",
+      "content": "t:sections.contact-form.settings.header__showrooms.content"
+    },
+    {
+      "type": "text",
+      "id": "showrooms_label",
+      "label": "t:sections.contact-form.settings.showrooms_label.label",
+      "default": "Our Locations"
+    },
+    {
+      "type": "text",
+      "id": "showrooms_heading",
+      "label": "t:sections.contact-form.settings.showrooms_heading.label",
+      "default": "Visit our locations"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact-form.settings.header__contact_form.content"
+    },
+    {
+      "type": "text",
+      "id": "form_label",
+      "label": "t:sections.contact-form.settings.form_label.label",
+      "default": "Label"
+    },
+    {
+      "type": "text",
+      "id": "form_heading_line1",
+      "label": "t:sections.contact-form.settings.form_heading_line1.label",
+      "default": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "form_heading_line2",
+      "label": "t:sections.contact-form.settings.form_heading_line2.label",
+      "default": "Subheading"
+    },
+    {
+      "type": "textarea",
+      "id": "form_description",
+      "label": "t:sections.contact-form.settings.form_description.label",
+      "default": "Add a description for this section."
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        }
+      ],
+      "default": "auto"
+    }
   ],
   "blocks": [
     {
@@ -300,12 +356,37 @@
       "name": "t:sections.contact-form.blocks.showroom.name",
       "limit": 4,
       "settings": [
-        { "type": "text", "id": "title", "label": "t:sections.contact-form.blocks.showroom.settings.title.label", "default": "Location name" },
-        { "type": "image_picker", "id": "image", "label": "t:sections.contact-form.blocks.showroom.settings.image.label" },
-        { "type": "textarea", "id": "address", "label": "t:sections.contact-form.blocks.showroom.settings.address.label" },
-        { "type": "text", "id": "phone", "label": "t:sections.contact-form.blocks.showroom.settings.phone.label" },
-        { "type": "text", "id": "email", "label": "t:sections.contact-form.blocks.showroom.settings.email.label" },
-        { "type": "url", "id": "directions_url", "label": "t:sections.contact-form.blocks.showroom.settings.directions_url.label" }
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.contact-form.blocks.showroom.settings.title.label",
+          "default": "Location name"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.contact-form.blocks.showroom.settings.image.label"
+        },
+        {
+          "type": "textarea",
+          "id": "address",
+          "label": "t:sections.contact-form.blocks.showroom.settings.address.label"
+        },
+        {
+          "type": "text",
+          "id": "phone",
+          "label": "t:sections.contact-form.blocks.showroom.settings.phone.label"
+        },
+        {
+          "type": "text",
+          "id": "email",
+          "label": "t:sections.contact-form.blocks.showroom.settings.email.label"
+        },
+        {
+          "type": "url",
+          "id": "directions_url",
+          "label": "t:sections.contact-form.blocks.showroom.settings.directions_url.label"
+        }
       ]
     }
   ],
@@ -313,8 +394,18 @@
     {
       "name": "t:sections.contact-form.presets.name",
       "blocks": [
-        { "type": "showroom", "settings": { "title": "Location 1" } },
-        { "type": "showroom", "settings": { "title": "Location 2" } }
+        {
+          "type": "showroom",
+          "settings": {
+            "title": "Location 1"
+          }
+        },
+        {
+          "type": "showroom",
+          "settings": {
+            "title": "Location 2"
+          }
+        }
       ]
     }
   ]
