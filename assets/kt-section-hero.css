@@ -6,9 +6,28 @@
 .kt-hero {
   position: relative;
   /* R-density — section_height_desktop / _mobile from settings.
-     Defaults: 90vh desktop, 70vh mobile (preserves prior visual).
-     iOS Safari: 100vh fallback for browsers without svh support. */
-  height: var(--kt-hero-height-m, 70vh);
+     Defaults full viewport on every breakpoint.
+
+     `--kt-banner-height` is the live height of the announcement
+     banner above the header (set by assets/kt-section-header.js
+     on resize + on shopify:section:load/unload). Subtracting it
+     here keeps the hero exactly fitted to the visible viewport
+     under the banner — banner + header + hero stack to one
+     screen on first paint, instead of the hero spilling past the
+     fold by the banner's height. Falls back to 0px when no
+     banner is present, so the section is still a clean 100vh on
+     pages with the banner disabled.
+
+     `100svh` (small viewport) is used first because it tracks
+     the visible viewport under iOS Safari's collapsing address
+     bar; `100vh` stays as a fallback for browsers without svh
+     support (pre-2022). The merchant slider value lands in
+     `--kt-hero-height-m/d` from the inline style on the section
+     wrapper, with the same `100vh / 100svh` defaults inside the
+     `var()` chain so the calc still works if Liquid hasn't
+     emitted the variable for any reason. */
+  height: calc(var(--kt-hero-height-m, 100vh) - var(--kt-banner-height, 0px));
+  height: calc(var(--kt-hero-height-m, 100svh) - var(--kt-banner-height, 0px));
   width: 100%;
   overflow: hidden;
   background-color: var(--kt-black);
@@ -16,7 +35,8 @@
 
 @media screen and (min-width: 750px) {
   .kt-hero {
-    height: var(--kt-hero-height-d, 90vh);
+    height: calc(var(--kt-hero-height-d, 100vh) - var(--kt-banner-height, 0px));
+    height: calc(var(--kt-hero-height-d, 100svh) - var(--kt-banner-height, 0px));
   }
 }
 

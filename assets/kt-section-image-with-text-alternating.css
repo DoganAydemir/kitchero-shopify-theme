@@ -127,21 +127,39 @@
 
 .kt-iwt-alternating__item-heading {
   margin: 0;
-  font-family: var(--kt-f-heading-family, "Playfair Display", Georgia, "Times New Roman", serif);
-  font-weight: var(--kt-f-heading-weight, 500);
-  font-style: italic;
-  font-size: clamp(1.5rem, 1.8vw + 1rem, 1.875rem);
+  /* Switched from heading-family (Playfair, italic) to accent-family
+     so every editorial title across the storefront reads in the same
+     serif voice — kt-pdp__title, kt-collection__title, kt-banner-
+     cover__title, kt-page-header-dotted__title all use accent-family.
+     Italic dropped for the same reason. Slightly tighter line-height
+     than the rest of the page-headers because alternating rows have
+     more body copy directly beneath the title than the big hero
+     headers do. */
+  font-family: var(--kt-f-accent-family, Georgia, serif);
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(1.75rem, 2vw + 1rem, 2.25rem);
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--kt-iwt-text-color);
 }
 
 .kt-iwt-alternating__item-description {
   margin: 0;
-  font-size: 1rem;
+  /* Soft body copy under the heading — sized noticeably smaller than
+     the serif heading so the paragraph reads as supporting whisper
+     rather than competing with the title for visual weight. 13px
+     (0.8125rem) is the editorial sub-text floor across modern DTC
+     storefronts (Skims, Aesop, Apple) — small enough to feel
+     considered, large enough to stay readable above 1.7 line-
+     height. Opacity nudge keeps the muted-color token usable for
+     theme overrides while still tempering on-screen contrast. */
+  font-size: 0.8125rem;
   line-height: 1.7;
   font-weight: 300;
+  letter-spacing: 0.005em;
   color: var(--kt-iwt-muted-color);
+  opacity: 0.85;
 }
 
 /* -------- CTA -------- */
@@ -219,7 +237,10 @@
   }
 
   .kt-iwt-alternating__item-description {
-    font-size: 1.0625rem;
+    /* Stays in the editorial sub-text band on desktop — keeps the
+       paragraph clearly subordinate to the serif heading at every
+       breakpoint rather than scaling up alongside the body width. */
+    font-size: 0.875rem;
   }
 }
 

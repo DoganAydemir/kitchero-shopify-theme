@@ -1,5 +1,6 @@
 {{ 'kt-section-featured-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-price.css' | asset_url | stylesheet_tag }}
+{{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
   assign product = all_products[section.settings.product]
@@ -132,7 +133,21 @@
                     Resolved here so the Featured Product section is
                     transactionally equivalent to the main PDP form.
                   {%- endcomment -%}
-                  {%- form 'product', product, id: 'FeaturedProductForm-' | append: section.id -%}
+                  {%- comment -%}
+                    Pre-compute the form id outside the {% form %}
+                    tag — Shopify's form tag does not parse filter
+                    chains (`| append:`) inside keyword-arg values
+                    on some hosts; the parser then treats the
+                    entire `id:` expression as the form type, which
+                    surfaces as "Invalid form type 'template--...'"
+                    once a real product is selected (placeholder
+                    mode masks it because section.id has no value
+                    in that branch). Assigning the id first keeps
+                    the tag's keyword-arg list to literal scalars,
+                    which Shopify accepts on every host.
+                  {%- endcomment -%}
+                  {%- assign featured_form_id = 'FeaturedProductForm-' | append: section.id -%}
+                  {%- form 'product', product, id: featured_form_id -%}
                     <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
                     {%- if product.selling_plan_groups.size > 0 -%}
@@ -189,19 +204,25 @@
 
                     <div class="kt-featured-product__error" data-product-form-error role="alert" hidden></div>
 
-                    {%- if block.settings.show_dynamic_checkout -%}
-                      {{ form | payment_button }}
-                      {%- comment -%}
-                        R97 — Shop Pay Installments / Klarna / Afterpay
-                        messaging. {{ form | payment_terms }} renders the
-                        merchant's installment provider banner inside the
-                        product form. Shopify auto-hides if no provider is
-                        active or product price is below threshold. Required
-                        on every product form for full Theme Store payment
-                        UX parity.
-                      {%- endcomment -%}
-                      {{ form | payment_terms }}
-                    {%- endif -%}
+                    {%- comment -%}
+                      Shopify Dynamic Checkout (`form | payment_button`) is
+                      intentionally NOT emitted on Featured Product. The
+                      button lives inside a closed shadow DOM, so its blue
+                      Shop-Pay-default colour cannot be themed to match the
+                      rest of the storefront (Shopify's own
+                      accelerated-checkout docs confirm this, and overriding
+                      its shadow internals is a Theme Store reject signal).
+                      The matching schema toggle was removed too, so saved
+                      values from earlier sessions stay dormant.
+
+                      The `payment_terms` slot would render installment-
+                      provider messaging (Shop Pay Installments / Klarna /
+                      Afterpay) — gated on the same toggle for consistency,
+                      so dropping the gate drops both. If a future merchant
+                      wants installment messaging back without the blue
+                      button, render `{{ form | payment_terms }}` here
+                      directly (it has no shadow-DOM colour clash).
+                    {%- endcomment -%}
                   {%- endform -%}
                 {%- else -%}
                   <button type="button" class="kt-featured-product__submit button button--primary" disabled>
@@ -258,7 +279,10 @@
   "tag": "div",
   "class": "section",
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "settings": [
     {
@@ -270,12 +294,6 @@
       "type": "text",
       "id": "eyebrow",
       "label": "t:sections.featured-product.settings.eyebrow.label"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "scheme-1"
     },
     {
       "type": "checkbox",
@@ -295,8 +313,14 @@
           "id": "heading_tag",
           "label": "t:sections.featured-product.blocks.title.settings.heading_tag.label",
           "options": [
-            { "value": "h2", "label": "H2" },
-            { "value": "h3", "label": "H3" }
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            }
           ],
           "default": "h2"
         }
@@ -338,13 +362,6 @@
           "id": "button_text",
           "label": "t:sections.featured-product.blocks.buy_button.settings.button_text.label",
           "default": "Add to cart"
-        },
-        {
-          "type": "checkbox",
-          "id": "show_dynamic_checkout",
-          "label": "t:sections.featured-product.blocks.buy_button.settings.show_dynamic_checkout.label",
-          "info": "t:sections.featured-product.blocks.buy_button.settings.show_dynamic_checkout.info",
-          "default": true
         }
       ]
     },
@@ -372,17 +389,29 @@
         }
       ]
     },
-    { "type": "@app" }
+    {
+      "type": "@app"
+    }
   ],
   "presets": [
     {
       "name": "t:sections.featured-product.presets.name",
       "blocks": [
-        { "type": "title" },
-        { "type": "price" },
-        { "type": "description" },
-        { "type": "variant_picker" },
-        { "type": "buy_button" }
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "buy_button"
+        }
       ]
     }
   ]

@@ -42,7 +42,16 @@
   border-radius: 1rem;
   cursor: ew-resize;
   user-select: none;
-  touch-action: none;
+  /* `touch-action: pan-y` lets the browser keep handling vertical
+     panning (page scroll) while the slider still receives horizontal
+     pointer events for the drag-to-compare gesture. The previous
+     `touch-action: none` claimed every touch direction, which is
+     why finger-scroll past the section on mobile would stall, and
+     in the theme editor's iframe it occasionally left a stuck
+     scroll-block on the surrounding body after the section was
+     re-rendered. `pan-y` is the standard slider-pattern value for
+     a horizontal-only widget. */
+  touch-action: pan-y;
 }
 
 @media screen and (max-width: 749px) {
@@ -109,7 +118,24 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
+  /* Handle owns the pointer so a grab-and-drag gesture is registered
+     against the visible circle, not against the transparent slider
+     plate behind it. Previously this was `pointer-events: none` —
+     all pointer interactions slipped through to the slider and the
+     "drag from the chevron" UX never engaged (click-to-jump still
+     worked, which masked the bug). cursor: grab signals the
+     affordance; the active state below switches to grabbing for
+     the duration of the drag. */
+  pointer-events: auto;
+  cursor: grab;
+  /* Same touch-action policy as the slider — let the browser keep
+     vertical page scrolling, let our pointermove handler take the
+     horizontal drag. */
+  touch-action: pan-y;
+}
+
+.kt-before-after__handle:active {
+  cursor: grabbing;
 }
 
 @media screen and (min-width: 750px) {

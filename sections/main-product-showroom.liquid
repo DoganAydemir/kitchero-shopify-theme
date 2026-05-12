@@ -476,18 +476,18 @@
                           want a clean visual layout (no shop_pay button)
                           can hide it via the theme editor.
                         {%- endcomment -%}
-                        {%- if block.settings.show_dynamic_checkout and sample_variant.available -%}
-                          <div class="kt-showroom__sample-payment">
-                            {{ form | payment_button }}
-                            {%- comment -%}
-                              R97 — installments banner (Shop Pay / Klarna /
-                              Afterpay). Auto-hides when no provider is on
-                              or sample price is below threshold. Parity
-                              with main-product.liquid PDP.
-                            {%- endcomment -%}
-                            {{ form | payment_terms }}
-                          </div>
-                        {%- endif -%}
+                        {%- comment -%}
+                          Dynamic Checkout (`form | payment_button`)
+                          intentionally not rendered — the button lives
+                          inside a closed shadow DOM, so its blue Shop-
+                          Pay-default colour cannot be themed to match
+                          the storefront. Same call removed from
+                          featured-product and the main PDP form for
+                          consistency. The matching schema toggle was
+                          dropped too. If installment messaging is
+                          wanted back without the blue button, emit
+                          `{{ form | payment_terms }}` directly here.
+                        {%- endcomment -%}
                       {%- endform -%}
                     </div>
                   </div>
@@ -539,7 +539,7 @@
                   {%- render 'product-form',
                     product: product,
                     section: section,
-                    show_dynamic_checkout: block.settings.show_dynamic_checkout,
+                    show_dynamic_checkout: false,
                     show_quantity: block.settings.show_quantity,
                     atc_label: block.settings.atc_label
                   -%}
@@ -679,8 +679,7 @@
         { "type": "text", "id": "ships_badge", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.ships_badge.label" },
         { "type": "text", "id": "description", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.description.label", "default": "Sample cost applied to your full order" },
         { "type": "checkbox", "id": "refundable", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.refundable.label", "default": true },
-        { "type": "text", "id": "meta", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.meta.label" },
-        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.show_dynamic_checkout.label", "info": "t:sections.main-product-showroom.blocks.door_sample.settings.show_dynamic_checkout.info", "default": true }
+        { "type": "text", "id": "meta", "label": "t:sections.main-product-showroom.blocks.door_sample.settings.meta.label" }
       ]
     },
     {
@@ -707,13 +706,6 @@
           "type": "checkbox",
           "id": "show_quantity",
           "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_quantity.label",
-          "default": true
-        },
-        {
-          "type": "checkbox",
-          "id": "show_dynamic_checkout",
-          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_dynamic_checkout.label",
-          "info": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_dynamic_checkout.info",
           "default": true
         }
       ]

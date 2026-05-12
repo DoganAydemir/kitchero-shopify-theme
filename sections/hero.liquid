@@ -25,8 +25,8 @@
   storefronts don't regress visually after this density bump.
 {%- endcomment -%}
 {%- liquid
-  assign hero_height_d = section.settings.section_height_desktop | default: 90
-  assign hero_height_m = section.settings.section_height_mobile | default: 70
+  assign hero_height_d = section.settings.section_height_desktop | default: 100
+  assign hero_height_m = section.settings.section_height_mobile | default: 100
   assign hero_position = section.settings.content_position | default: 'middle-center'
   assign hero_overlay_color = section.settings.overlay_color | default: '#000000'
   assign hero_overlay_opacity = section.settings.overlay_opacity | default: 30 | divided_by: 100.0
@@ -288,7 +288,7 @@
       "unit": "%",
       "label": "t:sections.hero.settings.section_height_desktop.label",
       "info": "t:sections.hero.settings.section_height_desktop.info",
-      "default": 90
+      "default": 100
     },
     {
       "type": "range",
@@ -298,22 +298,49 @@
       "step": 5,
       "unit": "%",
       "label": "t:sections.hero.settings.section_height_mobile.label",
-      "default": 70
+      "default": 100
     },
     {
       "type": "select",
       "id": "content_position",
       "label": "t:sections.hero.settings.content_position.label",
       "options": [
-        { "value": "top-left", "label": "t:sections.hero.settings.content_position.options__top_left.label" },
-        { "value": "top-center", "label": "t:sections.hero.settings.content_position.options__top_center.label" },
-        { "value": "top-right", "label": "t:sections.hero.settings.content_position.options__top_right.label" },
-        { "value": "middle-left", "label": "t:sections.hero.settings.content_position.options__middle_left.label" },
-        { "value": "middle-center", "label": "t:sections.hero.settings.content_position.options__middle_center.label" },
-        { "value": "middle-right", "label": "t:sections.hero.settings.content_position.options__middle_right.label" },
-        { "value": "bottom-left", "label": "t:sections.hero.settings.content_position.options__bottom_left.label" },
-        { "value": "bottom-center", "label": "t:sections.hero.settings.content_position.options__bottom_center.label" },
-        { "value": "bottom-right", "label": "t:sections.hero.settings.content_position.options__bottom_right.label" }
+        {
+          "value": "top-left",
+          "label": "t:sections.hero.settings.content_position.options__top_left.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.hero.settings.content_position.options__top_center.label"
+        },
+        {
+          "value": "top-right",
+          "label": "t:sections.hero.settings.content_position.options__top_right.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.hero.settings.content_position.options__middle_left.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.hero.settings.content_position.options__middle_center.label"
+        },
+        {
+          "value": "middle-right",
+          "label": "t:sections.hero.settings.content_position.options__middle_right.label"
+        },
+        {
+          "value": "bottom-left",
+          "label": "t:sections.hero.settings.content_position.options__bottom_left.label"
+        },
+        {
+          "value": "bottom-center",
+          "label": "t:sections.hero.settings.content_position.options__bottom_center.label"
+        },
+        {
+          "value": "bottom-right",
+          "label": "t:sections.hero.settings.content_position.options__bottom_right.label"
+        }
       ],
       "default": "middle-center"
     },
@@ -375,13 +402,6 @@
     {
       "type": "header",
       "content": "t:sections.hero.settings.header__appearance.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.hero.settings.color_scheme.label",
-      "info": "t:sections.hero.settings.color_scheme.info",
-      "default": "scheme-1"
     },
     {
       "type": "color",
@@ -446,8 +466,17 @@
   ],
   "max_blocks": 8,
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "cart",
+      "search",
+      "password",
+      "gift_card",
+      "404"
+    ]
   },
   "presets": [
     {

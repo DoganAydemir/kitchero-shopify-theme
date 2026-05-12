@@ -260,30 +260,44 @@
   width: 100%;
   border: none;
   border-bottom: 1px solid var(--kt-stone-300);
-  padding: 1rem 0;
+  /* `padding-bottom: calc(1rem - 1px)` reserves 1px for the focus
+     state's thicker border so the input doesn't visibly shift when
+     it gains focus. The transition runs on border + padding both,
+     keeping the swap smooth. */
+  padding: 1rem 0 calc(1rem - 1px) 0;
   background: transparent;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   font-weight: 500;
   color: var(--kt-stone-900);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, border-bottom-width 0.2s ease, padding-bottom 0.2s ease;
   outline: none;
 }
 
-.kt-contact__form-input:focus {
-  border-color: var(--kt-stone-900);
-}
-
+/* Focus indicator: the previous rule painted a `outline: 2px solid
+   stone-900` ring (with offset) on `:focus-visible`, which looked
+   like a chunky black box around the field on keyboard nav. The
+   visual was correct from a a11y standpoint but too aggressive for
+   the editorial feel of the rest of the form. Replacing with a
+   stronger underline (1px → 2px stone-900) keeps the focus state
+   obviously visible, preserves WCAG focus-indicator contrast (full
+   stone-900 against the input background), and stays consistent
+   with the form's overall underline-only chrome. Outline removed
+   on both :focus and :focus-visible — the border swap is the only
+   indicator now. */
+.kt-contact__form-input:focus,
 .kt-contact__form-input:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: 2px;
+  outline: none;
+  border-bottom-width: 2px;
+  border-color: var(--kt-stone-900);
+  padding-bottom: calc(1rem - 2px);
 }
 
 .kt-contact__form-textarea {
   width: 100%;
   border: none;
   border-bottom: 1px solid var(--kt-stone-300);
-  padding: 1rem 0;
+  padding: 1rem 0 calc(1rem - 1px) 0;
   background: transparent;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
@@ -291,18 +305,17 @@
   color: var(--kt-stone-900);
   resize: vertical;
   min-height: 100px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, border-bottom-width 0.2s ease, padding-bottom 0.2s ease;
   outline: none;
   margin-bottom: 2rem;
 }
 
-.kt-contact__form-textarea:focus {
-  border-color: var(--kt-stone-900);
-}
-
+.kt-contact__form-textarea:focus,
 .kt-contact__form-textarea:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: 2px;
+  outline: none;
+  border-bottom-width: 2px;
+  border-color: var(--kt-stone-900);
+  padding-bottom: calc(1rem - 2px);
 }
 
 .kt-contact__form-submit {

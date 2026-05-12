@@ -22,9 +22,19 @@
 {%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
-{%- if show_dynamic_checkout == nil -%}
-  {%- assign show_dynamic_checkout = true -%}
-{%- endif -%}
+{%- comment -%}
+  Dynamic Checkout (Shop Pay / Buy it now) is force-disabled
+  theme-wide: the button renders in Shopify's closed shadow
+  DOM and cannot be themed to match the rest of the storefront
+  (its Shop-Pay-default blue clashed badly with our dark CTA
+  language). Every section that used to feed `show_dynamic_checkout:
+  block.settings.show_dynamic_checkout` now passes `false`
+  literally; the schema toggles were removed too. Leaving the
+  variable assignment here as `false` even when the caller
+  doesn't pass it, so any future caller that forgets the kwarg
+  doesn't accidentally bring the blue button back.
+{%- endcomment -%}
+{%- assign show_dynamic_checkout = false -%}
 {%- if show_quantity == nil -%}
   {%- assign show_quantity = true -%}
 {%- endif -%}
