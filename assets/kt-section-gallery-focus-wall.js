@@ -21,6 +21,7 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       tile: '[data-focus-tile]',
       lightbox: '[data-focus-lightbox]',
       image: '[data-focus-image]',
+      placeholder: '[data-focus-placeholder]',
       title: '[data-focus-title]',
       description: '[data-focus-description]',
       counter: '[data-focus-counter]',
@@ -56,6 +57,7 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       if (!tile) return;
 
       var img = state.lightbox.querySelector(SELECTORS.image);
+      var placeholder = state.lightbox.querySelector(SELECTORS.placeholder);
       var title = state.lightbox.querySelector(SELECTORS.title);
       var desc = state.lightbox.querySelector(SELECTORS.description);
       var counter = state.lightbox.querySelector(SELECTORS.counter);
@@ -68,16 +70,42 @@ if (!window.__kitcheroGalleryFocusLoaded) {
       if (img) {
         /* brief opacity swap for a smooth transition */
         img.classList.add('kt-gallery-focus-lightbox__image--swapping');
-        /* If there's no merchant image (placeholder-only block), fall back to
-           showing nothing rather than a broken image. */
         if (src) {
+          /* Real merchant image: show the <img>, hide the placeholder slot. */
           img.setAttribute('src', src);
           img.setAttribute('alt', alt);
-          img.style.visibility = '';
+          img.hidden = false;
+          if (placeholder) {
+            placeholder.hidden = true;
+            placeholder.innerHTML = '';
+          }
         } else {
+          /* No image picked yet — clone the tile's own placeholder SVG
+             (Shopify's `lifestyle-1` / `product-1` etc. illustrations)
+             into the lightbox slot so the merchant sees the same artwork
+             they see in the grid, not a black void. Previously the JS
+             only set visibility:hidden on the <img>, which left an
+             empty lightbox visible while the tile-source had a valid
+             placeholder waiting to be reused. */
           img.removeAttribute('src');
           img.setAttribute('alt', '');
-          img.style.visibility = 'hidden';
+          img.hidden = true;
+          if (placeholder) {
+            placeholder.innerHTML = '';
+            var tilePh = tile.querySelector('.placeholder-svg');
+            if (tilePh) {
+              var clone = tilePh.cloneNode(true);
+              /* Strip the tile-scoped class so the lightbox's own
+                 sizing rules win; keep the generic `placeholder-svg`
+                 class so Shopify's stock-illustration styles still
+                 apply (currentColor strokes, viewBox, etc.). */
+              clone.classList.remove('kt-gallery-focus__placeholder-svg');
+              clone.classList.remove('kt-gallery-focus__image');
+              clone.classList.add('kt-gallery-focus-lightbox__placeholder-svg');
+              placeholder.appendChild(clone);
+            }
+            placeholder.hidden = false;
+          }
         }
         /* Allow the browser to paint the new src before fading in */
         window.requestAnimationFrame(function () {
@@ -279,28 +307,46 @@ if (!window.__kitcheroGalleryFocusLoaded) {
     /* ── Theme-editor lifecycle ───────────────────────────────────────── */
 
     document.addEventListener('shopify:section:load', function (e) {
-      /* Nothing heavy to re-init — handlers are delegated — but if a
-         lightbox was open and the section re-rendered, close it to avoid
-         dangling state pointing at a removed node. */
-      if (active && e.target && e.target.contains(active.lightbox)) {
-        active = null;
-        if (window.Kitchero && Kitchero.scrollLock) {
-          Kitchero.scrollLock.unlock('gallery-focus-wall');
-        } else {
-          document.body.style.overflow = '';
-        }
+      /* Handlers are delegated, so nothing to re-bind. BUT: if the
+         merchant uploads an image to a tile, Shopify re-renders the
+         section — and if the old `active` ref pointed at a now-removed
+         lightbox DOM node, `e.target.contains(active.lightbox)` would
+         return false (the new lightbox is a different node) and the
+         scrollLock would never release. That's the "page jumps to the
+         bottom after picking an image" bug: body stays position:fixed
+         with a negative `top`, so the viewport is anchored at the saved
+         scroll offset instead of where the merchant left it.
+
+         Fix: when *our* section type reloads, force-release the scroll
+         lock and clear active state unconditionally. Unlock is
+         idempotent (no-op if we never locked), so this is safe. */
+      if (!e.target) return;
+      var ourSection = e.target.matches && e.target.matches(SELECTORS.section)
+        ? e.target
+        : e.target.querySelector && e.target.querySelector(SELECTORS.section);
+      if (!ourSection) return;
+      active = null;
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('gallery-focus-wall');
+      } else {
+        document.body.style.overflow = '';
       }
     });
 
     document.addEventListener('shopify:section:unload', function (e) {
-      if (active && e.target && e.target.contains(active.lightbox)) {
+      if (!e.target) return;
+      var ourSection = e.target.matches && e.target.matches(SELECTORS.section)
+        ? e.target
+        : e.target.querySelector && e.target.querySelector(SELECTORS.section);
+      if (!ourSection) return;
+      if (active && active.lightbox) {
         active.lightbox.setAttribute('aria-hidden', 'true');
-        if (window.Kitchero && Kitchero.scrollLock) {
-          Kitchero.scrollLock.unlock('gallery-focus-wall');
-        } else {
-          document.body.style.overflow = '';
-        }
-        active = null;
+      }
+      active = null;
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('gallery-focus-wall');
+      } else {
+        document.body.style.overflow = '';
       }
     });
 

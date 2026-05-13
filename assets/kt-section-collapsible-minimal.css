@@ -46,6 +46,11 @@
   margin: 0;
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-size: 2.25rem; /* text-4xl */
+  /* Explicit weight 400 — without this, the <h2> picks up the
+     browser default `bold` (700) and reads like a heavy display
+     heading. The reference is a light editorial serif: thin
+     strokes, generous spacing. */
+  font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--kt-stone-900); /* stone-900 */
@@ -57,33 +62,47 @@
   }
 }
 
-/* ---------- Grid ---------- */
+/* ---------- Grid ----------
+   "Minimal floating" — items are not cards. There is no surrounding
+   border, no radius, no shadow. Each item is divided from the next
+   only by a hairline bottom rule. So row-gap is 0 (the rule itself
+   IS the separator), and we rely on generous vertical padding inside
+   each item to give the section its airy rhythm. */
 .kt-collapsible-minimal__grid {
   display: grid;
   grid-template-columns: 1fr;
-  column-gap: 2rem;      /* gap-x close to source (gap-x-12 -> 3rem; spec: 2rem) */
-  row-gap: 0.75rem;      /* gap-y 0.75rem per spec */
+  column-gap: 4rem;
+  row-gap: 0;
 }
 
 @media (min-width: 750px) {
   .kt-collapsible-minimal__grid {
     grid-template-columns: repeat(var(--kt-col-count, 2), minmax(0, 1fr));
+    column-gap: 4.5rem;
   }
 }
 
-/* ---------- Floating card ---------- */
+/* ---------- Item (NOT a card — just a bottom-divided row) ---------- */
 .kt-collapsible-minimal__item {
-  background-color: var(--kt-white);
-  border: 1px solid var(--kt-stone-200); /* stone-200 */
-  border-radius: 0.75rem;    /* rounded-xl */
-  padding: 1.25rem;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%); /* shadow-sm */
-  transition: border-color 300ms ease, box-shadow 300ms ease;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--kt-stone-200);
+  border-radius: 0;
+  padding: 1.5rem 0;
+  box-shadow: none;
+  transition: none;
 }
 
+@media (min-width: 750px) {
+  .kt-collapsible-minimal__item {
+    padding: 1.75rem 0;
+  }
+}
+
+/* When open: no card frame, just keep the bottom rule consistent. */
 .kt-collapsible-minimal__item[open] {
-  border-color: var(--kt-stone-300); /* stone-300 */
-  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 6%);
+  border-color: var(--kt-stone-200);
+  box-shadow: none;
 }
 
 /* Hide the default disclosure marker across engines */
@@ -96,7 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
   cursor: pointer;
   user-select: none;
@@ -107,40 +126,62 @@
 }
 
 .kt-collapsible-minimal__summary:focus-visible {
-  outline: 2px solid var(--kt-stone-900); /* stone-900 */
-  outline-offset: 4px;
-  border-radius: 0.25rem;
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 6px;
+  border-radius: 0.125rem;
 }
 
 .kt-collapsible-minimal__item-title {
   flex: 1;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--kt-stone-900); /* stone-900 */
+  /* Reference uses a light editorial serif for every row title
+     (matching the section heading), not the default body sans-
+     serif. Without explicit font-family the title falls through
+     to body — which is why the editor preview shows a stocky
+     sans-serif title while the reference shows a refined serif. */
+  font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--kt-stone-900);
   transition: color 300ms ease;
 }
 
-.kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__item-title {
-  color: var(--kt-stone-500); /* stone-500 */
+@media (min-width: 750px) {
+  .kt-collapsible-minimal__item-title {
+    font-size: 1.4375rem; /* ≈23px — matches the reference */
+  }
 }
 
-/* ---------- Plus / minus icon (CSS-only, rotates 45deg when open) ---------- */
+.kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__item-title {
+  color: var(--kt-stone-500);
+}
+
+/* ---------- Plus / minus icon (CSS-only, rotates 45deg when open) ----------
+   Hairline strokes (1px) in a light stone tone — the reference
+   reads almost grey-300 against the dark serif titles. Slightly
+   smaller than 28px so the icon sits comfortably next to the
+   23-25px serif row title without dominating it. */
 .kt-collapsible-minimal__icon {
   position: relative;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .kt-collapsible-minimal__icon-h,
 .kt-collapsible-minimal__icon-v {
   position: absolute;
-  background-color: var(--kt-stone-400); /* stone-400 */
+  /* Bumped one step (stone-300 → stone-400, ≈20% darker) so the
+     hairline reads clearly on white without becoming a hard ui
+     button — closed rows still feel "quiet" but the "+" is no
+     longer almost-invisible. */
+  background-color: var(--kt-stone-400);
+  transition: background-color 300ms ease;
 }
 
 .kt-collapsible-minimal__icon-h {
@@ -157,16 +198,77 @@
   transform: rotate(45deg);
 }
 
+/* Open row's × icon: noticeably darker than the resting "+" so a
+   skim-read of the grid immediately tells the eye which row is
+   expanded. Jumping from stone-400 to stone-700 is a bigger
+   contrast step than hover (stone-400 → stone-600). */
+.kt-collapsible-minimal__item[open] .kt-collapsible-minimal__icon-h,
+.kt-collapsible-minimal__item[open] .kt-collapsible-minimal__icon-v {
+  background-color: var(--kt-stone-700);
+}
+
+.kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-h,
+.kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-v {
+  background-color: var(--kt-stone-600);
+}
+
+/* When the row is already open, hover doesn't need to add more
+   colour shift — keep the strong open-state tone. */
+.kt-collapsible-minimal__item[open] .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-h,
+.kt-collapsible-minimal__item[open] .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-v {
+  background-color: var(--kt-stone-700);
+}
+
 /* ---------- Content panel ---------- */
 .kt-collapsible-minimal__panel {
-  padding-top: 0.75rem; /* pt-3 per spec */
+  padding-top: 1.25rem;
+  max-width: 36rem;        /* keep paragraphs readable, not full-column wide */
 }
 
 .kt-collapsible-minimal__content {
-  font-size: 0.875rem;   /* text-sm */
-  line-height: 1.6;
-  color: var(--kt-stone-500);        /* stone-500 */
-  font-weight: 300;
+  /* Reference body copy reads as a light serif paragraph — keeps
+     the row's typographic register consistent with the serif title
+     above it. Switching from body sans to accent family gives the
+     "editorial soft" feel the reference has (compare the editor's
+     punchy sans paragraph to the reference's airy serif one).
+
+     Color: stone-400 (not stone-500). With the lighter stone-400
+     tone the description sits clearly *below* the title in the
+     visual hierarchy — same row, but the title reads "primary"
+     in stone-900 and the body reads "secondary" in a soft grey.
+     stone-500 was close enough to body text that the description
+     looked almost-black and competed with the title. */
+  font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--kt-stone-400);
+  font-weight: 400;
+}
+
+/* The wrapper div ALSO carries the global `.rte` class so editor
+   rich-text styles (lists, links, blockquotes) apply automatically.
+   But `.rte p` in base.css sets `color: var(--kt-c-fg)` (≈stone-900)
+   with specificity 0,0,1,1 — higher than our 0,0,1,0 rule above —
+   so the description was inheriting body-foreground black instead
+   of stone-400. Override every direct child with the same selector
+   shape (.class + element = 0,0,1,1) so we tie on specificity and
+   win on source order (this stylesheet loads after base.css). */
+.kt-collapsible-minimal__content p,
+.kt-collapsible-minimal__content li,
+.kt-collapsible-minimal__content ul,
+.kt-collapsible-minimal__content ol,
+.kt-collapsible-minimal__content blockquote {
+  color: var(--kt-stone-400);
+}
+
+@media (min-width: 750px) {
+  .kt-collapsible-minimal__content {
+    font-size: 1.0625rem;
+  }
+  .kt-collapsible-minimal__content p,
+  .kt-collapsible-minimal__content li {
+    font-size: 1.0625rem;
+  }
 }
 
 .kt-collapsible-minimal__content > *:first-child {

@@ -448,8 +448,44 @@
   transition: opacity 250ms ease;
 }
 
+.kt-gallery-focus-lightbox__image[hidden] {
+  display: none;
+}
+
 .kt-gallery-focus-lightbox__image--swapping {
   opacity: 0;
+}
+
+/* Placeholder slot — shown only when the opened tile has no merchant
+   image. Sized to roughly match a 4/3 image envelope so the lightbox
+   doesn't visually collapse around an empty void; the inner svg is a
+   clone of the tile's Shopify placeholder illustration. */
+.kt-gallery-focus-lightbox__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(85vw, 960px);
+  aspect-ratio: 4 / 3;
+  max-height: 72vh;
+  max-height: 72svh;
+  background: var(--kt-stone-900);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kt-gallery-focus-lightbox__placeholder[hidden] {
+  display: none;
+}
+
+.kt-gallery-focus-lightbox__placeholder .placeholder-svg,
+.kt-gallery-focus-lightbox__placeholder-svg {
+  width: 60%;
+  height: 60%;
+  max-width: 60%;
+  max-height: 60%;
+  fill: var(--kt-focus-stone-600);
+  color: var(--kt-focus-stone-600);
+  opacity: 0.55;
 }
 
 /* Caption */

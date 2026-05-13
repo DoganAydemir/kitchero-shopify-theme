@@ -233,6 +233,11 @@
           when the user opens a figure. The empty <img> never paints on
           page load (the lightbox container is aria-hidden until opened)
           so no extra network request is made.
+
+          The sibling placeholder slot is filled by the JS when the
+          opened tile has no merchant image; the JS clones the tile's
+          own placeholder SVG into here so the lightbox shows the same
+          illustration as the grid tile instead of a blank black void.
         {%- endcomment -%}
         <img
           class="kt-gallery-focus-lightbox__image"
@@ -243,6 +248,12 @@
           loading="lazy"
           decoding="async"
         >
+        <div
+          class="kt-gallery-focus-lightbox__placeholder"
+          data-focus-placeholder
+          aria-hidden="true"
+          hidden
+        ></div>
       </div>
 
       <figcaption class="kt-gallery-focus-lightbox__caption">
