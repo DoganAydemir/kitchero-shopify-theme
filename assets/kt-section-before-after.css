@@ -178,7 +178,14 @@
 
 .kt-before-after__label--after {
   right: 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  /* Was rgba(255, 255, 255, 0.2) — a translucent WHITE chip on a
+     WHITE/placeholder image is invisible (no contrast). With the
+     stock placeholder SVGs (and any merchant who uploads a bright
+     "after" shot) the After label disappeared entirely on mobile.
+     Using the same dark chip as Before guarantees legibility on
+     every background and keeps the two labels typographically
+     paired — only their position differs. */
+  background: rgba(0, 0, 0, 0.5);
 }
 
 [dir="rtl"] .kt-before-after__label--before { left: auto; right: 1.5rem; }

@@ -151,19 +151,28 @@
   outline-offset: 2px;
 }
 
-/* Sold out — fixed red regardless of scheme so the signal is universal */
+/* Disabled / sold-out — neutral grey, NOT red. The previous
+   red-50 background read as an angry error state ("something
+   went wrong, please try again") whereas the actual semantics
+   are "this variant isn't currently available, pick another".
+   On mobile the pink-pastel ATC button after a tap looked
+   exactly like a stuck error toast even though add-to-cart had
+   succeeded. Neutral stone disable is the conventional pattern
+   (cf. every native HTML form, GitHub, Stripe, Linear) — pairs
+   with the `__atc-icon--sold-out` SVG which itself carries the
+   "not buyable" semantic. */
 .kt-product-form__atc:disabled {
-  background-color: var(--kt-red-50);
-  color: var(--kt-red-700);
-  border-color: var(--kt-red-600);
+  background-color: var(--kt-stone-100);
+  color: var(--kt-stone-500);
+  border-color: var(--kt-stone-200);
   box-shadow: none;
   cursor: not-allowed;
   opacity: 1;
 }
 
 .kt-product-form__atc:disabled:hover {
-  background-color: var(--kt-red-50);
-  border-color: var(--kt-red-600);
+  background-color: var(--kt-stone-100);
+  border-color: var(--kt-stone-200);
 }
 
 .kt-product-form__atc-icon--sold-out {
@@ -366,7 +375,7 @@
   padding: 0.625rem 0.875rem;
   background-color: var(--kt-white, #ffffff);
   border: 1px solid var(--kt-stone-300, #d6d3d1);
-  border-radius: 0.5rem;
+  border-radius: 0;
   font-family: inherit;
   /* iOS Safari auto-zooms `<input>` whose computed font-size is
      under 16px when the user focuses it. The base.css zoom-prevention

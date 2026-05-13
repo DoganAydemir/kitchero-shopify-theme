@@ -71,6 +71,26 @@
   object-fit: cover;
 }
 
+/* Placeholder SVG visibility on the dark image-pane backdrop.
+
+   Global `.placeholder-svg` defaults to fill rgba(fg, 0.08) and
+   background rgba(fg, 0.04) — designed for the WHITE page
+   background where `--kt-c-fg` is near-black, so a very-low-alpha
+   black ink renders as a visible silver line. But this section's
+   image-pane has `background-color: var(--kt-stone-900)` (near-
+   black). A 0.08-alpha BLACK fill on a near-black backdrop is
+   invisible — merchants without any uploaded slides see an empty
+   black rectangle and report "placeholder isn't showing".
+
+   Override fill + bg to light tones scoped to this section only,
+   so the placeholder reads as a subtle grey illustration over
+   the dark pane until the merchant uploads real photography. */
+.kt-slider-editorial__image-slide .placeholder-svg,
+.kt-slider-editorial__image.placeholder-svg {
+  fill: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
 .kt-slider-editorial__image-overlay {
   position: absolute;
   inset: 0;

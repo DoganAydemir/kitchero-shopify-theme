@@ -749,54 +749,19 @@
   </div>
 
   {%- comment -%}
-    Mobile locale / country selector. Previously only rendered in the
-    footer, which means a customer on a phone who opens the mobile
-    panel to navigate can't switch language or currency without
-    scrolling the page behind the panel to the footer. Rendering it
-    here keeps the fix one tap away.
-
-    Only rendered when the store has more than one installed language
-    or shipping country — matches the guard used in the footer.
+    Mobile locale / country selector intentionally NOT rendered
+    inside this drawer anymore. With the full `<select>` showing
+    every shipping country + currency code, the chip occupied
+    ~30-40% of the mobile-panel real estate and pushed the primary
+    menu (Estimate Project CTA, navigation links) above the fold —
+    a UX-versus-navigation tradeoff the merchant flagged. The
+    selector still lives in the footer, which is one swipe away
+    on a mobile device and is the conventional location for
+    locale switching across most Shopify themes. If this needs to
+    come back we can move it into the header bar next to the X
+    close button as a compact flag/code chip — but for now,
+    footer-only matches user expectations.
   {%- endcomment -%}
-  {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-    <div class="kt-header__mobile-locale">
-      {%- if localization.available_languages.size > 1 -%}
-        {%- form 'localization', id: 'MobileLanguageForm', class: 'kt-header__mobile-locale-form' -%}
-          {%- comment -%} R122 — return_to. {%- endcomment -%}
-          <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-          <label for="MobileLanguageSelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
-          <select name="language_code" id="MobileLanguageSelector" class="kt-header__mobile-locale-select">
-            {%- for language in localization.available_languages -%}
-              <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
-                {{ language.endonym_name | capitalize }}
-              </option>
-            {%- endfor -%}
-          </select>
-          <noscript>
-            <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-          </noscript>
-        {%- endform -%}
-      {%- endif -%}
-
-      {%- if localization.available_countries.size > 1 -%}
-        {%- form 'localization', id: 'MobileCountryForm', class: 'kt-header__mobile-locale-form' -%}
-          {%- comment -%} R122 — return_to. {%- endcomment -%}
-          <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-          <label for="MobileCountrySelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
-          <select name="country_code" id="MobileCountrySelector" class="kt-header__mobile-locale-select">
-            {%- for country in localization.available_countries -%}
-              <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
-                {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
-              </option>
-            {%- endfor -%}
-          </select>
-          <noscript>
-            <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-          </noscript>
-        {%- endform -%}
-      {%- endif -%}
-    </div>
-  {%- endif -%}
 </div>
 
 <script src="{{ 'kt-section-header.js' | asset_url }}" defer="defer"></script>

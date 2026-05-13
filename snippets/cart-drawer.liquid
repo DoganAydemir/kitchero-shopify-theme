@@ -82,12 +82,24 @@
                   alt text). Falls back to item.title when missing.
                 {%- endcomment -%}
                 {%- assign item_alt = item.image.alt | default: item.title -%}
+                {%- comment -%}
+                  Was `image_url: width: 192` (~2x retina for the 96px
+                  thumbnail) — on iPhone 12+ class devices the device
+                  pixel ratio is 3x, so 192px source rendered at 96px
+                  display × 3 DPR = 288px logical was visibly upscaled
+                  and blurry. Bumped to 384 + srcset so the browser
+                  picks the right density variant per device. `sizes`
+                  is fixed at 96px because the thumbnail wrapper
+                  always renders at 6rem regardless of viewport.
+                {%- endcomment -%}
                 {{
                   item.image
-                  | image_url: width: 192
+                  | image_url: width: 384
                   | image_tag:
                     width: 96,
                     height: 96,
+                    widths: '192, 288, 384',
+                    sizes: '96px',
                     alt: item_alt,
                     loading: 'lazy',
                     class: 'kt-cart-drawer__item-img'

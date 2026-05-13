@@ -180,6 +180,55 @@
   overflow: visible;
 }
 
+/* Mobile control bar layout fix.
+
+   On phones the bar was rendering THREE elements side-by-side
+   inside `justify-content: space-between`:
+     [Showing X of Y]   [Filters btn]   [Sort by + <select>]
+   On a 375px viewport those three groups collide:
+   - The "Showing X of Y" text wraps to two lines.
+   - The Filter button gets squeezed into a half-rendered chip.
+   - The Sort select's label + dropdown overlaps the Filter button.
+
+   Fix: hide the secondary metadata on mobile (the count is shown
+   inside the filter button as `Filters (N)` anyway) and let the
+   bar reduce to the two genuine actions — Filter + Sort — split
+   left/right. Sort drops its "Sort by" label since the select's
+   selected-option already names the active sort. Select gets
+   16px font so iOS doesn't auto-zoom on focus, plus a 44px min
+   touch target and corner-sharp radius to match site language. */
+@media screen and (max-width: 749px) {
+  .kt-collection__controls-inner > .kt-collection__results-count {
+    display: none;
+  }
+  .kt-collection__controls-inner {
+    gap: 0.75rem;
+  }
+  .kt-collection__filter-btn {
+    padding: 0.625rem 1.125rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .kt-collection__sort-form {
+    /* Allow the form to flex-shrink so its select doesn't push
+       the filter button off-screen on narrow phones. */
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .kt-collection__sort-label {
+    display: none;
+  }
+  .kt-collection__sort-select {
+    font-size: 1rem;
+    border-radius: 0;
+    min-height: 44px;
+    padding: 0.5rem 2rem 0.5rem 0.875rem;
+    max-width: 100%;
+  }
+}
+
 /* Mobile filter bar — visible below 750px */
 .kt-collection__mobile-filter-bar {
   display: flex;

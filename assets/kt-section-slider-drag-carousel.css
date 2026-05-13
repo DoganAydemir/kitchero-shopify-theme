@@ -147,22 +147,42 @@
   display: flex;
   flex-wrap: nowrap;
   gap: 1.5rem;
-  padding: 0 1.5rem 1.5rem;
+  /* padding-bottom is sized for the card's drop-shadow, NOT just
+     visual spacing. Each .__item carries
+       box-shadow: 0 20px 40px -16px rgba(…, 0.25)
+     which extends ≈44px below the card. Track overflow-y must
+     stay `hidden` (to swallow the vertical scrollbar that otherwise
+     appears alongside overflow-x: auto), so a tight bottom padding
+     clips the lower half of the shadow. 4rem (64px) gives clearance
+     for the full shadow blur with ~20px of headroom. */
+  padding: 0 1.5rem 4rem;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  /* `proximity` not `mandatory` — mandatory was creating a vertical
+     scroll "snag" on mobile: scrolling THROUGH this section
+     vertically would get caught by the horizontal snap engine and
+     the page scroll would pause/stutter at each card boundary.
+     Proximity only snaps when the user is finishing a horizontal
+     drag near a card edge, leaving vertical page-scroll alone. */
+  scroll-snap-type: x proximity;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  /* touch-action left as default so the browser keeps distinguishing
-     horizontal vs vertical gestures. `pan-x` alone forwarded every
-     touch down-then-up delta to us even when the user was trying to
-     scroll the PAGE vertically with their finger starting inside the
-     carousel — finger got "stuck" on the carousel and couldn't scroll
-     past it on mobile. Native `overflow-x: auto` + default touch
-     heuristics correctly separate the axes. */
+  /* `touch-action: pan-x` — only horizontal pan gestures bind to
+     this carousel; vertical swipes bubble up to the page so the
+     body keeps scrolling smoothly even when the user's finger
+     happens to start over a card. The earlier note said "pan-x
+     alone forwarded every touch down-then-up delta" — that
+     observation was about an older drag implementation that
+     manually tracked pointermove deltas; the current code uses
+     native overflow-x scroll, where pan-x is the canonical
+     touch-action and does NOT prevent the browser from doing
+     gesture-axis disambiguation. Combined with scroll-snap-type:
+     proximity above this fully removes the vertical page-scroll
+     stutter users reported on mobile. */
+  touch-action: pan-x;
 
   /* Hide scrollbars */
   scrollbar-width: none;
@@ -183,7 +203,7 @@
 @media (min-width: 750px) {
   .kt-drag-carousel__track {
     gap: 2rem;
-    padding: 0 2.5rem 1.5rem;
+    padding: 0 2.5rem 4rem;
   }
 }
 
@@ -198,7 +218,11 @@
 .kt-drag-carousel__item {
   position: relative;
   flex-shrink: 0;
-  width: 80vw;
+  /* 72vw → one full card + ~28% peek of the next card on mobile,
+     so the partial sliver advertises that the row scrolls
+     horizontally. 80vw had the same "looks like a single fixed
+     card" problem as the categories rail. */
+  width: 72vw;
   max-width: 360px;
   aspect-ratio: var(--kt-dc-item-aspect);
   background-color: var(--kt-white);

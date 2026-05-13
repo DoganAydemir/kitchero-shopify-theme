@@ -1020,7 +1020,11 @@ html.no-js .kt-header__mobile-view-title {
   color: var(--kt-stone-50);
   background: none;
   border: none;
+  border-radius: 9999px;
   cursor: pointer;
+  /* Kill iOS Safari's grey tap-highlight rectangle on tap — it's
+     redundant with our own pressed/focus visuals. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .kt-header__mobile-panel-close svg {
@@ -1028,9 +1032,22 @@ html.no-js .kt-header__mobile-view-title {
   height: 28px;
 }
 
+.kt-header__mobile-panel-close:focus {
+  outline: none;
+}
+
+/* The mobile-nav JS programmatically focuses the close button on
+   drawer-open (for screen reader announcement). In Chromium and
+   Safari, programmatic `.focus()` retains `:focus-visible` state
+   if the user has interacted via keyboard *anywhere* during the
+   session — which left a hard 2px white outline-rectangle around
+   the X button after every drawer-open, even on pure touch users.
+   Swap the rectangular outline for a soft circular tint so the
+   keyboard focus indicator is still present (WCAG 2.4.7) but
+   doesn't read as a stuck "bordered button" on touch. */
 .kt-header__mobile-panel-close:focus-visible {
-  outline: 2px solid var(--kt-white);
-  outline-offset: 2px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ============================================================
@@ -1306,9 +1323,24 @@ html.no-js .kt-header__mobile-view-title {
   transform: translateX(4px);
 }
 
+/* The mobile-nav JS programmatically focuses the back button when
+   a sub-panel slides in (for screen-reader context). Chromium and
+   Safari treat that programmatic focus as keyboard-equivalent and
+   keep `:focus-visible` true after the touch, leaving a hard
+   white 2px ring + 2px offset rectangle around the back link
+   even on pure touch use. Same pattern as the close button fix:
+   drop the outline, swap for a soft tap-tint. */
+.kt-header__mobile-back {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kt-header__mobile-back:focus {
+  outline: none;
+}
+
 .kt-header__mobile-back:focus-visible {
-  outline: 2px solid var(--kt-white);
-  outline-offset: 2px;
+  outline: none;
+  color: var(--kt-stone-50);
 }
 
 /* Spacer for solid header — matches header height (py-4 + content) */

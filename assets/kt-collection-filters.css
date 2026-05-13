@@ -167,7 +167,11 @@
   display: flex;
   align-items: center;
   border: 1px solid var(--kt-stone-300);
-  border-radius: 0.25rem;
+  /* Corner-sharp to match the site-wide button/input radius
+     reset. Was 0.25rem, which made the price inputs look like
+     soft pills next to the otherwise hard-edged Show Results
+     button — visually inconsistent. */
+  border-radius: 0;
   padding: 0 0.75rem;
   flex: 1;
 }
@@ -190,9 +194,20 @@
   -moz-appearance: textfield;
 }
 
+/* Single focus indicator. The input is wrapped in
+   `.kt-filter__price-field` which already carries the 1px stone-300
+   border. Adding a 2px outline + 2px offset on the input itself
+   painted a SECOND rectangle 2px outside the wrapper's border —
+   read as a "double border" on mobile. Drop the outline entirely
+   and shift the parent wrapper's border-color via :focus-within
+   so there's exactly one visible ring around the field. */
+.kt-filter__price-input:focus,
 .kt-filter__price-input:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: 2px;
+  outline: none;
+}
+
+.kt-filter__price-field:focus-within {
+  border-color: var(--kt-stone-900);
 }
 
 .kt-filter__price-input::-webkit-inner-spin-button,
@@ -468,6 +483,66 @@
   margin: 0 0 1.25rem 0;
 }
 
+/* Sort fieldset inside `main-collection.liquid`'s filter drawer.
+
+   The liquid emits:
+     <fieldset class="kt-filter-drawer__sort">
+       <legend class="kt-filter-drawer__sort-legend">Sort by</legend>
+       <select class="kt-filter-drawer__sort-select"> … </select>
+     </fieldset>
+   With no styles defined the native browser chrome rendered the
+   fieldset border + legend + chunky 14px select — visually
+   "broken" against the rest of the drawer's deliberate
+   typography. These rules match the look of the price/availability
+   groups above (small uppercase legend + clean corner-sharp
+   select) so the sort block reads as a peer of the filters. */
+.kt-filter-drawer__sort {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.kt-filter-drawer__sort-legend {
+  padding: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--kt-stone-500);
+}
+
+.kt-filter-drawer__sort-select {
+  width: 100%;
+  /* 16px = iOS Safari zoom-on-focus threshold. */
+  font-size: 1rem;
+  min-height: 44px;
+  padding: 0.625rem 2.25rem 0.625rem 1rem;
+  border: 1px solid var(--kt-stone-300);
+  border-radius: 0;
+  background-color: var(--kt-white);
+  color: var(--kt-stone-900);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 14px 14px;
+  cursor: pointer;
+}
+
+.kt-filter-drawer__sort-select:focus {
+  outline: none;
+  border-color: var(--kt-stone-900);
+}
+
+.kt-filter-drawer__sort-select:focus-visible {
+  outline: none;
+  border-color: var(--kt-stone-900);
+}
+
 .kt-filter-drawer__options {
   display: flex;
   flex-direction: column;
@@ -556,8 +631,16 @@
 
 .kt-filter-drawer__footer {
   flex-shrink: 0;
+  /* Stack the count/clear-all row ABOVE the full-width Show
+     Results button. Was a single horizontal flex row with
+     CLEAR ALL pinned left + button taking the rest — on
+     narrow phones the button squeezed to a hard-to-tap
+     fraction and the row felt like a balanced inline group
+     instead of a primary CTA + secondary helper. Vertical
+     stack makes the primary action unmistakable. */
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
   /* Respect iPhone home-indicator safe area — max() keeps the
@@ -565,6 +648,17 @@
   padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--kt-stone-100);
   background-color: rgba(250, 250, 249, 0.9);
+}
+
+/* The "X Matches Found" count + "Clear All" link sit on the
+   same row above the button, separated. Centered text-align
+   keeps both elements visually balanced when the count is
+   short ("0 Matches Found"). */
+.kt-filter-drawer__footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .kt-filter-drawer__clear {
@@ -586,17 +680,26 @@
 }
 
 .kt-filter-drawer__apply {
-  flex: 1;
+  /* `flex: 1` → `flex: none` so the button doesn't try to share
+     row-width with the (now-stacked-above) clear-all link. Full
+     width inside the column-flex footer reads as a single
+     unmistakable primary CTA.
+
+     Border-radius pill → 0: matches the site-wide hard-corner
+     button language; pairs cleanly with the now-corner-sharp
+     price inputs above. */
+  flex: none;
+  width: 100%;
   padding: 1rem 1.5rem;
   background-color: var(--kt-stone-900);
   color: var(--kt-white);
   font-family: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   border: 0;
-  border-radius: 9999px;
+  border-radius: 0;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -608,6 +711,25 @@
 .kt-filter-drawer__apply:focus-visible {
   outline: 2px solid var(--kt-stone-900);
   outline-offset: 3px;
+}
+
+/* Sort-by select inside the mobile filter drawer.
+
+   The select inherits `.kt-collection__sort-select` styling from
+   the desktop sidebar's CSS (font-size 0.875rem, pill radius, slim
+   padding). Inside the drawer those defaults break on mobile:
+     - font-size: 14px < 16px → iOS auto-zooms on focus
+     - border-radius: 9999px → "balloon" pill against hard-edged
+       Show Results button, visually inconsistent
+     - padding 0.5rem → height ~33px < 44px minimum tap target
+   Descendant override scopes the fix to drawer-only so the desktop
+   sidebar's compact pill style stays unchanged. */
+.kt-filter-drawer__body .kt-collection__sort-select {
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 0;
+  padding: 0.75rem 2.25rem 0.75rem 1rem;
+  min-height: 44px;
 }
 
 @media screen and (min-width: 990px) {

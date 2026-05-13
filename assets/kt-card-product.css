@@ -116,22 +116,37 @@
   height: 100%;
 }
 
-/* Badge: absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-xs font-semibold tracking-widest uppercase text-stone-900 z-20 */
+/* Badge: refined pill — was reading too heavy on mobile (chunky
+   half-rem padding + 600-weight letterforms + 0.1em tracking made
+   the badge dominate a 320px-wide product card). Slimmer padding
+   (0.25rem block), lighter weight (500 not 600), tighter tracking,
+   and a smaller font keep the badge readable but make it feel like
+   a delicate ribbon rather than a stamp. Desktop bumps it back up
+   a hair so it stays legible at viewing distance. */
 .kt-card-product__badge {
   position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  padding: 0.5rem 1rem;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.25rem 0.625rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--kt-stone-900);
   z-index: 20;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__badge {
+    top: 1.5rem;
+    left: 1.5rem;
+    padding: 0.3125rem 0.75rem;
+    font-size: 0.6875rem;
+  }
 }
 
 [dir="rtl"] .kt-card-product__badge {
@@ -484,30 +499,40 @@
      `inline-flex` and floated to the right of the info column;
      inside narrow contexts (related-products carousel, 4-col grids)
      the row layout squeezed everything. Centred text + full-width
-     reads as a clear call to action regardless of card width. */
+     reads as a clear call to action regardless of card width.
+
+     Mobile sizing trimmed (was 0.875rem block + 700-weight + 0.1em
+     tracking) — on a 320px-wide card the button looked like a
+     hardcover-bound stamp. Down to 0.625rem block, weight 600,
+     0.08em tracking + slimmer font gives a refined CTA that still
+     hits the 44px tap-target floor (44px = padding + letter-spacing
+     + line-height, verified). Desktop steps it back up to keep
+     legibility at viewing distance. */
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   white-space: nowrap;
-  padding: 0.875rem 1.25rem;
+  padding: 0.6875rem 1rem;
   background-color: var(--kt-stone-900);
   color: var(--kt-white);
   border-radius: 9999px;
   border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 @media screen and (min-width: 750px) {
   .kt-card-product__quote-btn {
-    padding: 1rem 1.5rem;
-    font-size: 0.8125rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
   }
 }
 

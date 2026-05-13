@@ -41,6 +41,18 @@
           </div>
         {%- else -%}
           <div class="kt-newsletter-page__form">
+            {%- comment -%}
+              The email field and Subscribe button must stay together
+              on one row (flex parent). The consent <p> used to be a
+              sibling of the input+button — which made it a 3rd flex
+              item that ate horizontal space and forced the long
+              "I agree to receive..." copy to wrap word-by-word,
+              squashing the button into a square. Splitting the row
+              into its own wrapper isolates the input/button flex
+              context; the consent paragraph lives one level up and
+              flows naturally on its own line BELOW the row.
+            {%- endcomment -%}
+            <div class="kt-newsletter-page__form-row">
             <label for="newsletter-page-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
             <input
               type="email"
@@ -98,6 +110,10 @@
               <label for="newsletter-page-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
               <input type="text" id="newsletter-page-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
+            <button type="submit" class="kt-newsletter-page__btn" name="commit">
+              {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
+            </button>
+            </div>
             {%- comment -%}
               R122 — Explicit GDPR/UK GDPR/CCPA consent checkbox.
               Initially UNCHECKED + HTML5 `required` so submission
@@ -110,9 +126,37 @@
               is what produces the legally-valid consent record;
               this checkbox is purely the front-of-form gate.
               See R96 comment block for the pre-existing rationale.
+
+              Sibling of __form-row (not inside it) so the consent
+              copy gets the FULL form width as a single line of text
+              instead of being squeezed into a flex column.
             {%- endcomment -%}
             {%- if section.settings.show_consent_checkbox -%}
-              <p class="kt-newsletter-page__consent">
+              {%- comment -%}
+                Wrapper is a <div>, NOT a <p>. The richtext consent
+                label renders as `<p>I agree…</p>`. Putting that
+                inside an outer <p> is invalid nesting; the HTML5
+                parser auto-closes the outer <p> the moment it sees
+                the inner one, which orphans the label's text into
+                a sibling block AND splits it from the checkbox.
+                That's why the visible output collapsed to:
+
+                  ☐
+                  I agree to receive marketing emails. I can…
+                  (text centered, sitting under the box)
+
+                The richtext's surrounding <p> tags are also stripped
+                here so the label's *contents* (inline phrasing only)
+                sit cleanly inside the <label> element — `<p>` is
+                invalid inside <label> (phrasing-content model), and
+                even where browsers tolerate it the block-level <p>
+                forces a line break before the text. Inline strong/
+                em/a tags from the richtext editor pass through
+                untouched.
+              {%- endcomment -%}
+              {%- assign consent_html = section.settings.consent_label | default: newsletter_signup_consent_label_default -%}
+              {%- assign consent_html = consent_html | replace: '<p>', '' | replace: '</p>', '' -%}
+              <div class="kt-newsletter-page__consent">
                 <input
                   type="checkbox"
                   id="newsletter-page-consent"
@@ -122,13 +166,10 @@
                   aria-required="true"
                 >
                 <label for="newsletter-page-consent" class="kt-newsletter-page__consent-label">
-                  {{- section.settings.consent_label | default: newsletter_signup_consent_label_default -}}
+                  {{- consent_html -}}
                 </label>
-              </p>
+              </div>
             {%- endif -%}
-            <button type="submit" class="kt-newsletter-page__btn" name="commit">
-              {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
-            </button>
           </div>
 
           {%- if form.errors -%}

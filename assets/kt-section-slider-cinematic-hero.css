@@ -107,7 +107,6 @@
   width: 100%;
   opacity: 0;
   transform: translateY(0.75rem);
-  transition: opacity 0.55s ease, transform 0.55s ease;
   pointer-events: none;
   position: absolute;
   inset: 0;
@@ -118,13 +117,37 @@
   padding: 4rem 1.5rem 8rem;
 }
 
+/* The earlier rule paired `opacity: 0/1` with a 0.55s `transition`.
+   On first paint, the HTML already carries `--active` on slide 0,
+   so the browser SHOULD start at the end state — but the transition
+   declaration on the base rule meant Safari (and Chrome in some
+   conditions) interpolated the property anyway: the text was
+   visible for the first paint frame, then re-played the
+   transition from opacity 0 / translateY(0.75rem) → 1 / 0. Users
+   reported "the text shows for half a second, then animates in".
+
+   Switching to a keyframe animation drives the entry through the
+   animation timeline (paints `to` state pre-run, runs the keyframe
+   on first paint of `--active`). No starting-frame flash, and the
+   animation also re-runs cleanly when JS toggles `--active` on
+   subsequent slide changes. */
 .kt-slider-cinematic__text--active {
-  opacity: 1;
-  transform: translateY(0);
   pointer-events: auto;
   position: relative;
   inset: auto;
   padding: 0;
+  animation: kt-cinematic-text-in 0.55s ease forwards;
+}
+
+@keyframes kt-cinematic-text-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kt-slider-cinematic__eyebrow {

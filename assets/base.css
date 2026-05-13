@@ -1298,8 +1298,16 @@ html.shopify-design-mode [data-editor-unsticky] {
        .kt-cart-page__item-title,
        .kt-cart-drawer__item-title,
        .rte) {
+  /* `hyphens: auto` removed — it was inserting soft hyphens mid-
+     word on mobile so "SECTION HEADING" rendered as
+     "SECTION HEAD-ING", "SEE THE DIFFERENCE" rendered as
+     "SEE THE DIFFER-ENCE". For an editorial display typeface like
+     ours, mid-word breaks look broken even though the typography
+     technically wraps. `overflow-wrap: break-word` alone keeps
+     the Theme Store overflow guard intact (long monster words
+     still break to avoid horizontal overflow) but lets normal
+     headings wrap whole-word to the next line. */
   overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 
@@ -1417,4 +1425,82 @@ html:not(.js) .kt-loader {
 
 .kt-section-bg--stone-50 {
   background-color: var(--kt-stone-50) !important;
+}
+
+/* ============================================================
+   Mobile description / subtitle / body-copy size reduction.
+
+   On phones the editorial layout reads cramped because most
+   section descriptions and intros sit at 1rem–1.0625rem (16–17px)
+   — sized for desktop where there's horizontal room around the
+   text. On narrow screens the same size makes the description
+   text feel about as prominent as the heading, breaking the
+   typographic hierarchy and crowding the section.
+
+   This rule trims the most common description-class patterns by
+   ~20% (down to ~0.8125rem ≈ 13px) only below the 750px
+   breakpoint. Uses `[class$="__pattern"]` attribute selectors so
+   any section using the standard BEM suffixes (`__desc`,
+   `__description`, `__intro`, `__subtitle`, `__excerpt`, `__lead`,
+   `__copy`) is captured automatically — no need to enumerate
+   every section's CSS. Headings, body content, form fields,
+   navigation links, etc. are unaffected.
+   ============================================================ */
+@media screen and (max-width: 749px) {
+  [class$="__desc"],
+  [class$="__description"],
+  [class$="__intro"],
+  [class$="__subtitle"],
+  [class$="__excerpt"],
+  [class$="__lead"],
+  [class$="__copy"],
+  [class*="__desc "],
+  [class*="__description "],
+  [class*="__intro "],
+  [class*="__subtitle "],
+  [class*="__excerpt "],
+  [class*="__lead "],
+  [class*="__copy "] {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
+}
+
+/* ============================================================
+   Global form-control radius reset.
+
+   The Kitchero brand uses sharp (radius: 0) buttons site-wide
+   for a tailored editorial feel. Inputs / textareas / selects
+   were inheriting 4px / 6px / 0.25rem radii from per-section
+   stylesheets (newsletter signup, product form, customer forms,
+   etc.), creating a stylistic mismatch where the button next
+   to a search field had hard 90° corners and the field itself
+   had soft pill corners.
+
+   Globally pinning all native form controls to `border-radius: 0`
+   keeps the design language consistent. Radio + checkbox are
+   excepted because their native circular / micro-rounded shapes
+   are semantic affordances users recognize as form widgets
+   (not stylistic chrome).
+
+   This rule sits at the document level so per-section CSS that
+   declares `border-radius: 4px` on an input still wins on
+   specificity if a section deliberately needs a different shape
+   — but the *defaults* are now corner-sharp.
+   ============================================================ */
+:where(
+  input[type="text"],
+  input[type="email"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  textarea,
+  select
+) {
+  border-radius: 0;
 }

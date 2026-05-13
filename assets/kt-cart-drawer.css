@@ -511,15 +511,22 @@ html.no-js .kt-cart-drawer {
   font-variant-numeric: tabular-nums;
 }
 
-/* Trash / remove button — fixed danger-red on hover. */
+/* Trash / remove button — chip-style affordance so it reads as
+   a button at rest, not just a floating icon. Previously the
+   button was fully transparent with just a stone-600 icon — on
+   mobile the icon read as decoration rather than a tappable
+   delete control. Adding a stone-50 backdrop + stone-200 border
+   gives it the same visual weight as the qty stepper buttons
+   next to it (which use the same chip pattern) without becoming
+   visually heavy. */
 .kt-cart-drawer__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;                           /* 44×44 WCAG */
   height: 2.75rem;
-  background: transparent;
-  border: 0;
+  background-color: var(--kt-stone-50);
+  border: 1px solid var(--kt-stone-200);
   /* R105 — WCAG 1.4.11 (3:1 UI component). stone-400 (#a8a29e)
      on white was ~2.6:1 — the trash icon was barely visible
      against the drawer panel. stone-600 (#57534e) ≈ 7.4:1 on
@@ -528,12 +535,13 @@ html.no-js .kt-cart-drawer {
   color: var(--kt-stone-600);
   cursor: pointer;
   border-radius: 0.25rem;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .kt-cart-drawer__remove:hover {
   color: var(--kt-red-500, #ef4444);
   background-color: var(--kt-red-50, #fef2f2);
+  border-color: var(--kt-red-200, #fecaca);
 }
 
 .kt-cart-drawer__remove:focus-visible {
@@ -890,22 +898,33 @@ button.kt-cart-drawer__checkout:focus-visible {
   outline-offset: 3px;
 }
 
+/* Continue shopping — outlined secondary button so it reads as
+   a deliberate alternative action next to the primary checkout
+   button above. Previously a bare borderless text-button that
+   blended into the footer chrome; users could miss it as a
+   tappable element. Outlined stone-300 border matches the visual
+   weight of the primary CTA without competing with it; hover
+   tightens the border + darkens text for the same affordance
+   cue the checkout button uses. */
 button.kt-cart-drawer__continue {
   display: block;
   width: 100%;
-  padding: 0.5rem 0;                        /* py-2 */
+  padding: 0.875rem 1rem;
   background: transparent;
-  color: var(--kt-stone-600);
-  font-size: 0.875rem;                      /* text-sm */
+  color: var(--kt-stone-700);
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.025em;                  /* tracking-wide */
-  border: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--kt-stone-300);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 button.kt-cart-drawer__continue:hover {
   color: var(--kt-stone-900);
+  border-color: var(--kt-stone-900);
+  background-color: var(--kt-stone-50);
 }
 
 button.kt-cart-drawer__continue:focus-visible {

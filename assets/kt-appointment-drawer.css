@@ -26,7 +26,26 @@
   position: fixed;
   top: 0;
   right: 0;
-  bottom: 0;
+  /* Was `bottom: 0` — under iOS Safari that combines with `top: 0`
+     to give the LARGE viewport height (full URL-bar-collapsed
+     height) at first paint, but as the URL bar reappears during
+     scroll, the panel "shrinks" from its bottom edge: the form
+     footer (where the Send request submit button lives) gets
+     pushed below the viewport, while the panel's TOP stays
+     pinned. Users reported "Send request appears at the top with
+     the page visible behind it" — that's the visible upper part
+     of the panel while the bottom is hidden under the URL bar.
+
+     Switching to `height: 100svh` (small-viewport height) pins
+     the panel to the *minimum* available height so the submit
+     button stays inside the visible area regardless of URL-bar
+     state. Falls back to `100vh` on browsers without svh, and
+     `100dvh` is supplied as a progressive enhancement for
+     browsers that animate the bar smoothly. */
+  bottom: auto;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   z-index: calc(var(--kt-z-drawer) + 1);
   width: 100%;
   max-width: 480px;

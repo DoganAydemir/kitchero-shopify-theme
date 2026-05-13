@@ -64,12 +64,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Vertically centre the card's contents so an icon-only card
+     (no title/desc filled in by the merchant) doesn't lean to
+     the top with the icon's mb-6 leaving empty bottom space —
+     which made the top/bottom padding look unequal even though
+     the box-padding itself was symmetric. With justify-content:
+     center, whichever subset of children is present (icon-only,
+     icon+title, icon+title+desc) is centred inside the card. */
+  justify-content: center;
   text-align: center;
   padding: 1.5rem;
   background-color: var(--kt-white);
   border: 1px solid var(--kt-stone-100);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.5s ease;
+}
+
+/* If a merchant added a card with ONLY an icon (no title/desc
+   filled in), the icon's `margin-bottom: 1.5rem` would create
+   asymmetric whitespace below it. Strip the bottom margin
+   when the icon is the last visible child. */
+.kt-why-choose-us-product__icon:last-child {
+  margin-bottom: 0;
 }
 
 .kt-why-choose-us-product__card:hover {

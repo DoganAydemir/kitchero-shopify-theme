@@ -54,12 +54,29 @@
 }
 
 .kt-footer__brand-text {
-  color: var(--kt-stone-500);
-  font-size: 1.25rem;
+  /* Cool neutral tint (translucent white) instead of stone-500.
+     stone-500 is #78716c — a warm brown-grey designed for light
+     backgrounds. On the dark footer it reads with a brown tinge
+     that contrasts oddly against the otherwise neutral palette;
+     user described it as "looks like a different grey, not THE
+     grey". rgba(255, 255, 255, 0.55) is a true neutral muted
+     white that sits cleanly against the stone-900 footer. */
+  color: rgba(255, 255, 255, 0.55);
+  /* Was 1.25rem (20px) — too prominent on mobile, competing with
+     the headline above. 0.9375rem (15px) restores the typographic
+     hierarchy: tagline reads as a subdued caption, not a second
+     headline. Desktop bumps back up to 1.0625rem. */
+  font-size: 0.9375rem;
   max-width: 28rem;
   margin-bottom: 2.5rem;
   font-weight: 300;
   line-height: 1.6;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-footer__brand-text {
+    font-size: 1.0625rem;
+  }
 }
 
 .kt-footer__social {
@@ -137,13 +154,25 @@
 }
 
 .kt-footer__link {
-  font-size: 1.125rem;
+  /* Was 1.125rem (18px) on mobile — links read as second-level
+     headings instead of navigation. Stepping down to 0.9375rem
+     (15px) lets the column headings ("FOOTER MENU", "MAIN MENU")
+     sit above the links in the hierarchy, the way the user
+     expects from a footer. Desktop steps back to 1rem (16px),
+     still readable but no longer "shouting". */
+  font-size: 0.9375rem;
   font-weight: 300;
   color: var(--kt-stone-300); /* stone-300 */
   text-decoration: none;
   transition: color 0.25s ease;
   letter-spacing: 0.005em;
   line-height: 1.35;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-footer__link {
+    font-size: 1rem;
+  }
 }
 
 .kt-footer__link:hover,

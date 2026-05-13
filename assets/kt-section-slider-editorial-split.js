@@ -105,7 +105,19 @@ if (!window.__kitcheroSliderEditorialLoaded) {
            drives navigation in editor; this timer is only for the
            live storefront. */
         if (window.Shopify && window.Shopify.designMode) return;
-        timer = window.setInterval(advance, interval * 1000);
+        /* Drive advancement off the progress bar's CSS animation
+           rather than a JS setInterval. The earlier setInterval
+           ran on its own timer queue while the CSS animation ran
+           on the compositor — on mobile (especially backgrounded
+           tabs or low-power mode) JS timers throttle to as low as
+           1 Hz while CSS animations keep painting at 60fps. The
+           progress bar would visibly hit 100% and then *pause*
+           for hundreds of ms (sometimes >1s) before the throttled
+           setInterval finally fired advance(). animationend on the
+           progress element fires on the same compositor cycle the
+           bar completes, so the next slide swaps in immediately
+           after the fill reaches 100% — users see continuous
+           progression instead of "stalls between slides". */
         restartProgress();
       }
 
@@ -114,6 +126,25 @@ if (!window.__kitcheroSliderEditorialLoaded) {
           window.clearInterval(timer);
           timer = null;
         }
+        /* Pause the progress bar animation in place so resuming
+           doesn't snap it back to 0%. Removing `is-running` strips
+           the CSS animation; the bar's last-painted width sits
+           still until restartProgress() adds the class back. */
+        if (progressBar) progressBar.classList.remove('is-running');
+      }
+
+      /* When the bar reaches 100%, that's our "go to next slide"
+         signal. setActive() restarts the progress animation, so
+         the cycle continues. Single listener on the bar element
+         scopes the trigger to *this* section's progress bar. */
+      if (progressBar) {
+        progressBar.addEventListener('animationend', function (e) {
+          if (e.animationName !== 'kt-editorial-progress') return;
+          if (userPaused || prefersReducedMotion) return;
+          if (window.Shopify && window.Shopify.designMode) return;
+          if (total < 2) return;
+          advance();
+        });
       }
 
       /* Pause/play toggle — required by WCAG 2.1 SC 2.2.2.

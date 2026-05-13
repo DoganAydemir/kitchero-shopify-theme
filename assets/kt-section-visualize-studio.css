@@ -225,7 +225,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem 1.5rem;
   color: var(--kt-white);
-  font-size: 0.875rem;
+  /* 1rem (16px) — iOS Safari auto-zooms on any input under 16px
+     when it gains focus. Was 0.875rem (14px), which made the whole
+     page jump-scale on every tap into a field and forced the
+     user to pinch back out. 16px is the canonical "no auto-zoom"
+     threshold and stays legible. */
+  font-size: 1rem;
   letter-spacing: 0.025em;
   font-family: inherit;
   transition: border-color 0.2s ease;
@@ -235,14 +240,19 @@
   color: var(--kt-stone-500);
 }
 
-.kt-visualize-studio__field input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
+/* Single ring on focus. The earlier rules paired:
+   - :focus → 1px white border-color shift on the input itself
+   - :focus-visible → 2px amber outline + 2px offset
+   …which painted TWO rectangles on every tap into a field (the
+   input's own white border AND an amber ring 2px outside it).
+   Collapse both states into one rule: kill the outline, keep the
+   border-color shift as the indicator. Border becomes the amber
+   accent so keyboard navigation still has a high-contrast cue
+   distinct from the resting state. */
+.kt-visualize-studio__field input:focus,
 .kt-visualize-studio__field input:focus-visible {
-  outline: 2px solid var(--kt-amber-500);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--kt-amber-500, #f59e0b);
 }
 
 /* Submit button — pill-shaped, tight on mobile so the label stays on one

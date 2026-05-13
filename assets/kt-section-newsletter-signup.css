@@ -1,9 +1,21 @@
 /* Newsletter Signup Page */
 
 .kt-newsletter-page {
-  padding: 10rem 0 8rem;
+  /* Horizontal padding added — the previous `0` left/right meant the
+     36rem inner content collapsed flush to the viewport edge on any
+     screen narrower than ~576px. On a 375px iPhone the email input
+     and Subscribe button visibly touched the screen border, which
+     read like a missing-margin bug. 1.5rem (24px) is the standard
+     page-gutter that matches `page-width` elsewhere in the theme. */
+  padding: 10rem 1.5rem 8rem;
   background-color: var(--kt-stone-50);
   text-align: center;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-newsletter-page {
+    padding-inline: 3rem;
+  }
 }
 
 .kt-newsletter-page__inner {
@@ -40,11 +52,24 @@
   margin-bottom: 2.5rem;
 }
 
+/* Outer wrapper — stacks the input/button ROW and the consent
+   paragraph vertically. Was previously a single flex-row that
+   also held the consent <p> as a sibling, which collapsed the
+   button to a square when consent text was visible. */
 .kt-newsletter-page__form {
   display: flex;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 1rem;
   max-width: 28rem;
   margin: 0 auto 1.5rem;
+}
+
+/* Inner row — input + Subscribe button side-by-side, full
+   width of the form. Email expands (`flex: 1`), button hugs
+   its content; nothing else is allowed inside this row. */
+.kt-newsletter-page__form-row {
+  display: flex;
+  gap: 0.75rem;
 }
 
 .kt-newsletter-page__input {
@@ -55,7 +80,7 @@
      where to type. stone-500 (#78716c) is ~3.74:1 on white,
      clears the threshold with no visual heaviness change. */
   border: 1px solid var(--kt-stone-500);
-  border-radius: 4px;
+  border-radius: 0;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: var(--kt-stone-900);
@@ -63,14 +88,19 @@
   transition: border-color 0.2s ease;
 }
 
-.kt-newsletter-page__input:focus {
+/* Single focus ring — previously the input painted its own 1px
+   stone-500 border AND an extra 2px stone-900 outline w/ 2px
+   offset on :focus-visible, which read as two concentric
+   rectangles ("double border"). Now :focus simply darkens the
+   existing border and adds a 1px stone-900 box-shadow that sits
+   directly on the border's outside edge — visually a single
+   ~2px ring, no gap, no second box. Box-shadow doesn't affect
+   layout, so the form-row doesn't shift on focus. */
+.kt-newsletter-page__input:focus,
+.kt-newsletter-page__input:focus-visible {
   border-color: var(--kt-stone-900);
   outline: none;
-}
-
-.kt-newsletter-page__input:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--kt-stone-900);
 }
 
 .kt-newsletter-page__btn {
@@ -128,7 +158,11 @@
    Checkbox 18×18 (WCAG 2.5.5 — touch target via the surrounding label
    click-area which is full-width). */
 .kt-newsletter-page__consent {
-  margin: 1rem 0 0;
+  /* Margin removed — the parent .kt-newsletter-page__form is now
+     a column flex with `gap: 1rem`, so vertical spacing between
+     the form row and the consent paragraph is handled by the gap.
+     Keeping `margin-top: 1rem` here would double the offset. */
+  margin: 0;
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
@@ -151,6 +185,13 @@
   flex: 1;
   line-height: 1.5;
   cursor: pointer;
+  /* Parent .kt-newsletter-page sets text-align: center for the
+     whole section; without explicitly resetting it on the label
+     the consent copy inherits centered alignment even when the
+     wrapper has text-align: left (text-align cascades through
+     each descendant individually). Lock it left here so any
+     richtext bold/em/link inside also lays out left-to-right. */
+  text-align: left;
 }
 
 .kt-newsletter-page__consent-label > *:first-child { margin-top: 0; }

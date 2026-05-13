@@ -75,8 +75,16 @@
 }
 
 .kt-variant-picker__swatch-input:checked + .kt-variant-picker__swatch {
+  /* Single ring on selection. Previously paired the swatch border
+     (2px stone-900) with a layered box-shadow that drew TWO more
+     rings — `0 0 0 2px bg, 0 0 0 4px fg` produced an inner white
+     gap + outer dark ring, so the chosen colour had a 3-layer
+     halo (border + gap + ring) reading as "two borders" on
+     mobile. A simple 1px outset shadow at the edge of the border
+     keeps the affordance ("this one is selected") with one
+     continuous dark line, no concentric halos. */
   border-color: rgb(var(--kt-c-fg));
-  box-shadow: 0 0 0 2px rgb(var(--kt-c-bg)), 0 0 0 4px rgb(var(--kt-c-fg));
+  box-shadow: 0 0 0 1px rgb(var(--kt-c-fg));
 }
 
 /* ── Size / option pills ───────────────────────────────── */
