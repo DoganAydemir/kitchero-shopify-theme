@@ -80,8 +80,27 @@
 
 @media (min-width: 900px) {
   .kt-gallery-stack__stage {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: 3.5rem;
+    /* Single-column centered layout on desktop.
+
+       Earlier iterations used a 2-column "editorial split"
+       (deck on the left, caption on the right). On wide
+       viewports that pattern made the deck's image stack feel
+       small (max 560px) while the caption ballooned to fill the
+       opposite ~610px column with low-density text — the user
+       reported the caption was visually "dominating" the right
+       half despite carrying only a frame label + heading + a
+       short description.
+
+       Single-column centring is what most editorial lookbook
+       carousels actually use (Pipeline, Studio, Aēsop's product-
+       story carousels): the image stack sits at the viewport
+       centre, the caption block sits beneath it constrained to
+       a readable measure, and the eye reads top-to-bottom as
+       one composition instead of two competing blocks side-by-
+       side. The vertical rhythm is set by `gap` between the
+       deck and the caption row. */
+    grid-template-columns: 1fr;
+    gap: 3rem;
   }
 }
 
@@ -93,10 +112,23 @@
   position: relative;
   width: 100%;
   max-width: 560px;
+  /* Mobile (single-column stage) keeps the deck horizontally
+     centred inside its grid cell. Desktop override below shifts
+     it to the inner edge (right side of its left column) so deck
+     + caption read as one balanced compositional unit at the
+     section's visual centre. */
   margin: 0 auto;
   aspect-ratio: var(--kt-stack-aspect, 4 / 5);
   perspective: 1200px;
 }
+
+/* Deck stays centered horizontally on every breakpoint now that
+   the stage is single-column on desktop too. The earlier
+   right-aligned override was a fix for the 2-column editorial-
+   split layout (deck right edge meeting caption left edge at the
+   gap); single-column doesn't have that geometry, so the deck
+   centres inside its full-width grid cell via the base
+   `margin: 0 auto` declared above. */
 
 .kt-gallery-stack__card {
   position: absolute;
@@ -209,6 +241,29 @@
 .kt-gallery-stack__caption {
   position: relative;
   min-height: 10rem;
+  /* Single-column layout: caption sits BENEATH the deck and
+     reads as a centered editorial block, not a flank column.
+     Max-width keeps the line-length within readable comfort
+     (~32rem ≈ 65 character measure for the description), and
+     centred margin auto + text-align centre align it under the
+     deck so the whole carousel reads top-down as one
+     composition.
+
+     `width: 100%` is required, not just `max-width`. The caption's
+     children (`__caption-item`) are absolutely positioned with
+     `inset: 0` — they sit inside the caption's box. Without an
+     explicit width, the caption's intrinsic width collapses to
+     the absolute children's content-width (which is zero in
+     flow-context for abs-positioned elements), so the caption
+     itself shrunk to roughly one character wide on desktop and
+     the inner text wrapped vertically letter-by-letter
+     ("F / R / A / M / E / 0 / 1"). Filling 100% of the grid
+     cell first, THEN capping at 32rem, gives the caption a real
+     32rem-wide box for the absolute items to inset against. */
+  width: 100%;
+  max-width: 32rem;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .kt-gallery-stack__caption-item {

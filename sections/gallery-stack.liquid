@@ -136,9 +136,24 @@
                 data-caption-index="{{ caption_index }}"
                 {% unless caption_active %}aria-hidden="true"{% endunless %}
               >
+                {%- comment -%}
+                  Frame label resolution: prefer the merchant's
+                  block-level override (`block.settings.frame_label` —
+                  e.g. "BEFORE", "DETAIL", "MASTER SUITE") so each
+                  slide can have its own caption-frame copy. When the
+                  merchant leaves the field blank, fall back to the
+                  shared locale string ("Frame") plus the auto-padded
+                  index (01, 02, …) which is what the section shipped
+                  with — so existing stores keep the original output
+                  until the merchant decides to customize.
+                {%- endcomment -%}
                 <span class="kt-gallery-stack__caption-frame">
-                  {{- 'kt.section.gallery_stack.frame_label' | t -}}
-                  <span data-stack-frame-number>{{ caption_index | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
+                  {%- if block.settings.frame_label != blank -%}
+                    {{- block.settings.frame_label | escape -}}
+                  {%- else -%}
+                    {{- 'kt.section.gallery_stack.frame_label' | t -}}
+                    <span data-stack-frame-number>{{ caption_index | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
+                  {%- endif -%}
                 </span>
                 {%- if block.settings.caption_title != blank -%}
                   <h3 class="kt-gallery-stack__caption-title">{{ block.settings.caption_title | escape }}</h3>
@@ -332,6 +347,12 @@
           "type": "image_picker",
           "id": "image",
           "label": "t:sections.gallery_stack.blocks.image.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "frame_label",
+          "label": "t:sections.gallery_stack.blocks.image.settings.frame_label.label",
+          "info": "t:sections.gallery_stack.blocks.image.settings.frame_label.info"
         },
         {
           "type": "text",
