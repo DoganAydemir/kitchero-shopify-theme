@@ -1483,11 +1483,11 @@ html:not(.js) .kt-loader {
    Per-section background override modifiers
    ============================================================
    Plain-background section schemas ship an optional `bg_color`
-   select setting (Auto / White / Stone-50). When merchant picks
-   White or Stone-50, the section's root element gets
-   `kt-section-bg--white` or `kt-section-bg--stone-50` appended
-   to its class list, and these rules force-paint the surface
-   regardless of whatever ships in the section's own CSS.
+   select setting (Auto / White / Stone-50 / Stone-100). When the
+   merchant picks one, the section's root element gets the
+   matching `kt-section-bg--*` modifier appended to its class
+   list, and these rules force-paint the surface regardless of
+   whatever ships in the section's own CSS.
 
    Default `auto` does NOT add the modifier — the section falls
    back to its own original background (transparent, stone-50,
@@ -1502,8 +1502,15 @@ html:not(.js) .kt-loader {
    `!important` is the trade-off — section CSS routinely declares
    `background-color: stone-50` (or transparent) on the root, and
    without the bump the override would lose to its own per-section
-   selector. Scoped to two literal modifier classes only, so this
+   selector. Scoped to the explicit modifier classes only, so this
    is a controlled override surface, not a sweeping one.
+
+   R290 — Added stone-100 as a third visible option. The merchant
+   wanted a "one notch darker" grey for surfaces that benefit
+   from a slightly stronger separation from the neighbouring
+   sections without going all the way to a dark scheme. Stone-100
+   sits between stone-50 ("light grey") and the dark scheme
+   tokens, giving merchants a useful mid-grey on light themes.
 */
 .kt-section-bg--white {
   background-color: var(--kt-white) !important;
@@ -1511,6 +1518,10 @@ html:not(.js) .kt-loader {
 
 .kt-section-bg--stone-50 {
   background-color: var(--kt-stone-50) !important;
+}
+
+.kt-section-bg--stone-100 {
+  background-color: var(--kt-stone-100) !important;
 }
 
 /* ============================================================
