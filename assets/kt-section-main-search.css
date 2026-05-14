@@ -311,9 +311,28 @@
 
 .kt-search-page__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
+  /* R269 — Mobile: single column. The 2-column mobile grid left
+     each card at ~163px usable width which was narrower than the
+     1.25rem (20px) serif title's break point — "Testimonials"
+     wrapped as "Testi" / "monia" / "ls" (the global break-word
+     rule kicked in once the word didn't fit). Single column gives
+     the card the full content width and the page-result/title
+     renders on one or two whole-word lines as designed.
+
+     Tablet (≥750px): 2 columns — cards have enough room for a
+     line of decent reading width.
+
+     Desktop (≥990px): 3 columns. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
   align-items: stretch;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-search-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
 }
 
 @media screen and (min-width: 990px) {

@@ -205,6 +205,29 @@ summary,
   display: block;
 }
 
+/* R269 — Cinematic slider critical render-state. The per-section
+   stylesheet `kt-section-slider-cinematic-hero.css` is loaded
+   INSIDE the section liquid (not the document <head>), so there
+   is a brief HTML-streaming window where the section markup
+   parses + paints BEFORE the section CSS arrives. During that
+   window the `.kt-slider-cinematic__text` blocks would render at
+   their natural position with full opacity, then the section CSS
+   would load, the animation start state (opacity:0,
+   translateY) would apply, and the entry keyframe would replay —
+   producing the "kelime önce üstten kesik geliyor ekrana, sonra
+   yarım saniye sonra efektle yukarı çıkıyor" flash the reporter
+   saw on first paint.
+
+   Duplicating the start state here in base.css (which IS in
+   <head>) ensures the slider text is invisible from the very
+   first paint frame. The section CSS still owns the animation
+   keyframes + the `--active` reveal rule; this critical entry
+   only ANCHORS the initial state so there is no FOUC. Mirrors
+   the cart-drawer / appointment-drawer treatment above. */
+.kt-slider-cinematic__text {
+  opacity: 0;
+}
+
 /* ============================================================
    Layout Utilities
    ============================================================ */
@@ -362,30 +385,78 @@ a {
    Forms
    ============================================================ */
 
+/* R268 — Global form field shell. Used by the appointment drawer,
+   the footer newsletter, and any future form that doesn't ship its
+   own input class. Earlier revision had heavy chrome:
+     padding: 1rem 1.2rem        →  16px / 19.2px (felt oversized)
+     font-size: 1.4rem (22.4px)  →  too large; iOS still didn't
+                                    zoom (16px+ rule met) but type
+                                    read as oversized in a drawer
+     border alpha sourced from `--kt-input-border-op` whose default
+     (55 %) painted the border at ~`rgba(28,25,23,0.55)` — i.e.
+     a heavy near-black hairline that looked unpolished next to
+     the rest of the editorial chrome (kt-customer__input at 0.45
+     against a transparent bg, the underline-only contact form,
+     etc.).
+   New defaults below match the kt-customer-forms pattern: 16px
+   font (still iOS-zoom-safe), 0.75rem/1rem padding, 0.18 alpha
+   border. Merchants can still scale the border weight + corner
+   radius via the `kt_input_border_w` / `kt_input_radius` settings
+   — only the alpha is now hard-pinned to a designer-set value so
+   the form always reads as light/editorial regardless of the
+   merchant's slider position. */
 .field__input,
 .field__textarea {
   width: 100%;
-  padding: 1rem 1.2rem;
-  font-size: 1.4rem;
-  border: var(--kt-input-border-w) solid rgba(var(--kt-c-fg), var(--kt-input-border-op));
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  border: var(--kt-input-border-w) solid rgba(var(--kt-c-fg), 0.18);
   border-radius: var(--kt-input-radius);
   background-color: rgb(var(--kt-c-bg));
   color: rgb(var(--kt-c-fg));
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   appearance: none;
+  -webkit-appearance: none;
 }
 
+.field__textarea {
+  /* Override 1.4 line-height for multiline content readability. */
+  line-height: 1.5;
+  min-height: 6rem;
+  resize: vertical;
+}
+
+/* Single focus ring — previously the input painted a 2px outline
+   with a 2px offset on top of its own 1px border, reading as two
+   concentric rectangles on keyboard focus. Replace with a
+   border-color shift + 1px box-shadow that sits on the border's
+   outer edge: visually a single ~2px ring, no gap. box-shadow
+   doesn't displace siblings, so the form row doesn't shift on
+   tab. Pattern mirrors kt-newsletter-page__input. */
 .field__input:focus,
-.field__textarea:focus {
-  outline: 2px solid rgb(var(--kt-c-fg));
-  outline-offset: 2px;
+.field__input:focus-visible,
+.field__textarea:focus,
+.field__textarea:focus-visible {
+  outline: none;
+  border-color: rgb(var(--kt-c-fg));
+  box-shadow: 0 0 0 1px rgb(var(--kt-c-fg));
+}
+
+.field__input::placeholder,
+.field__textarea::placeholder {
+  /* WCAG 1.4.3 (4.5:1). 0.65 alpha clears AA on default light
+     scheme; lighter alphas were unreadable on stone-50 schemes. */
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .field__label {
   display: block;
   margin-bottom: 0.4rem;
-  font-size: 1.4rem;
-  font-weight: var(--kt-f-body-weight-bold, 700);
-  color: rgb(var(--kt-c-fg));
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(var(--kt-c-fg), 0.75);
 }
 
 /* ============================================================
@@ -1298,16 +1369,25 @@ html.shopify-design-mode [data-editor-unsticky] {
        .kt-cart-page__item-title,
        .kt-cart-drawer__item-title,
        .rte) {
-  /* `hyphens: auto` removed — it was inserting soft hyphens mid-
-     word on mobile so "SECTION HEADING" rendered as
-     "SECTION HEAD-ING", "SEE THE DIFFERENCE" rendered as
-     "SEE THE DIFFER-ENCE". For an editorial display typeface like
-     ours, mid-word breaks look broken even though the typography
-     technically wraps. `overflow-wrap: break-word` alone keeps
-     the Theme Store overflow guard intact (long monster words
-     still break to avoid horizontal overflow) but lets normal
-     headings wrap whole-word to the next line. */
-  overflow-wrap: break-word;
+  /* R269 — Was `overflow-wrap: break-word`. Reporter saw
+     "PRECISION MANUFACTURING" wrapping as "PRECISION
+     MANUFACTURIN" + "G" on the cinematic hero at 390px viewport
+     — the second word didn't fit on the second line either, so
+     break-word kicked in and split the word mid-character. For
+     an editorial display typeface this looks broken (the user
+     called it "patlak").
+
+     Switch to `overflow-wrap: normal`: editorial headings keep
+     every word intact and wrap whole-word to the next line. If
+     a heading still doesn't fit, the line stays whole and may
+     overflow its container — at which point the merchant should
+     shorten the copy. We prefer that failure mode to the
+     mid-word split. The document-level `body { overflow-wrap:
+     break-word }` rule above is the safety net for truly
+     monster compound words elsewhere (legalese, German nouns)
+     where overflow would break the layout. */
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
 
 

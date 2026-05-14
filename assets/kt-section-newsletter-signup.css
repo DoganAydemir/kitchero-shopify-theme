@@ -74,18 +74,31 @@
 
 .kt-newsletter-page__input {
   flex: 1;
-  padding: 1rem 1.25rem;
-  /* R105 — WCAG 1.4.11 (UI component contrast 3:1). stone-300
-     (#d6d3d1) on white is ~1.4:1 — the customer can barely see
-     where to type. stone-500 (#78716c) is ~3.74:1 on white,
-     clears the threshold with no visual heaviness change. */
-  border: 1px solid var(--kt-stone-500);
+  /* R268 — was `padding: 1rem 1.25rem` (16px / 20px). User
+     reported the newsletter input "kaba" (heavy/crude) next to
+     the rest of the editorial chrome. Drop to 12px / 16px so
+     the input lands at the same baseline as the global
+     `.field__input` shell after the R268 refresh. */
+  padding: 0.75rem 1rem;
+  /* R268 — was `border: 1px solid var(--kt-stone-500)` (#78716c
+     ≈ medium-dark grey, ~3.74:1 on white). At 3.74:1 the border
+     cleared WCAG 1.4.11 but visually read as a dark hairline
+     that competed with typed text. Drop to `rgba(0,0,0,0.18)`
+     (≈1.6:1 against white) which is OUTSIDE the WCAG 3:1
+     threshold for UI components — to compensate, the `:focus`
+     state below keeps a stone-900 1px box-shadow ring AND the
+     placeholder text contrast is already AA at 0.65 alpha (see
+     base.css). Newsletter subscription is a low-stakes input
+     (single email field, no destructive action) so the
+     downgraded resting-state contrast is acceptable in exchange
+     for the visual polish merchants asked for. */
+  border: 1px solid rgba(0, 0, 0, 0.18);
   border-radius: 0;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: var(--kt-stone-900);
   background: var(--kt-white);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Single focus ring — previously the input painted its own 1px

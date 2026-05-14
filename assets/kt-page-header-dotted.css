@@ -238,12 +238,26 @@
   }
 }
 
-/* Count pill — the wrapper (reveal mask) is a full-width flex item on
-   mobile; we make sure only the pill itself sizes to its content instead
-   of stretching across the row. */
+/* Count pill wrap — sits inside the flex column on mobile. The wrap
+   itself is a flex item AND a reveal mask (overflow: hidden in the
+   group rule above). Without explicit sizing, flex column items
+   stretch to fill the cross-axis, so the wrap (and its `overflow:
+   hidden` background) would span 100% of the inner row width.
+
+   R269 — Reporter saw the bordered count chip rendering "full
+   width" on mobile when the wrap stretched and the pill's border
+   appeared to follow the wrap's edge. `align-self: flex-start`
+   alone wasn't enough on some iOS Safari builds; `width: fit-
+   content` could compute to the parent's content-box width
+   depending on layout pass order. The fix uses `width:
+   max-content`, which always sizes to the intrinsic width of the
+   pill's text, plus `display: inline-flex` to take the wrap off
+   the column-flex cross-axis stretch path entirely. The pill stays
+   left-aligned on mobile, right-aligned on tablet+. */
 .kt-page-header-dotted__count-wrap {
   align-self: flex-start;
-  width: fit-content;
+  display: inline-flex;
+  width: max-content;
   max-width: 100%;
 }
 

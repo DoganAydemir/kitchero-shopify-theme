@@ -143,12 +143,24 @@
   color: var(--kt-white);
 }
 
-/* desc: text-xl text-stone-500 leading-relaxed max-w-sm */
+/* desc — R269: was `font-size: 1.25rem` (20px) on every breakpoint
+   which read as competing with the feature title in the visual
+   hierarchy ("desc çok büyük, görsel hiyerarşi anlamında rahatsız
+   ediyor"). Drop to 0.9375rem mobile (15px) and 1.0625rem desktop
+   (17px) so the description sits clearly under the title without
+   pulling focus from it. */
 .kt-ecosystem__feature-desc {
-  font-size: 1.25rem;
+  font-size: 0.9375rem;
   color: var(--kt-stone-500);
-  line-height: 1.625;
+  line-height: 1.55;
   max-width: 24rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-ecosystem__feature-desc {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
 }
 
 /* CTA: inline-flex items-center gap-4 text-white uppercase tracking-widest text-sm font-bold border-b border-stone-500 pb-2 hover:border-white transition-all w-max */

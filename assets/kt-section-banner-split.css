@@ -94,14 +94,18 @@
   margin: 0 0 1.5rem;
   font-family: var(--kt-f-accent-family, 'Playfair Display', Georgia, 'Times New Roman', serif);
   font-weight: 400;
-  /* R153 HEADING-CLAMP-1: clamp() + overflow-wrap so long
-     translations don't overflow the split layout's narrow column. */
+  /* R153 HEADING-CLAMP-1: clamp() so long translations stay
+     within the split layout's narrow column.
+     R269 — `overflow-wrap` switched from break-word to normal so
+     editorial headings keep every word whole (see global heading
+     rule in base.css for rationale). */
   font-size: clamp(1.875rem, 3.5vw + 1rem, 3rem);
   line-height: 1.1;
   letter-spacing: -0.015em;
   color: var(--kt-banner-split-fg);
-  overflow-wrap: break-word;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: manual;
 }
 
 .kt-banner-split__heading-line {

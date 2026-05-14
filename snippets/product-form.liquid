@@ -168,18 +168,18 @@
       {% if atc_disabled %}disabled{% endif %}
       data-add-to-cart
     >
-      {%- comment -%} Available: shopping bag icon {%- endcomment -%}
-      <svg class="kt-product-form__atc-icon kt-product-form__atc-icon--available" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <path d="M16 10a4 4 0 0 1-8 0"></path>
-      </svg>
-      {%- comment -%} Sold out: X-in-circle icon {%- endcomment -%}
-      <svg class="kt-product-form__atc-icon kt-product-form__atc-icon--sold-out" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="15" y1="9" x2="9" y2="15"></line>
-        <line x1="9" y1="9" x2="15" y2="15"></line>
-      </svg>
+      {%- comment -%}
+        R269 — The previous markup carried TWO inline SVGs (shopping
+        bag for available + X-in-circle for sold-out) that toggled
+        visibility via CSS based on the `:disabled` selector. The
+        sold-out icon read as visually heavy/jarring next to the
+        button text — the merchant reported "X icon ne alaka,
+        button gri kalıyor disabled gibi" on a test product with
+        sold-out variant. The gray disabled background + "Sold out"
+        text already convey the unavailable semantic; the X icon
+        added visual noise without information. Removed entirely.
+        The button keeps its text-only treatment in both states.
+      {%- endcomment -%}
       <span data-add-to-cart-text>
         {%- if current_variant.available -%}
           {%- comment -%}

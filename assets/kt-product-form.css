@@ -158,9 +158,15 @@
    On mobile the pink-pastel ATC button after a tap looked
    exactly like a stuck error toast even though add-to-cart had
    succeeded. Neutral stone disable is the conventional pattern
-   (cf. every native HTML form, GitHub, Stripe, Linear) — pairs
-   with the `__atc-icon--sold-out` SVG which itself carries the
-   "not buyable" semantic. */
+   (cf. every native HTML form, GitHub, Stripe, Linear).
+
+   R269 — Removed the X-in-circle "sold-out" icon swap rule that
+   used to live here. The icon carried the same semantic as the
+   "Sold out" text label + the gray disabled background, so it
+   was visual redundancy and read as a jarring red-flag glyph on
+   the button. Text label + chrome dim is enough. The companion
+   SVG was deleted from snippets/product-form.liquid in the same
+   R269 commit. */
 .kt-product-form__atc:disabled {
   background-color: var(--kt-stone-100);
   color: var(--kt-stone-500);
@@ -173,18 +179,6 @@
 .kt-product-form__atc:disabled:hover {
   background-color: var(--kt-stone-100);
   border-color: var(--kt-stone-200);
-}
-
-.kt-product-form__atc-icon--sold-out {
-  display: none;
-}
-
-.kt-product-form__atc:disabled .kt-product-form__atc-icon--available {
-  display: none;
-}
-
-.kt-product-form__atc:disabled .kt-product-form__atc-icon--sold-out {
-  display: inline-block;
 }
 
 .kt-product-form__atc--loading {

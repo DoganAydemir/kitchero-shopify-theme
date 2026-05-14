@@ -669,6 +669,17 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  /* R269 — kill the UA tap-flash on iOS Safari + Android Chrome so the
+     cart/search/account icons don't briefly highlight grey on tap. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* R269 — `:focus { outline: none }` kills the UA blue focus rectangle
+   that iOS Safari paints after a tap (older WebKit treats tap as focus
+   regardless of `:focus-visible`). Keyboard users still see the focus
+   indicator via the color change on the `:focus-visible` rule below. */
+.kt-header__icon:focus {
+  outline: none;
 }
 
 .kt-header__icon:hover,
@@ -878,6 +889,17 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   width: 28px;
   height: 28px;
   stroke-width: 1.5;
+}
+
+/* R269 — explicit `:focus { outline: none }` so iOS Safari and
+   Android Chrome don't paint the UA blue focus rectangle after a
+   tap. iOS Safari treats tap as focus (no `:focus-visible` distinction
+   on older WebKit), so without this rule the hamburger icon kept a
+   stuck blue outline after the user opened then closed the mobile
+   menu. Keyboard users still get a visible focus indicator via the
+   `:focus-visible` rule below — pointer/tap focus stays invisible. */
+.kt-header__menu-toggle:focus {
+  outline: none;
 }
 
 .kt-header__menu-toggle:focus-visible {
@@ -1110,7 +1132,15 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* Back button — small uppercase link at the top of each sub-panel */
+/* Back button — small uppercase link at the top of each sub-panel.
+   R269 — Was `color: stone-500` resting + `color: stone-50` on hover.
+   Reporter said: "bu mobile menu deki back bazen beyaz bazen gri
+   tonlarda oluyor. her zaman beyaz kalmalı!" — the resting stone-500
+   read as muted/gray-ish next to the bright white menu items, and
+   tap-stuck `:hover` states made the colour appear to flip between
+   paint frames. Pinned to stone-50 in every state so the BACK chip
+   reads as the same light tone whether the user has tapped it,
+   hovered (desktop sim), or just opened the panel. */
 .kt-header__mobile-back {
   display: inline-flex;
   align-items: center;
@@ -1120,18 +1150,29 @@ html.no-js .kt-header__mobile-view-title {
   margin-bottom: 2.5rem;
   background: none;
   border: none;
-  color: var(--kt-stone-500);
+  color: var(--kt-stone-50);
   font-family: var(--kt-f-body-family);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.kt-header__mobile-back:hover {
+.kt-header__mobile-back:hover,
+.kt-header__mobile-back:focus,
+.kt-header__mobile-back:focus-visible {
   color: var(--kt-stone-50);
+}
+
+.kt-header__mobile-back:focus {
+  outline: none;
+}
+
+.kt-header__mobile-back:focus-visible {
+  outline: 2px solid var(--kt-stone-50);
+  outline-offset: 2px;
 }
 
 .kt-header__mobile-back svg {
@@ -1230,6 +1271,21 @@ html.no-js .kt-header__mobile-view-title {
 
 [dir="rtl"] .kt-header__mobile-link:hover svg {
   transform: scaleX(-1) translateX(-4px);
+}
+
+/* R269 — explicit `:focus { outline: none }` + tap-highlight-color
+   transparent so the UA blue tap rectangle doesn't get stuck on the
+   "Home" / category links after the user taps them in the mobile
+   menu. The reporter said: "home link nedense bordered kaldı! yine
+   clicked olduğu için olabilir" — iOS Safari treats tap as :focus
+   on older WebKit, leaving the link outlined until the next tap
+   elsewhere. Keyboard users still get the focus ring via :focus-visible. */
+.kt-header__mobile-link {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kt-header__mobile-link:focus {
+  outline: none;
 }
 
 .kt-header__mobile-link:focus-visible {

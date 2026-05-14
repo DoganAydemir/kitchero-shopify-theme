@@ -133,13 +133,21 @@
      a single `clamp(min, vw-derived, max)` so heading glides
      across breakpoints (no jump at 750/990px) AND so long
      translations (DE "Donaudampfschifffahrt", FR with accents)
-     don't overflow the viewport on narrow screens. `overflow-wrap`
-     + `hyphens: auto` allow break inside long words. */
+     don't overflow the viewport on narrow screens.
+
+     R269 — Was `overflow-wrap: break-word` + `hyphens: auto` so
+     long compounds could split. Reporter found that on mobile
+     this split short English words mid-character once the line
+     filled up. Editorial display headings should keep words
+     whole; if a long DE/FR compound still doesn't fit, that
+     surfaces as a merchant content-length problem (clear signal
+     to shorten the headline) rather than a "patlak" word split. */
   font-size: clamp(1.875rem, 4vw + 1rem, 3.75rem);
   line-height: 1.1;
   letter-spacing: -0.01em;
-  overflow-wrap: break-word;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: manual;
 }
 
 .kt-banner-hero__heading-line {

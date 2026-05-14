@@ -24,28 +24,35 @@
 
 .kt-appointment-drawer__panel {
   position: fixed;
+  /* Earlier revisions tried two strategies that both failed on iOS
+     Safari + Android Chrome:
+
+     1) `top: 0; bottom: 0` alone — at first paint the panel
+        rendered at the LARGE viewport height (URL-bar-collapsed
+        height), and as the URL bar reappeared the panel
+        "shrunk" from its bottom edge, hiding the Send-request
+        submit button below the visible area.
+
+     2) `top: 0; height: 100svh/100dvh` cascade — under some
+        Android Chrome + iOS Safari builds the viewport unit was
+        computed against the visible area BEFORE the panel
+        attached its containing-block context, leaving the panel
+        only as tall as its intrinsic content (just the header
+        sliver), pinned to the top of the screen. The reported
+        bug was "panel ekranın üstünde küçük/yarım açılıyor"
+        — header only, no body, half-open at top.
+
+     Now we mirror the cart-drawer's proven pattern: `top: 0;
+     bottom: 0` PLUS the body-scroll-lock from
+     `Kitchero.scrollLock` freezes the URL-bar state at open
+     time (body is `position: fixed`, so iOS can't collapse the
+     bar mid-interaction). Because the URL bar can't move while
+     the drawer is open, `bottom: 0` no longer shrinks under it.
+     Result is identical to the cart-drawer geometry which the
+     user has confirmed works across iOS + Android. */
   top: 0;
   right: 0;
-  /* Was `bottom: 0` — under iOS Safari that combines with `top: 0`
-     to give the LARGE viewport height (full URL-bar-collapsed
-     height) at first paint, but as the URL bar reappears during
-     scroll, the panel "shrinks" from its bottom edge: the form
-     footer (where the Send request submit button lives) gets
-     pushed below the viewport, while the panel's TOP stays
-     pinned. Users reported "Send request appears at the top with
-     the page visible behind it" — that's the visible upper part
-     of the panel while the bottom is hidden under the URL bar.
-
-     Switching to `height: 100svh` (small-viewport height) pins
-     the panel to the *minimum* available height so the submit
-     button stays inside the visible area regardless of URL-bar
-     state. Falls back to `100vh` on browsers without svh, and
-     `100dvh` is supplied as a progressive enhancement for
-     browsers that animate the bar smoothly. */
-  bottom: auto;
-  height: 100vh;
-  height: 100svh;
-  height: 100dvh;
+  bottom: 0;
   z-index: calc(var(--kt-z-drawer) + 1);
   width: 100%;
   max-width: 480px;
@@ -53,18 +60,58 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  pointer-events: none;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  /* No `transition` declaration on purpose — cart-drawer.css has
+     the full rationale at the equivalent rule. Short version:
+     when `transform: translateX(100%) → translateX(0)` is
+     requested in the same frame as the ARIA + inert attribute
+     changes (which is what appointment-drawer.js does in
+     `openDrawer()`), Safari and Chromium elide the transition
+     and the panel pops into place. The
+     `[aria-hidden="false"]` rule below applies a `@keyframes
+     animation` instead, which is immune to that elision because
+     the animation timeline is owned by the animation worklet
+     and can't be collapsed to an instant style assignment. */
 }
 
 [dir="rtl"] .kt-appointment-drawer__panel {
   right: auto;
   left: 0;
   transform: translateX(-100%);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Slide-in animation. `forwards` keeps the panel at translateX(0)
+   after the keyframes complete; without it the panel would snap
+   back to the default translateX(100%) the moment the animation
+   finished. */
 .kt-appointment-drawer[aria-hidden="false"] .kt-appointment-drawer__panel {
-  transform: translateX(0);
+  animation: kt-appointment-drawer-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+}
+
+[dir="rtl"] .kt-appointment-drawer[aria-hidden="false"] .kt-appointment-drawer__panel {
+  animation-name: kt-appointment-drawer-slide-in-rtl;
+}
+
+@keyframes kt-appointment-drawer-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes kt-appointment-drawer-slide-in-rtl {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* Reduce-motion: shorten rather than disable, mirroring
+   cart-drawer's vestibular-safe lateral slide treatment. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-appointment-drawer[aria-hidden="false"] .kt-appointment-drawer__panel {
+    animation-duration: 0.22s !important;
+  }
 }
 
 .kt-appointment-drawer__header {
@@ -125,7 +172,35 @@
 }
 
 .kt-appointment-drawer__field {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* R268 — Drawer-scoped input override. The global `.field__input`
+   in base.css already lands at 16px font + 12/16px padding (the
+   iOS-zoom-safe baseline). Inside the drawer the panel is at most
+   480px wide and the body has 24px padding, so usable input width
+   is ~432px — we can tighten further without crowding. Smaller
+   chrome inside an editorial slide-in matches the cart-drawer's
+   "compact, decisive" feel. */
+.kt-appointment-drawer .field__input,
+.kt-appointment-drawer .field__textarea {
+  padding: 0.625rem 0.875rem;
+  border-radius: 2px;
+}
+
+.kt-appointment-drawer .field__textarea {
+  min-height: 5rem;
+}
+
+.kt-appointment-drawer .field__label {
+  margin-bottom: 0.25rem;
+}
+
+/* Required-marker asterisk and legend tweaks so the appointment-
+   drawer fieldset (Interested In radios) lines up with the rest
+   of the labels at the new smaller size. */
+.kt-appointment-drawer legend.field__label {
+  margin-bottom: 0.5rem;
 }
 
 .kt-appointment-drawer__fieldset {

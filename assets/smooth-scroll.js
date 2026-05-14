@@ -35,6 +35,30 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 
+  /* R269 — Touch device handling.
+
+     Earlier config carried `smoothWheel: true` AND `touchMultiplier: 2`
+     without explicitly setting `smoothTouch`. On bundled Lenis 1.x
+     builds the default for `smoothTouch` is unstable across versions
+     and could end up smoothing touch flicks too. Reported symptom on
+     iOS Safari: "parmakla scroll yaptık ve bıraktık, yumuşakça
+     kayarken birden bire çat diye duruyor" — native iOS rubber-band
+     momentum was fighting Lenis's RAF easing, and at the moment one
+     side's animation completed the other side hadn't, snapping the
+     scroll to a hard stop mid-glide.
+
+     Native iOS / Android momentum scroll is already best-in-class
+     on touch; the value of Lenis on the wheel scrollbar (desktop)
+     doesn't translate to touch surfaces, where mimicking it costs
+     more than it gains. Standard practice on premium themes
+     (Aalto, Trade, Studio) is to disable smooth scroll on touch
+     and let the OS handle it.
+
+     `syncTouch: false` (Lenis 1.x naming) leaves touch events
+     un-intercepted; the page scrolls with native momentum, and
+     ScrollTrigger picks up the resulting scroll events naturally.
+     `touchMultiplier: 1` is the no-op identity (kept for clarity
+     in case the option key changes between Lenis versions). */
   var lenis = new Lenis({
     duration: 1.2,
     easing: function (t) {
@@ -43,7 +67,9 @@
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    touchMultiplier: 2
+    smoothTouch: false,
+    syncTouch: false,
+    touchMultiplier: 1
   });
 
   /* Sync with GSAP ScrollTrigger if available */

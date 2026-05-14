@@ -333,25 +333,38 @@
     {%- endif -%}
 
     {%- comment -%}
-      R142 PERF-CSS-1: search overlay + appointment drawer CSS were
-      previously loaded unconditionally — render-blocking on every
-      page even when the merchant has the search overlay disabled
-      OR doesn't sell appointment-bookable products. Lighthouse's
+      R142 PERF-CSS-1: search overlay CSS was previously loaded
+      unconditionally — render-blocking on every page even when the
+      merchant has the search overlay disabled. Lighthouse's
       "Eliminate render-blocking resources" diagnostic flagged
-      ~150-300ms savings on cold-cache mobile. Both surfaces are
-      hidden until JS opens them, so we gate the head load behind
-      merchant settings. Defaults are TRUE so existing stores
+      ~150-300ms savings on cold-cache mobile. The surface is
+      hidden until JS opens it, so we gate the head load behind
+      the merchant setting. Default is TRUE so existing stores
       upgrading don't lose styling silently. Merchants who don't
-      use appointments / search overlay can disable for the speed
-      gain. CSS comment above explains the head-load decision (vs
+      use the search overlay can disable for the speed gain. CSS
+      comment above explains the head-load decision (vs
       onload-swap) — same rationale applies here.
+
+      R267: The appointment-drawer CSS used to be gated the SAME
+      way, but the markup + JS for the drawer were rendered
+      UNCONDITIONALLY below (so trigger buttons like the showroom
+      `data-consultation-open` always worked). When the merchant
+      had `kt_appointment_enabled=false`, the JS still opened the
+      drawer (added `aria-hidden="false"`) but the CSS was absent,
+      so the panel rendered in normal document flow with default
+      browser styles — header/title invisible, form fields
+      unstyled, page below pushed down. Reported on iOS Safari +
+      private mode as "patlak modal, üstte yarım açılıyor". The
+      gate is now LIFTED — appointment-drawer CSS loads
+      unconditionally to match the JS/markup unconditional render.
+      Cost: ~3KB gzipped on every page; acceptable trade for
+      reliable drawer styling regardless of the merchant toggle
+      state in settings_data.json.
     {%- endcomment -%}
     {%- if settings.kt_search_overlay_enabled == nil or settings.kt_search_overlay_enabled -%}
       {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
-    {%- if settings.kt_appointment_enabled == nil or settings.kt_appointment_enabled -%}
-      {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
-    {%- endif -%}
+    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
 
     {%- comment -%}
       R216 — header CSS lifted from `sections/header.liquid` (body)

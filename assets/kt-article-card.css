@@ -154,13 +154,18 @@
   color: var(--kt-stone-500);
 }
 
-/* Excerpt */
+/* Excerpt — R269: was `font-size: 1rem` mobile / `1.125rem` desktop,
+   stone-600 colour. Reporter said the excerpt read as the dominant
+   item in the visual hierarchy of the blog list, competing with the
+   serif title for attention. Drop to 0.875rem mobile / 0.9375rem
+   desktop and shift to stone-500 so the excerpt reads as secondary
+   metadata that supports the title rather than rivaling it. */
 .kt-article-card__excerpt {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 300;
-  line-height: 1.625;
-  color: var(--kt-stone-600);
-  margin: 0 0 2rem 0;
+  line-height: 1.55;
+  color: var(--kt-stone-500);
+  margin: 0 0 1.5rem 0;
   max-width: 32rem;
   /* Clamp to 3 lines so long excerpts don't break the masonry rhythm */
   display: -webkit-box;
@@ -171,7 +176,8 @@
 
 @media screen and (min-width: 750px) {
   .kt-article-card__excerpt {
-    font-size: 1.125rem;
+    font-size: 0.9375rem;
+    margin-bottom: 2rem;
   }
 }
 
