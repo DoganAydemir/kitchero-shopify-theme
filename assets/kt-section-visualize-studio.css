@@ -151,19 +151,28 @@
   font-style: italic;
 }
 
-/* description: text-stone-300 text-lg md:text-xl font-light leading-relaxed max-w-xl */
+/* description — R271: was `color: stone-300` (#d6d3d1, ~80%
+   luminance on the dark kitchen backdrop) + 1.125rem mobile /
+   1.25rem desktop. Reporter said the description read as too
+   close to the headline weight in the dark hero — wanted it
+   more muted ("silik") and a notch smaller. Drop to
+   `rgba(255,255,255,0.6)` so the text reads as soft secondary
+   copy rather than primary white, and downsize to 0.9375rem
+   mobile / 1.0625rem desktop to match the rest of the editorial
+   description scale (ecosystem feature desc, article excerpt
+   after the R269 sweep). */
 .kt-visualize-studio__desc {
-  color: var(--kt-stone-300);
-  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9375rem;
   font-weight: 300;
-  line-height: 1.625;
+  line-height: 1.6;
   max-width: 36rem;
   margin: 0;
 }
 
 @media screen and (min-width: 750px) {
   .kt-visualize-studio__desc {
-    font-size: 1.25rem;
+    font-size: 1.0625rem;
   }
 }
 

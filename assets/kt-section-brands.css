@@ -63,12 +63,28 @@
   max-width: 100%;
   width: auto;
   height: auto;
-  opacity: 0.4;
-  transition: opacity 0.3s ease;
+  /* R274 — Was hardcoded `opacity: 0.4` + no filter. Now both
+     come from inline CSS custom properties set on the section
+     root from merchant settings:
+       --kt-brands-logo-opacity  (0.20 – 1.00, default 0.40)
+       --kt-brands-logo-filter   (`none` | `grayscale(100%)`,
+                                  default `grayscale(100%)`)
+     Hover reveals the logo to full opacity AND drops the
+     grayscale filter so the merchant gets a free "B&W → color
+     on hover" effect when the resting state is grayscale.
+     Fallbacks preserve previous behavior on browsers that fail
+     to apply the inline style for any reason. */
+  opacity: var(--kt-brands-logo-opacity, 0.4);
+  filter: var(--kt-brands-logo-filter, grayscale(100%));
+  -webkit-filter: var(--kt-brands-logo-filter, grayscale(100%));
+  transition: opacity 0.3s ease, filter 0.3s ease, -webkit-filter 0.3s ease;
 }
 
-.kt-brands__item:hover .kt-brands__logo {
+.kt-brands__item:hover .kt-brands__logo,
+.kt-brands__item:focus-within .kt-brands__logo {
   opacity: 1;
+  filter: none;
+  -webkit-filter: none;
 }
 
 /* Text fallback for brands without images */

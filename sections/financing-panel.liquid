@@ -32,7 +32,7 @@
 -%}
 
 <section
-  class="{{ variant_class }}"
+  class="{{ variant_class }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="financing-panel"
 >
@@ -372,6 +372,17 @@
       "id": "background_image",
       "label": "t:sections.financing-panel.settings.background_image.label",
       "info": "t:sections.financing-panel.settings.background_image.info"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

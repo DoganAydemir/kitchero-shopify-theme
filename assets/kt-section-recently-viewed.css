@@ -16,6 +16,33 @@
 
 .kt-recently-viewed[hidden] { display: none; }
 
+/* R282 — Editor-only empty-state hint.
+
+   On the live storefront the section silently hides when there's
+   no browsing history to surface. Inside the theme editor we
+   instead reveal a visible "this section will populate as
+   customers browse" message via recently-viewed.js so the
+   merchant has clear feedback: the section IS wired up, it just
+   needs PDP visits to fill. Painted inside the grid container
+   (replacing the skeleton placeholders) so vertical rhythm of
+   the section frame is preserved.
+
+   The hint is keyed off a content-only class painted by the JS,
+   so on the storefront — where the empty-state branch returns
+   without rendering anything — these rules are dead weight in
+   the cascade. Cost is ~80 bytes of CSS per page; acceptable. */
+.kt-recently-viewed__editor-hint {
+  grid-column: 1 / -1;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(var(--kt-c-fg), 0.55);
+  background: rgba(var(--kt-c-fg), 0.04);
+  border: 1px dashed rgba(var(--kt-c-fg), 0.18);
+  border-radius: 0.5rem;
+}
+
 /* ── Header ─────────────────────────────────────────────────────── */
 
 .kt-recently-viewed__header {

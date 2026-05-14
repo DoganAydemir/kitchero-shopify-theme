@@ -4,7 +4,7 @@
 {%- assign shop_the_look_heading_default = 'kt.section.shop_the_look.heading_default' | t -%}
 {%- assign shop_the_look_product_aria_default = 'kt.section.shop_the_look.product_aria_default' | t -%}
 
-<section class="kt-shop-the-look" data-section-id="{{ section.id }}" data-section-type="shop-the-look">
+<section class="kt-shop-the-look{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="shop-the-look">
   <div class="page-width">
     <div class="kt-shop-the-look__header">
       <span class="kt-shop-the-look__label">{{ section.settings.label | default: shop_the_look_label_default }}</span>
@@ -27,9 +27,32 @@
       {%- comment -%} Hotspot layer — ABOVE clipped container {%- endcomment -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'hotspot' -%}
+          {%- comment -%}
+            R273 — Hotspot position uses CSS custom properties
+            (--kt-hotspot-x / --kt-hotspot-y) so the same root
+            element can swap coordinates between desktop and
+            mobile via a media-query in
+            kt-section-shop-the-look.css. Previously we wrote
+            `top: X%; left: Y%` inline using ONLY the desktop
+            range setting, which meant the dot's percentage
+            position on mobile was inherited verbatim — but the
+            image container's intrinsic aspect ratio shifts
+            between mobile (full-bleed crop) and desktop (16/9
+            editorial), so a dot that sat over a kitchen
+            cabinet handle on desktop drifted onto the wall on
+            mobile. The merchant now sets desktop AND mobile
+            coordinates independently per hotspot block.
+
+            Fallback: when the merchant hasn't touched the new
+            mobile-only sliders, the defaults are identical to
+            the desktop defaults (35 / 25), so existing stores
+            upgrading don't see a sudden hotspot shift — they
+            get the same coordinates on both breakpoints until
+            they choose to tune the mobile placement.
+          {%- endcomment -%}
           <div
             class="kt-shop-the-look__hotspot-wrap"
-            style="top: {{ block.settings.vertical_position }}%; left: {{ block.settings.horizontal_position }}%;"
+            style="--kt-hotspot-x: {{ block.settings.horizontal_position }}%; --kt-hotspot-y: {{ block.settings.vertical_position }}%; --kt-hotspot-x-mobile: {{ block.settings.horizontal_position_mobile | default: block.settings.horizontal_position }}%; --kt-hotspot-y-mobile: {{ block.settings.vertical_position_mobile | default: block.settings.vertical_position }}%;"
             data-hotspot-id="{{ block.id }}"
             {{ block.shopify_attributes }}
           >
@@ -198,6 +221,17 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:sections.shop-the-look.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [
@@ -206,6 +240,10 @@
       "name": "t:sections.shop-the-look.blocks.hotspot.name",
       "limit": 6,
       "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.shop-the-look.blocks.hotspot.settings.header__position_desktop.content"
+        },
         {
           "type": "range",
           "id": "horizontal_position",
@@ -227,6 +265,35 @@
           "default": 25
         },
         {
+          "type": "header",
+          "content": "t:sections.shop-the-look.blocks.hotspot.settings.header__position_mobile.content"
+        },
+        {
+          "type": "range",
+          "id": "horizontal_position_mobile",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.horizontal_position_mobile.label",
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.horizontal_position_mobile.info",
+          "default": 35
+        },
+        {
+          "type": "range",
+          "id": "vertical_position_mobile",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.vertical_position_mobile.label",
+          "default": 25
+        },
+        {
+          "type": "header",
+          "content": "t:sections.shop-the-look.blocks.hotspot.settings.header__product.content"
+        },
+        {
           "type": "text",
           "id": "product_title",
           "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_title.label",
@@ -237,7 +304,7 @@
           "id": "product_price",
           "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.label",
           "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.info",
-          "default": "Product price"
+          "default": "$450"
         },
         {
           "type": "image_picker",

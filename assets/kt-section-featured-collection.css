@@ -77,12 +77,39 @@
   word-break: break-word;
 }
 
+/* R281 — Was `color: rgba(var(--kt-c-fg), 0.75)`. On the
+   default light scheme that resolves to ~stone-900 at 75% alpha
+   — visually almost as dark as the heading, breaking the
+   intended title-vs-description hierarchy (reporter:
+   "description'lar dark olmamalı, biraz daha gri olmalı").
+   Drop to 0.55 alpha to land around stone-500 on light schemes
+   while staying scheme-aware (dark schemes still get a soft
+   white-ish description that reads as secondary copy). Matches
+   the muted-description treatment already used in
+   ecosystem / mid-cta / newsletter-signup / main-collection. */
 .kt-featured-collection__description {
   margin-top: 0.75rem;
   max-width: 60ch;
   font-size: 1rem;
   line-height: 1.5;
-  color: rgba(var(--kt-c-fg), 0.75);
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+/* R281b — Description wrappers carry the `rte` companion class
+   (richtext output). base.css `.rte p { color: rgb(var(--kt-c-fg)) }`
+   sets the `<p>` element to full-strength foreground colour,
+   which BREAKS colour inheritance from the wrapper above —
+   reporter saw the description still rendering at heading
+   weight even after the R281 wrapper-level mute. Push the muted
+   colour onto the `<p>` children directly. Specificity
+   (0,0,2,1) > `.rte p` (0,0,1,1) so we win unconditionally
+   regardless of cascade load order. Layout properties stay on
+   the wrapper above so multi-paragraph descriptions don't
+   accumulate top margin per paragraph. */
+.kt-featured-collection__description p,
+.kt-featured-collection__description li,
+.kt-featured-collection__description blockquote {
+  color: rgba(var(--kt-c-fg), 0.55);
 }
 
 .kt-featured-collection__description > *:first-child { margin-top: 0; }
@@ -138,13 +165,28 @@
 
 .kt-featured-collection__grid {
   display: grid;
-  gap: var(--kt-gap-grid-y-m, 1rem) var(--kt-gap-grid-x-m, 0.75rem);
+  /* R277 — Was `gap: var(--kt-gap-grid-y-m, 1rem) var(--kt-gap-grid-x-m, 0.75rem)`.
+     The global `kt_grid_spacing_*` settings default to 8px which leaves
+     featured product cards reading as a wall — reporter said "item lar
+     arası çok sıkışık". Apply a section-scoped floor via `max()` so the
+     grid never tightens below a breathable baseline (~1rem mobile /
+     ~1.75rem desktop horizontal, ~1.5rem mobile / ~2rem desktop
+     vertical) regardless of where the merchant has parked the global
+     slider. If the merchant has explicitly set a wider value (e.g.
+     32px+), `max()` honours it — only the too-tight defaults get
+     lifted. Scoped to this section's grid alone so other surfaces
+     using the same tokens keep the merchant's preferred density. */
+  gap:
+    max(var(--kt-gap-grid-y-m, 1rem), 1.5rem)
+    max(var(--kt-gap-grid-x-m, 0.75rem), 1rem);
   grid-template-columns: repeat(var(--kt-fc-cols-mobile, 2), minmax(0, 1fr));
 }
 
 @media screen and (min-width: 750px) {
   .kt-featured-collection__grid {
-    gap: var(--kt-gap-grid-y-d, 2rem) var(--kt-gap-grid-x-d, 1.5rem);
+    gap:
+      max(var(--kt-gap-grid-y-d, 2rem), 2rem)
+      max(var(--kt-gap-grid-x-d, 1.5rem), 1.75rem);
     grid-template-columns: repeat(var(--kt-fc-cols-desktop, 4), minmax(0, 1fr));
   }
 }

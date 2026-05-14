@@ -780,7 +780,7 @@
         },
         "text_color": {
           "label": "Couleur du texte",
-          "info": "Couleur du titre et de la description sur l'image."
+          "info": "Couleur de l'accroche, du titre et de la description sur l'image. L'accroche et la description s'affichent dans une teinte légèrement plus douce que le titre."
         }
       },
       "blocks": {
@@ -828,7 +828,8 @@
               "label": "Nombre"
             },
             "prefix": {
-              "label": "Suffixe (p. ex. +, %)"
+              "label": "Suffixe (p. ex. +, %)",
+              "info": "Optionnel. Apparaît juste après le nombre — laissez vide pour un chiffre simple comme « 500 »."
             },
             "label": {
               "label": "Libellé"
@@ -1249,6 +1250,20 @@
         "color_scheme": {
           "label": "Palette de couleurs"
         },
+        "logo_style": {
+          "label": "Style des logos",
+          "info": "Le noir et blanc uniformise toutes les marques pour éviter les collisions de couleurs sur la bande. Le survol restaure la couleur d'origine.",
+          "options__grayscale": {
+            "label": "Noir et blanc"
+          },
+          "options__color": {
+            "label": "Couleur"
+          }
+        },
+        "logo_opacity": {
+          "label": "Opacité des logos",
+          "info": "Opacité au repos. Le survol remonte toujours à 100 %. Les valeurs basses donnent un rendu plus discret et éditorial."
+        },
         "padding_top": {
           "label": "Marge supérieure"
         },
@@ -1368,11 +1383,27 @@
         "hotspot": {
           "name": "Point d'intérêt produit",
           "settings": {
+            "header__position_desktop": {
+              "content": "Position sur ordinateur"
+            },
             "horizontal_position": {
               "label": "Position horizontale"
             },
             "vertical_position": {
               "label": "Position verticale"
+            },
+            "header__position_mobile": {
+              "content": "Position sur mobile"
+            },
+            "horizontal_position_mobile": {
+              "label": "Position horizontale (mobile)",
+              "info": "Le recadrage de l'image diffère sur mobile — ajustez ce paramètre séparément pour que le hotspot tombe sur le bon détail."
+            },
+            "vertical_position_mobile": {
+              "label": "Position verticale (mobile)"
+            },
+            "header__product": {
+              "content": "Produit"
             },
             "product_title": {
               "label": "Titre du produit"
@@ -1551,6 +1582,48 @@
       },
       "presets": {
         "name": "Articles de blog"
+      }
+    },
+    "parallax-cta": {
+      "name": "CTA parallaxe",
+      "settings": {
+        "header__content": {
+          "content": "Contenu"
+        },
+        "header__cta": {
+          "content": "Bouton"
+        },
+        "header__padding": {
+          "content": "Marge intérieure de la section"
+        },
+        "heading_line1": {
+          "label": "Titre — ligne 1"
+        },
+        "heading_line2": {
+          "label": "Titre — ligne 2"
+        },
+        "heading_tag": {
+          "label": "Niveau de titre"
+        },
+        "background_image": {
+          "label": "Image d'arrière-plan",
+          "info": "Apparaît à travers les glyphes du texte. Sur ordinateur, l'image reste fixée pendant que la page défile (parallaxe)."
+        },
+        "button_text": {
+          "label": "Texte du bouton"
+        },
+        "button_link": {
+          "label": "Lien du bouton"
+        },
+        "padding_top": {
+          "label": "Marge supérieure"
+        },
+        "padding_bottom": {
+          "label": "Marge inférieure"
+        }
+      },
+      "presets": {
+        "name": "CTA parallaxe"
       }
     },
     "testimonials": {
@@ -2518,7 +2591,7 @@
           "info": "Affiche la seconde image du produit au survol. Les produits avec une seule image zooment sur l'image principale."
         },
         "show_quote_button": {
-          "label": "Afficher le bouton de devis"
+          "label": "Afficher le bouton \"Voir les détails\""
         }
       },
       "presets": {
@@ -2610,7 +2683,7 @@
           "label": "Afficher la seconde image au survol"
         },
         "show_quote_button": {
-          "label": "Afficher le bouton de devis"
+          "label": "Afficher le bouton \"Voir les détails\""
         }
       }
     },
@@ -2627,7 +2700,7 @@
           "label": "Afficher la seconde image au survol"
         },
         "show_quote_button": {
-          "label": "Afficher le bouton de devis"
+          "label": "Afficher le bouton \"Voir les détails\""
         }
       }
     },
@@ -2778,7 +2851,7 @@
           "info": "Nécessite que les produits aient au moins 2 images."
         },
         "show_quote_button": {
-          "label": "Afficher le bouton \"Obtenir un devis\" sur les cartes"
+          "label": "Afficher le bouton \"Voir les détails\" sur les cartes"
         },
         "show_view_all": {
           "label": "Afficher le lien \"Tout voir\""
@@ -2871,7 +2944,7 @@
           "info": "Nécessite que les produits aient au moins 2 images."
         },
         "show_quote_button": {
-          "label": "Afficher le bouton \"Obtenir un devis\" sur les cartes"
+          "label": "Afficher le bouton \"Voir les détails\" sur les cartes"
         },
         "color_scheme": {
           "label": "Palette de couleurs"
@@ -5252,9 +5325,26 @@
               "label": "Image",
               "info": "Optionnel. Laissez vide pour utiliser une icône à la place."
             },
+            "icon_image": {
+              "label": "Icône personnalisée",
+              "info": "Téléversez votre propre icône (SVG, PNG ou JPG). Remplace l'icône prédéfinie ci-dessous lorsqu'elle est définie. Laissez vide pour utiliser un préréglage."
+            },
             "icon": {
-              "label": "Icône (HTML)",
-              "info": "Collez du SVG brut. Utilisé lorsqu'aucune image n'est téléchargée."
+              "label": "Icône prédéfinie",
+              "info": "Choisissez une icône intégrée. Ignorée lorsqu'une icône personnalisée est téléversée ci-dessus ou qu'une image de colonne est définie.",
+              "options__none": { "label": "Aucune" },
+              "options__star": { "label": "Étoile" },
+              "options__sparkle": { "label": "Étincelle" },
+              "options__check": { "label": "Coche" },
+              "options__shield": { "label": "Bouclier" },
+              "options__truck": { "label": "Camion" },
+              "options__clock": { "label": "Horloge" },
+              "options__award": { "label": "Récompense" },
+              "options__heart": { "label": "Cœur" },
+              "options__leaf": { "label": "Feuille" },
+              "options__gift": { "label": "Cadeau" },
+              "options__ruler": { "label": "Règle" },
+              "options__zap": { "label": "Éclair" }
             },
             "heading": {
               "label": "Titre"

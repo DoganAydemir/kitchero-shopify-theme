@@ -780,7 +780,7 @@
         },
         "text_color": {
           "label": "Color del texto",
-          "info": "Color del título y la descripción sobre la imagen."
+          "info": "Color del antetítulo, el título y la descripción sobre la imagen. El antetítulo y la descripción se muestran un poco más suaves que el título."
         }
       },
       "blocks": {
@@ -828,7 +828,8 @@
               "label": "Número"
             },
             "prefix": {
-              "label": "Sufijo (p. ej. +, %)"
+              "label": "Sufijo (p. ej. +, %)",
+              "info": "Opcional. Aparece justo después del número — déjalo vacío para una cifra simple como «500»."
             },
             "label": {
               "label": "Etiqueta"
@@ -1249,6 +1250,20 @@
         "color_scheme": {
           "label": "Esquema de colores"
         },
+        "logo_style": {
+          "label": "Estilo del logo",
+          "info": "El blanco y negro unifica todas las marcas para que las paletas no choquen al verse juntas. El hover restaura el color original.",
+          "options__grayscale": {
+            "label": "Blanco y negro"
+          },
+          "options__color": {
+            "label": "Color"
+          }
+        },
+        "logo_opacity": {
+          "label": "Opacidad del logo",
+          "info": "Opacidad en reposo. El hover siempre lleva al 100 %. Los valores bajos generan una sensación más sutil y editorial."
+        },
         "padding_top": {
           "label": "Relleno superior"
         },
@@ -1368,11 +1383,27 @@
         "hotspot": {
           "name": "Punto de interés de producto",
           "settings": {
+            "header__position_desktop": {
+              "content": "Posición en escritorio"
+            },
             "horizontal_position": {
               "label": "Posición horizontal"
             },
             "vertical_position": {
               "label": "Posición vertical"
+            },
+            "header__position_mobile": {
+              "content": "Posición en móvil"
+            },
+            "horizontal_position_mobile": {
+              "label": "Posición horizontal (móvil)",
+              "info": "El recorte de la imagen es distinto en móvil — ajusta este valor por separado para que el hotspot quede sobre el detalle correcto."
+            },
+            "vertical_position_mobile": {
+              "label": "Posición vertical (móvil)"
+            },
+            "header__product": {
+              "content": "Producto"
             },
             "product_title": {
               "label": "Título del producto"
@@ -1551,6 +1582,48 @@
       },
       "presets": {
         "name": "Entradas del blog"
+      }
+    },
+    "parallax-cta": {
+      "name": "CTA paralaje",
+      "settings": {
+        "header__content": {
+          "content": "Contenido"
+        },
+        "header__cta": {
+          "content": "Botón"
+        },
+        "header__padding": {
+          "content": "Relleno de la sección"
+        },
+        "heading_line1": {
+          "label": "Título — línea 1"
+        },
+        "heading_line2": {
+          "label": "Título — línea 2"
+        },
+        "heading_tag": {
+          "label": "Nivel del título"
+        },
+        "background_image": {
+          "label": "Imagen de fondo",
+          "info": "Se ve a través de los glifos del texto. En escritorio la imagen queda fija mientras la página se desplaza (paralaje)."
+        },
+        "button_text": {
+          "label": "Texto del botón"
+        },
+        "button_link": {
+          "label": "Enlace del botón"
+        },
+        "padding_top": {
+          "label": "Relleno superior"
+        },
+        "padding_bottom": {
+          "label": "Relleno inferior"
+        }
+      },
+      "presets": {
+        "name": "CTA paralaje"
       }
     },
     "testimonials": {
@@ -2518,7 +2591,7 @@
           "info": "Muestra la segunda imagen del producto al pasar el cursor. Los productos con una sola imagen hacen zoom sobre la principal."
         },
         "show_quote_button": {
-          "label": "Mostrar botón de presupuesto"
+          "label": "Mostrar botón \"Ver detalles\""
         }
       },
       "presets": {
@@ -2610,7 +2683,7 @@
           "label": "Mostrar segunda imagen al pasar el cursor"
         },
         "show_quote_button": {
-          "label": "Mostrar botón de presupuesto"
+          "label": "Mostrar botón \"Ver detalles\""
         }
       }
     },
@@ -2627,7 +2700,7 @@
           "label": "Mostrar segunda imagen al pasar el cursor"
         },
         "show_quote_button": {
-          "label": "Mostrar botón de presupuesto"
+          "label": "Mostrar botón \"Ver detalles\""
         }
       }
     },
@@ -2778,7 +2851,7 @@
           "info": "Requiere que los productos tengan al menos 2 imágenes."
         },
         "show_quote_button": {
-          "label": "Mostrar botón \"Solicitar presupuesto\" en las tarjetas"
+          "label": "Mostrar botón \"Ver detalles\" en las tarjetas"
         },
         "show_view_all": {
           "label": "Mostrar enlace \"Ver todo\""
@@ -2871,7 +2944,7 @@
           "info": "Requiere que los productos tengan al menos 2 imágenes."
         },
         "show_quote_button": {
-          "label": "Mostrar botón \"Solicitar presupuesto\" en las tarjetas"
+          "label": "Mostrar botón \"Ver detalles\" en las tarjetas"
         },
         "color_scheme": {
           "label": "Esquema de colores"
@@ -5252,9 +5325,26 @@
               "label": "Imagen",
               "info": "Opcional. Deja vacío para usar un icono en su lugar."
             },
+            "icon_image": {
+              "label": "Icono personalizado",
+              "info": "Sube tu propio icono (SVG, PNG o JPG). Sustituye al preajuste de icono de abajo cuando esté establecido. Deja vacío para usar un preajuste."
+            },
             "icon": {
-              "label": "Icono (HTML)",
-              "info": "Pega marcado SVG sin procesar. Se usa cuando no se sube ninguna imagen."
+              "label": "Preajuste de icono",
+              "info": "Elige un icono integrado. Se ignora cuando se sube un icono personalizado arriba o cuando se establece una imagen de columna.",
+              "options__none": { "label": "Ninguno" },
+              "options__star": { "label": "Estrella" },
+              "options__sparkle": { "label": "Destello" },
+              "options__check": { "label": "Marca" },
+              "options__shield": { "label": "Escudo" },
+              "options__truck": { "label": "Camión" },
+              "options__clock": { "label": "Reloj" },
+              "options__award": { "label": "Premio" },
+              "options__heart": { "label": "Corazón" },
+              "options__leaf": { "label": "Hoja" },
+              "options__gift": { "label": "Regalo" },
+              "options__ruler": { "label": "Regla" },
+              "options__zap": { "label": "Rayo" }
             },
             "heading": {
               "label": "Título"

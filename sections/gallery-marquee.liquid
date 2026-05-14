@@ -7,7 +7,7 @@
 -%}
 
 <section
-  class="kt-gallery-marquee"
+  class="kt-gallery-marquee{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="gallery-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
@@ -255,6 +255,17 @@
       "id": "pause_on_hover",
       "label": "t:sections.gallery-marquee.settings.pause_on_hover.label",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

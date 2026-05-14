@@ -3,7 +3,7 @@
 {%- assign shop_categories_heading_default = 'kt.section.shop_categories.heading_default' | t -%}
 {%- assign shop_categories_subtitle_default = 'kt.section.shop_categories.subtitle_default' | t -%}
 
-<section class="kt-shop-categories" data-section-id="{{ section.id }}" data-section-type="shop-categories">
+<section class="kt-shop-categories{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="shop-categories">
   <div class="page-width">
     <div class="kt-shop-categories__header">
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
@@ -117,6 +117,17 @@
       "id": "subtitle",
       "label": "t:sections.shop-categories.settings.subtitle.label",
       "default": "Discover your perfect aesthetic"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

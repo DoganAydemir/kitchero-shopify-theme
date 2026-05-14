@@ -79,9 +79,71 @@
                         class: 'kt-multicolumn__image',
                         alt: block.settings.image.alt | default: block.settings.heading | default: '' }}
                   </div>
-                {%- elsif block.settings.icon != blank -%}
+                {%- elsif block.settings.icon_image != blank -%}
+                  {%- comment -%}
+                    R283c — Custom icon upload takes priority over
+                    the preset select. Merchant uploads any SVG /
+                    PNG / JPG; we render it as a constrained-size
+                    image inside the icon slot. Shopify natively
+                    accepts SVG uploads (sanitised) so brand-mark
+                    glyphs go through without any extra plumbing.
+                    Sized small (max 96px source, rendered ~3.5-
+                    4rem via CSS) since the slot is an icon, not
+                    a hero.
+                  {%- endcomment -%}
+                  <div class="kt-multicolumn__icon kt-multicolumn__icon--image" aria-hidden="true">
+                    {{ block.settings.icon_image | image_url: width: 192 | image_tag:
+                        loading: 'lazy',
+                        widths: '96, 144, 192',
+                        sizes: '96px',
+                        width: 96,
+                        height: 96,
+                        class: 'kt-multicolumn__icon-image',
+                        alt: '' }}
+                  </div>
+                {%- elsif block.settings.icon != blank and block.settings.icon != 'none' -%}
+                  {%- comment -%}
+                    R283c — Preset icon library. Mirrors the
+                    pattern in why-choose-us-product.liquid (line-
+                    icon SVG case statement keyed on a `select`
+                    block setting). Twelve options cover the
+                    common "Why us / Benefits" copy for kitchen /
+                    cabinet brands: trust signals (shield, award),
+                    delivery (truck, clock), craft (ruler, zap),
+                    emotional (heart, gift, leaf), and three
+                    decorative (star, sparkle, check). Stroke
+                    width 1.5 matches the established theme line-
+                    icon weight. `currentColor` lets the icon
+                    inherit the column's text colour so it
+                    re-tints under scheme swaps.
+                  {%- endcomment -%}
                   <div class="kt-multicolumn__icon" aria-hidden="true">
-                    {{ block.settings.icon }}
+                    {%- case block.settings.icon -%}
+                      {%- when 'star' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      {%- when 'sparkle' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7L12 3z"/></svg>
+                      {%- when 'check' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+                      {%- when 'shield' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                      {%- when 'truck' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                      {%- when 'clock' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {%- when 'award' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                      {%- when 'heart' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      {%- when 'leaf' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96c1.4 9.3 -2 14.94 -8.2 17.04Z"/><path d="M2 21c0 -3 1.85 -5.36 5.08 -6"/></svg>
+                      {%- when 'gift' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                      {%- when 'ruler' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 8.7 21.3a2.4 2.4 0 0 1 -3.4 0L2.7 18.7a2.4 2.4 0 0 1 0 -3.4L15.3 2.7a2.4 2.4 0 0 1 3.4 0l2.6 2.6a2.4 2.4 0 0 1 0 3.4Z"/><path d="m7.5 10.5 2 2"/><path d="m10.5 7.5 2 2"/><path d="m13.5 4.5 2 2"/><path d="m4.5 13.5 2 2"/></svg>
+                      {%- when 'zap' -%}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    {%- endcase -%}
                   </div>
                 {%- else -%}
                   {%- comment -%}
@@ -123,26 +185,40 @@
                     </div>
                   {%- endif -%}
                   {%- comment -%}
-                    R162 EMPTY-HREF-1: only emit the CTA when the
-                    merchant supplied BOTH a label AND a URL. The
-                    previous `| default: '#'` rendered an `<a href="#">`
-                    that scrolls to page top — Theme Store flags this
-                    as broken-link / "appears functional but isn't".
-                    Fall back to a design-mode editor hint so merchants
-                    notice the missing URL while editing.
+                    R284 — CTA rendering policy.
+
+                    Previous (R162) approach: only render the link
+                    when BOTH label AND url were supplied; missing
+                    url surfaced an editor-only hint paragraph
+                    ("Add a link URL to enable this CTA.") in
+                    place of the styled link. Reporter pointed
+                    out the hint clutters every empty-URL column
+                    and breaks the visual rhythm — they prefer to
+                    see the actual link element so they can
+                    evaluate spacing / alignment / centring in the
+                    editor.
+
+                    New behaviour: render the styled link as soon
+                    as the merchant supplies a `link_label`. When
+                    `link_url` is blank, fall back to `href="#"` —
+                    user explicitly opted in ("ya # olur ya da
+                    boş bırakırsın"). On the live storefront an
+                    empty-URL column with the # fallback scrolls
+                    to top; merchant is expected to fill the URL
+                    before publishing. Theme Store reviewers do
+                    occasionally flag `href="#"` placeholders,
+                    but the merchant-facing trade-off (clear
+                    visual feedback in the editor) is acceptable
+                    per direct request.
                   {%- endcomment -%}
-                  {%- if block.settings.link_label != blank and block.settings.link_url != blank -%}
+                  {%- if block.settings.link_label != blank -%}
                     <a
-                      href="{{ block.settings.link_url | escape }}"
+                      href="{{ block.settings.link_url | default: '#' | escape }}"
                       class="kt-multicolumn__column-link"
                     >
                       {{- block.settings.link_label | escape -}}
                       {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.8 %}
                     </a>
-                  {%- elsif block.settings.link_label != blank and request.design_mode -%}
-                    <p class="kt-multicolumn__column-link-empty">
-                      {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
-                    </p>
                   {%- endif -%}
                 </div>
               </li>
@@ -361,11 +437,32 @@
           "info": "t:sections.multicolumn.blocks.column.settings.image.info"
         },
         {
-          "type": "html",
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "t:sections.multicolumn.blocks.column.settings.icon_image.label",
+          "info": "t:sections.multicolumn.blocks.column.settings.icon_image.info"
+        },
+        {
+          "type": "select",
           "id": "icon",
           "label": "t:sections.multicolumn.blocks.column.settings.icon.label",
           "info": "t:sections.multicolumn.blocks.column.settings.icon.info",
-          "default": "Icon"
+          "options": [
+            { "value": "none",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__none.label" },
+            { "value": "star",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__star.label" },
+            { "value": "sparkle", "label": "t:sections.multicolumn.blocks.column.settings.icon.options__sparkle.label" },
+            { "value": "check",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__check.label" },
+            { "value": "shield",  "label": "t:sections.multicolumn.blocks.column.settings.icon.options__shield.label" },
+            { "value": "truck",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__truck.label" },
+            { "value": "clock",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__clock.label" },
+            { "value": "award",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__award.label" },
+            { "value": "heart",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__heart.label" },
+            { "value": "leaf",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__leaf.label" },
+            { "value": "gift",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__gift.label" },
+            { "value": "ruler",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__ruler.label" },
+            { "value": "zap",     "label": "t:sections.multicolumn.blocks.column.settings.icon.options__zap.label" }
+          ],
+          "default": "sparkle"
         },
         {
           "type": "text",
@@ -398,8 +495,7 @@
         {
           "type": "text",
           "id": "link_label",
-          "label": "t:sections.multicolumn.blocks.column.settings.link_label.label",
-          "default": "Label"
+          "label": "t:sections.multicolumn.blocks.column.settings.link_label.label"
         },
         {
           "type": "url",

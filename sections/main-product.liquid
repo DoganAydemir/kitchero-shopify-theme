@@ -626,6 +626,29 @@
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  R285 — Recently-viewed tracker. The script is ALSO loaded by
+  sections/recently-viewed-products.liquid (for the render
+  branch — Phase 2). On its own it loaded ONLY on pages that
+  carry the Recently Viewed rail, which meant the Phase 1
+  tracker never ran when the merchant placed the rail on a
+  home / collection / journal page but the customer was
+  browsing PDPs without the rail. localStorage stayed empty
+  and the rail had nothing to render even after dozens of
+  product views.
+
+  Loading it here AS WELL is safe — the script self-installs a
+  `window.__kitcheroRecentlyViewedLoaded` guard at the top, so
+  a second load (when both a PDP AND the rail are on the same
+  page, or when the storefront uses both templates with the
+  rail) is a no-op. The defer attribute means it never blocks
+  paint. Tracker runs on DOMContentLoaded, reads the handle
+  from `window.location.pathname`, and pushes it onto the
+  `kt_viewed` array in localStorage. Subsequent visits to a
+  page with the rail then have data to render.
+{%- endcomment -%}
+<script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
 {%- comment -%}
   Selling-plan picker JS only emits when the product actually has
   subscription plans configured. Saves a ~1.5KB transfer on every

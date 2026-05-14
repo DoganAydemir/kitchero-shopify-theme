@@ -771,6 +771,17 @@ html.no-js [data-addresses-cancel-edit] {
   margin: 0 0 2.5rem;
 }
 
+/* R281b — Password-message wrapper carries the `rte` companion class
+   so `.rte p { color: rgb(var(--kt-c-fg)) }` from base.css pins the
+   inner `<p>` to full-strength foreground, breaking the wrapper-level
+   mute. Push the muted alpha onto the richtext children directly.
+   Specificity (0,0,2,1) > `.rte p` (0,0,1,1). */
+.kt-password__message p,
+.kt-password__message li,
+.kt-password__message blockquote {
+  color: rgba(var(--kt-c-fg), 0.7);
+}
+
 .kt-password__form {
   width: 100%;
   max-width: 24rem;

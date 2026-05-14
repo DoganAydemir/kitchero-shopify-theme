@@ -780,7 +780,7 @@
         },
         "text_color": {
           "label": "Metin rengi",
-          "info": "Görsel üzerindeki başlık ve açıklama rengi."
+          "info": "Görsel üzerindeki üst etiket, başlık ve açıklama rengi. Üst etiket ve açıklama, başlığa göre biraz daha soluk gösterilir."
         }
       },
       "blocks": {
@@ -828,7 +828,8 @@
               "label": "Sayı"
             },
             "prefix": {
-              "label": "Ek (ör. +, %)"
+              "label": "Ek (ör. +, %)",
+              "info": "İsteğe bağlı. Sayının hemen sağında görünür — \"500\" gibi düz bir rakam için boş bırakın."
             },
             "label": {
               "label": "Etiket"
@@ -1249,6 +1250,20 @@
         "color_scheme": {
           "label": "Renk şeması"
         },
+        "logo_style": {
+          "label": "Logo stili",
+          "info": "Siyah-beyaz, tüm logoları nötr bir tona indirir; farklı marka renklerinin yan yana çarpışmasını engeller. Hover'da tam renkli görünür.",
+          "options__grayscale": {
+            "label": "Siyah-beyaz"
+          },
+          "options__color": {
+            "label": "Renkli"
+          }
+        },
+        "logo_opacity": {
+          "label": "Logo opaklığı",
+          "info": "Durağan haldeki opaklık. Hover her zaman %100'e çıkarır. Düşük değerler daha sade, editöryel bir his verir."
+        },
         "padding_top": {
           "label": "Üst dolgu"
         },
@@ -1368,11 +1383,27 @@
         "hotspot": {
           "name": "Ürün hotspot'u",
           "settings": {
+            "header__position_desktop": {
+              "content": "Masaüstü konumu"
+            },
             "horizontal_position": {
               "label": "Yatay konum"
             },
             "vertical_position": {
               "label": "Dikey konum"
+            },
+            "header__position_mobile": {
+              "content": "Mobil konumu"
+            },
+            "horizontal_position_mobile": {
+              "label": "Yatay konum (mobil)",
+              "info": "Görsel kırpması mobilde farklı — hotspot doğru detaya gelsin diye burayı ayrıca ayarlayın."
+            },
+            "vertical_position_mobile": {
+              "label": "Dikey konum (mobil)"
+            },
+            "header__product": {
+              "content": "Ürün"
             },
             "product_title": {
               "label": "Ürün başlığı"
@@ -1551,6 +1582,48 @@
       },
       "presets": {
         "name": "Blog yazıları"
+      }
+    },
+    "parallax-cta": {
+      "name": "Paralaks CTA",
+      "settings": {
+        "header__content": {
+          "content": "İçerik"
+        },
+        "header__cta": {
+          "content": "Buton"
+        },
+        "header__padding": {
+          "content": "Bölüm dolgusu"
+        },
+        "heading_line1": {
+          "label": "Başlık — satır 1"
+        },
+        "heading_line2": {
+          "label": "Başlık — satır 2"
+        },
+        "heading_tag": {
+          "label": "Başlık seviyesi"
+        },
+        "background_image": {
+          "label": "Arka plan görseli",
+          "info": "Yazı karakterlerinin içinden görünür. Masaüstünde sayfa kayarken görsel sabit kalır (paralaks)."
+        },
+        "button_text": {
+          "label": "Buton metni"
+        },
+        "button_link": {
+          "label": "Buton bağlantısı"
+        },
+        "padding_top": {
+          "label": "Üst dolgu"
+        },
+        "padding_bottom": {
+          "label": "Alt dolgu"
+        }
+      },
+      "presets": {
+        "name": "Paralaks CTA"
       }
     },
     "testimonials": {
@@ -2518,7 +2591,7 @@
           "info": "Üzerine gelindiğinde ikinci ürün görselini gösterir. Tek görseli olan ürünlerde ana görsel yakınlaşır."
         },
         "show_quote_button": {
-          "label": "Teklif butonunu göster"
+          "label": "\"Detayları gör\" düğmesini göster"
         }
       },
       "presets": {
@@ -2610,7 +2683,7 @@
           "label": "Hover'da ikinci görsel"
         },
         "show_quote_button": {
-          "label": "Teklif butonu"
+          "label": "\"Detayları gör\" düğmesi"
         }
       }
     },
@@ -2627,7 +2700,7 @@
           "label": "Hover'da ikinci görsel"
         },
         "show_quote_button": {
-          "label": "Teklif butonu"
+          "label": "\"Detayları gör\" düğmesi"
         }
       }
     },
@@ -2778,7 +2851,7 @@
           "info": "Ürünlerin en az 2 görseli olmalıdır."
         },
         "show_quote_button": {
-          "label": "Kartlarda \"Teklif al\" düğmesini göster"
+          "label": "Kartlarda \"Detayları gör\" düğmesini göster"
         },
         "show_view_all": {
           "label": "\"Tümünü gör\" bağlantısını göster"
@@ -2871,7 +2944,7 @@
           "info": "Ürünlerin en az 2 görseli olmalıdır."
         },
         "show_quote_button": {
-          "label": "Kartlarda \"Teklif al\" düğmesini göster"
+          "label": "Kartlarda \"Detayları gör\" düğmesini göster"
         },
         "color_scheme": {
           "label": "Renk şeması"
@@ -5252,9 +5325,26 @@
               "label": "Görsel",
               "info": "İsteğe bağlı. Boş bırakırsanız simge kullanılır."
             },
+            "icon_image": {
+              "label": "Özel simge",
+              "info": "Kendi simgenizi yükleyin (SVG, PNG veya JPG). Yüklenirse aşağıdaki hazır simgeyi geçersiz kılar. Boş bırakırsanız hazır simge kullanılır."
+            },
             "icon": {
-              "label": "Simge (HTML)",
-              "info": "Ham SVG markup yapıştırın. Görsel yüklenmediğinde kullanılır."
+              "label": "Hazır simge",
+              "info": "Yerleşik bir simge seçin. Yukarıya özel simge yüklendiğinde veya kolon görseli ayarlandığında yok sayılır.",
+              "options__none": { "label": "Yok" },
+              "options__star": { "label": "Yıldız" },
+              "options__sparkle": { "label": "Parıltı" },
+              "options__check": { "label": "Onay" },
+              "options__shield": { "label": "Kalkan" },
+              "options__truck": { "label": "Kamyon" },
+              "options__clock": { "label": "Saat" },
+              "options__award": { "label": "Ödül" },
+              "options__heart": { "label": "Kalp" },
+              "options__leaf": { "label": "Yaprak" },
+              "options__gift": { "label": "Hediye" },
+              "options__ruler": { "label": "Cetvel" },
+              "options__zap": { "label": "Şimşek" }
             },
             "heading": {
               "label": "Başlık"

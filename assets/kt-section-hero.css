@@ -215,9 +215,16 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  /* stone-300 matches the Next.js source; stone-500 (#78716c) fails
-     WCAG AA on the dark hero background (~3.2:1 contrast). */
-  color: var(--kt-stone-300);
+  /* R276 — was hardcoded `color: var(--kt-stone-300)` (#d6d3d1)
+     which ignored the merchant text colour. Now cascades through
+     `--kt-hero-text` with `color-mix` at 85% so the tagline reads
+     as a slightly softer companion to the full-strength heading
+     at any merchant-chosen hue. Fallback chain: full text-color
+     → color-mix on supporting browsers. Browsers without
+     color-mix get full text-color which still respects the
+     setting — they just lose the subtle ~85% dim. */
+  color: var(--kt-hero-text, #d6d3d1);
+  color: color-mix(in srgb, var(--kt-hero-text, #ffffff) 85%, transparent);
   margin-bottom: 1.5rem;
 }
 
@@ -229,7 +236,15 @@
 
 /* Heading */
 .kt-hero__heading {
-  color: var(--kt-white);
+  /* R276 — was hardcoded `color: var(--kt-white)` which ignored
+     the merchant's "Text color" setting. The setting is wired
+     onto the section root as `--kt-hero-text` (see hero.liquid
+     style attribute), and the schema info copy reads "Color of
+     the heading and description on the image." Cascade the
+     custom property so the heading respects the chosen colour.
+     Fallback `#ffffff` preserves the existing white default on
+     stores that haven't customised the setting. */
+  color: var(--kt-hero-text, #ffffff);
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
@@ -295,7 +310,12 @@
   font-style: italic;
   font-weight: 300;
   letter-spacing: -0.025em;
-  color: rgba(255, 255, 255, 0.9);
+  /* R276 — was `rgba(255,255,255,0.9)`. Now uses the merchant
+     text colour; `opacity: 0.9` reproduces the previous slightly-
+     softer-than-the-bold-word read at the same hue without
+     hard-coding white. */
+  color: var(--kt-hero-text, #ffffff);
+  opacity: 0.9;
   line-height: 1.1;
 }
 
@@ -322,10 +342,20 @@
 .kt-hero__desc {
   margin-top: 2rem;
   max-width: 32rem;
-  /* User-specified: white at 54% alpha (#ffffff8a). Subtler than the
-   * previous stone-300 token while keeping enough contrast against
-   * the dark hero overlay. */
-  color: #ffffff8a;
+  /* R276 — was hardcoded `color: #ffffff8a` (white at 54% alpha).
+     The "Text color" merchant setting was supposed to drive the
+     description hue per the schema info, but the hardcoded white
+     prevented any colour change from showing up. Switch to the
+     `--kt-hero-text` cascade with a `color-mix` to reach the same
+     ~54% transparency at whatever hue the merchant picked.
+     Fallback for browsers without color-mix support: plain
+     full-opacity text-color (still respects the setting, just
+     without the subtle dim — acceptable degradation since the
+     hero overlay already provides contrast). color-mix shipped
+     in Chrome/Edge 111, Safari 16.4, Firefox 113 (Mar 2023) so
+     coverage is broad for a 2026 Theme Store submission. */
+  color: var(--kt-hero-text, #ffffff);
+  color: color-mix(in srgb, var(--kt-hero-text, #ffffff) 54%, transparent);
   font-size: 1.125rem;
   font-weight: 300;
   line-height: 1.6;

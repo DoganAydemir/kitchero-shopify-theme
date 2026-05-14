@@ -14,7 +14,7 @@
 -%}
 
 <section
-  class="kt-drag-carousel"
+  class="kt-drag-carousel{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="slider-drag-carousel"
   style="--kt-dc-item-aspect: {{ aspect_ratio }};"
@@ -234,6 +234,17 @@
       "id": "show_arrows",
       "label": "t:sections.slider_drag_carousel.settings.show_arrows.label",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

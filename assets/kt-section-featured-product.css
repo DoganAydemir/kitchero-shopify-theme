@@ -75,10 +75,28 @@
   color: rgb(var(--kt-c-fg));
 }
 
+/* R281 — Was `color: rgba(var(--kt-c-fg), 0.75)`, near-heading
+   weight in colour on light schemes. Drop to 0.55 to match the
+   muted-description treatment used across the rest of the theme
+   (ecosystem / mid-cta / newsletter-signup / main-collection)
+   and restore the title-vs-description hierarchy. */
 .kt-featured-product__description {
   font-size: 1rem;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg), 0.75);
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+/* R281b — Description wrappers carry the `rte` companion class
+   so base.css `.rte p { color: rgb(var(--kt-c-fg)) }` pins the
+   inner `<p>` to full-strength foreground colour, breaking the
+   wrapper-level mute. Push the muted colour onto the inner
+   richtext elements directly so the rendered paragraph picks
+   up the alpha. Specificity (0,0,2,1) > `.rte p` (0,0,1,1)
+   so we win independent of load order. */
+.kt-featured-product__description p,
+.kt-featured-product__description li,
+.kt-featured-product__description blockquote {
+  color: rgba(var(--kt-c-fg), 0.55);
 }
 
 .kt-featured-product__form {

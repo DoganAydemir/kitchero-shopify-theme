@@ -250,12 +250,13 @@
 
 /* Content below image — vertical stack at every viewport.
    Previously switched to `flex-direction: row` at >=750px so the
-   Get Quote pill could sit to the right of the info column, but the
-   pattern collapses inside narrow card contexts (related-products
-   carousel = 4 across at 990px+, where each card is ~280px wide
-   and the row layout squeezed both the title and the pill until
-   neither read cleanly). Vertical column at every width keeps the
-   info legible and gives the CTA breathing room below the price. */
+   "View details" pill (formerly "Get Quote" — see R278) could
+   sit to the right of the info column, but the pattern collapses
+   inside narrow card contexts (related-products carousel = 4
+   across at 990px+, where each card is ~280px wide and the row
+   layout squeezed both the title and the pill until neither read
+   cleanly). Vertical column at every width keeps the info
+   legible and gives the CTA breathing room below the price. */
 .kt-card-product__content {
   display: flex;
   flex-direction: column;
@@ -273,7 +274,16 @@
    title scale is anchored to the smallest realistic context first
    and only nudges up where extra column width genuinely permits. */
 .kt-card-product__title {
-  font-size: 1rem;
+  /* R280 — Whole title scale dropped one step. Previous values
+     read as too dominant on the card (reporter: "title lar da
+     çok büyük"). The card is a metadata surface that sits inside
+     a grid of many cards; oversized titles compete with the
+     image for the eye and crowd the (already-secondary) price.
+     New scale lands at 15-17px in the dense 4-col layout, 17-19px
+     at 2-col, 20-24px at 1-col — each step still presents the
+     title as the primary text anchor while leaving room for the
+     image to drive the card's identity. */
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: var(--kt-stone-900);
@@ -293,13 +303,13 @@
 
 @media screen and (min-width: 750px) {
   .kt-card-product__title {
-    font-size: 1.0625rem;
+    font-size: 1rem;
   }
 }
 
 @media screen and (min-width: 990px) {
   .kt-card-product__title {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
   }
 }
 
@@ -309,19 +319,19 @@
    nudge upward via class hooks set by `assets/kt-section-main-collection.js`
    based on `data-grid-cols`. */
 .kt-collection__grid--cols-1 .kt-card-product__title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 .kt-collection__grid--cols-2 .kt-card-product__title {
-  font-size: 1.25rem;
+  font-size: 1.0625rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-collection__grid--cols-1 .kt-card-product__title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
   .kt-collection__grid--cols-2 .kt-card-product__title {
-    font-size: 1.375rem;
+    font-size: 1.1875rem;
   }
 }
 
@@ -453,9 +463,54 @@
 }
 
 .kt-card-product__price {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--kt-stone-900);
+  /* R279 — Drop the price one step down the visual hierarchy
+     from the title: smaller font, medium weight (not semibold),
+     stone-700 instead of stone-900 so the title reads as the
+     primary anchor and the price as supporting metadata.
+     stone-700 (#44403c) on white scores ~12:1 contrast — well
+     above WCAG AAA.
+
+     R280 — Scale stepped down to track the title's R280
+     downsize so the title-to-price ratio (~1.07-1.13×) stays
+     consistent at every grid density. Floors at 0.8125rem
+     (13px) on the densest 4-col layout: still legible on
+     iPhone SE, and the merchant rarely shows price at this
+     scale (it's the cheapest dense-grid case). */
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--kt-stone-700);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__price {
+    font-size: 0.875rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-card-product__price {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Wider grids permit a slightly larger price to match the
+   wider title — keeps the same hierarchy ratio at every grid
+   density. */
+.kt-collection__grid--cols-1 .kt-card-product__price {
+  font-size: 1rem;
+}
+
+.kt-collection__grid--cols-2 .kt-card-product__price {
+  font-size: 0.9375rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-collection__grid--cols-1 .kt-card-product__price {
+    font-size: 1.125rem;
+  }
+  .kt-collection__grid--cols-2 .kt-card-product__price {
+    font-size: 1rem;
+  }
 }
 
 .kt-card-product__compare-price {

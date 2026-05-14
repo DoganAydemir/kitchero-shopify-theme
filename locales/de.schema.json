@@ -780,7 +780,7 @@
         },
         "text_color": {
           "label": "Textfarbe",
-          "info": "Farbe der Überschrift und Beschreibung auf dem Bild."
+          "info": "Farbe der Zeile darüber, der Überschrift und der Beschreibung auf dem Bild. Die Zeile darüber und die Beschreibung erscheinen etwas weicher als die Überschrift."
         }
       },
       "blocks": {
@@ -828,7 +828,8 @@
               "label": "Zahl"
             },
             "prefix": {
-              "label": "Suffix (z. B. +, %)"
+              "label": "Suffix (z. B. +, %)",
+              "info": "Optional. Erscheint direkt nach der Zahl — leer lassen für eine reine Zahl wie \"500\"."
             },
             "label": {
               "label": "Beschriftung"
@@ -1249,6 +1250,20 @@
         "color_scheme": {
           "label": "Farbschema"
         },
+        "logo_style": {
+          "label": "Logo-Stil",
+          "info": "Schwarz-weiß reduziert alle Logos auf einen neutralen Ton, damit unterschiedliche Markenfarben nicht miteinander konkurrieren. Beim Hover erscheint die volle Farbe.",
+          "options__grayscale": {
+            "label": "Schwarz-Weiß"
+          },
+          "options__color": {
+            "label": "Farbig"
+          }
+        },
+        "logo_opacity": {
+          "label": "Logo-Deckkraft",
+          "info": "Ruhende Deckkraft der Logos. Beim Hover steigt sie immer auf 100 %. Niedrigere Werte wirken zurückhaltender und editorial."
+        },
         "padding_top": {
           "label": "Oberer Abstand"
         },
@@ -1368,11 +1383,27 @@
         "hotspot": {
           "name": "Produkt-Hotspot",
           "settings": {
+            "header__position_desktop": {
+              "content": "Desktop-Position"
+            },
             "horizontal_position": {
               "label": "Horizontale Position"
             },
             "vertical_position": {
               "label": "Vertikale Position"
+            },
+            "header__position_mobile": {
+              "content": "Mobile Position"
+            },
+            "horizontal_position_mobile": {
+              "label": "Horizontale Position (mobil)",
+              "info": "Der Bildausschnitt unterscheidet sich auf dem Handy — passen Sie diesen Wert separat an, damit der Hotspot auf dem richtigen Detail liegt."
+            },
+            "vertical_position_mobile": {
+              "label": "Vertikale Position (mobil)"
+            },
+            "header__product": {
+              "content": "Produkt"
             },
             "product_title": {
               "label": "Produkttitel"
@@ -1551,6 +1582,48 @@
       },
       "presets": {
         "name": "Blog-Beiträge"
+      }
+    },
+    "parallax-cta": {
+      "name": "Parallax-CTA",
+      "settings": {
+        "header__content": {
+          "content": "Inhalt"
+        },
+        "header__cta": {
+          "content": "Button"
+        },
+        "header__padding": {
+          "content": "Abschnittsabstand"
+        },
+        "heading_line1": {
+          "label": "Überschrift — Zeile 1"
+        },
+        "heading_line2": {
+          "label": "Überschrift — Zeile 2"
+        },
+        "heading_tag": {
+          "label": "Überschriftsebene"
+        },
+        "background_image": {
+          "label": "Hintergrundbild",
+          "info": "Wird durch die Textglyphen sichtbar. Auf dem Desktop bleibt das Bild beim Scrollen an seinem Platz (Parallax)."
+        },
+        "button_text": {
+          "label": "Button-Text"
+        },
+        "button_link": {
+          "label": "Button-Link"
+        },
+        "padding_top": {
+          "label": "Oberer Abstand"
+        },
+        "padding_bottom": {
+          "label": "Unterer Abstand"
+        }
+      },
+      "presets": {
+        "name": "Parallax-CTA"
       }
     },
     "testimonials": {
@@ -2518,7 +2591,7 @@
           "info": "Zeigt beim Überfahren das zweite Produktbild. Produkte mit nur einem Bild zoomen stattdessen das Hauptbild."
         },
         "show_quote_button": {
-          "label": "Angebots-Button anzeigen"
+          "label": "\"Details ansehen\"-Button anzeigen"
         }
       },
       "presets": {
@@ -2610,7 +2683,7 @@
           "label": "Zweites Bild beim Hover zeigen"
         },
         "show_quote_button": {
-          "label": "Angebots-Button anzeigen"
+          "label": "\"Details ansehen\"-Button anzeigen"
         }
       }
     },
@@ -2627,7 +2700,7 @@
           "label": "Zweites Bild beim Hover zeigen"
         },
         "show_quote_button": {
-          "label": "Angebots-Button anzeigen"
+          "label": "\"Details ansehen\"-Button anzeigen"
         }
       }
     },
@@ -2778,7 +2851,7 @@
           "info": "Erfordert, dass Produkte mindestens 2 Bilder haben."
         },
         "show_quote_button": {
-          "label": "\"Angebot anfordern\"-Button auf Karten anzeigen"
+          "label": "\"Details ansehen\"-Button auf Karten anzeigen"
         },
         "show_view_all": {
           "label": "\"Alle ansehen\"-Link anzeigen"
@@ -2871,7 +2944,7 @@
           "info": "Erfordert, dass Produkte mindestens 2 Bilder haben."
         },
         "show_quote_button": {
-          "label": "\"Angebot anfordern\"-Button auf Karten anzeigen"
+          "label": "\"Details ansehen\"-Button auf Karten anzeigen"
         },
         "color_scheme": {
           "label": "Farbschema"
@@ -5252,9 +5325,26 @@
               "label": "Bild",
               "info": "Optional. Leer lassen, um stattdessen ein Symbol zu verwenden."
             },
+            "icon_image": {
+              "label": "Eigenes Symbol",
+              "info": "Eigenes Symbol hochladen (SVG, PNG oder JPG). Überschreibt das Voreinstellungssymbol darunter. Leer lassen, um eine Voreinstellung zu verwenden."
+            },
             "icon": {
-              "label": "Symbol (HTML)",
-              "info": "Rohes SVG-Markup einfügen. Wird verwendet, wenn kein Bild hochgeladen ist."
+              "label": "Symbol-Voreinstellung",
+              "info": "Wähle ein integriertes Symbol. Wird ignoriert, wenn oben ein eigenes Symbol hochgeladen oder ein Spaltenbild gesetzt ist.",
+              "options__none": { "label": "Keins" },
+              "options__star": { "label": "Stern" },
+              "options__sparkle": { "label": "Funkeln" },
+              "options__check": { "label": "Häkchen" },
+              "options__shield": { "label": "Schild" },
+              "options__truck": { "label": "Lieferwagen" },
+              "options__clock": { "label": "Uhr" },
+              "options__award": { "label": "Auszeichnung" },
+              "options__heart": { "label": "Herz" },
+              "options__leaf": { "label": "Blatt" },
+              "options__gift": { "label": "Geschenk" },
+              "options__ruler": { "label": "Lineal" },
+              "options__zap": { "label": "Blitz" }
             },
             "heading": {
               "label": "Überschrift"

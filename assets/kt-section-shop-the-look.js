@@ -175,6 +175,50 @@
     init(el.closest('.shopify-section') || el);
   });
 
+  /* R275 — Scroll-position guard for the theme editor.
+
+     When the merchant drags a hotspot's `horizontal_position` or
+     `vertical_position` slider in the right panel and releases,
+     Shopify re-renders the section via the Section Rendering API
+     and then internally calls `scrollIntoView()` (or equivalent)
+     on the currently-selected block to re-anchor the editor's
+     "focus on this block" affordance.
+
+     The hotspot block element is `position: absolute` inside an
+     `aspect-ratio`-sized image wrap. Some Section Rendering re-
+     paints leave the wrap's offset uncomputed at the exact frame
+     Shopify reads `block.getBoundingClientRect()`, and the
+     compounded miscalculation lands the scroll target near the
+     bottom of the page — reporter: "slider çubuğunu çekip
+     bıraktığım an sayfa en alt kısma scroll yapıyor."
+
+     Defensive guard: in design_mode, snapshot the iframe's scroll
+     position right before the load/select handlers run, and if
+     the page has drifted by more than a small threshold by the
+     next-next animation frame (after Shopify's auto-scroll has
+     fired), snap back to the saved Y. The threshold avoids
+     fighting legitimate scrolls (e.g. the merchant clicks a
+     section in the sidebar — we DO want that to scroll the
+     iframe to the section). Live storefront flow is unaffected
+     because the guard is gated behind `Shopify.designMode`. */
+  function guardScroll() {
+    if (!(window.Shopify && Shopify.designMode)) return;
+    var savedY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var drift = Math.abs(currentY - savedY);
+        /* 200px tolerance — a legitimate "scroll to this block"
+           that lands within ~200px of where we were is left
+           alone; anything bigger gets snapped back because it's
+           almost certainly the bottom-of-page miscalculation. */
+        if (drift > 200) {
+          window.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
+        }
+      });
+    });
+  }
+
   document.addEventListener('shopify:section:load', function (e) {
     /* :load fires on settings changes without a paired :unload.
        The keydown handler bound at line 129 is on document (not on
@@ -193,6 +237,14 @@
       }
     }
     init(e.target);
+    /* Snapshot scroll BEFORE the editor's post-load auto-scroll
+       has a chance to fire — restore on next-next frame if drift
+       exceeds the tolerance. Scoped to this section's load events
+       only so other sections re-rendering elsewhere on the page
+       don't pay the cost. */
+    if (e.target && e.target.querySelector && e.target.querySelector('[data-section-type="shop-the-look"]')) {
+      guardScroll();
+    }
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
@@ -206,11 +258,50 @@
     }
   });
 
-  /* Theme-editor: open/close the popup that matches the merchant's
-     selected hotspot block. The block element wraps a [data-hotspot-id]
-     descendant we rendered in shop-the-look.liquid; we use that id to
-     drive the same openHotspot path the click handler uses, so state
-     stays consistent. */
+  /* Theme-editor: highlight the dot that matches the merchant's
+     selected hotspot block.
+
+     R275 — Previously this handler called `_ktShopTheLook.open()`,
+     which added the `--visible` class to BOTH the desktop popup
+     and (on mobile preview) the mobile bottom-sheet, AND removed
+     `inert` from those panels so their contents became focusable.
+     Reporter saw: "soldan hotspot item'a tıklayınca / sağdaki ayarı
+     değiştirdiğimde sayfa direk aşağı scroll ediyor dibe kadar."
+
+     Root cause: opening the mobile sheet (`position: fixed; inset:
+     auto 0 0 0; transform: translateY(100%)`) made its descendants
+     newly focusable while the sheet was still translated below the
+     viewport during its 0.4s slide-in transition. Shopify's editor
+     auto-focus / scroll-into-view for the freshly-tab-able region
+     then yanked the iframe scroll all the way down to chase the
+     not-yet-painted-in-place focusable target. Same shape on the
+     desktop popup when `--below` placement pushed its bounding box
+     past the image's bottom edge.
+
+     Fix: in design_mode we ONLY toggle the dot's `--active` class
+     (scale + plus→× rotation = clear visual feedback for which
+     hotspot the merchant just selected) without revealing the
+     popup or sheet. Merchants can still tap the actual dot in the
+     preview to see the live popup state — that flow goes through
+     the regular click handler which keeps scroll behavior sane
+     because nothing changes about Shopify's scroll-to-block
+     calculus when there's no popup expansion in the same frame. */
+  function highlightDotOnly(section, id) {
+    if (!section) return;
+    section.querySelectorAll('.kt-shop-the-look__hotspot--active').forEach(function (btn) {
+      btn.classList.remove('kt-shop-the-look__hotspot--active');
+    });
+    var dot = section.querySelector('[data-hotspot-toggle="' + id + '"]');
+    if (dot) dot.classList.add('kt-shop-the-look__hotspot--active');
+  }
+
+  function clearDotHighlights(section) {
+    if (!section) return;
+    section.querySelectorAll('.kt-shop-the-look__hotspot--active').forEach(function (btn) {
+      btn.classList.remove('kt-shop-the-look__hotspot--active');
+    });
+  }
+
   document.addEventListener('shopify:block:select', function (e) {
     var block = e.target;
     if (!block || !block.closest) return;
@@ -220,7 +311,12 @@
       ? block
       : block.querySelector('[data-hotspot-id]');
     if (!hotspotEl) return;
-    section._ktShopTheLook.open(hotspotEl.dataset.hotspotId);
+    highlightDotOnly(section, hotspotEl.dataset.hotspotId);
+    /* Same scroll guard as section:load — Shopify can fire
+       scrollIntoView on the block element here too, particularly
+       on the post-rerender re-select after the merchant releases
+       a position slider. */
+    guardScroll();
   });
 
   document.addEventListener('shopify:block:deselect', function (e) {
@@ -228,6 +324,6 @@
     if (!block || !block.closest) return;
     var section = block.closest('[data-section-type="shop-the-look"]');
     if (!section || !section._ktShopTheLook) return;
-    section._ktShopTheLook.closeAll();
+    clearDotHighlights(section);
   });
 })();

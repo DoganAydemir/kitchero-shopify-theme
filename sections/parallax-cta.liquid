@@ -1,0 +1,183 @@
+{{ 'kt-section-parallax-cta.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Parallax CTA — Large editorial headline with image showing
+  THROUGH the text glyphs (CSS `background-clip: text`), and an
+  optional pill button below.
+
+  Effect: the merchant uploads an image; the section paints it as
+  the heading's background, then uses `-webkit-background-clip:
+  text` + `color: transparent` to make the text act as a window
+  onto the image. On large desktops (`pointer: fine` + viewport
+  ≥ 1280px) the background switches to `background-attachment:
+  fixed`, so as the customer scrolls past the section the image
+  stays anchored to the viewport while the text glides over it
+  — a true parallax window. Mobile falls back to `scroll`
+  because iOS Safari and most touch browsers don't honour
+  `fixed` reliably.
+
+  Used to live inside `sections/testimonials.liquid` as a built-
+  in CTA block tied to the testimonials surface (gated by
+  `show_cta_block`). Split out per merchant request so the CTA
+  can be dropped on any page, not just under a testimonials
+  band. The visual treatment is identical to the original.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading_line1_default = 'kt.section.parallax_cta.heading_line1_default' | t
+  assign heading_line2_default = 'kt.section.parallax_cta.heading_line2_default' | t
+  assign button_text_default = 'kt.section.parallax_cta.button_text_default' | t
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
+-%}
+
+<section
+  class="kt-parallax-cta color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="parallax-cta"
+  style="--kt-section-padding-top: {{ section.settings.padding_top | default: 128 }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom | default: 128 }}px;"
+>
+  <div class="page-width kt-parallax-cta__inner">
+    {%- comment -%}
+      Title uses `background-clip: text` so the headline becomes a
+      window onto whatever background-image is set. When the
+      merchant picks an image we emit the inline style (the image
+      URL is dynamic, so it must be inline); otherwise the
+      default fallback gradient from the CSS file takes over —
+      no inline style needed.
+    {%- endcomment -%}
+    <{{ heading_tag }} class="kt-parallax-cta__title"
+      {%- if section.settings.background_image != blank -%}
+        style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}');"
+      {%- endif -%}
+    >
+      {{ section.settings.heading_line1 | default: heading_line1_default }}<br>{{ section.settings.heading_line2 | default: heading_line2_default }}
+    </{{ heading_tag }}>
+
+    {%- if section.settings.button_text != blank -%}
+      <div class="kt-parallax-cta__action">
+        <a
+          href="{{ section.settings.button_link | default: '#' | escape }}"
+          class="kt-parallax-cta__btn"
+        >
+          <span>{{ section.settings.button_text | default: button_text_default }}</span>
+          <span class="kt-parallax-cta__btn-arrow" aria-hidden="true">
+            <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.parallax-cta.name",
+  "tag": "div",
+  "class": "section",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ],
+    "templates": [
+      "password"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.parallax-cta.settings.header__content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading_line1",
+      "label": "t:sections.parallax-cta.settings.heading_line1.label",
+      "default": "Ready to"
+    },
+    {
+      "type": "text",
+      "id": "heading_line2",
+      "label": "t:sections.parallax-cta.settings.heading_line2.label",
+      "default": "begin?"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.parallax-cta.settings.heading_tag.label",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:sections.parallax-cta.settings.background_image.label",
+      "info": "t:sections.parallax-cta.settings.background_image.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.parallax-cta.settings.header__cta.content"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "t:sections.parallax-cta.settings.button_text.label",
+      "default": "Get in touch"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.parallax-cta.settings.button_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.parallax-cta.settings.header__padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "t:sections.parallax-cta.settings.padding_top.label",
+      "default": 128
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "t:sections.parallax-cta.settings.padding_bottom.label",
+      "default": 128
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.parallax-cta.presets.name",
+      "category": "t:sections.categories.image.label",
+      "settings": {
+        "heading_line1": "Ready to",
+        "heading_line2": "begin?",
+        "button_text": "Get in touch"
+      }
+    }
+  ]
+}
+{% endschema %}

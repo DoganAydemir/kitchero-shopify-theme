@@ -110,6 +110,16 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  /* R270 — On desktop the grid cell stretches to match the
+     image's tall aspect (≈ 4/3 or 16/9 of the kitchen visual on
+     the right column). Without `justify-content: center` the
+     3 feature items pile at the TOP of the cell, leaving a big
+     empty band underneath that visually anchored the eye to the
+     wrong place. Center the items vertically so the click-list
+     reads centered against the image. Mobile (`grid-template-
+     columns: 1fr`) is a single column and the rule is a no-op
+     there — items flow naturally from the top under the heading. */
+  justify-content: center;
 }
 
 .kt-collapsible-visual__item {

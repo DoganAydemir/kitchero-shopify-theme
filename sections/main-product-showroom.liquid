@@ -577,6 +577,18 @@
 {%- endcomment -%}
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 
+{%- comment -%}
+  R285 — Recently-viewed tracker. See the matching comment in
+  sections/main-product.liquid for the full rationale: the
+  script previously loaded only on pages carrying the rail
+  itself, so PDP visits never populated localStorage and the
+  rail rendered empty. The script self-guards against double
+  load via `window.__kitcheroRecentlyViewedLoaded`, so it can
+  safely co-exist with the rail's own script tag on pages
+  that have both. defer keeps it out of the critical path.
+{%- endcomment -%}
+<script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
+
 {% schema %}
 {
   "name": "t:sections.main-product-showroom.name",

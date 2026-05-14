@@ -6,7 +6,17 @@
   - product: {Object} Shopify product
   - show_vendor: {Boolean} Show vendor name on hover (default: true)
   - show_secondary_image: {Boolean} Show hover image swap (default: true)
-  - show_quote_button: {Boolean} Show "Get Quote" button (default: true)
+  - show_quote_button: {Boolean} Show the prominent "View details" pill
+                       button at the bottom of each card (default: true).
+                       Key is kept as `quote_button` for settings_data.json
+                       backward compatibility — existing stores that
+                       saved this setting under that name keep working.
+                       When ON, the small underlined "View details" text
+                       link is hidden because the pill already targets
+                       the same product URL (avoids double-CTA redundancy
+                       reporter flagged on featured-collection cards).
+                       When OFF, only the small underlined text link
+                       renders.
   - index: {Number} Zero-based index of card in grid; first 3 get eager loading for LCP (default: 99)
 {%- endcomment -%}
 
@@ -341,15 +351,44 @@
         </div>
       {%- endif -%}
 
-      <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__view-link">
-        {{ 'kt.product.view_details' | t | default: 'View Details' }}
-      </a>
+      {%- comment -%}
+        R278 — Small underlined "View details" text link.
+
+        The card surfaces TWO entrypoints into the product page:
+        this small underline AND the prominent pill button below
+        (rendered when `show_quote_button` is true). They both
+        target the exact same `product.url`, so showing both is
+        pure redundancy — the merchant ends up with two "View
+        details" CTAs stacked vertically on every card.
+
+        Render only when `show_quote_button` is false. In that
+        configuration the pill is suppressed and this text link
+        becomes the sole call-to-action. When the pill IS shown,
+        the pill carries the "View details" label and this small
+        link is omitted so the card composition stays balanced.
+      {%- endcomment -%}
+      {%- unless show_quote_button -%}
+        <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__view-link">
+          {{ 'kt.product.view_details' | t | default: 'View Details' }}
+        </a>
+      {%- endunless -%}
     </div>
 
     {%- if show_quote_button -%}
+      {%- comment -%}
+        R278 — Pill CTA. Was previously labelled "Get Quote" via a
+        dedicated `kt.product.get_quote` locale key, but every link
+        on the card pointed at the same product URL — there's no
+        quote-flow on the page beyond viewing the PDP, so the copy
+        was misleading. Repurposed to "View details" (using the
+        same locale key as the small underline above) so the card
+        has ONE clear CTA whose label matches what actually happens
+        on click. The `kt.product.get_quote` key is now orphaned
+        and has been removed from the locale data files.
+      {%- endcomment -%}
       <div>
         <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__quote-btn">
-          {{ 'kt.product.get_quote' | t | default: 'Get Quote' }}
+          {{ 'kt.product.view_details' | t | default: 'View Details' }}
         </a>
       </div>
     {%- endif -%}

@@ -15,7 +15,7 @@
 {%- assign ready_to_begin_heading_line2_default = 'kt.section.ready_to_begin.heading_line2_default' | t -%}
 
 <section
-  class="kt-ready-to-begin"
+  class="kt-ready-to-begin{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="ready-to-begin"
 >
@@ -106,6 +106,17 @@
       "type": "url",
       "id": "cta_link",
       "label": "t:sections.ready-to-begin.settings.cta_link.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "presets": [

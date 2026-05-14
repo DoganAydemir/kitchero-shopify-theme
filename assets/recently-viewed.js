@@ -191,6 +191,32 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
       return card;
     }
 
+    function isDesignMode() {
+      return !!(window.Shopify && window.Shopify.designMode);
+    }
+
+    /* R282 — Editor empty-state. On the live storefront an empty
+       Recently-Viewed rail stays hidden (no skeleton flash, no
+       wasted vertical space when the customer has just landed
+       cold). In the theme editor that silent-hide is hostile UX
+       for the merchant: they add the section, see NOTHING, and
+       can't tell whether (a) the section is broken, (b) their
+       browsing history is empty, or (c) they need to do something
+       to populate it. Render a visible hint card in design_mode
+       so the merchant gets clear guidance and the section
+       presents as "configured, just waiting for data" rather
+       than "gone missing". */
+    function renderEditorHint(section, grid, message) {
+      grid.innerHTML = '';
+      grid.setAttribute('aria-busy', 'false');
+      var hint = document.createElement('div');
+      hint.className = 'kt-recently-viewed__editor-hint';
+      hint.setAttribute('role', 'note');
+      hint.textContent = message;
+      grid.appendChild(hint);
+      section.removeAttribute('hidden');
+    }
+
     function renderSection(section) {
       var grid = section.querySelector('[data-recently-viewed-grid]');
       if (!grid) return;
@@ -211,7 +237,17 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
       }
 
       if (history.length === 0) {
-        /* Empty history — keep section hidden. */
+        /* R282 — Empty history. Live storefront: stay hidden.
+           Editor: show a hint so the merchant understands the
+           section is wired up and just needs PDP visits to
+           populate. */
+        if (isDesignMode()) {
+          renderEditorHint(
+            section,
+            grid,
+            'Recently viewed products will appear here once customers browse a few product pages. Open one or two products in this preview to populate the rail.'
+          );
+        }
         return;
       }
 
@@ -229,7 +265,19 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
         }).slice(0, maxProducts);
 
         if (valid.length === 0) {
-          /* All fetches failed or returned current product — hide. */
+          /* R282 — All fetches failed OR every history entry was
+             the current product. Live storefront: stay hidden.
+             Editor: surface the diagnostic so the merchant
+             notices and can investigate (likely cause: product
+             handles in localStorage point at deleted or
+             draft-status products). */
+          if (isDesignMode()) {
+            renderEditorHint(
+              section,
+              grid,
+              'Recently viewed list has entries but none of those products could be loaded — they may have been deleted or set to draft. Visit a fresh product to refresh the rail.'
+            );
+          }
           return;
         }
 

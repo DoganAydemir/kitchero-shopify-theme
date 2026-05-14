@@ -1,0 +1,134 @@
+/* ==========================================================================
+   Parallax CTA — Large editorial headline with image showing THROUGH the
+   text glyphs (CSS `background-clip: text`), and an optional pill button.
+
+   Migrated from `kt-section-testimonials.css` where this was a built-in
+   sub-component (`.kt-testimonials-cta__*`). Same visual treatment, now
+   namespaced under `.kt-parallax-cta__*` so the styling lives with the
+   standalone section file.
+
+   Custom properties:
+     --kt-section-padding-top / -bottom
+   ========================================================================== */
+
+.kt-parallax-cta {
+  position: relative;
+  padding-top: var(--kt-section-padding-top, 128px);
+  padding-bottom: var(--kt-section-padding-bottom, 128px);
+  background-color: var(--kt-white);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner page-width wrapper needs to sit above any absolutely-positioned
+   background layers (if any are added later) and establish a stacking
+   context so the CTA button's box-shadow doesn't get clipped by the
+   parent's `overflow: hidden`. */
+.kt-parallax-cta__inner {
+  position: relative;
+  z-index: 10;
+}
+
+/* Title — display-size headline whose glyphs are a window onto the
+   `background-image` set inline by the section liquid (when the
+   merchant picks one) or onto a soft stone gradient fallback.
+
+   `background-attachment: fixed` is the "image stays fixed while text
+   scrolls past" parallax effect — but it's broken on iOS Safari and
+   most mobile browsers (the background simply doesn't render). So we
+   use `scroll` by default (which works everywhere) and only upgrade
+   to `fixed` on a fine-pointer device with a viewport ≥1280px where
+   the parallax effect is actually meaningful. */
+.kt-parallax-cta__title {
+  font-size: 13vw;
+  line-height: 0.85;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* Fallback gradient — used when the merchant has not picked a
+     background image. When an image IS picked, the liquid emits an
+     inline `background-image` that overrides this value. */
+  background-image: linear-gradient(
+    135deg,
+    var(--kt-stone-800) 0%,
+    var(--kt-stone-400) 40%,
+    var(--kt-stone-300) 60%,
+    var(--kt-stone-500) 100%
+  );
+  background-size: 180% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  user-select: none;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-parallax-cta__title {
+    background-size: 140% auto;
+  }
+}
+
+@media (pointer: fine) and (min-width: 1280px) {
+  .kt-parallax-cta__title {
+    background-size: cover;
+    background-attachment: fixed;
+  }
+}
+
+.kt-parallax-cta__action {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* CTA button — pill with circled arrow that rotates 45° on hover. */
+.kt-parallax-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background-color: var(--kt-black);
+  color: var(--kt-white);
+  border-radius: 9999px;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  letter-spacing: -0.025em;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-parallax-cta__btn {
+    gap: 1.5rem;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
+  }
+}
+
+.kt-parallax-cta__btn:hover {
+  background-color: var(--kt-stone-800);
+}
+
+.kt-parallax-cta__btn-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--kt-white);
+  color: var(--kt-black);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.kt-parallax-cta__btn:hover .kt-parallax-cta__btn-arrow {
+  transform: rotate(45deg);
+}

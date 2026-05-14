@@ -1,7 +1,7 @@
 {{ 'kt-section-mid-cta.css' | asset_url | stylesheet_tag }}
 
 <section
-  class="kt-mid-cta color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="kt-mid-cta color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="mid-cta"
   style="--kt-mid-cta-pad-top: {{ section.settings.padding_top | default: 60 }}px; --kt-mid-cta-pad-bottom: {{ section.settings.padding_bottom | default: 60 }}px;"
@@ -157,6 +157,17 @@
       "default": 60,
       "unit": "px",
       "label": "t:sections.mid-cta.settings.padding_bottom.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "disabled_on": {

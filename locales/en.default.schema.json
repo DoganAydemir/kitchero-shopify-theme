@@ -780,7 +780,7 @@
         },
         "text_color": {
           "label": "Text color",
-          "info": "Color of the heading and description on the image."
+          "info": "Color of the tagline, heading, and description on the image. The tagline and description render slightly softer than the heading."
         }
       },
       "blocks": {
@@ -828,7 +828,8 @@
               "label": "Number"
             },
             "prefix": {
-              "label": "Suffix (e.g. +, %)"
+              "label": "Suffix (e.g. +, %)",
+              "info": "Optional. Renders right after the number — leave blank for a plain figure like \"500\"."
             },
             "label": {
               "label": "Label"
@@ -1249,6 +1250,20 @@
         "color_scheme": {
           "label": "Color scheme"
         },
+        "logo_style": {
+          "label": "Logo style",
+          "info": "Grayscale tones every logo down to neutral black-and-white so mismatched brand palettes don't fight each other on the strip. Hover restores full color.",
+          "options__grayscale": {
+            "label": "Black and white"
+          },
+          "options__color": {
+            "label": "Color"
+          }
+        },
+        "logo_opacity": {
+          "label": "Logo opacity",
+          "info": "Resting opacity of each logo. Hover always lifts to 100%. Lower values give a more subtle, editorial feel."
+        },
         "padding_top": {
           "label": "Top padding"
         },
@@ -1368,11 +1383,27 @@
         "hotspot": {
           "name": "Product hotspot",
           "settings": {
+            "header__position_desktop": {
+              "content": "Desktop position"
+            },
             "horizontal_position": {
               "label": "Horizontal position"
             },
             "vertical_position": {
               "label": "Vertical position"
+            },
+            "header__position_mobile": {
+              "content": "Mobile position"
+            },
+            "horizontal_position_mobile": {
+              "label": "Horizontal position (mobile)",
+              "info": "Image crop differs on mobile — tune this independently so the hotspot lands on the right detail."
+            },
+            "vertical_position_mobile": {
+              "label": "Vertical position (mobile)"
+            },
+            "header__product": {
+              "content": "Product"
             },
             "product_title": {
               "label": "Product title"
@@ -1551,6 +1582,48 @@
       },
       "presets": {
         "name": "Blog posts"
+      }
+    },
+    "parallax-cta": {
+      "name": "Parallax CTA",
+      "settings": {
+        "header__content": {
+          "content": "Content"
+        },
+        "header__cta": {
+          "content": "Button"
+        },
+        "header__padding": {
+          "content": "Section padding"
+        },
+        "heading_line1": {
+          "label": "Heading — line 1"
+        },
+        "heading_line2": {
+          "label": "Heading — line 2"
+        },
+        "heading_tag": {
+          "label": "Heading level"
+        },
+        "background_image": {
+          "label": "Background image",
+          "info": "Renders through the text glyphs. On desktop the image is fixed in place while the page scrolls (parallax)."
+        },
+        "button_text": {
+          "label": "Button label"
+        },
+        "button_link": {
+          "label": "Button link"
+        },
+        "padding_top": {
+          "label": "Top padding"
+        },
+        "padding_bottom": {
+          "label": "Bottom padding"
+        }
+      },
+      "presets": {
+        "name": "Parallax CTA"
       }
     },
     "testimonials": {
@@ -2518,7 +2591,7 @@
           "info": "Shows the second product image on hover. Products with one image zoom the main image instead."
         },
         "show_quote_button": {
-          "label": "Show quote button"
+          "label": "Show \"View details\" button"
         }
       },
       "presets": {
@@ -2610,7 +2683,7 @@
           "label": "Show second image on hover"
         },
         "show_quote_button": {
-          "label": "Show quote button"
+          "label": "Show \"View details\" button"
         }
       }
     },
@@ -2627,7 +2700,7 @@
           "label": "Show second image on hover"
         },
         "show_quote_button": {
-          "label": "Show quote button"
+          "label": "Show \"View details\" button"
         }
       }
     },
@@ -2778,7 +2851,7 @@
           "info": "Requires products to have at least 2 images."
         },
         "show_quote_button": {
-          "label": "Show \"Get quote\" button on cards"
+          "label": "Show \"View details\" button on cards"
         },
         "show_view_all": {
           "label": "Show \"View all\" link"
@@ -2871,7 +2944,7 @@
           "info": "Requires products to have at least 2 images."
         },
         "show_quote_button": {
-          "label": "Show \"Get quote\" button on cards"
+          "label": "Show \"View details\" button on cards"
         },
         "color_scheme": {
           "label": "Color scheme"
@@ -5252,9 +5325,26 @@
               "label": "Image",
               "info": "Optional. Leave blank to use an icon instead."
             },
+            "icon_image": {
+              "label": "Custom icon",
+              "info": "Upload your own icon (SVG, PNG, or JPG). Overrides the preset icon below when set. Leave blank to use a preset."
+            },
             "icon": {
-              "label": "Icon (HTML)",
-              "info": "Paste raw SVG markup. Used when no image is uploaded."
+              "label": "Icon preset",
+              "info": "Pick a built-in icon. Ignored when a custom icon is uploaded above or when a column image is set.",
+              "options__none": { "label": "None" },
+              "options__star": { "label": "Star" },
+              "options__sparkle": { "label": "Sparkle" },
+              "options__check": { "label": "Check" },
+              "options__shield": { "label": "Shield" },
+              "options__truck": { "label": "Truck" },
+              "options__clock": { "label": "Clock" },
+              "options__award": { "label": "Award" },
+              "options__heart": { "label": "Heart" },
+              "options__leaf": { "label": "Leaf" },
+              "options__gift": { "label": "Gift" },
+              "options__ruler": { "label": "Ruler" },
+              "options__zap": { "label": "Lightning" }
             },
             "heading": {
               "label": "Heading"

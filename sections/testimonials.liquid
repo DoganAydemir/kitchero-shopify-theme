@@ -2,12 +2,25 @@
 
 {%- assign testimonials_heading_line1_default = 'kt.section.testimonials.heading_line1_default' | t -%}
 {%- assign testimonials_heading_line2_default = 'kt.section.testimonials.heading_line2_default' | t -%}
-{%- assign testimonials_cta_heading_line1_default = 'kt.section.testimonials.cta_heading_line1_default' | t -%}
-{%- assign testimonials_cta_heading_line2_default = 'kt.section.testimonials.cta_heading_line2_default' | t -%}
+{%- comment -%}
+  R289 — The "Ready to begin?" / Parallax-text CTA that used to
+  live here as an opt-in sub-section (gated on `show_cta_block`)
+  has been split into its own standalone section,
+  `sections/parallax-cta.liquid`. Merchants who want the
+  testimonials surface and the CTA together now add both
+  sections via the Theme Editor — the CTA is no longer locked
+  to the testimonials surface and can be dropped on any page.
+  The `cta_*` setting keys remain in saved settings_data.json
+  for backward compatibility but are no longer read by this
+  section. The `show_cta_block` setting is also retained for
+  the same reason (Shopify keeps merchant-saved values even
+  when the schema drops the entry, so removing it from the
+  schema is harmless).
+{%- endcomment -%}
 
 {%- comment -%} Testimonials section {%- endcomment -%}
 <section
-  class="kt-testimonials {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-testimonials"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials"
 >
@@ -160,39 +173,6 @@
   </div>
 </section>
 
-{%- comment -%} CTA Block — "READY TO BEGIN?" with text masking {%- endcomment -%}
-{%- if section.settings.show_cta_block -%}
-  <section class="kt-testimonials-cta">
-    <div class="page-width kt-testimonials-cta__inner">
-      {%- comment -%}
-        Title uses `background-clip: text` so the CTA headline becomes a
-        window onto whatever background-image is set. When the merchant
-        picks an image we emit the inline style (the image URL is
-        dynamic, so it must be inline); otherwise the default fallback
-        gradient from the CSS file takes over — no inline style needed.
-      {%- endcomment -%}
-      <{{ heading_tag }} class="kt-testimonials-cta__title"
-        {%- if section.settings.cta_background_image != blank -%}
-          style="background-image: url('{{ section.settings.cta_background_image | image_url: width: 1600 }}');"
-        {%- endif -%}
-      >
-        {{ section.settings.cta_heading_line1 | default: testimonials_cta_heading_line1_default }}<br>{{ section.settings.cta_heading_line2 | default: testimonials_cta_heading_line2_default }}
-      </{{ heading_tag }}>
-
-      {%- if section.settings.cta_button_text != blank -%}
-        <div class="kt-testimonials-cta__action">
-          <a href="{{ section.settings.cta_button_link | default: routes.root_url | escape }}" class="kt-testimonials-cta__btn">
-            <span>{{ section.settings.cta_button_text }}</span>
-            <span class="kt-testimonials-cta__btn-arrow" aria-hidden="true">
-              <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </span>
-          </a>
-        </div>
-      {%- endif -%}
-    </div>
-  </section>
-{%- endif -%}
-
 <script src="{{ 'kt-section-testimonials.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
@@ -265,69 +245,6 @@
       "type": "image_picker",
       "id": "background_image",
       "label": "t:sections.testimonials.settings.background_image.label"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.testimonials.settings.header__cta.content"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_cta_block",
-      "label": "t:sections.testimonials.settings.show_cta_block.label",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "cta_heading_line1",
-      "label": "t:sections.testimonials.settings.cta_heading_line1.label",
-      "visible_if": "{{ section.settings.show_cta_block }}",
-      "default": "Ready to"
-    },
-    {
-      "type": "text",
-      "id": "cta_heading_line2",
-      "label": "t:sections.testimonials.settings.cta_heading_line2.label",
-      "visible_if": "{{ section.settings.show_cta_block }}",
-      "default": "begin?"
-    },
-    {
-      "type": "image_picker",
-      "id": "cta_background_image",
-      "label": "t:sections.testimonials.settings.cta_background_image.label",
-      "visible_if": "{{ section.settings.show_cta_block }}"
-    },
-    {
-      "type": "text",
-      "id": "cta_button_text",
-      "label": "t:sections.testimonials.settings.cta_button_text.label",
-      "visible_if": "{{ section.settings.show_cta_block }}",
-      "default": "Get in touch"
-    },
-    {
-      "type": "url",
-      "id": "cta_button_link",
-      "label": "t:sections.testimonials.settings.cta_button_link.label",
-      "visible_if": "{{ section.settings.show_cta_block }}"
-    },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        }
-      ],
-      "default": "auto"
     }
   ],
   "blocks": [
@@ -384,11 +301,7 @@
         "label": "Customer voices",
         "heading_line1": "What our customers",
         "heading_line2": "are saying",
-        "description": "We believe great spaces are the heart of the home. Here is how customers experience the convergence of form and function.",
-        "show_cta_block": true,
-        "cta_heading_line1": "Ready to",
-        "cta_heading_line2": "begin?",
-        "cta_button_text": "Button label"
+        "description": "We believe great spaces are the heart of the home. Here is how customers experience the convergence of form and function."
       },
       "blocks": [
         {

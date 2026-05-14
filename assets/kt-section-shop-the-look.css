@@ -106,10 +106,29 @@
   height: 100%;
 }
 
-/* Hotspot: absolute z-30 */
+/* Hotspot: absolute z-30
+   R273 — Coordinates come from the inline custom properties
+   set by the Liquid block markup:
+     --kt-hotspot-x / --kt-hotspot-y         → desktop placement
+     --kt-hotspot-x-mobile / --kt-hotspot-y-mobile → mobile placement
+   The image container's crop differs between mobile (full-bleed
+   square-ish portrait) and desktop (wider editorial 16/9), so a
+   single percentage was landing the dot in two different spots
+   relative to the underlying art on the two breakpoints. Now
+   the merchant tunes the dot per breakpoint and CSS swaps which
+   pair drives `top` / `left` based on viewport width. */
 .kt-shop-the-look__hotspot-wrap {
   position: absolute;
+  top: var(--kt-hotspot-y-mobile, var(--kt-hotspot-y, 25%));
+  left: var(--kt-hotspot-x-mobile, var(--kt-hotspot-x, 35%));
   z-index: 30;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-shop-the-look__hotspot-wrap {
+    top: var(--kt-hotspot-y, 25%);
+    left: var(--kt-hotspot-x, 35%);
+  }
 }
 
 /* R104 — Hotspot dot: WCAG 2.5.5 target-size 44×44 min. The
@@ -354,10 +373,10 @@
   box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.15);
   /* Bottom-fixed sheet on iPhone X+ — without `safe-area-inset-bottom`
      the home-indicator bar overlapped the bottom of the product card
-     and "Get quote" CTA. `max()` keeps the visual rhythm on devices
-     without notch (the inset is 0) while honoring the inset on those
-     that have one. Mirrors the pattern in kt-cart-drawer.css /
-     kt-collection-filters.css / kt-appointment-drawer.css. */
+     and "View product" CTA. `max()` keeps the visual rhythm on
+     devices without notch (the inset is 0) while honoring the inset
+     on those that have one. Mirrors the pattern in kt-cart-drawer.css
+     / kt-collection-filters.css / kt-appointment-drawer.css. */
   padding: 1.5rem;
   padding-bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)));
   position: relative;
@@ -376,12 +395,35 @@
   align-items: center;
   justify-content: center;
   color: var(--kt-stone-500);
+  /* R275 — the close button is `position: absolute` at the top-
+     right of the sheet inner. The mobile-sheet-content's right
+     column (name / price / link) sits behind it because the
+     content row has no right padding. On products with a name
+     longer than ~12 chars the text crashed into the X glyph
+     (reporter: "font icon altında kalmış"). Lift the close
+     button to its own z-stack tier so the text reads through
+     UNDER it instead of being half-painted into the chip, and
+     add a right padding on the content row to clear the chip's
+     hit area (40px chip + 16px offset = 56px ≈ 3.5rem). */
+  z-index: 2;
 }
 
 .kt-shop-the-look__mobile-sheet-content {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
+  /* Clearance for the absolute-positioned close button at top-
+     right (2.5rem chip + 1rem offset = 3.5rem). Without this the
+     product name / price wrap right up to / under the X. */
+  padding-right: 3.5rem;
+}
+
+/* Inner text column — flex auto-shrinks but the name text is
+   white-space:normal, so without `min-width: 0` it would
+   refuse to shrink below its longest word and overflow. */
+.kt-shop-the-look__mobile-sheet-content > div {
+  min-width: 0;
+  flex: 1;
 }
 
 .kt-shop-the-look__mobile-sheet-img {

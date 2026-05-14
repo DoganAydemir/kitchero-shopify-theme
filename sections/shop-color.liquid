@@ -4,7 +4,7 @@
 {%- assign shop_color_heading_default = 'kt.section.shop_color.heading_default' | t -%}
 {%- assign shop_color_description_default = 'kt.section.shop_color.description_default' | t -%}
 
-<section class="kt-shop-color" data-section-id="{{ section.id }}" data-section-type="shop-color">
+<section class="kt-shop-color{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="shop-color">
   <div class="page-width">
     <div class="kt-shop-color__intro">
       <p class="kt-shop-color__label">{{ section.settings.label | default: shop_color_label_default }}</p>
@@ -258,6 +258,17 @@
       "type": "url",
       "id": "cta_link",
       "label": "t:sections.shop-color.settings.cta_link.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

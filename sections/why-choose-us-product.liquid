@@ -6,7 +6,7 @@
   Each block: icon + title + description.
 {%- endcomment -%}
 
-<section class="kt-why-choose-us-product" data-section-id="{{ section.id }}" data-section-type="why-choose-us-product">
+<section class="kt-why-choose-us-product{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="why-choose-us-product">
   <div class="page-width">
     <div class="kt-why-choose-us-product__header">
       {%- if section.settings.eyebrow != blank -%}
@@ -88,6 +88,17 @@
         }
       ],
       "default": "h3"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" }
+      ],
+      "default": "auto"
     }
   ],
   "blocks": [

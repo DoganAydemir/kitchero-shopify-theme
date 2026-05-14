@@ -57,34 +57,40 @@
 
             {%- when 'buttons' -%}
               {%- comment -%}
-                R162 EMPTY-HREF-1: gate each button on URL presence.
-                Empty `href="#"` scrolls to page top — Theme Store
-                broken-link reject vector.
+                R286 — CTA rendering policy (matches multicolumn
+                R284 for cross-section consistency).
+
+                Previous (R162) gated each button on URL
+                presence and replaced the missing-URL state
+                with an editor-only hint paragraph. Reporter
+                wanted the styled button to render in all
+                cases so the section layout stays consistent
+                between editor and storefront, accepting the
+                `href="#"` fallback ("link ler bence olmalı
+                user girmese bile"). On the live storefront an
+                empty-URL button now scrolls to top on click;
+                merchants are expected to fill the URL before
+                publishing. Theme Store reviewers may flag the
+                placeholder href, but the trade-off matches
+                the user's explicit preference and keeps the
+                section's CTA UX identical to multicolumn.
               {%- endcomment -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
-                {%- if block.settings.button_label_1 != blank and block.settings.button_link_1 != blank -%}
+                {%- if block.settings.button_label_1 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_1 | escape }}"
+                    href="{{ block.settings.button_link_1 | default: '#' | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"
                   >
                     {{- block.settings.button_label_1 | escape -}}
                   </a>
-                {%- elsif block.settings.button_label_1 != blank and request.design_mode -%}
-                  <p class="kt-rich-text__button-empty">
-                    {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
-                  </p>
                 {%- endif -%}
-                {%- if block.settings.button_label_2 != blank and block.settings.button_link_2 != blank -%}
+                {%- if block.settings.button_label_2 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_2 | escape }}"
+                    href="{{ block.settings.button_link_2 | default: '#' | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_2 | default: 'secondary' }}"
                   >
                     {{- block.settings.button_label_2 | escape -}}
                   </a>
-                {%- elsif block.settings.button_label_2 != blank and request.design_mode -%}
-                  <p class="kt-rich-text__button-empty">
-                    {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
-                  </p>
                 {%- endif -%}
               </div>
 

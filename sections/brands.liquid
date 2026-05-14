@@ -4,11 +4,28 @@
   R115 — brands marquee has no visible heading (just a logo
   parade), so aria-label provides the AT landmark name.
 {%- endcomment -%}
+{%- comment -%}
+  R274 — `logo_opacity` + `logo_style` merchant settings drive the
+  logo dim + grayscale via two CSS custom properties on the
+  section root. CSS consumes them in kt-section-brands.css. The
+  previous hardcoded `opacity: 0.4` on `.kt-brands__logo` is
+  preserved as the default value here so existing stores look
+  identical until the merchant chooses to opt out. `logo_style:
+  grayscale` is the new default — most logo strips read better in
+  uniform B&W even on color sites because brand palettes clash
+  with each other when paraded side by side.
+{%- endcomment -%}
+{%- assign brands_logo_opacity = section.settings.logo_opacity | default: 40 | divided_by: 100.0 -%}
+{%- if section.settings.logo_style == 'color' -%}
+  {%- assign brands_logo_filter = 'none' -%}
+{%- else -%}
+  {%- assign brands_logo_filter = 'grayscale(100%)' -%}
+{%- endif -%}
 <section
   class="kt-brands color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="brands"
-  style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px;"
+  style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px; --kt-brands-logo-opacity: {{ brands_logo_opacity }}; --kt-brands-logo-filter: {{ brands_logo_filter }};"
   aria-label="{{ 'kt.section.brands.aria_label' | t | default: 'Featured brands' }}"
 >
   {%- comment -%}
@@ -87,6 +104,28 @@
     {
       "type": "header",
       "content": "t:sections.brands.settings.header__appearance.content"
+    },
+    {
+      "type": "select",
+      "id": "logo_style",
+      "label": "t:sections.brands.settings.logo_style.label",
+      "info": "t:sections.brands.settings.logo_style.info",
+      "options": [
+        { "value": "grayscale", "label": "t:sections.brands.settings.logo_style.options__grayscale.label" },
+        { "value": "color", "label": "t:sections.brands.settings.logo_style.options__color.label" }
+      ],
+      "default": "grayscale"
+    },
+    {
+      "type": "range",
+      "id": "logo_opacity",
+      "label": "t:sections.brands.settings.logo_opacity.label",
+      "info": "t:sections.brands.settings.logo_opacity.info",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 40
     },
     {
       "type": "header",

@@ -76,10 +76,23 @@
 
 /* ── Column ─────────────────────────────────────────────────────── */
 
+/* R283 — Was `gap: 1rem` flat across viewports. Reporter said
+   the placeholder layout reads as "aşırı kalabalık, iç içe
+   geçmiş öğeler, görsel hiyerarşi yok". Bump the column-level
+   gap (icon/media → text → cta breathing room) and let the
+   `.kt-multicolumn__text` inner gap stay tighter so heading
+   and body still feel grouped while the icon block reads as
+   its own anchor above. */
 .kt-multicolumn__column {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-multicolumn__column {
+    gap: 1.5rem;
+  }
 }
 
 .kt-multicolumn--align-center .kt-multicolumn__column {
@@ -130,18 +143,65 @@
   object-fit: cover;
 }
 
+/* R283 — Icon container. The block setting is `type: html` with
+   a default sparkle SVG (see multicolumn.liquid schema). Bumped
+   size 3rem → 3.5rem mobile / 4rem desktop so the icon reads as
+   a clear visual anchor above the column text instead of a tiny
+   afterthought next to the heading. Soft-gray `subtle` backdrop
+   when the icon is sat in `circle` shape, otherwise transparent
+   so line-icon SVGs read cleanly against the section's bg. */
 .kt-multicolumn__icon {
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: rgb(var(--kt-c-fg));
 }
 
+@media screen and (min-width: 750px) {
+  .kt-multicolumn__icon {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
 .kt-multicolumn__icon svg {
   width: 100%;
   height: 100%;
+  display: block;
+}
+
+/* Editorial detail — soften the stroke a notch so the icon reads
+   as a quiet ornament rather than competing with the column
+   heading. Applies to inline SVGs (preset library AND merchant-
+   uploaded SVGs that render as inline markup). Uploaded raster
+   images (PNG/JPG) inside the icon slot skip the opacity dim via
+   the `--image` variant rule below — those usually already carry
+   the merchant's brand colour and shouldn't be muted. */
+.kt-multicolumn__icon > svg {
+  opacity: 0.85;
+}
+
+/* R283c — Custom uploaded icon (image_picker variant). The image
+   sits inside the same icon slot as the preset SVGs and renders
+   at the slot's intrinsic size (3.5rem mobile / 4rem desktop).
+   `object-fit: contain` preserves the upload's aspect ratio
+   inside the square slot; SVG uploads scale crisply, raster
+   uploads (PNG/JPG) clip in without cropping. Opacity stays at
+   100% for uploads — merchants who upload a custom mark want
+   it to read at full chroma. */
+.kt-multicolumn__icon--image {
+  /* Override the inline-flex centring from the base rule so the
+     image fills the slot edge-to-edge before contain kicks in. */
+  padding: 0;
+}
+
+.kt-multicolumn__icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* ── Text content ───────────────────────────────────────────────── */
@@ -167,11 +227,22 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: rgba(var(--kt-c-fg), 0.75);
+  color: rgba(var(--kt-c-fg), 0.55);
 }
 
 .kt-multicolumn__column-text > *:first-child { margin-top: 0; }
 .kt-multicolumn__column-text > *:last-child { margin-bottom: 0; }
+
+/* R281b — Column-text wrappers carry the `rte` companion class so
+   `.rte p { color: rgb(var(--kt-c-fg)) }` from base.css pins the
+   inner `<p>` to full-strength foreground, breaking the wrapper's
+   intended mute. Push the muted alpha onto the richtext children
+   directly. Specificity (0,0,2,1) > `.rte p` (0,0,1,1). */
+.kt-multicolumn__column-text p,
+.kt-multicolumn__column-text li,
+.kt-multicolumn__column-text blockquote {
+  color: rgba(var(--kt-c-fg), 0.55);
+}
 
 .kt-multicolumn__column-text a {
   color: inherit;
@@ -204,4 +275,25 @@
 .kt-multicolumn__column-link:focus-visible {
   outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 4px;
+}
+
+/* R284 — Cross-axis centring for the CTA when the section is
+   set to centre alignment.
+
+   `.kt-multicolumn__text` is `display: flex; flex-direction:
+   column` — its children stack vertically. The column-link is
+   `display: inline-flex` so it's sized to its content (label +
+   arrow), which by default aligns to the start of the flex
+   row (left in LTR). When the section is centre-aligned, the
+   heading + description text already centre via inherited
+   `text-align: center` from `.kt-multicolumn__column`, but
+   that property doesn't affect inline-flex elements; we need
+   `align-self: center` on the link itself.
+
+   Scoped to `.kt-multicolumn--align-center` so the left-
+   aligned variant still flushes the link to the start as
+   designed. Reporter saw "label sola dayalı hepsi ortalı
+   iken" — this rule fixes that. */
+.kt-multicolumn--align-center .kt-multicolumn__column-link {
+  align-self: center;
 }

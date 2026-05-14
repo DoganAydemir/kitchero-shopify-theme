@@ -77,15 +77,35 @@
 
 /* ── Block: text (richtext) ──────────────────────────────────────── */
 
+/* R286 — Was `color: rgba(var(--kt-c-fg), 0.85)`, near-heading
+   strength on light schemes. Reporter said the description read
+   as too dark next to the serif heading, breaking the hierarchy.
+   Drop to 0.6 to land around the muted-body treatment used
+   elsewhere (ecosystem feature-desc, multicolumn column-text,
+   featured-* descriptions after R281b). */
 .kt-rich-text__text {
   font-size: 1rem;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg), 0.85);
+  color: rgba(var(--kt-c-fg), 0.6);
   max-width: 100%;
 }
 
 .kt-rich-text__text > *:first-child { margin-top: 0; }
 .kt-rich-text__text > *:last-child { margin-bottom: 0; }
+
+/* R286 — Text wrapper carries the `rte` companion class so
+   base.css `.rte p { color: rgb(var(--kt-c-fg)) }` pins the
+   inner `<p>` to full-strength fg, breaking the wrapper-level
+   mute. Push the muted alpha onto the richtext children
+   directly. Specificity (0,0,2,1) > `.rte p` (0,0,1,1). Same
+   pattern shipped for featured-collection / featured-products
+   / featured-product / multicolumn / main-product short-desc
+   / password message (all R281b). */
+.kt-rich-text__text p,
+.kt-rich-text__text li,
+.kt-rich-text__text blockquote {
+  color: rgba(var(--kt-c-fg), 0.6);
+}
 
 .kt-rich-text__text a {
   color: inherit;
