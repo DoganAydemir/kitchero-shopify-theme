@@ -184,9 +184,24 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
   color: var(--kt-white);
 }
 
+/* R291 — Logo intrinsic width comes from two merchant settings
+   (kt_logo_width + kt_logo_width_mobile) rendered as inline
+   custom properties on the `.kt-header__logo` wrapper. CSS
+   picks the matching one via a `min-width: 750px` breakpoint.
+   Fallbacks (100px mobile / 120px desktop) match the schema
+   defaults so the logo still renders if a merchant somehow
+   deletes the settings entry. `height: auto` keeps the natural
+   aspect ratio regardless of which width is active. */
 .kt-header__logo-image {
   display: block;
   height: auto;
+  width: var(--kt-logo-w-m, 100px);
+}
+
+@media screen and (min-width: 750px) {
+  .kt-header__logo-image {
+    width: var(--kt-logo-w-d, 120px);
+  }
 }
 
 /* Desktop Navigation */

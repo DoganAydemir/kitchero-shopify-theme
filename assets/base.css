@@ -239,7 +239,24 @@ summary,
    ============================================================ */
 
 .page-width {
-  max-width: 1536px;
+  /* R292 — Was hardcoded `max-width: 1536px`. The merchant's
+     "Page width" theme setting (`kt_page_width`) was rendered to
+     `--kt-page-max` in kt-css-variables.liquid but never read
+     anywhere except a single section, so changing the slider
+     produced no visible effect on 99% of the storefront. Wire
+     the canonical `.page-width` utility through the custom
+     property so the slider drives every section that uses this
+     utility for its container width.
+
+     R292b — Fallback in `px` to match the custom property unit
+     (kt-css-variables.liquid emits `--kt-page-max: Npx`). Earlier
+     iteration used `96rem` fallback with a broken `divided_by: 10`
+     conversion that turned the merchant's `1400` (px intent) into
+     `140rem` ≈ 2240px — content rendered edge-to-edge regardless
+     of the slider value. Fixed in the snippet to use `px`
+     directly; this fallback (`1400px` = settings default) is
+     reached only when the snippet hasn't loaded yet. */
+  max-width: var(--kt-page-max, 1400px);
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -986,10 +1003,12 @@ select:-webkit-autofill {
 
 .kt-pagination__ellipsis {
   /* alpha 0.5 against scheme surface yielded 2.58–3.30:1 across the
-     four shipped schemes — fails WCAG AA 4.5:1 for what axe treats as
-     visible text content (the rendered "…" character). 0.7 brings
-     scheme-3 (mint, the lowest contrast surface) to ~5.0:1 while
-     keeping the pagination row visually subdued. */
+     range of scheme surfaces a merchant could plausibly configure
+     — fails WCAG AA 4.5:1 for what axe treats as visible text
+     content (the rendered "…" character). 0.7 brings the lowest-
+     contrast surface (a soft mint or pastel scheme a merchant
+     might add) to ~5.0:1 while keeping the pagination row
+     visually subdued. */
   color: rgba(var(--kt-c-fg), 0.7);
   border: none;
 }

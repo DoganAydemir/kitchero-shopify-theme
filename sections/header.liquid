@@ -63,7 +63,45 @@
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
-    <a href="{{ routes.root_url }}" class="kt-header__logo" aria-label="{{ shop.name | escape }}">
+    {%- comment -%}
+      R291 — Mobile + desktop logo widths are now independent
+      merchant settings. Pre-resolve both into Liquid vars + a
+      pre-built `sizes` string so the `image_tag` filter call
+      below stays single-arg-per-line (Liquid parser otherwise
+      treats trailing commas inside filter chains as additional
+      `divided_by` / `append` arguments — silent runtime
+      failure).
+
+      The HTML `width` attribute is locked to the desktop value
+      because the browser uses it for aspect-ratio reservation
+      / CLS prevention before the image loads. The visual
+      rendered width is controlled by the inline custom
+      properties on the `.kt-header__logo` wrapper:
+        --kt-logo-w-d : desktop intrinsic width
+        --kt-logo-w-m : mobile intrinsic width
+      The CSS rule in kt-section-header.css picks the matching
+      one via a `min-width: 750px` media query.
+    {%- endcomment -%}
+    {%- liquid
+      assign kt_logo_w_d = settings.kt_logo_width | default: 120
+      assign kt_logo_w_m = settings.kt_logo_width_mobile | default: 100
+      assign kt_logo_height = kt_logo_w_d | divided_by: settings.kt_logo.aspect_ratio
+      assign kt_logo_sizes = '(max-width: 749px) ' | append: kt_logo_w_m | append: 'px, ' | append: kt_logo_w_d | append: 'px'
+      assign kt_logo_alt = shop.name | escape
+      capture kt_logo_style
+        echo '--kt-logo-w-d: '
+        echo kt_logo_w_d
+        echo 'px; --kt-logo-w-m: '
+        echo kt_logo_w_m
+        echo 'px;'
+      endcapture
+    -%}
+    <a
+      href="{{ routes.root_url }}"
+      class="kt-header__logo"
+      aria-label="{{ shop.name | escape }}"
+      style="{{ kt_logo_style | strip_newlines }}"
+    >
       {%- if settings.kt_logo != blank -%}
         {%- comment -%}
           Header logo LCP priority — always visible at first paint.
@@ -75,26 +113,14 @@
           hint, browsers give the logo the same priority as the hero
           and the two compete for bandwidth.
         {%- endcomment -%}
-        {%- comment -%}
-          Pre-assign `height` — the inline form
-            height: settings.kt_logo_width | divided_by: ...,
-            loading: 'eager',
-          makes Liquid's parser read the trailing comma as a 2nd
-          arg to `divided_by`, producing the same "wrong number of
-          arguments (given 3, expected 2)" runtime error fixed for
-          card-product / banner-cover / hero. Resolving the math up
-          front in the {%- liquid -%} chain eliminates the ambiguity.
-        {%- endcomment -%}
-        {%- assign kt_logo_height = settings.kt_logo_width | divided_by: settings.kt_logo.aspect_ratio -%}
-        {%- assign kt_logo_alt = shop.name | escape -%}
         {{
           settings.kt_logo
           | image_url: width: 300
           | image_tag:
             class: 'kt-header__logo-image',
             widths: '100, 150, 200, 300',
-            sizes: '(max-width: 750px) 100px, 150px',
-            width: settings.kt_logo_width,
+            sizes: kt_logo_sizes,
+            width: kt_logo_w_d,
             height: kt_logo_height,
             loading: 'eager',
             fetchpriority: 'low',

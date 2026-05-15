@@ -28,7 +28,8 @@
 
 .kt-customer__title {
   font-family: var(--kt-f-accent-family);
-  font-size: 2.25rem;
+  font-size: calc(var(--kt-f-heading-scale, 1) * (2.25rem));
+
   text-align: center;
   letter-spacing: -0.025em;
   color: rgb(var(--kt-c-fg));
@@ -355,13 +356,15 @@ html:not(.js) .kt-customer__forgot-link {
   font-size: 0.8125rem;
   line-height: 1.4;
   /* WCAG 1.4.3 Contrast (Minimum) — red-700 #b91c1c is 5.9:1 against
-     #FAFAF9 (scheme-1 light) but only 2.3:1 against #0C0A09
-     (scheme-2 ink), failing 4.5:1 AA. Brighter red-500 (#ef4444)
-     passes 4.5:1 against stone-950 AND 5.4:1 against stone-50, so
-     it's the one token that clears AA on every ink/paper combo the
-     theme ships. Bold weight adds ~10% perceived contrast so very
-     small error hints stay legible on both. Localised to the error
-     scope so we don't change the global error-palette vocabulary. */
+     #FAFAF9 (light surface) but only 2.3:1 against #0C0A09 (dark
+     ink surface a merchant might pick when they add a dark scheme
+     in the theme editor), failing 4.5:1 AA. Brighter red-500
+     (#ef4444) passes 4.5:1 against stone-950 AND 5.4:1 against
+     stone-50, so it's the one token that clears AA on every
+     ink/paper combo the merchant could configure. Bold weight adds
+     ~10% perceived contrast so very small error hints stay
+     legible on both. Localised to the error scope so we don't
+     change the global error-palette vocabulary. */
   color: var(--kt-red-500, #ef4444);
   font-weight: 600;
 }
