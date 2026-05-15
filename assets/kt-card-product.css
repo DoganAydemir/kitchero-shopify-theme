@@ -14,20 +14,49 @@
    The image's scale-on-hover transform is already clipped by
    `.kt-card-product__image-link`'s own `overflow: hidden` below, so
    we don't need to clip at the card level. */
+/* R293 — Product card knobs from theme settings:
+     --kt-pcard-img-pad     : padding inside the media frame (px)
+     --kt-pcard-text-align  : "left" | "center" | "right"
+     --kt-pcard-border-w    : visible border thickness (px)
+     --kt-pcard-border-op   : visible border alpha (0–1)
+     --kt-pcard-radius      : card corner radius (px)
+   See snippets/kt-css-variables.liquid for the emit. Each
+   property is consumed below; merchant-visible settings now
+   actually drive the card chrome instead of being orphan no-ops. */
 .kt-card-product {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* Optional visible border + corner radius around the entire
+     card. Default 0 thickness means no visible chrome — matches
+     the existing borderless look on the live storefront. */
+  border: var(--kt-pcard-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-pcard-border-op, 0));
+  border-radius: var(--kt-pcard-radius, 0px);
+  /* Text alignment cascades to all card content via inherit. */
+  text-align: var(--kt-pcard-text-align, left);
+  /* When the merchant adds a visible border, push the inner
+     content slightly inward so the title/price/CTA don't kiss
+     the border edge. Scales with the border width — 0 border →
+     0 padding (no visual change vs. the borderless default). */
+  padding: calc(var(--kt-pcard-border-w, 0px) * 0.75);
 }
 
-/* Image link: relative block w-full aspect-[4/3] overflow-hidden rounded-sm mb-6 */
+/* Image link: relative block w-full aspect-[4/3] overflow-hidden rounded-sm mb-6.
+   R293 — Corner radius matches the card so the image clipping
+   follows the chrome. NOTE: the merchant `--kt-pcard-img-pad`
+   setting is applied to the absolute-positioned image children
+   below (via `inset:`), NOT here as `padding` — because absolute
+   children anchor to the padding box of their containing block,
+   so `padding` on the wrapper does nothing for them. Setting
+   `inset: var(...)` on the children is what actually creates the
+   breathing room. */
 .kt-card-product__image-link {
   position: relative;
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: var(--kt-pcard-radius, 2px);
   margin-bottom: 1.5rem;
   cursor: pointer;
   transition: box-shadow 0.7s ease;
@@ -72,12 +101,25 @@
   pointer-events: none;
 }
 
-/* Primary image: absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 group-hover:opacity-0 */
+/* Primary image: absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 group-hover:opacity-0.
+   R293 — `inset` driven by the `--kt-pcard-img-pad` merchant
+   setting so the image breathes inward when the merchant adds
+   padding. `width/height: auto` lets the inset constraint shrink
+   the image instead of the prior fixed `100%`. Default 0 → no
+   visual change vs. previous behaviour. */
 .kt-card-product__image-primary {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--kt-pcard-img-pad, 0px);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  max-height: none;
+  /* Span the inset-bounded box exactly. */
+  display: block;
+  block-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
+  inline-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
   object-fit: cover;
   transition: opacity 1s ease-in-out;
   z-index: 0;
@@ -86,12 +128,18 @@
 /* Primary / secondary image swap + zoom are defined inside the
    `@media (hover: hover)` block above — touch-device guard. */
 
-/* Secondary image: absolute inset-0 scale-105 group-hover:scale-100 opacity-0 group-hover:opacity-100 */
+/* Secondary image: absolute inset-0 scale-105 group-hover:scale-100 opacity-0 group-hover:opacity-100.
+   R293 — Inset mirrors primary so the hover-swap image respects
+   the same img-pad breathing room. */
 .kt-card-product__image-secondary {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--kt-pcard-img-pad, 0px);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  block-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
+  inline-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
   object-fit: cover;
   /* R142 ANIM-LAYOUT-1: explicit composite-only properties.
      `transition: all` would catch any later layout-triggering
@@ -108,12 +156,18 @@
 /* Secondary image scale/opacity defined inside the
    `@media (hover: hover)` block above. */
 
-/* Placeholder for missing images */
+/* Placeholder for missing images.
+   R293 — Mirror the inset/sizing of the real image so the
+   placeholder respects the merchant's img-pad setting; otherwise
+   a card with a missing image renders edge-to-edge while real
+   images breathe inward — visually inconsistent. */
 .kt-card-product__image-link .placeholder-svg {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--kt-pcard-img-pad, 0px);
+  width: auto;
+  height: auto;
+  block-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
+  inline-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
 }
 
 /* Badge: refined pill — was reading too heavy on mobile (chunky
@@ -131,7 +185,13 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 9999px;
+  /* R294 — Corner radius from "Badges" theme settings. Default
+     100px is large enough to render as a full pill on these
+     small (~18px-tall) badges; merchants can drop to 0 for a
+     sharp rectangle or land somewhere in between. The hardcoded
+     9999px was unreachable from the merchant UI (range cap was
+     40px and the value was overridden by the literal anyway). */
+  border-radius: var(--kt-badge-radius, 100px);
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -169,6 +229,18 @@
 
 .kt-card-product__badge--new {
   background: rgba(5, 150, 105, 0.9);
+  color: var(--kt-white);
+}
+
+/* Low-stock badge — amber/orange to communicate urgency without
+   triggering the alarm-red used for sale. Lower priority than
+   sold-out/sale/bestseller/new — only shown when no other badge
+   claimed the corner (mutually exclusive elsif in card-product.liquid).
+   Real inventory-backed count from variant.inventory_quantity (R293),
+   never a fake "X people viewing" counter — that pattern is a
+   Theme Store rejection per the deceptive-UI rule. */
+.kt-card-product__badge--low-stock {
+  background: rgba(217, 119, 6, 0.92);
   color: var(--kt-white);
 }
 

@@ -207,7 +207,23 @@
     --kt-f-body-scale: {{ settings.kt_body_scale | divided_by: 100.0 }};
     --kt-f-heading-scale: {{ settings.kt_heading_scale | times: 1.0 | divided_by: settings.kt_body_scale }};
 
-    --kt-page-max: {{ settings.kt_page_width }}px;
+    {%- comment -%}
+      R292d — Page-width with explicit "use theme default" escape
+      hatch. The `kt_page_width_use_default` checkbox (default
+      `true`) ignores the slider and pins the container to the
+      hardcoded theme baseline (1500px). When the merchant
+      unchecks the box, the slider's `kt_page_width` value drives
+      the container. Two-step UX: merchants who want the
+      designer-shipped look NEVER need to touch the slider; those
+      who want a custom width can opt in. Mirrors the native
+      Shopify-admin "revert to default" affordance for merchants
+      whose admin doesn't yet show the revert arrow.
+    {%- endcomment -%}
+    {%- if settings.kt_page_width_use_default -%}
+      --kt-page-max: 1500px;
+    {%- else -%}
+      --kt-page-max: {{ settings.kt_page_width }}px;
+    {%- endif -%}
 
     --kt-gap-sections-d: {{ settings.kt_section_spacing }}px;
     --kt-gap-sections-m: {% if settings.kt_section_spacing < 24 %}{{ settings.kt_section_spacing }}{% else %}{{ settings.kt_section_spacing | times: 0.7 | round | at_least: 20 }}{% endif %}px;
@@ -228,7 +244,14 @@
     --kt-input-border-w: {{ settings.kt_input_border_w }}px;
     --kt-input-border-op: {{ settings.kt_input_border_op | divided_by: 100.0 }};
 
-    --kt-badge-radius: {{ settings.kt_badge_radius | divided_by: 10.0 }}rem;
+    {%- comment -%}
+      R294 — Badge corner radius. Previously emitted as
+      `divided_by: 10.0` rem which silently 10x-shrank the
+      merchant's chosen value (40px → 0.4rem ≈ 6px). Now emits
+      px directly. Consumed by `.kt-card-product__badge` in
+      assets/kt-card-product.css.
+    {%- endcomment -%}
+    --kt-badge-radius: {{ settings.kt_badge_radius }}px;
 
     {%- comment -%}
       R131 — Swatch tokens. `kt_swatch_shape` is a select setting
@@ -250,19 +273,30 @@
         --kt-swatch-shape: 50%;
     {%- endcase %}
 
-    --kt-pcard-img-pad: {{ settings.kt_pcard_img_pad | divided_by: 10.0 }}rem;
-    --kt-pcard-radius: {{ settings.kt_pcard_radius | divided_by: 10.0 }}rem;
+    {%- comment -%}
+      R293 — Product card knobs. Previously emitted with a broken
+      `divided_by: 10.0` px-to-rem conversion (the same bug that
+      hit `--kt-page-max` — 16px root means px/10 yields ~1.6×
+      the intended size) AND none of these properties had any
+      consumer in the CSS, so all 5 settings were orphan no-ops.
+      Use `px` directly (cheap, exact, no unit-conversion drift)
+      and wire each one through the matching rule in
+      kt-card-product.css below the R293 marker.
+    {%- endcomment -%}
+    --kt-pcard-img-pad: {{ settings.kt_pcard_img_pad }}px;
+    --kt-pcard-radius: {{ settings.kt_pcard_radius }}px;
     --kt-pcard-text-align: {{ settings.kt_pcard_text_align }};
-    --kt-pcard-border-w: {{ settings.kt_pcard_border_w | divided_by: 10.0 }}rem;
+    --kt-pcard-border-w: {{ settings.kt_pcard_border_w }}px;
     --kt-pcard-border-op: {{ settings.kt_pcard_border_op | divided_by: 100.0 }};
 
-    --kt-ccard-img-pad: {{ settings.kt_ccard_img_pad | divided_by: 10.0 }}rem;
-    --kt-ccard-radius: {{ settings.kt_ccard_radius | divided_by: 10.0 }}rem;
-
-    --kt-media-pad: {{ settings.kt_media_pad }}px;
-    --kt-media-border-op: {{ settings.kt_media_border_op | divided_by: 100.0 }};
-    --kt-media-border-w: {{ settings.kt_media_border_w }}px;
-    --kt-media-radius: {{ settings.kt_media_radius }}px;
+    {%- comment -%}
+      R294 — Collection cards. Like pcard, the px→rem math was
+      broken via `divided_by: 10.0` (yields 1/10 of the intended
+      visual). Now emits px directly so 16 in the slider = 16 in
+      the resulting CSS.
+    {%- endcomment -%}
+    --kt-ccard-img-pad: {{ settings.kt_ccard_img_pad }}px;
+    --kt-ccard-radius: {{ settings.kt_ccard_radius }}px;
 
     --kt-drawer-border-w: {{ settings.kt_drawer_border_w }}px;
     --kt-drawer-border-op: {{ settings.kt_drawer_border_op | divided_by: 100.0 }};

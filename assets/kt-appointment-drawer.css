@@ -63,6 +63,11 @@
   will-change: transform;
   pointer-events: none;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  /* R294 — Shared "Drawers" theme settings (border thickness +
+     opacity). 0 thickness default → no visible chrome. Matches
+     the cart-drawer for visual consistency between the two
+     slide-in panels. */
+  border-left: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
   /* No `transition` declaration on purpose — cart-drawer.css has
      the full rationale at the equivalent rule. Short version:
      when `transform: translateX(100%) → translateX(0)` is
@@ -81,6 +86,9 @@
   left: 0;
   transform: translateX(-100%);
   box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
+  /* RTL → border flips sides (slide-in is from the left now). */
+  border-left: 0;
+  border-right: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
 }
 
 /* Slide-in animation. `forwards` keeps the panel at translateX(0)

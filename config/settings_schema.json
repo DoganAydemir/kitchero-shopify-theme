@@ -177,15 +177,23 @@
     "name": "t:settings_schema.kt_layout.name",
     "settings": [
       {
+        "type": "checkbox",
+        "id": "kt_page_width_use_default",
+        "label": "t:settings_schema.kt_layout.settings.kt_page_width_use_default.label",
+        "info": "t:settings_schema.kt_layout.settings.kt_page_width_use_default.info",
+        "default": true
+      },
+      {
         "type": "range",
         "id": "kt_page_width",
         "min": 1000,
         "max": 1600,
-        "step": 100,
-        "default": 1400,
+        "step": 50,
+        "default": 1500,
         "unit": "px",
         "label": "t:settings_schema.kt_layout.settings.kt_page_width.label",
-        "info": "t:settings_schema.kt_layout.settings.kt_page_width.info"
+        "info": "t:settings_schema.kt_layout.settings.kt_page_width.info",
+        "visible_if": "{{ settings.kt_page_width_use_default == false }}"
       },
       {
         "type": "range",
@@ -524,7 +532,7 @@
         "type": "checkbox",
         "id": "kt_pdp_show_vendor",
         "label": "t:settings_schema.kt_product_cards.settings.kt_pdp_show_vendor.label",
-        "default": false
+        "default": true
       },
       {
         "type": "header",
@@ -575,55 +583,6 @@
     ]
   },
   {
-    "name": "t:settings_schema.kt_media.name",
-    "settings": [
-      {
-        "type": "range",
-        "id": "kt_media_pad",
-        "min": 0,
-        "max": 20,
-        "step": 2,
-        "unit": "px",
-        "label": "t:settings_schema.global.settings.image_padding.label",
-        "default": 0
-      },
-      {
-        "type": "header",
-        "content": "t:settings_schema.global.settings.header__border.content"
-      },
-      {
-        "type": "range",
-        "id": "kt_media_border_w",
-        "min": 0,
-        "max": 24,
-        "step": 1,
-        "unit": "px",
-        "label": "t:settings_schema.global.settings.thickness.label",
-        "default": 1
-      },
-      {
-        "type": "range",
-        "id": "kt_media_border_op",
-        "min": 0,
-        "max": 100,
-        "step": 5,
-        "unit": "%",
-        "label": "t:settings_schema.global.settings.opacity.label",
-        "default": 5
-      },
-      {
-        "type": "range",
-        "id": "kt_media_radius",
-        "min": 0,
-        "max": 40,
-        "step": 2,
-        "unit": "px",
-        "label": "t:settings_schema.global.settings.corner_radius.label",
-        "default": 0
-      }
-    ]
-  },
-  {
     "name": "t:settings_schema.kt_drawers.name",
     "settings": [
       {
@@ -659,11 +618,12 @@
         "type": "range",
         "id": "kt_badge_radius",
         "min": 0,
-        "max": 40,
-        "step": 2,
+        "max": 100,
+        "step": 4,
         "unit": "px",
         "label": "t:settings_schema.global.settings.corner_radius.label",
-        "default": 4
+        "info": "t:settings_schema.kt_badges.settings.kt_badge_radius.info",
+        "default": 100
       }
     ]
   },

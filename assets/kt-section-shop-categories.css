@@ -104,7 +104,8 @@
   width: 72vw;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 12px;
+  /* R294 — Shared "Collection cards" corner radius (theme settings). */
+  border-radius: var(--kt-ccard-radius, 12px);
   scroll-snap-align: center;
   display: block;
   text-decoration: none;
@@ -124,8 +125,15 @@
 
 .kt-shop-categories__card-image-wrap {
   position: absolute;
-  inset: 0;
+  /* R294 — Image inset = merchant `Image padding` from
+     "Collection cards" theme settings. Drives the photo inward
+     when the merchant wants padding around the cover image. */
+  inset: var(--kt-ccard-img-pad, 0px);
   overflow: hidden;
+  /* Match the parent card's radius so the inset photo follows
+     the same corner shape — otherwise the rounded card frames
+     a hard-cornered photo. */
+  border-radius: var(--kt-ccard-radius, 12px);
 }
 
 .kt-shop-categories__card-image {

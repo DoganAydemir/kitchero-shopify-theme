@@ -226,6 +226,38 @@
       <span class="kt-card-product__badge kt-card-product__badge--new kt-card-product__badge--corner-bl">
         {{ 'kt.product.new' | t }}
       </span>
+    {%- comment -%}
+      R293 — Low-stock indicator on collection cards. Previously
+      `settings.kt_show_low_stock` + `settings.kt_low_stock_threshold`
+      were grouped under "Product cards" in Theme settings but only
+      fired on the PDP, so merchants who toggled them saw nothing
+      on collection grids — a misleading orphan setting that a
+      Theme Store reviewer would flag as "configurable option has
+      no visible effect". Resolves the orphan by surfacing the
+      same indicator on cards.
+
+      Gating mirrors the PDP rules:
+      - merchant toggle on
+      - product currently available
+      - default-or-first-available variant tracks inventory via Shopify
+      - variant inventory_quantity > 0 (so not actually sold out)
+      - variant inventory_quantity <= merchant threshold
+
+      Mutually exclusive with sale / bestseller / new (elsif chain)
+      so the corner is never double-claimed and the visual stays
+      calm on dense grids. Sold-out always overrides — a sold-out
+      card never shows "Only N left".
+    {%- endcomment -%}
+    {%- elsif settings.kt_show_low_stock -%}
+      {%- assign card_variant = product.selected_or_first_available_variant -%}
+      {%- if card_variant
+            and card_variant.inventory_management == 'shopify'
+            and card_variant.inventory_quantity > 0
+            and card_variant.inventory_quantity <= settings.kt_low_stock_threshold -%}
+        <span class="kt-card-product__badge kt-card-product__badge--low-stock kt-card-product__badge--corner-bl">
+          {{ 'kt.product.low_stock_html' | t: count: card_variant.inventory_quantity }}
+        </span>
+      {%- endif -%}
     {%- endif -%}
 
     {%- comment -%}

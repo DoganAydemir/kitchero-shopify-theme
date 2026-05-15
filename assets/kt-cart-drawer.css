@@ -80,6 +80,12 @@ html.no-js .kt-cart-drawer {
   width: 100%;
   background-color: var(--kt-white);
   color: var(--kt-stone-900);
+  /* R294 — Optional left edge from "Drawers" theme settings.
+     Default 0 thickness → no visible chrome (matches the live
+     storefront's edge-to-edge cart drawer). Merchants who want a
+     subtle divider between the drawer and the page can dial the
+     thickness/opacity up. */
+  border-left: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
   /* R113 — panel sits +100 above the overlay (preserves the
      2000 → 2100 relationship). */
   z-index: calc(var(--kt-z-drawer) + 1000);
@@ -122,6 +128,10 @@ html.no-js .kt-cart-drawer {
   left: 0;
   transform: translateX(-100%);
   box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
+  /* RTL drawers slide from the LEFT, so the visible "outer" edge
+     of the panel is its RIGHT side — swap the border accordingly. */
+  border-left: 0;
+  border-right: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
 }
 
 /* Slide-in animation. `forwards` keeps the panel at translateX(0)

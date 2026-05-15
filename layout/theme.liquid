@@ -345,26 +345,21 @@
       comment above explains the head-load decision (vs
       onload-swap) — same rationale applies here.
 
-      R267: The appointment-drawer CSS used to be gated the SAME
-      way, but the markup + JS for the drawer were rendered
-      UNCONDITIONALLY below (so trigger buttons like the showroom
-      `data-consultation-open` always worked). When the merchant
-      had `kt_appointment_enabled=false`, the JS still opened the
-      drawer (added `aria-hidden="false"`) but the CSS was absent,
-      so the panel rendered in normal document flow with default
-      browser styles — header/title invisible, form fields
-      unstyled, page below pushed down. Reported on iOS Safari +
-      private mode as "patlak modal, üstte yarım açılıyor". The
-      gate is now LIFTED — appointment-drawer CSS loads
-      unconditionally to match the JS/markup unconditional render.
-      Cost: ~3KB gzipped on every page; acceptable trade for
-      reliable drawer styling regardless of the merchant toggle
-      state in settings_data.json.
+      R294: The appointment-drawer gate is BACK (R267 lifted it
+      temporarily because the CSS was gated but the markup + JS
+      kept rendering, so the drawer broke when disabled). Now we
+      gate CSS + markup + JS together (the markup gate lives in
+      the `<body>` block, the JS gate sits next to it). When the
+      merchant disables appointments, none of the three load —
+      no broken modal can fire because nothing is on the page.
+      Cost when enabled: ~3KB gzipped CSS. Cost when disabled: 0.
     {%- endcomment -%}
     {%- if settings.kt_search_overlay_enabled == nil or settings.kt_search_overlay_enabled -%}
       {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
-    {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+    {%- if settings.kt_appointment_enabled -%}
+      {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {%- comment -%}
       R216 — header CSS lifted from `sections/header.liquid` (body)
@@ -502,8 +497,25 @@
     {% section 'cart-drawer' %}
     {%- render 'search-overlay' -%}
     <script src="{{ 'search-overlay.js' | asset_url }}" defer="defer"></script>
-    {%- render 'appointment-drawer' -%}
-    <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
+    {%- comment -%}
+      R294 — Re-introduce the appointment-drawer gate that was
+      removed in R267. The earlier removal was the right call AT
+      THAT TIME because the drawer was gated on CSS-only — the
+      markup + JS still rendered, so when the toggle was OFF the
+      drawer fired with default browser styles (broken modal,
+      half-open at top reported on iOS Safari).
+
+      The fix this time is to gate ALL THREE: markup render +
+      JS load + CSS load (CSS handled in the `<head>` block above).
+      When the merchant disables appointments, NOTHING ships to
+      the page — no CSS, no DOM, no JS handlers — and the trigger
+      buttons in `main-product-showroom.liquid` are also gated
+      below so a click can't land on an absent drawer.
+    {%- endcomment -%}
+    {%- if settings.kt_appointment_enabled -%}
+      {%- render 'appointment-drawer' -%}
+      <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
 
     {% sections 'header-group' %}
 

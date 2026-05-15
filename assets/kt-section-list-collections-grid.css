@@ -69,10 +69,11 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background-color: var(--kt-stone-100);
-  /* Larger radius reads more contemporary — 4px was sharp enough to
-     look unintentional next to the card's serif heading. 12px keeps
-     the soft-rectangle silhouette without veering into pill shape. */
-  border-radius: 12px;
+  /* R294 — Corner radius from "Collection cards" theme settings.
+     Default 12px keeps the soft-rectangle silhouette that reads
+     contemporary next to the serif headings; merchants can drop
+     to 0 for sharp or push higher for a softer look. */
+  border-radius: var(--kt-ccard-radius, 12px);
   margin-bottom: 1.75rem;
   /* Quiet shadow on rest, deeper on hover (rule below). Both shadows
      are stone-900 tinted with low alpha so the card lifts off the
@@ -93,9 +94,16 @@
 
 .kt-list-collections__image {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* R294 — Image inset = merchant `Image padding` setting from
+     "Collection cards". Absolute children anchor to the parent's
+     padding-box, so we drive the inset directly here rather than
+     putting padding on the wrapper (padding on a position:relative
+     parent does not push absolute children inward). */
+  inset: var(--kt-ccard-img-pad, 0px);
+  width: auto;
+  height: auto;
+  block-size: calc(100% - 2 * var(--kt-ccard-img-pad, 0px));
+  inline-size: calc(100% - 2 * var(--kt-ccard-img-pad, 0px));
   object-fit: cover;
   /* Slower, slightly stronger scale than before (1.04 → 1.06).
      The longer easing reads as "slow zoom" rather than the previous

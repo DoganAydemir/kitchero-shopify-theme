@@ -254,9 +254,16 @@ summary,
      conversion that turned the merchant's `1400` (px intent) into
      `140rem` ≈ 2240px — content rendered edge-to-edge regardless
      of the slider value. Fixed in the snippet to use `px`
-     directly; this fallback (`1400px` = settings default) is
-     reached only when the snippet hasn't loaded yet. */
-  max-width: var(--kt-page-max, 1400px);
+     directly.
+
+     R292c — Schema default bumped from 1400 → 1500 because the
+     previous hardcoded value before the R292 wiring was 1536px,
+     so the merchant's perceived "original" container width was
+     never 1400 — they were always seeing 1536. The closest
+     step-aligned value to that look is 1500 (with step 50). A
+     merchant who's customised the slider can drag back to
+     1500px to restore the original visual. */
+  max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -364,7 +371,14 @@ a {
   border-radius: var(--kt-btn-radius);
   background-color: rgb(var(--kt-c-action));
   color: rgb(var(--kt-c-action-text));
-  transition: opacity 0.2s ease;
+  /* R295 — Button shadow from theme settings (Buttons → Shadow).
+     Previously the schema exposed `--kt-btn-shadow-x/y/blur/op`
+     sliders but no CSS consumer existed; merchants dragging those
+     sliders saw zero change. Now wired with the scheme's
+     shadow_color so the button drop-shadow follows the rest of
+     the theme palette. Defaults yield no shadow (opacity 0). */
+  box-shadow: var(--kt-btn-shadow-x, 0px) var(--kt-btn-shadow-y, 0px) var(--kt-btn-shadow-blur, 0px) rgba(var(--kt-c-shadow, 28, 25, 23), var(--kt-btn-shadow-op, 0));
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
 .button:hover {
@@ -410,31 +424,23 @@ a {
 
 /* R268 — Global form field shell. Used by the appointment drawer,
    the footer newsletter, and any future form that doesn't ship its
-   own input class. Earlier revision had heavy chrome:
-     padding: 1rem 1.2rem        →  16px / 19.2px (felt oversized)
-     font-size: 1.4rem (22.4px)  →  too large; iOS still didn't
-                                    zoom (16px+ rule met) but type
-                                    read as oversized in a drawer
-     border alpha sourced from `--kt-input-border-op` whose default
-     (55 %) painted the border at ~`rgba(28,25,23,0.55)` — i.e.
-     a heavy near-black hairline that looked unpolished next to
-     the rest of the editorial chrome (kt-customer__input at 0.45
-     against a transparent bg, the underline-only contact form,
-     etc.).
-   New defaults below match the kt-customer-forms pattern: 16px
-   font (still iOS-zoom-safe), 0.75rem/1rem padding, 0.18 alpha
-   border. Merchants can still scale the border weight + corner
-   radius via the `kt_input_border_w` / `kt_input_radius` settings
-   — only the alpha is now hard-pinned to a designer-set value so
-   the form always reads as light/editorial regardless of the
-   merchant's slider position. */
+   own input class.
+   R295 — Border alpha now reads from `--kt-input-border-op` (was
+   hardcoded `0.18`). The original R268 lock was a response to the
+   prior schema default of 55% painting an unpolished heavy
+   hairline. The schema default is now 20% (≈0.20), which matches
+   the designer's chosen 0.18 within a hair, so the merchant slider
+   can be honored without breaking the editorial look. Merchants
+   who want a heavier or near-invisible border now actually get
+   what they drag — and the slider in theme settings stops being
+   an orphan that does nothing. */
 .field__input,
 .field__textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   font-size: 1rem;
   line-height: 1.4;
-  border: var(--kt-input-border-w) solid rgba(var(--kt-c-fg), 0.18);
+  border: var(--kt-input-border-w) solid rgba(var(--kt-c-fg), var(--kt-input-border-op, 0.2));
   border-radius: var(--kt-input-radius);
   background-color: rgb(var(--kt-c-bg));
   color: rgb(var(--kt-c-fg));

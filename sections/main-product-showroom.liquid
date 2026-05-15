@@ -305,18 +305,34 @@
                 </div>
 
               {%- when 'ctas' -%}
+                {%- comment -%}
+                  R294 — Primary CTA opens the appointment drawer
+                  via `data-consultation-open`. If the merchant
+                  has disabled appointments (theme settings →
+                  Features → Appointment drawer), the drawer JS +
+                  markup are not on the page, so a click on this
+                  button would do nothing visible. Swap the
+                  primary button for the secondary CTA's link (if
+                  one is configured) in that case, otherwise hide
+                  the CTA cluster entirely. Avoids dead buttons
+                  that Theme Store reviewers flag as "non-functional
+                  interactive element".
+                {%- endcomment -%}
+                {%- if settings.kt_appointment_enabled or block.settings.secondary_cta_link != blank -%}
                 <div class="kt-showroom__ctas" {{ block.shopify_attributes }}>
-                  <button
-                    type="button"
-                    class="kt-showroom__cta kt-showroom__cta--primary"
-                    data-consultation-open
-                  >
-                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>{{ block.settings.primary_cta_text }}</span>
-                  </button>
+                  {%- if settings.kt_appointment_enabled -%}
+                    <button
+                      type="button"
+                      class="kt-showroom__cta kt-showroom__cta--primary"
+                      data-consultation-open
+                    >
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      <span>{{ block.settings.primary_cta_text }}</span>
+                    </button>
+                  {%- endif -%}
 
                   {%- if block.settings.secondary_cta_text != blank -%}
                     {%- if block.settings.secondary_cta_link != blank -%}
@@ -332,7 +348,7 @@
                         </svg>
                         <span>{{ block.settings.secondary_cta_text }}</span>
                       </a>
-                    {%- else -%}
+                    {%- elsif settings.kt_appointment_enabled -%}
                       <button
                         type="button"
                         class="kt-showroom__cta kt-showroom__cta--secondary"
@@ -349,6 +365,7 @@
                     {%- endif -%}
                   {%- endif -%}
                 </div>
+                {%- endif -%}
 
               {%- when 'tag' -%}
                 {%- unless tags_rendered -%}
