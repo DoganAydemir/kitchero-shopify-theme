@@ -84,8 +84,13 @@
     function activateCategory(cat) {
       categories.forEach(function (c) {
         c.classList.remove('kt-shop-color__category--active');
+        /* R-wcag-keyboard — sync aria-expanded so screen readers
+           announce the accordion state correctly when the active
+           category changes. */
+        if (c.hasAttribute('role')) c.setAttribute('aria-expanded', 'false');
       });
       cat.classList.add('kt-shop-color__category--active');
+      if (cat.hasAttribute('role')) cat.setAttribute('aria-expanded', 'true');
 
       var firstBtn = cat.querySelector('[data-finish-select]');
       if (firstBtn) showFinish(firstBtn);
@@ -98,13 +103,29 @@
       if (firstBtn) showFinish(firstBtn);
     }
 
-    /* Category — hover on desktop, click on both */
+    /* Category — hover on desktop, click on both, keyboard on all */
     categories.forEach(function (cat) {
       cat.addEventListener('mouseenter', function () { activateCategory(cat); });
       cat.addEventListener('click', function (e) {
         /* Don't re-activate if clicking a finish button inside */
         if (e.target.closest('[data-finish-select]')) return;
         activateCategory(cat);
+      });
+      /* R-wcag-keyboard — keyboard activation parity with the
+         click handler. The category outer element is `<div role=
+         "button" tabindex="0">` (see sections/shop-color.liquid),
+         so Enter and Space must trigger the same activateCategory
+         path that mouse click does. Without this, keyboard users
+         can focus the category but cannot expand it — the inner
+         finish buttons stay unreachable. Theme Store WCAG 2.1.1
+         hard reject. preventDefault on Space stops the page from
+         scrolling on activation. */
+      cat.addEventListener('keydown', function (e) {
+        if (e.target.closest('[data-finish-select]')) return;
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          activateCategory(cat);
+        }
       });
     });
 
@@ -157,7 +178,9 @@
     if (!section) return;
     section.querySelectorAll('[data-category-id]').forEach(function (c) {
       c.classList.remove('kt-shop-color__category--active');
+      if (c.hasAttribute('role')) c.setAttribute('aria-expanded', 'false');
     });
     cat.classList.add('kt-shop-color__category--active');
+    if (cat.hasAttribute('role')) cat.setAttribute('aria-expanded', 'true');
   });
 })();

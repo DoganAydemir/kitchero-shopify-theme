@@ -192,6 +192,14 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  /* R-badge-contrast — Hairline border so the badge "shape" remains
+     perceivable as a UI component against near-white product imagery
+     (WCAG 1.4.11 non-text contrast). Without this, the 90%-opaque
+     white pill composites to almost identical luminance as a white
+     photo background, leaving only the dark text floating; older
+     browsers without `backdrop-filter` see the same issue at higher
+     intensity. */
+  border: 1px solid rgba(28, 25, 23, 0.08);
   /* R294 — Corner radius from "Badges" theme settings. Default
      100px is large enough to render as a full pill on these
      small (~18px-tall) badges; merchants can drop to 0 for a
@@ -205,6 +213,18 @@
   text-transform: uppercase;
   color: var(--kt-stone-900);
   z-index: 20;
+}
+
+/* Fully-opaque fallback for browsers without `backdrop-filter` so
+   the white pill never composites against a same-tone photo. The
+   `@supports not` query lets modern browsers keep the translucent
+   blur for the editorial feel while older browsers (FB / IG WebView,
+   Reduce-transparency setting, Firefox < 103 on Android) get a
+   solid white pill that always reads. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .kt-card-product__badge {
+    background: var(--kt-white, #ffffff);
+  }
 }
 
 @media screen and (min-width: 750px) {
@@ -235,7 +255,13 @@
 }
 
 .kt-card-product__badge--new {
-  background: rgba(5, 150, 105, 0.9);
+  /* R-badge-contrast — Darkened from emerald-600 #059669 to
+     emerald-700 #047857 so white-on-emerald clears WCAG 1.4.3
+     AA 4.5:1 for small body text. emerald-600 measured ~3.69:1
+     (fail); emerald-700 measures ~5.1:1 (pass). The 10px/11px
+     `font-weight: 500` badge text doesn't qualify as WCAG "large"
+     so the 4.5:1 bar applies. */
+  background: rgba(4, 120, 87, 0.92);
   color: var(--kt-white);
 }
 
@@ -247,8 +273,24 @@
    never a fake "X people viewing" counter — that pattern is a
    Theme Store rejection per the deceptive-UI rule. */
 .kt-card-product__badge--low-stock {
-  background: rgba(217, 119, 6, 0.92);
+  /* R-badge-contrast — Darkened from amber-600 #d97706 to amber-700
+     #b45309 so white-on-amber clears WCAG 1.4.3 AA 4.5:1 for small
+     body text. amber-600 measured ~2.93:1 (fail); amber-700 measures
+     ~4.6:1 (pass). Same 10px/11px small-text class as `--new`. */
+  background: rgba(180, 83, 9, 0.94);
   color: var(--kt-white);
+}
+
+/* Type badge — lowest priority in the chain (R-badge-stacking).
+   Reuses the base ` .kt-card-product__badge` light pill styling.
+   No state modifier needed; the type string is merchant-controlled
+   and assumed to be a real category label, not a deceptive promo. */
+.kt-card-product__badge--type {
+  /* Inherits default light pill from .kt-card-product__badge —
+     no override required. Explicit declaration keeps the rule
+     present for editor visibility and future styling overrides. */
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--kt-stone-900);
 }
 
 /* Sold-out badge — neutral charcoal so it reads as "unavailable" rather

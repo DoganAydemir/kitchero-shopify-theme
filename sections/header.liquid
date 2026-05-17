@@ -207,7 +207,20 @@
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
-                        <h3 class="kt-header__mega-column-title">{{ child_link.title | escape }}</h3>
+                        {%- comment -%}
+                          R-heading-order — Was <h3>; the header sits
+                          above <main> in DOM order so any heading
+                          here renders BEFORE the page's <h1>. axe-core's
+                          `heading-order` rule + WCAG 1.3.1/2.4.6 flag
+                          documents whose first heading is an h3. Mega-
+                          menu column labels are navigation affordances,
+                          not content headings — using <span> with the
+                          same visual styling avoids the document outline
+                          violation without changing presentation. The
+                          parent <nav aria-label> already provides the
+                          landmark.
+                        {%- endcomment -%}
+                        <span class="kt-header__mega-column-title" role="presentation">{{ child_link.title | escape }}</span>
                         {%- if child_link.links.size > 0 -%}
                           <ul class="kt-header__mega-list list-unstyled" role="list">
                             {%- for grandchild_link in child_link.links -%}
@@ -719,7 +732,7 @@
                 </svg>
                 <span class="kt-header__mobile-back-label">{{ 'kt.general.back' | t | default: 'Back' }}</span>
               </button>
-              <h3 class="kt-header__mobile-view-title">{{ link.title | escape }}</h3>
+              <span class="kt-header__mobile-view-title" role="presentation">{{ link.title | escape }}</span>
 
               {%- if link.url != blank and link.url != '#' -%}
                 <a href="{{ link.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">
@@ -779,7 +792,7 @@
                     </svg>
                     <span class="kt-header__mobile-back-label">{{ 'kt.general.back' | t | default: 'Back' }}</span>
                   </button>
-                  <h3 class="kt-header__mobile-view-title">{{ child.title }}</h3>
+                  <span class="kt-header__mobile-view-title" role="presentation">{{ child.title | escape }}</span>
 
                   {%- if child.url != blank and child.url != '#' -%}
                     <a href="{{ child.url }}" class="kt-header__mobile-link kt-header__mobile-link--all">

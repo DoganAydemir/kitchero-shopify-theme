@@ -175,10 +175,15 @@
       }}
     {%- endif -%}
 
-    {%- comment -%} Style badge (first tag or product type) {%- endcomment -%}
-    {%- if product.type != blank -%}
-      <span class="kt-card-product__badge">{{ product.type | escape }}</span>
-    {%- endif -%}
+    {%- comment -%}
+      R-badge-stacking — Removed the unconditional product-type
+      badge that previously rendered alongside the priority chain
+      below, producing two badges per card (top-left "type" + bottom-
+      left state badge). Theme Store reviewers flag dual-badge corners
+      as a merchandising-priority violation. The type is now folded
+      into the priority chain as the lowest-priority `elsif` fallback
+      below so at most one badge ever renders per card.
+    {%- endcomment -%}
 
     {%- comment -%}
       Sold-out badge has highest priority — if the product is
@@ -268,7 +273,15 @@
         <span class="kt-card-product__badge kt-card-product__badge--low-stock kt-card-product__badge--corner-bl">
           {{ 'kt.product.low_stock_html' | t: count: card_variant.inventory_quantity }}
         </span>
+      {%- elsif product.type != blank -%}
+        {%- comment -%}
+          R-badge-stacking — type badge is the lowest-priority fallback
+          in the chain so the corner is never double-claimed.
+        {%- endcomment -%}
+        <span class="kt-card-product__badge kt-card-product__badge--type kt-card-product__badge--corner-bl">{{ product.type | escape }}</span>
       {%- endif -%}
+    {%- elsif product.type != blank -%}
+      <span class="kt-card-product__badge kt-card-product__badge--type kt-card-product__badge--corner-bl">{{ product.type | escape }}</span>
     {%- endif -%}
 
     {%- comment -%}

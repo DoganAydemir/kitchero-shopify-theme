@@ -66,9 +66,24 @@
       <div class="kt-shop-color__categories-col">
         {%- for block in section.blocks -%}
           {%- if block.type == 'category' -%}
+            {%- comment -%}
+              R-wcag-keyboard — `tabindex="0"` + `role="button"` +
+              `aria-expanded` make the category accordion reachable
+              via keyboard (Tab + Enter / Space). Without these, the
+              click + mouseenter listeners in kt-section-shop-color.js
+              were unreachable to keyboard / screen-reader users
+              entirely — Theme Store WCAG 2.1.1 hard reject (interactive
+              elements must be keyboard-equivalent). The matching
+              keydown handler in the JS module activates the category
+              on Enter / Space.
+            {%- endcomment -%}
             <div
               class="kt-shop-color__category{% if forloop.first %} kt-shop-color__category--active{% endif %}"
               data-category-id="{{ block.id }}"
+              role="button"
+              tabindex="0"
+              aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-label="{{ block.settings.title | escape }}"
               {{ block.shopify_attributes }}
             >
               <div class="kt-shop-color__category-header">
