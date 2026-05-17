@@ -99,13 +99,23 @@
               </p>
             {%- else -%}
             {%- if form.errors -%}
-              <div class="kt-form__error-summary" role="alert" tabindex="-1">
-                <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
+              {%- comment -%}
+                R297 — `data-form-error-summary` + anchor-wrapped
+                field errors. Both visible inputs (Name, Email) are
+                section-id-suffixed per R296 (`VisualizeStudioName-
+                {{section.id}}`); the anchors must mirror those IDs.
+              {%- endcomment -%}
+              <div class="kt-form__error-summary" data-form-error-summary tabindex="-1">
+                <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
                 <ul class="kt-form__error-list">
                   {%- for field in form.errors -%}
                     <li>
                       {%- if field == 'form' -%}
                         {{ form.errors.translated_messages[field] }}
+                      {%- elsif field == 'name' or field == 'email' -%}
+                        {%- assign vs_field_id = 'VisualizeStudioName' -%}
+                        {%- if field == 'email' -%}{%- assign vs_field_id = 'VisualizeStudioEmail' -%}{%- endif -%}
+                        <a href="#{{ vs_field_id }}-{{ section.id }}">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
                       {%- else -%}
                         {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}
                       {%- endif -%}
@@ -116,24 +126,24 @@
             {%- endif -%}
 
             <div class="kt-visualize-studio__field">
-              <label for="VisualizeStudioName" class="visually-hidden">
+              <label for="VisualizeStudioName-{{ section.id }}" class="visually-hidden">
                 {{ 'kt.contact.form.name' | t | default: 'Name' }}
               </label>
               <input
                 type="text"
-                id="VisualizeStudioName"
+                id="VisualizeStudioName-{{ section.id }}"
                 name="contact[name]"
                 placeholder="{{ 'kt.contact.form.name_placeholder' | t | default: 'Your Name' }}"
                 autocomplete="name"
                 required
                 aria-required="true"
-                {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="VisualizeStudioName-error"{% endif %}
+                {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="VisualizeStudioName-{{ section.id }}-error"{% endif %}
               >
-              {%- render 'form-field-error', form: form, field: 'name', describedby_id: 'VisualizeStudioName-error' -%}
+              {%- render 'form-field-error', form: form, field: 'name', describedby_id: 'VisualizeStudioName-' | append: section.id | append: '-error' -%}
             </div>
 
             <div class="kt-visualize-studio__field">
-              <label for="VisualizeStudioEmail" class="visually-hidden">
+              <label for="VisualizeStudioEmail-{{ section.id }}" class="visually-hidden">
                 {{ 'kt.contact.form.email' | t | default: 'Email' }}
               </label>
               <input
@@ -141,26 +151,28 @@
                 autocapitalize="off"
                 autocorrect="off"
                 spellcheck="false"
-                id="VisualizeStudioEmail"
+                id="VisualizeStudioEmail-{{ section.id }}"
                 name="contact[email]"
                 placeholder="{{ 'kt.contact.form.email_placeholder' | t | default: 'Your Email' }}"
                 inputmode="email"
                 autocomplete="email"
                 required
                 aria-required="true"
-                {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="VisualizeStudioEmail-error"{% endif %}
+                {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="VisualizeStudioEmail-{{ section.id }}-error"{% endif %}
               >
-              {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'VisualizeStudioEmail-error' -%}
+              {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'VisualizeStudioEmail-' | append: section.id | append: '-error' -%}
             </div>
 
             {%- comment -%}
               Honeypot — see base.css `.kt-form__honeypot` for positioning.
               Backend should reject any submission with a non-empty
-              `contact[website]`.
+              `contact[website]`. R296: ID suffixed with `section.id` so
+              two instances of the section on the same template don't
+              produce duplicate IDs (WCAG 4.1.1 fail).
             {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true" inert>
-              <label for="VisualizeStudioWebsiteTrap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
-              <input type="text" id="VisualizeStudioWebsiteTrap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <label for="VisualizeStudioWebsiteTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+              <input type="text" id="VisualizeStudioWebsiteTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
 
             {%- comment -%}

@@ -592,6 +592,30 @@ html.no-js .kt-cart-drawer {
   letter-spacing: -0.01em;
 }
 
+/* R-cart-parity — Total row mirrors main-cart.liquid summary styling,
+   slightly more prominent than subtotal (bolder weight, same font
+   family) so the post-discount sum reads as the final figure. */
+.kt-cart-drawer__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--kt-stone-900);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.12);
+}
+.kt-cart-drawer__total-label {
+  color: var(--kt-stone-900);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.kt-cart-drawer__total-value {
+  font-family: var(--kt-f-accent-family, Georgia, serif);
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
 .kt-cart-drawer__taxes {
   font-size: 0.75rem;                       /* text-xs */
   /* stone-400 (#a8a29e) on white drawer body = 2.41:1 — fails WCAG AA
@@ -665,10 +689,20 @@ html.no-js .kt-cart-drawer {
   min-width: 0;
   padding: 0.5625rem 0.75rem;
   font: inherit;
-  font-size: 0.875rem;
+  /* R297 — Was 0.875rem (14px) which is the iOS Safari auto-zoom
+     threshold for form inputs. The viewport jumped + scrolled
+     mid-input when a customer tapped the field. 1rem (16px) keeps
+     the visual scale tight via the lower letter-spacing below
+     while clearing the zoom floor. All other inputs in the theme
+     already use 1rem; this was the only sub-threshold field. */
+  font-size: 1rem;
+  letter-spacing: 0.02em;
   color: rgb(var(--kt-c-fg));
   background-color: transparent;
-  border: 1px solid rgba(var(--kt-c-fg), 0.2);
+  /* R-wcag-contrast (1.4.11) — 0.2 → 0.45 alpha so the discount-code
+     input boundary clears the 3:1 non-text contrast minimum on the
+     default light scheme. */
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -869,7 +903,7 @@ html.no-js .kt-cart-drawer {
 }
 
 .kt-cart-drawer__note::placeholder {
-  color: rgba(var(--kt-c-fg), 0.5);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 /* `button.kt-cart-drawer__checkout` (specificity 0,0,1,1) is required

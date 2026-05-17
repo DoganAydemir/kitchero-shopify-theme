@@ -25,6 +25,8 @@
   class="kt-brands color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="brands"
+  data-marquee-pause-host
+  data-marquee-pause-modifier="kt-brands--paused"
   style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px; --kt-brands-logo-opacity: {{ brands_logo_opacity }}; --kt-brands-logo-filter: {{ brands_logo_filter }};"
   aria-label="{{ 'kt.section.brands.aria_label' | t | default: 'Featured brands' }}"
 >
@@ -92,8 +94,32 @@
       {%- endfor -%}
     {%- endfor -%}
   </div>
+  {%- comment -%}
+    WCAG 2.2.2 Pause control — infinite logo marquee with no pause
+    affordance is a Theme Store reject vector for touch / screen-
+    reader users (hover/focus pause only mitigates pointer + Tab).
+    The shared `assets/kt-marquee-pause.js` handler toggles the
+    `kt-brands--paused` modifier declared on the section root.
+  {%- endcomment -%}
+  <button
+    type="button"
+    class="kt-brands__pause-toggle"
+    data-marquee-pause-toggle
+    aria-pressed="true"
+    aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play marquee' }}"
+  >
+    <svg data-marquee-icon-pause aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16"></rect>
+      <rect x="14" y="4" width="4" height="16"></rect>
+    </svg>
+    <svg data-marquee-icon-play aria-hidden="true" hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+  </button>
   {%- endif -%}
 </section>
+
+<script src="{{ 'kt-marquee-pause.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
@@ -111,8 +137,14 @@
       "label": "t:sections.brands.settings.logo_style.label",
       "info": "t:sections.brands.settings.logo_style.info",
       "options": [
-        { "value": "grayscale", "label": "t:sections.brands.settings.logo_style.options__grayscale.label" },
-        { "value": "color", "label": "t:sections.brands.settings.logo_style.options__color.label" }
+        {
+          "value": "grayscale",
+          "label": "t:sections.brands.settings.logo_style.options__grayscale.label"
+        },
+        {
+          "value": "color",
+          "label": "t:sections.brands.settings.logo_style.options__color.label"
+        }
       ],
       "default": "grayscale"
     },
@@ -168,9 +200,22 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        {
+          "value": "stone_100",
+          "label": "t:sections.shared.bg_color.options__stone_100.label"
+        }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

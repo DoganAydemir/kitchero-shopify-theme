@@ -259,3 +259,40 @@
     transition: none;
   }
 }
+
+/* R-wcag-pause — Pause/play toggle pinned bottom-right of the
+   marquee container, 44x44 with focus ring + scheme-aware bg. */
+.kt-gallery-marquee {
+  position: relative;
+}
+.kt-gallery-marquee__pause-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
+  border-radius: 9999px;
+  background: rgba(var(--kt-c-bg), 0.85);
+  color: rgb(var(--kt-c-fg));
+  cursor: pointer;
+  z-index: 2;
+}
+.kt-gallery-marquee__pause-toggle:hover {
+  background: rgb(var(--kt-c-bg));
+  border-color: rgb(var(--kt-c-fg));
+}
+.kt-gallery-marquee__pause-toggle:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+}
+.kt-gallery-marquee__pause-toggle [hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kt-gallery-marquee__pause-toggle { display: none; }
+}

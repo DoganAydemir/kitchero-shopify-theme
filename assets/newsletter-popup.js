@@ -276,7 +276,13 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
     document.addEventListener('keydown', function (e) {
       if (!isOpen()) return;
       if (e.key === 'Escape' || e.code === 'Escape') {
-        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(popup)) return;
+        /* shouldSuppressEscape must be queried with the SAME element that
+           openPopup() passed to focusTrap.enable() — `dialog`, not `popup`.
+           Querying with `popup` returns true unconditionally when this trap
+           is active because the stack's top entry is `dialog`, so ESC was
+           silently suppressed and the popup became un-closable via keyboard.
+           WCAG 2.1.2 violation; especially severe on auto-opening modals. */
+        if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(dialog)) return;
         e.preventDefault();
         closePopup(true);
         return;

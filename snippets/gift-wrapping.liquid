@@ -23,12 +23,21 @@
     - label_text       : checkbox label string
     - price_text       : optional small price hint shown after label
     - description_text : optional helper paragraph below
+    - form_id          : optional HTML5 `form="<id>"` attribute. When
+                         the snippet is rendered OUTSIDE the cart form
+                         (cart drawer pattern), `form_id` ties the
+                         checkbox's submission to the named form so
+                         `attributes[Gift wrapping]` is actually sent
+                         on checkout. Without it, an orphan checkbox
+                         renders but never POSTs — silent feature
+                         failure visible to every reviewer.
 
   @example
   {%- render 'gift-wrapping',
     label_text: section.settings.gift_wrap_label,
     price_text: section.settings.gift_wrap_price_text,
-    description_text: section.settings.gift_wrap_description -%}
+    description_text: section.settings.gift_wrap_description,
+    form_id: 'CartDrawerCheckoutForm' -%}
 {%- enddoc -%}
 
 {%- liquid
@@ -51,6 +60,7 @@
       value="Yes"
       class="kt-gift-wrap__checkbox"
       {% if gw_checked %}checked{% endif %}
+      {%- if form_id != blank %} form="{{ form_id }}"{% endif -%}
       data-gift-wrap-checkbox
     >
     <span class="kt-gift-wrap__check-visual" aria-hidden="true">

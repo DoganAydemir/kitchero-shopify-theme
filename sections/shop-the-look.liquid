@@ -82,15 +82,40 @@
                 merchant has added a hotspot but hasn't yet picked
                 an image for the swatch / look detail.
               {%- endcomment -%}
+              {%- comment -%}
+                R298 — Prefer the `product` picker setting when set so
+                title/price/image/URL all flow from Shopify's real
+                product data (price formatted via `| money` respects
+                the active Market currency — fixes the "literal $450"
+                Markets break). Fall back to the plain-text settings
+                if the merchant hasn't picked a product yet (preserves
+                v1.0 merchant data; never delete a setting that has
+                saved values).
+              {%- endcomment -%}
+              {%- assign hotspot_product = block.settings.product -%}
+              {%- assign hotspot_title = block.settings.product_title -%}
+              {%- assign hotspot_image = block.settings.product_image -%}
+              {%- assign hotspot_link = block.settings.product_link -%}
+              {%- assign hotspot_price_html = '' -%}
+              {%- if hotspot_product -%}
+                {%- assign hotspot_title = hotspot_product.title -%}
+                {%- if hotspot_product.featured_image -%}
+                  {%- assign hotspot_image = hotspot_product.featured_image -%}
+                {%- endif -%}
+                {%- assign hotspot_link = hotspot_product.url -%}
+                {%- capture hotspot_price_html -%}{{ hotspot_product.price | money }}{%- endcapture -%}
+              {%- elsif block.settings.product_price != blank -%}
+                {%- capture hotspot_price_html -%}{{ block.settings.product_price | escape }}{%- endcapture -%}
+              {%- endif -%}
               <div class="kt-shop-the-look__popup-image-wrap">
-                {%- if block.settings.product_image != blank -%}
-                  {{ block.settings.product_image | image_url: width: 400 | image_tag: class: 'kt-shop-the-look__popup-image', loading: 'lazy', width: 400, height: 400, alt: block.settings.product_title | default: '' }}
+                {%- if hotspot_image != blank -%}
+                  {{ hotspot_image | image_url: width: 400 | image_tag: class: 'kt-shop-the-look__popup-image', loading: 'lazy', width: 400, height: 400, alt: hotspot_title | default: '' }}
                 {%- else -%}
                   {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-shop-the-look__popup-image' }}
                 {%- endif -%}
               </div>
               <div class="kt-shop-the-look__popup-meta">
-                <h3 class="kt-shop-the-look__popup-name">{{ block.settings.product_title }}</h3>
+                <h3 class="kt-shop-the-look__popup-name">{{ hotspot_title | escape }}</h3>
                 {%- comment -%}
                   R143 SHOP-THE-LOOK-1: hide the price element entirely
                   when blank rather than rendering an empty `<span>`.
@@ -99,8 +124,8 @@
                   data". Suppressing keeps the popup card clean until
                   merchant fills it in.
                 {%- endcomment -%}
-                {%- if block.settings.product_price != blank -%}
-                  <span class="kt-shop-the-look__popup-price">{{ block.settings.product_price }}</span>
+                {%- if hotspot_price_html != blank -%}
+                  <span class="kt-shop-the-look__popup-price">{{ hotspot_price_html }}</span>
                 {%- endif -%}
               </div>
               {%- comment -%}
@@ -111,8 +136,8 @@
                 theme editor we surface a hint so merchants notice the
                 gap; on the live storefront we render nothing.
               {%- endcomment -%}
-              {%- if block.settings.product_link != blank -%}
-                <a href="{{ block.settings.product_link | escape }}" class="kt-shop-the-look__popup-link">
+              {%- if hotspot_link != blank -%}
+                <a href="{{ hotspot_link | escape }}" class="kt-shop-the-look__popup-link">
                   {{ 'kt.section.shop_the_look.view_details' | t | default: 'View Details' }}
                   {% render 'icon-arrow-right', width: 12, height: 12 %}
                 </a>
@@ -295,27 +320,35 @@
           "content": "t:sections.shop-the-look.blocks.hotspot.settings.header__product.content"
         },
         {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product.label",
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product.info"
+        },
+        {
           "type": "text",
           "id": "product_title",
           "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_title.label",
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_title.info",
           "default": "Product name"
         },
         {
           "type": "text",
           "id": "product_price",
           "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.label",
-          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.info",
-          "default": "$450"
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_price.info"
         },
         {
           "type": "image_picker",
           "id": "product_image",
-          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_image.label"
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_image.label",
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_image.info"
         },
         {
           "type": "url",
           "id": "product_link",
-          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_link.label"
+          "label": "t:sections.shop-the-look.blocks.hotspot.settings.product_link.label",
+          "info": "t:sections.shop-the-look.blocks.hotspot.settings.product_link.info"
         }
       ]
     }

@@ -79,11 +79,16 @@
             localized error string. Auto-clears after 6s. role="alert"
             so the message is announced when first revealed.
           {%- endcomment -%}
+          {%- comment -%}
+            R298 — `role="alert"` already implies `aria-live="assertive"`.
+            Declaring both triggers axe-core `aria-redundant` and
+            double-announces on some SRs. theme.liquid:474-480 also
+            documents this rule globally; this surface was missed.
+          {%- endcomment -%}
           <div
             class="kt-cart-page__error"
             data-cart-page-error
             role="alert"
-            aria-live="assertive"
             hidden
           ></div>
           <div class="kt-cart-page__items" role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}">
@@ -319,6 +324,20 @@
 
                 {%- comment -%} Quantity stepper {%- endcomment -%}
                 <div class="kt-cart-page__item-qty">
+                  {%- comment -%}
+                    R-xss-cart — pre-escape `item.product.title` once for
+                    re-use in the three aria-label interpolations below.
+                    Liquid's `t:` filter does NOT auto-escape its named
+                    arguments, so a product titled `"><script>…` would
+                    break out of the attribute and execute on every cart
+                    visit (stored XSS via product-title admin). The cart
+                    drawer (snippets/cart-drawer.liquid) and product form
+                    (snippets/product-form.liquid) already follow this
+                    pattern as `safe_*_title` — main-cart was the last
+                    regression. Theme Store reviewers test stored XSS
+                    via product titles consistently.
+                  {%- endcomment -%}
+                  {%- assign safe_item_title = item.product.title | escape -%}
                   {%- if cart_can_update -%}
                   <label for="updates_{{ item.key }}" class="visually-hidden">
                     {{ 'kt.product.quantity.label' | t }}
@@ -356,7 +375,7 @@
                     <button
                       type="button"
                       class="kt-cart-page__qty-btn"
-                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_item_title | default: 'Decrease quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ cart_qty_next_down }}"
@@ -383,7 +402,7 @@
                     <button
                       type="button"
                       class="kt-cart-page__qty-btn"
-                      aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.increase' | t: title: safe_item_title | default: 'Increase quantity' }}"
                       data-cart-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ cart_qty_next_up }}"
@@ -417,7 +436,7 @@
                     class="kt-cart-page__item-remove"
                     data-cart-remove
                     data-line-key="{{ item.key }}"
-                    aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
+                    aria-label="{{ 'kt.cart.remove' | t: title: safe_item_title | default: 'Remove' }}"
                   >
                     <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3 6 5 6 21 6"></polyline>
@@ -556,26 +575,28 @@
                 closes the parity gap with zero JS requirement.
               {%- endcomment -%}
               {%- if settings.kt_cart_show_discount -%}
-                <form
-                  {%- comment -%}
-                    Discount codes can contain reserved URL characters
-                    (`&`, `?`, `#`, ` `). `| escape` HTML-encodes them
-                    (e.g. `&` → `&amp;`) which is the wrong encoding for
-                    a URL path component — `| url_encode` percent-encodes
-                    them instead, which is what the `/discount/<code>`
-                    route expects.
-                  {%- endcomment -%}
-                  action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
-                  method="get"
-                  class="kt-cart-page__discount"
-                  data-cart-discount-form
-                >
-                  <input type="hidden" name="redirect" value="{{ routes.cart_url }}">
+                {%- comment -%}
+                  R298 — nested `<form>` removed. The cart `{% form 'cart' %}`
+                  block (line 62) wraps the entire page including this
+                  discount section; placing another `<form>` inside is
+                  invalid HTML5 (W3C parsing rule: parser auto-closes
+                  the outer form, re-parenting every subsequent input
+                  out of the cart form context, which breaks no-JS
+                  checkout submit). The discount form element is now
+                  rendered as a SIBLING after `{%- endform -%}` below,
+                  and its inputs/button reference it via the HTML5
+                  `form="CartDiscountForm"` attribute — valid markup
+                  and identical UX. The visual wrapper stays a `<div>`
+                  so layout CSS is unaffected.
+                {%- endcomment -%}
+                <div class="kt-cart-page__discount" data-cart-discount-form>
+                  <input form="CartDiscountForm" type="hidden" name="redirect" value="{{ routes.cart_url }}">
                   <label for="cart-discount-code" class="visually-hidden">
                     {{ 'kt.cart.discount.label' | t | default: 'Discount code' }}
                   </label>
                   <div class="kt-cart-page__discount-row">
                     <input
+                      form="CartDiscountForm"
                       type="text"
                       id="cart-discount-code"
                       name="code"
@@ -585,7 +606,7 @@
                       autocapitalize="characters"
                       spellcheck="false"
                     >
-                    <button type="submit" class="kt-cart-page__discount-submit">
+                    <button form="CartDiscountForm" type="submit" class="kt-cart-page__discount-submit">
                       {{ 'kt.cart.discount.apply' | t | default: 'Apply' }}
                     </button>
                   </div>
@@ -608,7 +629,7 @@
                       {%- endfor -%}
                     </ul>
                   {%- endif -%}
-                </form>
+                </div>
               {%- endif -%}
 
               <div class="kt-cart-page__summary-divider" aria-hidden="true"></div>
@@ -848,6 +869,29 @@
         {%- endif -%}
       {%- endform -%}
 
+      {%- comment -%}
+        R298 — Sibling form for the discount-code section above. Inputs/button
+        inside the cart form's summary column reference this form via the
+        HTML5 `form="CartDiscountForm"` attribute, which is valid and avoids
+        the nested-`<form>` HTML5 parser bug that previously broke no-JS
+        checkout submit. The form is intentionally empty here; its only job
+        is to be the submission target the discount inputs above point to.
+
+        Discount codes can contain reserved URL characters (`&`, `?`, `#`, ` `).
+        `| url_encode` percent-encodes them, which the `/discount/<code>` route
+        expects. `| escape` would HTML-encode them (`&` → `&amp;`) which is
+        the wrong encoding for a URL path component.
+      {%- endcomment -%}
+      {%- if cart.item_count > 0 and settings.kt_cart_show_discount -%}
+        <form
+          id="CartDiscountForm"
+          action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+          method="get"
+          hidden
+          aria-hidden="true"
+        ></form>
+      {%- endif -%}
+
     {%- else -%}
       {%- comment -%} ── Empty state ─────────────────────────────────── {%- endcomment -%}
       <div class="kt-cart-page__empty">
@@ -1030,6 +1074,16 @@
       "unit": "px",
       "label": "t:settings_schema.global.settings.padding_bottom.label",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

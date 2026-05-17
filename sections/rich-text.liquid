@@ -75,22 +75,36 @@
                 the user's explicit preference and keeps the
                 section's CTA UX identical to multicolumn.
               {%- endcomment -%}
+              {%- comment -%}
+                R296 — Empty-link guard. Only render each `<a>` when
+                BOTH label AND link are set. The earlier `default: '#'`
+                fallback yielded dead anchors that fail WCAG 2.4.4
+                (Link Purpose) and Theme Store rejects.
+              {%- endcomment -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
-                {%- if block.settings.button_label_1 != blank -%}
+                {%- if block.settings.button_label_1 != blank and block.settings.button_link_1 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_1 | default: '#' | escape }}"
+                    href="{{ block.settings.button_link_1 | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"
                   >
                     {{- block.settings.button_label_1 | escape -}}
                   </a>
+                {%- elsif block.settings.button_label_1 != blank and request.design_mode -%}
+                  <p class="kt-rich-text__editor-hint" aria-live="polite">
+                    {{ 'kt.section.rich-text.editor_hint_link_missing_url' | t | default: 'Set Button link 1 in the block settings so the button can be clicked on the live storefront.' }}
+                  </p>
                 {%- endif -%}
-                {%- if block.settings.button_label_2 != blank -%}
+                {%- if block.settings.button_label_2 != blank and block.settings.button_link_2 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_2 | default: '#' | escape }}"
+                    href="{{ block.settings.button_link_2 | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_2 | default: 'secondary' }}"
                   >
                     {{- block.settings.button_label_2 | escape -}}
                   </a>
+                {%- elsif block.settings.button_label_2 != blank and request.design_mode -%}
+                  <p class="kt-rich-text__editor-hint" aria-live="polite">
+                    {{ 'kt.section.rich-text.editor_hint_link_missing_url' | t | default: 'Set Button link 2 in the block settings so the button can be clicked on the live storefront.' }}
+                  </p>
                 {%- endif -%}
               </div>
 
@@ -210,9 +224,22 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        {
+          "value": "stone_100",
+          "label": "t:sections.shared.bg_color.options__stone_100.label"
+        }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

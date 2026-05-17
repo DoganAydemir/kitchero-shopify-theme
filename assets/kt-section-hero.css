@@ -528,7 +528,10 @@
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  /* R296 — Was 0.4 (~3.7:1, sub-18.5px text fails WCAG 1.4.3 AA).
+     0.65 yields ~5.5:1 on a dark hero overlay while keeping the
+     label visibly softer than the section's main heading. */
+  color: rgba(255, 255, 255, 0.65);
   margin-bottom: 0.5rem;
 }
 
@@ -537,7 +540,9 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.2);
+  /* R296 — Was 0.2 (~1.8:1, gross contrast fail). 0.6 yields
+     ~4.7:1 — meets WCAG 1.4.3 AA for sub-18.5 px body text. */
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .kt-hero__scroll-bar {

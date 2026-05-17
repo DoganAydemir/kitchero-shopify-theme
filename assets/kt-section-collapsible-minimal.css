@@ -243,7 +243,13 @@
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: var(--kt-stone-400);
+  /* R-wcag-contrast — Bumped stone-400 → stone-600 (#57534e). The
+     previous stone-400 (#a8a29e) on white background measured 2.50:1,
+     below WCAG 1.4.3 AA's 4.5:1 minimum for body copy. stone-600
+     measures ~8:1, comfortably above AA. Hierarchy is preserved
+     because section titles use stone-900 (the lightest grey-step
+     before pure body text). */
+  color: var(--kt-stone-600);
   font-weight: 400;
 }
 
@@ -260,7 +266,9 @@
 .kt-collapsible-minimal__content ul,
 .kt-collapsible-minimal__content ol,
 .kt-collapsible-minimal__content blockquote {
-  color: var(--kt-stone-400);
+  /* R-wcag-contrast — see note above; stone-400 → stone-600 to hit
+     WCAG 1.4.3 AA on body copy. */
+  color: var(--kt-stone-600);
 }
 
 @media (min-width: 750px) {

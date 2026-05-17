@@ -103,11 +103,11 @@
           {%- endif -%}
 
           {%- if block.settings.heading != blank -%}
-            {{ heading_open }}{{ block.settings.heading }}{{ heading_close }}
+            {{ heading_open }}{{ block.settings.heading | escape }}{{ heading_close }}
           {%- endif -%}
 
           {%- if block.settings.description != blank -%}
-            <p class="kt-slider-cinematic__description">{{ block.settings.description }}</p>
+            <p class="kt-slider-cinematic__description">{{ block.settings.description | escape }}</p>
           {%- endif -%}
 
           {%- if block.settings.cta_text != blank -%}

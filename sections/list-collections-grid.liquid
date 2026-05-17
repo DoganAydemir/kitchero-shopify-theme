@@ -44,6 +44,14 @@
 >
   <div class="page-width">
     {%- if collection_list.size > 0 -%}
+      {%- comment -%}
+        Paginate the sorted collection list. Catalogues with 50+ collections
+        (B2B / multi-category) otherwise render a single uncapped page —
+        Lighthouse Performance fails on the DOM-size budget and Theme Store
+        reviewers flag it as a structural rejection (PRF-1). `collections_per_page`
+        defaults to 12, max 30 — keeps Lighthouse green even at the cap.
+      {%- endcomment -%}
+      {%- paginate collection_list by section.settings.collections_per_page -%}
       <ul class="kt-list-collections__grid" role="list">
         {%- for collection in collection_list -%}
           {%- if collection.handle == 'frontpage' -%}{% continue %}{%- endif -%}
@@ -115,6 +123,11 @@
           </li>
         {%- endfor -%}
       </ul>
+
+      {%- if paginate.pages > 1 -%}
+        {%- render 'pagination', paginate: paginate -%}
+      {%- endif -%}
+      {%- endpaginate -%}
     {%- else -%}
       <div class="kt-list-collections__empty">
         <h2 class="kt-list-collections__empty-title">
@@ -146,6 +159,15 @@
       "max": 4,
       "step": 1,
       "default": 3
+    },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "label": "t:sections.list-collections-grid.settings.collections_per_page.label",
+      "min": 6,
+      "max": 30,
+      "step": 2,
+      "default": 12
     },
     {
       "type": "select",

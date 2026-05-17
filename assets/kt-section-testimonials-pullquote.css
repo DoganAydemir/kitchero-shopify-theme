@@ -97,11 +97,18 @@
   font-family: inherit;
   font-style: normal;
   font-weight: 700;
-  font-size: 11px;
+  /* R295 — Bumped 11px → 12px to meet WCAG 1.4.4 "resizable text"
+     baseline. The 0.5em letter-spacing keeps the all-caps badge
+     reading as a label, so a 1px size bump is invisible at desktop
+     viewing distance but lifts the mobile-zoom legibility floor. */
+  font-size: 12px;
   line-height: 1.2;
   letter-spacing: 0.5em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6); /* white/60 */
+  /* R295 — Was rgba(255,255,255,0.6) (~3.5:1 vs. dark stone bg).
+     0.78 alpha yields ~6:1 on the kt-stone-900 surface this
+     section paints — meets WCAG 1.4.3 AA body text minimum. */
+  color: rgba(255, 255, 255, 0.78);
   margin-bottom: 0.5rem; /* mb-2 */
   /* Indent compensation so the wide letter-spacing doesn't push text left */
   padding-left: 0.5em;
@@ -111,11 +118,17 @@
   display: block;
   font-weight: 300;
   font-style: italic;
-  font-size: 10px;
+  /* R295 — 10px → 12px (WCAG 1.4.4 minimum legible size). The
+     italic + uppercase + tracking combo at 10px landed below the
+     "Document does not use legible font sizes" Lighthouse a11y
+     threshold; 12px clears it. */
+  font-size: 12px;
   line-height: 1.4;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4); /* white/40 */
+  /* R295 — Was rgba(255,255,255,0.4) (~2.0:1 — body-text fail).
+     0.7 alpha yields ~5:1 on the dark surface. */
+  color: rgba(255, 255, 255, 0.7);
   padding-left: 0.2em;
 }
 
@@ -154,8 +167,13 @@
 }
 
 .kt-testimonials-pullquote__nav {
-  width: 2.5rem;
-  height: 2.5rem;
+  /* R-touch-target — WCAG 2.5.5 + Shopify Theme Store touch-target
+     minimum 44x44 CSS pixels. Was 2.5rem (40px), failing the floor.
+     Bumped to 2.75rem (44px) to match every other carousel arrow
+     in the theme (cinematic-hero 44px, drag-carousel 48px, hero
+     48px, gallery-stack 48px). */
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -181,6 +199,17 @@
 .kt-testimonials-pullquote__nav svg {
   width: 16px;
   height: 16px;
+}
+
+/* R-wcag-pause — Play/Pause toggle shares the same 44x44 footprint
+   and circular styling as prev/next buttons. The two SVG icons stack
+   in the same slot; `hidden` attribute swaps which one renders. */
+.kt-testimonials-pullquote__play-toggle .kt-testimonials-pullquote__play-icon {
+  width: 14px;
+  height: 14px;
+}
+.kt-testimonials-pullquote__play-toggle .kt-testimonials-pullquote__play-icon[hidden] {
+  display: none;
 }
 
 .kt-testimonials-pullquote__dots {

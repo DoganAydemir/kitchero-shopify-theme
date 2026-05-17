@@ -83,17 +83,14 @@
 
               {%- when 'title' -%}
                 {%- comment -%}
-                  R146 HEADING-TAG-LOCK-1: PDP MUST emit an <h1>
-                  for SEO + WCAG 2.4.6. Schema permits merchant
-                  override (h1/h2) for layout flexibility but a
-                  product page without an h1 is a hard Theme Store
-                  reject. Force `h1` regardless of the block setting
-                  when this is the product title block (the page's
-                  primary heading). Schema setting kept for
-                  backward compatibility — value ignored here.
+                  R295 — PDP MUST emit a single <h1> for SEO +
+                  WCAG 2.4.6. Hardcoded; the earlier R146 schema
+                  option that let merchants downgrade to <h2> was
+                  removed because a downgraded PDP heading is an
+                  instant Theme Store reject and a sitewide SEO
+                  regression.
                 {%- endcomment -%}
-                {%- assign heading_tag = 'h1' -%}
-                <{{ heading_tag }} class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</{{ heading_tag }}>
+                <h1 class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
                 {%- comment -%}
                   Variant SKU rendered for B2B / wholesale shoppers and
                   inventory tracking — Theme Store Section 7 expects SKU
@@ -137,13 +134,45 @@
                     {%- if settings.kt_show_low_stock and current_variant.available and current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= settings.kt_low_stock_threshold -%}
                       {%- assign show_low_stock = true -%}
                     {%- endif -%}
-                    {%- if show_low_stock -%}
-                      <span class="kt-pdp__stock kt-pdp__stock--low" role="status">{{ 'kt.product.low_stock_html' | t: count: current_variant.inventory_quantity | default: 'Only a few left' }}</span>
-                    {%- elsif current_variant.available -%}
-                      <span class="kt-pdp__stock kt-pdp__stock--in">{{ 'kt.product.in_stock' | t | default: 'In Stock' }}</span>
-                    {%- else -%}
-                      <span class="kt-pdp__stock kt-pdp__stock--out">{{ 'kt.product.sold_out' | t }}</span>
-                    {%- endif -%}
+                    {%- comment -%}
+                      R298 — The low-stock span ALWAYS ships in the DOM
+                      (hidden when not applicable) so `product-form.js`'s
+                      variant-change handler can toggle visibility +
+                      text atomically when the merchant selects a
+                      different variant. Before this, the element only
+                      rendered when conditions were true on initial
+                      paint, so a variant flip from "20 in stock" to
+                      "3 left" never surfaced the badge.
+                    {%- endcomment -%}
+                    <span class="kt-pdp__stock kt-pdp__stock--low" role="status" data-low-stock {% unless show_low_stock %}hidden{% endunless %}>
+                      {%- if show_low_stock -%}
+                        {{ 'kt.product.low_stock_html' | t: count: current_variant.inventory_quantity | default: 'Only a few left' }}
+                      {%- endif -%}
+                    </span>
+                    {%- comment -%}
+                      R298 — In-stock / sold-out spans always ship in the
+                      DOM with `hidden` toggled. Without the always-render
+                      pattern, `product-form.js`'s variant-change handler
+                      cannot atomically swap In Stock ↔ Sold out when the
+                      customer flips between available and unavailable
+                      variants — Theme Store "atomic variant update"
+                      requirement (same fix class as the low-stock badge
+                      above and the pre-order badge in product-form.liquid).
+                      `data-stock-status` lets JS pick the right span and
+                      a sibling `data-low-stock` element keeps owning the
+                      low-stock state independently.
+                    {%- endcomment -%}
+                    {%- assign initial_show_in = false -%}
+                    {%- assign initial_show_out = false -%}
+                    {%- unless show_low_stock -%}
+                      {%- if current_variant.available -%}
+                        {%- assign initial_show_in = true -%}
+                      {%- else -%}
+                        {%- assign initial_show_out = true -%}
+                      {%- endif -%}
+                    {%- endunless -%}
+                    <span class="kt-pdp__stock kt-pdp__stock--in" data-stock-status="in"{% unless initial_show_in %} hidden{% endunless %}>{{ 'kt.product.in_stock' | t | default: 'In Stock' }}</span>
+                    <span class="kt-pdp__stock kt-pdp__stock--out" data-stock-status="out"{% unless initial_show_out %} hidden{% endunless %}>{{ 'kt.product.sold_out' | t }}</span>
                   {%- endif -%}
                 </div>
 
@@ -179,7 +208,7 @@
                     <div class="kt-pdp__countdown-top">
                       <div class="kt-pdp__countdown-label">
                         <span class="kt-pdp__countdown-dot" aria-hidden="true"></span>
-                        <span>{{ block.settings.label }}</span>
+                        <span>{{ block.settings.label | escape }}</span>
                       </div>
                       {%- if block.settings.badge != blank -%}
                         <span class="kt-pdp__countdown-badge">{{ block.settings.badge }}</span>
@@ -257,7 +286,7 @@
 
               {%- when 'variant_picker' -%}
                 <div {{ block.shopify_attributes }}>
-                  {%- render 'product-variant-picker', product: product -%}
+                  {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
 
               {%- when 'buy_buttons' -%}
@@ -275,7 +304,13 @@
                     (its `closest('[data-product-form]')` returned
                     null because the wrapper hadn't opened yet).
                   {%- endcomment -%}
-                  {%- render 'product-form', product: product, show_dynamic_checkout: false -%}
+                  {%- comment -%}
+                    R298 — `show_dynamic_checkout` no longer passed false;
+                    Theme Store mandates the accelerated checkout button
+                    inside every `{% form 'product' %}`. Defaults to true
+                    in the snippet.
+                  {%- endcomment -%}
+                  {%- render 'product-form', product: product, section: section -%}
                   {%- comment -%}
                     Pickup availability — rendered directly beneath the
                     Add-to-Cart so merchants running a retail shopfront
@@ -349,7 +384,7 @@
                           {%- endif -%}
                         </div>
                         {%- if block.settings.description != blank -%}
-                          <p class="kt-pdp__door-sample-desc">{{ block.settings.description }}</p>
+                          <p class="kt-pdp__door-sample-desc">{{ block.settings.description | escape }}</p>
                         {%- endif -%}
                       </div>
                       {%- form 'product', sample_product, id: 'DoorSampleForm-blk', class: 'kt-pdp__door-sample-form' -%}
@@ -385,7 +420,7 @@
                 {%- assign concierge_cta_url = block.settings.cta_link | default: pages.contact.url -%}
                 <div class="kt-pdp__concierge" {{ block.shopify_attributes }}>
                   {%- if block.settings.heading != blank -%}
-                    <h2 class="kt-pdp__concierge-heading">{{ block.settings.heading }}</h2>
+                    <h2 class="kt-pdp__concierge-heading">{{ block.settings.heading | escape }}</h2>
                   {%- endif -%}
                   {%- if block.settings.body != blank -%}
                     <p class="kt-pdp__concierge-body">{{ block.settings.body }}</p>
@@ -703,25 +738,7 @@
     {
       "type": "title",
       "name": "t:sections.main-product.blocks.title.name",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "select",
-          "id": "heading_tag",
-          "label": "t:sections.main-product.blocks.title.settings.heading_tag.label",
-          "options": [
-            {
-              "value": "h1",
-              "label": "H1"
-            },
-            {
-              "value": "h2",
-              "label": "H2"
-            }
-          ],
-          "default": "h1"
-        }
-      ]
+      "limit": 1
     },
     {
       "type": "meta",

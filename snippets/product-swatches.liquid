@@ -120,12 +120,33 @@
         endif
       -%}
 
+      {%- comment -%}
+        R298 — Card swatches link to the matching variant URL. Shopify
+        2024+ exposes `value.variant` on `product.options_with_values`
+        iteration: the first product variant whose option-N matches
+        this value. We append `?variant=ID` to the product URL so a
+        click lands the customer on the PDP with that swatch already
+        selected (deep-link resolution on the PDP picker handles the
+        radio/price/image sync). Anchors with `aria-label` carry the
+        colour name; the inner span is `aria-hidden` to avoid double-
+        announcement. `data-swatch-link` lets future analytics target
+        the click without churning class names.
+      {%- endcomment -%}
+      {%- assign swatch_variant_url = product.url -%}
+      {%- if value.variant -%}
+        {%- assign swatch_variant_url = product.url | append: '?variant=' | append: value.variant.id -%}
+      {%- endif -%}
+      <a
+        class="kt-swatches__link"
+        href="{{ swatch_variant_url }}"
+        aria-label="{{ product.title | escape }} — {{ value | escape }}"
+        data-swatch-link
+      >
       {%- if swatch_image_url -%}
         <span
           class="kt-swatches__dot kt-swatches__dot--image"
           style="background-image: url('{{ swatch_image_url }}');"
-          title="{{ value | escape }}"
-          aria-label="{{ value | escape }}"
+          aria-hidden="true"
         ></span>
       {%- else -%}
         {%- comment -%}
@@ -147,10 +168,10 @@
         <span
           class="kt-swatches__dot"
           style="background-color: {{ swatch_bg | escape }};"
-          title="{{ value | escape }}"
-          aria-label="{{ value | escape }}"
+          aria-hidden="true"
         ></span>
       {%- endif -%}
+      </a>
     {%- endfor -%}
     {%- if hidden_count > 0 -%}
       {%- comment -%}

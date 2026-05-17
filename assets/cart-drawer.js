@@ -203,38 +203,38 @@
       this.classList.add('kt-cart-drawer--open');
       this.setAttribute('aria-hidden', 'false');
 
-      /* No body scroll lock during open. The Next.js source
-       * (src/components/CartDrawer.tsx) is intentionally minimal:
-       * it just toggles a `translate-x-full → translate-x-0`
-       * className and lets the CSS transition run. No useEffect,
-       * no body lock, no focus trap setup. That simplicity is WHY
-       * the original animation works flawlessly — the compositor
-       * pipeline runs uninterrupted because nothing else is
-       * mutating the DOM during the 500ms slide.
+      /* R296 — Lightweight background-scroll suppression.
        *
-       * Every previous fix attempt (will-change layer hints, single
-       * rAF, double rAF, transitionend-deferred scrollLock) kept
-       * the user-visible snap because at least ONE of these still
-       * triggered a synchronous layout reflow during the animation:
+       * Background: the heavy `Kitchero.scrollLock` (position:fixed +
+       * negative top offset) forces a full relayout that aborts the
+       * panel's slide-in @keyframes animation — bug previously reported
+       * as "pat diye açıldı". The lightest possible alternative is
+       * `document.body.style.overflow = 'hidden'`: `overflow` is a
+       * paint-only property, the body's content-box doesn't move, and
+       * the panel's compositor layer stays intact through the 500ms
+       * slide.
        *
-       *   - Kitchero.scrollLock applies `position: fixed` on the body
-       *     plus a negative `top` offset → forces a full relayout,
-       *     yanks the panel out of its compositor layer mid-tween.
-       *   - target.focus() WITHOUT preventScroll on a panel that's
-       *     currently at translateX(100%) → browser invokes
-       *     scrollIntoView on the focused element → another reflow.
+       * Trade-offs vs. full scrollLock:
+       *   - Desktop + Android Chrome: scroll fully suppressed — same as
+       *     scrollLock.
+       *   - iOS Safari: the document body still respects `overflow:
+       *     hidden`, but the page's existing scroll POSITION is
+       *     preserved (no negative-top trick). iOS rubber-band on the
+       *     drawer panel itself is still allowed via the panel's own
+       *     `overscroll-behavior: contain` so background bleed-through
+       *     is minimal.
+       *   - Page can't drift in either direction because the document
+       *     hasn't been re-positioned — close() simply restores the
+       *     original overflow value and the user is exactly where they
+       *     left off.
        *
-       * The cure is to eliminate both. We drop the body lock
-       * entirely (matching the original) and pass `preventScroll`
-       * to the focus call. Trade-off: the page behind the drawer
-       * can technically scroll if the user drags through the panel
-       * — same trade-off the original accepts. The `aria-modal`
-       * + `inert` combination still keeps the experience modal for
-       * AT users; sighted users see a viewport-fixed drawer dominant
-       * enough that background scroll isn't a real issue.
-       *
-       * Focus trap stays — it only attaches keydown listeners,
-       * doesn't mutate the DOM, and is required for keyboard a11y. */
+       * Theme Store reviewers flag drawers without scroll suppression
+       * as a hard-reject signal (Mobile audit C1 in R296). This
+       * implementation satisfies the rule without re-introducing the
+       * animation regression. */
+      this._prevBodyOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+
       if (window.Kitchero && Kitchero.focusTrap) {
         Kitchero.focusTrap.enable(this.panel);
       }
@@ -283,15 +283,19 @@
         Kitchero.focusTrap.disable(this.panel);
       }
 
+      /* R296 — Restore the body's prior `overflow` value (saved in
+         `open()`). `overflow` is paint-only, so this swap doesn't
+         cause a layout reflow during the closing animation. */
+      if (this._prevBodyOverflow !== undefined) {
+        document.body.style.overflow = this._prevBodyOverflow;
+        this._prevBodyOverflow = undefined;
+      }
+
       /* Release any scrollLock owner registered under 'cart-drawer'.
-         The drawer itself doesn't take a scrollLock (deliberately —
-         see lines 167-191 above for the rationale), but assets/
-         product-form.js DOES call `Kitchero.scrollLock.lock('cart-
-         drawer')` as a fallback path when the custom element hasn't
-         upgraded yet (race between deferred scripts on first paint).
-         If that fallback fires and close() never releases the matching
-         owner, the body stays locked forever. unlock() is a no-op when
-         the owner isn't present, so this is safe to call unconditionally. */
+         `product-form.js` still calls `Kitchero.scrollLock.lock(
+         'cart-drawer')` as a fallback when the custom element hasn't
+         upgraded yet (deferred-script race on first paint). unlock()
+         is a no-op when the owner isn't present, so this is safe. */
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('cart-drawer');
       }
@@ -363,7 +367,14 @@
 
       fetch(Kitchero.routes.cartChange + '.js', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        /* R297 — Explicit `Accept: application/json` so Markets
+           storefronts that content-negotiate via a proxy don't
+           return HTML and break the downstream `response.json()`
+           chain. Matches the `main-cart.js` request header set. */
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify({ id: key, quantity: quantity }),
       })
         .then(function (response) {
@@ -597,6 +608,51 @@
             var bodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
             var preservedScrollTop = bodyEl ? bodyEl.scrollTop : null;
 
+            /* R298 — Capture the active element BEFORE the innerHTML
+               swap so we can restore focus to the equivalent button
+               after the DOM is replaced. Without this, the focused
+               +/-/Remove button is destroyed during the swap and
+               focus falls back to <body>, forcing keyboard / SR users
+               to re-tab from the drawer top on every quantity change.
+               WCAG 2.4.3 (Focus Order) — Theme Store reviewers test
+               this in manual cart-drawer keyboard flows. */
+            var activeEl = (currentPanel.contains(document.activeElement))
+              ? document.activeElement
+              : null;
+            var restoreFocus = null;
+            if (activeEl) {
+              /* Try the most specific signature first: the line key +
+                 the action role (qty +/-/typed input, remove, etc.). */
+              var lineEl = activeEl.closest('[data-line-key]');
+              var lineKey = lineEl ? lineEl.getAttribute('data-line-key') : null;
+              var qtyDir = activeEl.getAttribute('data-qty');
+              var isQtyInput = activeEl.matches && activeEl.matches('input[name="updates[]"], input[data-qty-input]');
+              var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove], [data-line-remove]');
+              if (lineKey && qtyDir) {
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-qty-change][data-qty="' + qtyDir + '"]');
+                };
+              } else if (lineKey && isQtyInput) {
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] input[name="updates[]"], [data-line-key="' + lineKey + '"] input[data-qty-input]');
+                };
+              } else if (lineKey && isRemove) {
+                /* If the line still exists (qty was just decremented
+                   not removed) keep focus on Remove; otherwise fall
+                   through to next-line / close-button fallback. */
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-cart-remove], [data-line-key="' + lineKey + '"] [data-line-remove]');
+                };
+              } else if (activeEl.id) {
+                /* Fall back to id-based restore for header buttons
+                   (close, continue-shopping, checkout). */
+                var savedId = activeEl.id;
+                restoreFocus = function (panel) {
+                  return panel.querySelector('#' + CSS.escape(savedId));
+                };
+              }
+            }
+
             currentPanel.innerHTML = newPanel.innerHTML;
 
             if (preservedNote && !serverNoteValue) {
@@ -606,6 +662,24 @@
             if (preservedScrollTop != null) {
               var newBodyEl = currentPanel.querySelector('.kt-cart-drawer__body');
               if (newBodyEl) newBodyEl.scrollTop = preservedScrollTop;
+            }
+
+            /* Restore focus to the equivalent button in the swapped
+               DOM. If the original target no longer exists (line was
+               removed, qty hit 0), fall back to the close button so
+               focus stays inside the drawer (NOT body). */
+            if (restoreFocus) {
+              try {
+                var target = restoreFocus(currentPanel);
+                if (target && typeof target.focus === 'function') {
+                  target.focus({ preventScroll: true });
+                } else {
+                  var closeBtn = currentPanel.querySelector('[data-cart-close], .kt-cart-drawer__close');
+                  if (closeBtn) closeBtn.focus({ preventScroll: true });
+                }
+              } catch (e) {
+                /* CSS.escape may not exist on very old browsers; swallow. */
+              }
             }
 
             var nextSubtotal = newPanel.querySelector('.kt-cart-drawer__subtotal-value');

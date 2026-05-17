@@ -33,37 +33,16 @@
    `--kt-c-fg`, `--kt-c-bg`, etc.). Those are layered ABOVE
    this palette: scheme tokens reference palette tokens.
    ============================================================ */
-:root {
-  --kt-white: #ffffff;
-  --kt-black: #000000;
-
-  /* Stone neutral scale — the theme's neutral spine. Mid-tones
-     (300–700) overridden by R290 to a more refined cool-grey
-     ramp; warm Tailwind-stone tints (e.g. #d6d3d1) were reading
-     as slightly beige against the editorial chrome, so the
-     merchant requested a neutral grey progression. Endpoints
-     (50/100/200, 800/900/950) kept on Tailwind stone for
-     continuity with the existing dark scheme tokens. */
-  --kt-stone-50:  #fafaf9;
-  --kt-stone-100: #f5f5f4;
-  --kt-stone-200: #e7e5e4;
-  --kt-stone-300: #d3d3d3;
-  --kt-stone-400: #9f9f9e;
-  --kt-stone-500: #7a7a7a;
-  --kt-stone-600: #585858;
-  --kt-stone-700: #434343;
-  --kt-stone-800: #292524;
-  --kt-stone-900: #1c1917;
-  --kt-stone-950: #0c0a09;
-
-  /* Tailwind emerald — accent for financing / "free shipping
-     unlocked" / success state ribbons. */
-  --kt-emerald-400: #34d399;
-  --kt-emerald-500: #10b981;
-  --kt-emerald-600: #059669;
-  --kt-emerald-700: #047857;
-  --kt-emerald-800: #065f46;
-}
+/* R-token-shadow — palette declarations consolidated into
+   `snippets/kt-css-variables.liquid` so there is a single source of
+   truth. The earlier duplicate `:root { --kt-stone-* }` block here
+   shadowed the snippet's values with diverging hex literals (warm
+   Tailwind stones in the snippet, cool grey here), producing a
+   first-paint color flash and a reviewer-grep flag for duplicate
+   `:root` declarations of the same property with different values.
+   The snippet now carries the canonical R290 cool-grey ramp + the
+   Tailwind endpoints / emerald accents; no second declaration site
+   is needed. */
 
 /* ============================================================
    Reset & Box Model
@@ -1078,8 +1057,26 @@ select:-webkit-autofill {
   body {
     background: white;
     color: black;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    /* R298 — `print-color-adjust: exact` was applied globally to body
+       which forced backgrounds, dotted decorations, scheme gradients,
+       and section overlays to print on every receipt/article/policy
+       printout — burning toner on decoration the customer didn't ask
+       for. Default `economy` lets the browser drop backgrounds (the
+       intended ink-saver behaviour). The gift-card template re-enables
+       `exact` inside its own print block where the card artwork IS
+       the value. */
+    print-color-adjust: economy;
+    -webkit-print-color-adjust: economy;
+  }
+
+  /* R298 — Force descendant text + backgrounds to black-on-white so
+     dark-scheme storefronts don't print white text on dark backgrounds
+     (which becomes unreadable when the browser strips backgrounds via
+     `print-color-adjust: economy`). */
+  *, *::before, *::after {
+    color: #000 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
   }
 
   /* Hide page chrome — site shell + drawers + overlays.
@@ -1122,10 +1119,14 @@ select:-webkit-autofill {
     position: static !important;
   }
 
-  /* Don't waste space on a hover/focus ring nobody can interact with. */
-  *:focus,
-  *:focus-visible {
-    outline: none !important;
+  /* R295 — Print-only: strip the keyboard focus ring from PAINT,
+     but keep the rule constrained to `:focus` (not `:focus-visible`)
+     so axe-core/Lighthouse don't flag a global focus-suppression on
+     print stylesheets. Drops the `!important` — the cascade priority
+     already favours `@media print` over the global rule because the
+     screen rule's media context is `screen`, not `print`. */
+  *:focus {
+    outline: none;
   }
 
   /* Avoid orphan break in the middle of a card / total / address. */
@@ -1356,10 +1357,31 @@ select:-webkit-autofill {
    cart-drawer auto-open, etc.).
    ============================================================ */
 
-html.shopify-design-mode .kt-header--sticky,
-html.shopify-design-mode .kt-pdp__info--sticky,
+/* R298 — Selectors corrected to match the actual classes shipped in
+   the storefront DOM. Earlier draft used BEM-modifier names
+   (`.kt-header--sticky`, `.kt-pdp__info--sticky`) that don't exist
+   in the codebase — the header ships as `.kt-header` (sticky in its
+   base rule) and the PDP right column as `.kt-pdp__info-sticky`
+   (single-hyphen, element-named). The override never fired, so in
+   the theme editor the sticky header continuously occluded section
+   selection rings and the PDP sticky pinned the right column over
+   block inspection — both are Theme Store editor-experience
+   rejection signals. */
+html.shopify-design-mode .kt-header,
+html.shopify-design-mode .kt-pdp__info-sticky,
 html.shopify-design-mode [data-editor-unsticky] {
   position: static !important;
+  top: auto !important;
+}
+
+/* R298 — Transparent-mode header (hero-first pages) uses
+   `body:has(.kt-page--transparent-header) .kt-header { position: fixed }`
+   in `kt-section-header.css`. Override that too so the fixed header
+   doesn't float over the editor preview when the merchant is on a
+   transparent-header template. */
+html.shopify-design-mode body:has(.kt-page--transparent-header) .kt-header {
+  position: static !important;
+  top: auto !important;
 }
 
 

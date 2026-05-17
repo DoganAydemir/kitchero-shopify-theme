@@ -53,8 +53,8 @@
           {%- for block in section.blocks -%}
             {%- if block.type == 'feature' -%}
               <div class="kt-ecosystem__feature eco-item" {{ block.shopify_attributes }}>
-                <h3 class="kt-ecosystem__feature-title">{{ block.settings.title }}</h3>
-                <p class="kt-ecosystem__feature-desc">{{ block.settings.description }}</p>
+                <h3 class="kt-ecosystem__feature-title">{{ block.settings.title | escape }}</h3>
+                <p class="kt-ecosystem__feature-desc">{{ block.settings.description | escape }}</p>
               </div>
             {%- endif -%}
           {%- endfor -%}
@@ -186,6 +186,16 @@
       "default": 60,
       "unit": "px",
       "label": "t:sections.ecosystem.settings.padding_bottom.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

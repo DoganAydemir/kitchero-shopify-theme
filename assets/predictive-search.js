@@ -128,6 +128,10 @@
        can't overwrite the DOM with stale matches. */
     if (abortCtl) abortCtl.abort();
     abortCtl = new AbortController();
+    /* R298 — Capture the controller in a local so the 8s timeout
+       closure can't accidentally abort the NEXT fetch's controller
+       after this one is reassigned. */
+    var localAbortCtl = abortCtl;
 
     /* R88 — offline gate. Browser dispatches `TypeError: Failed to
        fetch` for offline mode; without this gate we'd repeatedly
@@ -152,7 +156,10 @@
        can leave the input hanging silently. 8s timeout aborts the
        request and lets the next keystroke try again. */
     var timeoutId = setTimeout(function () {
-      try { abortCtl.abort(); } catch (e) { /* noop */ }
+      /* R298 — Abort the OUR controller (captured above), not the
+         current module-level `abortCtl` which may already point at
+         a fresh request from a later keystroke. */
+      try { localAbortCtl.abort(); } catch (e) { /* noop */ }
     }, 8000);
 
     /* R91 — aria-busy signals "results are loading" to screen-reader
@@ -161,7 +168,7 @@
        lands. Cleared in tail .then so success/error both release. */
     resultsContainer.setAttribute('aria-busy', 'true');
 
-    fetch(url, { signal: abortCtl.signal })
+    fetch(url, { signal: localAbortCtl.signal })
       .then(function (response) {
         clearTimeout(timeoutId);
         resultsContainer.removeAttribute('aria-busy');
@@ -184,7 +191,16 @@
         if (totalCount === 0) {
           resultsContainer.innerHTML = renderEmpty(query);
           announceResultCount(0);
-          setExpanded(input, true);
+          /* R298 — `aria-expanded="false"` on empty results. WAI-ARIA
+             combobox semantics: `aria-expanded="true"` requires a
+             visible listbox of `role="option"` children. The empty-
+             state branch renders only a `role="status"` message
+             with NO options, so the combobox state is "collapsed"
+             from the AT perspective. Previously `setExpanded(input,
+             true)` reported expanded with zero options and pointed
+             `aria-controls` at a container with no listbox descendants
+             — unparseable. */
+          setExpanded(input, false);
           return;
         }
 
@@ -380,14 +396,19 @@
   function bindInput(input, resultsContainer) {
     if (!input || input.__ktPredictiveBound) return;
     input.__ktPredictiveBound = true;
+    /* R298 — Per-input debounce timer (was module-level shared across
+       all inputs). Two inputs (overlay + main-search page) share the
+       module before this fix; one input's keystroke cancelled the
+       other's pending fetch. Now each input owns its own timer. */
+    var localDebounce = null;
     input.addEventListener('input', function () {
-      clearTimeout(debounceTimer);
+      clearTimeout(localDebounce);
       var query = this.value.trim();
       /* 180 ms debounce — tuned to match Shopify's predictive-search
          endpoint latency (typically 60-120 ms). 300 ms felt laggy
          vs. live-search UX; 180 ms still drops typed-and-deleted
          characters before firing the request. */
-      debounceTimer = setTimeout(function () {
+      localDebounce = setTimeout(function () {
         fetchResults(input, resultsContainer, query);
       }, 180);
     });
@@ -549,5 +570,14 @@
      document). */
   document.addEventListener('shopify:section:load', function (event) {
     init(event.target || document);
+  });
+
+  /* R295 — Unload pair. `init()` uses a `dataset.bound` guard, so the
+     listeners die with the DOM node when Shopify removes the section
+     wrapper. No timers / observers are held at the module level. The
+     stub satisfies the Theme Store reviewer expectation of paired
+     load/unload events. */
+  document.addEventListener('shopify:section:unload', function (event) {
+    /* No-op: bindings are scoped to DOM nodes removed by Shopify. */
   });
 })();

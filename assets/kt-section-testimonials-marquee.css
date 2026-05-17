@@ -65,7 +65,13 @@
   will-change: transform;
 }
 
-.kt-testimonials-marquee--paused .kt-testimonials-marquee__track {
+/* R298 — Pause on hover + keyboard focus-within (parallel-experience
+   for keyboard users tabbing through testimonial links). Original
+   only had a JS-toggled `--paused` modifier; adding hover/focus
+   gives pointer + keyboard users the same reading window. */
+.kt-testimonials-marquee--paused .kt-testimonials-marquee__track,
+.kt-testimonials-marquee:hover .kt-testimonials-marquee__track,
+.kt-testimonials-marquee:focus-within .kt-testimonials-marquee__track {
   animation-play-state: paused;
 }
 
@@ -181,4 +187,40 @@
 .kt-testimonials-marquee__item--app {
   min-width: auto;
   white-space: normal;
+}
+
+/* R-wcag-pause — Pause/play toggle for the infinite marquee. */
+.kt-testimonials-marquee {
+  position: relative;
+}
+.kt-testimonials-marquee__pause-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
+  border-radius: 9999px;
+  background: rgba(var(--kt-c-bg), 0.85);
+  color: rgb(var(--kt-c-fg));
+  cursor: pointer;
+  z-index: 2;
+}
+.kt-testimonials-marquee__pause-toggle:hover {
+  background: rgb(var(--kt-c-bg));
+  border-color: rgb(var(--kt-c-fg));
+}
+.kt-testimonials-marquee__pause-toggle:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+}
+.kt-testimonials-marquee__pause-toggle [hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kt-testimonials-marquee__pause-toggle { display: none; }
 }

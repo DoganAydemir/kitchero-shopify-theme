@@ -96,7 +96,7 @@
           {%- when 'text' -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h2 class="kt-footer__column-title">{{ block.settings.heading }}</h2>
+                <h2 class="kt-footer__column-title">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
               <div class="kt-footer__text rte">{{ block.settings.text }}</div>
             </div>
@@ -104,7 +104,7 @@
           {%- when 'newsletter' -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h2 class="kt-footer__column-title">{{ block.settings.heading }}</h2>
+                <h2 class="kt-footer__column-title">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
               {%- form 'customer', id: 'FooterNewsletter' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
@@ -192,11 +192,33 @@
                     </p>
                   {%- endif -%}
                   {%- if form.errors -%}
-                    <p class="kt-footer__newsletter-error" id="FooterNewsletter-error" role="alert">
-                      {%- for field in form.errors -%}
-                        {{ form.errors.translated_messages[field] }}{% unless forloop.last %} · {% endunless %}
-                      {%- endfor -%}
-                    </p>
+                    {%- comment -%}
+                      R297 — Structured summary so SR + keyboard users
+                      can jump to the email field on validation failure.
+                      Wrapper is `tabindex="-1"` + `data-form-error-
+                      summary` so `assets/global.js:444 focusFirstFormError`
+                      can focus it; UL carries `role="alert"` for the
+                      announcement.
+                    {%- endcomment -%}
+                    <div
+                      class="kt-footer__newsletter-error"
+                      id="FooterNewsletter-error"
+                      data-form-error-summary
+                      tabindex="-1"
+                    >
+                      <h2 class="visually-hidden">{{ 'kt.contact.form.error_heading' | t | default: 'There was an error' }}</h2>
+                      <ul class="kt-footer__newsletter-error-list" role="alert">
+                        {%- for field in form.errors -%}
+                          <li>
+                            {%- if field == 'form' or field == 'email' -%}
+                              <a href="#footer-newsletter-email">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
+                            {%- else -%}
+                              {{ form.errors.translated_messages[field] }}
+                            {%- endif -%}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </div>
                   {%- endif -%}
                   {%- if shop.privacy_policy != blank -%}
                     <p class="kt-footer__newsletter-privacy">
@@ -228,7 +250,7 @@
             {%- endcomment -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h2 class="kt-footer__heading">{{ block.settings.heading }}</h2>
+                <h2 class="kt-footer__heading">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
               <ul class="kt-footer__contact list-unstyled" role="list">
                 {%- if block.settings.show_address and shop.address.street != blank -%}
@@ -345,9 +367,14 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  <noscript>
-                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                  </noscript>
+                  {%- comment -%}
+                    R298 — Submit button moved OUTSIDE `<noscript>` so
+                    JS-enabled users can apply their locale choice.
+                    The on-change auto-submit was deliberately removed
+                    for WCAG 3.2.2 compliance, so an explicit button
+                    must be visible to all users (not just no-JS).
+                  {%- endcomment -%}
+                  <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                 </div>
               {%- endform -%}
             {%- endif -%}
@@ -364,9 +391,11 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  <noscript>
-                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                  </noscript>
+                  {%- comment -%}
+                    R298 — Submit button moved OUTSIDE `<noscript>`
+                    (see language form above for rationale).
+                  {%- endcomment -%}
+                  <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                 </div>
               {%- endform -%}
             {%- endif -%}
@@ -517,6 +546,16 @@
       "label": "t:sections.footer.settings.show_policy_links.label",
       "info": "t:sections.footer.settings.show_policy_links.info",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

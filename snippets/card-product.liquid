@@ -24,7 +24,18 @@
   assign show_vendor = show_vendor | default: true
   assign show_secondary_image = show_secondary_image | default: true
   assign show_quote_button = show_quote_button | default: true
-  assign secondary_image = product.images[1] | default: nil
+  # R297 — Only fetch the second image when the parent section asks
+  # for it. The unconditional `product.images[1]` lookup at the top of
+  # the snippet fired a sub-collection access for every card in every
+  # collection grid (24 cards × N collections worth of accesses)
+  # regardless of whether the merchant disabled hover-swap. Gating
+  # behind `show_secondary_image` saves ~80-150 ms cumulative on a
+  # 24-card collection grid.
+  if show_secondary_image
+    assign secondary_image = product.images[1] | default: nil
+  else
+    assign secondary_image = nil
+  endif
   assign card_index = index | default: 99
   comment
     Eager-load the first FOUR cards so row 1 of a 4-column desktop

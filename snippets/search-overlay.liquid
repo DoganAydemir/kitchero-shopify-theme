@@ -45,6 +45,7 @@
             autocapitalize="off"
             spellcheck="false"
             enterkeyhint="search"
+            inputmode="search"
             role="combobox"
             aria-expanded="false"
             aria-controls="predictive-search-results"
@@ -62,14 +63,36 @@
             data-search-input
           >
           {%- comment -%}
-            Include `collection` so hitting Enter on the overlay lands
-            on a /search results page whose scope matches what the
-            predictive-search dropdown surfaced. Without it, a customer
-            who sees "Shop the Sofas collection" in the live suggestions
-            and presses Enter gets only product results — the collection
-            link disappears, which reads as a broken expectation.
+            R296 — Type scope is driven by the merchant's "Include in
+            results" theme settings (Theme settings → Search behavior).
+            Previously the value was hardcoded to ALL four types,
+            which meant disabling "Pages" or "Journal articles" in
+            theme settings had no effect — the Enter-key submit still
+            asked Shopify to search across every type. Now we build
+            the scope string from the same toggles that drive the
+            predictive-search overlay, so a merchant who wants a
+            product-only search consistently gets product-only.
           {%- endcomment -%}
-          <input type="hidden" name="type" value="product,collection,article,page">
+          {%- liquid
+            assign overlay_search_types = ''
+            if settings.kt_search_inc_products
+              assign overlay_search_types = overlay_search_types | append: 'product,'
+            endif
+            if settings.kt_search_inc_collections
+              assign overlay_search_types = overlay_search_types | append: 'collection,'
+            endif
+            if settings.kt_search_inc_articles
+              assign overlay_search_types = overlay_search_types | append: 'article,'
+            endif
+            if settings.kt_search_inc_pages
+              assign overlay_search_types = overlay_search_types | append: 'page,'
+            endif
+            assign overlay_search_types = overlay_search_types | split: ',' | join: ','
+            if overlay_search_types == blank
+              assign overlay_search_types = 'product'
+            endif
+          -%}
+          <input type="hidden" name="type" value="{{ overlay_search_types }}">
         </div>
       </form>
 

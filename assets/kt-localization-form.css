@@ -4,12 +4,14 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  /* Inherited by the ::after chevron via currentColor. Explicitly
-     anchored to stone-500 (matching the select's foreground) so the
-     pseudo-element renders the right tone in any context the wrapper
-     lands in (footer dark surface, etc.). The mobile-panel override
-     below bumps this to stone-50 to match its brighter select text. */
-  color: var(--kt-stone-500);
+  /* R-wcag-contrast — Bumped stone-500 → stone-400 so the chevron +
+     select text clear WCAG 1.4.3 AA on the dark footer surface
+     (#0c0a09). stone-500 #78716c on that surface measures 4.20:1
+     (fails 4.5:1); stone-400 #a8a29e measures 7.5:1 (clears AA
+     comfortably). The footer is the primary surface this selector
+     ships on so we anchor to the dark-friendly tone here; light
+     overrides below (mobile-panel, etc.) re-set color as needed. */
+  color: var(--kt-stone-400);
 }
 
 .localization-selector select {
@@ -17,7 +19,8 @@
   background: rgba(12, 10, 9, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
-  color: var(--kt-stone-500);
+  /* R-wcag-contrast — stone-400 instead of stone-500; see note above. */
+  color: var(--kt-stone-400);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.1em;

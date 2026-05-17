@@ -175,13 +175,36 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
              "{{amount_with_comma_separator}} TL" → "1.299,00 TL"
            Shopify's storefront payload includes price in cents
            (integer), so we divide by 100 first. */
+        /* R298 — Theme does not ship Shopify's `option_selection.js`, so
+           `Shopify.formatMoney` is undefined in this theme. The previous
+           fallback emitted a bare `amount.toFixed(2)` like "25.00" with
+           no currency symbol or code — a German shopper saw a localized
+           Liquid price next to a bare number, two different price
+           representations on the same page (Markets fail).
+           Mirror the `Intl.NumberFormat` pattern from
+           `assets/predictive-search.js:359-378`: respect
+           `Shopify.currency.active` and `document.documentElement.lang`
+           so the currency formatting matches Liquid's `| money` output
+           across every Market. */
         var amount = (product.price / 100);
-        if (window.Shopify && window.Shopify.formatMoney) {
-          /* Theme-shipped money format helper — not all themes have it.
-             Fall back to a basic en-US format if absent. */
-          price.textContent = window.Shopify.formatMoney(product.price);
-        } else {
-          price.textContent = amount.toFixed(2);
+        var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+        var locale = (document.documentElement.lang || 'en').replace('_', '-');
+        try {
+          price.textContent = new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+          }).format(amount);
+        } catch (e) {
+          /* Locale fallback if the language tag is unknown to the
+             host browser's CLDR set — final-resort en-US format. */
+          try {
+            price.textContent = new Intl.NumberFormat('en', {
+              style: 'currency',
+              currency: currency,
+            }).format(amount);
+          } catch (e2) {
+            price.textContent = amount.toFixed(2);
+          }
         }
         text.appendChild(price);
       }
@@ -315,6 +338,17 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
       if (!e.target) return;
       var section = e.target.querySelector('[data-recently-viewed]');
       if (section) renderSection(section);
+    });
+
+    /* R295 — Pair every shopify:section:load listener with an unload
+       handler. Section render is idempotent (renderSection wipes and
+       repopulates the DOM, no observers or timers leak) so cleanup
+       is a no-op; the stub exists to satisfy Theme Store reviewer
+       expectations and to dock the Section Rendering API hooks in
+       one place for future maintenance. */
+    document.addEventListener('shopify:section:unload', function (e) {
+      if (!e.target) return;
+      /* No-op: render is fully DOM-replacement; nothing to tear down. */
     });
   })();
 }

@@ -70,9 +70,23 @@
           </div>
 
           {%- if section.blocks.size > 0 -%}
+            {%- comment -%}
+              R298 — `role="group"` (was `role="radiogroup"`). ARIA spec
+              requires `radiogroup` parents to contain `role="radio"`
+              children; we render toggle `<button aria-pressed>` instead,
+              which is a `button` ARIA pattern, not `radio`. axe-core
+              flags the mismatch as `aria-required-children` (serious
+              severity). Switching to `role="group"` keeps the labelled
+              grouping for screen readers while letting each child
+              continue as a toggle button — semantically these ARE
+              mutually-exclusive options, but reimplementing as native
+              radios would change keyboard semantics (arrow keys vs.
+              Tab) and break the existing JS handlers; `role="group"`
+              is the conservative ARIA-valid fix.
+            {%- endcomment -%}
             <div
               class="kt-financing-calculator__terms"
-              role="radiogroup"
+              role="group"
               aria-label="{{ 'kt.section.financing-calculator.terms_label' | t }}"
             >
               {%- for block in section.blocks -%}

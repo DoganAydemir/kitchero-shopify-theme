@@ -27,18 +27,13 @@
       R94 — SR-only polite live region for cart-mutation announcements.
       Item count is announced via the cart-icon badge's aria-live="polite"
       (header.liquid:441), but item-level events (add/remove with title)
-      need their own announcer. cart-drawer.js writes text here on
-      successful add/remove/update. visually-hidden so it never paints.
-      role="status" + aria-live="polite" + aria-atomic="true" gets
-      consistent NVDA/VO behaviour across screen readers.
+      R298 — Drawer-local announcer REMOVED. `cart-drawer.js` writes
+      via `Kitchero.announce()` (the global `#ktAnnouncer` region in
+      layout/theme.liquid) for all cart-update messages. The drawer-
+      local element was dead code (no JS reference) and adding a
+      second polite live region risked race-double-announcement if
+      future code accidentally targeted it.
     {%- endcomment -%}
-    <div
-      class="visually-hidden"
-      data-cart-drawer-announcer
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-    ></div>
 
     {%- comment -%}
       Cart Items.
@@ -218,13 +213,22 @@
                 skips the block when product is gone OR when product
                 only has Default Title variant.
               {%- endcomment -%}
+              {%- comment -%}
+                R298 — Variant option lines now emit `Name: Value` to match
+                the cart page (`sections/main-cart.liquid:166-170`).
+                Previously the drawer rendered bare values only ("Red",
+                "Small") while the page rendered fully-labelled options
+                ("Color: Red", "Size: Small") for the same line item.
+                Theme Store rejects parity gaps between cart drawer and
+                cart page; aligning the markup fixes the disparity and
+                also gives screen readers the option name context.
+              {%- endcomment -%}
               {%- if item.product and item.product.has_only_default_variant == false -%}
-                <p class="kt-cart-drawer__item-variant">
+                <ul class="kt-cart-drawer__item-variant" role="list">
                   {%- for option in item.options_with_values -%}
-                    {{- option.value | escape -}}
-                    {%- unless forloop.last %}<br>{% endunless -%}
+                    <li><span>{{ option.name | escape }}:</span> {{ option.value | escape }}</li>
                   {%- endfor -%}
-                </p>
+                </ul>
               {%- endif -%}
 
               {%- comment -%}
@@ -373,13 +377,20 @@
               {%- endcomment -%}
               {%- assign drawer_can_update = item.instructions.can_update_quantity | default: true -%}
               {%- assign drawer_can_remove = item.instructions.can_remove | default: true -%}
+              {%- comment -%}
+                R296 — `item.product.title` can legally contain `"` and
+                `<` from the merchant admin. Without `| escape` those
+                bytes break the aria-label attribute / inject markup.
+                Pre-escape once and reuse across the row's buttons.
+              {%- endcomment -%}
+              {%- assign safe_item_title = item.product.title | escape -%}
               <div class="kt-cart-drawer__item-footer">
                 {%- if drawer_can_update -%}
                   <div class="kt-cart-drawer__qty">
                     <button
                       type="button"
                       class="kt-cart-drawer__qty-btn"
-                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: item.product.title | default: 'Decrease quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_item_title | default: 'Decrease quantity' }}"
                       data-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ drawer_qty_next_down }}"
@@ -390,7 +401,7 @@
                     <button
                       type="button"
                       class="kt-cart-drawer__qty-btn"
-                      aria-label="{{ 'kt.product.quantity.increase' | t: title: item.product.title | default: 'Increase quantity' }}"
+                      aria-label="{{ 'kt.product.quantity.increase' | t: title: safe_item_title | default: 'Increase quantity' }}"
                       data-qty-change
                       data-line-key="{{ item.key }}"
                       data-qty="{{ drawer_qty_next_up }}"
@@ -411,7 +422,7 @@
                   <button
                     type="button"
                     class="kt-cart-drawer__remove"
-                    aria-label="{{ 'kt.cart.remove' | t: title: item.product.title | default: 'Remove' }}"
+                    aria-label="{{ 'kt.cart.remove' | t: title: safe_item_title | default: 'Remove' }}"
                     data-qty-change
                     data-line-key="{{ item.key }}"
                     data-qty="0"
@@ -492,9 +503,17 @@
       {%- assign cart_recs = cart_anchor_product.metafields.shopify--discovery--product_recommendation.related_products.value -%}
       {%- if cart_recs and cart_recs.size > 0 -%}
         <div class="kt-cart-drawer__recommendations" data-cart-recommendations>
-          <h3 class="kt-cart-drawer__recommendations-heading">
+          {%- comment -%}
+            R295 — Drawer recommendations heading is the only heading
+            INSIDE the cart drawer; the drawer floats above arbitrary
+            pages so an <h3> would skip from the page's <h1>/<h2> to
+            <h3> in the document outline (WCAG 2.4.6 fail). The
+            drawer is a top-level region — <h2> mirrors the conventions
+            of dialogs/landmarks in major a11y references.
+          {%- endcomment -%}
+          <h2 class="kt-cart-drawer__recommendations-heading">
             {{- section.settings.recommendations_heading | default: cart_drawer_recommendations_default | escape -}}
-          </h3>
+          </h2>
           <ul class="kt-cart-drawer__recommendations-list" role="list">
             {%- for rec_product in cart_recs limit: section.settings.recommendations_count -%}
               {%- comment -%}
@@ -544,10 +563,60 @@
       {%- endif -%}
     {%- endif -%}
 
+    {%- comment -%}
+      R165 AB-002 — `@app` blocks intentionally NOT supported in
+      this drawer. cart-drawer is rendered statically via
+      `{% section 'cart-drawer' %}` from `layout/theme.liquid` and
+      Shopify's "Sections" architecture doc states "Sections that
+      are included in JSON templates or section groups can support
+      app blocks" — static-rendered sections cannot. Cart-upsell
+      apps that need a slot use `main-cart.liquid` (JSON-template
+      rendered, retains its `@app` block declaration).
+    {%- endcomment -%}
+
     {%- comment -%} Footer {%- endcomment -%}
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">
-        {%- render 'free-shipping-bar' -%}
+        {%- comment -%}
+          R298 — Free-shipping bar gated on the drawer section's
+          `show_free_shipping_bar` toggle so cart page + drawer have
+          identical merchant-editable visibility (parity with
+          `sections/main-cart.liquid:493`). The bar still self-hides
+          when `settings.kt_free_shipping_threshold == 0`, so this is
+          an additive merchant override on top of the threshold gate.
+        {%- endcomment -%}
+        {%- if section.settings.show_free_shipping_bar -%}
+          {%- render 'free-shipping-bar' -%}
+        {%- endif -%}
+
+        {%- comment -%}
+          R298 — Gift wrap opt-in. Previously the cart drawer skipped
+          rendering the gift-wrapping snippet entirely; drawer-mode
+          customers (drawer's checkout button POSTs straight to
+          `/checkouts/...`) could never opt in to gift wrap, while
+          cart-page customers could.
+
+          R-cart-giftwrap-form — The gift-wrap snippet renders
+          `<input name="attributes[Gift wrapping]">` which only
+          persists when submitted as part of `{% form 'cart' %}`.
+          Originally rendered HERE (outside the cart form at line
+          791), the input was orphan markup: toggling did literally
+          nothing because no form ever sent it. Customers ticked
+          the box, completed checkout, and the order had no gift
+          wrap attribute — silent feature failure. Now wired in via
+          HTML5 `form="CartDrawerCheckoutForm"` so the visual
+          position stays the same (above subtotal) but the input
+          submits with the cart form below. The cart form below
+          declares the matching `id`.
+        {%- endcomment -%}
+        {%- if section.settings.show_gift_wrapping_message -%}
+          {%- render 'gift-wrapping',
+              section: section,
+              label_text: section.settings.gift_wrap_label,
+              price_text: section.settings.gift_wrap_price_text,
+              description_text: section.settings.gift_wrapping_message,
+              form_id: 'CartDrawerCheckoutForm' -%}
+        {%- endif -%}
 
         {%- comment -%}
           Cart-level discount applications (auto-applied or code-applied
@@ -607,12 +676,18 @@
             {%- if cart.discount_codes.size > 0 -%}
               <ul class="kt-cart-drawer__discount-applied" role="list">
                 {%- for code in cart.discount_codes -%}
+                  {%- comment -%}
+                    R296 — Discount code is merchant-controlled but Theme
+                    Store rejects any unescaped string in HTML attributes.
+                    Pre-escape once for both display and aria-label.
+                  {%- endcomment -%}
+                  {%- assign safe_discount_code = code | escape -%}
                   <li class="kt-cart-drawer__discount-chip">
-                    <span>{{ code }}</span>
+                    <span>{{ safe_discount_code }}</span>
                     <a
                       href="{{ routes.root_url }}discount?redirect={{ routes.cart_url | url_encode }}"
                       class="kt-cart-drawer__discount-remove"
-                      aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: code | default: 'Remove discount code' }}"
+                      aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: safe_discount_code | default: 'Remove discount code' }}"
                     >&times;</a>
                   </li>
                 {%- endfor -%}
@@ -633,18 +708,48 @@
         <div class="kt-cart-drawer__subtotal">
           <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
           {%- comment -%}
-            Grand total in the drawer footer uses money_with_currency
-            to match the /cart page. On multi-currency stores the ISO
-            code right above the Checkout CTA prevents customer
-            confusion about which currency will be charged.
+            R298 — Subtotal value aligned with cart page semantics.
+            Previously the drawer emitted `cart.total_price` (post-
+            discount, post-everything) under a "Subtotal" label while
+            the page emitted `cart.items_subtotal_price` (pre-discount
+            line-item sum) under the same label. Customers saw two
+            different numbers for the same labelled field depending on
+            which surface they were looking at — Theme Store flags
+            inconsistent / deceptive cart values as a parity failure.
+            Now both surfaces use `items_subtotal_price | money` for
+            "Subtotal"; discount lines render above the tax note and
+            the Total row beneath surfaces the post-discount sum so
+            the customer sees the same final figure on both surfaces.
 
             data-cart-subtotal — INS-05: Shopify's
             <shopify-payment-terms> custom element observes this
             attribute to refresh installment quotes after cart
             mutations. Same hook as main-cart.liquid summary row.
           {%- endcomment -%}
-          <span class="kt-cart-drawer__subtotal-value" data-cart-subtotal>{{ cart.total_price | money_with_currency }}</span>
+          <span class="kt-cart-drawer__subtotal-value" data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
         </div>
+
+        {%- comment -%}
+          R-cart-parity — Total row mirrors main-cart.liquid:637-648.
+          Previously the drawer stopped at Subtotal (pre-discount line-
+          item sum), so a customer with any cart-level discount saw a
+          different bottom-line on the drawer than they did on the cart
+          page (drawer: Subtotal $100 / Spring −$10; page: Subtotal $100
+          / Spring −$10 / Total $90). Theme Store reviewers test this
+          exact case and flag the divergent number as a parity failure.
+          Render even when discounts aren't applied (total == subtotal)
+          so the surface stays consistent; `money_with_currency` matches
+          the cart-page Total format for multi-currency disambiguation.
+          Gated on cart.item_count > 0 so the empty-state surface isn't
+          polluted with a "Total: $0.00" row.
+        {%- endcomment -%}
+        {%- if cart.item_count > 0 -%}
+          <div class="kt-cart-drawer__total">
+            <span class="kt-cart-drawer__total-label">{{ 'kt.cart.total' | t | default: 'Total' }}</span>
+            <span class="kt-cart-drawer__total-value" data-cart-total>{{ cart.total_price | money_with_currency }}</span>
+          </div>
+        {%- endif -%}
+
         <p class="kt-cart-drawer__taxes">
           {%- comment -%}
             Four-way branch: tax-exempt customer (B2B / nonprofit),
@@ -692,7 +797,7 @@
           into the drawer body). main-cart.liquid already does this
           at line 40; drawer now matches.
         {%- endcomment -%}
-        {%- form 'cart', cart, class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
+        {%- form 'cart', cart, id: 'CartDrawerCheckoutForm', class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
           {%- comment -%}
             Installments banner (INS-03): emitted inside the cart
             form so the `form` object resolves for the

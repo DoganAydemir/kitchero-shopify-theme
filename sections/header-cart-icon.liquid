@@ -19,11 +19,18 @@
   group. Shopify's SRA accepts orphan sections as long as the section
   file exists, which is the entire purpose here.
 {%- endcomment -%}
+{%- comment -%}
+  R298 — `aria-live` REMOVED here too. This is the Section Rendering
+  API fragment used for AJAX cart-count refreshes. If a future
+  regression mounts it into the live DOM alongside the canonical
+  header.liquid badge, two `aria-live` regions racing would
+  double-announce. `Kitchero.announce()` is the single source of
+  truth for cart-change announcements.
+{%- endcomment -%}
 <span
   class="kt-header__cart-count"
   data-section-id="{{ section.id }}"
-  aria-live="polite"
-  aria-atomic="true"
+  aria-hidden="{% if cart.item_count == 0 %}true{% else %}false{% endif %}"
   {% if cart.item_count == 0 %}style="display: none;"{% endif %}
 >
   {{ cart.item_count }}

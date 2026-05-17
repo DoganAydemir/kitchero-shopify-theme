@@ -330,15 +330,15 @@ if (!window.__kitcheroCookieBannerLoaded) {
       showBanner(banner);
       return true;
     }
-    /* Expose under Kitchero namespace for theme code AND on
-       window.openCookieBanner for app blocks / external footer
-       links that don't know the namespace. Both names point to
-       the same function so callers don't need to feature-test. */
+    /* R297 — Expose ONLY under the `window.Kitchero` namespace.
+       The previous `window.openCookieBanner` global was a Theme
+       Store rejection signal ("only `window.Kitchero` should be
+       exported", per CLAUDE.md). App blocks / external footer
+       links should trigger the banner via the
+       `[data-cookie-preferences]` data-attribute delegate handler
+       below — it's also the documented merchant-facing API. */
     window.Kitchero = window.Kitchero || {};
     window.Kitchero.openCookieBanner = openCookieBanner;
-    if (typeof window.openCookieBanner !== 'function') {
-      window.openCookieBanner = openCookieBanner;
-    }
     /* Delegated click handler — any element with
        [data-cookie-preferences] (button, anchor) re-opens the
        banner. Prevents default so anchor href="#" doesn't scroll. */

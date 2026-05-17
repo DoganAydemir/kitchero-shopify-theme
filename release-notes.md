@@ -1,70 +1,68 @@
-# Release Notes
+Kitchero 1.0.0 — initial Theme Store release. Built on Shopify
+Skeleton with Online Store 2.0 architecture, full multi-language
+support (English, Turkish, German, French, Spanish), and app-block
+support on the primary commerce surfaces (product page, featured
+product, header, footer, cart page).
 
-This file tracks public-facing changes for each released version of the
-Kitchero theme. Per Shopify Theme Store rule UPD-4, themes published to
-the Theme Store must maintain a `release-notes.md` at the theme root
-once a first version has been published. Each released version
-must add an entry above this paragraph; entries below the paragraph
-document the in-development pre-release history for context.
+## 1.0.0
 
----
+### Added
 
-## Unreleased — submission preparation
-
-The theme has not yet been published to the Theme Store. The entries
-below are an internal changelog of the rounds that brought Kitchero to
-submission-ready state. After the theme passes initial review, the
-**Released** heading replaces this **Unreleased** heading and the v1.0.0
-entry begins above it.
-
-### Phase 4 — Concept + Essence cross-validation pass (R132–R145)
-
-- **R132** Wire cookie-banner and newsletter-popup into a custom
-  overlay section group rendered globally from `layout/theme.liquid`,
-  so the consent UI surfaces on a fresh install without merchant
-  intervention.
-- **R133** Emit Shopify's `shopify.online_store.spam_detection.disclaimer_html`
-  on the article comment form, suppressing the floating reCAPTCHA
-  badge that otherwise clashes with the editorial layout.
-- **R134** Add a Search & Discovery curated upsell band to the cart
-  page (mirrors the cart-drawer R122 pattern; renders nothing when
-  the metafield is empty).
-- **R135** PDP sticky add-to-cart bar — sentinel + IntersectionObserver
-  pattern; default off in R145 to avoid floating-element collisions.
-- **R136** main-collection schema density bump: 5 → 16 wired
-  settings (color scheme, padding, columns desktop/mobile, filter
-  toggles, grid-density toggle).
-- **R137** main-cart schema density bump: 7 → 14 wired settings
-  (free-shipping bar gate, gift-wrapping note, color scheme,
-  padding).
-- **R138** Split the collection editorial header into its own
-  `main-collection-banner` section so merchants can reorder, hide,
-  or replace it per collection without touching the products grid.
-- **R139** FAQPage JSON-LD opt-in toggle on `collapsible-accordion`
-  and `collapsible-minimal` sections (default off — merchant opts
-  in only on real FAQ content per Google's rich-result policy).
-- **R140** Real gift-wrapping checkbox bound to
-  `cart.attributes[Gift wrapping]` (cart admin + order email surfacing).
-- **R142** Pickup-availability snippet gains per-location stock
-  indicator pill + Get directions Maps link.
-- **R143** Theme Store rule fixes: section-group `type` corrected to
-  `custom.overlay` (AC-011) and member section IDs made alphanumeric
-  (AC-018) per the storefront editor docs.
-- **R144** Removed `preload: true` from hero / main-article /
-  product-media-gallery image tags; the two layout-level font preloads
-  already consume the template's two-resource-hint budget per PRF-3.
-- **R145** sticky add-to-cart default flipped to off (opt-in) so
-  merchants picking a fixed-bottom cookie-banner position or
-  installing a corner-anchored chat / review app don't end up with
-  stacking bars (DSN-2 mitigation).
-
-### Earlier phases
-
-Phase 1 (R1-R85) ported the Next.js source theme into a Skeleton-
-baseline Shopify Online Store 2.0 architecture. Phase 2 (R86-R116)
-hardened reject vectors against the `THEME_STORE_RULES_OFFICIAL.md`
-master checklist (160 rules). Phase 3 (R117-R131) cross-validated
-against six reference Theme Store themes (Starlite, Concept,
-Essence, Maranello, Expanse, Be Yours) and closed the gaps each
-surfaced. The deep changelog for these phases lives in the git
-commit history.
+- Editorial home page composition with a 15-section default preset
+  covering hero, trust bar, shop categories, mid-CTA, ecosystem,
+  how-it-works, before-after, brands, why-choose-us, shop-the-look,
+  home-financing, guide teaser, testimonials, and parallax CTA.
+- Two product page layouts: standard `main-product` and editorial
+  `main-product-showroom` with consultation drawer integration.
+- Cart drawer with free-shipping progress bar, cart-level discounts,
+  variant-aware recommendations from Shopify's Search & Discovery
+  curated metafield, gift-wrapping cart attribute, and a curated
+  upsell band.
+- Predictive search overlay with category-aware suggestions and a
+  configurable popular queries panel.
+- Full customer account templates (login, register, account, order,
+  addresses, activate, reset) plus an editorial sign-in surface.
+- Honest low-stock indicator surfaced on product pages and product
+  cards — renders only when Shopify-managed inventory is at or
+  below the merchant-set threshold; never a fabricated counter.
+- Real metafield-backed countdown timer on product pages and cards
+  when the `custom.deal_ends_at` metafield is populated.
+- Color-scheme system with a single editorial scheme by default;
+  scheme controls expose surface, text, action, link, and shadow.
+- Theme settings for logo width (desktop + mobile), favicon, page
+  width override, section spacing, grid spacing, motion reveal,
+  intro loader, button border + radius + shadow, input border +
+  radius, product card padding / border / radius / alignment,
+  collection card padding + radius, drawer border, badge radius,
+  swatch shape / size / visible count, social links, search
+  behaviour, cart type, free-shipping threshold, country and
+  language selectors, appointment drawer toggle, and search
+  overlay toggle.
+- Vendor motion bundle (GSAP + ScrollTrigger + Lenis) gated by
+  template (excluded on cart, gift-card, password, 404, captcha,
+  policy, and customer templates) and by the merchant motion-reveal
+  toggle, keeping the toggle off by default for Lighthouse-sensitive
+  merchants.
+- Non-critical CSS loads with the `media="print" onload` async
+  pattern and a `<noscript>` fallback.
+- LCP images (hero, gallery, collection banner) carry
+  `fetchpriority="high"` and `loading="eager"`; every other image
+  defaults to lazy.
+- Skip-to-content link as the first interactive element on every
+  page.
+- Hero slider rotates a single `<h1>` per page outline; inactive
+  slides carry `aria-level="2"` placeholders flagged
+  `aria-hidden="true"`.
+- Every interactive section listens for `shopify:section:load` and
+  `shopify:section:unload`, so the theme editor reflects live
+  updates without stale handlers.
+- Sticky and fixed elements are neutralised inside the editor iframe
+  so the section-selection overlay is never occluded.
+- Empty-state hints render inside `request.design_mode` so an
+  unconfigured section communicates what the merchant needs to add.
+- All interactive elements are keyboard-reachable with a visible
+  `:focus-visible` ring; body and muted text meet WCAG 1.4.3 AA
+  (≥4.5:1) on the default scheme.
+- Forms ship correct `<label for>`, `autocomplete`, `<fieldset>` /
+  `<legend>` markup; honeypot fields stay visually hidden but
+  accessible to screen readers.

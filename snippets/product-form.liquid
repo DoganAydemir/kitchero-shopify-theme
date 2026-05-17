@@ -19,22 +19,43 @@
                                     Lets the showroom's "Reserve this item"
                                     / "Order sample" copy reach the same
                                     canonical product form.
+  - section:              {Object}  The caller section. Used to suffix DOM
+                                    IDs (e.g. `Quantity-<id>-<section.id>`)
+                                    so the same product rendered through
+                                    BOTH main-product and a featured-product
+                                    block doesn't collide on duplicate IDs.
+                                    R296 — Theme Store WCAG 4.1.1 fix.
 {%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 {%- comment -%}
-  Dynamic Checkout (Shop Pay / Buy it now) is force-disabled
-  theme-wide: the button renders in Shopify's closed shadow
-  DOM and cannot be themed to match the rest of the storefront
-  (its Shop-Pay-default blue clashed badly with our dark CTA
-  language). Every section that used to feed `show_dynamic_checkout:
-  block.settings.show_dynamic_checkout` now passes `false`
-  literally; the schema toggles were removed too. Leaving the
-  variable assignment here as `false` even when the caller
-  doesn't pass it, so any future caller that forgets the kwarg
-  doesn't accidentally bring the blue button back.
+  R296 — Build a unique form-ID suffix. When the caller passes `section`
+  we use `section.id`; otherwise we fall back to `product.id` so callers
+  outside a section context (rare — only the cart upsell snippet) still
+  get a unique form. Suffixed IDs prevent duplicate-ID WCAG 4.1.1 fails
+  when the same snippet renders twice on one page (e.g. PDP + a
+  featured-product block referencing the same product).
 {%- endcomment -%}
-{%- assign show_dynamic_checkout = false -%}
+{%- assign pf_uid = product.id -%}
+{%- if section and section.id -%}
+  {%- assign pf_uid = product.id | append: '-' | append: section.id -%}
+{%- endif -%}
+{%- comment -%}
+  R298 — Dynamic Checkout (Shop Pay / Buy it now / Apple Pay / Google Pay)
+  is now ALWAYS rendered. Shopify's Online Store sales channel +
+  Theme Store submission requirements mandate `{{ form | payment_button }}`
+  inside every `{% form 'product' %}`. A prior session disabled it because
+  the Shop Pay button's closed-shadow-DOM blue palette didn't match the
+  storefront's dark CTA language — but Theme Store reviewers reject themes
+  that omit the accelerated checkout button regardless of palette concerns
+  (merchants disable individual buttons in Settings → Payments if needed).
+  The kwarg name `show_dynamic_checkout` is preserved so legacy callers
+  that pass `false` are honoured for backwards-compat, but it now defaults
+  to `true` for any new caller.
+{%- endcomment -%}
+{%- if show_dynamic_checkout == nil -%}
+  {%- assign show_dynamic_checkout = true -%}
+{%- endif -%}
 {%- if show_quantity == nil -%}
   {%- assign show_quantity = true -%}
 {%- endif -%}
@@ -49,7 +70,7 @@
   the selector hooks out of Liquid-tag territory entirely.
 {%- endcomment -%}
 <div class="kt-product-form" data-product-form data-product-id="{{ product.id }}" data-product-url="{{ product.url }}">
-{%- form 'product', product, id: 'ProductForm' -%}
+{%- form 'product', product, id: 'ProductForm-' | append: pf_uid -%}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
   {%- comment -%}
@@ -114,14 +135,21 @@
       because the default qty=1 gets rejected at the cart layer.
     {%- endcomment -%}
     {%- if show_quantity -%}
+      {%- comment -%}
+        R296 — `product.title` is merchant-controlled but Theme Store
+        rejects any interpolation into HTML attributes without `| escape`
+        (product names can legally contain `"` and `<`). Pre-escape once;
+        the resulting string is safe for use in both aria-labels below.
+      {%- endcomment -%}
+      {%- assign safe_product_title = product.title | escape -%}
       <div class="kt-product-form__qty">
-        <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: product.title }}">
+        <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_product_title }}">
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
         <input
           type="number"
           name="quantity"
-          id="Quantity-{{ product.id }}"
+          id="Quantity-{{ pf_uid }}"
           value="{{ qty_min }}"
           min="{{ qty_min }}"
           step="{{ qty_step }}"
@@ -135,10 +163,30 @@
           {% if qty_max != blank %}data-qty-max="{{ qty_max }}"{% endif %}
           aria-label="{{ 'kt.product.quantity.label' | t }}"
         >
-        <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'kt.product.quantity.increase' | t: title: product.title }}">
+        <button type="button" class="kt-product-form__qty-btn" data-qty-plus aria-label="{{ 'kt.product.quantity.increase' | t: title: safe_product_title }}">
           {% render 'icon-plus' %}
         </button>
       </div>
+
+      {%- comment -%}
+        Case-pack / quantity-rule indicator — required by Shopify B2B
+        documentation when a variant ships with `quantity_rule.increment > 1`
+        or `min > 1` or a finite `max`. Without a visible message, customers
+        get cryptic 422s from /cart/add and Theme Store reviewers flag
+        opaque B2B UX as a rejection. Each branch resolves to a localised
+        sentence so the customer understands the contract before submit.
+      {%- endcomment -%}
+      {%- if qty_step > 1 or qty_min > 1 or qty_max != blank -%}
+        <p class="kt-product-form__qty-rule" data-qty-rule role="note">
+          {%- if qty_step > 1 -%}
+            {{ 'kt.product.quantity.rule_increment_html' | t: count: qty_step }}
+          {%- elsif qty_min > 1 -%}
+            {{ 'kt.product.quantity.rule_min_html' | t: count: qty_min }}
+          {%- elsif qty_max != blank -%}
+            {{ 'kt.product.quantity.rule_max_html' | t: count: qty_max }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
     {%- else -%}
       <input type="hidden" name="quantity" value="{{ qty_min }}">
     {%- endif -%}
@@ -210,11 +258,24 @@
     inventory and out-of-stock state to avoid false-positive badging
     on products whose merchant doesn't track stock at all.
   {%- endcomment -%}
+  {%- comment -%}
+    R298 — Pre-order badge is now ALWAYS rendered in the DOM with the
+    `hidden` attribute toggled to match the initial variant state. The
+    `[data-preorder]` hook lets `assets/product-form.js`'s `updateVariant`
+    atomically show/hide the badge when the customer switches between
+    in-stock and backorderable-out-of-stock variants. Previously the
+    badge was only emitted when the initial variant happened to be a
+    pre-order — variant change couldn't toggle it on/off because the
+    element didn't exist in the DOM. Same atomic-update bug class the
+    low-stock badge was already fixed for.
+  {%- endcomment -%}
+  {%- assign preorder_initial_hidden = true -%}
   {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
-    <p class="kt-product-form__preorder" role="note">
-      {{ 'kt.product.preorder' | t }}
-    </p>
+    {%- assign preorder_initial_hidden = false -%}
   {%- endif -%}
+  <p class="kt-product-form__preorder" data-preorder role="note"{% if preorder_initial_hidden %} hidden{% endif %}>
+    {{ 'kt.product.preorder' | t }}
+  </p>
 
   {%- comment -%}
     Error sentinel — populated by product-form.js when /cart/add.js

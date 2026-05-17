@@ -157,20 +157,24 @@
   display: none;
 }
 
-/* The wrapping .kt-search-overlay__input-wrap already paints a
-   2px border-bottom that flips to white via :focus-within when
-   the input is focused. That parent-side indicator is the visible
-   focus state. The earlier rule ALSO put a 2px inset box-shadow
-   on the input itself, which painted a SECOND white line right
-   underneath the parent's border → users on mobile reported a
-   "double border" on focus. WCAG 2.4.7 is satisfied by the
-   parent's :focus-within border-color shift (an adjacent visual
-   change scoped to the focused element's container counts), so
-   the inset shadow is removed. */
-.kt-search-overlay__input:focus,
-.kt-search-overlay__input:focus-visible {
+/* Mouse/touch :focus → no ring (parent's `:focus-within` border-color
+   flip is the visual indicator and avoids the "double border on
+   mobile" the user reported when an inset box-shadow was added).
+   Keyboard `:focus-visible` keeps an explicit ring because axe-core
+   / Lighthouse a11y audits flag elements that suppress focus-visible
+   styling outright (WCAG 2.4.7 + 2.4.11). The ring uses a thin
+   bottom inset shadow that visually merges with the wrapper's
+   border-bottom — no double-line because they overlap precisely.
+   `:not(:focus-visible)` on the bare `:focus` rule keeps mouse/touch
+   focus unstyled. R295. */
+.kt-search-overlay__input:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
+}
+
+.kt-search-overlay__input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--kt-white);
 }
 
 @media screen and (min-width: 750px) {

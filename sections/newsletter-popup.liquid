@@ -113,7 +113,19 @@
           <input type="hidden" name="contact[tags]" value="newsletter">
 
           {%- if form.posted_successfully? -%}
-            <div class="kt-newsletter-popup__success" data-popup-success>
+            {%- comment -%}
+              R298 — `role="status"` so screen readers hear the success
+              announcement when the popup reopens with the success
+              state. `newsletter-signup.liquid` already does this; the
+              popup variant was silent to AT users — visible
+              celebration with no SR feedback.
+            {%- endcomment -%}
+            <div
+              class="kt-newsletter-popup__success"
+              data-popup-success
+              role="status"
+              aria-live="polite"
+            >
               <div class="kt-newsletter-popup__success-icon" aria-hidden="true">
                 <svg aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 12 20 22 4 22 4 12"></polyline>

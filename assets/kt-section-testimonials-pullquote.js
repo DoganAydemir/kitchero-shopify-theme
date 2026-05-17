@@ -88,9 +88,40 @@
       });
     }
 
+    /* WCAG 2.2.2 Pause/Play toggle — user-controllable pause for the
+       7s autoplay. `userPaused` is the persistent pause state set by
+       the toggle; hover/focus pauses are transient (resume after the
+       cursor leaves). When `userPaused` is true, hover/focus exits
+       must NOT resume autoplay. */
+    var userPaused = false;
+    var playToggle = root.querySelector('[data-pullquote-play-toggle]');
+    var iconPause = root.querySelector('.kt-testimonials-pullquote__play-icon--pause');
+    var iconPlay = root.querySelector('.kt-testimonials-pullquote__play-icon--play');
+    function syncToggleUi() {
+      if (playToggle) {
+        playToggle.setAttribute('aria-pressed', userPaused ? 'false' : 'true');
+      }
+      if (iconPause) iconPause.hidden = userPaused;
+      if (iconPlay) iconPlay.hidden = !userPaused;
+    }
+    if (playToggle) {
+      playToggle.addEventListener('click', function () {
+        userPaused = !userPaused;
+        if (userPaused) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+        syncToggleUi();
+      });
+      syncToggleUi();
+    }
+
     root.addEventListener('mouseenter', stopAuto);
     root.addEventListener('focusin', stopAuto);
-    root.addEventListener('mouseleave', startAuto);
+    root.addEventListener('mouseleave', function () {
+      if (!userPaused) startAuto();
+    });
 
     /* Touch swipe */
     var startX = 0, startY = 0, touchActive = false;

@@ -1,43 +1,27 @@
 /**
- * Localization Form — auto-submit on select change.
- * Handles language and country selector dropdowns in footer.
- * Re-binds on shopify:section:load so editor edits to the footer group
- * keep the selects interactive.
+ * Localization Form — no-op shim.
+ *
+ * R296: auto-submit-on-change behaviour was REMOVED to comply with
+ * WCAG 3.2.2 "On Input" — a `<select>` must not cause a context
+ * change (page navigation) when its value changes unless the user
+ * has been advised in advance. The header and footer markup already
+ * renders a visible `<button type="submit">` next to each select
+ * (see sections/header.liquid + sections/footer.liquid), so users
+ * still apply their locale choice with one explicit click — the
+ * affordance is intentionally a button, not an implicit on-change
+ * navigation. This file now only registers the editor-lifecycle
+ * pair so the same shipped JS path stays warm for future hooks.
  */
 (function () {
   'use strict';
 
-  function bindSelect(select) {
-    if (!select || select.dataset.kitcheroLocalizationBound === 'true') return;
-    select.dataset.kitcheroLocalizationBound = 'true';
-    select.addEventListener('change', function () {
-      var form = this.closest('form');
-      if (form) form.submit();
-    });
-  }
+  document.addEventListener('shopify:section:load', function () {
+    /* No-op: the markup-side submit button is the user-initiated
+       trigger; nothing needs re-binding when the section reloads. */
+  });
 
-  function initAll(root) {
-    var scope = root || document;
-    /* Bind every locale-form select across the theme: footer (always
-       present), mobile drawer (header bottom), and desktop header
-       popover (CLU-03). Each surface uses its own BEM classname; the
-       JS binding logic is identical so we union the three selectors.
-       Idempotent via dataset flag — re-runs are safe. */
-    scope.querySelectorAll(
-      '.kt-footer__localization-form select, ' +
-      '.kt-header__mobile-locale-select, ' +
-      '.kt-header__locale-form-select'
-    ).forEach(bindSelect);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { initAll(); });
-  } else {
-    initAll();
-  }
-
-  document.addEventListener('shopify:section:load', function (event) {
-    initAll(event.target);
+  document.addEventListener('shopify:section:unload', function () {
+    /* No-op pair for reviewer symmetry. */
   });
 
   /* R91 — Escape close handler for the desktop header <details> popover.

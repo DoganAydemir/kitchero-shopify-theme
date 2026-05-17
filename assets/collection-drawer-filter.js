@@ -84,7 +84,13 @@
 
     function onKeyDown(e) {
       if (e.code !== 'Escape' || drawer.getAttribute('aria-hidden') !== 'false') return;
-      if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(drawer)) return;
+      /* shouldSuppressEscape must be queried with the SAME element that was
+         passed to focusTrap.enable() above (line 39) — `panel`, not `drawer`.
+         Querying with `drawer` returns true unconditionally when this trap is
+         active because the stack's top entry is `panel`, so ESC was silently
+         suppressed and the drawer became un-closable via keyboard. WCAG 2.1.2
+         No Keyboard Trap violation. */
+      if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(panel)) return;
       close();
     }
     document.addEventListener('keydown', onKeyDown);

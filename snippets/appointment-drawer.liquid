@@ -38,13 +38,32 @@
         {%- endif -%}
 
         {%- if form.errors -%}
-          <div class="kt-form__error-summary" role="alert" tabindex="-1">
-            <p class="kt-form__error-title">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
+          {%- comment -%}
+            R297 — `data-form-error-summary` + anchor-wrapped list
+            items match the login/contact pattern. Keyboard users tab
+            from the summary into the failing field via the anchor;
+            the global focus helper (`assets/global.js:444
+            focusFirstFormError`) targets `[data-form-error-summary]`
+            first then falls back to `[role="alert"][tabindex="-1"]`.
+          {%- endcomment -%}
+          <div class="kt-form__error-summary" data-form-error-summary tabindex="-1">
+            <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
             <ul class="kt-form__error-list">
               {%- for field in form.errors -%}
                 <li>
                   {%- if field == 'form' -%}
                     {{ form.errors.translated_messages[field] }}
+                  {%- elsif field == 'first_name' or field == 'last_name' or field == 'email' or field == 'phone' or field == 'body' or field == 'message' -%}
+                    {%- comment -%}
+                      Map Shopify's contact-form field names to the
+                      input IDs used in this drawer. `body` is the
+                      Shopify field for the message textarea.
+                    {%- endcomment -%}
+                    {%- assign appt_anchor = 'appointment-' | append: field -%}
+                    {%- if field == 'first_name' -%}{%- assign appt_anchor = 'appointment-first-name' -%}{%- endif -%}
+                    {%- if field == 'last_name' -%}{%- assign appt_anchor = 'appointment-last-name' -%}{%- endif -%}
+                    {%- if field == 'body' -%}{%- assign appt_anchor = 'appointment-message' -%}{%- endif -%}
+                    <a href="#{{ appt_anchor }}">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
                   {%- else -%}
                     {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}
                   {%- endif -%}
@@ -162,11 +181,17 @@
           <label for="appointment-message" class="field__label">
             {{ 'kt.section.appointment.message' | t | default: 'Message' }}
           </label>
+          {%- comment -%}
+            R297 — Bound the message length so spam bots cannot post
+            multi-MB payloads. 2000 chars is plenty for a consultation
+            request; matches the cart-note + contact-form caps.
+          {%- endcomment -%}
           <textarea
             id="appointment-message"
             name="contact[body]"
             class="field__textarea"
             rows="4"
+            maxlength="2000"
           ></textarea>
         </div>
 

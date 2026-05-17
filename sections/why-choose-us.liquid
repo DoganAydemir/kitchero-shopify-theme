@@ -33,9 +33,9 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'feature' -%}
           <div class="kt-why-choose-us__feature" {{ block.shopify_attributes }}>
-            <span class="kt-why-choose-us__feature-label">{{ block.settings.label }}</span>
-            <h3 class="kt-why-choose-us__feature-title">{{ block.settings.title }}</h3>
-            <p class="kt-why-choose-us__feature-desc">{{ block.settings.description }}</p>
+            <span class="kt-why-choose-us__feature-label">{{ block.settings.label | escape }}</span>
+            <h3 class="kt-why-choose-us__feature-title">{{ block.settings.title | escape }}</h3>
+            <p class="kt-why-choose-us__feature-desc">{{ block.settings.description | escape }}</p>
           </div>
         {%- endif -%}
       {%- endfor -%}

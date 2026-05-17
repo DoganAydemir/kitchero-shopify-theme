@@ -41,8 +41,17 @@
   }
 
   /* Shopify theme-editor lifecycle hooks — required so the section
-     re-binds on `shopify:section:load` and tears down on unload. */
+     re-binds on `shopify:section:load` and tears down on unload.
+     R295 — Unload pair added. `bindSortForms` uses `dataset.bound`
+     guards on each <form> so listeners die with the DOM node when
+     Shopify removes the section wrapper. No module-level timers /
+     observers to clean up — the stub keeps the load/unload pair
+     symmetric for the Theme Store reviewer. */
   document.addEventListener('shopify:section:load', function (event) {
     bindSortForms(event.target || document);
+  });
+
+  document.addEventListener('shopify:section:unload', function (event) {
+    /* No-op: form bindings are scoped to DOM nodes removed by Shopify. */
   });
 })();

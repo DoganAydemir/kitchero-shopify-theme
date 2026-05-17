@@ -24,7 +24,22 @@
   animation: kt-marquee 30s linear infinite;
 }
 
-.kt-brands:hover .kt-brands__track {
+/* R298 — Pause on hover OR keyboard focus-within (parallel-experience
+   for keyboard users tabbing through brand links). WCAG 2.2.2 still
+   requires a user-controllable pause — the `prefers-reduced-motion`
+   block at the bottom of this file disables motion globally for
+   sensitive users; keyboard parity here gives Tab-into-marquee users
+   the same reading window pointer users get. */
+.kt-brands:hover .kt-brands__track,
+.kt-brands:focus-within .kt-brands__track {
+  animation-play-state: paused;
+}
+
+/* R-wcag-pause — explicit `--paused` modifier toggled by the in-
+   section play/pause control. Touch and screen-reader users have no
+   hover/focus equivalent, so WCAG 2.2.2 still requires a persistent
+   on-page pause control; the JS toggle flips this modifier. */
+.kt-brands--paused .kt-brands__track {
   animation-play-state: paused;
 }
 
@@ -144,4 +159,44 @@
   .kt-brands__track {
     animation: none;
   }
+}
+
+/* R-wcag-pause — Pause/play toggle, positioned discreetly at the
+   bottom-right of the marquee strip. 44x44 hit area + visible
+   focus-visible ring + sufficient contrast against the section bg.
+   Hidden in reduced-motion (animation already disabled). */
+.kt-brands__pause-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
+  border-radius: 9999px;
+  background: rgba(var(--kt-c-bg), 0.85);
+  color: rgb(var(--kt-c-fg));
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  z-index: 2;
+}
+.kt-brands__pause-toggle:hover {
+  background: rgb(var(--kt-c-bg));
+  border-color: rgb(var(--kt-c-fg));
+}
+.kt-brands__pause-toggle:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-action));
+  outline-offset: 2px;
+}
+.kt-brands__pause-toggle [hidden] {
+  display: none;
+}
+.kt-brands {
+  position: relative;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kt-brands__pause-toggle { display: none; }
 }

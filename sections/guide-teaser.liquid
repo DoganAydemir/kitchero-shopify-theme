@@ -141,14 +141,14 @@
                 {%- if block.settings.volume != blank -%}
                   <p class="kt-guide-teaser__card-category">{{ block.settings.volume }}</p>
                 {%- endif -%}
-                <h3 class="kt-guide-teaser__card-title">{{ block.settings.title }}</h3>
+                <h3 class="kt-guide-teaser__card-title">{{ block.settings.title | escape }}</h3>
                 {%- if block.settings.description != blank -%}
-                  <p class="kt-guide-teaser__card-desc">{{ block.settings.description }}</p>
+                  <p class="kt-guide-teaser__card-desc">{{ block.settings.description | escape }}</p>
                 {%- endif -%}
                 {%- if block.settings.author != blank or block.settings.date != blank -%}
                   <div class="kt-guide-teaser__card-meta">
                     {%- if section.settings.show_author and block.settings.author != blank -%}
-                      <span class="kt-guide-teaser__card-author">{{ block.settings.author }}</span>
+                      <span class="kt-guide-teaser__card-author">{{ block.settings.author | escape }}</span>
                     {%- endif -%}
                     {%- if section.settings.show_date and block.settings.date != blank -%}
                       <time class="kt-guide-teaser__card-date">{{ block.settings.date }}</time>

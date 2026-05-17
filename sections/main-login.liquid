@@ -124,6 +124,21 @@
           >
           {%- render 'form-field-error', form: form, field: 'password', describedby_id: 'login-password-error' -%}
         </div>
+
+        {%- comment -%}
+          R296 — Honeypot for naive credential-stuffing bots. Most bots
+          fill every visible AND aria-hidden field; a real visitor (or
+          AT user, since the wrapper is `inert` + `aria-hidden`) never
+          submits a value here. The merchant's app / Shopify admin can
+          filter out submissions where `customer[website]` is non-empty.
+          Matches the pattern already used in `sections/contact-form.liquid`
+          and `sections/newsletter-signup.liquid`.
+        {%- endcomment -%}
+        <p class="kt-form__honeypot" aria-hidden="true" inert>
+          <label for="login-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+          <input type="text" id="login-website-trap-{{ section.id }}" name="customer[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </p>
+
         <button type="submit" class="kt-customer__submit">{{ 'kt.customer.login.sign_in' | t }}</button>
 
         {%- comment -%}

@@ -69,21 +69,28 @@
    taps somewhere else — Theme Store reviewers flag this as visibly
    broken hover state on mobile. */
 @media (hover: hover) and (pointer: fine) {
-  .kt-card-product:hover .kt-card-product__image-link {
+  /* R298 — `:focus-within` parallels keep keyboard users in visual
+     sync with pointer users. Tab-into-card now produces the same
+     shadow, image swap, and zoom states without requiring a mouse. */
+  .kt-card-product:hover .kt-card-product__image-link,
+  .kt-card-product:focus-within .kt-card-product__image-link {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 
-  .kt-card-product:hover .kt-card-product__image-primary {
+  .kt-card-product:hover .kt-card-product__image-primary,
+  .kt-card-product:focus-within .kt-card-product__image-primary {
     opacity: 0;
   }
 
-  .kt-card-product__image-link--zoom-only:hover .kt-card-product__image-primary {
+  .kt-card-product__image-link--zoom-only:hover .kt-card-product__image-primary,
+  .kt-card-product__image-link--zoom-only:focus-within .kt-card-product__image-primary {
     opacity: 1;
     transform: scale(1.03);
     transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .kt-card-product:hover .kt-card-product__image-secondary {
+  .kt-card-product:hover .kt-card-product__image-secondary,
+  .kt-card-product:focus-within .kt-card-product__image-secondary {
     transform: scale(1);
     opacity: 1;
   }
@@ -492,8 +499,58 @@
 .kt-swatches {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  /* R298 — gap raised from 6px → 8px so adjacent swatch hit areas
+     have ≥8px spacing relief, which is what Lighthouse Mobile's
+     "Tap targets are not sized appropriately" audit checks together
+     with the per-target ≥24px size below. `flex-wrap: wrap` keeps
+     the row from overflowing the card if the merchant raises the
+     swatch size + visible count together. */
+  gap: 0.5rem;
+  flex-wrap: wrap;
   margin-bottom: 0.5rem;
+}
+
+/* R298 — Swatch dots are now wrapped in `<a class="kt-swatches__link">`
+   anchors that navigate to `?variant=X`. The dot itself stays purely
+   visual; cursor/click affordance lives on the link. */
+.kt-swatches__link {
+  /* R298 — WCAG 2.5.8 (Target Size, AA) + Lighthouse Mobile "Tap
+     targets are not sized appropriately": each interactive target
+     must be ≥24×24 CSS pixels OR have ≥8px spacing to its neighbours.
+     The visible dot is merchant-configurable down to 14px, so the
+     visible dot alone doesn't meet the 24px floor. We grow the LINK
+     hit area to 28×28 (comfortably above 24×24) while the visible
+     dot stays its merchant-chosen size — flex centring keeps the dot
+     visually centred inside the larger transparent target. Combined
+     with the 8px container gap above, this clears both Lighthouse
+     and WCAG 2.5.8 AA without bloating the row width as a 44×44
+     hit area would. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--kt-swatch-shape, 50%);
+  /* R105 — WCAG 2.4.7 keyboard focus indicator on the link, not
+     the inner span (the inner span is `aria-hidden`). */
+  outline: 0 solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.15s ease, outline-width 0.15s ease;
+}
+
+.kt-swatches__link:hover .kt-swatches__dot,
+.kt-swatches__link:focus-visible .kt-swatches__dot {
+  /* Lift the swatch slightly on hover/focus so the customer sees
+     the affordance shift. Transform-only — no layout reflow. */
+  transform: scale(1.12);
+}
+
+.kt-swatches__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-width: 2px;
 }
 
 .kt-swatches__dot {
@@ -504,10 +561,9 @@
      so the swatch ring stays visible on light AND dark cards. */
   border: 1px solid rgba(0, 0, 0, 0.45);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
-  flex-shrink: 0;
-  cursor: default;
   background-size: cover;
   background-position: center;
+  transition: transform 0.15s ease;
 }
 
 /* "+N more" indicator — when swatch list exceeds kt_swatch_max_visible.

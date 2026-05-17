@@ -14,13 +14,27 @@
   var formatter = null;
   function formatCurrency(value) {
     if (!formatter) {
+      /* R298 — Was missing `style: 'currency'` + `currency:` options,
+         emitting a bare `2,199.50` with no symbol. Markets shoppers
+         saw an ambiguous monthly payment with no currency context.
+         Read `Shopify.currency.active` so the formatter follows the
+         live storefront's active Market. */
+      var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+      var locale = (document.documentElement.lang || 'en').replace('_', '-');
       try {
-        formatter = new Intl.NumberFormat(document.documentElement.lang || 'en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
+        formatter = new Intl.NumberFormat(locale, {
+          style: 'currency',
+          currency: currency,
         });
       } catch (err) {
-        formatter = { format: function (v) { return v.toFixed(2); } };
+        try {
+          formatter = new Intl.NumberFormat('en', {
+            style: 'currency',
+            currency: currency,
+          });
+        } catch (err2) {
+          formatter = { format: function (v) { return v.toFixed(2); } };
+        }
       }
     }
     return formatter.format(value);

@@ -20,7 +20,12 @@
 .kt-product-form__qty {
   display: flex;
   align-items: center;
-  border: 1px solid rgba(var(--kt-c-fg), 0.18);
+  /* R-wcag-contrast (1.4.11) — bumped 0.18 → 0.45 so the quantity-
+     stepper boundary clears the 3:1 non-text contrast minimum on the
+     default light scheme (`rgba(28,25,23,0.45)` ≈ 3.0:1 against
+     stone-50). Input boundaries that aren't visible by ≥3:1 fail
+     axe-core's `region` / `color-contrast-enhanced` rule. */
+  border: 1px solid rgba(var(--kt-c-fg), 0.45);
   border-radius: 4px;
   flex-shrink: 0;
   background-color: rgb(var(--kt-c-bg));
@@ -34,7 +39,7 @@
   min-width: 2.75rem;
   background: transparent;
   border: none;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease;
   display: flex;
@@ -58,7 +63,13 @@
 }
 
 .kt-product-form__qty-btn:disabled {
-  color: rgba(var(--kt-c-fg), 0.3);
+  /* R296 — 0.55 → 0.65 (~5.1:1). The button glyph (+ / -) is
+     text, not a non-text UI control, so WCAG 1.4.3 (4.5:1) applies
+     rather than 1.4.11 (3:1). Disabled-state distinction is
+     preserved via `cursor: not-allowed` and the hover/active
+     suppression — the alpha bump is barely perceptible (0.55 →
+     0.65) but lifts the glyph above the AA text threshold. */
+  color: rgba(var(--kt-c-fg), 0.65);
   cursor: not-allowed;
 }
 
@@ -237,7 +248,7 @@
   padding: 0;
   font-family: inherit;
   font-size: 0.875rem;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
   background: none;
   border: none;
   cursor: pointer;

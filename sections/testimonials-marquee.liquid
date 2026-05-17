@@ -11,6 +11,8 @@
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
+  data-marquee-pause-host
+  data-marquee-pause-modifier="kt-testimonials-marquee--paused"
   style="--kt-marquee-duration: {{ duration }}s;"
 >
   {%- comment -%} Heading block {%- endcomment -%}
@@ -126,21 +128,64 @@
               </div>
             {%- endif -%}
           </div>
-        {%- else -%}
-          {%- comment -%} App blocks render as-is {%- endcomment -%}
-          <div class="kt-testimonials-marquee__item kt-testimonials-marquee__item--app" {{ block.shopify_attributes }}>
-            {% render block %}
-          </div>
+        {%- comment -%}
+          R298 — Inline @app render branch REMOVED. The previous `else`
+          fell through for every non-testimonial block — including
+          `@app` — and rendered it inside the marquee track wrapped in
+          `block.shopify_attributes`. The same @app blocks were then
+          rendered AGAIN by the `{% render 'section-app-blocks' %}`
+          snippet below, producing duplicate DOM nodes with duplicate
+          editor block handles. Editor block-select flickered + live
+          storefront double-rendered app content. The snippet is now
+          the canonical render path.
+        {%- endcomment -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
+    {%- comment -%}
+      R295 — Editor-only hint when the merchant adds the section to
+      a template but hasn't created any testimonial blocks yet.
+      Without blocks the marquee track is empty and the section
+      looks broken — this hint tells the merchant exactly how to
+      populate it. Shown only inside `request.design_mode` so the
+      live storefront stays clean.
+    {%- endcomment -%}
+    {%- if request.design_mode and section.blocks.size == 0 -%}
+      <p class="kt-testimonials-marquee__editor-hint" aria-live="polite">
+        {{ 'kt.section.testimonials-marquee.editor_hint_empty' | t | default: 'Add at least one Testimonial block in the theme editor to populate this marquee.' }}
+      </p>
+    {%- endif -%}
   </div>
+
+  {%- comment -%}
+    WCAG 2.2.2 Pause control — testimonials marquee scrolls real
+    content (quotes + authors). Hover/focus pause only mitigates
+    pointer + Tab users; touch and screen-reader users need a
+    persistent on-page pause. Shared `assets/kt-marquee-pause.js`
+    toggles the `kt-testimonials-marquee--paused` modifier.
+  {%- endcomment -%}
+  <button
+    type="button"
+    class="kt-testimonials-marquee__pause-toggle"
+    data-marquee-pause-toggle
+    aria-pressed="true"
+    aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play marquee' }}"
+  >
+    <svg data-marquee-icon-pause aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16"></rect>
+      <rect x="14" y="4" width="4" height="16"></rect>
+    </svg>
+    <svg data-marquee-icon-play aria-hidden="true" hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+  </button>
 </section>
 
 {%- comment -%} Render @app blocks merchant added (schema declares "@app"). {%- endcomment -%}
 {% render 'section-app-blocks' %}
 
 <script src="{{ 'kt-section-testimonials-marquee.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-marquee-pause.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

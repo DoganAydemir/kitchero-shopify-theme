@@ -162,8 +162,18 @@
             {%- endcomment -%}
             enterkeyhint="go"
             autocomplete="new-password"
-            {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="register-password-error"{% endif %}
-            aria-describedby="register-password-hint"
+            {%- comment -%}
+              R297 — `aria-describedby` can take a space-separated
+              list of IDs. Combine the password hint with the error
+              ID on validation failure so SR users hear BOTH (e.g.
+              "At least 5 characters. Password is too short."). The
+              earlier markup conditionally OVERWROTE the hint
+              reference with the error ID, hiding the hint as soon
+              as an error appeared — the worst possible moment to
+              hide it.
+            {%- endcomment -%}
+            aria-describedby="register-password-hint{% if form.errors contains 'password' %} register-password-error{% endif %}"
+            {% if form.errors contains 'password' %}aria-invalid="true"{% endif %}
           >
           <p class="kt-customer__hint" id="register-password-hint">
             {{ 'kt.customer.register.password_hint' | t | default: 'At least 5 characters.' }}
@@ -213,6 +223,18 @@
             {%- endif -%}
           </div>
         {%- endif -%}
+
+        {%- comment -%}
+          R296 — Honeypot for fake-account-creation bots. Without this,
+          spammers can mass-register and flood the merchant's Shopify
+          customer database. Pattern matches `sections/contact-form.liquid`
+          and `sections/main-login.liquid` — backend / Shopify admin app
+          flags any submission with a non-empty `customer[website]`.
+        {%- endcomment -%}
+        <p class="kt-form__honeypot" aria-hidden="true" inert>
+          <label for="register-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+          <input type="text" id="register-website-trap-{{ section.id }}" name="customer[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </p>
 
         <button type="submit" class="kt-customer__submit">{{ 'kt.customer.register.submit' | t }}</button>
 

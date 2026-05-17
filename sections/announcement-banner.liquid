@@ -40,16 +40,30 @@
   role="region"
   aria-label="{{ 'kt.section.announcement-banner.aria_label' | t }}"
 >
-  {%- if block_count > 0 -%}
+  {%- comment -%}
+    R298 — Gate widened from `block_count > 0` (announcement-only count)
+    to `section.blocks.size > 0` (all block types). The previous gate
+    suppressed the entire `<div class="kt-announcement-banner__track">`
+    when the merchant added the section but populated it with ONLY an
+    `@app` block (a valid configuration since the schema declares both
+    `announcement` and `@app` block types). The `{%- when '@app' -%}`
+    branch inside the track never executed → the @app block was
+    invisible/unselectable on the storefront, breaking the Theme Store
+    app-block render-path test.
+  {%- endcomment -%}
+  {%- if section.blocks.size > 0 -%}
     {%- comment -%}
-      aria-live="polite" so screen readers announce the new message
-      when the bar rotates, but only after the active screen-reader
-      task is idle (won't interrupt mid-sentence).
+      R298 — `aria-live="polite"` REMOVED. The banner auto-rotates on
+      a setInterval; with a live region SR users heard every
+      announcement cycle indefinitely (every ~5s, until pause-on-
+      focus/hover, never on idle). Theme Store reviewers flagged
+      this as "marketing copy spam" — announcement banners are
+      decorative storefront communications, not status updates.
+      The play/pause toggle button is the user-controlled affordance
+      for accessing the content; auto-announce is removed.
     {%- endcomment -%}
     <div
       class="kt-announcement-banner__track"
-      aria-live="polite"
-      aria-atomic="true"
     >
       {%- comment -%}
         announcement_index counts only announcement-type blocks so the

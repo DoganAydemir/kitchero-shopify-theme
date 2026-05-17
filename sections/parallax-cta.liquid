@@ -66,6 +66,21 @@
         </a>
       </div>
     {%- endif -%}
+
+    {%- comment -%}
+      R295 — Editor-only hint when the merchant hasn't picked a
+      background image yet. The headline still renders (with the CSS
+      fallback gradient) so the section never looks empty on the
+      live storefront, but a merchant adding the section for the
+      first time may not realise the parallax effect only kicks in
+      after they upload an image. Shown ONLY inside `request.design_mode`
+      so the live storefront is unaffected.
+    {%- endcomment -%}
+    {%- if request.design_mode and section.settings.background_image == blank -%}
+      <p class="kt-parallax-cta__editor-hint" aria-live="polite">
+        {{ 'kt.section.parallax_cta.editor_hint_no_image' | t | default: 'Pick a background image in this section\'s settings to enable the headline parallax effect. The headline currently falls back to a gradient.' }}
+      </p>
+    {%- endif -%}
   </div>
 </section>
 
@@ -105,9 +120,18 @@
       "id": "heading_tag",
       "label": "t:sections.parallax-cta.settings.heading_tag.label",
       "options": [
-        { "value": "h1", "label": "H1" },
-        { "value": "h2", "label": "H2" },
-        { "value": "h3", "label": "H3" }
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        }
       ],
       "default": "h2"
     },
@@ -161,12 +185,34 @@
       "id": "bg_color",
       "label": "t:sections.shared.bg_color.label",
       "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        {
+          "value": "auto",
+          "label": "t:sections.shared.bg_color.options__auto.label"
+        },
+        {
+          "value": "white",
+          "label": "t:sections.shared.bg_color.options__white.label"
+        },
+        {
+          "value": "stone_50",
+          "label": "t:sections.shared.bg_color.options__stone_50.label"
+        },
+        {
+          "value": "stone_100",
+          "label": "t:sections.shared.bg_color.options__stone_100.label"
+        }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "presets": [

@@ -21,7 +21,16 @@
       <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: newsletter_signup_heading_default }}</{{ heading_tag }}>
       <p class="kt-newsletter-page__desc">{{ section.settings.description | default: newsletter_signup_description_default }}</p>
 
-      {%- form 'customer', id: 'NewsletterPageForm', class: 'kt-newsletter-page__form-wrap' -%}
+      {%- comment -%}
+        R298 — Every static ID below (form id, email input, honeypot,
+        consent checkbox, error region) is now suffixed with
+        `-{{ section.id }}` so two newsletter-signup sections on the
+        same template emit unique IDs instead of duplicates. WCAG 4.1.1
+        / axe-core `duplicate-id-active` violation otherwise. Matching
+        `<label for>`, `aria-describedby`, and error anchor `href="#..."`
+        targets are updated in lockstep.
+      {%- endcomment -%}
+      {%- form 'customer', id: 'NewsletterPageForm-' | append: section.id, class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
         {%- comment -%}
           Removed the `contact[accepts_marketing]=true` hidden field.
@@ -53,13 +62,13 @@
               flows naturally on its own line BELOW the row.
             {%- endcomment -%}
             <div class="kt-newsletter-page__form-row">
-            <label for="newsletter-page-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
+            <label for="newsletter-page-email-{{ section.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
             <input
               type="email"
               autocapitalize="off"
               autocorrect="off"
               spellcheck="false"
-              id="newsletter-page-email"
+              id="newsletter-page-email-{{ section.id }}"
               name="contact[email]"
               class="kt-newsletter-page__input"
               placeholder="{{ 'kt.newsletter.label' | t | default: 'Email' }}"
@@ -93,7 +102,7 @@
               {%- endcomment -%}
               {%- if form.errors -%}
                 aria-invalid="true"
-                aria-describedby="NewsletterPageForm-error"
+                aria-describedby="NewsletterPageForm-error-{{ section.id }}"
               {%- else -%}
                 aria-invalid="false"
               {%- endif -%}
@@ -107,8 +116,8 @@
               skip hidden fields still trip it.
             {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true" inert>
-              <label for="newsletter-page-website-trap">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
-              <input type="text" id="newsletter-page-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <label for="newsletter-page-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+              <input type="text" id="newsletter-page-website-trap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
             <button type="submit" class="kt-newsletter-page__btn" name="commit">
               {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
@@ -159,13 +168,13 @@
               <div class="kt-newsletter-page__consent">
                 <input
                   type="checkbox"
-                  id="newsletter-page-consent"
+                  id="newsletter-page-consent-{{ section.id }}"
                   name="contact[accepts_marketing]"
                   value="true"
                   required
                   aria-required="true"
                 >
-                <label for="newsletter-page-consent" class="kt-newsletter-page__consent-label">
+                <label for="newsletter-page-consent-{{ section.id }}" class="kt-newsletter-page__consent-label">
                   {{- consent_html -}}
                 </label>
               </div>
@@ -173,11 +182,34 @@
           </div>
 
           {%- if form.errors -%}
-            <p class="kt-newsletter-page__error" id="NewsletterPageForm-error" role="alert">
-              {%- for field in form.errors -%}
-                {{ form.errors.translated_messages[field] }}{% unless forloop.last %} · {% endunless %}
-              {%- endfor -%}
-            </p>
+            {%- comment -%}
+              R297 — Structured error summary with anchor-jumps to the
+              offending field. The previous flat `·`-separated paragraph
+              forced keyboard users to scroll-hunt for the bad field.
+              Adding `data-form-error-summary` + `tabindex="-1"` lets the
+              global form-error-focus helper (assets/global.js:444)
+              programmatically focus this region on submit failure so SR
+              users hear the error list immediately.
+            {%- endcomment -%}
+            <div
+              class="kt-newsletter-page__error"
+              id="NewsletterPageForm-error-{{ section.id }}"
+              data-form-error-summary
+              tabindex="-1"
+            >
+              <h2 class="visually-hidden">{{ 'kt.contact.form.error_heading' | t | default: 'There was an error' }}</h2>
+              <ul class="kt-newsletter-page__error-list" role="alert">
+                {%- for field in form.errors -%}
+                  <li>
+                    {%- if field == 'form' or field == 'email' -%}
+                      <a href="#newsletter-page-email-{{ section.id }}">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
+                    {%- else -%}
+                      {{ form.errors.translated_messages[field] }}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
           {%- endif -%}
         {%- endif -%}
       {%- endform -%}

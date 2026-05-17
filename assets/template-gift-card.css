@@ -542,6 +542,16 @@
 }
 
 @media print {
+  /* R298 — Re-enable `print-color-adjust: exact` ONLY for the gift-
+     card-page subtree. base.css globally sets `economy` so the rest
+     of the storefront skips background printing; gift-card artwork
+     IS the value, so we need the card colours and QR contrast to
+     survive even with "Background graphics off" toggled. */
+  .kt-gift-card-page,
+  .kt-gift-card-page * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
   .kt-gift-card-page {
     background-color: var(--kt-white);
     background-image: none;

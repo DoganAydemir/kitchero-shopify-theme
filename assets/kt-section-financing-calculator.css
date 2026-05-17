@@ -119,7 +119,12 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 2.25rem;
   font-weight: 400;
-  color: var(--kt-stone-300);
+  /* R-wcag-contrast — stone-300 (#d6d3d1) on stone-50 (#fafaf9) is
+     1.31:1, far below WCAG 1.4.3 AA's 3:1 minimum even for "large
+     text" (≥18pt). Bumped to stone-500 (#78716c) which clears 3:1
+     comfortably (~4.5:1). Resting state stays visibly subordinate
+     to the focused stone-900 state via the transition below. */
+  color: var(--kt-stone-500);
   transition: color 0.2s ease;
   pointer-events: none;
 }

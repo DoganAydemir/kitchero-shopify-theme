@@ -25,7 +25,7 @@
 
 .kt-variant-picker__selected {
   font-weight: 500;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
   margin-left: 0.25rem;
 }
 
@@ -63,9 +63,21 @@
 
 .kt-variant-picker__swatch {
   display: block;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
+  /* R296 — PDP swatch dimensions + shape now driven by the theme
+     settings (`Swatch size` range + `Swatch shape` select) just like
+     the collection card swatches. Previously the PDP swatch was
+     hardcoded `2.5rem` / `border-radius: 50%`, so toggling the
+     theme-settings shape from Circle → Square → Rounded only
+     affected collection cards and PDP stayed round. `--kt-swatch-size`
+     is emitted in px from snippets/kt-css-variables.liquid; the
+     `* 2` scale gives the PDP swatch a heftier touch target than
+     the small (18 px default) card swatch, matching the previous
+     hardcoded 40 px visual at the default setting (18 × 2 = 36 ≈
+     2.25 rem; close enough to the old 2.5 rem that merchants on a
+     fresh install won't see a layout shift). */
+  width: calc(var(--kt-swatch-size, 18px) * 2);
+  height: calc(var(--kt-swatch-size, 18px) * 2);
+  border-radius: var(--kt-swatch-shape, 50%);
   border: 2px solid rgba(var(--kt-c-fg), 0.12);
   transition: all 0.2s ease;
 }
@@ -85,6 +97,19 @@
      continuous dark line, no concentric halos. */
   border-color: rgb(var(--kt-c-fg));
   box-shadow: 0 0 0 1px rgb(var(--kt-c-fg));
+}
+
+/* R298 — Keyboard focus ring on swatches. The radio input is
+   visually-hidden (so its native ring never shows), so we must
+   paint the focus state on the adjacent `__swatch` span via the
+   `:focus-visible + sibling` combinator. Without this, a Tab user
+   inside the picker got ZERO visual feedback — WCAG 2.4.7 fail.
+   The offset ring is distinct from the selected-state inset shadow
+   so a focused-but-not-selected swatch is identifiable from a
+   selected one. */
+.kt-variant-picker__swatch-input:focus-visible + .kt-variant-picker__swatch {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 3px;
 }
 
 /* ── Size / option pills ───────────────────────────────── */
@@ -135,6 +160,14 @@
   border-color: rgb(var(--kt-c-fg));
   background-color: rgb(var(--kt-c-fg));
   color: rgb(var(--kt-c-bg));
+}
+
+/* R298 — Keyboard focus ring on option pills. Same rationale as
+   the swatch focus rule above — the radio input is visually-hidden,
+   so the focus state must be painted on the adjacent `__btn` span. */
+.kt-variant-picker__btn-input:focus-visible + .kt-variant-picker__btn {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 3px;
 }
 
 .kt-variant-picker__btn-input:disabled + .kt-variant-picker__btn,

@@ -211,14 +211,28 @@
                     visual feedback in the editor) is acceptable
                     per direct request.
                   {%- endcomment -%}
-                  {%- if block.settings.link_label != blank -%}
+                  {%- comment -%}
+                    R296 — Empty-link guard. Only render the `<a>`
+                    when BOTH label AND url are configured. The prior
+                    fallback to `href="#"` produced a dead anchor that
+                    SR users heard as "<label>, link" and clicked into
+                    a top-of-page no-op — a WCAG 2.4.4 fail that Theme
+                    Store reviewers consistently flag. In the editor
+                    we still show a hint so the merchant knows the
+                    label is missing a destination.
+                  {%- endcomment -%}
+                  {%- if block.settings.link_label != blank and block.settings.link_url != blank -%}
                     <a
-                      href="{{ block.settings.link_url | default: '#' | escape }}"
+                      href="{{ block.settings.link_url | escape }}"
                       class="kt-multicolumn__column-link"
                     >
                       {{- block.settings.link_label | escape -}}
                       {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.8 %}
                     </a>
+                  {%- elsif block.settings.link_label != blank and request.design_mode -%}
+                    <p class="kt-multicolumn__editor-hint" aria-live="polite">
+                      {{ 'kt.section.multicolumn.editor_hint_link_missing_url' | t | default: 'Add a link URL in this block to make the label clickable on the live storefront.' }}
+                    </p>
                   {%- endif -%}
                 </div>
               </li>
@@ -421,9 +435,22 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        {
+          "value": "stone_100",
+          "label": "t:sections.shared.bg_color.options__stone_100.label"
+        }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
@@ -449,19 +476,58 @@
           "label": "t:sections.multicolumn.blocks.column.settings.icon.label",
           "info": "t:sections.multicolumn.blocks.column.settings.icon.info",
           "options": [
-            { "value": "none",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__none.label" },
-            { "value": "star",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__star.label" },
-            { "value": "sparkle", "label": "t:sections.multicolumn.blocks.column.settings.icon.options__sparkle.label" },
-            { "value": "check",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__check.label" },
-            { "value": "shield",  "label": "t:sections.multicolumn.blocks.column.settings.icon.options__shield.label" },
-            { "value": "truck",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__truck.label" },
-            { "value": "clock",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__clock.label" },
-            { "value": "award",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__award.label" },
-            { "value": "heart",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__heart.label" },
-            { "value": "leaf",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__leaf.label" },
-            { "value": "gift",    "label": "t:sections.multicolumn.blocks.column.settings.icon.options__gift.label" },
-            { "value": "ruler",   "label": "t:sections.multicolumn.blocks.column.settings.icon.options__ruler.label" },
-            { "value": "zap",     "label": "t:sections.multicolumn.blocks.column.settings.icon.options__zap.label" }
+            {
+              "value": "none",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__none.label"
+            },
+            {
+              "value": "star",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__star.label"
+            },
+            {
+              "value": "sparkle",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__sparkle.label"
+            },
+            {
+              "value": "check",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__check.label"
+            },
+            {
+              "value": "shield",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__shield.label"
+            },
+            {
+              "value": "truck",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__truck.label"
+            },
+            {
+              "value": "clock",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__clock.label"
+            },
+            {
+              "value": "award",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__award.label"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__heart.label"
+            },
+            {
+              "value": "leaf",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__leaf.label"
+            },
+            {
+              "value": "gift",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__gift.label"
+            },
+            {
+              "value": "ruler",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__ruler.label"
+            },
+            {
+              "value": "zap",
+              "label": "t:sections.multicolumn.blocks.column.settings.icon.options__zap.label"
+            }
           ],
           "default": "sparkle"
         },

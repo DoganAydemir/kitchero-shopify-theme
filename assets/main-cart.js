@@ -173,13 +173,23 @@ if (!window.__kitcheroMainCartLoaded) {
      *     is 'page').
      */
     function refreshCartPage() {
-      var sectionsToFetch = [];
-      if (document.querySelector('.kt-cart-page')) sectionsToFetch.push('main-cart');
+      /* R-sra-cart-count — Always include `header-cart-icon` in the
+         Section Rendering API fetch. The previous DOM-presence gate
+         (`[data-section-type="header-cart-icon"]`) never matched
+         anything because `sections/header-cart-icon.liquid` is an
+         SRA-only endpoint (intentionally not rendered into any
+         section group), so the section response excluded the cart-
+         count fragment. Downstream at `applySectionsHTML`,
+         `doc.querySelector('.kt-header__cart-count')` then returned
+         null and the else branch zeroed every live cart-count badge
+         in the header — a permanent visual lie on cart-page mode
+         (drawer mode self-corrected via cart-drawer.js's own refresh,
+         leaving only a brief "0" flicker). SRA only requires the
+         section file to exist, which it does; always-include is
+         safe. The append in `applySectionsHTML` already handles
+         missing keys gracefully if the section is renamed/removed. */
+      var sectionsToFetch = ['main-cart', 'header-cart-icon'];
       if (document.querySelector('.kt-cart-drawer')) sectionsToFetch.push('cart-drawer');
-      if (document.querySelector('[data-section-type="header-cart-icon"]')) sectionsToFetch.push('header-cart-icon');
-      // Safety: always include main-cart so a layout without the drawer
-      // / icon sections still gets the primary swap.
-      if (sectionsToFetch.length === 0) sectionsToFetch.push('main-cart');
 
       /* Cancel any prior in-flight refresh so the latest one wins.
          Two rapid +/- on different line keys would otherwise yield

@@ -219,7 +219,11 @@
 
 .kt-search-overlay .kt-predictive-search__thumb--empty {
   background-color: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
+  /* R296 — 0.4 → 0.65. The placeholder glyph inside an empty
+     thumbnail tile is treated as a graphical UI affordance, but
+     for SR users it can still be announced as a heading initial
+     letter — keep above WCAG 1.4.11 3:1 minimum with margin. */
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .kt-search-overlay .kt-predictive-search__title {

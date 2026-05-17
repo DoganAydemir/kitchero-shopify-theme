@@ -41,6 +41,24 @@
   function bindStickyBar(bar) {
     if (!bar || registry.has(bar)) return;
 
+    /* R297 — Skip entirely inside the theme editor. The sticky bar
+       slides over the bottom of the preview iframe and covers the
+       section-selection ring when the merchant scrolls past the
+       product form — they can't click sections below it. Shopify's
+       editor-best-practices doc explicitly says "Disable sticky
+       headers and fixed elements when the preview inspector is
+       active." */
+    if (window.Shopify && window.Shopify.designMode) return;
+
+    /* R297 — Feature-gate IntersectionObserver. On iOS Safari 12.1
+       and older versions the global is missing; without this check
+       the `new IntersectionObserver(...)` below throws a
+       ReferenceError that aborts the entire IIFE, leaving the bar
+       permanently hidden (no scroll listener fallback wired). The
+       bar isn't a critical purchase surface — falling back to
+       always-visible would be wrong UX, so we no-op instead. */
+    if (typeof window.IntersectionObserver === 'undefined') return;
+
     var productForm = document.querySelector('[data-product-form]');
     if (!productForm) return;
 

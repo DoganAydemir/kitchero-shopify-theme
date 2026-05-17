@@ -11,6 +11,8 @@
   data-section-id="{{ section.id }}"
   data-section-type="gallery-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
+  data-marquee-pause-host
+  data-marquee-pause-modifier="kt-gallery-marquee--paused"
   style="--kt-marquee-duration: {{ duration }}s;"
 >
   {%- comment -%} Heading block {%- endcomment -%}
@@ -70,7 +72,7 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       class: 'kt-gallery-marquee__image',
-                      alt: block.settings.caption_title
+                      alt: block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name
                   }}
                 {%- else -%}
                   {{ 'lifestyle-1' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
@@ -135,7 +137,7 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       class: 'kt-gallery-marquee__image',
-                      alt: block.settings.caption_title
+                      alt: block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name
                   }}
                 {%- else -%}
                   {{ 'lifestyle-2' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
@@ -171,31 +173,46 @@
     </div>
   </div>
 
-  {%- comment -%} App blocks render outside the marquee rows {%- endcomment -%}
-  {%- assign has_app_blocks = false -%}
-  {%- for block in section.blocks -%}
-    {%- if block.type != 'image' -%}
-      {%- assign has_app_blocks = true -%}
-      {%- break -%}
-    {%- endif -%}
-  {%- endfor -%}
-  {%- if has_app_blocks -%}
-    <div class="kt-gallery-marquee__apps">
-      {%- for block in section.blocks -%}
-        {%- if block.type != 'image' -%}
-          <div class="kt-gallery-marquee__app-block" {{ block.shopify_attributes }}>
-            {% render block %}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
+  {%- comment -%}
+    WCAG 2.2.2 Pause control — touch / screen-reader users have no
+    hover/focus equivalent on the infinite marquee, so a persistent
+    on-page pause is required. Shared `assets/kt-marquee-pause.js`
+    toggles the `kt-gallery-marquee--paused` modifier on the host.
+  {%- endcomment -%}
+  <button
+    type="button"
+    class="kt-gallery-marquee__pause-toggle"
+    data-marquee-pause-toggle
+    aria-pressed="true"
+    aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play marquee' }}"
+  >
+    <svg data-marquee-icon-pause aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16"></rect>
+      <rect x="14" y="4" width="4" height="16"></rect>
+    </svg>
+    <svg data-marquee-icon-play aria-hidden="true" hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+  </button>
+
+  {%- comment -%}
+    R298 — Inline @app render block REMOVED. The previous inline loop
+    rendered every `block.type != 'image'` block — which means @app
+    blocks — wrapped in `block.shopify_attributes`. The same blocks
+    were then rendered AGAIN by the `{% render 'section-app-blocks' %}`
+    snippet below, producing two DOM nodes per @app block with
+    duplicate `data-shopify-editor-block-handle` attributes. Editor
+    block-select flickered between the two targets and the live
+    storefront double-rendered the merchant's app content. The
+    snippet is the canonical render path; the inline loop is gone.
+  {%- endcomment -%}
 </section>
 
 {%- comment -%} Render @app blocks merchant added (schema declares "@app"). {%- endcomment -%}
 {% render 'section-app-blocks' %}
 
 <script src="{{ 'kt-section-gallery-marquee.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-marquee-pause.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

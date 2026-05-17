@@ -41,6 +41,19 @@
     {%- endcomment -%}
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     {%- comment -%}
+      R296 — Cross-origin Referer policy. Sets the page's referrer
+      policy so the Referer header sent to third-party domains
+      (analytics, fonts CDN, app embeds) is the ORIGIN only, never
+      the full URL path. Without this, discount-code URLs
+      (`/discount/<CODE>?redirect=/cart`) leak the code to any
+      third-party request fired while Shopify is mid-redirect.
+      `strict-origin-when-cross-origin` is the modern default but
+      explicitly declaring it ensures predictable behaviour across
+      browsers + protects against older defaults like `no-referrer-
+      when-downgrade`.
+    {%- endcomment -%}
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    {%- comment -%}
       theme-color — pulls the default color-scheme's surface colour so
       Chrome/Safari paint the address-bar and PWA chrome in the brand
       background instead of defaulting to browser chrome. Falls back
@@ -143,8 +156,8 @@
     {%- endunless -%}
 
     <title>
-      {{ page_title }}
-      {%- if current_tags %} &ndash; {{ 'kt.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
+      {{- page_title | escape -}}
+      {%- if current_tags %} &ndash; {{ 'kt.meta.tags' | t: tags: current_tags | join: ', ' | escape }}{% endif -%}
       {%- if current_page != 1 %} &ndash; {{ 'kt.meta.page' | t: page: current_page }}{% endif -%}
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name | escape }}{% endunless -%}
     </title>
@@ -665,7 +678,21 @@
           soldOut:        {{ 'kt.product.sold_out' | t | json }},
           unavailable:    {{ 'kt.product.unavailable' | t | json }},
           subscriptionUnavailable: {{ 'kt.product.subscription_unavailable' | t | json }},
+          {%- comment -%}
+            R298 — Low-stock template + threshold exposed for atomic
+            variant-change updates in `assets/product-form.js`. The
+            template carries a `[count]` placeholder that JS
+            replaces with the matched variant's inventory_quantity.
+          {%- endcomment -%}
+          lowStockHtml:   {{ 'kt.product.low_stock_html' | t: count: '[count]' | json }},
         },
+        {%- comment -%}
+          R298 — Theme-settings-driven low-stock threshold so
+          variant-change handler can decide whether to show the
+          "Only N left" badge for the new variant without a server
+          round-trip. Default 0 means "feature disabled".
+        {%- endcomment -%}
+        lowStockThreshold: {% if settings.kt_show_low_stock %}{{ settings.kt_low_stock_threshold | default: 0 }}{% else %}0{% endif %},
         a11yStrings: {
           imageAvailable: {{ 'kt.product.media.image_available' | t: index: '[index]' | json }},
           shareSuccess:   {{ 'kt.share.success_message' | t | json }},

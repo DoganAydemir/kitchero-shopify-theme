@@ -143,7 +143,11 @@
   transition: transform 0.7s ease;
 }
 
-.kt-shop-categories__card:hover .kt-shop-categories__card-image {
+/* R298 — `:focus-within` parallels for keyboard users. The card is
+   an `<a>` anchor (single keyboard-accessible target), so :focus-
+   within fires when the anchor receives focus. */
+.kt-shop-categories__card:hover .kt-shop-categories__card-image,
+.kt-shop-categories__card:focus-within .kt-shop-categories__card-image {
   transform: scale(1.05);
 }
 
@@ -155,7 +159,8 @@
   z-index: 1;
 }
 
-.kt-shop-categories__card:hover .kt-shop-categories__card-overlay {
+.kt-shop-categories__card:hover .kt-shop-categories__card-overlay,
+.kt-shop-categories__card:focus-within .kt-shop-categories__card-overlay {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -193,9 +198,20 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.kt-shop-categories__card:hover .kt-shop-categories__card-arrow {
+.kt-shop-categories__card:hover .kt-shop-categories__card-arrow,
+.kt-shop-categories__card:focus-within .kt-shop-categories__card-arrow {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* R298 — Mobile touch: no hover state on touch devices, so the
+   arrow is invisible by default. Show at rest so customers know
+   the affordance exists. */
+@media (hover: none) {
+  .kt-shop-categories__card-arrow {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .kt-shop-categories__card-arrow svg {

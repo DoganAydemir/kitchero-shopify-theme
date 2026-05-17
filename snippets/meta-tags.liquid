@@ -139,7 +139,16 @@
   - Other customer/* pages + search + 404 carried over from the
     previous list.
 {%- endcomment -%}
-{%- assign hidden_page_types = 'search,404,captcha,gift_card,password,cart,policy,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
+{%- comment -%}
+  R296 — Removed `policy` from the noindex list. Policy pages
+  (privacy, refund, terms, shipping, subscription) SHOULD be
+  indexable for Google's E-E-A-T (Experience, Expertise,
+  Authoritativeness, Trustworthiness) signals — premium themes
+  consistently let policies index. Cart / search / 404 / customer
+  account pages stay noindexed because each has either a unique
+  per-session URL space, a low-content empty state, or PII.
+{%- endcomment -%}
+{%- assign hidden_page_types = 'search,404,captcha,gift_card,password,cart,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
 {%- comment -%}

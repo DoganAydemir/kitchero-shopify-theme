@@ -278,14 +278,18 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 0.9375rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
+  /* R296 — 0.4 → 0.65 (~5.5:1 on stone-900). Was failing WCAG
+     1.4.3 AA at sub-18.5 px nav-button text size. Hover and
+     active state still distinct from the resting state because
+     hover bumps to 0.75 and active uses full white + weight 700. */
+  color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
   transition: color 0.2s ease;
   letter-spacing: 0.05em;
 }
 
 .kt-slider-editorial__nav-btn:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .kt-slider-editorial__nav-btn.is-active {
@@ -300,14 +304,19 @@
 }
 
 .kt-slider-editorial__nav-sep {
-  color: rgba(255, 255, 255, 0.2);
+  /* R296 — 0.2 → 0.4. Separator is a single character ("/") that
+     reads as decorative meta — still needs ≥3:1 as a non-text UI
+     element per WCAG 1.4.11. 0.4 white on stone-900 ~3.4:1. */
+  color: rgba(255, 255, 255, 0.4);
   font-size: 0.875rem;
 }
 
 .kt-slider-editorial__nav-total {
   margin-left: 0.5rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.35);
+  /* R296 — 0.35 → 0.65. Total count ("of N") is visible body
+     text, ≥4.5:1 required. 0.65 white ~5.5:1. */
+  color: rgba(255, 255, 255, 0.65);
   letter-spacing: 0.1em;
 }
 

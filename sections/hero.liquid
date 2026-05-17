@@ -127,20 +127,23 @@
     Content — shows active slide's text.
 
     Heading level: ONLY the first slide's heading is a real <h1>; the
-    rest render as <p role="heading" aria-level="1">. Previously every
-    slide emitted <h1>, meaning a 3-slide hero injected 3 <h1>s onto
-    the page — a WCAG 1.3.1 / 2.4.6 failure (multiple h1s confuses
-    document outline for SR users) and also a reject signal for Theme
-    Store reviewers who check with axe-core or WAVE. Inactive slides
-    are `.hidden` visually, but many SRs ignore display:none when
-    walking the accessibility tree, so the other h1s still counted.
+    rest render as <p role="heading" aria-level="2"> AND `aria-hidden`
+    so SRs walking the accessibility tree don't see N+1 heading
+    landmarks at level 1.
 
-    By swapping to <p role="heading" aria-level="1"> on non-first
-    slides we keep the heading semantic for the visible slide (real
-    h1 in the DOM) while letting the other slides render visually-
-    identical text without duplicating the landmark. When a slider
-    rotation happens the CSS swap still shows the right text; the
-    DOM doesn't need to change its h1/p mix.
+    Earlier revision used `aria-level="1"` on inactive slides under
+    the theory that "they're `.hidden` visually anyway." That's
+    wrong: many SRs (NVDA, JAWS, VoiceOver in heading-jump mode)
+    ignore `display: none` when walking the accessibility tree, so
+    a 3-slide hero still announced 3 separate "heading level 1"s.
+    Axe-core's `landmark-unique` and Lighthouse a11y both flag it.
+
+    The fix: inactive slides become level-2 placeholders that SRs
+    treat as non-primary landmarks, AND they're marked `aria-hidden`
+    so they're skipped entirely during heading-jump navigation. The
+    visible-slide `<h1>` stays the page's primary heading; rotation
+    via JS adds/removes the `aria-hidden` flag as slides become
+    active (handled in `assets/kt-section-hero.js`).
   {%- endcomment -%}
   <div class="kt-hero__content">
     {%- comment -%}
@@ -172,22 +175,34 @@
           {%- assign heading_open = '<h1 class="kt-hero__heading">' -%}
           {%- assign heading_close = '</h1>' -%}
         {%- else -%}
-          {%- assign heading_open = '<p class="kt-hero__heading" role="heading" aria-level="1">' -%}
+          {%- assign heading_open = '<p class="kt-hero__heading" role="heading" aria-level="2" aria-hidden="true">' -%}
           {%- assign heading_close = '</p>' -%}
         {%- endif -%}
+        {%- comment -%}
+          R296 — `block.shopify_attributes` is emitted ONCE per block,
+          on `.kt-hero__slide` (line 63 above). Shopify's preview-
+          inspector docs say "only one element should include these
+          attributes to prevent identification conflicts during
+          duplication operations." Previously this `.kt-hero__text`
+          sibling also carried the attributes, so duplicating a slide
+          in the editor created two candidate target nodes for the
+          editor's block-select pulse — the outline ring flickered
+          between image and text DOM nodes and `data-slide-index`
+          resolution in `assets/kt-section-hero.js` could pick the
+          wrong index. Single-emission resolves both.
+        {%- endcomment -%}
         <div
           class="kt-hero__text{% unless forloop.first %} hidden{% endunless %}"
           data-slide-text="{{ forloop.index0 }}"
-          {{ block.shopify_attributes }}
         >
           {%- if block.settings.subtitle != blank -%}
-            <span class="kt-hero__subtitle kt-hero__anim" data-hero-anim data-delay="200">{{ block.settings.subtitle }}</span>
+            <span class="kt-hero__subtitle kt-hero__anim" data-hero-anim data-delay="200">{{ block.settings.subtitle | escape }}</span>
           {%- endif -%}
 
           {{ heading_open }}
             {%- if block.settings.line1 != blank -%}
               <span class="kt-hero__heading-clip">
-                <span class="kt-hero__heading-line kt-hero__anim-slide" data-hero-anim data-delay="400">{{ block.settings.line1 }}</span>
+                <span class="kt-hero__heading-line kt-hero__anim-slide" data-hero-anim data-delay="400">{{ block.settings.line1 | escape }}</span>
               </span>
             {%- endif -%}
             <span class="kt-hero__heading-row">
@@ -198,14 +213,14 @@
               {%- endif -%}
               {%- if block.settings.line2 != blank -%}
                 <span class="kt-hero__heading-clip">
-                  <span class="kt-hero__heading-bold kt-hero__anim-slide" data-hero-anim data-delay="600">{{ block.settings.line2 }}</span>
+                  <span class="kt-hero__heading-bold kt-hero__anim-slide" data-hero-anim data-delay="600">{{ block.settings.line2 | escape }}</span>
                 </span>
               {%- endif -%}
             </span>
           {{ heading_close }}
 
           {%- if block.settings.description != blank -%}
-            <p class="kt-hero__desc kt-hero__anim" data-hero-anim data-delay="800">{{ block.settings.description }}</p>
+            <p class="kt-hero__desc kt-hero__anim" data-hero-anim data-delay="800">{{ block.settings.description | escape }}</p>
           {%- endif -%}
 
           {%- if block.settings.cta_text != blank -%}
@@ -409,6 +424,16 @@
       "label": "t:sections.hero.settings.text_color.label",
       "info": "t:sections.hero.settings.text_color.info",
       "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

@@ -184,10 +184,22 @@
 
     this.slides[this.current].classList.remove('kt-hero__slide--active');
     this.texts[this.current].classList.add('hidden');
+    // R295 — Swap the heading's `aria-hidden` on rotation so the
+    // active slide's <p role="heading"> announces to screen readers
+    // and the inactive slides skip the accessibility tree. The
+    // first slide carries a real <h1> with no role attribute and is
+    // never marked aria-hidden; non-first slides carry
+    // `<p role="heading" aria-level="2" aria-hidden="true">`. Only
+    // toggle the attribute on the role=heading elements (skip if
+    // the active slide's heading is the literal <h1>).
+    var prevHeading = this.texts[this.current].querySelector('[role="heading"]');
+    if (prevHeading) prevHeading.setAttribute('aria-hidden', 'true');
 
     this.current = index;
     this.slides[this.current].classList.add('kt-hero__slide--active');
     this.texts[this.current].classList.remove('hidden');
+    var nextHeading = this.texts[this.current].querySelector('[role="heading"]');
+    if (nextHeading) nextHeading.removeAttribute('aria-hidden');
 
     this.animateText(index);
   };

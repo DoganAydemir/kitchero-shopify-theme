@@ -1,5 +1,21 @@
 # .shopifyignore — files excluded from `shopify theme push` and `shopify theme dev`
 #
+# !!! CRITICAL BEFORE THEME STORE SUBMISSION !!!
+# `shopify theme package` ALSO honours this file. Lines 39-41 below
+# (templates/*.json, config/settings_data.json, sections/*-group.json)
+# are intentional for `theme push` (protects merchant edits) but they
+# would EXCLUDE these files from the submission zip too — and the zip
+# REQUIRES them for the Theme Store reviewer to see the default home
+# composition, header/footer groups, and the seeded scheme. Before
+# running `shopify theme package`:
+#
+#   1. Comment out lines 39-41 (templates/*.json, settings_data.json,
+#      sections/*-group.json).
+#   2. Run `shopify theme package`.
+#   3. Verify the generated zip contains templates/*.json, the two
+#      section-group JSONs, and config/settings_data.json.
+#   4. Restore lines 39-41 to keep `theme push` safe.
+#
 # Strategy (R216 — production phase):
 #   - Code files (sections/, snippets/, assets/, layout/, locales/,
 #     config/settings_schema.json) are always pushed.
@@ -44,6 +60,7 @@ sections/*-group.json
 *.md
 docs/*
 references/*
+listings/*
 .github/*
 .theme-check.yml
 .editorconfig

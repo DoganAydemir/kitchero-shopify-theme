@@ -34,6 +34,9 @@
     },
     "kt_colors": {
       "name": "Colors",
+      "paragraph_single_scheme": {
+        "content": "Kitchero v1.0 ships with a single editorial color scheme. Additional schemes (dark, accent) can be created in this panel — the theme reads the active scheme from the body element, so adding schemes immediately changes the surface, text, action, and link colors across the storefront."
+      },
       "settings": {
         "surface": {
           "label": "Background"
@@ -478,6 +481,17 @@
         "recommendations_count": {
           "label": "Maximum recommendations to show",
           "info": "Compact list — 2-3 reads cleanly in the drawer width without crowding the cart items."
+        },
+        "header__parity": {
+          "content": "Cart parity"
+        },
+        "show_free_shipping_bar": {
+          "label": "Show free-shipping progress bar",
+          "info": "Mirrors the cart page toggle so customers see the same threshold progress whether they use the drawer or the page."
+        },
+        "show_gift_wrapping_message": {
+          "label": "Show gift wrap option",
+          "info": "Mirrors the cart page toggle so drawer-mode customers can also opt in to gift wrap before checkout."
         }
       }
     },
@@ -791,7 +805,7 @@
         },
         "text_color": {
           "label": "Text color",
-          "info": "Color of the tagline, heading, and description on the image. The tagline and description render slightly softer than the heading."
+          "info": "Color of the tagline, heading, and description shown on top of the hero image. Pick a color with at least 4.5:1 contrast against your image's dominant tones — bump the overlay opacity above to darken the image if your text contrast is too low."
         }
       },
       "blocks": {
@@ -1099,7 +1113,7 @@
         },
         "heading": {
           "label": "Heading",
-          "info": "Use <br> for a line break, e.g. 'High-Tech<br>Storage.'"
+          "info": "Insert a line break tag in the heading to split it across two lines, e.g. 'High-Tech' followed by a line break then 'Storage.'"
         },
         "heading_tag": {
           "label": "Heading tag",
@@ -1416,18 +1430,25 @@
             "header__product": {
               "content": "Product"
             },
+            "product": {
+              "label": "Product",
+              "info": "Pick a real product to auto-fill the title, price, image, and link below. Price will format in the active currency (for example $450, €450, ₺4500). The text fallbacks are used only when no product is picked."
+            },
             "product_title": {
-              "label": "Product title"
+              "label": "Product title (fallback)",
+              "info": "Used only when no Product is picked above."
             },
             "product_price": {
-              "label": "Product price",
-              "info": "Enter the price in your store's currency (for example $450, €450, ₺4500)."
+              "label": "Product price (fallback)",
+              "info": "Used only when no Product is picked above. Enter the price in your store's currency."
             },
             "product_image": {
-              "label": "Product image"
+              "label": "Product image (fallback)",
+              "info": "Used only when no Product is picked above."
             },
             "product_link": {
-              "label": "Product link"
+              "label": "Product link (fallback)",
+              "info": "Used only when no Product is picked above."
             }
           }
         }
@@ -3467,6 +3488,9 @@
         "columns_desktop": {
           "label": "Desktop columns"
         },
+        "collections_per_page": {
+          "label": "Collections per page"
+        },
         "sort_by": {
           "label": "Sort collections by",
           "options__alpha": {
@@ -4386,7 +4410,7 @@
         },
         "heading": {
           "label": "Heading",
-          "info": "Use <br> for line breaks. Inline formatting (em, strong, a) is allowed."
+          "info": "Inline rich text (line breaks, emphasis, strong, links) is supported via the theme editor toolbar."
         },
         "heading_tag": {
           "label": "Heading tag",
@@ -5458,6 +5482,10 @@
         "options__stone_50": {
           "label": "Light grey"
         }
+      },
+      "color_scheme": {
+        "header": "Colors",
+        "label": "Color scheme"
       }
     }
   }

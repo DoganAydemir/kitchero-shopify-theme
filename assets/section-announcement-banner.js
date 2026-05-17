@@ -15,6 +15,8 @@
    ========================================================================== */
 
 (function () {
+  'use strict';
+
   if (window.customElements.get('announcement-banner')) return;
 
   var REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';

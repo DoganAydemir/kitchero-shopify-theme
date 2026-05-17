@@ -159,25 +159,14 @@
     </div>
   {%- endif -%}
 
-  {%- comment -%} App blocks render below the grid {%- endcomment -%}
-  {%- assign has_app_blocks = false -%}
-  {%- for block in section.blocks -%}
-    {%- if block.type != 'image' -%}
-      {%- assign has_app_blocks = true -%}
-      {%- break -%}
-    {%- endif -%}
-  {%- endfor -%}
-  {%- if has_app_blocks -%}
-    <div class="kt-gallery-focus__container kt-gallery-focus__apps">
-      {%- for block in section.blocks -%}
-        {%- if block.type != 'image' -%}
-          <div class="kt-gallery-focus__app-block" {{ block.shopify_attributes }}>
-            {% render block %}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
+  {%- comment -%}
+    R298 — Inline @app render block REMOVED to avoid the double-render
+    bug. The `{% render 'section-app-blocks' %}` snippet at the bottom
+    of this section is the canonical render path; this loop used to
+    duplicate every @app block in DOM with duplicate
+    `data-shopify-editor-block-handle` attributes, breaking editor
+    block-select and showing app content twice on the live page.
+  {%- endcomment -%}
 
   {%- comment -%} Lightbox modal {%- endcomment -%}
   <div

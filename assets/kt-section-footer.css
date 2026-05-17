@@ -159,7 +159,14 @@
      (15px) lets the column headings ("FOOTER MENU", "MAIN MENU")
      sit above the links in the hierarchy, the way the user
      expects from a footer. Desktop steps back to 1rem (16px),
-     still readable but no longer "shouting". */
+     still readable but no longer "shouting".
+     R296 — `display: inline-block` + 0.5rem block padding pushes
+     each link's tap-zone to ~36-40px tall so consecutive links
+     no longer fail WCAG 2.5.8 (≥24px effective target including
+     spacing). 0.5rem block padding stacks with the parent `gap:
+     1rem` for a generous tap surface on mobile. */
+  display: inline-block;
+  padding: 0.5rem 0;
   font-size: 0.9375rem;
   font-weight: 300;
   color: var(--kt-stone-300); /* stone-300 */

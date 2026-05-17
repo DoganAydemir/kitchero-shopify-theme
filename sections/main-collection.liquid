@@ -483,10 +483,25 @@
     filter. Opened by [data-open-filter-drawer] in the sticky bar.
   {%- endcomment -%}
   {%- if collection.filters != empty -%}
+    {%- comment -%}
+      R298 — `inert` on the initial markup. The drawer is hidden via
+      CSS `opacity: 0` + `pointer-events: none` (not `display: none`),
+      so without `inert` its descendants (close button, every filter
+      checkbox, "Clear all" link, submit) stay in the keyboard tab
+      order before the drawer is opened. axe-core fires the
+      `aria-hidden-focus` critical rule when focusable descendants
+      live under `aria-hidden="true"` — a WCAG 2.4.3 + 4.1.2
+      violation. The sibling `sections/main-collection-drawer.liquid`
+      already has `inert` here; this section was the outlier. JS
+      (`assets/collection-drawer-filter.js`) toggles `inert` on
+      open/close in sync with `aria-hidden`, so only the initial
+      pre-JS state needed the attribute.
+    {%- endcomment -%}
     <div
       class="kt-filter-drawer"
       data-filter-drawer
       aria-hidden="true"
+      inert
       role="dialog"
       aria-modal="true"
       aria-labelledby="FilterDrawerTitle"
@@ -895,6 +910,16 @@
       "unit": "px",
       "label": "t:settings_schema.global.settings.padding_bottom.label",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

@@ -171,11 +171,38 @@
       return { min: min, step: step, max: max };
     }
 
+    /* Reflect the current value vs. quantity_rule.min/max on the +/-
+       button disabled state — cart drawer and cart page do this; the
+       PDP stepper previously silently clamped via Math.min/Math.max,
+       leaving the buttons clickable at the rule bounds. WCAG 4.1.2
+       Name-Role-Value: an interactive control whose action has no
+       effect should expose `disabled` state. Also a Theme Store
+       consistency concern (cart vs. PDP behaviour parity). */
+    function syncStepperDisabled() {
+      if (!qtyInput) return;
+      var rule = readQtyRule();
+      var val = parseInt(qtyInput.value, 10);
+      if (isNaN(val)) val = rule.min;
+      if (minusBtn) {
+        var atMin = val <= rule.min;
+        minusBtn.disabled = atMin;
+        if (atMin) minusBtn.setAttribute('aria-disabled', 'true');
+        else minusBtn.removeAttribute('aria-disabled');
+      }
+      if (plusBtn) {
+        var atMax = val >= rule.max;
+        plusBtn.disabled = atMax;
+        if (atMax) plusBtn.setAttribute('aria-disabled', 'true');
+        else plusBtn.removeAttribute('aria-disabled');
+      }
+    }
+
     if (minusBtn && qtyInput) {
       minusBtn.addEventListener('click', function () {
         var rule = readQtyRule();
         var val = parseInt(qtyInput.value, 10) || rule.min;
         qtyInput.value = Math.max(rule.min, val - rule.step);
+        syncStepperDisabled();
       });
     }
 
@@ -184,19 +211,41 @@
         var rule = readQtyRule();
         var val = parseInt(qtyInput.value, 10) || rule.min;
         qtyInput.value = Math.min(rule.max, val + rule.step);
+        syncStepperDisabled();
       });
     }
 
-    /* Sanitize manual typed input — clamp to integers >= 1 on blur.
-       Customers can now edit the quantity directly; keep the field
-       honest so we never POST "0" or "abc" to /cart/add.js. */
+    /* Sanitize manual typed input — clamp to integers within the
+       quantity_rule.min/max range AND snap to the rule.step grid on
+       blur. The original clamp was hardcoded to `1` which violated
+       B2B case-pack contracts (variant sold in packs of 6, customer
+       types "7" → server 422 with no client-side feedback). Now we
+       read the live rule from the input's `min`/`max`/`step` attrs
+       (which the variant-change handler keeps in sync) and round to
+       the nearest valid increment so the typed-input path matches
+       the +/- button path. */
     if (qtyInput) {
       qtyInput.addEventListener('blur', function () {
+        var rule = readQtyRule();
         var val = parseInt(qtyInput.value, 10);
-        if (!val || val < 1) qtyInput.value = 1;
-        else qtyInput.value = val;
+        if (isNaN(val) || val < rule.min) {
+          val = rule.min;
+        } else if (rule.step > 1) {
+          /* Snap to nearest valid step relative to rule.min: e.g. min=6
+             step=6 → valid values 6, 12, 18 …; customer types "7", we
+             snap to 6 (round-down) or 12 (round-up) — round to nearest. */
+          var stepsFromMin = Math.round((val - rule.min) / rule.step);
+          val = rule.min + (stepsFromMin * rule.step);
+        }
+        if (val > rule.max) val = rule.max;
+        qtyInput.value = val;
+        syncStepperDisabled();
       });
     }
+
+    /* Initial sync so a freshly-rendered form with rule.min > 1 starts
+       with the minus button disabled. */
+    if (qtyInput) syncStepperDisabled();
 
     /* Variant switching — when option radio changes, find matching variant */
     if (optionInputs.length > 0 && variantSelect) {
@@ -211,6 +260,41 @@
             var selectedLabel = group.querySelector('[data-option-selected="' + idx + '"]');
             if (selectedLabel) selectedLabel.textContent = input.value;
           }
+        });
+      });
+
+      /* R298 — Browser back/forward state restoration. When the
+         customer hits Back after swatch-changing into another
+         variant, `popstate` fires with the PREVIOUS URL — we re-
+         read `?variant=X` and re-check the matching radios so the
+         UI mirrors the URL. Without this listener, Back returned
+         the URL to a prior variant but the picker stayed visually
+         on the latest selection — confusing + breaks bookmarks. */
+      window.addEventListener('popstate', function () {
+        var params = new URLSearchParams(window.location.search);
+        var variantParam = params.get('variant');
+        if (!variantParam) return;
+        var targetVariantId = parseInt(variantParam, 10);
+        if (isNaN(targetVariantId)) return;
+        var variants = getVariantsData(container);
+        var targetVariant = null;
+        for (var v = 0; v < variants.length; v++) {
+          if (variants[v].id === targetVariantId) { targetVariant = variants[v]; break; }
+        }
+        if (!targetVariant || !targetVariant.options) return;
+        /* Re-check the matching option radios — `change` events on
+           radios trigger updateVariant() above, which finishes the
+           sync (price, sku, image, atc label). Skip if the radio
+           is already checked to avoid an infinite popstate loop on
+           pages that intercept history events. */
+        targetVariant.options.forEach(function (optValue, optIndex) {
+          var radios = container.querySelectorAll('[data-option-index="' + optIndex + '"] [data-option-value]');
+          radios.forEach(function (radio) {
+            if (radio.value === optValue && !radio.checked) {
+              radio.checked = true;
+              radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
         });
       });
     }
@@ -587,10 +671,39 @@
       if (variantIdInput) variantIdInput.value = matchedVariant.id;
       variantSelect.value = matchedVariant.id;
 
-      /* Update URL */
-      var url = new URL(window.location.href);
-      url.searchParams.set('variant', matchedVariant.id);
-      window.history.replaceState({}, '', url.toString());
+      /* Update URL. R298 — Use `pushState` for the FIRST user-
+         initiated variant change so the browser back button
+         returns the customer to the previous variant (or to the
+         page they came from). Subsequent changes within the same
+         "session" use `replaceState` to avoid back-button history
+         spam (5 colour clicks shouldn't yield 5 back-stack
+         entries). `container._kitcheroHistoryPushed` tracks whether
+         we've already pushed for this PDP visit.
+
+         R-variant-edge — gate the URL rewrite on the section being an
+         actual PDP. The same module powers `featured-product` on the
+         homepage, `quick-view`, `product` blocks inside collection
+         sections, etc. Without this gate, picking a swatch on a
+         homepage featured-product rewrites the homepage URL to
+         `/?variant=12345` — a `?variant=` param has meaning only under
+         `/products/{handle}`, so refreshing or bookmarking captures a
+         misleading URL and Shop reviewers flag broken navigation state.
+         `data-section-type="main-product"` is set on both
+         `sections/main-product.liquid` and
+         `sections/main-product-showroom.liquid` (the two true PDP
+         surfaces). Featured-product uses `"featured-product"`, quick-
+         view uses `"quick-view"`, etc., and all skip the rewrite. */
+      var sectionType = container && container.dataset && container.dataset.sectionType;
+      if (sectionType === 'main-product') {
+        var url = new URL(window.location.href);
+        url.searchParams.set('variant', matchedVariant.id);
+        if (container._kitcheroHistoryPushed) {
+          window.history.replaceState({ variantId: matchedVariant.id }, '', url.toString());
+        } else {
+          window.history.pushState({ variantId: matchedVariant.id }, '', url.toString());
+          container._kitcheroHistoryPushed = true;
+        }
+      }
 
       /* Dispatch `variant:change` event so Shopify-native custom
          elements (`<shopify-payment-terms>` Shop Pay Installments
@@ -727,9 +840,15 @@
          to update with the variant. The element is rendered server-side
          from `selected_or_first_available_variant.sku`; we sync it
          here on every variant change. Hidden when the matched variant
-         has no SKU (some products skip SKU per variant). */
+         has no SKU (some products skip SKU per variant).
+         R297 — Was `document.querySelector(...)` which picked the FIRST
+         `[data-product-sku]` in the DOM. On pages combining `main-
+         product` + a `featured-product` block referencing a different
+         product (homepage "today's pick"), switching variant on EITHER
+         updated the OTHER product's SKU. Scoping to `container` (the
+         current product-form's host element) keeps the update local. */
       try {
-        var skuEl = document.querySelector('[data-product-sku]');
+        var skuEl = container.querySelector('[data-product-sku]');
         if (skuEl) {
           var hiddenLabel = skuEl.querySelector('.visually-hidden');
           var hiddenLabelText = hiddenLabel ? hiddenLabel.outerHTML : '';
@@ -789,6 +908,79 @@
       }
 
       renderPriceForVariant(container, matchedVariant, activePlanId);
+
+      /* R298 — Update low-stock indicator atomically with price/SKU.
+         Previously the price + sku + ATC label refreshed instantly
+         but the "Only N left" badge was server-rendered and stayed
+         frozen on the initial variant — a Theme Store "variant
+         selection updates atomically" failure. We refresh from
+         `matchedVariant.inventory_quantity` against the merchant
+         threshold (`Kitchero.lowStockThreshold` exposed in
+         layout/theme.liquid) only when inventory is Shopify-tracked
+         AND > 0 AND ≤ threshold. */
+      try {
+        var lowStockEl = container.querySelector('[data-low-stock]');
+        if (lowStockEl) {
+          var threshold = (window.Kitchero && Kitchero.lowStockThreshold) || 0;
+          var trackedQty = matchedVariant.inventory_management === 'shopify' ? matchedVariant.inventory_quantity : null;
+          var showLowStock = (
+            matchedVariant.available &&
+            trackedQty !== null &&
+            trackedQty > 0 &&
+            threshold > 0 &&
+            trackedQty <= threshold
+          );
+          if (showLowStock) {
+            var tmpl = (window.Kitchero && Kitchero.variantStrings && Kitchero.variantStrings.lowStockHtml) || 'Only [count] left';
+            lowStockEl.textContent = tmpl.replace('[count]', trackedQty);
+            lowStockEl.hidden = false;
+          } else {
+            lowStockEl.hidden = true;
+            lowStockEl.textContent = '';
+          }
+        }
+      } catch (e) { /* low-stock update is non-critical */ }
+
+      /* R298 — Pre-order badge atomic update. The badge is now always
+         in the DOM with `hidden` toggled; show it when the variant is
+         Shopify-tracked, out of stock, and `inventory_policy: continue`
+         (backorderable). Mirrors the low-stock pattern above. */
+      try {
+        var preorderEls = container.querySelectorAll('[data-preorder]');
+        if (preorderEls.length) {
+          var preorderTrackedQty = matchedVariant.inventory_management === 'shopify' ? matchedVariant.inventory_quantity : null;
+          var showPreorder = (
+            preorderTrackedQty !== null &&
+            preorderTrackedQty <= 0 &&
+            matchedVariant.inventory_policy === 'continue'
+          );
+          for (var pi = 0; pi < preorderEls.length; pi++) {
+            preorderEls[pi].hidden = !showPreorder;
+          }
+        }
+      } catch (e) { /* preorder update is non-critical */ }
+
+      /* R298 — In-stock / sold-out status spans atomic update. Both
+         spans ship in the DOM with `hidden` toggled; we show exactly
+         one (or neither, when the low-stock badge owns the row).
+         Same atomic-update class as the low-stock + pre-order badges. */
+      try {
+        var inEl = container.querySelector('[data-stock-status="in"]');
+        var outEl = container.querySelector('[data-stock-status="out"]');
+        if (inEl || outEl) {
+          /* Determine if low-stock badge is currently visible (it owns
+             the row when shown — hide both in/out spans in that case). */
+          var lowStockOwning = false;
+          var lowStockProbe = container.querySelector('[data-low-stock]');
+          if (lowStockProbe && lowStockProbe.hidden === false) {
+            lowStockOwning = true;
+          }
+          var showIn = !lowStockOwning && matchedVariant.available === true;
+          var showOut = !lowStockOwning && matchedVariant.available === false;
+          if (inEl) inEl.hidden = !showIn;
+          if (outEl) outEl.hidden = !showOut;
+        }
+      } catch (e) { /* stock-status update is non-critical */ }
 
       /* Update ATC button state */
       if (atcBtn) {
@@ -858,6 +1050,38 @@
           gallery.dispatchEvent(new CustomEvent('gallery:goto', {
             detail: { mediaId: targetMediaId }
           }));
+        } else {
+          /* Standalone-image fallback — `featured-product` renders a
+             single static `<img>` without a `[data-product-gallery]`
+             wrapper. The wrapper carries `[data-variant-featured-image]`
+             so we can locate the image and swap its src/srcset/alt
+             directly from `variant.featured_image`. Without this, the
+             gallery dispatch above silently no-ops on featured-product
+             and the image stays on the original variant while price/
+             SKU/availability update around it — Theme Store atomic-
+             variant-update rule. */
+          var imgWrap = container.querySelector('[data-variant-featured-image]');
+          var imgEl = imgWrap && imgWrap.querySelector('img');
+          var variantImage = matchedVariant.featured_image || (matchedVariant.featured_media && matchedVariant.featured_media.preview_image);
+          if (imgEl && variantImage && variantImage.src) {
+            /* Strip any existing Shopify CDN transform suffix and re-
+               construct widths so srcset stays in sync. variantImage.src
+               from `product.variants | json` already includes the base
+               CDN URL without size transforms. */
+            var baseSrc = variantImage.src.split('?')[0];
+            var existingWidths = [400, 600, 900, 1200];
+            try {
+              imgEl.src = baseSrc + '?width=1200';
+              imgEl.srcset = existingWidths
+                .map(function (w) { return baseSrc + '?width=' + w + ' ' + w + 'w'; })
+                .join(', ');
+              if (variantImage.alt) imgEl.alt = variantImage.alt;
+              if (variantImage.width && variantImage.height) {
+                imgEl.setAttribute('width', String(variantImage.width));
+                imgEl.setAttribute('height', String(variantImage.height));
+              }
+            } catch (swapErr) { /* malformed CDN URL — leave existing image */ }
+          }
         }
       }
     } else {

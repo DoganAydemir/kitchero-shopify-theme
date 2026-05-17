@@ -102,7 +102,7 @@
   padding-top: 1rem;
   border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
   border-left: 2px solid transparent;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 /* R91 — `--button` variant resets <button> default chrome so the
@@ -122,7 +122,7 @@
 
 .kt-account__nav-count {
   font-size: 0.75rem;
-  color: rgba(var(--kt-c-fg), 0.5);
+  color: rgba(var(--kt-c-fg), 0.65);
   background: rgba(var(--kt-c-fg), 0.06);
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
@@ -302,7 +302,7 @@
     font-size: 0.6875rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(var(--kt-c-fg), 0.55);
+    color: rgba(var(--kt-c-fg), 0.65);
   }
 
   .kt-account__col-right {
@@ -546,7 +546,7 @@ html.no-js [data-addresses-cancel-edit] {
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .kt-order__meta-value {
@@ -821,7 +821,7 @@ html.no-js [data-addresses-cancel-edit] {
 .kt-password__footer {
   margin-top: 3rem;
   font-size: 0.8125rem;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgba(var(--kt-c-fg), 0.65);
 }
 
 .kt-password__footer a {
@@ -1176,11 +1176,18 @@ html.no-js [data-addresses-cancel-edit] {
     -webkit-print-color-adjust: exact;
   }
 
-  /* Hide navigation + return links — paper has no destination. */
+  /* R298 — Selector rewrite: the real "back to account" link is
+     `.kt-order__back` (no `-to-account` suffix), and there is no
+     anchor adjacent to `.kt-account__greeting`. Previous selectors
+     silently failed to hide either, leaving a "← Back to account"
+     link printed at the top of every order receipt as a dead link.
+     `[data-account-back]` is added as a defensive marker so future
+     templates can also opt in. */
   .kt-account__nav,
-  .kt-order__back-to-account,
   .kt-account__nav-link,
-  .kt-account__greeting + a {
+  .kt-order__back,
+  .kt-account__back,
+  [data-account-back] {
     display: none !important;
   }
 

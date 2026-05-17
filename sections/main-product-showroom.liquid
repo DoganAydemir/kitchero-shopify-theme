@@ -90,6 +90,7 @@
                   type="button"
                   class="kt-showroom__gallery-full"
                   data-gallery-slide="{{ forloop.index0 }}"
+                  data-media-id="{{ media.id }}"
                   data-media-type="image"
                   aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
                 >
@@ -103,6 +104,7 @@
                     type="button"
                     class="kt-showroom__gallery-half"
                     data-gallery-slide="{{ forloop.index0 }}"
+                    data-media-id="{{ media.id }}"
                     data-media-type="image"
                     aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
                   >
@@ -112,14 +114,15 @@
                   {%- comment -%} Right of pair (next image) {%- endcomment -%}
                   {%- assign next_index = forloop.index -%}
                   {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
+                    {%- assign next_media = product.media[next_index] -%}
                     <button
                       type="button"
                       class="kt-showroom__gallery-half"
                       data-gallery-slide="{{ next_index }}"
+                      data-media-id="{{ next_media.id }}"
                       data-media-type="image"
                       aria-label="{{ 'kt.product.media.image_larger' | t: index: next_index | plus: 1 | default: 'View image larger' }}"
                     >
-                      {%- assign next_media = product.media[next_index] -%}
                       {%- assign next_alt = next_media.alt | default: product.title -%}
                       {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
                     </button>
@@ -128,6 +131,65 @@
               {%- endif -%}
               {%- comment -%} pattern_pos == 2 is handled as right side of pair above {%- endcomment -%}
             {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment -%}
+            R298 — Video / external_video / 3D-model media. Previously
+            the desktop gallery filtered out every non-image media so
+            products with videos or 3D models silently lost them on the
+            showroom template — a Theme Store rejection because video
+            and AR are mandatory features on products that ship them.
+
+            These render as full-width slots after the image pattern.
+            They render OUTSIDE the lightbox click path
+            (data-media-type set so product-gallery.js skips them per
+            its known-types dataset gate). Each carries its own native
+            controls (HTML5 <video controls>, YouTube/Vimeo iframe,
+            <model-viewer toggleable>) so customers can play / view
+            without invoking the image-only lightbox.
+          {%- endcomment -%}
+          {%- for media in product.media -%}
+            {%- assign media_alt = media.alt | default: product.title -%}
+            {%- case media.media_type -%}
+              {%- when 'video' -%}
+                <div class="kt-showroom__gallery-full kt-showroom__gallery-full--media" data-media-type="video">
+                  {%- assign video_poster_url = media.preview_image | image_url: width: 1200 -%}
+                  {{
+                    media
+                    | video_tag:
+                      class: 'kt-showroom__gallery-video',
+                      controls: true,
+                      preload: 'metadata',
+                      loop: false,
+                      image_size: '1200x',
+                      poster: video_poster_url,
+                      title: media_alt
+                  }}
+                </div>
+              {%- when 'external_video' -%}
+                <div class="kt-showroom__gallery-full kt-showroom__gallery-full--media" data-media-type="external_video">
+                  {{
+                    media
+                    | external_video_tag:
+                      class: 'kt-showroom__gallery-video',
+                      loading: 'lazy',
+                      title: media_alt
+                  }}
+                </div>
+              {%- when 'model' -%}
+                <div class="kt-showroom__gallery-full kt-showroom__gallery-full--media" data-media-type="model">
+                  <product-model class="kt-showroom__gallery-model" data-media-id="{{ media.id }}">
+                    {{
+                      media
+                      | model_viewer_tag:
+                        image_size: '1200x',
+                        reveal: 'interaction',
+                        toggleable: true,
+                        class: 'kt-showroom__gallery-model-viewer'
+                    }}
+                  </product-model>
+                </div>
+            {%- endcase -%}
           {%- endfor -%}
 
           {%- if product.media.size == 0 -%}
@@ -141,42 +203,83 @@
           data-gallery-slide so the shared product-gallery.js lightbox works. {%- endcomment -%}
         <div class="kt-showroom__gallery-mobile">
           {%- for media in product.media -%}
-            {%- if media.media_type == 'image' -%}
-              {%- comment -%}
-                R140 SHOWROOM-DUAL-LCP-1: both desktop AND mobile
-                gallery branches render in DOM and CSS toggles them
-                with display:none. Browsers still fetch <img> resources
-                inside display:none containers — the desktop branch
-                already claims `fetchpriority: 'high'` (line 60), and
-                the mobile branch claiming the same makes them compete
-                with each other on every page load. Browsers then
-                downgrade BOTH to "auto" because the LCP candidate is
-                ambiguous, defeating the optimization. Keep mobile
-                branch eager-loading (so the image is in cache when CSS
-                reveals it on small viewports) but downgrade
-                fetchpriority to "auto" — the desktop branch claims
-                priority single-handedly, and on mobile viewports CSS
-                hides desktop and mobile takes over from cache.
-              {%- endcomment -%}
-              {%- if forloop.first -%}
-                {%- assign mob_loading = 'eager' -%}
-                {%- assign mob_fetchpriority = 'auto' -%}
-              {%- else -%}
-                {%- assign mob_loading = 'lazy' -%}
-                {%- assign mob_fetchpriority = 'auto' -%}
-              {%- endif -%}
-              <button
-                type="button"
-                class="kt-showroom__gallery-mobile-slide"
-                data-gallery-slide="{{ forloop.index0 }}"
-                data-media-type="image"
-                aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
-              >
-                {%- assign media_alt = media.alt | default: product.title -%}
-                {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
-                <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
-              </button>
+            {%- comment -%}
+              R298 — Mobile slides used to filter to images only,
+              silently dropping video / external_video / model media
+              (a Theme Store rejection on products that ship them).
+              Now each media type renders in its own slide; the
+              counter at the bottom uses `product.media.size` which
+              now matches the rendered slide count.
+
+              R140 SHOWROOM-DUAL-LCP-1: both desktop AND mobile
+              gallery branches render in DOM and CSS toggles them
+              with display:none. Browsers still fetch <img> resources
+              inside display:none containers — the desktop branch
+              claims `fetchpriority: 'high'`, the mobile branch
+              downgrades to `auto` to avoid LCP candidate ambiguity.
+            {%- endcomment -%}
+            {%- if forloop.first -%}
+              {%- assign mob_loading = 'eager' -%}
+              {%- assign mob_fetchpriority = 'auto' -%}
+            {%- else -%}
+              {%- assign mob_loading = 'lazy' -%}
+              {%- assign mob_fetchpriority = 'auto' -%}
             {%- endif -%}
+            {%- assign media_alt = media.alt | default: product.title -%}
+            {%- case media.media_type -%}
+              {%- when 'image' -%}
+                <button
+                  type="button"
+                  class="kt-showroom__gallery-mobile-slide"
+                  data-gallery-slide="{{ forloop.index0 }}"
+                  data-media-type="image"
+                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                >
+                  {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                </button>
+              {%- when 'video' -%}
+                <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="video">
+                  {%- assign video_poster_url = media.preview_image | image_url: width: 800 -%}
+                  {{
+                    media
+                    | video_tag:
+                      class: 'kt-showroom__gallery-video',
+                      controls: true,
+                      preload: 'metadata',
+                      loop: false,
+                      image_size: '800x',
+                      poster: video_poster_url,
+                      title: media_alt
+                  }}
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                </div>
+              {%- when 'external_video' -%}
+                <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="external_video">
+                  {{
+                    media
+                    | external_video_tag:
+                      class: 'kt-showroom__gallery-video',
+                      loading: 'lazy',
+                      title: media_alt
+                  }}
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                </div>
+              {%- when 'model' -%}
+                <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="model">
+                  <product-model class="kt-showroom__gallery-model" data-media-id="{{ media.id }}">
+                    {{
+                      media
+                      | model_viewer_tag:
+                        image_size: '800x',
+                        reveal: 'interaction',
+                        toggleable: true,
+                        class: 'kt-showroom__gallery-model-viewer'
+                    }}
+                  </product-model>
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                </div>
+            {%- endcase -%}
           {%- endfor -%}
         </div>
 
@@ -301,7 +404,7 @@
 
               {%- when 'variant_picker' -%}
                 <div {{ block.shopify_attributes }}>
-                  {%- render 'product-variant-picker', product: product -%}
+                  {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
 
               {%- when 'ctas' -%}
@@ -421,7 +524,7 @@
                     <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                   </div>
                   <div>
-                    <h2 class="kt-showroom__warranty-title">{{ block.settings.title }}</h2>
+                    <h2 class="kt-showroom__warranty-title">{{ block.settings.title | escape }}</h2>
                     <p class="kt-showroom__warranty-desc">{{ block.settings.text }}</p>
                   </div>
                 </div>
@@ -466,7 +569,7 @@
                             {%- endif -%}
                           </div>
                           {%- if block.settings.description != blank -%}
-                            <p class="kt-showroom__sample-desc">{{ block.settings.description }}</p>
+                            <p class="kt-showroom__sample-desc">{{ block.settings.description | escape }}</p>
                           {%- endif -%}
                         </div>
                       </div>
@@ -553,10 +656,15 @@
                   consistent.
                 {%- endcomment -%}
                 <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
+                  {%- comment -%}
+                    R298 — `show_dynamic_checkout: false` removed.
+                    Theme Store mandates the accelerated checkout button
+                    inside every `{% form 'product' %}`. The snippet now
+                    defaults to `true`.
+                  {%- endcomment -%}
                   {%- render 'product-form',
                     product: product,
                     section: section,
-                    show_dynamic_checkout: false,
                     show_quantity: block.settings.show_quantity,
                     atc_label: block.settings.atc_label
                   -%}
@@ -593,6 +701,20 @@
   load on every showroom render.
 {%- endcomment -%}
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  Selling-plan picker JS only emits when the product actually has
+  subscription plans configured. Required for atomic price updates +
+  ATC label switch when the customer ticks a subscription cadence; the
+  showroom template previously omitted this script (parity gap with
+  main-product.liquid), so plan selection on a showroom PDP silently
+  left the price stale on the one-time-purchase amount — Theme Store
+  rejects subscription products that don't show the discounted price
+  before commit.
+{%- endcomment -%}
+{%- if product.selling_plan_groups.size > 0 -%}
+  <script src="{{ 'selling-plan-picker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {%- comment -%}
   R285 — Recently-viewed tracker. See the matching comment in

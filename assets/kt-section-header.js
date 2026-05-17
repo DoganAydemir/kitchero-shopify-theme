@@ -1,20 +1,22 @@
 /**
  * Kitchero Header — Section JavaScript
  *
- * This file is the SECONDARY source of header behaviour. The mobile
- * menu toggle lives inline in sections/header.liquid because the
- * Shopify CDN was caching a stale version of this asset on some
- * route types, breaking the menu. See the Liquid comment there for
- * the full story.
- *
- * All this external file does:
+ * Responsibilities:
  *   - Toggle the .kt-header--scrolled class as the user scrolls.
  *   - Manage the transparent → solid transition on the home page.
+ *   - Bind desktop dropdown / mega-menu open/close (pointerenter,
+ *     click, Escape).
  *   - Re-run those checks on Shopify theme editor section events.
  *
- * NO click handlers for the mobile menu live here anymore. If you
- * add some, guard them against double-binding with the inline
- * bootstrap by checking `window.__kitcheroMobileMenuBound`.
+ * The mobile menu toggle (hamburger) is bound separately in
+ * `assets/kt-section-header-mobile-nav.js` so it survives the
+ * smaller scroll-state init failures without taking down the
+ * full navigation. If you add additional mobile-menu handlers
+ * here, guard them against double-binding with the mobile-nav
+ * module's binding flag (`window.__kitcheroMobileMenuBound`).
+ *
+ * No inline `<script>` blocks live in `sections/header.liquid` —
+ * everything runs from external assets per CLAUDE.md.
  */
 (function () {
   'use strict';
@@ -155,14 +157,29 @@
   }
 
   /* Mouse hover — same UX as before. Pointerenter/leave bubble in
-     capture phase so nested elements still hit the menu-item closest. */
+     capture phase so nested elements still hit the menu-item closest.
+
+     R-touch-fix — gate on `pointerType !== 'touch'`. Without this gate,
+     touch-on-desktop devices (iPad landscape ≥990px, Android tablets)
+     hit pointerenter at touch-start which calls setExpanded(item, true)
+     — and then the subsequent `click` handler at line 190 evaluates
+     `willOpen = !item.hasAttribute('data-open')` as `false` (because
+     pointerenter already set data-open) and closes the menu the user
+     just tapped. The menu flashes open then closes; user must tap
+     twice. Theme Store reviewers test touch-on-desktop and flag this
+     as broken navigation ("Hover-only navigation breaking touch"
+     rejection). The CSS hover gate `@media (hover: hover) and (pointer:
+     fine)` was already in place for visual state, but the JS handlers
+     fired unconditionally. */
   document.addEventListener('pointerenter', function (e) {
+    if (e.pointerType === 'touch') return;
     var item = e.target && e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item) return;
     setExpanded(item, true);
   }, true);
 
   document.addEventListener('pointerleave', function (e) {
+    if (e.pointerType === 'touch') return;
     var item = e.target && e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item) return;
     setExpanded(item, false);
@@ -223,6 +240,40 @@
     var next = e.relatedTarget;
     if (next && item.contains(next)) return;
     setExpanded(item, false);
+  });
+
+  /* R-editor-lifecycle — Theme editor block:select handler. When the
+     merchant picks a `mega_menu_featured` block in the sidebar, the
+     block sits inside `.kt-header__mega-menu` which CSS keeps at
+     opacity:0 / visibility:hidden until the parent menu item has
+     `[data-open]`. Without this handler, the global pulse outline
+     renders behind a closed invisible panel and `scrollIntoView`
+     lands in nowhere — the merchant cannot see what they're editing.
+     Force-open the matching parent menu item on `:block:select` and
+     close it again on `:block:deselect`. */
+  document.addEventListener('shopify:block:select', function (event) {
+    var block = event.target;
+    if (!block) return;
+    var featured = block.classList && block.classList.contains('kt-header__mega-featured')
+      ? block
+      : (block.querySelector && block.querySelector('.kt-header__mega-featured'));
+    if (!featured) return;
+    var menuItem = featured.closest('.kt-header__menu-item');
+    if (menuItem) {
+      closeAll(menuItem);
+      setExpanded(menuItem, true);
+    }
+  });
+
+  document.addEventListener('shopify:block:deselect', function (event) {
+    var block = event.target;
+    if (!block) return;
+    var featured = block.classList && block.classList.contains('kt-header__mega-featured')
+      ? block
+      : (block.querySelector && block.querySelector('.kt-header__mega-featured'));
+    if (!featured) return;
+    var menuItem = featured.closest('.kt-header__menu-item');
+    if (menuItem) setExpanded(menuItem, false);
   });
 
   /* R91 — keep `--kt-header-offset` synced to the header's actual

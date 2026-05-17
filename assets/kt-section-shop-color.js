@@ -137,4 +137,27 @@
   document.addEventListener('shopify:section:unload', function () {
     /* No-op: per-element listeners are GC'd with the removed DOM. */
   });
+
+  /* R-editor-lifecycle — Theme editor block:select handler.
+     `shop-color` renders `category` blocks as an accordion where
+     non-active rows collapse their content to grid-rows: 0fr +
+     opacity 0. Without this handler, picking a non-active category
+     block in the editor sidebar leaves its panel content
+     (finish_X_name / finish_X_code settings, mobile swatches)
+     invisible — merchant cannot see what they're editing.
+     Activate the matching category on `:block:select`. */
+  document.addEventListener('shopify:block:select', function (event) {
+    var block = event.target;
+    if (!block) return;
+    var cat = block.classList && block.classList.contains('kt-shop-color__category')
+      ? block
+      : (block.closest && block.closest('[data-category-id]'));
+    if (!cat) return;
+    var section = cat.closest('.shopify-section');
+    if (!section) return;
+    section.querySelectorAll('[data-category-id]').forEach(function (c) {
+      c.classList.remove('kt-shop-color__category--active');
+    });
+    cat.classList.add('kt-shop-color__category--active');
+  });
 })();

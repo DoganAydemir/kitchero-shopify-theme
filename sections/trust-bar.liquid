@@ -99,7 +99,7 @@
                     {{ block.settings.value }}
                   </span>
                   {%- if block.settings.prefix != blank -%}
-                    <span class="kt-trust-bar__prefix">{{ block.settings.prefix }}</span>
+                    <span class="kt-trust-bar__prefix">{{ block.settings.prefix | escape }}</span>
                   {%- endif -%}
                 </div>
                 {%- comment -%}
@@ -110,7 +110,7 @@
                   <p> reads as stat caption in the a11y tree instead
                   of competing in the heading outline.
                 {%- endcomment -%}
-                <p class="kt-trust-bar__label">{{ block.settings.label }}</p>
+                <p class="kt-trust-bar__label">{{ block.settings.label | escape }}</p>
               </div>
             </div>
           {%- endif -%}

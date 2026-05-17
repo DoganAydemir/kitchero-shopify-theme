@@ -95,7 +95,14 @@
           <li class="kt-breadcrumbs__item kt-breadcrumbs__item--current">
             <span aria-current="page" class="kt-breadcrumbs__current">
               {%- if search.terms != blank -%}
-                {{ 'kt.search.results_for' | t: terms: search.terms }}
+                {%- comment -%}
+                  R296 — `search.terms` is user-controlled (?q=…) and
+                  Shopify's `t` filter does NOT auto-escape interpolated
+                  args. Without `| escape` here, `/search?q=<script>`
+                  injects raw markup into the breadcrumb text. Mirrors
+                  the safe_terms pattern in `sections/main-search.liquid:58`.
+                {%- endcomment -%}
+                {{ 'kt.search.results_for' | t: terms: search.terms | escape }}
               {%- else -%}
                 {{ 'kt.search.search' | t }}
               {%- endif -%}

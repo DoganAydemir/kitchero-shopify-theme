@@ -24,11 +24,40 @@
 
 {%- liquid
   comment
-    We key off `search.types` to scope results. Shopify only populates
-    `search.filters` when the search is product-only, so the scope
-    switch is what unlocks the filter sidebar.
+    R296 — `search_type` is now driven by the merchant's "Include in
+    results" theme settings (Theme settings → Search behavior). The
+    earlier hardcoded `'product,article,page'` ignored those toggles,
+    so disabling Pages / Articles / Collections in theme settings
+    had no effect on the full-page /search results. The default
+    string is rebuilt here from the four `kt_search_inc_*` toggles
+    so the form submission and the resulting Shopify scope follow
+    what the merchant configured.
   endcomment
-  assign search_type = 'product,article,page'
+  assign search_type = ''
+  if settings.kt_search_inc_products
+    assign search_type = search_type | append: 'product,'
+  endif
+  if settings.kt_search_inc_collections
+    assign search_type = search_type | append: 'collection,'
+  endif
+  if settings.kt_search_inc_articles
+    assign search_type = search_type | append: 'article,'
+  endif
+  if settings.kt_search_inc_pages
+    assign search_type = search_type | append: 'page,'
+  endif
+  assign search_type = search_type | split: ',' | join: ','
+  if search_type == blank
+    assign search_type = 'product'
+  endif
+
+  comment
+    `active_scope` powers the scope tab strip (All / Products /
+    Articles / Pages). When the user narrows from the tabs to a
+    single type Shopify echoes that in `search.types`; we then
+    override `search_type` for the next form submission so the
+    selected scope sticks.
+  endcomment
   assign active_scope = 'all'
   if search.performed and search.types.size == 1
     assign only_type = search.types | first
@@ -93,6 +122,14 @@
         the dedicated search page. ARIA combobox attrs mirror the
         overlay: #search-page-results below is the listbox target.
       {%- endcomment -%}
+      {%- comment -%}
+        R297 — `spellcheck="false"` matches the overlay search input
+        (`snippets/search-overlay.liquid:46`). Without it, browsers
+        paint red squiggle underlines on product/brand names like
+        "Kitchero" or "Lumina" that look broken to customers.
+        `autocapitalize="off"` prevents iOS from auto-capitalising
+        the first letter, which can hurt exact-match lookups.
+      {%- endcomment -%}
       <input
         type="search"
         id="search-page-input"
@@ -101,6 +138,8 @@
         class="kt-search-page__input"
         placeholder="{{ 'kt.search.placeholder' | t }}"
         autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
         enterkeyhint="search"
         role="combobox"
         aria-expanded="false"
@@ -113,10 +152,17 @@
       <input type="hidden" name="options[prefix]" value="last">
       <button type="submit" class="kt-search-page__submit">{{ 'kt.search.search' | t }}</button>
     </form>
+    {%- comment -%}
+      R298 — `role="listbox"` REMOVED from this wrapper. WAI-ARIA forbids
+      nested listboxes, and predictive-search.js injects per-group <ul>
+      elements that each carry `role="listbox"` (matching the documented
+      pattern in `sections/predictive-search.liquid:103-106`). The wrapper
+      stays as a labelable container that the combobox input controls,
+      with a polite live region for SR result-count announcements.
+    {%- endcomment -%}
     <div
       class="kt-search-page__predictive-results"
       id="search-page-results"
-      role="listbox"
       aria-live="polite"
     ></div>
 
@@ -302,7 +348,7 @@
       "type": "richtext",
       "id": "popular_subtext",
       "label": "t:sections.main-search.settings.popular_subtext.label",
-      "default": "<p>t:sections.main-search.settings.popular_subtext.default</p>"
+      "default": "<p>Tap a suggestion to explore what customers are searching for right now.</p>"
     }
   ],
   "blocks": [

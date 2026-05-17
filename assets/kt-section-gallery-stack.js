@@ -175,10 +175,10 @@ if (!window.__kitcheroGalleryStackLoaded) {
         listeners: []
       };
 
-      function on(el, event, handler) {
+      function on(el, event, handler, options) {
         if (!el) return;
-        el.addEventListener(event, handler);
-        instance.listeners.push({ el: el, event: event, handler: handler });
+        el.addEventListener(event, handler, options);
+        instance.listeners.push({ el: el, event: event, handler: handler, options: options });
       }
 
       /* Pause/play toggle — WCAG 2.2.2. */
@@ -234,6 +234,54 @@ if (!window.__kitcheroGalleryStackLoaded) {
           }
         });
       });
+
+      /* R-touch-swipe — Touch swipe + autoplay pause on mobile.
+         The stack carousel visually looks swipeable (active card
+         centered, prev/next peeking) and Theme Store reviewers test
+         this on iPhone — a clearly-swipeable-looking carousel that
+         ignores swipe is a documented rejection. Threshold 50px
+         matches other carousel sections (hero, cinematic-hero).
+         Vertical-dominant swipes are ignored so the user can still
+         scroll the page over the stack. */
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchActive = false;
+      on(section, 'touchstart', function (event) {
+        if (!event.touches || event.touches.length !== 1) return;
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchActive = true;
+        stopAutoplay(instance);
+      }, { passive: true });
+      on(section, 'touchend', function (event) {
+        if (!touchActive) return;
+        touchActive = false;
+        var changed = event.changedTouches && event.changedTouches[0];
+        if (!changed) {
+          startAutoplay(instance);
+          return;
+        }
+        var dx = changed.clientX - touchStartX;
+        var dy = changed.clientY - touchStartY;
+        var absDx = Math.abs(dx);
+        var absDy = Math.abs(dy);
+        /* Only treat as swipe if horizontal-dominant AND past
+           threshold; otherwise the user was scrolling vertically. */
+        if (absDx > 50 && absDx > absDy) {
+          if (dx < 0) {
+            goTo(instance, instance.activeIndex + 1);
+          } else {
+            goTo(instance, instance.activeIndex - 1);
+          }
+        }
+        /* Resume autoplay after a brief grace period so the user's
+           gesture isn't immediately overridden. */
+        setTimeout(function () { startAutoplay(instance); }, 800);
+      }, { passive: true });
+      on(section, 'touchcancel', function () {
+        touchActive = false;
+        startAutoplay(instance);
+      }, { passive: true });
 
       /* Pause autoplay on hover / focus */
       on(section, 'mouseenter', function () {

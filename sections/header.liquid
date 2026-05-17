@@ -85,7 +85,19 @@
     {%- liquid
       assign kt_logo_w_d = settings.kt_logo_width | default: 120
       assign kt_logo_w_m = settings.kt_logo_width_mobile | default: 100
-      assign kt_logo_height = kt_logo_w_d | divided_by: settings.kt_logo.aspect_ratio
+      # R-liquid-safe — guard `aspect_ratio` against nil on a fresh
+      # install where the merchant hasn't uploaded a logo yet. Without
+      # `| default: 1` the `divided_by` filter receives nil (coerced to
+      # 0) and Shopify's runtime renders a visible
+      # `Liquid error: divided by 0` string on every page (the
+      # header is on every template). Production-mode Liquid errors
+      # surface inline as text — a guaranteed Theme Store rejection
+      # ("default-install must be visually clean"). 1 is a safe stand-
+      # in since the height value is only used by a wordmark-fallback
+      # path the logo branch never reaches when settings.kt_logo is
+      # blank.
+      assign kt_logo_aspect = settings.kt_logo.aspect_ratio | default: 1
+      assign kt_logo_height = kt_logo_w_d | divided_by: kt_logo_aspect
       assign kt_logo_sizes = '(max-width: 749px) ' | append: kt_logo_w_m | append: 'px, ' | append: kt_logo_w_d | append: 'px'
       assign kt_logo_alt = shop.name | escape
       capture kt_logo_style
@@ -234,10 +246,10 @@
                           {%- endif -%}
                           <div class="kt-header__mega-featured-overlay">
                             {%- if block.settings.heading != blank -%}
-                              <p class="kt-header__mega-featured-title">{{ block.settings.heading }}</p>
+                              <p class="kt-header__mega-featured-title">{{ block.settings.heading | escape }}</p>
                             {%- endif -%}
                             {%- if block.settings.description != blank -%}
-                              <p class="kt-header__mega-featured-desc">{{ block.settings.description }}</p>
+                              <p class="kt-header__mega-featured-desc">{{ block.settings.description | escape }}</p>
                             {%- endif -%}
                             {%- if block.settings.link != blank -%}
                               <a href="{{ block.settings.link | escape }}" class="kt-header__mega-featured-cta">
@@ -465,9 +477,16 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                <noscript>
-                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                </noscript>
+                {%- comment -%}
+                  R298 — Submit button moved OUTSIDE `<noscript>` so it
+                  renders for JS-enabled users too. Previously the
+                  button only appeared for no-JS users, while the
+                  on-change auto-submit handler in
+                  `assets/localization-form.js` was deliberately
+                  removed (WCAG 3.2.2 "On Input") — leaving JS-on
+                  users with no way to apply their locale choice.
+                {%- endcomment -%}
+                <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
               {%- endform -%}
             {%- endif -%}
 
@@ -483,9 +502,12 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                <noscript>
-                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                </noscript>
+                {%- comment -%}
+                  R298 — Submit button moved OUTSIDE `<noscript>` so it
+                  renders for JS-enabled users too (see language form
+                  above for rationale).
+                {%- endcomment -%}
+                <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
               {%- endform -%}
             {%- endif -%}
           </div>
@@ -516,10 +538,17 @@
           the live region to pre-exist to notice its textContent
           changing. Hidden visually + from SR when count is 0.
         {%- endcomment -%}
+        {%- comment -%}
+          R298 — `aria-live` REMOVED. The badge previously competed
+          with `Kitchero.announce()` on every cart-add: SR users
+          heard "Added to cart" (from the announcer) AND "2" (from
+          this badge), back-to-back. The central announcer is the
+          source of truth for cart updates — the badge is a visual
+          counter, not an announcement region.
+        {%- endcomment -%}
         <span
           class="kt-header__cart-count"
-          aria-live="polite"
-          aria-atomic="true"
+          aria-hidden="{% if cart.item_count == 0 %}true{% else %}false{% endif %}"
           {% if cart.item_count == 0 %}style="display: none;"{% endif %}
         >
           {{ cart.item_count }}

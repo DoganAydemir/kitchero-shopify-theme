@@ -5,7 +5,21 @@
 
   Accepts:
   - product: {Object} Shopify product
+  - section: {Object} caller section, used to build unique IDs
+                      (R296 — prevents WCAG 4.1.1 duplicate-ID fail
+                      when the same product renders in PDP +
+                      featured-product block on the same page).
 {%- endcomment -%}
+
+{%- comment -%}
+  R296 — Unique ID suffix. Match the convention used in
+  snippets/product-form.liquid so the noscript variant select / quantity
+  input IDs stay distinct per render instance.
+{%- endcomment -%}
+{%- assign vp_uid = product.id -%}
+{%- if section and section.id -%}
+  {%- assign vp_uid = product.id | append: '-' | append: section.id -%}
+{%- endif -%}
 
 {%- comment -%}
   R137 VARIANT-1: also hide the picker when the product has only a
@@ -368,10 +382,10 @@
       additional html-attributes like `class`.
     {%- endcomment -%}
     {%- form 'product', product, class: 'kt-variant-picker__nojs' -%}
-      <label for="VariantNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
+      <label for="VariantNoJs-{{ vp_uid }}" class="kt-variant-picker__nojs-label">
         {{ 'kt.product.variant' | t | default: 'Variant' }}
       </label>
-      <select id="VariantNoJs-{{ product.id }}" name="id" class="kt-variant-picker__nojs-select">
+      <select id="VariantNoJs-{{ vp_uid }}" name="id" class="kt-variant-picker__nojs-select">
         {%- for variant in product.variants -%}
           <option
             value="{{ variant.id }}"
@@ -384,12 +398,12 @@
           </option>
         {%- endfor -%}
       </select>
-      <label for="QuantityNoJs-{{ product.id }}" class="kt-variant-picker__nojs-label">
+      <label for="QuantityNoJs-{{ vp_uid }}" class="kt-variant-picker__nojs-label">
         {{ 'kt.product.quantity.label' | t | default: 'Quantity' }}
       </label>
       <input
         type="number"
-        id="QuantityNoJs-{{ product.id }}"
+        id="QuantityNoJs-{{ vp_uid }}"
         name="quantity"
         value="{{ nojs_qty_min }}"
         min="{{ nojs_qty_min }}"

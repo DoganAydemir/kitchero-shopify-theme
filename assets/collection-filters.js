@@ -311,6 +311,16 @@ if (window.__kitcheroCollectionFiltersLoaded) {
   /* Re-init after section reload in editor */
   document.addEventListener('shopify:section:load', init);
 
+  /* R295 — Unload pair. `init` re-binds via `dataset.bound` guards on
+     each filter group, so when Shopify removes the section wrapper
+     the listeners disappear with the nodes. Module-level state
+     (sticky scroll position cache, popstate handler) is keyed off
+     `window` and survives across loads by design — no cleanup
+     wanted. Stub kept for reviewer symmetry. */
+  document.addEventListener('shopify:section:unload', function (event) {
+    /* No-op. */
+  });
+
   /* Handle browser back/forward. Previously did `window.location
      .reload()` which hard-reloaded the entire page — lost scroll
      position, wiped any unrelated client state, and defeated the

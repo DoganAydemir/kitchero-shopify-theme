@@ -91,13 +91,28 @@
   border: 1px solid var(--kt-stone-300);
   border-radius: 0.25rem;
   flex-shrink: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.15s ease;
   color: var(--kt-white);
 }
 
 .kt-filter__checkbox:checked + .kt-filter__checkbox-visual {
   background-color: var(--kt-stone-900);
   border-color: var(--kt-stone-900);
+}
+
+/* R298 — Visible focus indicator for the visually-hidden checkbox.
+   The real `<input type="checkbox">` is `opacity:0; width:0; height:0`
+   so the global `:focus-visible { outline: 2px solid }` rule lands
+   on a 0x0 element and produces no visible ring. Project a 2px ring
+   onto the adjacent `.kt-filter__checkbox-visual` instead so keyboard
+   users see clearly where focus is. Mirrors the existing pattern used
+   by the mobile drawer (`.kt-filter-drawer__check input:focus-visible
+   + .kt-filter-drawer__check-box` further down this file). WCAG 2.4.7
+   (Focus Visible) — Theme Store reviewers explicitly test filter UI
+   keyboard navigation. */
+.kt-filter__checkbox:focus-visible + .kt-filter__checkbox-visual {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
 }
 
 .kt-filter__option:hover .kt-filter__checkbox-visual {

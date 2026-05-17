@@ -20,8 +20,18 @@
 >
   <div class="page-width">
     <div class="kt-featured-product__layout">
-      {%- comment -%} Media {%- endcomment -%}
-      <div class="kt-featured-product__media">
+      {%- comment -%}
+        Media — `data-variant-featured-image` marks the wrapper so
+        `assets/product-form.js` can swap the inner `<img>`'s src/srcset
+        to `variant.featured_image` when the customer picks a different
+        variant. featured-product is a single static image with no
+        gallery wrapper, so the gallery-dispatch path in product-form.js
+        (which looks for `[data-product-gallery]`) finds nothing here —
+        without this hook the image silently stays on the original
+        variant even as price/SKU/availability update around it (Theme
+        Store atomic-variant-update rule).
+      {%- endcomment -%}
+      <div class="kt-featured-product__media" data-variant-featured-image>
         {%- if product != blank and product.featured_media != blank -%}
           {%- assign media_alt = product.featured_media.alt | default: product.title -%}
           {{
@@ -89,7 +99,7 @@
             {%- when 'variant_picker' -%}
               {%- if product != blank -%}
                 <div class="kt-featured-product__variants" {{ block.shopify_attributes }}>
-                  {%- render 'product-variant-picker', product: product -%}
+                  {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
               {%- endif -%}
 
@@ -198,31 +208,40 @@
                       Without it, the customer can't tell "in stock now"
                       from "ships when restocked".
                     {%- endcomment -%}
+                    {%- comment -%}
+                      R298 — Pre-order badge always-render with hidden
+                      flag so product-form.js can toggle atomically on
+                      variant change. Same pattern as snippets/product-form.liquid.
+                    {%- endcomment -%}
+                    {%- assign fp_preorder_hidden = true -%}
                     {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
-                      <p class="kt-featured-product__preorder" role="note">{{ 'kt.product.preorder' | t }}</p>
+                      {%- assign fp_preorder_hidden = false -%}
                     {%- endif -%}
+                    <p class="kt-featured-product__preorder" data-preorder role="note"{% if fp_preorder_hidden %} hidden{% endif %}>{{ 'kt.product.preorder' | t }}</p>
 
                     <div class="kt-featured-product__error" data-product-form-error role="alert" hidden></div>
 
                     {%- comment -%}
-                      Shopify Dynamic Checkout (`form | payment_button`) is
-                      intentionally NOT emitted on Featured Product. The
-                      button lives inside a closed shadow DOM, so its blue
-                      Shop-Pay-default colour cannot be themed to match the
-                      rest of the storefront (Shopify's own
-                      accelerated-checkout docs confirm this, and overriding
-                      its shadow internals is a Theme Store reject signal).
-                      The matching schema toggle was removed too, so saved
-                      values from earlier sessions stay dormant.
+                      R298 — Shopify Dynamic Checkout (`form | payment_button`)
+                      is now ALWAYS emitted. Theme Store / Online Store sales
+                      channel mandates the accelerated checkout button inside
+                      every `{% form 'product' %}` — Shop Pay, Apple Pay,
+                      Google Pay, PayPal, etc. — regardless of palette
+                      concerns. Merchants disable individual buttons in
+                      Settings → Payments if they don't want them.
 
-                      The `payment_terms` slot would render installment-
-                      provider messaging (Shop Pay Installments / Klarna /
-                      Afterpay) — gated on the same toggle for consistency,
-                      so dropping the gate drops both. If a future merchant
-                      wants installment messaging back without the blue
-                      button, render `{{ form | payment_terms }}` here
-                      directly (it has no shadow-DOM colour clash).
+                      `payment_terms` (Shop Pay Installments / Klarna /
+                      Afterpay messaging) sits beneath the button so installment
+                      copy follows the offer when enabled. Both render zero
+                      output when the merchant hasn't configured them, so
+                      always-on is safe.
                     {%- endcomment -%}
+                    <div class="kt-featured-product__dynamic-checkout">
+                      {{ form | payment_button }}
+                    </div>
+                    <div class="kt-featured-product__installments">
+                      {{ form | payment_terms }}
+                    </div>
                   {%- endform -%}
                 {%- else -%}
                   <button type="button" class="kt-featured-product__submit button button--primary" disabled>
@@ -273,6 +292,27 @@
   </div>
 </section>
 
+{%- comment -%}
+  product-form.js is shared between main-product, main-product-showroom,
+  and featured-product (its init selector at line 1346 covers
+  data-section-type="featured-product"). Without this script tag the
+  variant picker UI renders but every interaction is dead — picking a
+  swatch wouldn't update price, SKU, ATC state, or featured image, and
+  /cart/add would silently keep submitting the initial variant.
+{%- endcomment -%}
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  Selling-plan picker JS only emits when the product actually has
+  subscription plans configured. Required for atomic price updates +
+  ATC label switch when the customer ticks a subscription cadence —
+  Theme Store rejects subscription products that don't show the
+  discounted price before commit.
+{%- endcomment -%}
+{%- if product.selling_plan_groups.size > 0 -%}
+  <script src="{{ 'selling-plan-picker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.featured-product.name",
@@ -319,9 +359,22 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        {
+          "value": "stone_100",
+          "label": "t:sections.shared.bg_color.options__stone_100.label"
+        }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
