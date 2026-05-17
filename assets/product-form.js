@@ -269,34 +269,20 @@
          read `?variant=X` and re-check the matching radios so the
          UI mirrors the URL. Without this listener, Back returned
          the URL to a prior variant but the picker stayed visually
-         on the latest selection — confusing + breaks bookmarks. */
-      window.addEventListener('popstate', function () {
-        var params = new URLSearchParams(window.location.search);
-        var variantParam = params.get('variant');
-        if (!variantParam) return;
-        var targetVariantId = parseInt(variantParam, 10);
-        if (isNaN(targetVariantId)) return;
-        var variants = getVariantsData(container);
-        var targetVariant = null;
-        for (var v = 0; v < variants.length; v++) {
-          if (variants[v].id === targetVariantId) { targetVariant = variants[v]; break; }
-        }
-        if (!targetVariant || !targetVariant.options) return;
-        /* Re-check the matching option radios — `change` events on
-           radios trigger updateVariant() above, which finishes the
-           sync (price, sku, image, atc label). Skip if the radio
-           is already checked to avoid an infinite popstate loop on
-           pages that intercept history events. */
-        targetVariant.options.forEach(function (optValue, optIndex) {
-          var radios = container.querySelectorAll('[data-option-index="' + optIndex + '"] [data-option-value]');
-          radios.forEach(function (radio) {
-            if (radio.value === optValue && !radio.checked) {
-              radio.checked = true;
-              radio.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          });
-        });
-      });
+         on the latest selection — confusing + breaks bookmarks.
+
+         R-listener-leak — The popstate listener was previously
+         attached HERE inside `initProductForm`, which runs on every
+         `shopify:section:load`. The `productFormBound` guard at line
+         50 only blocks double-binding on the same form node, but
+         Section Rendering API replaces the entire section DOM, so
+         each edit-and-save in the theme editor produced a fresh
+         form with no flag → another window-level popstate handler
+         stacked. After N edits, a single Back press fired N
+         handlers, each closing over a detached container — memory
+         leak + flicker. The listener now lives at module scope
+         (below `initAll`) with a single load-guard flag, and
+         re-discovers the active PDP section at handler time. */
     }
 
     /* AJAX Add to Cart */
@@ -1430,6 +1416,49 @@
     initProductForm(el);
     initActions(el);
   });
+
+  /* R-listener-leak — Module-scope popstate handler with single-bind
+     guard. The previous in-`initProductForm` placement stacked one
+     handler per `shopify:section:load`, causing memory leaks and
+     multi-fire flicker on Back/Forward in the theme editor. Now
+     bound once per page lifetime; the handler re-discovers the
+     active PDP section via PRODUCT_SECTION_SELECTOR and applies the
+     URL's `?variant=ID` to the live picker radios. Featured-product
+     sections are intentionally excluded from the URL rewrite path
+     (see line ~639 gate), so popstate on a homepage with a
+     featured-product section will find no `?variant=` to apply —
+     graceful no-op. */
+  if (!window.__kitcheroProductPopstateBound) {
+    window.__kitcheroProductPopstateBound = true;
+    window.addEventListener('popstate', function () {
+      var section = document.querySelector('[data-section-type="main-product"]');
+      if (!section) return;
+      var params = new URLSearchParams(window.location.search);
+      var variantParam = params.get('variant');
+      if (!variantParam) return;
+      var targetVariantId = parseInt(variantParam, 10);
+      if (isNaN(targetVariantId)) return;
+      var variants = getVariantsData(section);
+      var targetVariant = null;
+      for (var v = 0; v < variants.length; v++) {
+        if (variants[v].id === targetVariantId) { targetVariant = variants[v]; break; }
+      }
+      if (!targetVariant || !targetVariant.options) return;
+      /* Re-check the matching option radios — `change` events on
+         radios trigger updateVariant(), which finishes the sync
+         (price, sku, image, atc label). Skip if the radio is
+         already checked to avoid an infinite popstate loop. */
+      targetVariant.options.forEach(function (optValue, optIndex) {
+        var radios = section.querySelectorAll('[data-option-index="' + optIndex + '"] [data-option-value]');
+        radios.forEach(function (radio) {
+          if (radio.value === optValue && !radio.checked) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
+    });
+  }
 
   document.addEventListener('shopify:section:load', function (e) {
     var section = e.target.querySelector(PRODUCT_SECTION_SELECTOR);

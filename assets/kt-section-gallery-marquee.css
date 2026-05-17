@@ -132,10 +132,16 @@
   }
 }
 
-/* Focus ring for keyboard users on linkable tiles */
+/* Focus ring for keyboard users on linkable tiles.
+   R-focus-ring-clip — Item has `overflow: hidden` for the image
+   crop, and sits inside `.kt-gallery-marquee__row` (overflow:hidden)
+   AND `.kt-gallery-marquee` section (overflow:hidden). An outset
+   ring at any positive offset gets clipped horizontally as items
+   animate through the row. Inset outline keeps the ring visible
+   on every frame. WCAG 2.4.7. */
 .kt-gallery-marquee__item:focus-visible {
   outline: 2px solid var(--kt-stone-900);
-  outline-offset: 4px;
+  outline-offset: -2px;
 }
 
 /* ---------------------------------------------------------------- Media */

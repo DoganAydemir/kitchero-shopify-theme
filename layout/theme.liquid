@@ -663,7 +663,23 @@
           {%- endcomment -%}
           types:               {{ search_types | json }},
           resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
-          noResults:           {{ 'kt.search.no_results_announcement' | t | json }}
+          noResults:           {{ 'kt.search.no_results_announcement' | t | json }},
+          {%- comment -%}
+            R-locale-jsfallback — Predictive-search group headers +
+            "View all" CTA. Without these keys, `assets/predictive-
+            search.js` fell back to hardcoded English strings
+            (`|| 'Products'` / `|| 'Collections'` / `|| 'Journal'` /
+            `|| 'Pages'` / `|| 'View all results'`), so customers on
+            non-EN markets saw English group titles inside the search
+            overlay — multi-language regression. Each key resolves to
+            an existing `kt.search.*` locale entry now wired across
+            all 5 locales.
+          {%- endcomment -%}
+          groupProducts:       {{ 'kt.search.scope_products'    | t | json }},
+          groupCollections:    {{ 'kt.search.scope_collections' | t | json }},
+          groupArticles:       {{ 'kt.search.scope_articles'    | t | json }},
+          groupPages:          {{ 'kt.search.scope_pages'       | t | json }},
+          viewAll:             {{ 'kt.search.view_all'          | t | json }}
         },
         cartStrings: {
           error:           {{ 'kt.cart.cart_error' | t | json }},

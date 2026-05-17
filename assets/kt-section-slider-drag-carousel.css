@@ -252,8 +252,14 @@
 }
 
 .kt-drag-carousel__item:focus-visible {
+  /* R-focus-ring-clip — Item has `overflow: hidden` for the rounded
+     image crop and sits inside `.kt-drag-carousel` (overflow:hidden)
+     with no horizontal padding. A positive outline-offset gets
+     clipped horizontally when the focused tile sits at the section
+     edge during scroll-snap. Inset outline keeps the indicator
+     visible inside the rounded edge. WCAG 2.4.7. */
   outline: 2px solid var(--kt-dc-text);
-  outline-offset: 3px;
+  outline-offset: -2px;
 }
 
 /* ---------- Media ---------- */

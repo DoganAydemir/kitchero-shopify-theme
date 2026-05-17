@@ -111,6 +111,19 @@
   text-decoration: none;
 }
 
+/* R-focus-ring-clip — The card carries `overflow: hidden` (for the
+   border-radius image crop) AND sits inside a horizontal-scroll
+   container with zero vertical padding. The global `:focus-visible
+   { outline-offset: 2px }` rule paints the ring OUTSIDE the card,
+   where the parent scroll container clips it on every side. Switch
+   to an inset outline so the focus indicator stays visible inside
+   the rounded edge while keyboard-tabbing through the carousel.
+   WCAG 2.4.7 + axe-core `focusable-content` rule. */
+.kt-shop-categories__card:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: -2px;
+}
+
 @media screen and (min-width: 750px) {
   .kt-shop-categories__card {
     width: 45vw;
