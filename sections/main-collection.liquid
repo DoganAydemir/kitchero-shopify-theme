@@ -266,10 +266,10 @@
                             type="number"
                             id="Bar-{{ filter.min_value.param_name }}"
                             name="{{ filter.min_value.param_name }}"
-                            value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                            value="{{ filter.min_value.value}}"
                             placeholder="0"
                             min="0"
-                            max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            max="{{ filter.range_max}}"
                             inputmode="decimal"
                             {%- comment -%}
                               R139 CURR-DECIMAL-1: gate fractional step
@@ -296,10 +296,10 @@
                             type="number"
                             id="Bar-{{ filter.max_value.param_name }}"
                             name="{{ filter.max_value.param_name }}"
-                            value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
-                            placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            value="{{ filter.max_value.value}}"
+                            placeholder="{{ filter.range_max}}"
                             min="0"
-                            max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            max="{{ filter.range_max}}"
                             inputmode="decimal"
                             {%- comment -%}
                               R139 CURR-DECIMAL-1: gate fractional step
@@ -642,10 +642,10 @@
                       type="number"
                       id="FilterDrawer-{{ filter.min_value.param_name }}"
                       name="{{ filter.min_value.param_name }}"
-                      value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                      value="{{ filter.min_value.value}}"
                       placeholder="0"
                       min="0"
-                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      max="{{ filter.range_max}}"
                       inputmode="decimal"
                       {%- comment -%} R139 CURR-DECIMAL-1: zero-decimal currency gate. {%- endcomment -%}
                       {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}
@@ -663,10 +663,10 @@
                       type="number"
                       id="FilterDrawer-{{ filter.max_value.param_name }}"
                       name="{{ filter.max_value.param_name }}"
-                      value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
-                      placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      value="{{ filter.max_value.value}}"
+                      placeholder="{{ filter.range_max}}"
                       min="0"
-                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      max="{{ filter.range_max}}"
                       inputmode="decimal"
                       {%- comment -%} R139 CURR-DECIMAL-1: zero-decimal currency gate. {%- endcomment -%}
                       {%- if kt_zero_decimal_currencies contains cart.currency.iso_code -%}

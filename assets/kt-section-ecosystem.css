@@ -13,7 +13,13 @@
   background-color: var(--kt-stone-900);
   color: var(--kt-stone-50);
   position: relative;
-  overflow: hidden;
+  /* R-sticky-ancestor — was `overflow: hidden`, but that ancestor
+     killed the JS-off progressive-enhancement sticky pin on
+     `html:not(.js) .kt-ecosystem__image-col` (line 232-235). CLAUDE.md
+     mandates JS-disabled functionality; `overflow: clip` preserves
+     the decorative grid-pattern + grid-fade clipping without
+     becoming a sticky-breaking containing block. */
+  overflow: clip;
 }
 
 /* Background grid: absolute inset-0 z-0 opacity-[0.05] pointer-events-none */

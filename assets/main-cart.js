@@ -236,11 +236,72 @@ if (!window.__kitcheroMainCartLoaded) {
             var serverNote = next.querySelector('[name="note"]');
             var serverNoteValue = serverNote ? serverNote.value : '';
 
+            /* R-cart-page-focus — Capture the active element BEFORE
+               the innerHTML swap so we can restore focus to the
+               equivalent button after the DOM is replaced. Without
+               this, the focused +/-/Remove button is destroyed
+               during the swap and focus falls back to <body>,
+               forcing keyboard / SR users to re-Tab from the page
+               top on every quantity change. WCAG 2.4.3 (Focus
+               Order). Mirrors the cart-drawer pattern at
+               assets/cart-drawer.js:611-683. */
+            var activeEl = (current.contains(document.activeElement))
+              ? document.activeElement
+              : null;
+            var restoreFocus = null;
+            if (activeEl) {
+              var lineEl = activeEl.closest('[data-line-key]');
+              var lineKey = lineEl ? lineEl.getAttribute('data-line-key') : null;
+              var qtyDir = activeEl.getAttribute('data-qty');
+              var isQtyInput = activeEl.matches && activeEl.matches('input[data-cart-qty-input], input[name^="updates["]');
+              var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove]');
+              if (lineKey && qtyDir) {
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-cart-qty-change][data-qty="' + qtyDir + '"]');
+                };
+              } else if (lineKey && isQtyInput) {
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] input[data-cart-qty-input]');
+                };
+              } else if (lineKey && isRemove) {
+                restoreFocus = function (panel) {
+                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-cart-remove]');
+                };
+              } else if (activeEl.id) {
+                var savedId = activeEl.id;
+                restoreFocus = function (panel) {
+                  return panel.querySelector('#' + (typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(savedId) : savedId));
+                };
+              }
+            }
+
             current.innerHTML = next.innerHTML;
 
             if (preservedNote && !serverNoteValue) {
               var restoredNote = current.querySelector('[name="note"]');
               if (restoredNote) restoredNote.value = preservedNote;
+            }
+
+            /* Restore focus to the equivalent button in the swapped
+               DOM. If the original target no longer exists (line
+               removed via qty=0), fall back to the cart heading or
+               checkout button so focus stays inside the cart page
+               rather than landing on <body>. */
+            if (restoreFocus) {
+              try {
+                var target = restoreFocus(current);
+                if (target && typeof target.focus === 'function') {
+                  target.focus({ preventScroll: true });
+                } else {
+                  var fallback = current.querySelector('[name="checkout"], .kt-cart-page__heading, h1');
+                  if (fallback && typeof fallback.focus === 'function') {
+                    if (!fallback.hasAttribute('tabindex')) {
+                      fallback.setAttribute('tabindex', '-1');
+                    }
+                    fallback.focus({ preventScroll: true });
+                  }
+                }
+              } catch (e) { /* CSS.escape unsupported on very old browsers — swallow */ }
             }
           }
 

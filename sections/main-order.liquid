@@ -162,7 +162,21 @@
       {%- endcomment -%}
       <ul class="kt-order__items" role="list" aria-label="{{ 'kt.customer.order.product' | t }}">
         {%- for line_item in order.line_items -%}
-          <li class="kt-order__item">
+          {%- comment -%}
+            R140 (R38 audit) — partial refund visualization. When a
+            customer refunds 1 of 3 ordered items, Shopify reports
+            only the aggregate "Refunded -$X" in `order.refunds`,
+            and the line item loop renders every line identically.
+            Customer can't tell WHICH item was refunded — a known
+            Theme Store rejection signal for the customer-account
+            critical path. `line_item.refunded_quantity` returns
+            the qty refunded from this line; full-refund gets the
+            `--refunded` modifier (strike-through + dim) and any
+            non-zero refund renders the per-line pill alongside
+            the fulfillment pill so partial cases (3 ordered, 1
+            refunded) are unambiguous.
+          {%- endcomment -%}
+          <li class="kt-order__item{% if line_item.refunded_quantity > 0 and line_item.refunded_quantity == line_item.quantity %} kt-order__item--refunded{% endif %}">
             {%- if line_item.image -%}
               {{ line_item.image | image_url: width: 160 | image_tag:
                 loading: 'lazy',
@@ -322,6 +336,24 @@
               {%- elsif line_item.successfully_fulfilled_quantity > 0 and line_item.successfully_fulfilled_quantity < line_item.quantity -%}
                 <p class="kt-order__item-fulfillment kt-order__item-fulfillment--partial">
                   {{ 'kt.customer.order.line_partial' | t: shipped: line_item.successfully_fulfilled_quantity, total: line_item.quantity }}
+                </p>
+              {%- endif -%}
+
+              {%- comment -%}
+                R140 (R38 audit) — per-line refund pill. Rendered
+                in addition to the fulfillment pill above so a
+                partially fulfilled + partially refunded line
+                shows both states. `refunded_quantity` is set by
+                Shopify when a merchant issues a refund through
+                admin; full vs partial determines the wording.
+              {%- endcomment -%}
+              {%- if line_item.refunded_quantity > 0 -%}
+                <p class="kt-order__item-fulfillment kt-order__item-fulfillment--refunded">
+                  {%- if line_item.refunded_quantity == line_item.quantity -%}
+                    {{ 'kt.customer.order.line_refunded_full' | t }}
+                  {%- else -%}
+                    {{ 'kt.customer.order.line_refunded_partial' | t: refunded: line_item.refunded_quantity, total: line_item.quantity }}
+                  {%- endif -%}
                 </p>
               {%- endif -%}
             </div>

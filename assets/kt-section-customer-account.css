@@ -1082,6 +1082,26 @@ html.no-js [data-addresses-cancel-edit] {
   color: var(--kt-amber-700, #b45309);
 }
 
+/* R140 (R38 audit) — refund pill + fully-refunded line modifier.
+   Color red so it doesn't blend with the green "shipped" pill, and
+   strike-through the title + price on full refund so the customer
+   can scan the list and see at a glance which item was refunded.
+   Strike on the <a> only (not the whole <li>) to keep the link
+   tappable for re-purchase via product page. */
+.kt-order__item-fulfillment--refunded {
+  color: var(--kt-red-700, #b91c1c);
+}
+
+.kt-order__item--refunded .kt-order__item-title a,
+.kt-order__item--refunded .kt-order__item-title {
+  text-decoration: line-through;
+}
+
+.kt-order__item--refunded .kt-order__item-price {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
 /* ── Totals row variants ─────────────────────────────── */
 
 /* R110 — was `span:first-child` before the <dl> refactor; now

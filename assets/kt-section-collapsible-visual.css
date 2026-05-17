@@ -11,7 +11,16 @@
   background: var(--kt-stone-950); /* stone-950 */
   color: var(--kt-stone-50);
   padding: 6rem 0;
-  overflow: hidden;
+  /* R-sticky-ancestor — was `overflow: hidden`, which turned the
+     `.kt-collapsible-visual__visual` sticky right-column image
+     (line 248, desktop ≥1024px) into regular relatively-positioned
+     content, killing the section's core interaction (image stays
+     pinned while accordion items scroll past on the left).
+     `overflow: clip` preserves the decorative clipping for the
+     dark background's overlays without becoming a sticky-breaking
+     containing block. Modern-browser support (Chromium 90+,
+     Safari 16+, Firefox 81+) — all Shopify last-2 cohorts. */
+  overflow: clip;
 }
 
 @media (min-width: 768px) {

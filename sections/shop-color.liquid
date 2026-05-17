@@ -67,34 +67,45 @@
         {%- for block in section.blocks -%}
           {%- if block.type == 'category' -%}
             {%- comment -%}
-              R-wcag-keyboard — `tabindex="0"` + `role="button"` +
-              `aria-expanded` make the category accordion reachable
-              via keyboard (Tab + Enter / Space). Without these, the
-              click + mouseenter listeners in kt-section-shop-color.js
-              were unreachable to keyboard / screen-reader users
-              entirely — Theme Store WCAG 2.1.1 hard reject (interactive
-              elements must be keyboard-equivalent). The matching
-              keydown handler in the JS module activates the category
-              on Enter / Space.
+              R140 (R8 audit) — accordion trigger split from outer
+              wrapper to comply with WCAG 4.1.2 "no nested interactive
+              content". The previous structure put `role="button"` on
+              the outer `<div>` that also contained `<button>` finish
+              selectors as descendants — assistive tech cannot
+              reliably focus or activate buttons inside a parent that
+              claims `role="button"`. The h3 now wraps a native
+              `<button>` (ARIA APG accordion heading pattern), the
+              category swatch lives inside the button as visual
+              context (`aria-hidden` since the heading text already
+              names the trigger), and the panel below is a sibling
+              with matching `aria-controls` / `id`. Native button
+              gets Enter/Space + focus-visible for free.
             {%- endcomment -%}
             <div
               class="kt-shop-color__category{% if forloop.first %} kt-shop-color__category--active{% endif %}"
               data-category-id="{{ block.id }}"
-              role="button"
-              tabindex="0"
-              aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
-              aria-label="{{ block.settings.title | escape }}"
               {{ block.shopify_attributes }}
             >
-              <div class="kt-shop-color__category-header">
-                <h3 class="kt-shop-color__category-title">{{ block.settings.title | escape }}</h3>
-                <div class="kt-shop-color__category-swatch">
-                  <div class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.finish_1_color1 | default: '#F5F0EB' }};"></div>
-                  <div class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.finish_1_color2 | default: '#E8E6DF' }};"></div>
-                </div>
-              </div>
+              <h3 class="kt-shop-color__category-heading">
+                <button
+                  type="button"
+                  class="kt-shop-color__category-header kt-shop-color__category-trigger"
+                  data-category-trigger
+                  aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                  aria-controls="ShopColorPanel-{{ block.id }}"
+                >
+                  <span class="kt-shop-color__category-title">{{ block.settings.title | escape }}</span>
+                  <span class="kt-shop-color__category-swatch" aria-hidden="true">
+                    <span class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.finish_1_color1 | default: '#F5F0EB' }};"></span>
+                    <span class="kt-shop-color__category-swatch-half" style="background-color: {{ block.settings.finish_1_color2 | default: '#E8E6DF' }};"></span>
+                  </span>
+                </button>
+              </h3>
 
-              <div class="kt-shop-color__category-content">
+              <div
+                id="ShopColorPanel-{{ block.id }}"
+                class="kt-shop-color__category-content"
+              >
                 <div class="kt-shop-color__category-content-inner">
                 {%- comment -%} Mobile inline images — one per finish, JS toggles visibility {%- endcomment -%}
                 {%- assign mobile_placeholders = 'collection-1,collection-2,collection-3,collection-4,collection-5,collection-6' | split: ',' -%}

@@ -18,11 +18,18 @@
      the editor reloads or unloads a section. */
   var registry = new WeakMap();
 
-  /* Local formatMoney — mirrors product-form.js:819. `Shopify.formatMoney`
-     is NOT loaded in this theme (no shopify_common.js / option_selection.js).
-     Intl.NumberFormat keyed off `Shopify.currency.active` keeps the right
-     symbol + decimal separator on every Market. */
+  /* R-money-parity — Delegate to `Kitchero.formatMoney` (global.js)
+     which parses the merchant-configured `shop.money_format` so the
+     sticky bar price string matches the Liquid `| money` output on
+     PDP and cart. Previous `Intl.NumberFormat` implementation
+     produced divergent strings on every market with a customized
+     currency format (TR/EU/non-USD), failing Theme Store reviewer
+     parity tests. CLDR fallback kept for the unreachable-in-
+     production script-load race. */
   function formatMoney(cents) {
+    if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+      return window.Kitchero.formatMoney(cents);
+    }
     var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
     var locale = (document.documentElement.lang || 'en').replace('_', '-');
     try {

@@ -1101,19 +1101,29 @@
   }
 
   /**
-   * Format a cents integer as a currency string, market-aware.
+   * Format a cents integer as a currency string using the merchant's
+   * configured `shop.money_format`. Delegates to `Kitchero.formatMoney`
+   * (defined in `assets/global.js`) which parses `{{amount}}` /
+   * `{{amount_with_comma_separator}}` / etc. placeholders so JS output
+   * matches Liquid `| money` output EXACTLY.
    *
-   * Previously called `Shopify.formatMoney` with a `$NN.NN` fallback —
-   * but `Shopify.formatMoney` isn't loaded in this theme (no
-   * shopify_common.js / option_selection.js). On every EUR/TRY/GBP
-   * market the fallback fired, flashing `$149.00` the instant a
-   * customer clicked a swatch even though the Liquid-rendered initial
-   * price read `€149,00`. Theme Store multi-country test catches this.
-   * Use `Intl.NumberFormat` locked to `Shopify.currency.active` (set on
-   * every market) with the document's active locale for correct
-   * decimal separator + symbol placement.
+   * R-money-parity — Previously used `Intl.NumberFormat` which produces
+   * CLDR output (e.g. `₺1.499,00`) that diverges from `shop.money_format`
+   * (e.g. `1.499 TL`) on every store that customized the admin's
+   * currency format — visibly different prices on the SAME variant
+   * between PDP (post-JS update) and cart (Liquid render). Theme Store
+   * reviewers flag the divergence as "deceptive pricing" and reject.
+   *
+   * Defensive fallback: if `Kitchero.formatMoney` isn't yet available
+   * (e.g. script load race on cached pages) fall back to CLDR Intl —
+   * better stale-currency than blank price. Production load order
+   * (global.js loaded before product-form.js with defer) makes the
+   * fallback unreachable in practice.
    */
   function formatMoney(cents) {
+    if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+      return window.Kitchero.formatMoney(cents);
+    }
     var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
     var locale = (document.documentElement.lang || 'en').replace('_', '-');
     try {

@@ -186,24 +186,33 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
            `Shopify.currency.active` and `document.documentElement.lang`
            so the currency formatting matches Liquid's `| money` output
            across every Market. */
-        var amount = (product.price / 100);
-        var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
-        var locale = (document.documentElement.lang || 'en').replace('_', '-');
-        try {
-          price.textContent = new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currency,
-          }).format(amount);
-        } catch (e) {
-          /* Locale fallback if the language tag is unknown to the
-             host browser's CLDR set — final-resort en-US format. */
+        /* R-money-parity — Use `Kitchero.formatMoney` so recently-
+           viewed cards match the Liquid `| money` output the
+           customer just saw on PDP (where they came from) and the
+           Liquid `| money` they'll see when they click into the
+           cart. Previous `Intl.NumberFormat` produced CLDR output
+           that diverged from `shop.money_format` on every store
+           with a customized currency format. */
+        if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+          price.textContent = window.Kitchero.formatMoney(product.price);
+        } else {
+          var amount = (product.price / 100);
+          var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+          var locale = (document.documentElement.lang || 'en').replace('_', '-');
           try {
-            price.textContent = new Intl.NumberFormat('en', {
+            price.textContent = new Intl.NumberFormat(locale, {
               style: 'currency',
               currency: currency,
             }).format(amount);
-          } catch (e2) {
-            price.textContent = amount.toFixed(2);
+          } catch (e) {
+            try {
+              price.textContent = new Intl.NumberFormat('en', {
+                style: 'currency',
+                currency: currency,
+              }).format(amount);
+            } catch (e2) {
+              price.textContent = amount.toFixed(2);
+            }
           }
         }
         text.appendChild(price);

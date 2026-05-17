@@ -84,13 +84,17 @@
     function activateCategory(cat) {
       categories.forEach(function (c) {
         c.classList.remove('kt-shop-color__category--active');
-        /* R-wcag-keyboard — sync aria-expanded so screen readers
-           announce the accordion state correctly when the active
-           category changes. */
-        if (c.hasAttribute('role')) c.setAttribute('aria-expanded', 'false');
+        /* R140 (R8 audit) — aria-expanded now lives on the inner
+           `<button data-category-trigger>` (native trigger inside
+           the h3 heading), not the wrapper div. Wrapper no longer
+           has role="button" — that pattern nested interactive
+           controls and violated WCAG 4.1.2. */
+        var trigger = c.querySelector('[data-category-trigger]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
       });
       cat.classList.add('kt-shop-color__category--active');
-      if (cat.hasAttribute('role')) cat.setAttribute('aria-expanded', 'true');
+      var activeTrigger = cat.querySelector('[data-category-trigger]');
+      if (activeTrigger) activeTrigger.setAttribute('aria-expanded', 'true');
 
       var firstBtn = cat.querySelector('[data-finish-select]');
       if (firstBtn) showFinish(firstBtn);
@@ -103,30 +107,24 @@
       if (firstBtn) showFinish(firstBtn);
     }
 
-    /* Category — hover on desktop, click on both, keyboard on all */
+    /* Category — hover on desktop, click on the trigger button.
+       R140 (R8 audit) — keydown handler removed because the
+       accordion trigger is now a native `<button>` (inside the
+       h3 heading wrapper), so Enter/Space activation is provided
+       by the browser. mouseenter stays on the wrapper so hovering
+       anywhere over the category row activates it on desktop.
+       Click is bound to the trigger button — bubbling reaches the
+       wrapper too, but binding directly avoids the wrapper-click
+       indirection. */
     categories.forEach(function (cat) {
       cat.addEventListener('mouseenter', function () { activateCategory(cat); });
-      cat.addEventListener('click', function (e) {
-        /* Don't re-activate if clicking a finish button inside */
-        if (e.target.closest('[data-finish-select]')) return;
-        activateCategory(cat);
-      });
-      /* R-wcag-keyboard — keyboard activation parity with the
-         click handler. The category outer element is `<div role=
-         "button" tabindex="0">` (see sections/shop-color.liquid),
-         so Enter and Space must trigger the same activateCategory
-         path that mouse click does. Without this, keyboard users
-         can focus the category but cannot expand it — the inner
-         finish buttons stay unreachable. Theme Store WCAG 2.1.1
-         hard reject. preventDefault on Space stops the page from
-         scrolling on activation. */
-      cat.addEventListener('keydown', function (e) {
-        if (e.target.closest('[data-finish-select]')) return;
-        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-          e.preventDefault();
+      var trigger = cat.querySelector('[data-category-trigger]');
+      if (trigger) {
+        trigger.addEventListener('click', function (e) {
+          if (e.target.closest('[data-finish-select]')) return;
           activateCategory(cat);
-        }
-      });
+        });
+      }
     });
 
     /* Finish buttons — hover on desktop, click on both */
@@ -178,9 +176,11 @@
     if (!section) return;
     section.querySelectorAll('[data-category-id]').forEach(function (c) {
       c.classList.remove('kt-shop-color__category--active');
-      if (c.hasAttribute('role')) c.setAttribute('aria-expanded', 'false');
+      var t = c.querySelector('[data-category-trigger]');
+      if (t) t.setAttribute('aria-expanded', 'false');
     });
     cat.classList.add('kt-shop-color__category--active');
-    if (cat.hasAttribute('role')) cat.setAttribute('aria-expanded', 'true');
+    var activeTrigger = cat.querySelector('[data-category-trigger]');
+    if (activeTrigger) activeTrigger.setAttribute('aria-expanded', 'true');
   });
 })();

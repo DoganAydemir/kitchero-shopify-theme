@@ -30,7 +30,17 @@
 
         {%- comment -%} New address form {%- endcomment -%}
         <div id="AddressNewForm" class="kt-addresses__form" hidden data-new-form>
-          <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_add_title' | t }}</h3>
+          {%- comment -%}
+            R140 (R8 audit) — was `<h3>` which made the page heading
+            order `h1 → h3` (no intervening h2). axe-core / Lighthouse
+            flag this as a `heading-order` violation; Theme Store
+            reviewer scripts run the same rule. The form is a direct
+            sub-section of the addresses page, so `<h2>` matches the
+            real document outline. The `kt-customer__errors-title`
+            inside the form (h2) becomes h3 in the same edit so the
+            error block stays one level below its enclosing form.
+          {%- endcomment -%}
+          <h2 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_add_title' | t }}</h2>
           {%- form 'customer_address', customer.new_address -%}
             {%- if form.errors -%}
               {%- comment -%}
@@ -47,7 +57,7 @@
                 data-form-error-summary tag added for parity.
               {%- endcomment -%}
               <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
-                <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h2>
+                <h3 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h3>
                 <ul class="kt-customer__errors-list" role="alert">
                   {%- for field in form.errors -%}
                     <li>
@@ -206,7 +216,7 @@
                   </div>
 
                   <div id="AddressEditForm{{ address.id }}" class="kt-addresses__form" hidden data-edit-form="{{ address.id }}">
-                    <h3 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_edit_title' | t }}</h3>
+                    <h2 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_edit_title' | t }}</h2>
                     {%- form 'customer_address', address -%}
                       {%- if form.errors -%}
                         {%- comment -%}
@@ -215,7 +225,7 @@
                           the dynamic <ul>, not the outer div.
                         {%- endcomment -%}
                         <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
-                          <h2 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t | default: 'There was a problem with your submission' }}</h2>
+                          <h3 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t | default: 'There was a problem with your submission' }}</h3>
                           <ul class="kt-customer__errors-list" role="alert">
                             {%- for field in form.errors -%}
                               <li>

@@ -5,7 +5,17 @@
   padding: 8rem 0;
   background-color: var(--kt-stone-50);
   border-top: 1px solid var(--kt-stone-200);
-  overflow: hidden;
+  /* R-sticky-ancestor — was `overflow: hidden`, but that ancestor
+     turned `.kt-shop-color__image-sticky` (line 74) into a regular
+     relatively-positioned element, silently breaking the section's
+     central "image pins while categories scroll" interaction.
+     `overflow: clip` does NOT create a containing block for
+     position:sticky descendants (sticky still pins to viewport),
+     so we keep the decorative clipping for absolutely-positioned
+     overlays while restoring the sticky behavior. Supported in
+     Chromium 90+, Safari 16+, Firefox 81+ — all Shopify last-2
+     browsers since 2024. */
+  overflow: clip;
 }
 
 /* R269 — Was `margin-bottom: 5rem` (80px) on every breakpoint.
@@ -179,17 +189,6 @@
 .kt-shop-color__category {
   padding: 2.5rem 0;
   border-bottom: 1px solid var(--kt-stone-200);
-  cursor: pointer;
-}
-
-/* R-wcag-keyboard — visible focus ring for keyboard users. The
-   category outer div is `role="button" tabindex="0"` (see
-   sections/shop-color.liquid) and must show a focus-visible state
-   when reached via Tab. Inset to avoid overflowing the section's
-   border-bottom. */
-.kt-shop-color__category:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: -4px;
 }
 
 @media screen and (min-width: 750px) {
@@ -198,10 +197,51 @@
   }
 }
 
+/* R140 (R8 audit) — h3 heading wrapper around the trigger button.
+   Strips the default user-agent h3 styling (margin, font-size) so
+   the wrapper does not add a row gap above the title. The h3 stays
+   in the DOM as the semantic heading for the panel below; the
+   visual styling comes from the inner `.kt-shop-color__category-title`
+   span. */
+.kt-shop-color__category-heading {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+/* R140 (R8 audit) — was a `<div>`, now a native `<button>`. Strip
+   the browser button chrome (background, border, padding, font) so
+   the row matches the previous flex layout exactly. Keep
+   cursor:pointer because this IS the click trigger now (the outer
+   wrapper no longer carries it). text-align:inherit lets the title
+   stay left-aligned in LTR and right-aligned in RTL via the parent
+   `[dir]` attribute. */
 .kt-shop-color__category-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* R140 (R8 audit) — keyboard focus ring moved from the wrapper to
+   the trigger button (the new focusable element). Inset offset so
+   the ring sits on top of the row instead of overflowing into the
+   section's border-bottom. */
+.kt-shop-color__category-trigger:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: -4px;
 }
 
 .kt-shop-color__category-title {

@@ -686,6 +686,22 @@
           quantityError:   {{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' | json }},
           updatedSubtotal: {{ 'kt.cart.updated_subtotal' | t: subtotal: '[subtotal]' | json }},
         },
+        {%- comment -%}
+          R-money-parity — Expose merchant-configured `shop.money_format`
+          and `shop.money_with_currency_format` to JS so client-side
+          variant price re-renders mirror Liquid `| money` output
+          EXACTLY. Previously the JS layer used `Intl.NumberFormat`
+          (CLDR locale formatting) which diverges from
+          `shop.money_format` on every store that customized the
+          admin Settings → General → Currency format (universal on
+          TR/EU/non-USD markets). Theme Store reviewers test variant-
+          click price parity between PDP (post-JS update) and cart
+          (Liquid render); divergent strings are "deceptive pricing"
+          → reject. `Kitchero.formatMoney(cents)` in global.js parses
+          these format strings to produce identical output.
+        {%- endcomment -%}
+        moneyFormat:             {{ shop.money_format | json }},
+        moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
         variantStrings: {
           addToCart:      {{ 'kt.product.add_to_cart' | t | json }},
           addSubscription: {{ 'kt.product.add_subscription_to_cart' | t | json }},

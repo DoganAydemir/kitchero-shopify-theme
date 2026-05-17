@@ -413,6 +413,65 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Money formatting — mirrors Liquid `| money` output                  */
+  /*                                                                    */
+  /* R-money-parity — Replaces the previous `Intl.NumberFormat` based   */
+  /* JS formatter that produced CLDR output diverging from the         */
+  /* merchant's admin-configured `shop.money_format`. Theme Store      */
+  /* reviewers test variant-click price parity between PDP (post-JS    */
+  /* update) and cart (Liquid render); divergent strings are flagged   */
+  /* as "deceptive pricing".                                            */
+  /*                                                                    */
+  /* Format string placeholders supported (Shopify's documented set):  */
+  /*   amount                                  — 1,234.56               */
+  /*   amount_no_decimals                      — 1,235                  */
+  /*   amount_with_comma_separator             — 1.234,56               */
+  /*   amount_no_decimals_with_comma_separator — 1.235                  */
+  /*   amount_with_space_separator             — 1 234,56               */
+  /*   amount_no_decimals_with_space_separator — 1 235                  */
+  /*   amount_with_apostrophe_separator        — 1'234.56               */
+  /*                                                                    */
+  /* The format string itself carries the currency symbol / suffix     */
+  /* (e.g. "${{amount}}", "{{amount}} TL", "€{{amount_with_comma_..."). */
+  /* The merchant configures these in Shopify admin → Settings →       */
+  /* General → Currency formatting; the layout exposes them as         */
+  /* `Kitchero.moneyFormat` and `Kitchero.moneyWithCurrencyFormat`.    */
+  /* ------------------------------------------------------------------ */
+
+  function formatMoneyAmount(centsValue, placeholder) {
+    var cents = parseInt(centsValue, 10);
+    if (isNaN(cents)) cents = 0;
+    var noDecimals = placeholder.indexOf('no_decimals') !== -1;
+    var value = noDecimals ? Math.round(cents / 100) : (cents / 100);
+    var thousandsSep = ',';
+    var decimalSep = '.';
+    if (placeholder.indexOf('with_comma_separator') !== -1) {
+      thousandsSep = '.';
+      decimalSep = ',';
+    } else if (placeholder.indexOf('with_space_separator') !== -1) {
+      thousandsSep = ' ';
+      decimalSep = ',';
+    } else if (placeholder.indexOf('with_apostrophe_separator') !== -1) {
+      thousandsSep = "'";
+      decimalSep = '.';
+    }
+    var fixed = noDecimals ? String(value) : value.toFixed(2);
+    var parts = fixed.split('.');
+    var intPart = parts[0];
+    var decPart = parts[1];
+    /* Group thousands using a stable regex (matches `123456789` → `123,456,789`). */
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSep);
+    return decPart ? (intPart + decimalSep + decPart) : intPart;
+  }
+
+  function formatMoney(cents, customFormat) {
+    var format = customFormat || global.Kitchero.moneyFormat || '${{amount}}';
+    return format.replace(/\{\{\s*(\w+)\s*\}\}/g, function (_match, placeholder) {
+      return formatMoneyAmount(cents, placeholder);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Public surface                                                     */
   /* ------------------------------------------------------------------ */
 
@@ -426,6 +485,7 @@
   global.Kitchero.bus = { on: on, off: off, emit: emit };
   global.Kitchero.escapeCloseDetails = escapeCloseDetails;
   global.Kitchero.announce = announce;
+  global.Kitchero.formatMoney = formatMoney;
   global.Kitchero.scrollLock = {
     lock: scrollLock,
     unlock: scrollUnlock,

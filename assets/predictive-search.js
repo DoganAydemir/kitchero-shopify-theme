@@ -373,6 +373,21 @@
      bootstrap) so non-USD storefronts don't render a hardcoded "$"
      prefix that misleads German / Turkish / French shoppers. */
   function formatMoney(cents, currency) {
+    /* R-money-parity — Delegate to `Kitchero.formatMoney` (global.js)
+       which parses the merchant-configured `shop.money_format` so
+       the predictive-search dropdown matches the Liquid `| money`
+       output the same query returns on the full search results
+       page (which uses `| money_with_currency`). Previous
+       `Intl.NumberFormat` implementation produced CLDR output that
+       diverged from `shop.money_format` on customized markets,
+       failing Theme Store reviewer parity tests. The `currency`
+       parameter from the suggest endpoint is no longer needed
+       because `shop.money_format` already carries the symbol /
+       suffix. CLDR fallback retained for the unreachable script-
+       load race. */
+    if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+      return window.Kitchero.formatMoney(cents);
+    }
     var amount = (cents || 0) / 100;
     var activeCurrency = currency
       || (window.Shopify && window.Shopify.currency && window.Shopify.currency.active)
@@ -386,10 +401,6 @@
         }).format(amount);
       } catch (e) { /* fall through */ }
     }
-    /* Last-resort fallback when Intl is missing or throws — use the
-       resolved active currency code as a suffix instead of a
-       hardcoded "$" so the shopper sees something that at least
-       names the currency they're being charged in. */
     return amount.toFixed(2) + ' ' + activeCurrency;
   }
 
