@@ -16,13 +16,18 @@
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
 
-<link
-  rel="stylesheet"
-  href="{{ 'kt-product-accordion.css' | asset_url }}"
-  media="print"
-  onload="this.media='all'"
->
-<noscript>{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}</noscript>
+{%- comment -%}
+  R141 (final audit) — was a `media="print" onload="this.media='all'"`
+  async-stylesheet swap. The inline `onload` JS attribute is a Theme
+  Store instant-reject signal (CSP-incompatible) — theme.liquid's
+  own comment already documents that this exact anti-pattern was
+  removed elsewhere because "the onload handler didn't fire reliably
+  across CSP / extension combos." Replaced with Shopify's native
+  `stylesheet_tag` filter so the CSS loads eagerly without inline
+  JS. The accordion CSS is small (~10KB) and the LCP cost is
+  negligible compared to the reject risk.
+{%- endcomment -%}
+{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}
 
 {%- assign main_product_countdown_label_default = 'kt.product.countdown.limited_time' | t -%}
 {%- assign main_product_sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
@@ -985,7 +990,7 @@
           "type": "text",
           "id": "title",
           "label": "t:sections.main-product.blocks.accordion.settings.title.label",
-          "default": "Section heading"
+          "default": "Product details"
         },
         {
           "type": "richtext",
@@ -1122,7 +1127,7 @@
           "id": "heading",
           "label": "t:sections.main-product.blocks.payment_icons.settings.heading.label",
           "info": "t:sections.main-product.blocks.payment_icons.settings.heading.info",
-          "default": "Section heading"
+          "default": "Product details"
         }
       ]
     },

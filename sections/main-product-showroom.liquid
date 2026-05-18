@@ -15,13 +15,14 @@
 {%- endcomment -%}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
 
-<link
-  rel="stylesheet"
-  href="{{ 'kt-product-accordion.css' | asset_url }}"
-  media="print"
-  onload="this.media='all'"
->
-<noscript>{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}</noscript>
+{%- comment -%}
+  R141 (final audit) — was a `media="print" onload="this.media='all'"`
+  async-stylesheet swap. The inline `onload` JS attribute is a Theme
+  Store instant-reject signal (CSP-incompatible) — see
+  main-product.liquid for the matching R141 fix and rationale.
+  Replaced with Shopify's native `stylesheet_tag` filter.
+{%- endcomment -%}
+{{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}
 
 {%- comment -%}
   Main Product Showroom — premium visual layout (lead-gen focused)
@@ -892,7 +893,7 @@
           "type": "text",
           "id": "title",
           "label": "t:sections.main-product-showroom.blocks.warranty.settings.title.label",
-          "default": "Section heading"
+          "default": "Studio details"
         },
         {
           "type": "textarea",
