@@ -53,9 +53,91 @@
   }
 
   function isTransparentPage() {
-    return !!document.querySelector(
-      'main > .shopify-section:first-of-type [data-allows-transparent-header="true"]'
-    );
+    /* R232 — merchant override via `data-header-style` on the
+       <header> wins over auto-detection so the scroll-follow
+       `--kt-header-top` machinery (which only matters for
+       transparent positioning) runs in the right cases. */
+    if (cachedHeader) {
+      var explicit = cachedHeader.getAttribute('data-header-style');
+      if (explicit === 'solid') return false;
+      if (explicit === 'transparent') return true;
+    }
+    /* R232.4 — auto-detect now reads the *resolved* first section,
+       not a CSS `:first-of-type` selector. In the Shopify theme
+       editor preview iframe the editor injects sibling elements
+       between `<main>` and the first .shopify-section wrapper for
+       its section-selection UI; `:first-of-type` then matched the
+       editor wrapper (which doesn't carry the data attribute),
+       silently breaking auto-transparent on About / hero pages.
+       Walking `main.querySelector('.shopify-section')` returns
+       the first DESCENDANT regardless of intermediate wrappers. */
+    var firstSection = document.querySelector('main .shopify-section');
+    if (!firstSection) return false;
+    return !!firstSection.querySelector('[data-allows-transparent-header="true"]');
+  }
+
+  /* R232.4 — sync a body class that mirrors the auto-transparent
+     decision. CSS rules then key off this class instead of fighting
+     the editor's DOM injection with brittle `:first-of-type` /
+     `:first-child` selectors. JS-driven body class is robust across
+     both storefront and editor preview contexts. */
+  function syncTransparentBodyClass() {
+    if (!cachedHeader || !cachedHeader.isConnected) {
+      cachedHeader = document.querySelector('.kt-header');
+    }
+    document.body.classList.toggle('kt-body--header-transparent', isTransparentPage());
+  }
+
+  /* R232.21 — Shopify theme editor preview loads sections through
+     the Section Rendering API asynchronously, so on the FIRST paint
+     of an editor session `main .shopify-section` may not exist yet
+     when `syncTransparentBodyClass()` runs at init — the body class
+     stays off, the transparent CSS doesn't apply, and the header
+     paints on a bare-body-background white strip until the merchant
+     selects a section (which re-fires the sync).
+     A MutationObserver on `<main>` re-runs the sync each time a
+     section is injected so the class lands the moment the hero /
+     banner-cover appears. Observes subtree so deeply nested
+     attribute changes (e.g. an outer wrapper injected by editor
+     before the actual section content) still trigger a re-sync. */
+  var mainObserver = null;
+  function watchMainForSections() {
+    if (mainObserver) return;
+    var mainEl = document.querySelector('main');
+    if (!mainEl || typeof MutationObserver === 'undefined') {
+      /* `<main>` doesn't exist yet — retry next tick. Editor preview
+         sometimes injects `<main>` after the head scripts run. */
+      setTimeout(watchMainForSections, 100);
+      return;
+    }
+    mainObserver = new MutationObserver(function () {
+      syncTransparentBodyClass();
+    });
+    /* `subtree: true` because editor-injected wrappers can sit
+       BETWEEN `<main>` and the actual `.shopify-section` — direct-
+       child observation misses those nested mutations. The sync
+       function itself is cheap (two DOM reads + classList.toggle)
+       so subtree-watching is fine. */
+    mainObserver.observe(mainEl, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-allows-transparent-header']
+    });
+  }
+
+  /* R232.21b — Editor-mode safety net: poll the transparent state
+     every 500ms for the first 4 seconds in case both MutationObserver
+     and the section:load event miss the initial async-rendered
+     hero / banner-cover. Production storefronts skip this entirely. */
+  function pollInDesignMode() {
+    if (!window.Shopify || !window.Shopify.designMode) return;
+    var ticks = 0;
+    var interval = setInterval(function () {
+      syncTransparentBodyClass();
+      ticks += 1;
+      if (ticks >= 8) clearInterval(interval);
+    }, 500);
   }
 
   /* R216 — drive the transparent header's `top` from scrollY so it
@@ -86,13 +168,25 @@
   window.addEventListener('scroll', updateScrollState, { passive: true });
 
   updateScrollState();
+  syncTransparentBodyClass();
+  watchMainForSections();
+  pollInDesignMode();
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', updateScrollState);
+    document.addEventListener('DOMContentLoaded', syncTransparentBodyClass);
+    document.addEventListener('DOMContentLoaded', watchMainForSections);
+    document.addEventListener('DOMContentLoaded', pollInDesignMode);
   }
   window.addEventListener('load', updateScrollState);
+  window.addEventListener('load', syncTransparentBodyClass);
+  window.addEventListener('load', watchMainForSections);
 
   document.addEventListener('shopify:section:load', updateScrollState);
+  document.addEventListener('shopify:section:load', syncTransparentBodyClass);
   document.addEventListener('shopify:section:select', updateScrollState);
+  document.addEventListener('shopify:section:select', syncTransparentBodyClass);
+  document.addEventListener('shopify:section:unload', syncTransparentBodyClass);
+  document.addEventListener('shopify:section:reorder', syncTransparentBodyClass);
   /* Intentionally NO body-overflow reset on section:unload. The mobile
      nav owns its own scrollLock owner id and releases it from
      kt-section-header-mobile-nav.js's own shopify:section:unload

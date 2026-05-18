@@ -368,13 +368,13 @@
                     {%- endfor -%}
                   </select>
                   {%- comment -%}
-                    R298 — Submit button moved OUTSIDE `<noscript>` so
-                    JS-enabled users can apply their locale choice.
-                    The on-change auto-submit was deliberately removed
-                    for WCAG 3.2.2 compliance, so an explicit button
-                    must be visible to all users (not just no-JS).
+                    R232.12 — JS auto-submits on `change` (Shopify-
+                    documented pattern, WCAG F36-safe). No-JS fallback
+                    via <noscript>.
                   {%- endcomment -%}
-                  <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  <noscript>
+                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  </noscript>
                 </div>
               {%- endform -%}
             {%- endif -%}
@@ -392,10 +392,11 @@
                     {%- endfor -%}
                   </select>
                   {%- comment -%}
-                    R298 — Submit button moved OUTSIDE `<noscript>`
-                    (see language form above for rationale).
+                    R232.12 — see language form above.
                   {%- endcomment -%}
-                  <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  <noscript>
+                    <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  </noscript>
                 </div>
               {%- endform -%}
             {%- endif -%}

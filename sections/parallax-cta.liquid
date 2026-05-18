@@ -34,7 +34,7 @@
   class="kt-parallax-cta color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="parallax-cta"
-  style="--kt-section-padding-top: {{ section.settings.padding_top | default: 128 }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom | default: 128 }}px;"
+  style="--kt-section-padding-top: {{ section.settings.padding_top | default: 128 }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom | default: 128 }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="page-width kt-parallax-cta__inner">
     {%- comment -%}
@@ -78,7 +78,7 @@
     {%- endcomment -%}
     {%- if request.design_mode and section.settings.background_image == blank -%}
       <p class="kt-parallax-cta__editor-hint" aria-live="polite">
-        {{ 'kt.section.parallax_cta.editor_hint_no_image' | t | default: 'Pick a background image in this section\'s settings to enable the headline parallax effect. The headline currently falls back to a gradient.' }}
+        {{ 'kt.section.parallax_cta.editor_hint_no_image' | t | default: "Pick a background image in this section's settings to enable the headline parallax effect. The headline currently falls back to a gradient." }}
       </p>
     {%- endif -%}
   </div>
@@ -200,9 +200,20 @@
         {
           "value": "stone_100",
           "label": "t:sections.shared.bg_color.options__stone_100.label"
+        },
+        {
+          "value": "custom",
+          "label": "t:sections.shared.bg_color.options__custom.label"
         }
       ],
       "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
     },
     {
       "type": "header",

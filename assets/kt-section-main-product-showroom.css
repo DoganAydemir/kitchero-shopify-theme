@@ -104,6 +104,21 @@
 }
 
 .kt-showroom__gallery-half {
+  /* R232.41 — `.kt-showroom__gallery-half` renders as a native
+     <button> (see sections/main-product-showroom.liquid line 104-
+     130) so the user-agent button chrome (border, padding, font,
+     bg) shows through unless explicitly reset. The user reported
+     "Showroom prd type fotolarda neden border var" — the visible
+     hairline was the UA button border on Chromium/Safari. Mirror
+     the reset the comma-paired `.kt-showroom__gallery-full` already
+     ships above. */
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: inherit;
   position: relative;
   width: 50%;
   aspect-ratio: 4 / 3;
@@ -145,6 +160,18 @@
 }
 
 .kt-showroom__gallery-mobile-slide {
+  /* R232.41 — same UA-button reset as `.kt-showroom__gallery-half`
+     above. The mobile slide is a native <button> for tap-to-zoom
+     semantics (see sections/main-product-showroom.liquid line
+     232-241), and without the reset the UA chrome adds a thin
+     hairline border around every image in the swiper. */
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: inherit;
   position: relative;
   width: 100%;
   flex-shrink: 0;
@@ -429,14 +456,22 @@
   background-color: var(--kt-black);
 }
 
+/* R232.33 — Secondary CTA is now FILLED in the same accent color
+   the PDP "Buy it now" button uses (the previous outlined / border-
+   only treatment looked inconsistent with the PDP pair where both
+   buttons are filled — one dark, one accent). Shares the
+   `--kt-buy-now-*` tokens with the PDP so a single Theme Settings
+   color tunes BOTH surfaces — the showroom CTA pair (dark + accent
+   filled) now matches the PDP cluster (dark + accent filled). */
 .kt-showroom__cta--secondary {
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
-  border: 1px solid var(--kt-stone-300);
+  background-color: var(--kt-buy-now-bg, #5fe8b6);
+  color: var(--kt-buy-now-fg, #0c0a09);
+  border: 1px solid var(--kt-buy-now-bg, #5fe8b6);
 }
 
 .kt-showroom__cta--secondary:hover {
-  border-color: var(--kt-stone-900);
+  background-color: var(--kt-buy-now-hover-bg, #5adfae);
+  border-color: var(--kt-buy-now-hover-bg, #5adfae);
 }
 
 .kt-showroom__cta:focus-visible {

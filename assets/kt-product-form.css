@@ -7,12 +7,51 @@
    palette colours because those are universal signals.
    ============================================================ */
 
-/* Quantity + ATC row: flex items-stretch gap-3 */
+/* Quantity + ATC row: flex items-stretch gap-3.
+   R232.20 — kept for backwards compat with surfaces that still
+   render the combined qty+ATC row (showroom buy block paths that
+   don't yet use the new qty-row + buy-row split). New PDP /
+   featured-product markup uses `__qty-row` (qty alone) +
+   `__buy-row` (ATC + dynamic-checkout side-by-side). */
 .kt-product-form__row {
   display: flex;
   align-items: stretch;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+/* R232.20 — Quantity stepper on its own row (above the buy
+   cluster). The stepper is fixed-width; an optional qty-rule
+   sentence sits next to it on desktop and wraps below on mobile. */
+.kt-product-form__qty-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* R232.20 — Buy cluster: ATC + dynamic checkout button. Stacked
+   on mobile (each button full-width), side-by-side from 750px+. */
+.kt-product-form__buy-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.kt-product-form__buy-row > .kt-product-form__atc,
+.kt-product-form__buy-row > .kt-product-form__dynamic-checkout {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-product-form__buy-row--paired {
+    flex-direction: row;
+    align-items: stretch;
+  }
 }
 
 /* ── Quantity selector ──────────────────────────────────── */
@@ -119,34 +158,36 @@
 .kt-product-form__atc {
   flex: 1;
   min-width: 0;
-  /* Tighter than the previous 3.25rem min-height — reviewer flagged
-     the button as overly tall. 2.875rem (46px) keeps a comfortable
-     hit-target (well above WCAG 2.5.8's 24px and the 44px touch
-     guideline) while feeling more refined alongside the slim
-     quantity stepper. Padding reduced from 0 1rem to 0 1.25rem to
-     keep horizontal breathing room without growing height. */
-  padding: 0 1.25rem;
-  min-height: 2.875rem;
+  /* R232.14 — refined sizing to match the showroom CTA visual
+     language. Previously 2.875rem (46px) + bold 12px uppercase +
+     blocky 4px radius read as a heavy supermarket-style ATC. The
+     showroom variant pairs a softer 11px button with rounded-full
+     pill geometry; aligning the PDP ATC here keeps the two surfaces
+     consistent and the button feels less imposing alongside the
+     thin qty stepper. Min-height stays well above WCAG 2.5.8's
+     44px touch target. */
+  padding: 0 1.5rem;
+  min-height: 3rem;
   font-family: inherit;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 4px;
+  border-radius: 9999px;
   background-color: rgb(var(--kt-c-action));
   color: rgb(var(--kt-c-action-text));
   border: 1px solid rgb(var(--kt-c-action));
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.1s ease;
-  /* Softer shadow — the previous 10px/15px lg-shadow visually weighed
-     the button heavier than the rest of the PDP column. shadow-md
-     mirrors the Next.js source's understated press affordance. */
-  box-shadow: 0 4px 8px -2px rgba(var(--kt-c-shadow), 0.12);
+  /* R232.14 — softer shadow consistent with the showroom CTA box
+     shadow (0 10px 15px -3px / 10%). Was a 4/8 mid shadow that
+     felt overbuilt against the now-pill geometry. */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .kt-product-form__atc:hover:not(:disabled) {
@@ -192,6 +233,18 @@
   border-color: var(--kt-stone-200);
 }
 
+/* R232.32 — Shopping-bag icon prefix. Inherits text color via
+   `stroke="currentColor"` (set inline in the SVG markup). Hidden
+   on disabled state so the icon doesn't compete with the
+   "Sold out" label — sold-out is text-only. */
+.kt-product-form__atc-icon {
+  flex-shrink: 0;
+}
+
+.kt-product-form__atc:disabled .kt-product-form__atc-icon {
+  display: none;
+}
+
 .kt-product-form__atc--loading {
   cursor: wait;
   opacity: 0.8;
@@ -202,35 +255,156 @@
   background-color: inherit;
 }
 
-/* Success state — emerald confirmation, also scheme-independent */
+/* R232.34 — Success state. Previously flipped the ATC to an
+   emerald green confirmation, which collided visually with the
+   accent "Buy it now" pill sitting right next to it (two green
+   buttons side-by-side read as one solid block). Keep the
+   button's own dark fill instead and rely on the "Added to cart!"
+   label change + the `--added` class hook for any other dim/dim-
+   out animation a future iteration wants — the cart count blip
+   (badge increment) is the other confirmation channel and that
+   already fires.
+   The `outline` removal (`outline: none`) covers the case where
+   focus-visible was sticking around after a keyboard-driven ATC
+   click — the dark outline ring against the dark filled button
+   showed as the thick ghost ring the user flagged. */
 .kt-product-form__atc--added,
 .kt-product-form__atc--added:hover:not(:disabled) {
-  background-color: var(--kt-emerald-600);
-  border-color: var(--kt-emerald-600);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action));
+  border-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  outline: none;
   opacity: 1;
+}
+
+.kt-product-form__atc--added:focus,
+.kt-product-form__atc--added:focus-visible {
+  outline: none;
 }
 
 /* ── Dynamic Checkout Button (Shopify payment_button) ───── */
 
+/* R232.28 — `margin-bottom: 1rem` removed. It was a leftover from
+   when this block rendered as a standalone tier UNDER the qty+ATC
+   row (R232.20 moved it INTO `__buy-row` as a sibling of ATC).
+   Inside a flex row with `align-items: stretch`, the trailing
+   margin on this sibling shifted the flex-stretch target taller
+   than the actual button height — the BIN button stayed at 48px
+   (clamp ceiling from Shopify's widget) while ATC stretched to
+   match the inflated row height, so the pair looked mismatched.
+   The parent `.kt-product-form__buy-row` already carries
+   `margin-bottom: 1rem` for the cluster-level spacing. */
+
+/* R232.20 — Buy Now button color is merchant-configurable.
+   `--kt-buy-now-bg` / `--kt-buy-now-fg` come from
+   `config/settings_schema.json` via `snippets/kt-css-variables.liquid`,
+   default to emerald-400 (#5fe8b6) which matches the attached
+   reference. Branded accelerated buttons (Shop Pay, Apple Pay,
+   Google Pay) render through a closed shadow DOM that Shopify
+   protects — those keep their official brand colors. We only style
+   the unbranded "Buy it now" fallback via the documented stable
+   class `.shopify-payment-button__button--unbranded`. */
+
+/* R232.23 — Force the dynamic-checkout wrapper AND every Shopify-
+   injected custom-element ancestor of the inner button to stretch
+   to full width + height inside the buy-row flex cluster, so the
+   "Buy it now" button matches the ATC pixel-for-pixel.
+
+   R232.24 — The previous version only set flex on direct children;
+   `<shopify-accelerated-checkout-cart>` and
+   `<shopify-buy-it-now-button>` are unstyled custom elements that
+   default to `display: inline`, so the inner `<button width:100%>`
+   computed its width relative to a content-sized parent (~128px).
+   Explicit `display: block; width: 100%` on every Shopify custom
+   element in the chain forces the cascade through the entire
+   accelerated-checkout widget. The selectors are stable Shopify
+   public-API element names. */
+/* R232.27 — Aggressive width override. Previous attempts with
+   `display: flex; width: 100%` on the custom-element chain didn't
+   propagate because Shopify's accelerated-checkout widget renders
+   into a slot whose host element resolves to its content-width
+   even when CSS asks for block layout. Forcing `display: block !important`
+   + `width: 100% !important` on every wrapper from the outer div
+   down to the button itself makes the entire stack stretch to fill
+   its half of the buy-row. The button's min-height also gets a
+   matching CSS variable (`--shopify-accelerated-checkout-button-block-size`)
+   so its computed height equals the ATC's. */
 .kt-product-form__dynamic-checkout {
-  margin-bottom: 1rem;
+  /* Match the ATC height pixel-for-pixel via the Shopify-exposed
+     CSS variable (clamped 25-55px by the widget's own stylesheet). */
+  --shopify-accelerated-checkout-button-block-size: 48px;
+  display: block;
+  width: 100%;
 }
 
-/* The accelerated checkout buttons live inside a custom element with
-   a closed shadow DOM. Per Shopify's accelerated-checkout docs:
-   "Any styling or event tracking that targets the HTML structure
-   will not work."
-   Previously this block carried `.shopify-payment-button*` selector
-   overrides (background, color, border, !important, hover, focus-
-   visible) for the unbranded "Buy It Now" button — these silently
-   never applied through the shadow boundary AND were a Theme Store
-   reject signal (targeting Shopify's protected payment widget
-   internals). Removed in R84. The wrapper container styles
-   (margin-bottom above) stay because they affect layout outside
-   the shadow root. Branded buttons (Shop Pay, PayPal, Apple Pay,
-   Google Pay) inherit Shopify's official branded styles —
-   correct per brand-guideline enforcement. */
+.kt-product-form__dynamic-checkout .shopify-payment-button,
+.kt-product-form__dynamic-checkout shopify-accelerated-checkout,
+.kt-product-form__dynamic-checkout shopify-buy-it-now-button,
+.kt-product-form__dynamic-checkout shopify-payment-terms {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0;
+}
+
+/* R232.32 — Optional lightning-bolt icon prefix for the "Buy it now"
+   unbranded button. The icon is injected via `::before` because
+   Shopify renders the button label inline and we cannot wrap an
+   inline `<svg>` into its shadow DOM. The `--with-icon` modifier
+   on the wrapper toggles visibility from a theme setting — merchants
+   who prefer a text-only CTA disable "Show icon on Buy it now". */
+.kt-product-form__dynamic-checkout--with-icon .shopify-payment-button__button--unbranded::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+  vertical-align: -3px;
+  background-color: currentColor;
+  /* Lightning-bolt icon (Lucide / Heroicons style) masked from
+     `currentColor` so it adopts the button's text color
+     automatically — emerald palette by default, white when the
+     merchant flips the fg to light. */
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
+  width: 100% !important;
+  border-radius: 9999px;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background-color: var(--kt-buy-now-bg, #5fe8b6);
+  color: var(--kt-buy-now-fg, #0c0a09);
+  border: 1px solid var(--kt-buy-now-bg, #5fe8b6);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* R232.27 — Hover state. Shopify's own accelerated-checkout CSS
+   ships `:hover:not([disabled]) { background-color: #136f99 }` at
+   the same specificity (0,3,0) which wins by cascade order. We
+   ship a higher-specificity rule (chained class ancestor + the
+   same :not pseudo) + `!important` on background-color so the
+   merchant-configured hover color wins. The `--kt-buy-now-hover-bg`
+   variable defaults to a darkened version of the base bg via
+   `color-mix()`, OR the merchant can override it via the
+   "Buy now hover color" theme setting. */
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]),
+.kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover {
+  background-color: var(--kt-buy-now-hover-bg, var(--kt-buy-now-bg, #5fe8b6)) !important;
+  border-color: var(--kt-buy-now-hover-bg, var(--kt-buy-now-bg, #5fe8b6)) !important;
+  opacity: 0.92;
+}
 
 /* ── Share row ──────────────────────────────────────────── */
 

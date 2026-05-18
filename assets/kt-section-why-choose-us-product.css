@@ -89,6 +89,15 @@
   margin-bottom: 0;
 }
 
+/* R232.9 — same fix for title-only cards (icon + title, no desc).
+   Title's `margin-bottom: 0.75rem` was leaking visible space
+   beneath the title that justify-content:center couldn't absorb,
+   leaving bottom-padding looking ~12px larger than top-padding
+   on icon+title-only configurations (the default theme demo). */
+.kt-why-choose-us-product__title:last-child {
+  margin-bottom: 0;
+}
+
 .kt-why-choose-us-product__card:hover {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }

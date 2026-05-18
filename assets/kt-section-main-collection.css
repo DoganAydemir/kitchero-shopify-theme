@@ -182,6 +182,30 @@
   overflow: visible;
 }
 
+/* R232.16 — Drawer template-only override. The horizontal layout's
+   `space-between` works correctly for its two-cluster split
+   (filter-bar left, controls-right cluster right). The drawer
+   template has THREE direct children (count, filter btn, sort form)
+   so `space-between` parks the filter button in the dead-center
+   between count (left) and sort (right). The merchant feedback
+   was "FILTERS button should be on the far right". Switching the
+   drawer template to `flex-start` + `margin-right:auto` on count
+   pushes sort + filter to the right edge; CSS `order` on the
+   filter button puts it past the sort dropdown so it lands at
+   the absolute far right. */
+.kt-collection--drawer-template .kt-collection__controls-inner {
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.kt-collection--drawer-template .kt-collection__controls-inner > .kt-collection__results-count {
+  margin-right: auto;
+}
+
+.kt-collection--drawer-template .kt-collection__controls-inner > .kt-collection__filter-btn {
+  order: 99;
+}
+
 /* Mobile control bar layout fix.
 
    On phones the bar was rendering THREE elements side-by-side
@@ -469,6 +493,17 @@
   transition: gap 0.7s ease-in-out;
   width: 100%;
   min-width: 0;
+}
+
+/* R232.19 — Vertical (classic) template uses a side-by-side
+   sidebar+grid layout where the filter sidebar has no top margin.
+   The grid's 4rem (mobile) / 6rem (tablet+) `margin-top` was
+   leaking into this case too, pushing the right column down so
+   its first product card sat far below the sidebar's first
+   filter row. Resetting the margin inside the vertical wrapper
+   aligns both columns at the same y. */
+.kt-collection__vertical-grid-wrap > .kt-collection__grid {
+  margin-top: 0;
 }
 
 /* Mobile cols modifier — when merchant picks 2-up mobile (R136). */

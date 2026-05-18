@@ -115,11 +115,33 @@
                 {%- endif -%}
 
               {%- when 'meta' -%}
-                <div class="kt-pdp__meta" {{ block.shopify_attributes }}>
-                  {%- if block.settings.show_rating -%}
+                {%- comment -%}
+                  R232.30 — Separator "|" between rating + stock indicator
+                  was previously gated only on the merchant's
+                  show_rating + show_stock toggles, NOT on whether the
+                  rating actually has data. On products with no review
+                  metafield (default Shopify products) the rating
+                  snippet returned an empty string but the "|" still
+                  painted, leaving the stock row reading "| In Stock"
+                  with a dangling pipe on the left. Capture the
+                  rating output first and only emit the separator
+                  when the capture has real content. */
+                {%- endcomment -%}
+                {%- assign meta_has_rating = false -%}
+                {%- if block.settings.show_rating -%}
+                  {%- capture meta_rating_html -%}
                     {%- render 'product-rating', product: product -%}
+                  {%- endcapture -%}
+                  {%- assign meta_rating_html = meta_rating_html | strip -%}
+                  {%- if meta_rating_html != blank -%}
+                    {%- assign meta_has_rating = true -%}
                   {%- endif -%}
-                  {%- if block.settings.show_rating and block.settings.show_stock -%}
+                {%- endif -%}
+                <div class="kt-pdp__meta" {{ block.shopify_attributes }}>
+                  {%- if meta_has_rating -%}
+                    {{ meta_rating_html }}
+                  {%- endif -%}
+                  {%- if meta_has_rating and block.settings.show_stock -%}
                     <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
                   {%- endif -%}
                   {%- if block.settings.show_stock -%}

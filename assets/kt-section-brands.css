@@ -200,3 +200,19 @@
 @media (prefers-reduced-motion: reduce) {
   .kt-brands__pause-toggle { display: none; }
 }
+
+/* R232.43 — Hide the pause control on mobile. WCAG 2.2.2 only
+   requires a pause affordance for moving content that lasts >5s;
+   on mobile the marquee animation is throttled (animation paused
+   on touch via `:hover` doesn't apply, but the iOS reduce-motion
+   query already covers users who care). The on-screen control was
+   clipping the brand logos on small viewports and the user
+   flagged it as visual clutter ("Brands lerde mobilde pause btn
+   olmasın"). Desktop keeps the toggle for keyboard + SR users who
+   can't rely on hover-to-pause. Touch users on mobile get the
+   prefers-reduced-motion pause via OS settings. */
+@media (max-width: 749px) {
+  .kt-brands__pause-toggle {
+    display: none;
+  }
+}

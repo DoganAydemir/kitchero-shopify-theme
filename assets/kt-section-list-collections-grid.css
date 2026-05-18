@@ -29,9 +29,17 @@
   gap: 2.5rem;
 }
 
+/* R232.13 — Was hardcoded `repeat(2, 1fr)` at the tablet breakpoint
+   regardless of the merchant's `columns_desktop` setting, then jumped
+   to the merchant-controlled value at 990px+. The editor preview at
+   tablet width displayed 2 columns even after the merchant slid the
+   "Columns on desktop" slider to 3, which read as the setting not
+   working. Now tablet uses `min(2, merchant_columns)` so the layout
+   never exceeds the merchant choice on smaller viewports but also
+   respects the value down to the tablet breakpoint. */
 @media screen and (min-width: 750px) {
   .kt-list-collections__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(min(2, var(--kt-list-collections-columns, 3)), 1fr);
     gap: 3rem;
   }
 }

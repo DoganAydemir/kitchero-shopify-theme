@@ -273,6 +273,19 @@
     --kt-input-border-op: {{ settings.kt_input_border_op | divided_by: 100.0 }};
 
     {%- comment -%}
+      R232.20 — PDP "Buy it now" unbranded button colors emitted as
+      theme-level CSS variables so merchants can recolor the
+      accelerated checkout fallback without touching CSS. Defaults
+      mirror the design system's `--kt-emerald-400` ramp (the
+      attached reference). Branded accelerated buttons (Shop Pay,
+      Apple Pay, Google Pay) are unaffected — Shopify protects
+      those for brand-guideline compliance.
+    {%- endcomment -%}
+    --kt-buy-now-bg: {{ settings.kt_buy_now_bg | default: '#5fe8b6' }};
+    --kt-buy-now-fg: {{ settings.kt_buy_now_fg | default: '#0c0a09' }};
+    --kt-buy-now-hover-bg: {{ settings.kt_buy_now_hover_bg | default: '#5adfae' }};
+
+    {%- comment -%}
       R294 — Badge corner radius. Previously emitted as
       `divided_by: 10.0` rem which silently 10x-shrank the
       merchant's chosen value (40px → 0.4rem ≈ 6px). Now emits

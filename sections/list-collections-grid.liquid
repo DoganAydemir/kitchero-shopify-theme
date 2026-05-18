@@ -13,27 +13,6 @@
 {%- liquid
   assign per_row_desktop = section.settings.columns_desktop | default: 3
   assign sort_order = section.settings.sort_by | default: 'alphabetical'
-
-  comment
-    Shopify's global `collections` object is alphabetical by default;
-    every sort branch below builds on top of that, including the
-    `reverse_alphabetical` branch which now produces a Z→A list
-    instead of the silently-broken `admin_order` placeholder it
-    replaced (Shopify exposes no merchant-pinned sort order on
-    the global `collections` array — `admin_order` resolved to the
-    same alphabetical default, so the dropdown looked dead to the
-    merchant).
-  endcomment
-  case sort_order
-    when 'alphabetical'
-      assign collection_list = collections | sort: 'title'
-    when 'reverse_alphabetical'
-      assign collection_list = collections | sort: 'title' | reverse
-    when 'product_count'
-      assign collection_list = collections | sort: 'all_products_count' | reverse
-    else
-      assign collection_list = collections | sort: 'title'
-  endcase
 -%}
 
 <section
@@ -43,15 +22,32 @@
   style="--kt-list-collections-columns: {{ per_row_desktop }};"
 >
   <div class="page-width">
-    {%- if collection_list.size > 0 -%}
+    {%- if collections.size > 0 -%}
       {%- comment -%}
-        Paginate the sorted collection list. Catalogues with 50+ collections
-        (B2B / multi-category) otherwise render a single uncapped page —
-        Lighthouse Performance fails on the DOM-size budget and Theme Store
-        reviewers flag it as a structural rejection (PRF-1). `collections_per_page`
-        defaults to 12, max 30 — keeps Lighthouse green even at the cap.
+        R232.11 — paginate the global `collections` object directly.
+        Previously this section sorted into a local `collection_list`
+        variable BEFORE `{% paginate %}`, but Shopify Liquid only
+        accepts paginatable objects (collections, collection.products,
+        blog.articles, search.results) — passing a `sort`-derived
+        Array raises "Array 'collection_list' is not paginateable."
+        Pagination now wraps the Shopify-native `collections`, and
+        the sort branch below re-orders the paginated subset before
+        the loop. For catalogues with 50+ collections (B2B / multi-
+        category) this keeps each page's DOM size capped at the
+        merchant's `collections_per_page` setting (default 12, max 30)
+        so Lighthouse Performance stays green — Theme Store PRF-1.
       {%- endcomment -%}
-      {%- paginate collection_list by section.settings.collections_per_page -%}
+      {%- paginate collections by section.settings.collections_per_page -%}
+        {%- liquid
+          case sort_order
+            when 'reverse_alphabetical'
+              assign collection_list = collections | sort: 'title' | reverse
+            when 'product_count'
+              assign collection_list = collections | sort: 'all_products_count' | reverse
+            else
+              assign collection_list = collections | sort: 'title'
+          endcase
+        -%}
       <ul class="kt-list-collections__grid" role="list">
         {%- for collection in collection_list -%}
           {%- if collection.handle == 'frontpage' -%}{% continue %}{%- endif -%}

@@ -179,7 +179,16 @@
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.kt-search-page__tab:hover {
+/* R232.39 — Hover was previously unscoped: when the user hovered
+   the currently-active dark tab (stone-900 bg + white text), this
+   rule flipped `color` to stone-900 → dark text on a dark bg, which
+   looked broken ("Journal hover patlamış. ikisi de dark görünüyor"
+   per user feedback when hovering the Articles/Journal tab while
+   another tab was active). Restrict the inactive hover treatment to
+   non-active tabs and give the active tab its own hover state
+   (slight bg tint shift so the press affordance survives without
+   killing the white label). */
+.kt-search-page__tab:not(.kt-search-page__tab--active):hover {
   color: var(--kt-stone-900);
   border-color: var(--kt-stone-500);
 }
@@ -188,6 +197,12 @@
   color: var(--kt-white);
   background-color: var(--kt-stone-900);
   border-color: var(--kt-stone-900);
+}
+
+.kt-search-page__tab--active:hover {
+  color: var(--kt-white);
+  background-color: var(--kt-stone-800);
+  border-color: var(--kt-stone-800);
 }
 
 .kt-search-page__tab:focus-visible {

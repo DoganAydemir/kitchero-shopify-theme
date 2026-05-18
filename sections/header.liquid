@@ -56,10 +56,28 @@
   can render behind it. In both modes the spacer is superfluous.
 {%- endcomment -%}
 
+{%- comment -%}
+  R232 — `header_style` select restores merchant control over the
+  transparent vs. solid header without sacrificing the auto-detect
+  default that R216 introduced. Three modes:
+    - "auto" (default): existing `:has()` CSS auto-detection — header
+      goes transparent on pages whose first section is a hero/banner
+      that carries `data-allows-transparent-header="true"`, solid
+      everywhere else. Backwards-compatible with existing stores.
+    - "transparent": always render transparent (force-overlay the
+      first section). Useful when the page leads with a custom hero
+      app section that doesn't carry the auto-detect attribute.
+    - "solid": always render solid even on pages that lead with a
+      hero. Useful when the merchant prefers a more conservative
+      navigation pattern.
+  Emitted as `data-header-style` for CSS + JS to honour the choice.
+{%- endcomment -%}
+{%- assign header_style = section.settings.header_style | default: 'auto' -%}
 <header
   class="kt-header"
   data-section-id="{{ section.id }}"
   data-section-type="header"
+  data-header-style="{{ header_style }}"
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
@@ -491,15 +509,17 @@
                   {%- endfor -%}
                 </select>
                 {%- comment -%}
-                  R298 — Submit button moved OUTSIDE `<noscript>` so it
-                  renders for JS-enabled users too. Previously the
-                  button only appeared for no-JS users, while the
-                  on-change auto-submit handler in
-                  `assets/localization-form.js` was deliberately
-                  removed (WCAG 3.2.2 "On Input") — leaving JS-on
-                  users with no way to apply their locale choice.
+                  R232.12 — Submit button removed for JS users.
+                  `assets/localization-form.js` listens for `change`
+                  on this select and auto-submits the form (Shopify-
+                  documented pattern). WCAG F36-safe because native
+                  `change` fires on commit, not on each arrow-key
+                  preview. No-JS shoppers get the noscript submit
+                  button below.
                 {%- endcomment -%}
-                <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                <noscript>
+                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                </noscript>
               {%- endform -%}
             {%- endif -%}
 
@@ -516,11 +536,12 @@
                   {%- endfor -%}
                 </select>
                 {%- comment -%}
-                  R298 — Submit button moved OUTSIDE `<noscript>` so it
-                  renders for JS-enabled users too (see language form
-                  above for rationale).
+                  R232.12 — see language form above for the auto-
+                  submit rationale. Same pattern here.
                 {%- endcomment -%}
-                <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                <noscript>
+                  <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                </noscript>
               {%- endform -%}
             {%- endif -%}
           </div>
@@ -711,6 +732,73 @@
               {{ section.settings.mobile_cta_text }}
             </a>
           {%- endif -%}
+
+          {%- comment -%}
+            R232.44 — Mobile-drawer locale + country selectors.
+
+            The desktop header has a popover-style language / country
+            disclosure (gated by `kt_show_locale_selector` +
+            `kt_show_country_selector`), but the matching popover was
+            hidden on mobile (<990px) via CSS so the cluster wouldn't
+            crowd the icon row. The original plan (called out in the
+            CSS comment at `.kt-header__locale`) was that mobile
+            shoppers would reach the same selectors from inside the
+            mobile-nav drawer's bottom footer. That markup was never
+            ported, leaving mobile users with no way to change
+            country or language — user feedback: "Ülke seçimi neden
+            yok, olmalı mı?". The CSS hooks
+            (`kt-header__mobile-locale-form` etc.) already exist;
+            this block emits the matching markup. Same auto-submit
+            pattern as the desktop popover: `assets/localization-form.js`
+            listens for `change` and submits, with a `<noscript>`
+            fallback button for JS-off shoppers (WCAG 3.2.2 + F36).
+          {%- endcomment -%}
+          {%- liquid
+            assign show_m_locale_select = false
+            if settings.kt_show_locale_selector and localization.available_languages.size > 1
+              assign show_m_locale_select = true
+            endif
+            assign show_m_country_select = false
+            if settings.kt_show_country_selector and localization.available_countries.size > 1
+              assign show_m_country_select = true
+            endif
+          -%}
+          {%- if show_m_locale_select or show_m_country_select -%}
+            <div class="kt-header__mobile-locale">
+              {%- if show_m_locale_select -%}
+                {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'kt-header__mobile-locale-form' -%}
+                  <input type="hidden" name="return_to" value="{{ request.path | escape }}">
+                  <label for="HeaderMobileLanguageSelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
+                  <select name="language_code" id="HeaderMobileLanguageSelector" class="kt-header__mobile-locale-select">
+                    {%- for language in localization.available_languages -%}
+                      <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+                        {{ language.endonym_name | capitalize }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                  <noscript>
+                    <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  </noscript>
+                {%- endform -%}
+              {%- endif -%}
+              {%- if show_m_country_select -%}
+                {%- form 'localization', id: 'HeaderMobileCountryForm', class: 'kt-header__mobile-locale-form' -%}
+                  <input type="hidden" name="return_to" value="{{ request.path | escape }}">
+                  <label for="HeaderMobileCountrySelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
+                  <select name="country_code" id="HeaderMobileCountrySelector" class="kt-header__mobile-locale-select">
+                    {%- for country in localization.available_countries -%}
+                      <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                        {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                  <noscript>
+                    <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
+                  </noscript>
+                {%- endform -%}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
         </div>
       </div>
 
@@ -840,6 +928,22 @@
   "name": "t:sections.header.name",
   "class": "section-header",
   "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__style.content"
+    },
+    {
+      "type": "select",
+      "id": "header_style",
+      "label": "t:sections.header.settings.header_style.label",
+      "info": "t:sections.header.settings.header_style.info",
+      "options": [
+        { "value": "auto", "label": "t:sections.header.settings.header_style.options__auto.label" },
+        { "value": "transparent", "label": "t:sections.header.settings.header_style.options__transparent.label" },
+        { "value": "solid", "label": "t:sections.header.settings.header_style.options__solid.label" }
+      ],
+      "default": "auto"
+    },
     {
       "type": "header",
       "content": "t:sections.header.settings.header__navigation.content"

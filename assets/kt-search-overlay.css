@@ -172,9 +172,13 @@
   box-shadow: none;
 }
 
+/* R232.36 — Inset shadow removed. The wrapper's `border-bottom`
+   already flips to white via `:focus-within` so keyboard users see
+   the focus indicator. Painting a second 2px line inside the input
+   produced the double-line ghost the user flagged (input baseline
+   + wrapper border separated by the wrap's 0.75rem padding). */
 .kt-search-overlay__input:focus-visible {
   outline: none;
-  box-shadow: inset 0 -2px 0 var(--kt-white);
 }
 
 @media screen and (min-width: 750px) {

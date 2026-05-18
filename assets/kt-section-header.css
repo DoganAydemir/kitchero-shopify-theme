@@ -68,8 +68,22 @@
    it — letting merchants run both features simultaneously.
    Adds a subtle text-shadow on the logo + nav links so they stay
    legible over light backgrounds too (not just dark heroes). The
-   shadow disappears once the header becomes solid on scroll. */
-body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
+   shadow disappears once the header becomes solid on scroll.
+
+   R232.4 — selector swapped from
+     `body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"])`
+   to
+     `body.kt-body--header-transparent`
+   The previous `:has(:first-of-type)` chain didn't match in the
+   Shopify theme editor preview iframe because the editor injects
+   sibling wrappers between `<main>` and the first .shopify-section,
+   shifting `:first-of-type` onto an injected element that doesn't
+   carry the data attribute. JS (`syncTransparentBodyClass`) now
+   walks the DOM with `querySelector('main .shopify-section')` —
+   robust to intermediate wrappers — and toggles the body class.
+   CSS keys off the class for predictable matching in both
+   storefront and editor contexts. */
+body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]) {
   /* R216 — `position: fixed` keeps the header out of flow so the
      hero can bleed up behind it (transparent overlay use case).
 
@@ -105,12 +119,12 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
 
    Once JS hydrates, `--kt-header-top` overrides this with the
    actual scroll-aware computed top. */
-body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
+body:has(.kt-announcement-banner).kt-body--header-transparent .kt-header:not([data-header-style="solid"]) {
   top: var(--kt-header-top, var(--kt-banner-height, 40px));
 }
 
 @media (max-width: 639px) {
-  body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header {
+  body:has(.kt-announcement-banner).kt-body--header-transparent .kt-header:not([data-header-style="solid"]) {
     top: var(--kt-header-top, var(--kt-banner-height, 34px));
   }
 }
@@ -125,7 +139,7 @@ body:has(.kt-announcement-banner):has(main > .shopify-section:first-of-type [dat
    (specificity 0,2,2) wins over both the transparent override
    AND the base scrolled rule, so the dark bg + blur + shadow
    come back as expected. Position stays `fixed` throughout. */
-body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header.kt-header--scrolled {
+body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]).kt-header--scrolled {
   position: fixed;
   background-color: rgba(12, 10, 9, 0.95);
   backdrop-filter: blur(12px);
@@ -133,14 +147,110 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__logo-text,
-body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__menu-link,
-body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header:not(.kt-header--scrolled) .kt-header__action-btn {
+body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]):not(.kt-header--scrolled) .kt-header__logo-text,
+body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]):not(.kt-header--scrolled) .kt-header__menu-link,
+body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]):not(.kt-header--scrolled) .kt-header__action-btn {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 /* When scrolled (both modes get solid background) */
 .kt-header--scrolled {
+  background-color: rgba(12, 10, 9, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* R232 — Explicit merchant override.
+   `data-header-style` on the <header> element wins over the
+   `:has()` auto-detection so a merchant who picks "Solid" gets a
+   solid header even on a page that leads with a banner, and a
+   merchant who picks "Transparent" gets the overlay on a page
+   whose first section doesn't carry the auto-detect attribute.
+
+   Specificity note: the auto-detect rules above use the chain
+   `body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header`
+   which is (0,2,1). To beat that without bumping it further we
+   anchor the override on the same body:has(...) ancestry where
+   needed (force-solid case) and on a single high-specificity
+   attribute selector for the force-transparent case. */
+
+/* Force SOLID — kills the transparent overlay on banner-led pages.
+   Resets position to sticky, brings back the standard solid bg,
+   removes the text-shadow legibility hack. */
+body.kt-body--header-transparent .kt-header[data-header-style="solid"],
+.kt-header[data-header-style="solid"] {
+  position: sticky;
+  top: 0;
+  background-color: rgba(12, 10, 9, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body.kt-body--header-transparent .kt-header[data-header-style="solid"] .kt-header__logo-text,
+body.kt-body--header-transparent .kt-header[data-header-style="solid"] .kt-header__menu-link,
+body.kt-body--header-transparent .kt-header[data-header-style="solid"] .kt-header__action-btn {
+  text-shadow: none;
+}
+
+/* Force TRANSPARENT — lights up the overlay on a page whose first
+   section doesn't carry data-allows-transparent-header. Mirrors the
+   :has() transparent rule above but anchored on the explicit
+   attribute instead of the DOM-detection ancestry.
+
+   R232.2 — `!important` on `position` and `background-color` to
+   guarantee the override wins over the default `.kt-header` rule
+   AND any later rule cascades. The previous version relied on
+   specificity alone, but in some Shopify editor preview contexts
+   the default sticky rule was still winning, leaving the header
+   in flow above the banner instead of overlaying it. !important
+   on these two declarations is the surgical fix — it does not
+   spill into other properties (transition, z-index, etc.) which
+   stay inheritable. */
+.kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) {
+  position: fixed !important;
+  top: var(--kt-header-top, var(--kt-banner-height, 0px));
+  background-color: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* R232.3 — banner-aware fallback for explicit transparent mode.
+   Without this, when the merchant picks Transparent on a page that
+   ALSO has an announcement banner, the fixed header lands at top:0
+   and visually overlaps the banner (banner content bleeds through
+   the transparent header at the same vertical pixel range).
+
+   `!important` on `top` is needed because in some render contexts
+   (Shopify theme editor preview iframe in particular) the JS
+   never gets a chance to write `--kt-banner-height` before the
+   first paint, and other Liquid-side rules with comparable
+   specificity were also targeting `top` — the `!important` is the
+   surgical guarantee that the banner-aware fallback wins. The
+   var()s still take precedence over the literal fallback once the
+   JS hydrates the values. */
+body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) {
+  top: var(--kt-header-top, var(--kt-banner-height, 40px)) !important;
+}
+
+@media (max-width: 639px) {
+  body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) {
+    top: var(--kt-header-top, var(--kt-banner-height, 34px)) !important;
+  }
+}
+
+.kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) .kt-header__logo-text,
+.kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) .kt-header__menu-link,
+.kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) .kt-header__action-btn {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* On force-transparent, the scrolled state still gets the solid bg
+   (same UX as banner-led auto pages). */
+.kt-header[data-header-style="transparent"].kt-header--scrolled {
+  position: fixed;
   background-color: rgba(12, 10, 9, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -158,6 +268,24 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
   margin: 0 auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+  /* R232.40 — guarantee a minimum gap between the logo and the
+     icons cluster so they never visually touch even when the
+     cluster grows (search + account + cart + hamburger). Falls
+     back to flex `space-between` for the natural distribution; gap
+     only kicks in when the items would otherwise be flush. */
+  gap: 0.5rem;
+}
+
+/* R232.40 — On the smallest mobile viewports the 1.5rem (24px) side
+   padding combined with the 4-icon cluster leaves no breathing room
+   next to the logo. Tighten container side-padding to 1rem (16px)
+   to reclaim 16px of visual gap. Pair with the kt-header__icons gap
+   reduction above for ~28px total of recovered space. */
+@media (max-width: 640px) {
+  .kt-header__inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 @media screen and (min-width: 750px) {
@@ -520,24 +648,35 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
    white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
    4.8:1 contrast — still muted, still reads as an eyebrow label. */
 .kt-header__mega-column-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
-  margin-bottom: 1.5rem;
+  color: var(--kt-stone-400);
+  margin-bottom: 1rem;
 }
 
-/* Column list — gap-4 per Tailwind (= 1rem) */
+/* R232.8 — tighter gap between menu links; previously gap-1rem +
+   15px serif-inherited links created an oversized hierarchy that
+   read like top-level navigation instead of a sub-menu list. */
 .kt-header__mega-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.625rem;
 }
 
-/* Links — text-[15px] / stone-600, widen tracking on hover to stone-900 */
+/* R232.8 — Body-font (not heading serif), 13.5px, regular weight.
+   Was inheriting the section-default heading serif via parent
+   `.kt-header__menu-link` ancestry on some layouts, which painted
+   the mega-menu items as oversized serif headlines instead of
+   the secondary-link tier they should be. Pinning font-family
+   here keeps the hierarchy (eyebrow label → link) legible at
+   small sizes. */
 .kt-header__mega-link {
-  font-size: 0.9375rem;
+  font-family: var(--kt-f-body, system-ui, sans-serif);
+  font-size: 0.84375rem;
+  font-weight: 400;
+  line-height: 1.4;
   color: var(--kt-stone-600);
   text-decoration: none;
   cursor: pointer;
@@ -636,6 +775,20 @@ body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* R232.40 — On mobile (≤640px) the icon cluster crowds the logo:
+   4 icons (search + account + cart + hamburger) at 44px each plus
+   3 × 12px gaps eats ~212px, leaving zero breathing room next to
+   a 100px logo inside a 360-380px viewport. User feedback:
+   "Mobilde icon lar ve logo çok yaklaşmış". Tighten the
+   inter-icon gap and the container side-padding on small mobile
+   to reclaim ~28px of visual separation between the logo and the
+   icons cluster without touching the WCAG 2.5.5 44×44 hit area. */
+@media (max-width: 640px) {
+  .kt-header__icons {
+    gap: 0.25rem;
+  }
 }
 
 @media screen and (min-width: 990px) {

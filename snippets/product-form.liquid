@@ -41,6 +41,17 @@
   {%- assign pf_uid = product.id | append: '-' | append: section.id -%}
 {%- endif -%}
 {%- comment -%}
+  R232.6 — `id: 'ProductForm-' | append: pf_uid` inline-filter inside
+  the `{% form %}` tag was reading the second comma as a positional
+  arg separator on some Shopify Liquid parser versions, then treating
+  the entire concatenated string as the form-type literal — the
+  storefront raised "Invalid form type" for the section.id-bearing
+  ID on the showroom template (where pf_uid includes the
+  `template--...__main` section id). Pre-computing the id with
+  `assign` keeps the filter chain out of the form-tag kwarg list.
+{%- endcomment -%}
+{%- assign product_form_id = 'ProductForm-' | append: pf_uid -%}
+{%- comment -%}
   R298 — Dynamic Checkout (Shop Pay / Buy it now / Apple Pay / Google Pay)
   is now ALWAYS rendered. Shopify's Online Store sales channel +
   Theme Store submission requirements mandate `{{ form | payment_button }}`
@@ -70,7 +81,7 @@
   the selector hooks out of Liquid-tag territory entirely.
 {%- endcomment -%}
 <div class="kt-product-form" data-product-form data-product-id="{{ product.id }}" data-product-url="{{ product.url }}">
-{%- form 'product', product, id: 'ProductForm-' | append: pf_uid -%}
+{%- form 'product', product, id: product_form_id -%}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
   {%- comment -%}
@@ -121,27 +132,18 @@
   {%- assign qty_step = current_variant.quantity_rule.increment | default: 1 -%}
   {%- assign qty_max = current_variant.quantity_rule.max -%}
 
-  {%- comment -%} Quantity + Add to Cart row {%- endcomment -%}
-  <div class="kt-product-form__row{% unless show_quantity %} kt-product-form__row--no-qty{% endunless %}">
-    {%- comment -%}
-      Quantity selector — gated on `show_quantity`. When the host
-      layout opts out of the visible stepper (showroom buy block,
-      "1-click reserve" surface, etc.) we still post a hidden
-      `quantity` input so /cart/add receives the canonical form
-      shape. Without that hidden input the form submit would post
-      no quantity, and Shopify's cart endpoint defaults to qty=1
-      silently — which works today but breaks the moment the
-      product has a quantity_rule.min > 1 (case-of-6 items),
-      because the default qty=1 gets rejected at the cart layer.
-    {%- endcomment -%}
-    {%- if show_quantity -%}
-      {%- comment -%}
-        R296 — `product.title` is merchant-controlled but Theme Store
-        rejects any interpolation into HTML attributes without `| escape`
-        (product names can legally contain `"` and `<`). Pre-escape once;
-        the resulting string is safe for use in both aria-labels below.
-      {%- endcomment -%}
-      {%- assign safe_product_title = product.title | escape -%}
+  {%- comment -%}
+    R232.20 — Layout split. Quantity stepper lives in its own row
+    above the buy cluster; Add to Cart + Buy it now form a paired
+    side-by-side CTA on desktop (stacked on mobile). The previous
+    structure parked qty next to ATC and stacked the accelerated
+    checkout below, which read as three disconnected tiers instead
+    of one buy decision.
+  {%- endcomment -%}
+  {%- assign safe_product_title = product.title | escape -%}
+
+  {%- if show_quantity -%}
+    <div class="kt-product-form__qty-row">
       <div class="kt-product-form__qty">
         <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_product_title }}">
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -167,14 +169,12 @@
           {% render 'icon-plus' %}
         </button>
       </div>
-
       {%- comment -%}
         Case-pack / quantity-rule indicator — required by Shopify B2B
-        documentation when a variant ships with `quantity_rule.increment > 1`
-        or `min > 1` or a finite `max`. Without a visible message, customers
-        get cryptic 422s from /cart/add and Theme Store reviewers flag
-        opaque B2B UX as a rejection. Each branch resolves to a localised
-        sentence so the customer understands the contract before submit.
+        docs when a variant ships with `quantity_rule.increment > 1`
+        or `min > 1` or a finite `max`. Without a visible message,
+        customers get cryptic 422s from /cart/add and Theme Store
+        reviewers flag opaque B2B UX as a rejection.
       {%- endcomment -%}
       {%- if qty_step > 1 or qty_min > 1 or qty_max != blank -%}
         <p class="kt-product-form__qty-rule" data-qty-rule role="note">
@@ -187,29 +187,31 @@
           {%- endif -%}
         </p>
       {%- endif -%}
-    {%- else -%}
-      <input type="hidden" name="quantity" value="{{ qty_min }}">
-    {%- endif -%}
-
+    </div>
+  {%- else -%}
     {%- comment -%}
-      Add to Cart button — two icons rendered, CSS swaps based on :disabled.
+      Hidden quantity for layouts that opt out of the visible stepper
+      (showroom buy block, "1-click reserve" surface). /cart/add still
+      needs the canonical `quantity` field; without it the endpoint
+      silently defaults to 1, which breaks `quantity_rule.min > 1`
+      variants (case-of-6 items, B2B).
+    {%- endcomment -%}
+    <input type="hidden" name="quantity" value="{{ qty_min }}">
+  {%- endif -%}
 
-      Also disabled when the product REQUIRES a selling plan
-      (subscription-only item with no one-time-purchase path). Without
-      this gate, the ATC posts to /cart/add without a `selling_plan`
-      param and Shopify rejects with a generic error. Gate here so the
-      customer sees a clear disabled state + localised "Subscription
-      required" copy instead.
-    {%- endcomment -%}
-    {%- comment -%}
-      ATC disabled on sold-out only. requires_selling_plan no longer
-      disables the button because snippets/product-selling-plans.liquid
-      (rendered above) auto-selects a plan for subscription-only
-      products, so the hidden `selling_plan` field is populated before
-      the submit.
-    {%- endcomment -%}
-    {%- assign atc_disabled = false -%}
-    {%- unless current_variant.available -%}{%- assign atc_disabled = true -%}{%- endunless -%}
+  {%- assign atc_disabled = false -%}
+  {%- unless current_variant.available -%}{%- assign atc_disabled = true -%}{%- endunless -%}
+
+  {%- comment -%}
+    Buy cluster — ATC + dynamic-checkout share this row. The
+    dynamic-checkout container is rendered as the SECOND child here
+    (not below) so the showroom-style paired CTA layout works —
+    `display: flex` on desktop puts them side-by-side; mobile media
+    query stacks them. Pre-order badge + error sentinel still
+    render BELOW this cluster (see further down) since they're
+    status messages, not buy actions.
+  {%- endcomment -%}
+  <div class="kt-product-form__buy-row{% if show_dynamic_checkout %} kt-product-form__buy-row--paired{% endif %}">
     <button
       type="submit"
       class="kt-product-form__atc"
@@ -217,25 +219,26 @@
       data-add-to-cart
     >
       {%- comment -%}
-        R269 — The previous markup carried TWO inline SVGs (shopping
-        bag for available + X-in-circle for sold-out) that toggled
-        visibility via CSS based on the `:disabled` selector. The
-        sold-out icon read as visually heavy/jarring next to the
-        button text — the merchant reported "X icon ne alaka,
-        button gri kalıyor disabled gibi" on a test product with
-        sold-out variant. The gray disabled background + "Sold out"
-        text already convey the unavailable semantic; the X icon
-        added visual noise without information. Removed entirely.
-        The button keeps its text-only treatment in both states.
+        R232.32 — Optional shopping-bag icon, merchant-toggleable
+        via the "Show icon on Add to cart" theme setting. Inline
+        SVG keeps the icon scheme-aware via `currentColor` and
+        avoids a separate request. Hidden when sold-out (disabled
+        button — `:disabled` selector strips it via CSS) so the
+        icon doesn't compete with the "Sold out" label.
       {%- endcomment -%}
+      {%- if settings.kt_atc_show_icon -%}
+        <svg class="kt-product-form__atc-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      {%- endif -%}
       <span data-add-to-cart-text>
         {%- if current_variant.available -%}
           {%- comment -%}
             R166: `atc_label` lets the showroom buy block surface
             "Reserve this item" / "Order sample" copy through the
-            same canonical form. Falls back to the localized
-            default. Escaped because the value can come from
-            merchant input.
+            same canonical form.
           {%- endcomment -%}
           {%- if atc_label != blank -%}
             {{ atc_label | escape }}
@@ -247,6 +250,13 @@
         {%- endif -%}
       </span>
     </button>
+
+    {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) — sibling of ATC for the side-by-side layout {%- endcomment -%}
+    {%- if show_dynamic_checkout -%}
+      <div class="kt-product-form__dynamic-checkout{% if settings.kt_buy_now_show_icon %} kt-product-form__dynamic-checkout--with-icon{% endif %}">
+        {{ form | payment_button }}
+      </div>
+    {%- endif -%}
   </div>
 
   {%- comment -%}
@@ -284,12 +294,11 @@
   {%- endcomment -%}
   <div class="kt-product-form__error" data-product-form-error role="alert" hidden></div>
 
-  {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) {%- endcomment -%}
-  {%- if show_dynamic_checkout -%}
-    <div class="kt-product-form__dynamic-checkout">
-      {{ form | payment_button }}
-    </div>
-  {%- endif -%}
+  {%- comment -%}
+    R232.20 — Dynamic checkout button moved INSIDE the buy-row above
+    so it sits side-by-side with the ATC button (showroom CTA pair
+    pattern). The standalone block here is removed.
+  {%- endcomment -%}
 
   {%- comment -%}
     Shop Pay Installments banner — Theme Store paid mandatory feature

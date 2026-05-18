@@ -188,6 +188,18 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
+  /* R232.15 — Badge and hover-info share the same `bottom: 1.5rem`
+     anchor when the badge is corner-bl positioned, so they sit on
+     the SAME y-axis row. A simple z-index bump (R232.10) only kept
+     the badge's bounding box on top — the vendor text past the
+     badge's right edge stayed visible at the same line and read
+     as "SNOWBOA…RD VENDOR" overlap. Fade the badge on hover so
+     the hover-info has the bottom row to itself; the badge re-
+     appears when the cursor leaves. Transition matches the
+     hover-info's own 0.7s reveal so the swap reads as one
+     coherent animation rather than two competing fades. */
+  z-index: 25;
+  transition: opacity 0.45s ease;
   padding: 0.25rem 0.625rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
@@ -341,6 +353,13 @@
   opacity: 1;
 }
 
+/* R232.15 — fade badge while the card is keyboard-focused (mirrors
+   the hover behaviour so the badge doesn't crash the focus-revealed
+   hover-info on the same bottom row). */
+.kt-card-product:focus-within .kt-card-product__badge {
+  opacity: 0;
+}
+
 /* Hover reveal — gated to fine-pointer devices so a tap on iPad
    doesn't trigger sticky :hover and leave the overlay visible
    indefinitely. Same pattern the image-swap rules above this block
@@ -351,6 +370,13 @@
   .kt-card-product:hover .kt-card-product__hover-info {
     transform: translateY(0);
     opacity: 1;
+  }
+  /* R232.15 — hide badge while hover-info reveals; both anchor to
+     `bottom: 1.5rem` so leaving the badge visible would intersect
+     with the vendor / material text. The badge returns when the
+     cursor leaves. */
+  .kt-card-product:hover .kt-card-product__badge {
+    opacity: 0;
   }
 }
 

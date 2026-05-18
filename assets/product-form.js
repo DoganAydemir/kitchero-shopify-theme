@@ -591,9 +591,29 @@
           atcInflight = false;
           atcController = null;
           if (form.__kitcheroAtcController) delete form.__kitcheroAtcController;
-          if (atcBtn && atcBtn.hasAttribute('aria-disabled')) {
+
+          /* R232.29 — Comprehensive re-enable for ATC + accelerated
+             checkout buttons after the cart-add fetch settles.
+             Previously only `aria-disabled` was cleared, but Shopify's
+             accelerated-checkout widget (listening to the form's
+             submit event independently) leaves both ATC and its own
+             buttons in a `disabled` state until something fires an
+             enable signal. We own this signal here since we
+             `preventDefault()` the native submit. */
+          if (atcBtn) {
+            atcBtn.disabled = false;
+            atcBtn.removeAttribute('disabled');
             atcBtn.removeAttribute('aria-disabled');
+            atcBtn.removeAttribute('aria-busy');
+            atcBtn.classList.remove('kt-product-form__atc--loading');
           }
+          form.querySelectorAll(
+            '.shopify-payment-button__button, shopify-buy-it-now-button button, shopify-buy-it-now-button'
+          ).forEach(function (btn) {
+            btn.disabled = false;
+            btn.removeAttribute('disabled');
+            btn.removeAttribute('aria-disabled');
+          });
         });
     });
   }

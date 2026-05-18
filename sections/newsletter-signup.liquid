@@ -30,7 +30,16 @@
         `<label for>`, `aria-describedby`, and error anchor `href="#..."`
         targets are updated in lockstep.
       {%- endcomment -%}
-      {%- form 'customer', id: 'NewsletterPageForm-' | append: section.id, class: 'kt-newsletter-page__form-wrap' -%}
+      {%- comment -%}
+        R232.35 — same inline-filter parser bug the product-form
+        snippet hit. Pre-compute the id with `assign` so the comma
+        in the form tag's kwarg list isn't misread as a positional
+        arg separator (Shopify Liquid was parsing the entire
+        concatenated string as the form-type literal and raising
+        "Invalid form type").
+      {%- endcomment -%}
+      {%- assign newsletter_form_id = 'NewsletterPageForm-' | append: section.id -%}
+      {%- form 'customer', id: newsletter_form_id, class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
         {%- comment -%}
           Removed the `contact[accepts_marketing]=true` hidden field.
