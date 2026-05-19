@@ -158,8 +158,12 @@
 .kt-ecosystem__feature-title {
   font-size: 2.25rem;
   font-weight: 500;
-  /* R232.50 — scheme-aware feature title (was stone-50, near-fg). */
-  color: rgba(var(--kt-c-fg, 250 250 249), 0.9);
+  /* R232.67 — Full-strength scheme fg for title; the desc below
+     drops to 0.5 opacity for a clearer hierarchy step (user
+     feedback: "title altındaki desc'lerin opacity'si daha kısık
+     olmalı"). Hover already lands here, so the hover rule is now a
+     no-op but kept for the transition curve consistency. */
+  color: rgb(var(--kt-c-fg, 250 250 249));
   margin-bottom: 1rem;
   transition: color 0.2s ease;
 }
@@ -177,8 +181,11 @@
    pulling focus from it. */
 .kt-ecosystem__feature-desc {
   font-size: 0.9375rem;
-  /* R232.50 — scheme-aware muted body (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  /* R232.67 — Dropped 0.6 → 0.45 for clearer hierarchy step against
+     the full-strength title above. Title is rgb(--kt-c-fg) (100%);
+     desc at 0.45 reads as "supporting whisper" rather than competing
+     with the title for visual weight. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.45);
   line-height: 1.55;
   max-width: 24rem;
 }
@@ -246,16 +253,28 @@
     justify-content: center;
     align-items: center;
     align-self: flex-start;
+    /* R232.70 — Native CSS `position: sticky` for the pin. GSAP
+       ScrollTrigger `pin:` was previously responsible for keeping
+       the image-col anchored, but with two stacked ecosystem sections
+       on the same page the GSAP pins from the two instances were
+       fighting each other — the first section's pin would hold its
+       column briefly then "snap" to the bottom of the section as the
+       pin released, then the second section's pin would engage with
+       a visible jump (user feedback: "biraz scroll'da kayarken
+       birden bire ilgili section'un en altına girdi/saklandı"). CSS
+       sticky has no per-instance state to coordinate — each section
+       independently sticks within its own scroll container, browser
+       handles the rest natively. GSAP keeps the parallax-scale +
+       feature-fade animations, which work fine across multiple
+       instances. */
+    position: sticky;
+    top: 0;
   }
 
-  /* JS-off fallback — use CSS sticky to keep the image anchored while
-     the left-column feature text scrolls past. Progressive enhancement:
-     when JS is available (html.js), GSAP ScrollTrigger takes over the
-     pinning via transform-based pin which is smoother and respects
-     reduced-motion / theme-editor contexts. Previously both sticky AND
-     ScrollTrigger pin were active simultaneously, so the pin handoff
-     jumped the image by a few px as the GSAP transform activated and
-     the native sticky released. One mechanism at a time now. */
+  /* No-JS path keeps the same sticky behaviour as the JS path now
+     that GSAP no longer owns the pin. The duplicated rule below is
+     a defensive fallback if a future revision narrows the JS path's
+     sticky to a media query the no-JS condition doesn't match. */
   html:not(.js) .kt-ecosystem__image-col {
     position: sticky;
     top: 0;
@@ -288,18 +307,18 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* R193 PLACEHOLDER-CONTRAST-3: same fix as R187 (hero) and
-     R182 (before-after). When no merchant image is uploaded the
-     ecosystem section falls back to a `collection-3` placeholder
-     SVG that paints transparent — invisible against the section's
-     stone-900 backdrop. Give the placeholder the classic Shopify
-     bordered-grey treatment so the right column shows a real
-     "image will go here" surface on a fresh-install demo.
-     Once a real image uploads, `.placeholder-svg` is gone and
-     these properties no longer match. */
-  background-color: var(--kt-stone-100, #f5f5f4);
-  border: 1px solid var(--kt-stone-300, #d6d3d1);
-  color: var(--kt-stone-400, #a8a29e);
+  /* R232.68 — Solid `--kt-stone-100` bg + border REMOVED. The grey
+     panel + grey border treatment was overlaying Shopify's
+     collection-3 placeholder illustration with a SOLID grey
+     rectangle — the user only ever saw the flat panel, never the
+     actual Shopify graphic (user feedback: "bg color renk girilmiş.
+     placeholder fotonun görünmeme sebebi buymuş"). Letting the
+     placeholder's own SVG art render against the section's scheme
+     surface (defaults scheme-7 stone-900) gives the recognisable
+     Shopify lifestyle/collection placeholder back. The base.css
+     `.placeholder-svg` rule still emits a subtle 4% fg tint at the
+     theme level, which is enough ambient bg. */
+  color: rgb(var(--kt-c-fg, 168 162 158));
 }
 
 .kt-ecosystem__image-wrap .placeholder-svg svg {

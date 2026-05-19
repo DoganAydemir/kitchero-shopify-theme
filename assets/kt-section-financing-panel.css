@@ -93,8 +93,21 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 1.5rem;
-  /* R232.50 — media frame fallback bg uses scheme fg as a deep tint */
-  background-color: rgb(var(--kt-c-fg, 28 25 23));
+  /* R232.66 — Media frame falls back to a subtle tier-shifted bg so
+     the Shopify default placeholder SVG (lifestyle-2) sits cleanly
+     on any scheme. Previous version (`rgb(--kt-c-fg)`) painted a
+     SOLID DARK rectangle whenever a merchant hadn't uploaded an
+     image — combined with the placeholder's own 0.6 opacity below,
+     the section read as a "solid black block" instead of showing
+     Shopify's expected placeholder graphic (user feedback:
+     "soldaki foto neden tek renk?"). Using --kt-c-bg-contrast gives
+     a soft scheme-aware shade that the placeholder reads against. */
+  /* R232.72 — `--kt-c-bg-contrast` Shopify 25%-darken calc was too
+     aggressive on light schemes; replaced with the subtle layered
+     bg pattern (scheme bg + 6% fg overlay) so the placeholder reads
+     as a soft tier-shifted frame on any scheme. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.06), rgba(var(--kt-c-fg, 28 25 23), 0.06));
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
@@ -114,6 +127,15 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* R232.66 — Opacity 0.6 is the editorial muted-photo look. Pair
+     with `:not(.placeholder-svg)` so Shopify's default placeholder
+     SVG renders at full opacity (otherwise placeholder + dark frame
+     + 0.6 opacity made the section look like a solid black block on
+     fresh installs). Real merchant uploads keep the 0.6 muted look. */
+  opacity: 1;
+}
+
+.kt-financing-panel__image:not(.placeholder-svg) {
   opacity: 0.6;
 }
 
@@ -308,8 +330,14 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 9999px;
-  background-color: var(--kt-emerald-50); /* emerald-50 */
-  color: var(--kt-green-700); /* emerald-700 */
+  /* R232.66 — Check chip + glyph follow the active scheme instead of
+     a fixed light-emerald-on-emerald palette that disappeared into
+     scheme-5's surface. Subtle 8% fg chip + full-strength fg glyph
+     reads as a soft "elevated check" on any scheme (cream / dark /
+     emerald / charcoal). User feedback: "bu rengi seçince check ler
+     beyaz olmamalı". */
+  background-color: rgba(var(--kt-c-fg, 236 253 245), 0.08);
+  color: rgb(var(--kt-c-fg, 21 128 61));
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -174,28 +174,19 @@
   </div>
 
   {%- comment -%}
-    WCAG 2.2.2 Pause control — touch / screen-reader users have no
-    hover/focus equivalent on the infinite marquee, so a persistent
-    on-page pause is required. Shared `assets/kt-marquee-pause.js`
-    toggles the `kt-gallery-marquee--paused` modifier on the host.
+    R232.69 — Visible pause toggle REMOVED per user request. WCAG
+    2.2.2 mitigation still in place via three other paths:
+      1. `:hover` + `:focus-within` pause the animation on desktop
+         (kt-section-gallery-marquee.css `--paused` rule).
+      2. `prefers-reduced-motion: reduce` media query disables the
+         animation entirely (animation-name: none).
+      3. The host carries `data-marquee-pause-host` so future global
+         pause controls (e.g. a single "Pause animations" toggle in
+         the footer for the whole theme) can re-enable a control
+         without re-emitting it per-section.
   {%- endcomment -%}
-  <button
-    type="button"
-    class="kt-gallery-marquee__pause-toggle"
-    data-marquee-pause-toggle
-    aria-pressed="true"
-    aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play marquee' }}"
-  >
-    <svg data-marquee-icon-pause aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="6" y="4" width="4" height="16"></rect>
-      <rect x="14" y="4" width="4" height="16"></rect>
-    </svg>
-    <svg data-marquee-icon-play aria-hidden="true" hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-    </svg>
-  </button>
 
-  {%- comment -%}
+{%- comment -%}
     R298 — Inline @app render block REMOVED. The previous inline loop
     rendered every `block.type != 'image'` block — which means @app
     blocks — wrapped in `block.shopify_attributes`. The same blocks

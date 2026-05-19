@@ -8,9 +8,28 @@
 (function () {
   'use strict';
 
-  function initEcosystem(container) {
-    var section = container.querySelector('[data-section-type="ecosystem"]');
-    if (!section || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return null;
+  /* R232.69 — MULTI-INSTANCE FIX. When two ecosystem sections live
+     on the same page, the previous implementation captured
+     leftHeight ONCE at init and emitted a static `end: '+=N'` value
+     to ScrollTrigger. ScrollTrigger.refresh() — which fires after
+     any sibling section finishes its own pin/layout pass — re-runs
+     the trigger's calc only if `end` is a FUNCTION. Static strings
+     are cached.
+     Symptoms reported: "iki ecosystem section'ı varken sağdaki
+     scroll ile hareket eden foto efekti patlıyor, tek olunca
+     normal." → first section's pin held the rightCol over the
+     SECOND section's content because the first section's
+     `end` value was stale (computed before the second section's
+     content shifted the layout below it). Switching `end` and
+     `start` to functions makes ScrollTrigger re-evaluate them on
+     every refresh, which fires after any sibling pin's layout pass
+     completes.
+     Also tightened the per-instance scoping so two simultaneous
+     ScrollTriggers can never alias on the same `instances` key (we
+     re-key off `section.dataset.sectionId` reliably). */
+
+  function initEcosystem(sectionEl) {
+    if (!sectionEl || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return null;
 
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return null;
@@ -21,8 +40,7 @@
        the merchant is adding / reordering the section from the
        editor — the editor iframe reads it as "I can't scroll past
        this section to the footer". Same gate is the canonical
-       Shopify recommendation for any pinned ScrollTrigger and
-       matches the one in kt-section-shop-categories.js. The live
+       Shopify recommendation for any pinned ScrollTrigger. The live
        storefront still gets the full pinned right-column behaviour
        because Shopify.designMode is only ever true in the editor. */
     if (window.Shopify && window.Shopify.designMode) return null;
@@ -33,43 +51,22 @@
 
     mm.add('(min-width: 990px)', function () {
       var ctx = gsap.context(function () {
-        var leftCol = section.querySelector('.kt-ecosystem__text-col');
-        var rightCol = section.querySelector('.kt-ecosystem__image-col');
-        var image = section.querySelector('.kt-ecosystem__image');
+        var image = sectionEl.querySelector('.kt-ecosystem__image');
 
-        if (!leftCol || !rightCol) return;
-
-        var leftHeight = leftCol.offsetHeight;
-        var windowHeight = window.innerHeight;
-
-        /* Pin the entire right column.
-         *
-         * anticipatePin: 1 pre-warms the pin a frame before the
-         * scrollbar reaches the start line so the transform takes
-         * effect on the frame the user actually sees it enter the
-         * pinned state. Without it, high-DPI Retina scrolling pushes
-         * past the start line before the first RAF commits the pin
-         * transform, and the image column visibly hops by a few
-         * pixels at pin engagement.
-         *
-         * invalidateOnRefresh re-reads leftHeight on resize / theme-
-         * editor section reload; left-column text length can change
-         * via CMS edits, which changes the `end` distance.
-         *
-         * pinType "transform" is default on touch but we force it on
-         * desktop too — fixed pinning on desktop was causing subpixel
-         * rounding jitter when the page had zoom != 100%.
-         */
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top top',
-          end: '+=' + (leftHeight - windowHeight + 100),
-          pin: rightCol,
-          pinSpacing: false,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          pinType: 'transform'
-        });
+        /* R232.70 — GSAP `pin:` REMOVED. Pinning is now done by
+           native CSS `position: sticky` on `.kt-ecosystem__image-col`
+           (see kt-section-ecosystem.css). The previous GSAP pin
+           with `pinSpacing: false` + `pinType: 'transform'` could
+           not reconcile two stacked ecosystem sections on the same
+           page — the first section's transform would hold the image
+           col briefly then release with a visible "snap" to its
+           natural flow position (bottom of the section), then the
+           second section's pin would re-engage with another jump.
+           CSS sticky has no per-instance bookkeeping; each section
+           sticks within its own bounds and the browser handles the
+           rest. The parallax-scale + feature-item fade animations
+           below stay on GSAP because they're scrub-driven scroll
+           effects, not layout pins, and they multi-instance fine. */
 
         /* Parallax image scale */
         if (image) {
@@ -77,7 +74,7 @@
             scale: 1.1,
             ease: 'none',
             scrollTrigger: {
-              trigger: section,
+              trigger: sectionEl,
               start: 'top bottom',
               end: 'bottom top',
               scrub: true
@@ -85,8 +82,9 @@
           });
         }
 
-        /* Fade out text items */
-        var items = gsap.utils.toArray('.eco-item', section);
+        /* Fade out text items — scoped to this section's .eco-item
+           descendants only. */
+        var items = gsap.utils.toArray('.eco-item', sectionEl);
         items.forEach(function (item) {
           gsap.to(item, {
             opacity: 0,
@@ -100,7 +98,7 @@
           });
         });
 
-      }, section);
+      }, sectionEl);
 
       return function () { ctx.revert(); };
     });
@@ -109,22 +107,39 @@
   }
 
   var instances = {};
-  document.querySelectorAll('[data-section-type="ecosystem"]').forEach(function (el) {
-    instances[el.dataset.sectionId] = initEcosystem(el.closest('.shopify-section') || el);
-  });
+
+  function initAll(root) {
+    (root || document).querySelectorAll('[data-section-type="ecosystem"]').forEach(function (el) {
+      var sid = el.dataset.sectionId;
+      if (!sid) return;
+      if (instances[sid] && typeof instances[sid].revert === 'function') {
+        instances[sid].revert();
+      }
+      instances[sid] = initEcosystem(el);
+    });
+    /* Trigger a layout pass once all instances have wired up so the
+       second (and any subsequent) section's ScrollTrigger picks up
+       its actual scroll start position rather than the position it
+       had during initial paint — when several sibling sections share
+       the page, layout doesn't stabilise until every section has
+       attached its pin. */
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
+    }
+  }
+
+  initAll();
 
   document.addEventListener('shopify:section:load', function (e) {
-    var s = e.target.querySelector('[data-section-type="ecosystem"]');
-    if (s) {
-      if (instances[s.dataset.sectionId]) instances[s.dataset.sectionId].revert();
-      instances[s.dataset.sectionId] = initEcosystem(e.target);
-    }
+    initAll(e.target);
   });
 
   document.addEventListener('shopify:section:unload', function (e) {
-    if (instances[e.detail.sectionId]) {
-      instances[e.detail.sectionId].revert();
-      delete instances[e.detail.sectionId];
+    var sid = e.detail && e.detail.sectionId;
+    if (sid && instances[sid]) {
+      if (typeof instances[sid].revert === 'function') instances[sid].revert();
+      delete instances[sid];
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
     }
   });
 })();

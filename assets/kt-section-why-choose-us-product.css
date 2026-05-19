@@ -92,7 +92,13 @@
      `--kt-c-bg-contrast` so we get a real opaque card surface that
      auto-adapts (lighter than dark schemes, slightly darker than
      light schemes). Fallback stays close to the original white. */
-  background-color: rgb(var(--kt-c-bg-contrast, 255 255 255));
+  /* R232.72 — `--kt-c-bg-contrast` Shopify 25%-darken calc was too
+     aggressive on light schemes (cream card → medium grey).
+     Stable scheme-aware pattern: section's scheme bg + 6% fg
+     overlay = subtle tier-shift card surface that reads against
+     the section bg on any scheme without going heavy. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.06), rgba(var(--kt-c-fg, 28 25 23), 0.06));
   border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.5s ease;

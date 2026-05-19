@@ -155,14 +155,13 @@
      instead of an empty void. The .placeholder-svg class is gone
      the moment a real image is uploaded, so this rule
      auto-disables in production.
-     R201 — border was removed: with height:130% + top:-15% the
-     element overflows the wrap by 15% top/bottom, and the wrap's
-     `overflow:hidden` clipped the border's top/bottom edges,
-     leaving only left/right rules visible. Solid bg colour alone
-     keeps WCAG-tier contrast against stone-950 and reads as a
-     real placeholder surface. */
-  background-color: var(--kt-stone-100, #f5f5f4);
-  color: var(--kt-stone-400, #a8a29e);
+     R232.68 — Solid stone-100 bg REMOVED. The grey panel was
+     overlaying Shopify's `lifestyle-1` placeholder illustration,
+     so the user only saw the flat grey rectangle, never the actual
+     Shopify graphic. Let the placeholder's own SVG art render
+     against the section bg (defaults scheme-4 dark editorial).
+     `color` keeps controlling the SVG fill via currentColor. */
+  color: rgb(var(--kt-c-fg, 168 162 158));
   opacity: 1;
 }
 

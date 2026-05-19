@@ -46,8 +46,18 @@
   aspect-ratio: 4 / 3;
   flex-shrink: 0;
   overflow: hidden;
-  /* R232.50 — scheme-aware fallback behind the photo. */
-  background-color: rgba(var(--kt-c-fg, 28 25 23), 0.9);
+  /* R232.71 — Image-pane bg REMOVED. R232.50 had wired this to
+     `rgba(var(--kt-c-fg), 0.9)` intending a dark fallback behind
+     the photo. But on every scheme except scheme-1/2/3 (where
+     --kt-c-fg is dark and 0.9 reads as the intended near-black),
+     this paints a near-solid LIGHT rectangle covering the
+     placeholder/image (user feedback: "yine shopify placeholder
+     img sorunu var, üzerinde renk var. çöz!"). The placeholder
+     rule below already gives the placeholder its own subtle bg
+     when no image is uploaded; the slide images themselves carry
+     their own visual once loaded. Transparent pane lets the
+     section's scheme surface fill the gap during loading. */
+  background-color: transparent;
 }
 
 @media screen and (min-width: 990px) {
@@ -78,25 +88,15 @@
   object-fit: cover;
 }
 
-/* Placeholder SVG visibility on the dark image-pane backdrop.
-
-   Global `.placeholder-svg` defaults to fill rgba(fg, 0.08) and
-   background rgba(fg, 0.04) — designed for the WHITE page
-   background where `--kt-c-fg` is near-black, so a very-low-alpha
-   black ink renders as a visible silver line. But this section's
-   image-pane has `background-color: var(--kt-stone-900)` (near-
-   black). A 0.08-alpha BLACK fill on a near-black backdrop is
-   invisible — merchants without any uploaded slides see an empty
-   black rectangle and report "placeholder isn't showing".
-
-   Override fill + bg to light tones scoped to this section only,
-   so the placeholder reads as a subtle grey illustration over
-   the dark pane until the merchant uploads real photography. */
-.kt-slider-editorial__image-slide .placeholder-svg,
-.kt-slider-editorial__image.placeholder-svg {
-  fill: rgba(255, 255, 255, 0.14);
-  background-color: rgba(255, 255, 255, 0.04);
-}
+/* R232.71 — Placeholder override REMOVED.
+   Previously this section painted a near-solid 90% fg image-pane
+   bg, which hid the Shopify default placeholder SVG entirely.
+   The R-comment block above (now removed) tried to compensate by
+   forcing a light fill on the placeholder so it would read against
+   the dark pane. With the image-pane bg now transparent (R232.71),
+   the global `.placeholder-svg` rule from `base.css` already paints
+   a scheme-aware subtle grey illustration that reads correctly on
+   any active scheme — no section-specific override needed. */
 
 .kt-slider-editorial__image-overlay {
   position: absolute;

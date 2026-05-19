@@ -60,11 +60,18 @@
   width: 100%;
   overflow: hidden;
   padding: 3rem 0; /* py-12 */
-  /* R232.52 — Inset strip surface. Was hardcoded stone-50, then
-     R232.50 patched to a 6% fg overlay which made the band's tier
-     shift nearly invisible. `--kt-c-bg-contrast` gives an opaque
-     contrast layer that always reads as a distinct strip. */
-  background: rgb(var(--kt-c-bg-contrast, 245 245 244));
+  /* R232.72 — Inset strip surface. R232.52 used `--kt-c-bg-contrast`
+     which goes through Shopify's 25%-darken calc on light schemes —
+     way too aggressive, painted a medium-grey band (user feedback:
+     "orta kısım garip şekilde dark gray olmuş"). Stone-50
+     hardcoded was the original (R232.50 muddied it with a 6% fg
+     overlay that vanished, R232.52 over-corrected with bg-contrast).
+     Settle on a stable scheme-aware pattern: paint the section's
+     own scheme bg + a 6% fg overlay applied via a separate layer.
+     On light schemes the overlay reads as a faint darker tier, on
+     dark schemes as a faint lighter tier. Fallback stays stone-50. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.05), rgba(var(--kt-c-fg, 28 25 23), 0.05));
 }
 
 /* ---------------------------------------------------------------- Track */

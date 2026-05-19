@@ -86,10 +86,19 @@
         <div class="kt-ecosystem__image-wrap">
           {%- if section.settings.image != blank -%}
             {{ section.settings.image | image_url: width: 1200 | image_tag: class: 'kt-ecosystem__image', loading: 'lazy', widths: '375, 550, 750, 1100', sizes: '(min-width: 750px) 50vw, 100vw', width: section.settings.image.width, height: section.settings.image.height, alt: section.settings.heading | default: '' }}
+            {%- comment -%}
+              R232.67 — Image overlay (dark fade at bottom) only renders
+              over a REAL merchant image. When the section falls back to
+              the Shopify `collection-3` placeholder_svg, the dark
+              gradient was covering 60% of the placeholder illustration
+              from the bottom up, leaving a near-flat grey rectangle
+              instead of the recognisable Shopify lifestyle graphic
+              (user feedback: "aynı placeholder sorunu").
+            {%- endcomment -%}
+            <div class="kt-ecosystem__image-overlay" aria-hidden="true"></div>
           {%- else -%}
             {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg kt-ecosystem__image' }}
           {%- endif -%}
-          <div class="kt-ecosystem__image-overlay" aria-hidden="true"></div>
         </div>
       </div>
     </div>
