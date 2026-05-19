@@ -3,7 +3,7 @@
 {%- assign home_financing_heading_line1_default = 'kt.section.home_financing.heading_line1_default' | t -%}
 {%- assign home_financing_heading_line2_default = 'kt.section.home_financing.heading_line2_default' | t -%}
 
-<section class="kt-home-financing" data-section-id="{{ section.id }}">
+<section class="kt-home-financing color-{{ section.settings.color_scheme | default: 'scheme-4' }}" data-section-id="{{ section.id }}">
   {%- comment -%} Background image (right half only) {%- endcomment -%}
   <div class="kt-home-financing__bg">
     {%- if section.settings.background_image != blank -%}
@@ -164,6 +164,16 @@
       "type": "image_picker",
       "id": "background_image",
       "label": "t:sections.home-financing.settings.background_image.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-4"
     }
   ],
   "blocks": [

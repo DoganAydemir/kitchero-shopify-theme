@@ -22,7 +22,7 @@
 -%}
 
 <section
-  class="kt-video-split kt-video-split--video-{{ video_position }}"
+  class="kt-video-split color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-video-split--video-{{ video_position }}"
   data-section-id="{{ section.id }}"
   data-section-type="video-split-modal"
 >
@@ -241,6 +241,16 @@
         "youtube",
         "vimeo"
       ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "presets": [

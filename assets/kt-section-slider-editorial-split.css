@@ -7,8 +7,14 @@
 
 .kt-slider-editorial {
   position: relative;
-  background-color: var(--kt-stone-950);
-  color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
+     dark editorial default preserved via the fallback. */
+  /* R232.50 — inner text/borders now opacity-graded against --kt-c-fg
+     so they track the active scheme. Image-pane overlay gradients
+     and white-on-photo CTA stay hardcoded (those sit on the photo
+     side). */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 255 255 255));
   overflow: hidden;
   /* Fallback interval if nobody set the custom prop */
   --kt-editorial-interval: 6s;
@@ -40,7 +46,8 @@
   aspect-ratio: 4 / 3;
   flex-shrink: 0;
   overflow: hidden;
-  background-color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware fallback behind the photo. */
+  background-color: rgba(var(--kt-c-fg, 28 25 23), 0.9);
 }
 
 @media screen and (min-width: 990px) {
@@ -144,7 +151,8 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 5rem;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.18);
+  /* R232.50 — scheme-aware (was 0.18 white). */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.18);
   margin-bottom: 1.5rem;
   font-weight: 300;
 }
@@ -161,7 +169,8 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--kt-stone-400);
+  /* R232.50 — scheme-aware muted (was stone-400). */
+  color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
   margin-bottom: 1rem;
 }
 
@@ -173,7 +182,8 @@
      clipped by the reveal-mask overflow on adjacent lines. */
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware heading on copy-pane surface. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   margin: 0 0 1.25rem 0;
   padding-bottom: 0.08em;
 }
@@ -195,7 +205,8 @@
 .kt-slider-editorial__description {
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.72);
+  /* R232.50 — scheme-aware muted (was 0.72 white). */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.72);
   margin: 0 0 2rem 0;
 }
 
@@ -222,19 +233,21 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.875rem 1.5rem;
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
+  /* R232.50 — action-themed CTA (was white-on-dark). */
+  background-color: rgb(var(--kt-c-action, 255 255 255));
+  color: rgb(var(--kt-c-action-text, 28 25 23));
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
   border-radius: 9999px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .kt-slider-editorial__cta:hover {
-  background-color: var(--kt-stone-50);
+  /* R232.50 — scheme-aware hover via opacity. */
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
@@ -282,18 +295,21 @@
      1.4.3 AA at sub-18.5 px nav-button text size. Hover and
      active state still distinct from the resting state because
      hover bumps to 0.75 and active uses full white + weight 700. */
-  color: rgba(255, 255, 255, 0.65);
+  /* R232.50 — scheme-aware muted on copy-pane surface. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   cursor: pointer;
   transition: color 0.2s ease;
   letter-spacing: 0.05em;
 }
 
 .kt-slider-editorial__nav-btn:hover {
-  color: rgba(255, 255, 255, 0.85);
+  /* R232.50 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.85);
 }
 
 .kt-slider-editorial__nav-btn.is-active {
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware active. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   font-weight: 700;
 }
 
@@ -307,7 +323,8 @@
   /* R296 — 0.2 → 0.4. Separator is a single character ("/") that
      reads as decorative meta — still needs ≥3:1 as a non-text UI
      element per WCAG 1.4.11. 0.4 white on stone-900 ~3.4:1. */
-  color: rgba(255, 255, 255, 0.4);
+  /* R232.50 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
   font-size: 0.875rem;
 }
 
@@ -316,7 +333,8 @@
   font-size: 0.75rem;
   /* R296 — 0.35 → 0.65. Total count ("of N") is visible body
      text, ≥4.5:1 required. 0.65 white ~5.5:1. */
-  color: rgba(255, 255, 255, 0.65);
+  /* R232.50 — scheme-aware muted. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   letter-spacing: 0.1em;
 }
 
@@ -324,7 +342,8 @@
   width: 100%;
   max-width: 12rem;
   height: 2px;
-  background-color: rgba(255, 255, 255, 0.1);
+  /* R232.50 — scheme-aware track. */
+  background-color: rgba(var(--kt-c-fg, 255 255 255), 0.1);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -333,7 +352,8 @@
   display: block;
   width: 100%;
   height: 100%;
-  background-color: var(--kt-white);
+  /* R232.50 — scheme-aware fill. */
+  background-color: rgb(var(--kt-c-fg, 255 255 255));
   transform-origin: left center;
   transform: scaleX(0);
   animation: kt-editorial-progress var(--kt-editorial-interval, 6s) linear forwards;
@@ -362,7 +382,8 @@
   margin-left: 0.75rem;
   border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  /* R232.50 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.6);
   cursor: pointer;
   padding: 0;
   transition: color 0.3s ease;
@@ -370,7 +391,8 @@
 }
 
 .kt-slider-editorial__play-toggle:hover {
-  color: var(--kt-white, #fff);
+  /* R232.50 — scheme-aware. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-slider-editorial__play-toggle .kt-slider-editorial__icon--play {

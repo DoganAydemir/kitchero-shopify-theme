@@ -4,7 +4,9 @@
    ========================================================================== */
 
 .kt-collapsible-minimal {
-  background-color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding-block: 6rem; /* py-24 */
 }
 
@@ -32,6 +34,7 @@
   text-align: center;
 }
 
+/* R232.50 — scheme-aware inner colors throughout. */
 .kt-collapsible-minimal__eyebrow {
   display: block;
   margin-bottom: 1rem;
@@ -39,7 +42,7 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-collapsible-minimal__title {
@@ -54,7 +57,7 @@
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  color: var(--kt-stone-900); /* stone-900 */
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 @media (min-width: 768px) {
@@ -88,7 +91,7 @@
 .kt-collapsible-minimal__item {
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--kt-stone-200);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   border-radius: 0;
   padding: 1.5rem 0;
   box-shadow: none;
@@ -103,7 +106,7 @@
 
 /* When open: no card frame, just keep the bottom rule consistent. */
 .kt-collapsible-minimal__item[open] {
-  border-color: var(--kt-stone-200);
+  border-color: rgba(var(--kt-c-fg, 231 229 228), 0.15);
   box-shadow: none;
 }
 
@@ -128,7 +131,7 @@
 }
 
 .kt-collapsible-minimal__summary:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 6px;
   border-radius: 0.125rem;
 }
@@ -145,7 +148,7 @@
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: -0.005em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   transition: color 300ms ease;
 }
 
@@ -156,7 +159,7 @@
 }
 
 .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__item-title {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 /* ---------- Plus / minus icon (CSS-only, rotates 45deg when open) ----------
@@ -182,7 +185,7 @@
      hairline reads clearly on white without becoming a hard ui
      button — closed rows still feel "quiet" but the "+" is no
      longer almost-invisible. */
-  background-color: var(--kt-stone-400);
+  background-color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
   transition: background-color 300ms ease;
 }
 
@@ -206,19 +209,19 @@
    contrast step than hover (stone-400 → stone-600). */
 .kt-collapsible-minimal__item[open] .kt-collapsible-minimal__icon-h,
 .kt-collapsible-minimal__item[open] .kt-collapsible-minimal__icon-v {
-  background-color: var(--kt-stone-700);
+  background-color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
 }
 
 .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-h,
 .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-v {
-  background-color: var(--kt-stone-600);
+  background-color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 
 /* When the row is already open, hover doesn't need to add more
    colour shift — keep the strong open-state tone. */
 .kt-collapsible-minimal__item[open] .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-h,
 .kt-collapsible-minimal__item[open] .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__icon-v {
-  background-color: var(--kt-stone-700);
+  background-color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
 }
 
 /* ---------- Content panel ---------- */
@@ -249,7 +252,7 @@
      measures ~8:1, comfortably above AA. Hierarchy is preserved
      because section titles use stone-900 (the lightest grey-step
      before pure body text). */
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   font-weight: 400;
 }
 
@@ -268,7 +271,7 @@
 .kt-collapsible-minimal__content blockquote {
   /* R-wcag-contrast — see note above; stone-400 → stone-600 to hit
      WCAG 1.4.3 AA on body copy. */
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 
 @media (min-width: 750px) {

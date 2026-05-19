@@ -3,9 +3,14 @@
    BEM prefix: .kt-testimonials-marquee
    ========================================================================= */
 
+/* R232.50 — scheme-aware inner colors. Heading border, eyebrow,
+   stars, quote, author meta and strip backdrop now route through
+   opacity-graded --kt-c-fg so the marquee tracks the active scheme. */
 .kt-testimonials-marquee {
   --kt-marquee-duration: 25s;
-  background: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back unchanged. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0;
   overflow: hidden;
   position: relative;
@@ -20,7 +25,8 @@
 }
 
 .kt-testimonials-marquee__heading-block {
-  border-left: 2px solid var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware accent rule (was stone-900). */
+  border-left: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 1.5rem;
 }
 
@@ -30,7 +36,8 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white bg */
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 0.5rem;
 }
 
@@ -40,7 +47,8 @@
 
   line-height: 1.15;
   letter-spacing: -0.02em;
-  color: var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware (was stone-900). */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
   font-weight: 400;
 }
@@ -52,7 +60,11 @@
   width: 100%;
   overflow: hidden;
   padding: 3rem 0; /* py-12 */
-  background: var(--kt-stone-50); /* stone-50 */
+  /* R232.52 — Inset strip surface. Was hardcoded stone-50, then
+     R232.50 patched to a 6% fg overlay which made the band's tier
+     shift nearly invisible. `--kt-c-bg-contrast` gives an opaque
+     contrast layer that always reads as a distinct strip. */
+  background: rgb(var(--kt-c-bg-contrast, 245 245 244));
 }
 
 /* ---------------------------------------------------------------- Track */
@@ -116,7 +128,8 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  color: var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware accent (was stone-900). */
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-testimonials-marquee__star {
@@ -136,7 +149,8 @@
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-size: 1.125rem; /* text-lg mobile */
   line-height: 1.4;
-  color: var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware (was stone-900). */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   opacity: 0.8;
   font-style: italic;
   white-space: normal;
@@ -171,7 +185,8 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware (was stone-900). */
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-testimonials-marquee__author-meta {
@@ -179,7 +194,8 @@
   font-size: 0.625rem; /* text-[10px] */
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white bg */
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-top: 0.25rem;
 }
 

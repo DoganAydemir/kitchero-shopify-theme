@@ -4,9 +4,16 @@
    Click anywhere on the play button to open the shared modal.
    ============================================================ */
 
+/* R232.50 — scheme-aware inner colors. Eyebrow, heading, description
+   on the section surface now opacity-grade against --kt-c-fg. The
+   poster frame is photo + dark overlay (untouched); the play button
+   uses scheme-aware bg/fg so it pops on both light and dark schemes. */
+
 .kt-video-poster {
-  background-color: var(--kt-stone-950);
-  color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
+     dark default preserved via fallback. */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 255 255 255));
   padding-top: var(--kt-video-poster-padding, 80px);
   padding-bottom: var(--kt-video-poster-padding, 80px);
 }
@@ -26,7 +33,8 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 2rem;
 }
 
@@ -38,7 +46,8 @@
   aspect-ratio: 16 / 9;
   border-radius: 1.25rem;
   overflow: hidden;
-  background-color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware fallback behind the poster image. */
+  background-color: rgba(var(--kt-c-fg, 28 25 23), 0.9);
   box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
 }
 
@@ -79,13 +88,16 @@
   width: 5rem;
   height: 5rem;
   border-radius: 9999px;
+  /* R232.50 — play btn sits on top of photo overlay, keep white/dark
+     hardcoded for max contrast across all schemes. Hover uses opacity
+     so brand color shifts cleanly. */
   background-color: var(--kt-white);
   color: var(--kt-stone-950);
   border: none;
   cursor: pointer;
   z-index: 3;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.55);
-  transition: transform 0.25s ease, background-color 0.2s ease;
+  transition: transform 0.25s ease, background-color 0.2s ease, opacity 0.2s ease;
 }
 
 @media screen and (min-width: 750px) {
@@ -97,7 +109,9 @@
 
 .kt-video-poster__play:hover {
   transform: translate(-50%, -50%) scale(1.08);
-  background-color: var(--kt-stone-50);
+  /* R232.50 — opacity-based hover so the white pill brightens
+     consistently across schemes (no stone-50 lift on dark schemes). */
+  opacity: 0.88;
 }
 
 .kt-video-poster__play:focus-visible {
@@ -125,7 +139,8 @@
 
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware (was white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   margin: 2.5rem 0 0.75rem 0;
 }
 
@@ -139,7 +154,8 @@
 .kt-video-poster__description {
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.7);
+  /* R232.50 — scheme-aware muted body. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.7);
   max-width: 34rem;
   margin: 0;
 }

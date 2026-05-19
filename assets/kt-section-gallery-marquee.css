@@ -9,7 +9,9 @@
   --kt-marquee-duration: 40s;
   --kt-gallery-item-gap: 1rem;
   --kt-gallery-item-radius: 0.75rem; /* rounded-xl */
-  background: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0; /* py-24 */
   overflow: hidden;
   position: relative;
@@ -22,8 +24,9 @@
   padding: 0 1.5rem;
 }
 
+/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-gallery-marquee__heading-block {
-  border-left: 2px solid var(--kt-stone-900); /* stone-900 */
+  border-left: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 1.5rem;
   max-width: 40rem;
 }
@@ -34,7 +37,7 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 1rem;
 }
 
@@ -46,7 +49,7 @@
   letter-spacing: -0.015em;
   font-style: italic;
   font-weight: 400;
-  color: var(--kt-stone-900); /* stone-900 */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
 }
 
@@ -118,7 +121,7 @@
   height: 20rem; /* h-80 */
   border-radius: var(--kt-gallery-item-radius);
   overflow: hidden;
-  background: var(--kt-stone-100); /* stone-100 */
+  background: rgba(var(--kt-c-fg, 245 245 244), 0.06);
   text-decoration: none;
   color: inherit;
   display: block;
@@ -140,7 +143,7 @@
    animate through the row. Inset outline keeps the ring visible
    on every frame. WCAG 2.4.7. */
 .kt-gallery-marquee__item:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: -2px;
 }
 

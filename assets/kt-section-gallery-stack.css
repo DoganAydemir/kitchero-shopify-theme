@@ -10,17 +10,19 @@
  * .is-next / .is-hidden) set by section-gallery-stack.js.
  */
 
+/* R232.50 — local stack tokens now derive from scheme --kt-c-fg via opacity grades */
 .kt-gallery-stack {
-  --kt-stack-bg: var(--kt-stone-50);
-  --kt-stack-fg: var(--kt-stone-900);
-  --kt-stack-muted: var(--kt-stone-500);
-  --kt-stack-soft: var(--kt-stone-500); /* bumped from stone-400 — AA contrast on stone-50 bg */
-  --kt-stack-rule: var(--kt-stone-200);
-  --kt-stack-card-bg: var(--kt-stone-200);
+  --kt-stack-bg: rgb(var(--kt-c-bg, 250 250 249));
+  --kt-stack-fg: rgb(var(--kt-c-fg, 28 25 23));
+  --kt-stack-muted: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  --kt-stack-soft: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  --kt-stack-rule: rgba(var(--kt-c-fg, 231 229 228), 0.15);
+  --kt-stack-card-bg: rgba(var(--kt-c-fg, 231 229 228), 0.12);
   --kt-stack-transition: 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 
-  background: var(--kt-stack-bg);
-  color: var(--kt-stack-fg);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50/stone-900; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 1.5rem;
 }
 
@@ -460,9 +462,9 @@
 }
 
 .kt-gallery-stack__arrow:hover {
-  background: var(--kt-stack-fg);
-  color: var(--kt-white);
-  border-color: var(--kt-stack-fg);
+  background: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
+  border-color: rgb(var(--kt-c-action, 28 25 23));
 }
 
 .kt-gallery-stack__arrow:focus {

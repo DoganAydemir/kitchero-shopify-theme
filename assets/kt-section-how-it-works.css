@@ -2,8 +2,13 @@
 
 .kt-how-it-works {
   padding: 6rem 0;
-  background-color: var(--kt-stone-50);
-  border-top: 1px solid var(--kt-stone-200);
+  /* R232.47 — Scheme-aware bg + text. Was hardcoded `var(--kt-stone-50)`
+     so the merchant's color_scheme selection was ignored. Fall back
+     to stone-50 (250 250 249) so default rendering is unchanged. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  /* R232.50 — scheme-aware hairline border */
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
 @media screen and (min-width: 750px) {
@@ -19,13 +24,15 @@
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware heading */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1rem;
 }
 
 .kt-how-it-works__subtitle {
   font-size: 1.25rem;
-  color: var(--kt-stone-600);
+  /* R232.50 — scheme-aware muted body */
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   font-weight: 300;
   margin-bottom: 4rem;
 }
@@ -39,11 +46,23 @@
 .kt-how-it-works__card {
   display: flex;
   flex-direction: column;
-  background: var(--kt-white);
+  /* R232.52 — Sticky-stacking cards MUST be opaque so the card on top
+     fully occludes the one below it during scroll. The R232.50 pass
+     applied a `rgba(--kt-c-fg, 0.06)` "subtle inner panel" fill which
+     was too transparent — all stacked cards showed through each other
+     (user feedback: "transparent gibi garip olmuş, scheme ayarından
+     sonra bozuldu"). Switch to OPAQUE `--kt-c-bg` (same color as the
+     section surface) and rely on a stronger border + multi-axis
+     box-shadow to define each card boundary. The shadow + border
+     remain scheme-aware via `--kt-c-fg` alpha — visible on any
+     scheme. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
   border-radius: 2rem;
   overflow: hidden;
-  border: 1px solid var(--kt-stone-100);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.18);
+  box-shadow:
+    0 -10px 40px rgba(0, 0, 0, 0.05),
+    0 24px 60px -12px rgba(0, 0, 0, 0.14);
 }
 
 @media screen and (min-width: 750px) {
@@ -117,7 +136,8 @@
   /* R213 FLUID-TYPO: 3.75rem → 5rem stepped → clamp() fluid. */
   font-size: clamp(3.75rem, 3.5vw + 1.5rem, 5rem);
   opacity: 0.5;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1rem;
 }
 
@@ -126,13 +146,15 @@
   font-size: clamp(1.875rem, 2.5vw + 0.5rem, 3rem);
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware heading */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1rem;
 }
 
 .kt-how-it-works__card-desc {
   font-size: 1.125rem;
-  color: var(--kt-stone-600);
+  /* R232.50 — scheme-aware muted body */
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   font-weight: 300;
   line-height: 1.6;
 }

@@ -2,14 +2,26 @@
    Birebir from showroom/[id]/page.tsx immersive CTA section.
    py-32 md:py-48, bg-stone-900, overflow-hidden */
 
+/* R232.50 — scheme-aware inner colors. Heading, italic accent, desc
+   and form copy now opacity-grade against --kt-c-fg. Submit CTA uses
+   --kt-c-action / --kt-c-action-text. Background photo + overlay
+   gradients are intentional dark and stay hardcoded; the amber
+   accent stays as the brand decoration color. The form card glass
+   surface stays white@10 — it's the chrome that sits over the
+   photo, not the section surface. */
+
 .kt-visualize-studio {
   position: relative;
   width: 100%;
   padding: 8rem 0;
   overflow: hidden;
-  background-color: var(--kt-stone-900);
-  border-top: 1px solid var(--kt-stone-800);
-  color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-900 / white;
+     dark immersive default preserved via fallback. Bg-image overlay
+     layer (.kt-visualize-studio__bg) sits above this. */
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  color: rgb(var(--kt-c-fg, 255 255 255));
+  /* R232.50 — scheme-aware top rule (was stone-800). */
+  border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.15);
 }
 
 @media screen and (min-width: 750px) {
@@ -281,8 +293,9 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding: 0.85rem 1.75rem;
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
+  /* R232.50 — action-themed CTA (was white-on-dark). */
+  background-color: rgb(var(--kt-c-action, 255 255 255));
+  color: rgb(var(--kt-c-action-text, 28 25 23));
   font-family: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -312,7 +325,9 @@
   /* Final values — the rule was duplicated with earlier stone-100
      / scale(0.98) variants that got overridden silently. Merging
      into a single declaration eliminates the specificity shadow. */
-  background-color: var(--kt-stone-200);
+  /* R232.50 — opacity hover so the action color shifts cleanly
+     regardless of merchant brand. */
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 

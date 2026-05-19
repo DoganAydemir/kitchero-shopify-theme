@@ -3,20 +3,23 @@
 /* section: py-24 bg-stone-50 overflow-hidden */
 .kt-shop-the-look {
   padding: 6rem 0;
-  background-color: var(--kt-stone-50);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
 }
 
+/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 /* Header: mb-16 border-l-2 border-stone-900 pl-6 */
 .kt-shop-the-look__header {
   margin-bottom: 4rem;
-  border-left: 2px solid var(--kt-stone-900);
+  border-left: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 1.5rem;
 }
 
 [dir="rtl"] .kt-shop-the-look__header {
   border-left: none;
-  border-right: 2px solid var(--kt-stone-900);
+  border-right: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 0;
   padding-right: 1.5rem;
 }
@@ -26,7 +29,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   text-transform: uppercase;
   margin-bottom: 0.5rem;
   display: block;
@@ -38,7 +41,7 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (1.875rem));
 
   letter-spacing: -0.025em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   line-height: 1.1;
   margin: 0;
 }
@@ -76,7 +79,7 @@
   border-radius: 1.5rem;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  background-color: var(--kt-stone-100);
+  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
 }
 
 /* img: w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105 */

@@ -5,10 +5,14 @@
 
 .kt-trust-bar {
   padding: 6rem 0;
-  background-color: var(--kt-stone-100);
+  /* R232.47 — Scheme-aware. `var(--kt-stone-100)` was hardcoded so
+     the section ignored color_scheme. Falls back to stone-100
+     (245 245 244) when no scheme is active. */
+  background-color: rgb(var(--kt-c-bg, 245 245 244));
   overflow: hidden;
-  color: var(--kt-stone-900);
-  border-top: 1px solid var(--kt-stone-200);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  /* R232.50 — scheme-aware hairline border */
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
 /* Editor-only hint shown when all stats are empty (request.design_mode
@@ -19,7 +23,8 @@
   text-align: center;
   padding: 1rem;
   font-size: 0.875rem;
-  color: var(--kt-stone-600, #57534e);
+  /* R232.50 — scheme-aware muted text */
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 
 /* R288 — Was a fixed `grid-template-columns: repeat(4, 1fr)` on
@@ -106,7 +111,8 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background-color: var(--kt-stone-300);
+  /* R232.50 — scheme-aware divider */
+  background-color: rgba(var(--kt-c-fg, 211 211 211), 0.22);
   transform-origin: top;
 }
 
@@ -151,7 +157,8 @@
 
 .kt-trust-bar__prefix {
   font-size: 2.25rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware eyebrow */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-weight: 300;
   /* R287 — margin removed; the value-row above now uses `gap`
      which handles spacing in both LTR and RTL automatically.
@@ -193,7 +200,8 @@
      may interpret either way; we accept the slim risk for the
      requested visual treatment. Hover state lifts to stone-900
      for the interactive reward. */
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware label (resting muted state) */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-top: 1rem;
   transition: color 0.2s ease;
 }
@@ -202,5 +210,6 @@
   /* Hover reveals the label at full chroma — small interactive
      reward that lifts the muted resting state without making
      the resting state any heavier. */
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware hover */
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }

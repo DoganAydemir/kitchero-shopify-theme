@@ -11,11 +11,16 @@
      --kt-section-padding-top / -bottom
    ========================================================================== */
 
+/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-white);
+   falls back to 255 255 255 so default look unchanged. The title
+   uses background-clip:text with its own stone gradient, and the
+   CTA button has its own (black) bg — both stay as designed. */
 .kt-parallax-cta {
   position: relative;
   padding-top: var(--kt-section-padding-top, 128px);
   padding-bottom: var(--kt-section-padding-bottom, 128px);
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -90,19 +95,24 @@
   justify-content: center;
 }
 
+/* R232.50 — CTA button now action-themed (was black + white).
+   Arrow medallion routes through the inverse action pair so it
+   remains a visible chip regardless of merchant brand. The title's
+   background-clip:text stone gradient is a decorative
+   image-like effect, intentionally left alone. */
 /* CTA button — pill with circled arrow that rotates 45° on hover. */
 .kt-parallax-cta__btn {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background-color: var(--kt-black);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 12 10 9));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   border-radius: 9999px;
   text-decoration: none;
   font-size: 0.9375rem;
   letter-spacing: -0.025em;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
@@ -115,7 +125,9 @@
 }
 
 .kt-parallax-cta__btn:hover {
-  background-color: var(--kt-stone-800);
+  /* R232.50 — opacity hover replaces stone-800 lift; works on every
+     merchant action color. */
+  opacity: 0.88;
 }
 
 .kt-parallax-cta__btn-arrow {
@@ -124,8 +136,9 @@
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  background: var(--kt-white);
-  color: var(--kt-black);
+  /* R232.50 — inverse action chip so the arrow contrasts the btn. */
+  background: rgb(var(--kt-c-action-text, 255 255 255));
+  color: rgb(var(--kt-c-action, 12 10 9));
   border-radius: 50%;
   transition: transform 0.3s ease;
 }

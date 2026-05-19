@@ -12,8 +12,11 @@
 .kt-page-header-dotted {
   position: relative;
   overflow: hidden;
-  background-color: var(--kt-stone-50);
-  border-bottom: 1px solid var(--kt-stone-200);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back so the default look stays. */
+  /* R232.50 — scheme-aware inner borders/decorations via opacity-graded --kt-c-fg */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   /* Top padding accounts for the fixed header; bottom leaves comfortable
      breathing room before the page's first section. Mobile keeps a tight
      vertical rhythm because tall page headers waste screen real estate on
@@ -110,7 +113,7 @@
   position: absolute;
   font-size: 0.75rem;
   font-weight: 300;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   line-height: 1;
 }
 
@@ -195,7 +198,7 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on stone-50 bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 /* Title — serif display */
@@ -206,7 +209,7 @@
 
   line-height: 1.05;
   letter-spacing: -0.025em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
 }
 
@@ -231,7 +234,7 @@
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.65;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin: 0;
 }
 
@@ -273,8 +276,8 @@
 .kt-page-header-dotted__count {
   display: inline-block;
   padding: 0.5rem 1rem;
-  border: 1px solid var(--kt-stone-300);
-  color: var(--kt-stone-500);
+  border: 1px solid rgba(var(--kt-c-fg, 211 211 211), 0.22);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;

@@ -2,8 +2,14 @@
 
 .kt-before-after {
   padding: 6rem 0;
-  background-color: var(--kt-stone-900);
-  border-top: 1px solid var(--kt-stone-800);
+  /* R232.47 — Scheme-aware bg + text. Was hardcoded `var(--kt-stone-900)`
+     (dark surface) so the merchant's color_scheme choice was
+     ignored. Default fallback (stone-900 = 28 25 23) keeps the
+     original dark editorial treatment when no scheme is active. */
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  color: rgb(var(--kt-c-fg, 250 250 249));
+  /* R232.50 — scheme-aware hairline border */
+  border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.18);
 }
 
 .kt-before-after__header {
@@ -23,16 +29,17 @@
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware heading (default scheme is dark → white) */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   margin-bottom: 0.5rem;
 }
 
 .kt-before-after__subtitle {
   font-size: 1.25rem;
-  /* stone-500 on stone-900 backdrop failed WCAG AA at 3.64:1
-     (needs 4.5:1). stone-400 (#a8a29e) hits ~7:1 on #1c1917 —
-     clearly muted vs. the white heading, contrast-safe. */
-  color: var(--kt-stone-400);
+  /* R232.50 — scheme-aware muted body (was stone-400 for WCAG AA
+     on the dark surface — opacity-graded fg keeps the same read
+     on any scheme bg). */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.6);
   font-weight: 300;
 }
 

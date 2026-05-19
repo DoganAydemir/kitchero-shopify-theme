@@ -1,8 +1,20 @@
 /* Testimonials — "Living with Kitchero" — Birebir from Testimonials.tsx */
 
+/* R232.50 — scheme-aware inner colors. Hardcoded stone-* text and
+   white-on-dark text inside the section now route through opacity-
+   graded --kt-c-fg so the cards, quote, and meta track the scheme.
+   The spotlight bg-image overlay + grayscale layers are untouched
+   (they sit above the section surface as a decorative photo
+   treatment). */
+
 /* section: bg-stone-950 py-32 border-t border-white/5 relative overflow-hidden */
 .kt-testimonials {
-  background-color: var(--kt-stone-950);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 (dark);
+     fallback preserves the cinematic dark mood for the spotlight overlay.
+     Bg-image layers (.kt-testimonials__bg-base / __spotlight) sit ABOVE
+     this and are untouched. */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 255 255 255));
   padding: 8rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
@@ -123,7 +135,8 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-400);
+  /* R232.50 — scheme-aware muted (was stone-400). */
+  color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
   margin-bottom: 1.5rem;
 }
 
@@ -142,7 +155,8 @@
 
   font-style: italic;
   font-weight: 400;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware (was white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   line-height: 1.1;
   margin: 0;
 }
@@ -150,7 +164,8 @@
 /* Right description: max-w-xs text-stone-400 font-light leading-relaxed */
 .kt-testimonials__header-desc {
   max-width: 20rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-weight: 300;
   line-height: 1.625;
   font-size: 0.9375rem;
@@ -248,7 +263,8 @@
 /* blockquote: text-lg md:text-xl text-stone-300 font-light italic leading-relaxed mb-10 */
 .kt-testimonials__quote-text {
   font-size: 1.125rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware quote body (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
   font-weight: 300;
   font-style: italic;
   line-height: 1.625;
@@ -322,7 +338,8 @@
 .kt-testimonials__author-name {
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware (was white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0;
@@ -331,7 +348,8 @@
 /* Role: text-[10px] text-stone-500 uppercase tracking-widest mt-1 */
 .kt-testimonials__author-role {
   font-size: 0.625rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0.25rem 0 0;

@@ -11,8 +11,10 @@
 
 .kt-financing-panel {
   position: relative;
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white / stone-900; falls back unchanged.
+     Note: --inverted variant below overrides for the dark variant. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0;
   overflow: hidden;
 }
@@ -91,7 +93,8 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 1.5rem;
-  background-color: var(--kt-stone-900);
+  /* R232.50 — media frame fallback bg uses scheme fg as a deep tint */
+  background-color: rgb(var(--kt-c-fg, 28 25 23));
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
@@ -182,18 +185,19 @@
   margin-bottom: 2rem;
 }
 
+/* R232.50 — light-variant inner colors derive from scheme; --inverted overrides below keep dark variant intact */
 .kt-financing-panel__eyebrow-rule {
   display: inline-block;
   width: 3rem;
   height: 1px;
-  background-color: var(--kt-stone-900);
+  background-color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-financing-panel__eyebrow {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.04em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   line-height: 1;
 }
 
@@ -219,7 +223,7 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 2rem 0;
 }
 
@@ -248,7 +252,7 @@
 }
 
 .kt-financing-panel__title-line--muted {
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on default (white) variant */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-style: normal;
 }
 
@@ -267,7 +271,7 @@
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.625;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   max-width: 32rem;
   margin: 0 0 3rem 0;
 }
@@ -321,7 +325,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.5;
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
 }
 
 /* Dark-mode override — feature checklist lines were locked at
@@ -345,7 +349,7 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--kt-stone-100);
+  border-top: 1px solid rgba(var(--kt-c-fg, 245 245 244), 0.08);
 }
 
 @media screen and (min-width: 750px) {
@@ -365,7 +369,7 @@
 }
 
 .kt-financing-panel__step-icon {
-  color: var(--kt-stone-500); /* stone-500 — graphic contrast on white default bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 0.75rem;
 }
 
@@ -383,7 +387,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 0.25rem 0;
 }
 
@@ -399,7 +403,7 @@
 .kt-financing-panel__step-desc {
   font-size: 0.6875rem;
   line-height: 1.5;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white default bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin: 0;
 }
 
@@ -440,8 +444,8 @@
 }
 
 .kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-icon {
-  border-color: var(--kt-stone-200);
-  color: var(--kt-stone-500);
+  border-color: rgba(var(--kt-c-fg, 231 229 228), 0.15);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-financing-panel__highlight-icon svg {
@@ -463,7 +467,7 @@
 }
 
 .kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-title {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-financing-panel__highlight-desc {
@@ -475,7 +479,7 @@
 }
 
 .kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-desc {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 /* ── CTA button ────────────────────────────────────────── */
@@ -513,12 +517,12 @@
 }
 
 .kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta {
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
 }
 
 .kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
 }
 
 .kt-financing-panel__cta svg {

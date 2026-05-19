@@ -8,7 +8,9 @@
      read like a missing-margin bug. 1.5rem (24px) is the standard
      page-gutter that matches `page-width` elsewhere in the theme. */
   padding: 10rem 1.5rem 8rem;
-  background-color: var(--kt-stone-50);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   text-align: center;
 }
 
@@ -23,12 +25,13 @@
   margin: 0 auto;
 }
 
+/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-newsletter-page__label {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 1.5rem;
   display: block;
 }
@@ -38,7 +41,7 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (2.25rem));
 
   letter-spacing: -0.025em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 1.5rem;
 }
 
@@ -47,7 +50,7 @@
 }
 
 .kt-newsletter-page__desc {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-size: 1.0625rem;
   line-height: 1.625;
   margin-bottom: 2.5rem;
@@ -93,12 +96,12 @@
      (single email field, no destructive action) so the
      downgraded resting-state contrast is acceptable in exchange
      for the visual polish merchants asked for. */
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(var(--kt-c-fg, 0 0 0), 0.18);
   border-radius: 0;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
-  color: var(--kt-stone-900);
-  background: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  background: rgb(var(--kt-c-bg, 255 255 255));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -112,32 +115,32 @@
    layout, so the form-row doesn't shift on focus. */
 .kt-newsletter-page__input:focus,
 .kt-newsletter-page__input:focus-visible {
-  border-color: var(--kt-stone-900);
+  border-color: rgb(var(--kt-c-fg, 28 25 23));
   outline: none;
-  box-shadow: 0 0 0 1px var(--kt-stone-900);
+  box-shadow: 0 0 0 1px rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-newsletter-page__btn {
   padding: 1rem 2rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
 }
 
 .kt-newsletter-page__btn:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
 }
 
 .kt-newsletter-page__note {
   font-size: 0.75rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 /* Success + error states for newsletter form */
@@ -181,7 +184,7 @@
   align-items: flex-start;
   gap: 0.625rem;
   font-size: 0.875rem;
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
   text-align: left;
 }
 
@@ -192,7 +195,7 @@
   margin-top: 0.1875rem;
   /* WCAG 1.4.11 — input border 3:1 against bg.
      Stone-500 (#78716c) on white ≈ 3.7:1, clears AA. */
-  accent-color: var(--kt-stone-900);
+  accent-color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-newsletter-page__consent-label {

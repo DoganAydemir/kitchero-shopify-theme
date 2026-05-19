@@ -5,15 +5,21 @@
    ========================================================================== */
 
 .kt-drag-carousel {
-  --kt-dc-bg: var(--kt-stone-50);
-  --kt-dc-border: var(--kt-stone-200);
-  --kt-dc-text: var(--kt-stone-900);
-  --kt-dc-muted: var(--kt-stone-500);
-  --kt-dc-arrow-bg: var(--kt-white);
-  --kt-dc-arrow-border: var(--kt-stone-300);
-  --kt-dc-arrow-fg: var(--kt-stone-900);
-  --kt-dc-arrow-hover-bg: var(--kt-stone-900);
-  --kt-dc-arrow-hover-fg: var(--kt-white);
+  /* R232.50 — scheme-aware inner colors. Section-surface tokens
+     (border, text, muted, arrow) re-route to opacity-graded
+     --kt-c-fg / --kt-c-bg so they track the active scheme.
+     Caption gradient + overlay stay dark (they sit on the photo
+     thumbnail). Arrow hover uses --kt-c-action for the primary
+     accent. */
+  --kt-dc-bg: rgb(var(--kt-c-bg, 250 250 249));
+  --kt-dc-border: rgba(var(--kt-c-fg, 231 229 228), 0.15);
+  --kt-dc-text: rgb(var(--kt-c-fg, 28 25 23));
+  --kt-dc-muted: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  --kt-dc-arrow-bg: rgb(var(--kt-c-bg, 255 255 255));
+  --kt-dc-arrow-border: rgba(var(--kt-c-fg, 211 211 211), 0.22);
+  --kt-dc-arrow-fg: rgb(var(--kt-c-fg, 28 25 23));
+  --kt-dc-arrow-hover-bg: rgb(var(--kt-c-action, 28 25 23));
+  --kt-dc-arrow-hover-fg: rgb(var(--kt-c-action-text, 255 255 255));
   --kt-dc-overlay: rgba(28, 25, 23, 0.4);
   --kt-dc-caption-bg-from: rgba(12, 10, 9, 1);
   --kt-dc-caption-bg-mid: rgba(12, 10, 9, 0.8);
@@ -24,11 +30,12 @@
 
   position: relative;
   padding: 5rem 0;
-  background-color: var(--kt-dc-bg);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50 / stone-900; falls back unchanged. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   border-top: 1px solid var(--kt-dc-border);
   border-bottom: 1px solid var(--kt-dc-border);
   overflow: hidden;
-  color: var(--kt-dc-text);
 }
 
 @media (min-width: 750px) {
@@ -227,7 +234,9 @@
   width: 72vw;
   max-width: 360px;
   aspect-ratio: var(--kt-dc-item-aspect);
-  background-color: var(--kt-white);
+  /* R232.50 — scheme-aware item surface (image fills via .__media,
+     so this base only shows during image load). */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 20px 40px -16px rgba(12, 10, 9, 0.25);
@@ -270,7 +279,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--kt-stone-100);
+  /* R232.50 — scheme-aware placeholder backdrop. */
+  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
 }
 
 .kt-drag-carousel__image {
@@ -306,14 +316,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--kt-stone-100);
+  /* R232.50 — scheme-aware placeholder panel. */
+  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
 }
 
 .kt-drag-carousel__placeholder-svg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  fill: var(--kt-stone-300);
+  /* R232.50 — scheme-aware placeholder fill. */
+  fill: rgba(var(--kt-c-fg, 211 211 211), 0.22);
 }
 
 /* ---------- Overlay + Caption ---------- */

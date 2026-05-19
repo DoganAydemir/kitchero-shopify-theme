@@ -7,11 +7,18 @@
    section template. Falls back to the original 8rem (128px) baseline
    when CSS vars are missing (e.g. legacy section.json without the
    new settings). */
+/* R232.49 — scheme-aware bg + text. Was hardcoded
+   var(--kt-stone-900) bg + var(--kt-stone-50) fg; falls back to
+   28 25 23 / 250 250 249 so default look unchanged when scheme
+   variables aren't loaded. NOTE: the inner overlay gradients and
+   placeholder fills are still hardcoded dark by design (R210 grid
+   fade, image overlay, etc) — merchants who want this section to
+   stay dark should pick scheme-4 explicitly. */
 .kt-ecosystem {
   padding-top: var(--kt-eco-pad-top, 8rem);
   padding-bottom: var(--kt-eco-pad-bottom, 8rem);
-  background-color: var(--kt-stone-900);
-  color: var(--kt-stone-50);
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  color: rgb(var(--kt-c-fg, 250 250 249));
   position: relative;
   /* R-sticky-ancestor — was `overflow: hidden`, but that ancestor
      killed the JS-off progressive-enhancement sticky pin on
@@ -38,11 +45,14 @@
   height: 100%;
 }
 
-/* absolute inset-0 bg-gradient-to-b from-stone-900 via-transparent to-stone-900 */
+/* R232.51 — Scheme-aware top/bottom fade. Was hardcoded stone-900,
+   which painted a dark band over light schemes. Using `--kt-c-bg`
+   makes the fade blend INTO the current scheme background, so the
+   grid pattern fades to the section surface (whatever it is). */
 .kt-ecosystem__grid-fade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--kt-stone-900), transparent 30%, transparent 70%, var(--kt-stone-900));
+  background: linear-gradient(to bottom, rgb(var(--kt-c-bg, 28 25 23)), transparent 30%, transparent 70%, rgb(var(--kt-c-bg, 28 25 23)));
 }
 
 /* container: mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-12 lg:gap-24 relative z-10 */
@@ -90,6 +100,10 @@
   padding-bottom: 2.5rem;
 }
 
+/* R232.50 — scheme-aware text/buttons only. Grid-pattern, grid-fade,
+   and image-overlay gradients stay intentionally dark (this section
+   ships dark by default; merchants can pick a scheme to repaint
+   the text but the decorative dark gradients stay). */
 /* h2: text-5xl md:text-8xl font-semibold tracking-tighter uppercase mb-6 leading-none */
 .kt-ecosystem__title {
   font-size: calc(var(--kt-f-heading-scale, 1) * (3rem));
@@ -99,7 +113,8 @@
   text-transform: uppercase;
   margin-bottom: 1.5rem;
   line-height: 1;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware (was white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* Fluid scale tablet → desktop. iPad (768-1024px) was reading
@@ -117,7 +132,8 @@
 /* subtitle: text-xl text-stone-400 max-w-md hidden md:block */
 .kt-ecosystem__subtitle {
   font-size: 1.25rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   max-width: 28rem;
   display: none;
 }
@@ -142,13 +158,15 @@
 .kt-ecosystem__feature-title {
   font-size: 2.25rem;
   font-weight: 500;
-  color: var(--kt-stone-50);
+  /* R232.50 — scheme-aware feature title (was stone-50, near-fg). */
+  color: rgba(var(--kt-c-fg, 250 250 249), 0.9);
   margin-bottom: 1rem;
   transition: color 0.2s ease;
 }
 
 .kt-ecosystem__feature:hover .kt-ecosystem__feature-title {
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware hover to full fg. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* desc — R269: was `font-size: 1.25rem` (20px) on every breakpoint
@@ -159,7 +177,8 @@
    pulling focus from it. */
 .kt-ecosystem__feature-desc {
   font-size: 0.9375rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted body (was stone-500). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   line-height: 1.55;
   max-width: 24rem;
 }
@@ -188,20 +207,22 @@
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware CTA label + rule. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.875rem;
   font-weight: 700;
-  border-bottom: 1px solid var(--kt-stone-500);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 122 122 122), 0.6);
   padding-bottom: 0.5rem;
   transition: all 0.2s ease;
   width: max-content;
 }
 
 .kt-ecosystem__cta:hover {
-  border-color: var(--kt-white);
+  /* R232.50 — scheme-aware hover rule. */
+  border-color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* Right col: md:w-1/2 relative h-screen flex flex-col justify-center items-center z-10 */

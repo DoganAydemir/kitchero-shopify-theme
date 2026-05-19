@@ -14,7 +14,18 @@
   on the section host and the `color-scheme-X` class hooks into
   the global scheme palette defined in kt-css-variables.liquid.
 {%- endcomment -%}
-{%- assign eco_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
+{%- comment -%}
+  R232.51 — Default scheme is `scheme-4` (Dark Editorial) because
+  this section was originally designed with stone-900 bg + cream text
+  + a decorative SVG grid pattern (white strokes at 5% opacity) + a
+  stone-900 top/bottom fade. The grid + fade only read against a dark
+  surface; running this section under scheme-1 (Editorial Cream) made
+  the grid invisible and the fades paint a dark band on cream — user
+  feedback: "arka plan deseni gitti, kendine özel rengi vardı".
+  Merchants can still pick any scheme via the section's color_scheme
+  setting; default ships dark to preserve the original design.
+{%- endcomment -%}
+{%- assign eco_scheme = section.settings.color_scheme | default: 'scheme-4' -%}
 {%- assign eco_pad_top = section.settings.padding_top | default: 60 -%}
 {%- assign eco_pad_bottom = section.settings.padding_bottom | default: 60 -%}
 <section
@@ -195,7 +206,7 @@
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-1"
+      "default": "scheme-4"
     }
   ],
   "blocks": [

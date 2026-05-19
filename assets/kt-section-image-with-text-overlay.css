@@ -17,7 +17,14 @@
      Stacks with the existing vertical_padding setting via +. */
   padding-top: calc(var(--kt-iwt-padding) + var(--kt-iwt-pad-top, 0px));
   padding-bottom: calc(var(--kt-iwt-padding) + var(--kt-iwt-pad-bottom, 0px));
-  background-color: var(--kt-stone-50);
+  /* R232.47 — Scheme-aware bg. Same fix as the alternating variant
+     above: was hardcoded `var(--kt-stone-50)` so the section
+     ignored the merchant's color_scheme. `--kt-c-bg` is emitted
+     per-scheme by `snippets/kt-css-variables.liquid`. Fall back to
+     stone-50 (the prior hardcoded value) so legacy markup without
+     a scheme class keeps its current look. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-iwt-overlay__inner {
@@ -41,7 +48,8 @@
   overflow: hidden;
   border-radius: var(--kt-iwt-image-radius);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.18);
-  background-color: var(--kt-warm-100);
+  /* R232.50 — scheme-aware image placeholder bg (subtle inner panel) */
+  background-color: rgba(var(--kt-c-fg, 250 245 235), 0.06);
 }
 
 .kt-iwt-overlay__image {
@@ -61,11 +69,14 @@
 
 /* ----- Overlay card ----------------------------------------------------- */
 
+/* R232.50 — scheme-aware overlay card: the card bg matches the
+   section bg so it reads correctly on any scheme. The card text
+   below also tracks the scheme. */
 .kt-iwt-overlay__card {
   position: relative;
   margin-top: 1.5rem;
-  background-color: var(--kt-white);
-  border: 1px solid var(--kt-warm-200);
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   border-radius: var(--kt-iwt-card-radius);
   padding: 2rem;
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.18);
@@ -111,14 +122,16 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white card bg */
+  /* R232.50 — scheme-aware eyebrow */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 1rem;
 }
 
 .kt-iwt-overlay__heading {
   font-family: var(--kt-f-accent-family, Georgia, "Times New Roman", serif);
   font-weight: 400;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware heading */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(1.5rem, 2.4vw, 1.875rem)));
 
   line-height: 1.15;
@@ -127,7 +140,8 @@
 }
 
 .kt-iwt-overlay__description {
-  color: var(--kt-stone-500);
+  /* R232.50 — scheme-aware muted body */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-size: 0.9375rem;
   line-height: 1.7;
   font-weight: 300;
@@ -145,7 +159,8 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware CTA text */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   text-decoration: none;
   transition: gap 0.3s ease;
 }
@@ -156,20 +171,23 @@
 }
 
 .kt-iwt-overlay__cta:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  /* R232.50 — scheme-aware focus ring */
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 4px;
   border-radius: 2px;
 }
 
 .kt-iwt-overlay__cta-icon {
-  color: var(--kt-stone-500); /* stone-500 — graphic contrast on white card bg */
+  /* R232.50 — scheme-aware graphic muted */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   transition: color 0.3s ease, transform 0.3s ease;
   flex-shrink: 0;
 }
 
 .kt-iwt-overlay__cta:hover .kt-iwt-overlay__cta-icon,
 .kt-iwt-overlay__cta:focus-visible .kt-iwt-overlay__cta-icon {
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware hover */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   transform: translateX(2px);
 }
 

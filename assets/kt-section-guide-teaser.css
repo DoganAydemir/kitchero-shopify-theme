@@ -2,7 +2,10 @@
 
 .kt-guide-teaser {
   padding: 6rem 0;
-  background-color: var(--kt-white);
+  /* R232.47 — Scheme-aware. `var(--kt-white)` was hardcoded so the
+     section ignored color_scheme. Default fallback keeps white. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-guide-teaser__header {
@@ -20,12 +23,14 @@
   }
 }
 
+/* R232.50 — scheme-aware inner colors below: eyebrow, title, body,
+   CTA hover, dividers, card borders & meta. */
 .kt-guide-teaser__label {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 0.5rem;
 }
 
@@ -39,7 +44,7 @@
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* R205 — birebir Tailwind from GuideTeaser.tsx:
@@ -58,7 +63,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   text-decoration: none;
   border-bottom: 2px solid transparent;
   padding-bottom: 0.25rem;
@@ -66,8 +71,8 @@
 }
 
 .kt-guide-teaser__view-all:hover {
-  color: var(--kt-stone-900);
-  border-bottom-color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  border-bottom-color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-guide-teaser__view-all svg {
@@ -87,7 +92,7 @@
 }
 
 .kt-guide-teaser__card {
-  border: 1px solid var(--kt-stone-200);
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   border-radius: 1.5rem;
   overflow: hidden;
   text-decoration: none;
@@ -96,7 +101,7 @@
 }
 
 .kt-guide-teaser__card:hover {
-  border-color: var(--kt-stone-900);
+  border-color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-guide-teaser__card-image-wrap {
@@ -124,20 +129,20 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 0.75rem;
 }
 
 .kt-guide-teaser__card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 0.5rem;
 }
 
 .kt-guide-teaser__card-desc {
   font-size: 0.9375rem;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   font-weight: 300;
   line-height: 1.5;
 }
@@ -148,7 +153,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 0.75rem;
 }
 
@@ -159,7 +164,7 @@
   gap: 0.75rem;
   margin-top: 1rem;
   font-size: 0.8125rem;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-guide-teaser__card-author {
@@ -180,7 +185,7 @@
   content: '\00B7';
   position: absolute;
   left: 0;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 [dir="rtl"] .kt-guide-teaser__card-date::before {

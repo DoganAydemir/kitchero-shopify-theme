@@ -4,6 +4,11 @@
    Mobile-first, breakpoint at 750px.
 */
 
+/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-white);
+   falls back to 255 255 255 so default look unchanged when scheme
+   variables aren't loaded. The banner-minimal root is the outer
+   padding band; the inner __frame holds the image + dark overlay
+   with its own white text, which is unaffected by this change. */
 .kt-banner-minimal {
   --kt-banner-minimal-overlay-opacity: 0.5;
   --kt-banner-minimal-min-height-mobile: 400px;
@@ -20,7 +25,8 @@
      banner-split) so stacked sections don't render flush against each
      other when the global `spacing_sections` theme setting is 0. */
   padding: 3rem 1.5rem;
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   box-sizing: border-box;
 }
 

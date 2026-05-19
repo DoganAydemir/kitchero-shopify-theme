@@ -32,9 +32,10 @@
 {%- if compact -%}
   {%- assign compact_class = ' kt-page-header-dotted--compact' -%}
 {%- endif -%}
+{%- assign resolved_color_scheme = color_scheme | default: 'scheme-1' -%}
 
 <section
-  class="kt-page-header-dotted{{ compact_class }}"
+  class="kt-page-header-dotted color-{{ resolved_color_scheme }}{{ compact_class }}"
   data-section-id="{{ section.id }}"
   data-dotted-header
   aria-labelledby="DottedHeaderTitle-{{ section.id | default: 'static' }}"

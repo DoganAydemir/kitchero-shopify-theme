@@ -20,7 +20,7 @@
 -%}
 
 <section
-  class="kt-video-poster"
+  class="kt-video-poster color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="video-poster-modal"
   style="--kt-video-poster-padding: {{ padding }}px;"
@@ -162,6 +162,16 @@
       "step": 8,
       "unit": "px",
       "default": 80
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-4"
     }
   ],
   "presets": [

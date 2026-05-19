@@ -2,8 +2,11 @@
 
 .kt-related {
   padding: 6rem 0;
-  background-color: var(--kt-stone-50);
-  border-top: 1px solid var(--kt-stone-200);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back so the default look stays. */
+  /* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
 .kt-related__header {
@@ -15,7 +18,7 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (1.875rem));
 
   letter-spacing: -0.025em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 @media screen and (min-width: 750px) {
@@ -53,14 +56,14 @@
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
-  background-color: var(--kt-stone-200);
+  background-color: rgba(var(--kt-c-fg, 231 229 228), 0.12);
   border-radius: 0.5rem;
   overflow: hidden;
 }
 
 .kt-related__skeleton-line {
   height: 0.875rem;
-  background-color: var(--kt-stone-200);
+  background-color: rgba(var(--kt-c-fg, 231 229 228), 0.12);
   border-radius: 0.25rem;
 }
 

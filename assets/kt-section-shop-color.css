@@ -3,7 +3,9 @@
 
 .kt-shop-color {
   padding: 8rem 0;
-  background-color: var(--kt-stone-50);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   border-top: 1px solid var(--kt-stone-200);
   /* R-sticky-ancestor — was `overflow: hidden`, but that ancestor
      turned `.kt-shop-color__image-sticky` (line 74) into a regular
@@ -41,7 +43,12 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  /* R232.50 — Scheme-aware eyebrow. Was stone-500 hardcoded which
+     looked washed-out on scheme-5 (emerald) and scheme-4 (dark).
+     Using fg with 55% opacity gives a "muted-but-readable" eyebrow
+     against any scheme — falls back to stone-500 (122 122 122) on
+     surfaces with no scheme set so the default look matches. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-bottom: 1rem;
 }
 
@@ -51,7 +58,8 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(2.25rem, 3vw + 1rem, 3.75rem)));
 
   font-style: italic;
-  color: var(--kt-stone-900);
+  /* R232.50 — Scheme-aware primary heading. Was stone-900 hardcoded. */
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* Main layout */
@@ -165,7 +173,8 @@
 
 .kt-shop-color__image-desc {
   margin-top: 3rem;
-  color: var(--kt-stone-500);
+  /* R232.50 — Scheme-aware body copy. Was stone-500 hardcoded. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
   font-weight: 300;
   line-height: 1.6;
   max-width: 24rem;
@@ -188,7 +197,10 @@
 /* Category item (accordion) */
 .kt-shop-color__category {
   padding: 2.5rem 0;
-  border-bottom: 1px solid var(--kt-stone-200);
+  /* R232.50 — Scheme-aware divider. Was stone-200; falls back to
+     same value on default scheme. Translates to a subtle fg-with-
+     alpha line on any scheme (works on emerald + dark too). */
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.12);
 }
 
 @media screen and (min-width: 750px) {
@@ -240,7 +252,8 @@
    the ring sits on top of the row instead of overflowing into the
    section's border-bottom. */
 .kt-shop-color__category-trigger:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  /* R232.50 — Scheme-aware focus ring. */
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: -4px;
 }
 
@@ -250,21 +263,23 @@
   font-weight: 700;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--kt-stone-500);
+  /* R232.50 — Scheme-aware. Inactive label is muted fg; active flips
+     to full fg below. Was stone-500 / stone-900 hardcoded. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.35);
   transition: color 0.5s ease;
   margin: 0;
 }
 
 .kt-shop-color__category--active .kt-shop-color__category-title {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-shop-color__category:hover .kt-shop-color__category-title {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
 }
 
 .kt-shop-color__category--active:hover .kt-shop-color__category-title {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* Mini swatch in header — hidden on mobile because the same swatch
@@ -277,7 +292,9 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  border: 1px solid var(--kt-stone-200);
+  /* R232.50 — Scheme-aware border. Translates to a subtle hairline
+     on any scheme; falls back to stone-200 on default. */
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.2);
   overflow: hidden;
   flex-shrink: 0;
   margin-left: 1rem;
@@ -426,16 +443,18 @@
   background: none;
   border: none;
   padding: 0.25rem 0;
-  color: var(--kt-stone-500);
+  /* R232.50 — Scheme-aware finish buttons. Inactive = muted fg,
+     hover = brighter, active = full fg. Falls back to stone palette. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.5);
   transition: color 0.2s ease;
 }
 
 .kt-shop-color__finish-btn:hover {
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.75);
 }
 
 .kt-shop-color__finish-btn--active {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   text-decoration: underline;
   text-underline-offset: 8px;
 }
@@ -462,8 +481,11 @@
 .kt-shop-color__cta-btn {
   display: inline-flex;
   padding: 1.5rem 3rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  /* R232.50 — Scheme-aware CTA. Uses the scheme's action color so the
+     pill always contrasts the surface (dark on light schemes, light
+     on dark scheme-4, dark on emerald-5). */
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -472,7 +494,7 @@
   border-radius: 9999px;
   text-decoration: none;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transition: background-color 0.2s ease;
+  transition: opacity 0.2s ease;
   width: 100%;
   justify-content: center;
 }
@@ -484,5 +506,7 @@
 }
 
 .kt-shop-color__cta-btn:hover {
-  background-color: var(--kt-black);
+  /* R232.50 — Opacity hover instead of color swap, so it works for
+     any scheme's action color without needing per-scheme overrides. */
+  opacity: 0.88;
 }

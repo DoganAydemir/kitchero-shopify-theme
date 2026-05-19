@@ -6,19 +6,24 @@
    Asymmetric 6-tile bento grid with full-screen lightbox viewer.
    ========================================================================= */
 
+/* R232.50 — local focus tokens now derive from scheme --kt-c-fg via opacity grades.
+   Lightbox-internal tokens (stone-50/300/400/500/600/950) are kept for the dark
+   modal where text sits on rgba(12,10,9,0.95) — those rules stay as fixed-light. */
 .kt-gallery-focus {
   --kt-focus-gap: 1rem;
   --kt-focus-radius: 0.75rem;
-  --kt-focus-stone-50: var(--kt-stone-50);
-  --kt-focus-stone-100: var(--kt-stone-100);
-  --kt-focus-stone-300: var(--kt-stone-300);
-  --kt-focus-stone-400: var(--kt-stone-400);
-  --kt-focus-stone-500: var(--kt-stone-500);
-  --kt-focus-stone-600: var(--kt-stone-600);
-  --kt-focus-stone-900: var(--kt-stone-900);
-  --kt-focus-stone-950: var(--kt-stone-950);
+  --kt-focus-stone-50: rgba(var(--kt-c-fg, 250 250 249), 0.04);
+  --kt-focus-stone-100: rgba(var(--kt-c-fg, 245 245 244), 0.06);
+  --kt-focus-stone-300: rgba(var(--kt-c-fg, 211 211 211), 0.22);
+  --kt-focus-stone-400: rgba(var(--kt-c-fg, 159 159 158), 0.4);
+  --kt-focus-stone-500: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  --kt-focus-stone-600: rgba(var(--kt-c-fg, 87 83 78), 0.7);
+  --kt-focus-stone-900: rgb(var(--kt-c-fg, 28 25 23));
+  --kt-focus-stone-950: rgb(var(--kt-c-fg, 12 10 9));
 
-  background: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0; /* py-24 */
   position: relative;
 }
@@ -291,6 +296,15 @@
    ========================================================================= */
 
 .kt-gallery-focus-lightbox {
+  /* R232.50 — Lightbox sits on a dark rgba(12,10,9,0.95) backdrop regardless
+     of the merchant scheme; redefine focus-stone-* tokens locally with hardcoded
+     stone fallbacks so the modal stays legible on its own dark surface. */
+  --kt-focus-stone-300: var(--kt-stone-300);
+  --kt-focus-stone-400: var(--kt-stone-400);
+  --kt-focus-stone-500: var(--kt-stone-500);
+  --kt-focus-stone-600: var(--kt-stone-600);
+  --kt-focus-stone-900: var(--kt-stone-900);
+  --kt-focus-stone-950: var(--kt-stone-950);
   position: fixed;
   inset: 0;
   z-index: 100;

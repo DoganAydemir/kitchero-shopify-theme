@@ -5,13 +5,19 @@
    ============================================================= */
 
 .kt-banner-split {
+  /* R232.50 — scheme-aware inner tokens. The text-pane surface
+     (banner-split-bg) routes through --kt-c-fg-as-dark-pane to keep
+     a dark editorial pane regardless of scheme, but text + button
+     now use --kt-c-action / --kt-c-action-text so they track the
+     merchant's brand. Image pane stays photo. The default fallback
+     reproduces the previous hardcoded stone-950 / white look. */
   --kt-banner-split-bg: var(--kt-stone-950);
   --kt-banner-split-fg: var(--kt-white);
   --kt-banner-split-muted: var(--kt-stone-400);
   --kt-banner-split-eyebrow: var(--kt-emerald-400);
-  --kt-banner-split-btn-bg: var(--kt-white);
-  --kt-banner-split-btn-fg: var(--kt-stone-950);
-  --kt-banner-split-btn-hover-bg: var(--kt-stone-50);
+  --kt-banner-split-btn-bg: rgb(var(--kt-c-action, 255 255 255));
+  --kt-banner-split-btn-fg: rgb(var(--kt-c-action-text, 12 10 9));
+  --kt-banner-split-btn-hover-bg: rgb(var(--kt-c-action, 250 250 249));
   --kt-banner-split-radius: 1rem;
   --kt-banner-split-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
@@ -19,7 +25,13 @@
   margin-top: var(--kt-banner-split-pad-top, 0);
   margin-bottom: var(--kt-banner-split-pad-bottom, 0);
   padding: 3rem 1.5rem;
-  background-color: var(--kt-stone-50);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-stone-50);
+     falls back to 250 250 249 so default look unchanged. The inner
+     __inner / __text panels carry their own bg via the dark
+     --kt-banner-split-bg token, so they stay dark by design; this
+     just lets the outer padding band match the page surface. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 @media (min-width: 750px) {
@@ -153,8 +165,11 @@
 }
 
 .kt-banner-split__cta:hover {
+  /* R232.50 — opacity hover so action color shifts cleanly across
+     merchant brand variants. */
   background-color: var(--kt-banner-split-btn-hover-bg);
   color: var(--kt-banner-split-btn-fg);
+  opacity: 0.88;
 }
 
 .kt-banner-split__cta:focus-visible {
@@ -176,7 +191,8 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background-color: var(--kt-stone-200);
+  /* R232.50 — scheme-aware fallback behind the image. */
+  background-color: rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
 @media (min-width: 750px) {

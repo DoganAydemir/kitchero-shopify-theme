@@ -17,7 +17,7 @@
 -%}
 
 <section
-  class="kt-gallery-focus kt-gallery-focus--{{ layout }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-gallery-focus color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-gallery-focus--{{ layout }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="gallery-focus-wall"
 >
@@ -329,6 +329,16 @@
         { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

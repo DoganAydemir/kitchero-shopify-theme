@@ -2,10 +2,18 @@
    Testimonials — Style 02: Large Editorial Pull-Quote
    ============================================================ */
 
+/* R232.50 — scheme-aware inner colors. The pull-quote sits on the
+   section's --kt-c-bg surface (no photo overlay), so the icon,
+   quote, divider, author and slider nav/dots now opacity-grade
+   against --kt-c-fg. Hover-CTA uses --kt-c-action for the inverse
+   look. */
+
 .kt-testimonials-pullquote {
   position: relative;
-  background-color: var(--kt-stone-950); /* stone-900 */
-  color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
+     dark editorial default preserved via the fallback. */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 255 255 255));
   padding-top: var(--kt-pullquote-padding, 128px);
   padding-bottom: var(--kt-pullquote-padding, 128px);
   overflow: hidden;
@@ -23,7 +31,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--kt-stone-700); /* stone-700 */
+  /* R232.50 — scheme-aware muted (was stone-700). */
+  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
   margin-bottom: 3rem; /* mb-12 → 48px */
   line-height: 0;
 }
@@ -52,7 +61,8 @@
   font-size: 1.875rem; /* text-3xl */
   line-height: 1.15;
   letter-spacing: -0.02em; /* tracking-tight */
-  color: var(--kt-white);
+  /* R232.50 — scheme-aware (was white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* When quote is wrapped in blockquote wrap, remove extra margin on blockquote
@@ -88,7 +98,8 @@
   display: block;
   width: 4rem; /* w-16 */
   height: 1px;
-  background-color: var(--kt-stone-700); /* stone-700 */
+  /* R232.50 — scheme-aware muted rule (was stone-700). */
+  background-color: rgba(var(--kt-c-fg, 68 64 60), 0.4);
   margin-bottom: 1.5rem; /* mb-6 */
 }
 
@@ -108,7 +119,8 @@
   /* R295 — Was rgba(255,255,255,0.6) (~3.5:1 vs. dark stone bg).
      0.78 alpha yields ~6:1 on the kt-stone-900 surface this
      section paints — meets WCAG 1.4.3 AA body text minimum. */
-  color: rgba(255, 255, 255, 0.78);
+  /* R232.50 — scheme-aware author label. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.78);
   margin-bottom: 0.5rem; /* mb-2 */
   /* Indent compensation so the wide letter-spacing doesn't push text left */
   padding-left: 0.5em;
@@ -128,7 +140,8 @@
   text-transform: uppercase;
   /* R295 — Was rgba(255,255,255,0.4) (~2.0:1 — body-text fail).
      0.7 alpha yields ~5:1 on the dark surface. */
-  color: rgba(255, 255, 255, 0.7);
+  /* R232.50 — scheme-aware muted role. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.7);
   padding-left: 0.2em;
 }
 
@@ -177,18 +190,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  /* R232.50 — scheme-aware nav button. */
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.25);
   border-radius: 9999px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.75);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .kt-testimonials-pullquote__nav:hover {
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
-  border-color: var(--kt-white);
+  /* R232.50 — scheme-aware hover inversion. */
+  background-color: rgb(var(--kt-c-fg, 255 255 255));
+  color: rgb(var(--kt-c-bg, 28 25 23));
+  border-color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-testimonials-pullquote__nav:focus-visible {
@@ -240,12 +255,14 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.3);
+  /* R232.50 — scheme-aware. */
+  background-color: rgba(var(--kt-c-fg, 255 255 255), 0.3);
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .kt-testimonials-pullquote__dot--active::before {
-  background-color: var(--kt-white);
+  /* R232.50 — scheme-aware active. */
+  background-color: rgb(var(--kt-c-fg, 255 255 255));
   transform: scale(1.15);
 }
 

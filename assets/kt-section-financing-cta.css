@@ -5,8 +5,11 @@
    ============================================================ */
 
 .kt-financing-cta {
-  background-color: var(--kt-stone-100); /* stone-100 */
-  border-top: 1px solid var(--kt-stone-200);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-100; falls back unchanged. */
+  /* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
+  background-color: rgb(var(--kt-c-bg, 245 245 244));
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   padding: 6rem 0;
   overflow: hidden;
 }
@@ -28,7 +31,7 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 1.5rem 0;
 }
 
@@ -45,7 +48,7 @@
 
 .kt-financing-cta__title-accent {
   font-style: italic;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on stone-100 bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-left: 0.35em;
 }
 
@@ -53,7 +56,7 @@
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.625;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   max-width: 36rem;
   margin: 0 auto 3rem;
 }
@@ -106,13 +109,13 @@
 }
 
 .kt-financing-cta__btn--primary {
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .kt-financing-cta__btn--primary:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
@@ -123,17 +126,17 @@
 
 .kt-financing-cta__btn--secondary {
   background-color: transparent;
-  color: var(--kt-stone-900);
-  border-color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  border-color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-financing-cta__btn--secondary:hover {
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
 }
 
 .kt-financing-cta__btn:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 3px;
 }
 

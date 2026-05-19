@@ -30,7 +30,7 @@
 {%- assign related_products_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 
 <section
-  class="kt-related"
+  class="kt-related color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="related-products"
   data-product-recommendations
@@ -145,6 +145,16 @@
         { "value": "complementary", "label": "t:sections.related-products.settings.intent.options__complementary.label" }
       ],
       "default": "related"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "presets": [

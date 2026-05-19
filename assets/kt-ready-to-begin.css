@@ -10,7 +10,9 @@
 .kt-ready-to-begin {
   position: relative;
   padding: 6rem 0;
-  background-color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
 }
 
@@ -76,18 +78,19 @@
   }
 }
 
+/* R232.50 — scheme-aware action button + focus ring */
 .kt-ready-to-begin__btn {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1.25rem 0.875rem 1.5rem;
-  background-color: var(--kt-black);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   border-radius: 9999px;
   text-decoration: none;
   font-size: 0.9375rem;
   letter-spacing: -0.02em;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
@@ -100,12 +103,12 @@
 }
 
 .kt-ready-to-begin__btn:hover {
-  background-color: var(--kt-stone-800);
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
 .kt-ready-to-begin__btn:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 3px;
 }
 
@@ -115,8 +118,8 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  background: var(--kt-white);
-  color: var(--kt-black);
+  background: rgb(var(--kt-c-action-text, 255 255 255));
+  color: rgb(var(--kt-c-action, 28 25 23));
   border-radius: 50%;
   transition: transform 0.3s ease;
 }

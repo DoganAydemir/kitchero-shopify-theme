@@ -3,6 +3,11 @@
    left-aligned content block, pill CTA. BEM namespace: .kt-banner-hero
    ========================================================================== */
 
+/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-white);
+   falls back to 255 255 255 so default look unchanged when scheme
+   variables aren't loaded. The outer banner-hero is a padding band
+   around the inner __frame which has its own bg-image; making the
+   outer band scheme-aware lets it blend into the page surface. */
 .kt-banner-hero {
   --banner-hero-radius: 1rem;
   --banner-hero-padding-x: 1.5rem;
@@ -15,7 +20,8 @@
   margin-top: var(--banner-hero-pad-top, 0);
   margin-bottom: var(--banner-hero-pad-bottom, 0);
   padding: var(--banner-hero-padding-y) var(--banner-hero-padding-x);
-  background-color: var(--kt-white);
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   box-sizing: border-box;
 }
 

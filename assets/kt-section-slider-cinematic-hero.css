@@ -3,12 +3,22 @@
    Cross-fade slider with Ken Burns zoom on active slide
    ============================================================ */
 
+/* R232.50 — scheme-aware inner colors. This section's content sits
+   entirely on slide images with dark overlays — all white text /
+   white borders / dark overlays / placeholder svg bg are intentional
+   photo-overlay treatments and stay hardcoded. Only the placeholder
+   `__slide-image.placeholder-svg` background-color (when no photo
+   uploaded) becomes scheme-aware so the section still reads with the
+   chosen color scheme on a fresh install. */
+
 .kt-slider-cinematic {
   position: relative;
   width: 100%;
   overflow: hidden;
-  background-color: var(--kt-stone-950); /* stone-950 */
-  color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
+     dark cinematic default preserved via the fallback. */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 255 255 255));
   isolation: isolate;
 }
 
@@ -362,7 +372,8 @@
    Placeholder SVG styling
    ------------------------------------------------------------ */
 .kt-slider-cinematic__slide-image.placeholder-svg {
-  background-color: var(--kt-stone-900); /* stone-900 */
+  /* R232.50 — scheme-aware placeholder backdrop (was stone-900). */
+  background-color: rgba(var(--kt-c-fg, 28 25 23), 0.9);
 }
 
 /* ------------------------------------------------------------

@@ -4,7 +4,10 @@
    ============================================================ */
 
 .kt-shop-categories {
-  background-color: var(--kt-stone-50);
+  /* R232.47 — scheme-aware bg + text. Was hardcoded stone-50;
+     falls back to stone-50 (250 250 249) when no scheme is set. */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
   /* R272 — Was `padding-top: 6rem` only. The section ended flush
      against whatever sat below it (typically a darker / lighter
@@ -27,7 +30,8 @@
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  /* R232.50 — scheme-aware heading */
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1rem;
 }
 
@@ -35,7 +39,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: var(--kt-stone-600);
+  /* R232.50 — scheme-aware muted body */
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 
 .kt-shop-categories__subtitle {

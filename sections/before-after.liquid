@@ -1,7 +1,14 @@
 {{ 'kt-section-before-after.css' | asset_url | stylesheet_tag }}
 
+{%- comment -%}
+  R232.51 — Default `scheme-4` (Dark Editorial). This section was
+  originally designed dark (stone-900 surface, cream text, drag handle
+  + comparison labels styled for a dark backdrop). Under scheme-1
+  (Editorial Cream) it loses the editorial weight the design depends
+  on. Merchants can still override per-section.
+{%- endcomment -%}
 <section
-  class="kt-before-after"
+  class="kt-before-after color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="before-after"
   aria-labelledby="BeforeAfterTitle-{{ section.id }}"
@@ -136,6 +143,16 @@
       "id": "after_image",
       "label": "t:sections.before-after.settings.after_image.label",
       "info": "t:sections.before-after.settings.after_image.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-4"
     }
   ],
   "presets": [

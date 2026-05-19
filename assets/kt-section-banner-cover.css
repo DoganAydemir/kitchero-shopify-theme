@@ -11,6 +11,13 @@
          <p stone-300 base md:xl>
    ============================================================ */
 
+/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-stone-900) /
+   var(--kt-white); falls back so default look unchanged. Fallback values
+   match the previous hardcode (28 25 23 = stone-900 bg, 255 255 255 = white
+   text) so when the scheme variables aren't loaded the dark-hero look
+   reproduces exactly. Inline gradient + image still render on top so the
+   visible surface stays the editorial dark hero unless the merchant
+   explicitly picks a light scheme for this section. */
 .kt-banner-cover {
   position: relative;
   width: 100%;
@@ -20,12 +27,12 @@
      who want breathing room set positive values). */
   padding-top: var(--kt-banner-cover-pad-top, 0);
   padding-bottom: var(--kt-banner-cover-pad-bottom, 0);
-  background-color: var(--kt-stone-900); /* stone-900 fallback while image loads */
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 @media screen and (min-width: 750px) {

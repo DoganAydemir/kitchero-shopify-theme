@@ -11,7 +11,7 @@
 {%- endcomment -%}
 
 {%- assign deals_cta_default = 'kt.section.deals_grid.cta_default' | t -%}
-<section class="kt-deals {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}">
+<section class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-deals__grid">
       {%- for block in section.blocks -%}
@@ -261,6 +261,16 @@
         { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

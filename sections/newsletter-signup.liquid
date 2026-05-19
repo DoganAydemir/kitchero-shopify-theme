@@ -6,7 +6,7 @@
 {%- assign newsletter_signup_consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
 {%- assign newsletter_signup_note_default = 'kt.section.newsletter_signup.note_default' | t -%}
 
-<section class="kt-newsletter-page {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}">
+<section class="kt-newsletter-page color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-newsletter-page__inner">
       <span class="kt-newsletter-page__label">{{ section.settings.label | default: newsletter_signup_label_default }}</span>
@@ -321,6 +321,16 @@
         { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "presets": [

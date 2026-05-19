@@ -8,8 +8,9 @@
  */
 
 .kt-collapsible-visual {
-  background: var(--kt-stone-950); /* stone-950 */
-  color: var(--kt-stone-50);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950/stone-50; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
+  color: rgb(var(--kt-c-fg, 250 250 249));
   padding: 6rem 0;
   /* R-sticky-ancestor — was `overflow: hidden`, which turned the
      `.kt-collapsible-visual__visual` sticky right-column image
@@ -49,10 +50,13 @@
 
 /* Header ------------------------------------------------------- */
 
+/* R232.50 — scheme-aware inner colors throughout (eyebrows, headings,
+   borders, item titles, panel content, image-stack placeholder). */
 .kt-collapsible-visual__header {
   margin-bottom: 3rem;
   padding-left: 1.5rem;
-  border-left: 2px solid var(--kt-stone-400); /* stone-400 */
+  /* scheme-aware accent bar (was stone-400 for dark default) */
+  border-left: 2px solid rgba(var(--kt-c-fg, 168 162 158), 0.6);
   max-width: 42rem;
 }
 
@@ -69,7 +73,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-collapsible-visual__heading {
@@ -80,7 +84,7 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.15;
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
 @media (min-width: 768px) {
@@ -95,7 +99,7 @@
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.6;
-  color: var(--kt-stone-400); /* stone-400 */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.6);
   max-width: 36rem;
 }
 
@@ -153,7 +157,8 @@
 }
 
 .kt-collapsible-visual__item + .kt-collapsible-visual__item {
-  border-top: 1px solid rgba(168, 162, 158, 0.15); /* stone-400 @15% */
+  /* scheme-aware divider */
+  border-top: 1px solid rgba(var(--kt-c-fg, 168 162 158), 0.15);
 }
 
 .kt-collapsible-visual__item:hover {
@@ -162,8 +167,9 @@
 
 .kt-collapsible-visual__item.is-active {
   opacity: 1;
-  border-left-color: var(--kt-stone-50);
-  background-color: rgba(255, 255, 255, 0.03);
+  /* scheme-aware active accent + subtle lift bg */
+  border-left-color: rgb(var(--kt-c-fg, 250 250 249));
+  background-color: rgba(var(--kt-c-fg, 255 255 255), 0.03);
 }
 
 .kt-collapsible-visual__item:focus {
@@ -171,7 +177,7 @@
 }
 
 .kt-collapsible-visual__item:focus-visible {
-  outline: 2px solid var(--kt-white);
+  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
   outline-offset: 4px;
   border-radius: 2px;
 }
@@ -189,11 +195,12 @@
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-collapsible-visual__item.is-active .kt-collapsible-visual__item-eyebrow {
-  color: var(--kt-stone-400); /* stone-400 */
+  /* Active eyebrow lifts toward primary fg */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.85);
 }
 
 .kt-collapsible-visual__item-title {
@@ -203,7 +210,7 @@
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   transition: color 0.35s ease;
 }
 
@@ -232,7 +239,7 @@
 .kt-collapsible-visual__content {
   display: block;
   padding-top: 1rem;
-  color: var(--kt-stone-400); /* stone-400 */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.6);
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.7;
@@ -266,7 +273,8 @@
   aspect-ratio: 4 / 5;
   border-radius: 1rem;
   overflow: hidden;
-  background-color: var(--kt-stone-800); /* stone-800 */
+  /* scheme-aware photo-frame placeholder bg (subtle inner panel) */
+  background-color: rgba(var(--kt-c-fg, 41 37 36), 0.1);
 }
 
 .kt-collapsible-visual__image {

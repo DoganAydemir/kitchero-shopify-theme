@@ -22,7 +22,7 @@
 {%- assign contact_form_heading_line2_default = 'kt.section.contact.form_heading_line2_default' | t -%}
 {%- assign contact_form_description_default = 'kt.section.contact.form_description_default' | t -%}
 <section
-  class="kt-contact {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   aria-label="{{ section.settings.heading | default: contact_region_label }}"
 >
@@ -371,6 +371,16 @@
         { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

@@ -8,7 +8,9 @@
    ============================================================ */
 
 .kt-list-collections {
-  background-color: var(--kt-white);
+  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 4rem 0 6rem;
 }
 
@@ -65,8 +67,9 @@
   color: inherit;
 }
 
+/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-list-collections__card:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 4px;
   border-radius: 2px;
 }
@@ -76,7 +79,7 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background-color: var(--kt-stone-100);
+  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
   /* R294 — Corner radius from "Collection cards" theme settings.
      Default 12px keeps the soft-rectangle silhouette that reads
      contemporary next to the serif headings; merchants can drop
@@ -148,7 +151,7 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.15;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
   transition: color 0.3s ease;
 }
@@ -161,14 +164,14 @@
 }
 
 .kt-list-collections__card:hover .kt-list-collections__title {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-list-collections__desc {
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   margin: 0;
   max-width: 28rem;
   display: -webkit-box;
@@ -183,7 +186,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--kt-stone-200);
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   margin-top: 0.25rem;
 }
 
@@ -192,7 +195,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on light card bg */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-list-collections__cta {
@@ -203,7 +206,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 .kt-list-collections__cta svg {
@@ -223,7 +226,7 @@
   margin: 2rem auto;
   text-align: center;
   padding: 4rem 1.5rem;
-  border: 1px dashed var(--kt-stone-300);
+  border: 1px dashed rgba(var(--kt-c-fg, 211 211 211), 0.22);
   border-radius: 0.75rem;
 }
 
@@ -232,7 +235,7 @@
   font-size: 1.75rem;
   font-weight: 400;
   letter-spacing: -0.015em;
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 1rem 0;
 }
 
@@ -240,7 +243,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin: 0 0 2rem 0;
 }
 
@@ -249,19 +252,19 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
-  background-color: var(--kt-stone-900);
-  color: var(--kt-white);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
   border-radius: 9999px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .kt-list-collections__empty-link:hover {
-  background-color: var(--kt-black);
+  opacity: 0.88;
 }
 
 .kt-list-collections__empty-link svg {

@@ -16,7 +16,7 @@
 -%}
 
 <section
-  class="kt-list-collections {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-list-collections color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="list-collections-grid"
   style="--kt-list-collections-columns: {{ per_row_desktop }};"
@@ -205,6 +205,16 @@
         { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
       ],
       "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "presets": [

@@ -12,29 +12,46 @@
 .kt-predictive-search {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  /* R232.46 — Big breathing between groups so they read as discrete
+     blocks. Inner spacing (title↔items) is intentionally TIGHT (see
+     the group `gap` + zero title margin below) so the eyebrow stays
+     clearly attached to its items. Previous revision (R232.45) added
+     1rem margin-bottom under the title which combined with the
+     group's flex `gap` to push the label ~26px off its first item —
+     each label ended up floating in its own zone, exactly the
+     "iç içe / disconnected" pattern the user flagged. */
+  gap: 2.75rem;
   padding: 0.5rem 0 0;
 }
 
 .kt-predictive-search__group {
   display: flex;
   flex-direction: column;
+  /* 0.75rem between title and first item — tight enough that the
+     eyebrow is clearly "attached" to the group below it. */
   gap: 0.75rem;
 }
 
 /* R232.37 — first group skips the divider so it sits flush against
    the search input bar. Subsequent groups carry a hairline rule
-   above the title for clear visual chunking. */
+   above the title for clear visual chunking.
+   R232.45 — Top padding bumped 1.5rem → 2.25rem so the title doesn't
+   visually flatten against the divider line above it. */
 .kt-predictive-search__group + .kt-predictive-search__group {
   border-top: 1px solid var(--kt-stone-200);
-  padding-top: 1.5rem;
+  padding-top: 2.25rem;
 }
 
 .kt-predictive-search__group-title {
-  margin: 0 0 0.25rem;
+  /* R232.46 — margin-bottom REMOVED. The parent flex container uses
+     `gap` to space the title from the item list, so a non-zero
+     margin-bottom here would compound with the gap and visually
+     orphan the label. Letter-spacing/weight stay generous so the
+     label still reads as a category eyebrow. */
+  margin: 0;
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--kt-stone-500);
 }
@@ -170,8 +187,17 @@
    ============================================================ */
 
 .kt-search-overlay .kt-predictive-search {
-  gap: 1.75rem;
-  padding-top: 0.75rem;
+  /* R232.45 — Push groups much further apart. Previous spacing was
+     1.75rem outer + 1.5rem inner top + 0.25rem title margin which
+     still let the three categories (Products / Journal / Pages) read
+     as one continuous list — user feedback: "her şey çok iç içe!
+     ayrık durmalı grup grup durmalı içerikler!". The new figures
+     produce roughly 80px of vertical breathing room between the
+     last item of one group and the eyebrow label of the next, plus
+     a clearer divider + 16px under each label before its items so
+     each chunk reads as its own block. */
+  gap: 2.75rem;
+  padding-top: 1rem;
 }
 
 /* Hairline AT THE TOP of each group plus extra padding so the
@@ -182,25 +208,47 @@
  * separator matches the convention the rest of the search overlay
  * content sections already use. */
 .kt-search-overlay .kt-predictive-search__group {
-  gap: 0.625rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  /* R232.46 — `gap` 0.625rem → 0.75rem to match the light-context
+     spacing. Combined with the zero title margin-bottom below this
+     is the ONLY spacing between the eyebrow label and the first
+     item, so the chunk reads as a tight unit. The 2.25rem padding-
+     top still sits above the divider for between-group breathing
+     room. */
+  gap: 0.75rem;
+  padding-top: 2.25rem;
+  /* Stronger top hairline (0.18 vs 0.1) so the chunk boundary is
+     visible at a glance on the dark stone-950 backdrop without
+     reading as a heavy rule. */
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .kt-search-overlay .kt-predictive-search__group:first-child {
-  padding-top: 0;
+  padding-top: 0.5rem;
   border-top: none;
 }
 
 .kt-search-overlay .kt-predictive-search__group-title {
   font-size: 0.6875rem;
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 0.25rem;
+  /* Slightly wider tracking + explicit bold makes the eyebrow label
+     read as a category header instead of melting into the items
+     above it, which on a dark surface with only text-styling
+     differences was the root cause of "groups blur together". */
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  /* R232.46 — margin-bottom REMOVED (was 1rem). The parent group
+     uses flex `gap` to space the title from items; combining the
+     two pushed the eyebrow ~26px off its first item, orphaning
+     each label visually. Zero margin here + `gap: 0.75rem` on the
+     parent = clean 12px between label and first row. */
+  margin-bottom: 0;
 }
 
 .kt-search-overlay .kt-predictive-search__list {
-  gap: 0.125rem;
+  /* Slightly looser inner-item gap so items feel like a list, not
+     a single dense block (was 0.125rem ≈ 2px → 0.25rem ≈ 4px).
+     Still tight enough that the items read as ONE group. */
+  gap: 0.25rem;
 }
 
 .kt-search-overlay .kt-predictive-search__link {
