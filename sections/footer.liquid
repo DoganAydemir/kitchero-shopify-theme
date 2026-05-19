@@ -5,7 +5,7 @@
 {%- assign footer_description_default = 'kt.section.footer.description_default' | t -%}
 {%- assign footer_consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
 
-<footer class="kt-footer{% if section.settings.color_scheme != blank %} color-{{ section.settings.color_scheme }}{% endif %}" data-section-id="{{ section.id }}">
+<footer class="kt-footer{% if section.settings.color_scheme != blank %} color-{{ section.settings.color_scheme }}{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}">
   <div class="kt-footer__inner page-width">
     <div class="kt-footer__grid">
 
@@ -548,6 +548,26 @@
       "info": "t:sections.footer.settings.show_policy_links.info",
       "default": true
     },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff",
+      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

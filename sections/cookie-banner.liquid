@@ -123,12 +123,27 @@
         <fieldset class="kt-cookie-banner__purpose">
           <legend class="visually-hidden">{{ 'kt.cookie_banner.purposes_legend' | t | default: 'Cookie purposes' }}</legend>
 
+          {%- comment -%}
+            R322 GDPR-PRECHECKED-FIX: GDPR Art. 7(2), ePrivacy Directive,
+            CPRA, and LGPD all require consent to be obtained by a clear
+            affirmative action. Pre-checked boxes do NOT constitute valid
+            consent (CJEU Planet49 ruling C-673/17, EDPB Guidelines
+            05/2020). Theme Store reviewers reject themes with pre-
+            checked marketing / analytics / preferences toggles. All
+            four purpose toggles default to unchecked; if the customer
+            opens Customize and clicks "Save preferences" without
+            ticking any, the granular payload writes all-false (correct
+            opt-out). Customers who want full tracking still have the
+            "Accept all" quick path which writes everything-true. The JS
+            still pre-fills checkboxes from the Customer Privacy API
+            getters on re-open so returning users see their actual prior
+            decisions instead of always-false.
+          {%- endcomment -%}
           <label class="kt-cookie-banner__toggle">
             <input
               type="checkbox"
               class="kt-cookie-banner__toggle-input"
               data-cookie-purpose="analytics"
-              checked
             >
             <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
             <span class="kt-cookie-banner__toggle-text">
@@ -146,7 +161,6 @@
               type="checkbox"
               class="kt-cookie-banner__toggle-input"
               data-cookie-purpose="marketing"
-              checked
             >
             <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
             <span class="kt-cookie-banner__toggle-text">
@@ -164,7 +178,6 @@
               type="checkbox"
               class="kt-cookie-banner__toggle-input"
               data-cookie-purpose="preferences"
-              checked
             >
             <span class="kt-cookie-banner__toggle-track" aria-hidden="true"></span>
             <span class="kt-cookie-banner__toggle-text">

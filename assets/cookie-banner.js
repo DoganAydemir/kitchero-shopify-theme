@@ -1,14 +1,22 @@
 /* ==========================================================================
    Cookie / Privacy Consent Banner — Shopify Customer Privacy API integration
 
-   Architecture (R126):
+   Architecture (R126 + R333 region-gating):
      1. Load Shopify's `consent-tracking-api` feature on init.
-     2. Read userTrackingConsent state — only show banner when state is
+     2. Region gate (R333 SHOULD-SHOW-GDPR-BANNER): defer to Shopify's
+        `Shopify.customerPrivacy.shouldShowGDPRBanner()` to decide whether
+        a banner is required for the visitor's region. Returns true only
+        for EU/UK + opt-in jurisdictions where the merchant has marked
+        consent required. Showing a GDPR banner to non-EU/non-UK visitors
+        is a Theme Store rejection signal (over-collection of consent,
+        and conflicts with US CCPA opt-out model where a footer
+        "Do Not Sell" link is the correct affordance).
+     3. Read userTrackingConsent state — only show banner when state is
         'no_interaction' (customer hasn't decided yet). Suppress on
         'allow' / 'declined'.
-     3. Accept button → setTrackingConsent(true) + hide banner.
-     4. Decline button (and × close) → setTrackingConsent(false) + hide.
-     5. Re-init on shopify:section:load for theme editor compatibility.
+     4. Accept button → setTrackingConsent(true) + hide banner.
+     5. Decline button (and × close) → setTrackingConsent(false) + hide.
+     6. Re-init on shopify:section:load for theme editor compatibility.
 
    Theme Store rule: NO custom cookie or localStorage state — Shopify's
    API IS the source of truth. The customer's decision persists across
@@ -96,15 +104,16 @@ if (!window.__kitcheroCookieBannerLoaded) {
     /* R160 GRANULAR-GDPR-CONSENT: read current per-purpose state from
        Shopify's API and pre-fill the customize panel checkboxes so
        a customer re-opening the banner via [data-cookie-preferences]
-       sees their existing decisions instead of the default-true
+       sees their existing decisions instead of the default-off
        baseline. Uses the per-purpose getter functions exposed by
        the Customer Privacy API: analyticsProcessingAllowed(),
        marketingAllowed(), preferencesProcessingAllowed(),
-       saleOfDataAllowed(). On first paint (no prior decision) all
-       4 read true / undefined → checkboxes stay at their HTML
-       default-true state which mirrors the implied "everything is
-       allowed" first-visit baseline that Shopify's API treats as
-       'no_interaction'. */
+       saleOfDataAllowed(). On first paint (no prior decision) all 4
+       read undefined / null → checkboxes stay at their HTML
+       default-OFF state per R322 GDPR-PRECHECKED-FIX (Art. 7(2) /
+       Planet49 ruling). Saving an untouched panel writes all-false
+       (opt-out), which is the regulator-required first-visit default
+       until the user clicks Accept all. */
     function syncCustomizePanelToCurrentConsent(banner) {
       if (!banner) return;
       var cp = window.Shopify && window.Shopify.customerPrivacy;
@@ -181,8 +190,39 @@ if (!window.__kitcheroCookieBannerLoaded) {
 
       function checkConsentAndShow() {
         try {
-          var consent = window.Shopify && window.Shopify.customerPrivacy
-            ? window.Shopify.customerPrivacy.userTrackingConsent()
+          var cp = window.Shopify && window.Shopify.customerPrivacy;
+          if (!cp) return;
+
+          /* R333 SHOULD-SHOW-GDPR-BANNER (REJECT-level Customer Privacy
+             API compliance): only show the GDPR banner when Shopify
+             determines the visitor is in a region/jurisdiction that
+             requires opt-in consent (EU/UK + the opt-in regions the
+             merchant has configured). For non-EU visitors the banner
+             must NOT auto-show — the footer "Cookie preferences" /
+             "Do Not Sell" affordance still lets US/CCPA visitors
+             re-open the panel via window.Kitchero.openCookieBanner.
+
+             Method signature varies across Shopify Storefront API
+             rollouts:
+              - shouldShowGDPRBanner()  — current public name
+              - shouldShowBanner()      — legacy alias on some shops
+             Both return a synchronous boolean. If neither exists
+             (very old Shopify shop / API not yet rolled), fall back
+             to NOT showing the banner — a missing region check is
+             a Theme Store reject signal, so failing closed is the
+             safer side. The footer trigger still re-opens it. */
+          var shouldShow = null;
+          if (typeof cp.shouldShowGDPRBanner === 'function') {
+            shouldShow = cp.shouldShowGDPRBanner();
+          } else if (typeof cp.shouldShowBanner === 'function') {
+            shouldShow = cp.shouldShowBanner();
+          }
+          if (shouldShow !== true) {
+            return;
+          }
+
+          var consent = typeof cp.userTrackingConsent === 'function'
+            ? cp.userTrackingConsent()
             : null;
           /* 'no_interaction' = customer hasn't decided yet. */
           if (consent === 'no_interaction' || consent == null) {
@@ -208,11 +248,14 @@ if (!window.__kitcheroCookieBannerLoaded) {
           [{ name: 'consent-tracking-api', version: '0.1' }],
           function (err) {
             if (err) {
-              /* API failed to load. Fall back: show banner anyway so
-                 the customer at least sees the cookie disclosure. The
-                 accept/decline buttons will gracefully no-op the API
-                 call (try/catch in setConsent above). */
-              checkConsentAndShow();
+              /* R333: API failed to load. Without the Customer Privacy
+                 API we cannot call shouldShowGDPRBanner() so we
+                 cannot guarantee the banner is required for this
+                 visitor's region — fail closed (don't show) instead
+                 of fail open. Showing an EU-style banner to a US
+                 visitor is a Theme Store reject signal; the footer
+                 [data-cookie-preferences] trigger still lets them
+                 open the panel manually. */
               return;
             }
             checkConsentAndShow();

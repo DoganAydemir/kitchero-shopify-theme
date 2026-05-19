@@ -249,10 +249,9 @@
   }
 }
 
-.kt-financing-calculator__term-amount::before {
-  content: '$';
-  margin-right: 0.05em;
-}
+/* R298 — currency symbol comes from the JS Intl.NumberFormat
+   output (driven by Shopify.currency.active). Adding a hardcoded
+   '$' ::before would double-render and break non-USD shops. */
 
 .kt-financing-calculator__term-per {
   font-size: 0.625rem;

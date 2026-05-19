@@ -51,6 +51,11 @@
             {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-iwt-parallax__image' }}
           {%- endif -%}
         </div>
+        {%- if request.design_mode and section.settings.image == blank -%}
+          <p class="kt-iwt-parallax__editor-hint" aria-live="polite">
+            {{ 'kt.section.image_with_text_parallax.editor_hint_no_image' | t | default: "Pick an image in this section's settings to enable the parallax effect." }}
+          </p>
+        {%- endif -%}
       </div>
 
       {%- comment -%} Text pane {%- endcomment -%}
@@ -269,8 +274,8 @@
       "id": "bg_color_custom",
       "label": "t:sections.shared.bg_color_custom.label",
       "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff"
-    },
+      "default": "#ffffff",
+      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

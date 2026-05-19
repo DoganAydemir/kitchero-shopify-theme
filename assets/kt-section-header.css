@@ -877,6 +877,17 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
+/* WCAG 2.4.7 — color change alone is not a sufficient focus indicator
+   for axe/Lighthouse; pair it with a visible outline ring on keyboard
+   focus so :focus-visible has both a color shift AND a high-contrast
+   outline. Pointer/tap focus stays unstyled via the bare `:focus` rule
+   above. */
+.kt-header__icon:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .kt-header__icon svg {
   width: 20px;
   height: 20px;

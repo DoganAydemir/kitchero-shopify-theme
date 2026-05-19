@@ -106,6 +106,12 @@
 
     <div class="kt-video-bg-hero__overlay"></div>
 
+    {%- if request.design_mode and section.settings.video_file == blank and section.settings.poster_image == blank -%}
+      <p class="kt-video-bg-hero__editor-hint" aria-live="polite">
+        {{ 'kt.section.video_bg_hero.editor_hint_no_media' | t | default: "Upload a video file or a poster image in this section's settings to replace this placeholder on the live storefront." }}
+      </p>
+    {%- endif -%}
+
     {%- comment -%}
       WCAG 2.2.2 Pause, Stop, Hide — auto-playing background video
       longer than 5 seconds MUST offer a user-controllable pause. Button

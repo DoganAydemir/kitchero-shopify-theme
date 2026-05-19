@@ -198,6 +198,15 @@ button.kt-gallery__slide--image {
   top: 1.5rem;
   right: 1.5rem;
   z-index: calc(var(--kt-z-lightbox) + 10);
+  /* WCAG 2.5.5 (target size) — explicit 44×44 floor so the close
+     button stays compliant even if the icon size shrinks under
+     custom merchant CSS overrides. 24px icon + 0.75rem padding
+     already hits 48px, but the floor guarantees it. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
   border: none;
