@@ -286,6 +286,19 @@
     --kt-buy-now-hover-bg: {{ settings.kt_buy_now_hover_bg | default: '#5adfae' }};
 
     {%- comment -%}
+      R232.59 — Theme-wide editorial accent color. Used for the small
+      "highlight" moments across the storefront — eyebrow labels like
+      SPOTLIGHT and PAY OVER TIME, deal-card include-bullets, the
+      hero accent strip, the countdown icon on PDP cards, the footer
+      accent link, and any future small accent moment a section
+      needs. Previously every consumer hardcoded `var(--kt-emerald-400)`
+      — merchants who wanted to rebrand had to fork the CSS (or use
+      Custom CSS overrides). Single setting now drives all 7 known
+      consumers. Default `#34d399` matches the original emerald-400.
+    {%- endcomment -%}
+    --kt-c-accent: {{ settings.kt_accent_color | default: '#34d399' }};
+
+    {%- comment -%}
       R294 — Badge corner radius. Previously emitted as
       `divided_by: 10.0` rem which silently 10x-shrank the
       merchant's chosen value (40px → 0.4rem ≈ 6px). Now emits

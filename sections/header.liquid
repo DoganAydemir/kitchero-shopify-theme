@@ -74,7 +74,7 @@
 {%- endcomment -%}
 {%- assign header_style = section.settings.header_style | default: 'auto' -%}
 <header
-  class="kt-header"
+  class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
   data-header-style="{{ header_style }}"
@@ -969,6 +969,16 @@
       "type": "url",
       "id": "mobile_cta_link",
       "label": "t:sections.header.settings.mobile_cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-4"
     }
   ],
   "blocks": [

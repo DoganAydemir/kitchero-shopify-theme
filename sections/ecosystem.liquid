@@ -25,15 +25,15 @@
   Merchants can still pick any scheme via the section's color_scheme
   setting; default ships dark to preserve the original design.
 {%- endcomment -%}
-{%- assign eco_scheme = section.settings.color_scheme | default: 'scheme-4' -%}
+{%- assign eco_scheme = section.settings.color_scheme | default: 'scheme-7' -%}
 {%- assign eco_pad_top = section.settings.padding_top | default: 60 -%}
 {%- assign eco_pad_bottom = section.settings.padding_bottom | default: 60 -%}
 <section
-  class="kt-ecosystem color-{{ eco_scheme }}"
+  class="kt-ecosystem color-{{ eco_scheme }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="ecosystem"
   aria-labelledby="EcosystemTitle-{{ section.id }}"
-  style="--kt-eco-pad-top: {{ eco_pad_top }}px; --kt-eco-pad-bottom: {{ eco_pad_bottom }}px;"
+  style="--kt-eco-pad-top: {{ eco_pad_top }}px; --kt-eco-pad-bottom: {{ eco_pad_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   {%- comment -%} Background grid pattern {%- endcomment -%}
   <div class="kt-ecosystem__grid-pattern" aria-hidden="true">
@@ -199,6 +199,26 @@
       "label": "t:sections.ecosystem.settings.padding_bottom.label"
     },
     {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
+    },
+    {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -206,7 +226,7 @@
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-4"
+      "default": "scheme-7"
     }
   ],
   "blocks": [

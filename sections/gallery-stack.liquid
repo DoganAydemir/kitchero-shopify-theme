@@ -30,7 +30,7 @@
   data-autoplay="{% if autoplay %}true{% else %}false{% endif %}"
   data-autoplay-interval="{{ autoplay_interval }}"
   data-total="{{ image_blocks_count }}"
-  style="--kt-stack-aspect: {{ aspect_ratio }};"
+  style="--kt-stack-aspect: {{ aspect_ratio }};{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="kt-gallery-stack__container">
     {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
@@ -344,11 +344,19 @@
         { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
         { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
         { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
       ],
       "default": "auto"
     },
-    {
+        {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
+    },
+{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },

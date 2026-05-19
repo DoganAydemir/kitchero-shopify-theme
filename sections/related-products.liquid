@@ -30,13 +30,14 @@
 {%- assign related_products_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 
 <section
-  class="kt-related color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="kt-related color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="related-products"
   data-product-recommendations
   data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_count }}&intent={{ section.settings.intent | default: 'related' }}"
   {% if recommendations.performed and recommendations.products_count == 0 %}hidden{% endif %}
   aria-labelledby="kt-related-title-{{ section.id }}"
+  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="page-width">
     <div class="kt-related__header">
@@ -145,6 +146,26 @@
         { "value": "complementary", "label": "t:sections.related-products.settings.intent.options__complementary.label" }
       ],
       "default": "related"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
     },
     {
       "type": "header",

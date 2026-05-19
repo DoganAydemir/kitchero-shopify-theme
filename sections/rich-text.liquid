@@ -23,7 +23,7 @@
   class="kt-rich-text kt-rich-text--align-{{ content_alignment }} kt-rich-text--{{ content_width }} color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="rich-text"
-  style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  style="--kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   {% if section.blocks.first.type == 'heading' %}aria-labelledby="RichTextHeading-{{ section.id }}"{% endif %}
 >
   <div class="page-width">

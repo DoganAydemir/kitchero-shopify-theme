@@ -20,10 +20,10 @@
 -%}
 
 <section
-  class="kt-video-poster color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
+  class="kt-video-poster color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="video-poster-modal"
-  style="--kt-video-poster-padding: {{ padding }}px;"
+  style="--kt-video-poster-padding: {{ padding }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="page-width">
     <div class="kt-video-poster__inner">
@@ -162,6 +162,26 @@
       "step": 8,
       "unit": "px",
       "default": 80
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
     },
     {
       "type": "header",

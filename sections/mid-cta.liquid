@@ -1,10 +1,10 @@
 {{ 'kt-section-mid-cta.css' | asset_url | stylesheet_tag }}
 
 <section
-  class="kt-mid-cta color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-mid-cta color-{{ section.settings.color_scheme | default: 'scheme-2' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="mid-cta"
-  style="--kt-mid-cta-pad-top: {{ section.settings.padding_top | default: 60 }}px; --kt-mid-cta-pad-bottom: {{ section.settings.padding_bottom | default: 60 }}px;"
+  style="--kt-mid-cta-pad-top: {{ section.settings.padding_top | default: 60 }}px; --kt-mid-cta-pad-bottom: {{ section.settings.padding_bottom | default: 60 }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="kt-mid-cta__text">
     {%- if section.settings.label != blank -%}
@@ -201,7 +201,7 @@
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-1"
+      "default": "scheme-2"
     }
   ],
   "disabled_on": {

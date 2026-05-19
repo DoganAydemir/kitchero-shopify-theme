@@ -16,10 +16,10 @@
 {%- assign padding_bottom = section.settings.padding_bottom | default: 0 -%}
 
 <section
-  class="kt-banner-split {{ modifier_class }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="kt-banner-split {{ modifier_class }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="banner-split"
-  style="--kt-banner-split-pad-top: {{ padding_top }}px; --kt-banner-split-pad-bottom: {{ padding_bottom }}px;"
+  style="--kt-banner-split-pad-top: {{ padding_top }}px; --kt-banner-split-pad-bottom: {{ padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="kt-banner-split__inner">
     {%- comment -%} Text pane {%- endcomment -%}
@@ -215,6 +215,26 @@
       "unit": "px",
       "label": "t:settings_schema.global.settings.padding_bottom.label",
       "default": 0
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
     },
     {
       "type": "header",

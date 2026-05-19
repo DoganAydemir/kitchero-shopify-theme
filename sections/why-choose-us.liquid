@@ -9,7 +9,7 @@
   decorative dividers; defaulting to scheme-1 made the editorial
   contrast vanish. Merchants override per-section if needed.
 {%- endcomment -%}
-<section class="kt-why-choose-us color-{{ section.settings.color_scheme | default: 'scheme-4' }}" data-section-id="{{ section.id }}" data-section-type="why-choose-us">
+<section class="kt-why-choose-us color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="why-choose-us" style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}">
   <div class="page-width">
 
     {%- comment -%} Header: title left, description right {%- endcomment -%}
@@ -96,6 +96,26 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:sections.why-choose-us.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "bg_color",
+      "label": "t:sections.shared.bg_color.label",
+      "options": [
+        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
+        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
+        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
     },
     {
       "type": "header",

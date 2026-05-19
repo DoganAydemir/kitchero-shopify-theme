@@ -38,7 +38,7 @@
   class="kt-iwt-alternating color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="image-with-text-alternating"
-  style="--kt-row-gap: {{ row_gap }}px; --kt-image-aspect: {{ aspect_value | strip }}; --kt-iwt-pad-top: {{ padding_top }}px; --kt-iwt-pad-bottom: {{ padding_bottom }}px;"
+  style="--kt-row-gap: {{ row_gap }}px; --kt-image-aspect: {{ aspect_value | strip }}; --kt-iwt-pad-top: {{ padding_top }}px; --kt-iwt-pad-bottom: {{ padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   <div class="kt-iwt-alternating__inner page-width">
     {%- if has_header -%}

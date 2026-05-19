@@ -27,7 +27,7 @@
   data-section-type="brands"
   data-marquee-pause-host
   data-marquee-pause-modifier="kt-brands--paused"
-  style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px; --kt-brands-logo-opacity: {{ brands_logo_opacity }}; --kt-brands-logo-filter: {{ brands_logo_filter }};"
+  style="--kt-brands-pad-top: {{ section.settings.padding_top | default: 40 }}px; --kt-brands-pad-bottom: {{ section.settings.padding_bottom | default: 40 }}px; --kt-brands-logo-opacity: {{ brands_logo_opacity }}; --kt-brands-logo-filter: {{ brands_logo_filter }};{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   aria-label="{{ 'kt.section.brands.aria_label' | t | default: 'Featured brands' }}"
 >
   {%- comment -%}

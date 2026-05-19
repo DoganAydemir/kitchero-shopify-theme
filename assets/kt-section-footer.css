@@ -5,12 +5,20 @@
    ============================================================ */
 
 .kt-footer {
-  background-color: var(--kt-black);
-  color: var(--kt-stone-100);
+  /* R232.54 — Footer was hardcoded `var(--kt-black)` + `var(--kt-stone-100)`
+     which overrode the schema's `color_scheme` setting entirely (user
+     feedback: "footer'a uygulanmıyor bu scheme"). The footer schema
+     ships `color_scheme` and the markup already emits the `color-X`
+     class — only the CSS needed wiring. Default scheme is `scheme-4`
+     (Dark Editorial) so the out-of-box look stays black-ish, matching
+     the original design. Merchants can flip to any other scheme via
+     Footer → Color scheme. */
+  background-color: rgb(var(--kt-c-bg, 0 0 0));
+  color: rgb(var(--kt-c-fg, 245 245 244));
   padding: 6rem 1.5rem;
   overflow: hidden;
   position: relative;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.05);
 }
 
 @media screen and (min-width: 750px) {
@@ -50,7 +58,8 @@
   letter-spacing: -0.025em;
   line-height: 1.1;
   margin-bottom: 2rem;
-  color: var(--kt-white);
+  /* R232.54 — scheme-aware (was hardcoded white). */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-footer__brand-text {
@@ -60,8 +69,9 @@
      that contrasts oddly against the otherwise neutral palette;
      user described it as "looks like a different grey, not THE
      grey". rgba(255, 255, 255, 0.55) is a true neutral muted
-     white that sits cleanly against the stone-900 footer. */
-  color: rgba(255, 255, 255, 0.55);
+     white that sits cleanly against the stone-900 footer.
+     R232.54 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   /* Was 1.25rem (20px) — too prominent on mobile, competing with
      the headline above. 0.9375rem (15px) restores the typographic
      hierarchy: tagline reads as a subdued caption, not a second
@@ -89,15 +99,16 @@
   gap: 1rem;
   font-size: 1.25rem;
   font-weight: 500;
-  color: var(--kt-white);
+  /* R232.54 — scheme-aware. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
   text-decoration: none;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--kt-stone-700);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 68 64 60), 0.35);
   transition: border-color 0.2s ease;
 }
 
 .kt-footer__cta:hover {
-  border-color: var(--kt-white);
+  border-color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-footer__cta-arrow {
@@ -106,8 +117,12 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  background-color: var(--kt-white);
-  color: var(--kt-black);
+  /* R232.54 — Action-themed pill. The CTA arrow circle inverts vs
+     the surface: bg uses --kt-c-action (always contrasts surface),
+     icon uses --kt-c-action-text. Falls back to white-on-black
+     (the original dark-footer pairing). */
+  background-color: rgb(var(--kt-c-action, 255 255 255));
+  color: rgb(var(--kt-c-action-text, 0 0 0));
   border-radius: 50%;
   transition: transform 0.2s ease;
 }
@@ -126,7 +141,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--kt-stone-500);
+  /* R232.54 — scheme-aware eyebrow. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   margin-bottom: 2rem;
 }
 
@@ -149,7 +165,8 @@
   margin: 0;
   font-size: 0.875rem;
   font-style: italic;
-  color: var(--kt-stone-500);
+  /* R232.54 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   line-height: 1.5;
 }
 
@@ -169,7 +186,8 @@
   padding: 0.5rem 0;
   font-size: 0.9375rem;
   font-weight: 300;
-  color: var(--kt-stone-300); /* stone-300 */
+  /* R232.54 — scheme-aware link color (was stone-300). */
+  color: rgba(var(--kt-c-fg, 211 211 211), 0.75);
   text-decoration: none;
   transition: color 0.25s ease;
   letter-spacing: 0.005em;
@@ -184,11 +202,12 @@
 
 .kt-footer__link:hover,
 .kt-footer__link:focus-visible {
-  color: var(--kt-white);
+  /* R232.54 — scheme-aware hover. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-footer__link--accent {
-  color: var(--kt-emerald-400);
+  color: var(--kt-c-accent, #34d399);
   font-weight: 500;
 }
 
@@ -208,7 +227,12 @@
   line-height: 0.75;
   font-weight: 700;
   letter-spacing: -0.05em;
-  color: var(--kt-stone-900);
+  /* R232.54 — Ghosted wordmark. Was hardcoded stone-900 which on a
+     stone-900 footer = "barely-visible giant wordmark" by design.
+     For scheme-aware, use --kt-c-fg at very low alpha so the same
+     ghost effect lands on any scheme (light surfaces get a faint
+     dark ghost, dark surfaces get a faint light ghost). */
+  color: rgba(var(--kt-c-fg, 28 25 23), 0.06);
   text-transform: uppercase;
   user-select: none;
   pointer-events: none;
@@ -218,7 +242,8 @@
 .kt-footer__bottom {
   width: 100%;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  /* R232.54 — scheme-aware divider. */
+  border-top: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -240,21 +265,24 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.6875rem;
-  color: var(--kt-stone-500);
+  /* R232.54 — scheme-aware muted footnote. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   font-weight: 500;
   letter-spacing: -0.01em;
   height: 2.5rem;
 }
 
 .kt-footer__copyright a {
-  color: var(--kt-stone-500);
+  /* R232.54 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   text-decoration: underline;
   text-underline-offset: 0.25rem;
   transition: color 0.2s ease;
 }
 
 .kt-footer__copyright a:hover {
-  color: var(--kt-stone-500);
+  /* R232.54 — slight brighten on hover. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.85);
 }
 
 /* ── R139 PRIVACY-1: Cookie preferences re-access button ── */
@@ -268,7 +296,8 @@
   border: none;
   font: inherit;
   font-size: inherit;
-  color: var(--kt-stone-500);
+  /* R232.54 — scheme-aware. */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   text-decoration: underline;
   text-underline-offset: 0.25rem;
   cursor: pointer;
@@ -277,7 +306,8 @@
 
 .kt-footer__cookie-preferences:hover,
 .kt-footer__cookie-preferences:focus-visible {
-  color: var(--kt-stone-700);
+  /* R232.54 — slight brighten on hover (was stone-700 which was actually DARKER on the dark footer, surprisingly low contrast — fixed by going brighter for consistent hover affordance). */
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.85);
 }
 
 /* JS-off: the button has no working hook (cookie-banner.js
@@ -308,12 +338,29 @@ html.no-js .kt-footer__cookie-preferences {
   gap: 0.5rem;
 }
 
+/* R232.55 — Footer-scoped localization wrapper override. The global
+   `.localization-selector` in `kt-localization-form.css` paints the
+   wrapper with `color: var(--kt-stone-400)`. The select inside used
+   to `color: inherit` from that wrapper, so the dropdown text
+   inherited stone-400 (muted dark grey) — on a scheme-5 emerald
+   footer that reads as faded pink-ish on green (user feedback:
+   "dropdown text sıkıntılı görünüyor"). Force the wrapper AND its
+   select to follow the footer's scheme `--kt-c-fg` so the text is
+   readable against any scheme surface. */
+.kt-footer__localization-form .localization-selector {
+  color: rgb(var(--kt-c-fg, 168 162 158));
+}
+
 .kt-footer__localization-form .localization-selector select {
   appearance: none;
   -webkit-appearance: none;
-  background-color: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: rgba(var(--kt-c-fg, 255 255 255), 0.06);
+  /* Explicit scheme-aware color, not `inherit` — the wrapper above
+     also carries the scheme color, so either path reaches the same
+     value; explicit keeps the chain robust if the wrapper override
+     is ever removed. */
+  color: rgb(var(--kt-c-fg, 168 162 158));
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.22);
   border-radius: 9999px;
   /* R232.17 — extra right padding (2.25rem vs left 1.25rem) reserves
      room for the custom chevron SVG painted via background-image
@@ -321,14 +368,14 @@ html.no-js .kt-footer__cookie-preferences {
      `appearance: none` but never replaced it, leaving the browser's
      half-clipped fallback glyph visible on the right edge. */
   padding: 0.5rem 2.25rem 0.5rem 1.25rem;
-  /* R232.17 — Inline SVG chevron via background-image; uses
-     `currentColor` so the arrow stays scheme-aware. The polyline
-     points are the same shape as the inline `<svg>` chevron the
-     header uses, keeping the visual language consistent. */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 0.875rem center;
-  background-size: 12px 12px;
+  /* R232.55 — Background-image chevron REMOVED. The R232.17 inline
+     SVG had `stroke="white"` hardcoded — claimed to be scheme-aware
+     in the comment but white-on-emerald (scheme-5) read as
+     mismatched. The global `.localization-selector::after` already
+     draws a chevron via `mask-image + currentColor` on the WRAPPER,
+     so removing this duplicate background-image lets that ::after
+     take over and follow whatever color the wrapper is using —
+     which now tracks the scheme. */
   font: inherit;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
@@ -338,7 +385,7 @@ html.no-js .kt-footer__cookie-preferences {
 }
 
 .kt-footer__localization-form .localization-selector select:hover {
-  border-color: rgba(255, 255, 255, 0.32);
+  border-color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
 }
 
 .kt-footer__localization-form .localization-selector select:focus-visible {
@@ -350,7 +397,7 @@ html.no-js .kt-footer__cookie-preferences {
 .kt-footer__localization-form .localization-selector .button--secondary {
   background: transparent;
   color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.22);
   border-radius: 9999px;
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
@@ -362,8 +409,8 @@ html.no-js .kt-footer__cookie-preferences {
 }
 
 .kt-footer__localization-form .localization-selector .button:hover {
-  border-color: rgba(255, 255, 255, 0.32);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
+  background: rgba(var(--kt-c-fg, 255 255 255), 0.04);
   opacity: 1;
 }
 
@@ -397,7 +444,8 @@ html.no-js .kt-footer__cookie-preferences {
 .kt-footer__policies {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--kt-stone-800, rgba(255, 255, 255, 0.08));
+  /* R232.54 — scheme-aware divider (was hardcoded stone-800 fallback). */
+  border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.12);
 }
 
 .kt-footer__policies-list {
@@ -409,7 +457,7 @@ html.no-js .kt-footer__cookie-preferences {
 }
 
 .kt-footer__policy-link {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-size: 0.8125rem;
   text-decoration: none;
   border-bottom: 1px solid transparent;
@@ -418,7 +466,7 @@ html.no-js .kt-footer__cookie-preferences {
 
 .kt-footer__policy-link:hover,
 .kt-footer__policy-link:focus-visible {
-  color: var(--kt-stone-100, #f5f5f4);
+  color: rgb(var(--kt-c-fg, 245 245 244));
   border-bottom-color: currentColor;
 }
 
@@ -443,12 +491,12 @@ html.no-js .kt-footer__cookie-preferences {
      extra area around the icon just catches taps. */
   min-width: 44px;
   min-height: 44px;
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   transition: color 0.2s ease;
 }
 
 .kt-footer__social-link:hover {
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-footer__social-link svg {
@@ -467,8 +515,8 @@ html.no-js .kt-footer__cookie-preferences {
   background: transparent;
   /* R105 — WCAG 1.4.11. white@0.15 on dark footer was ~1.1:1.
      0.45 alpha lifts to ~3:1 against the kt-footer dark scheme. */
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: var(--kt-stone-50);
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.45);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   border-radius: 4px;
   padding: 0.75rem 1rem;
   /* R104 — 1rem prevents iOS Safari zoom-on-focus on the
@@ -481,7 +529,7 @@ html.no-js .kt-footer__cookie-preferences {
      — fails AA. stone-300 (#d6d3d1) ≈ 12:1 on dark footer,
      comfortably clears AA while keeping the placeholder visibly
      dimmer than typed text. */
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg, 211 211 211), 0.75);
 }
 
 .kt-footer__newsletter-btn {
@@ -518,7 +566,7 @@ html.no-js .kt-footer__cookie-preferences {
   gap: 0.5rem;
   font-size: 0.8125rem;
   line-height: 1.4;
-  color: var(--kt-stone-300);
+  color: rgba(var(--kt-c-fg, 211 211 211), 0.75);
 }
 
 .kt-footer__newsletter-consent input[type="checkbox"] {
@@ -526,7 +574,7 @@ html.no-js .kt-footer__cookie-preferences {
   width: 16px;
   height: 16px;
   margin-top: 0.125rem;
-  accent-color: var(--kt-stone-50);
+  accent-color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
 .kt-footer__newsletter-consent-label {
@@ -538,7 +586,7 @@ html.no-js .kt-footer__cookie-preferences {
 .kt-footer__newsletter-consent-label > *:last-child { margin-bottom: 0; }
 
 .kt-footer__newsletter-consent-label a {
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }

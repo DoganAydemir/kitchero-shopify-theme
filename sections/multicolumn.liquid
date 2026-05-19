@@ -26,7 +26,7 @@
   class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="multicolumn"
-  style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   {% if section.settings.heading != blank %}aria-labelledby="MulticolumnHeading-{{ section.id }}"{% endif %}
 >
   <div class="page-width">

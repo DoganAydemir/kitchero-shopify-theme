@@ -53,7 +53,15 @@
      any future padding addition and trigger a layout pass on every
      scroll-state toggle. Removing prevents future regressions. */
   transition: background-color 0.5s ease, backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease;
-  background-color: rgba(12, 10, 9, 0.95);
+  /* R232.56 — Header bg scheme-aware. Was hardcoded rgba(12,10,9,
+     0.95) — stone-950 with 95% alpha for the glassy backdrop. Now
+     reads `--kt-c-bg` so merchants who pick a different scheme see
+     a matching glassy chrome (e.g. scheme-1 cream gives a cream
+     glassy header). Default scheme-4 (Dark Editorial) keeps the
+     out-of-box look near the original dark glass; the 12,10,9
+     fallback covers no-scheme installs. */
+  background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
+  color: rgb(var(--kt-c-fg, 245 245 244));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -141,7 +149,7 @@ body:has(.kt-announcement-banner).kt-body--header-transparent .kt-header:not([da
    come back as expected. Position stays `fixed` throughout. */
 body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]).kt-header--scrolled {
   position: fixed;
-  background-color: rgba(12, 10, 9, 0.95);
+  background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -155,7 +163,7 @@ body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]):not
 
 /* When scrolled (both modes get solid background) */
 .kt-header--scrolled {
-  background-color: rgba(12, 10, 9, 0.95);
+  background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -182,7 +190,7 @@ body.kt-body--header-transparent .kt-header[data-header-style="solid"],
 .kt-header[data-header-style="solid"] {
   position: sticky;
   top: 0;
-  background-color: rgba(12, 10, 9, 0.95);
+  background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -251,7 +259,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    (same UX as banner-led auto pages). */
 .kt-header[data-header-style="transparent"].kt-header--scrolled {
   position: fixed;
-  background-color: rgba(12, 10, 9, 0.95);
+  background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -297,10 +305,12 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   }
 }
 
-/* Logo */
+/* R232.57 — Logo color scheme-aware so the wordmark tracks the
+   merchant's chosen header surface (cream scheme → dark wordmark,
+   dark scheme → light wordmark). */
 .kt-header__logo {
   text-decoration: none;
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
   flex-shrink: 0;
 }
 
@@ -309,7 +319,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: -0.05em;
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* R291 — Logo intrinsic width comes from two merchant settings
@@ -365,7 +375,10 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.025em;
-  color: rgba(214, 211, 209, 1);
+  /* R232.57 — scheme-aware: was hardcoded stone-300 (rgba 214,211,209)
+     which read as light-on-dark in the original scheme but stayed
+     light when merchant chose a cream/emerald surface. Now muted-fg. */
+  color: rgba(var(--kt-c-fg, 214 211 209), 0.85);
   text-decoration: none;
   transition: color 0.2s ease;
   white-space: nowrap;
@@ -374,7 +387,8 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 .kt-header__menu-link:hover,
 .kt-header__menu-link:focus-visible,
 .kt-header__menu-link[aria-current="page"] {
-  color: var(--kt-white);
+  /* R232.57 — scheme-aware hover/active full-strength fg. */
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 /* R184 MENU-BADGE-1: small inline pill rendered next to the
@@ -425,13 +439,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 /* Flyout Dropdown (2-level, narrow list)
    From Navbar.tsx: duration-500, cubic-bezier easing */
+/* R232.57 — flyout popover surface scheme-aware so the panel sits on
+   the merchant's scheme bg with subtle fg-toned border. */
 .kt-header__flyout {
   position: absolute;
   top: 100%;
   left: 50%;
   width: 200px;
-  background-color: var(--kt-white);
-  border: 1px solid var(--kt-stone-200);
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   border-radius: 2px;
   padding: 0.5rem 0;
@@ -466,20 +482,21 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   transform: translateX(-50%) translateY(0);
 }
 
+/* R232.57 — flyout link colors scheme-aware. */
 .kt-header__flyout-link {
   display: block;
   padding: 0.75rem 1.25rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .kt-header__flyout-link:hover {
-  background-color: var(--kt-stone-50);
-  color: var(--kt-stone-900);
+  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* Inline badge in menu title — admin writes: Deals <span>Sale</span>
@@ -548,8 +565,9 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   min-width: min(600px, calc(100vw - 3rem));
   max-width: min(1100px, calc(100vw - 3rem));
   padding: 2.5rem;
-  background-color: var(--kt-white);
-  border: 1px solid var(--kt-stone-200);
+  /* R232.57 — mega menu surface scheme-aware. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border-radius: 2px;
   opacity: 0;
@@ -647,12 +665,13 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    Next.js source uses text-stone-400 but that fails WCAG AA on the
    white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
    4.8:1 contrast — still muted, still reads as an eyebrow label. */
+/* R232.57 — eyebrow label scheme-aware (muted fg). */
 .kt-header__mega-column-title {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
   margin-bottom: 1rem;
 }
 
@@ -672,12 +691,13 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    the secondary-link tier they should be. Pinning font-family
    here keeps the hierarchy (eyebrow label → link) legible at
    small sizes. */
+/* R232.57 — mega link rest + hover scheme-aware. */
 .kt-header__mega-link {
   font-family: var(--kt-f-body, system-ui, sans-serif);
   font-size: 0.84375rem;
   font-weight: 400;
   line-height: 1.4;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease, letter-spacing 0.2s ease;
@@ -685,7 +705,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__mega-link:hover,
 .kt-header__mega-link:focus-visible {
-  color: var(--kt-stone-900);
+  color: rgb(var(--kt-c-fg, 28 25 23));
   letter-spacing: 0.025em;
 }
 
@@ -822,7 +842,8 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   min-width: 44px;
   min-height: 44px;
   padding: 0.5rem;
-  color: rgba(214, 211, 209, 1);
+  /* R232.57 — header icon rest color scheme-aware (was stone-300). */
+  color: rgba(var(--kt-c-fg, 214 211 209), 0.85);
   text-decoration: none;
   transition: color 0.2s ease;
   position: relative;
@@ -850,9 +871,10 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   outline: none;
 }
 
+/* R232.57 — icon hover/focus scheme-aware fg. */
 .kt-header__icon:hover,
 .kt-header__icon:focus-visible {
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-header__icon svg {
@@ -875,6 +897,9 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   display: none;
 }
 
+/* R232.57 — cart count pill uses the scheme's action color so it
+   reads as a real branded chip on every scheme (cream scheme gets
+   a cream button bg with dark text, dark scheme gets the inverse). */
 .kt-header__cart-count {
   position: absolute;
   top: 0;
@@ -886,8 +911,8 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   height: 1rem;
   font-size: 0.5625rem;
   font-weight: 700;
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
+  background-color: rgb(var(--kt-c-action, 255 255 255));
+  color: rgb(var(--kt-c-action-text, 28 25 23));
   border-radius: 50%;
 }
 
@@ -961,6 +986,8 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   transform: rotate(180deg);
 }
 
+/* R232.57 — locale popover surface scheme-aware: scheme bg with
+   subtle fg-toned border so the panel sits naturally on every scheme. */
 .kt-header__locale-popover {
   position: absolute;
   top: calc(100% + 0.5rem);
@@ -971,8 +998,8 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   min-width: 18rem;
   max-width: 24rem;
   padding: 1rem;
-  background-color: var(--kt-stone-900, #1c1917);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.12);
   border-radius: 0.5rem;
   box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.45);
   z-index: 60;
@@ -987,12 +1014,13 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   gap: 0.25rem;
 }
 
+/* R232.57 — locale form label scheme-aware. */
 .kt-header__locale-form-label {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(214, 211, 209, 0.7);
+  color: rgba(var(--kt-c-fg, 214 211 209), 0.7);
 }
 
 .kt-header__locale-form-select {
@@ -1007,30 +1035,35 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   /* R296 — Was effectively 32-34px tall (padding + 14px font),
      failing WCAG 2.5.5 (44px touch target). Pin to the 44px floor. */
   min-height: 44px;
-  background-color: rgba(255, 255, 255, 0.04);
+  /* R232.57 — select chrome scheme-aware (subtle fg-tinted fill +
+     border, fg text color). SVG fill inside data URL left alone. */
+  background-color: rgba(var(--kt-c-fg, 255 255 255), 0.04);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d6d3d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.16);
   border-radius: 0.375rem;
-  color: var(--kt-white, #fafaf9);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   cursor: pointer;
 }
 
+/* R232.57 — focus ring uses scheme fg. */
 .kt-header__locale-form-select:focus-visible {
-  outline: 2px solid var(--kt-white, #fafaf9);
+  outline: 2px solid rgb(var(--kt-c-fg, 250 250 249));
   outline-offset: 2px;
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
 }
 
+/* R232.57 — locale submit uses the scheme's action color so the CTA
+   reads as an actual branded button on every scheme. */
 .kt-header__locale-form-submit {
   margin-top: 0.5rem;
   /* R296 — 0.5rem block padding pushed under WCAG 2.5.5 minimum;
      0.75rem keeps the visual proportions but ensures ≥44px tall. */
   padding: 0.75rem 1rem;
   min-height: 44px;
-  background-color: var(--kt-white, #fafaf9);
-  color: var(--kt-stone-900, #1c1917);
+  background-color: rgb(var(--kt-c-action, 250 250 249));
+  color: rgb(var(--kt-c-action-text, 28 25 23));
   font: inherit;
   font-size: 0.75rem;
   font-weight: 700;
@@ -1041,13 +1074,13 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   cursor: pointer;
 }
 
-/* Mobile Menu Toggle */
+/* R232.57 — hamburger toggle color tracks the scheme. */
 .kt-header__menu-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
-  color: var(--kt-white);
+  color: rgb(var(--kt-c-fg, 255 255 255));
   background: none;
   border: none;
   cursor: pointer;
@@ -1079,8 +1112,9 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   outline: none;
 }
 
+/* R232.57 — focus ring scheme-aware. */
 .kt-header__menu-toggle:focus-visible {
-  outline: 2px solid var(--kt-white);
+  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
   outline-offset: 2px;
 }
 
@@ -1094,13 +1128,16 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
    on the header, once inside the panel) and the layout looked broken.
    1100 sits above header but still under cart-drawer (2100) so the
    cart can open over an active mobile menu. */
+/* R232.57 — mobile drawer panel scheme-aware: surface follows the
+   merchant's bg scheme, text follows fg. Default fallback keeps the
+   original dark drawer look (stone-900 / stone-50). */
 .kt-header__mobile-panel {
   position: fixed;
   inset: 0;
   /* R113 — drawer tier (mobile menu sits at the drawer level). */
   z-index: var(--kt-z-drawer);
-  background-color: var(--kt-stone-900);
-  color: var(--kt-stone-50);
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  color: rgb(var(--kt-c-fg, 250 250 249));
   transform: translateY(-100%);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;  /* slider handles its own scroll per-panel */
@@ -1119,11 +1156,12 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
    — can still reach navigation on mobile. Hamburger toggle and
    sub-panel forward/back buttons are hidden because they require
    JS. Links inside the panel (href anchors) work natively. */
+/* R232.57 — JS-off mobile panel inherits scheme bg. */
 html.no-js .kt-header__mobile-panel {
   position: static;
   transform: none;
   height: auto;
-  background-color: var(--kt-stone-950);
+  background-color: rgb(var(--kt-c-bg, 12 10 9));
   padding: 0.75rem 1.25rem;
 }
 
@@ -1167,6 +1205,7 @@ html.no-js .kt-header__mobile-slider {
   height: auto;
 }
 
+/* R232.57 — JS-off panel borders / titles scheme-aware. */
 html.no-js .kt-header__mobile-view {
   position: static;
   inset: auto;
@@ -1174,14 +1213,14 @@ html.no-js .kt-header__mobile-view {
   transition: none;
   overflow: visible;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.08);
 }
 
 html.no-js .kt-header__mobile-view-title {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.5);
   padding: 0.5rem 0;
 }
 
@@ -1216,7 +1255,8 @@ html.no-js .kt-header__mobile-view-title {
   min-width: 2.75rem;
   min-height: 2.75rem;
   padding: 0.5rem;
-  color: var(--kt-stone-50);
+  /* R232.57 — close button color scheme-aware. */
+  color: rgb(var(--kt-c-fg, 250 250 249));
   background: none;
   border: none;
   border-radius: 9999px;
@@ -1244,9 +1284,10 @@ html.no-js .kt-header__mobile-view-title {
    Swap the rectangular outline for a soft circular tint so the
    keyboard focus indicator is still present (WCAG 2.4.7) but
    doesn't read as a stuck "bordered button" on touch. */
+/* R232.57 — focus tint scheme-aware. */
 .kt-header__mobile-panel-close:focus-visible {
   outline: none;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(var(--kt-c-fg, 255 255 255), 0.12);
 }
 
 /* ============================================================
@@ -1318,6 +1359,7 @@ html.no-js .kt-header__mobile-view-title {
    paint frames. Pinned to stone-50 in every state so the BACK chip
    reads as the same light tone whether the user has tapped it,
    hovered (desktop sim), or just opened the panel. */
+/* R232.57 — back link color follows scheme fg in every state. */
 .kt-header__mobile-back {
   display: inline-flex;
   align-items: center;
@@ -1327,7 +1369,7 @@ html.no-js .kt-header__mobile-view-title {
   margin-bottom: 2.5rem;
   background: none;
   border: none;
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   font-family: var(--kt-f-body-family);
   font-size: 0.75rem;
   font-weight: 700;
@@ -1340,7 +1382,7 @@ html.no-js .kt-header__mobile-view-title {
 .kt-header__mobile-back:hover,
 .kt-header__mobile-back:focus,
 .kt-header__mobile-back:focus-visible {
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
 .kt-header__mobile-back:focus {
@@ -1348,7 +1390,7 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 .kt-header__mobile-back:focus-visible {
-  outline: 2px solid var(--kt-stone-50);
+  outline: 2px solid rgb(var(--kt-c-fg, 250 250 249));
   outline-offset: 2px;
 }
 
@@ -1369,19 +1411,21 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 /* Panel title — small uppercase label above the sub-menu */
+/* R232.57 — mobile sub-panel header label + divider scheme-aware. */
 .kt-header__mobile-view-title {
   font-family: var(--kt-f-body-family);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   margin: 0 0 2rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--kt-stone-800);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.15);
 }
 
 /* Menu items (both top-level and sub-level). Shared styling. */
+/* R232.57 — mobile nav link text + row divider scheme-aware. */
 .kt-header__mobile-link {
   display: flex;
   align-items: center;
@@ -1392,11 +1436,11 @@ html.no-js .kt-header__mobile-view-title {
   font-size: 1.5rem;
   letter-spacing: -0.025em;
   line-height: 1.2;
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
   text-decoration: none;
   background: none;
   border: none;
-  border-bottom: 1px solid var(--kt-stone-800);
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.15);
   cursor: pointer;
   transition: color 0.2s ease;
   text-align: left;
@@ -1410,8 +1454,9 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
+/* R232.57 — hover muted fg. */
 .kt-header__mobile-link:hover {
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
 }
 
 /* Text label inside a mobile menu link. Uses the flex: 1 so the
@@ -1432,9 +1477,10 @@ html.no-js .kt-header__mobile-view-title {
   color: inherit;
 }
 
+/* R232.57 — chevron icon color follows muted fg. */
 .kt-header__mobile-link svg {
   flex-shrink: 0;
-  color: var(--kt-stone-600);
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   transition: transform 0.2s ease;
 }
 
@@ -1465,19 +1511,21 @@ html.no-js .kt-header__mobile-view-title {
   outline: none;
 }
 
+/* R232.57 — focus ring scheme-aware. */
 .kt-header__mobile-link:focus-visible {
-  outline: 2px solid var(--kt-white);
+  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
   outline-offset: 2px;
 }
 
 /* "View all {parent}" link at the top of each sub-panel */
+/* R232.57 — "View all" link muted fg. */
 .kt-header__mobile-link--all {
   font-size: 0.9375rem;
   font-family: var(--kt-f-body-family);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--kt-stone-400);
+  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
   padding: 0.75rem 0;
 }
 
@@ -1487,10 +1535,12 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
+/* R232.57 — hover full fg. */
 .kt-header__mobile-link--all:hover {
-  color: var(--kt-stone-50);
+  color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
+/* R232.57 — mobile primary CTA uses scheme action colors. */
 .kt-header__mobile-cta {
   display: block;
   width: 100%;
@@ -1501,27 +1551,28 @@ html.no-js .kt-header__mobile-view-title {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  background-color: var(--kt-white);
-  color: var(--kt-stone-900);
+  background-color: rgb(var(--kt-c-action, 255 255 255));
+  color: rgb(var(--kt-c-action-text, 28 25 23));
   border: none;
   border-radius: 2px;
   text-decoration: none;
 }
 
 .kt-header__mobile-cta:hover {
-  background-color: var(--kt-stone-100);
+  background-color: rgba(var(--kt-c-action, 245 245 244), 0.9);
 }
 
 .kt-header__mobile-cta:focus-visible {
-  outline: 2px solid var(--kt-white);
+  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
   outline-offset: 2px;
 }
 
 /* Sub-panel (nested mobile navigation) */
+/* R232.57 — sub-panel surface matches parent drawer scheme. */
 .kt-header__mobile-sub {
   position: absolute;
   inset: 0;
-  background-color: var(--kt-stone-900);
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
@@ -1577,9 +1628,10 @@ html.no-js .kt-header__mobile-view-title {
   box-shadow: none;
 }
 
+/* R232.57 — focus ring scheme-aware. */
 .kt-header__mobile-back:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--kt-stone-50);
+  box-shadow: inset 0 0 0 2px rgb(var(--kt-c-fg, 250 250 249));
   border-radius: 4px;
 }
 
@@ -1611,9 +1663,10 @@ html.no-js .kt-header__mobile-view-title {
    mobile panel. Small, subtle, full-width controls so they don't
    compete with the primary navigation. Hidden at ≥990px (tablet and
    up) because the footer already carries the same selectors. */
+/* R232.57 — divider above locale selector scheme-aware. */
 .kt-header__mobile-locale {
   padding: 1.25rem 1.5rem 2rem;
-  border-top: 1px solid var(--kt-stone-200, rgba(0, 0, 0, 0.08));
+  border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1625,12 +1678,13 @@ html.no-js .kt-header__mobile-view-title {
   gap: 0.375rem;
 }
 
+/* R232.57 — locale label muted fg. */
 .kt-header__mobile-locale-label {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--kt-stone-500, rgba(0, 0, 0, 0.55));
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
 .kt-header__mobile-locale-select {
@@ -1647,9 +1701,10 @@ html.no-js .kt-header__mobile-view-title {
    * scheme-aware variant ever lands the dropdown in a light context.
    * Border + caret SVG bumped to a lighter rgba(255,255,255,...) so
    * the field's edges and chevron remain perceivable. */
-  color: var(--kt-stone-50, #fafaf9);
+  /* R232.57 — select chrome scheme-aware (fg-tinted border, fg text). */
+  color: rgb(var(--kt-c-fg, 250 250 249));
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.2);
   border-radius: 6px;
   appearance: none;
   -webkit-appearance: none;
@@ -1663,9 +1718,10 @@ html.no-js .kt-header__mobile-view-title {
 /* Native dropdown options panel — explicitly request a light-on-dark
  * panel so macOS / Windows OS-themed option lists don't render
  * black-on-black against the mobile menu's dark chrome. */
+/* R232.57 — native option list matches scheme bg/fg. */
 .kt-header__mobile-locale-select option {
-  background-color: var(--kt-stone-900, #1c1917);
-  color: var(--kt-stone-50, #fafaf9);
+  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
 .kt-header__mobile-locale-select:focus-visible {
@@ -1673,13 +1729,14 @@ html.no-js .kt-header__mobile-view-title {
   outline-offset: 2px;
 }
 
+/* R232.57 — locale submit uses scheme action colors so the CTA is
+   a real branded button on every scheme (kept R112 spirit: merchant
+   rebrands ripple here without touching CSS). */
 .kt-header__mobile-locale-submit {
   min-height: 44px;
   padding: 0.625rem 1rem;
-  background-color: var(--kt-stone-900, #1c1917);
-  /* R112 — `var(--kt-white)` so merchants can rebrand via Theme
-     settings without forking the CSS file. */
-  color: var(--kt-white, #ffffff);
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
   border-radius: 6px;
   font-weight: 600;

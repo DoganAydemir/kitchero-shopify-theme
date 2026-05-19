@@ -13,7 +13,7 @@
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
   data-marquee-pause-host
   data-marquee-pause-modifier="kt-testimonials-marquee--paused"
-  style="--kt-marquee-duration: {{ duration }}s;"
+  style="--kt-marquee-duration: {{ duration }}s;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
 >
   {%- comment -%} Heading block {%- endcomment -%}
   {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
@@ -267,11 +267,19 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
       ],
       "default": "auto"
     },
-    {
+        {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
+    },
+{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },

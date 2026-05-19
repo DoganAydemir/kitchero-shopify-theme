@@ -48,7 +48,7 @@
   data-recently-viewed
   data-max-products="{{ products_count }}"
   data-current-product-id="{% if product %}{{ product.id }}{% endif %}"
-  style="--kt-rv-cols-desktop: {{ cols_desktop }}; --kt-rv-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+  style="--kt-rv-cols-desktop: {{ cols_desktop }}; --kt-rv-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   aria-labelledby="{{ heading_id }}"
   hidden
 >

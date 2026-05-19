@@ -48,15 +48,37 @@
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Gradient over bg: bg-gradient-to-l from-stone-800 via-transparent to-stone-800 */
+/* R232.53 — Scheme-aware photo blend gradient. The original design
+   used `var(--kt-stone-800)` because the section bg was stone-800 —
+   gradient endpoints matched the surface exactly so the right-half
+   photo faded INTO the section bg at both edges of its 50% wrap,
+   producing a smooth edge at the section's mid-point. After the
+   scheme refactor the section bg can be any scheme surface (cream,
+   white, dark, emerald, …), but the gradient endpoints stayed
+   stone-800 — so on light schemes the gradient painted a dark band
+   along the section's middle (where the photo wrap's left edge
+   meets the left half's scheme bg). User feedback: "ortadaki sert
+   geçiş gibi bir geçiş yoktu". Using `--kt-c-bg` makes the
+   gradient endpoints follow whatever scheme is active, restoring
+   the smooth photo-to-surface blend on every scheme. */
 .kt-home-financing__bg-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to left, var(--kt-stone-800), transparent 40%, var(--kt-stone-800));
+  background: linear-gradient(
+    to left,
+    rgb(var(--kt-c-bg, 41 37 36)),
+    transparent 40%,
+    rgb(var(--kt-c-bg, 41 37 36))
+  );
 }
 
 [dir="rtl"] .kt-home-financing__bg-gradient {
-  background: linear-gradient(to right, var(--kt-stone-800), transparent 40%, var(--kt-stone-800));
+  background: linear-gradient(
+    to right,
+    rgb(var(--kt-c-bg, 41 37 36)),
+    transparent 40%,
+    rgb(var(--kt-c-bg, 41 37 36))
+  );
 }
 
 /* Content: relative z-10, max-w-3xl */
@@ -72,7 +94,7 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--kt-emerald-400);
+  color: var(--kt-c-accent, #34d399);
   margin-bottom: 1.5rem;
   display: block;
 }
@@ -174,7 +196,7 @@
 }
 
 .kt-home-financing__partner-header svg {
-  color: var(--kt-emerald-400);
+  color: var(--kt-c-accent, #34d399);
   width: 18px;
   height: 18px;
   flex-shrink: 0;

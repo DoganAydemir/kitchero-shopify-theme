@@ -2,7 +2,8 @@
 
 {%- assign guide_teaser_heading_default = 'kt.section.guide_teaser.heading_default' | t -%}
 
-<section class="kt-guide-teaser color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
+<section class="kt-guide-teaser color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
   <div class="page-width">
     <div class="kt-guide-teaser__header">
       <div>
@@ -306,11 +307,19 @@
           "value": "stone_50",
           "label": "t:sections.shared.bg_color.options__stone_50.label"
         },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" }
+        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
+        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
       ],
       "default": "auto"
     },
-    {
+        {
+      "type": "color",
+      "id": "bg_color_custom",
+      "label": "t:sections.shared.bg_color_custom.label",
+      "info": "t:sections.shared.bg_color_custom.info",
+      "default": "#ffffff"
+    },
+{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
