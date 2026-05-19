@@ -52,7 +52,15 @@
     visible heading, prefer aria-labelledby pointing to its id;
     for landmark-without-heading sections, use a literal aria-label.
     Hero is heading-driven (slide H1 announces page topic).
+
+    R301 — aria-roledescription="carousel" on the root + per-slide
+    aria-roledescription="slide" below. WAI-ARIA Authoring Practices
+    Carousel pattern: a slider with auto-rotation MUST announce its
+    role via `aria-roledescription` so SRs say "Hero carousel" instead
+    of just "region". Per-slide context is added on each slide
+    container further down.
   {%- endcomment -%}
+  aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
   aria-label="{{ 'kt.section.hero.region_label' | t | default: 'Hero' }}"
 >
   {%- for block in section.blocks -%}
@@ -60,6 +68,8 @@
       <div
         class="kt-hero__slide{% if forloop.first %} kt-hero__slide--active{% endif %}"
         data-slide-index="{{ forloop.index0 }}"
+        aria-roledescription="{{ 'kt.a11y.slide' | t | default: 'slide' }}"
+        aria-label="{{ forloop.index }} / {{ section.blocks.size }}"
         {{ block.shopify_attributes }}
       >
         <div class="kt-hero__slide-image-wrap">
@@ -367,7 +377,7 @@
       "type": "checkbox",
       "id": "autoplay",
       "label": "t:sections.hero.settings.autoplay.label",
-      "default": true
+      "default": false
     },
     {
       "type": "range",
@@ -471,7 +481,7 @@
           "type": "text",
           "id": "subtitle",
           "label": "t:sections.hero.blocks.slide.settings.subtitle.label",
-          "default": "Crafted kitchens"
+          "default": "New collection"
         },
         {
           "type": "text",

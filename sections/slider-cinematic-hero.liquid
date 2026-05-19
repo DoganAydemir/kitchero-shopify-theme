@@ -9,7 +9,10 @@
       assign height_class = 'kt-slider-cinematic--medium'
   endcase
 
-  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  # R-heading-hierarchy: schema default is `h2` (line ~250 below) — align
+  # the liquid fallback. Previously `h1`, which caused a double-h1 trap when
+  # placed on non-home templates that already ship a template h1.
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
 -%}
 
 <section
@@ -262,7 +265,7 @@
       "max": 15,
       "step": 1,
       "unit": "s",
-      "default": 5
+      "default": 0
     },
     {
       "type": "checkbox",

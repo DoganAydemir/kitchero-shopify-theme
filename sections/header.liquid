@@ -559,7 +559,15 @@
         cart 5" would fail to match. Translation key interpolates
         count — zero-count plural handled via pluralize.
       {%- endcomment -%}
-      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}">
+      {%- comment -%}
+        R301 — aria-haspopup="dialog" + aria-controls so AT users hear
+        "Cart 3, has popup, dialog" instead of just "link". The link
+        opens the cart-drawer modal when JS is active (cart-drawer.js
+        intercepts the click) — no-JS users still get the /cart page
+        thanks to the real href. Pairs with the cart-drawer.liquid
+        snippet rendering `id="cart-drawer"` on the dialog root.
+      {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}" aria-haspopup="dialog" aria-controls="cart-drawer">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -600,6 +608,7 @@
         class="kt-header__menu-toggle"
         aria-label="{{ 'kt.a11y.navigation' | t }}"
         aria-expanded="false"
+        aria-haspopup="dialog"
         aria-controls="kt-mobile-panel-{{ section.id }}"
       >
         <svg class="kt-header__menu-toggle-open" aria-hidden="true" focusable="false" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">

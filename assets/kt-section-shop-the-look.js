@@ -28,6 +28,9 @@
     function closeAll() {
       section.querySelectorAll('.kt-shop-the-look__hotspot--active').forEach(function (btn) {
         btn.classList.remove('kt-shop-the-look__hotspot--active');
+        /* R301 — flip aria-expanded back to false on the hotspot trigger
+           so AT correctly announces collapsed state of the disclosure. */
+        btn.setAttribute('aria-expanded', 'false');
       });
       section.querySelectorAll('.kt-shop-the-look__popup--visible').forEach(function (p) {
         p.classList.remove('kt-shop-the-look__popup--visible');
@@ -53,7 +56,13 @@
       var btn = section.querySelector('[data-hotspot-toggle="' + id + '"]');
       var popup = section.querySelector('[data-hotspot-popup="' + id + '"]');
 
-      if (btn) btn.classList.add('kt-shop-the-look__hotspot--active');
+      if (btn) {
+        btn.classList.add('kt-shop-the-look__hotspot--active');
+        /* R301 — disclosure state: aria-expanded="true" tells SR users
+           the linked popup dialog is now visible (paired with the
+           aria-controls + aria-haspopup attributes on the trigger). */
+        btn.setAttribute('aria-expanded', 'true');
+      }
       if (popup) {
         popup.classList.add('kt-shop-the-look__popup--visible');
         /* R97 — open-direction: drop `inert` + flip aria-hidden so

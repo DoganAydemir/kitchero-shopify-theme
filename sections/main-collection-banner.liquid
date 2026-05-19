@@ -26,7 +26,17 @@
 {%- assign banner_align = section.settings.text_alignment | default: 'center' -%}
 {%- assign banner_overlay = section.settings.overlay_opacity | default: 35 -%}
 {%- assign banner_image = section.settings.image | default: collection.image -%}
-{%- assign heading_tag = section.settings.heading_tag | default: 'h1' -%}
+{%- comment -%}
+  R-heading-hierarchy: `main-collection` (the grid section below this banner)
+  already forces a hardcoded `<h1>` for the collection title — see the comment
+  block at line ~73 in main-collection.liquid. Defaulting this optional editorial
+  banner to `<h1>` produced a double-h1 on /collections/* the moment a merchant
+  added the banner section. Default to `<h2>` so the banner sits one level
+  below the page's primary heading. The schema still exposes h1 as an option
+  for merchants who hide the collection grid hero, but the info note warns
+  against the double-h1 trap.
+{%- endcomment -%}
+{%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 {%- assign eyebrow_default = 'kt.section.main_collection.eyebrow_default' | t -%}
 
 <section
@@ -143,6 +153,7 @@
       "type": "select",
       "id": "heading_tag",
       "label": "t:sections.main-collection-banner.settings.heading_tag.label",
+      "info": "t:sections.main-collection-banner.settings.heading_tag.info",
       "options": [
         {
           "value": "h1",
@@ -153,7 +164,7 @@
           "label": "H2"
         }
       ],
-      "default": "h1"
+      "default": "h2"
     },
     {
       "type": "checkbox",

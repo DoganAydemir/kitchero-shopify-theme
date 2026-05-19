@@ -11,7 +11,8 @@
   endcase
 
   assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
-  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  # R-heading-hierarchy: schema default is `h2` — align the liquid fallback.
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
 -%}
 
 <section
@@ -127,6 +128,7 @@
         type="button"
         class="kt-video-bg-hero__toggle"
         data-video-bg-hero-toggle
+        aria-pressed="false"
         aria-label="{{ 'kt.section.video_bg_hero.pause' | t | default: 'Pause background video' }}"
         data-label-pause="{{ 'kt.section.video_bg_hero.pause' | t | default: 'Pause background video' }}"
         data-label-play="{{ 'kt.section.video_bg_hero.play' | t | default: 'Play background video' }}"
@@ -220,6 +222,7 @@
       "type": "select",
       "id": "heading_tag",
       "label": "t:sections.video_bg_hero.settings.heading_tag.label",
+      "info": "t:sections.video_bg_hero.settings.heading_tag.info",
       "options": [
         {
           "value": "h1",

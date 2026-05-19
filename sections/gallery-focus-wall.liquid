@@ -107,6 +107,8 @@
               data-tile-title="{{ block.settings.caption_title | escape }}"
               data-tile-description="{{ block.settings.caption_description | escape }}"
               aria-label="{{ 'kt.section.gallery-focus-wall.open_label' | t: title: alt_text }}"
+              aria-haspopup="dialog"
+              aria-controls="GalleryFocusLightbox-{{ section.id }}"
               {{ block.shopify_attributes }}
             >
               <span class="kt-gallery-focus__media">
@@ -172,6 +174,7 @@
   {%- comment -%} Lightbox modal {%- endcomment -%}
   <div
     class="kt-gallery-focus-lightbox"
+    id="GalleryFocusLightbox-{{ section.id }}"
     data-focus-lightbox
     role="dialog"
     aria-modal="true"

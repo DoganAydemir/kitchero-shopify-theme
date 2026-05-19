@@ -533,7 +533,10 @@
           return fetch(Kitchero.routes.cart + '.js', {
             headers: { 'Accept': 'application/json' },
           })
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+              if (!r.ok) throw new Error('cart.js fallback fetch failed: ' + r.status);
+              return r.json();
+            })
             .then(function (cart) {
               self.updateCartCount(cart.item_count);
               if (cart.item_count === 0) self.close();
@@ -725,14 +728,20 @@
           fetch(Kitchero.routes.cart + '.js', {
             headers: { 'Accept': 'application/json' },
           })
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+              if (!r.ok) throw new Error('cart.js header-count refresh failed');
+              return r.json();
+            })
             .then(function (cart) {
               self.updateCartCount(cart.item_count);
               window.requestAnimationFrame(function () { resolve(); });
             })
             .catch(function () {
               /* Don't reject — treat header-count refresh failure
-                 as soft (panel swap already succeeded). */
+                 as soft (panel swap already succeeded). Includes the
+                 case where the JSON body parsed but had no item_count
+                 (proxy mangled response), where r.json() rejected on
+                 non-JSON HTML, or where r.ok was false above. */
               resolve();
             });
         }

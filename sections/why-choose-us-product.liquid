@@ -9,13 +9,31 @@
 <section class="kt-why-choose-us-product color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}" data-section-type="why-choose-us-product">
   <div class="page-width">
+    {%- comment -%}
+      R-heading-hierarchy: derive the block's heading tag from the section's
+      chosen heading_tag so the hierarchy never skips a level. The section
+      heading and the block titles must stay exactly one level apart:
+        section h2 → block h3
+        section h3 → block h4
+      Previously the block was hardcoded `<h4>`, which produced an h2 → h4
+      skip whenever a merchant chose the h2 option for the section heading
+      (WCAG 1.3.1 / 2.4.6 fail). When the section heading is blank we still
+      anchor the block tag to one level below the section default so the
+      outline stays stable.
+    {%- endcomment -%}
+    {%- assign section_heading_tag = section.settings.heading_tag | default: 'h3' -%}
+    {%- if section_heading_tag == 'h2' -%}
+      {%- assign block_heading_tag = 'h3' -%}
+    {%- else -%}
+      {%- assign block_heading_tag = 'h4' -%}
+    {%- endif -%}
+
     <div class="kt-why-choose-us-product__header">
       {%- if section.settings.eyebrow != blank -%}
         <p class="kt-why-choose-us-product__eyebrow">{{ section.settings.eyebrow }}</p>
       {%- endif -%}
       {%- if section.settings.heading != blank -%}
-        {%- assign heading_tag = section.settings.heading_tag | default: 'h3' -%}
-        <{{ heading_tag }} class="kt-why-choose-us-product__heading">{{ section.settings.heading }}</{{ heading_tag }}>
+        <{{ section_heading_tag }} class="kt-why-choose-us-product__heading">{{ section.settings.heading }}</{{ section_heading_tag }}>
       {%- endif -%}
     </div>
 
@@ -45,7 +63,7 @@
             {%- endcase -%}
           </div>
           {%- if block.settings.title != blank -%}
-            <h4 class="kt-why-choose-us-product__title">{{ block.settings.title | escape }}</h4>
+            <{{ block_heading_tag }} class="kt-why-choose-us-product__title">{{ block.settings.title | escape }}</{{ block_heading_tag }}>
           {%- endif -%}
           {%- if block.settings.description != blank -%}
             <p class="kt-why-choose-us-product__desc">{{ block.settings.description | escape }}</p>

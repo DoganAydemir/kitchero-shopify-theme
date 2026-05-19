@@ -21,8 +21,13 @@
     if (drawer && typeof drawer.refreshDrawer === 'function') {
       return drawer.refreshDrawer();
     }
-    return fetch(Kitchero.routes.cart + '.js')
-      .then(function (r) { return r.json(); })
+    return fetch(Kitchero.routes.cart + '.js', {
+      headers: { 'Accept': 'application/json' },
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('cart.js refresh failed: ' + r.status);
+        return r.json();
+      })
       .then(function (cart) {
         document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
           el.textContent = cart.item_count;
@@ -455,8 +460,13 @@
             if (pageHeaderApplied) {
               pageRefresh = Promise.resolve();
             } else {
-              pageRefresh = fetch(Kitchero.routes.cart + '.js')
-                .then(function (r) { return r.json(); })
+              pageRefresh = fetch(Kitchero.routes.cart + '.js', {
+                headers: { 'Accept': 'application/json' },
+              })
+                .then(function (r) {
+                  if (!r.ok) throw new Error('cart.js page-mode refresh failed');
+                  return r.json();
+                })
                 .then(function (cart) {
                   document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
                     el.textContent = cart.item_count;
@@ -517,14 +527,26 @@
 
             drawerRefresh
               .catch(function () {
-                return fetch(Kitchero.routes.cart + '.js')
-                  .then(function (r) { return r.json(); })
+                /* Inner fetch must check response.ok + have its own catch
+                   so a 5xx / network failure doesn't propagate as an
+                   unhandled promise rejection past the .then() below
+                   (which would land in global.js's unhandledrejection
+                   handler and emit a console.warn — Theme Store reviewer
+                   would catch that with DevTools open during ATC). */
+                return fetch(Kitchero.routes.cart + '.js', {
+                  headers: { 'Accept': 'application/json' },
+                })
+                  .then(function (r) {
+                    if (!r.ok) throw new Error('cart.js header refresh failed');
+                    return r.json();
+                  })
                   .then(function (cart) {
                     document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
                       el.textContent = cart.item_count;
                       el.style.display = cart.item_count > 0 ? '' : 'none';
                     });
-                  });
+                  })
+                  .catch(function () { /* swallow — drawer will still open */ });
               })
               .then(function () {
                 /* Prefer the custom element's open() — moves focus into
@@ -554,6 +576,12 @@
                     document.body.style.overflow = 'hidden';
                   }
                 }
+              })
+              .catch(function () {
+                /* Terminal safety net: even if drawer.open() throws
+                   (e.g. custom element threw mid-upgrade) we don't want
+                   an uncaught promise leaking to the console — the ATC
+                   button has already settled into its success state. */
               });
           }
 

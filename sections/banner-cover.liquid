@@ -9,7 +9,10 @@
 {{ 'kt-section-banner-cover.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  assign heading_tag = section.settings.heading_tag | default: 'h1'
+  # R-heading-hierarchy: schema default is `h2` — align the liquid fallback
+  # so a merchant who clears the value still gets the safe choice (no
+  # double-h1 on pages that already ship a template-level h1).
+  assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign min_h_mobile = section.settings.min_height_mobile | default: 480
   assign min_h_desktop = section.settings.min_height_desktop | default: 640
   assign overlay_opacity = section.settings.overlay_opacity | default: 60 | divided_by: 100.0
@@ -134,12 +137,13 @@
       "type": "text",
       "id": "heading",
       "label": "t:sections.banner-cover.settings.heading.label",
-      "default": "A new approach to kitchens"
+      "default": "A new approach"
     },
     {
       "type": "select",
       "id": "heading_tag",
       "label": "t:sections.banner-cover.settings.heading_tag.label",
+      "info": "t:sections.banner-cover.settings.heading_tag.info",
       "options": [
         {
           "value": "h1",

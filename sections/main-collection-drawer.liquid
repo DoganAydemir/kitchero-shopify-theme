@@ -87,7 +87,28 @@
           layout, not just the vertical/list variants.
         {%- endcomment -%}
         {%- assign drawer_sort_by = collection.sort_by | default: collection.default_sort_by -%}
+        {%- comment -%}
+          R299 FILTER-PRESERVE-1: echo active filter values as hidden
+          inputs so the JS-off sort submit doesn't wipe the shopper's
+          current filter set. Previously a no-JS sort change navigated
+          to `?sort_by=price-asc` and dropped every
+          `?filter.v.option.color=Black`-style param already in the URL.
+          Mirrors the sibling main-collection.liquid pattern.
+        {%- endcomment -%}
         <form class="kt-collection__sort-form" method="get" action="{{ collection.url }}" data-collection-sort-form>
+          {%- for filter in collection.filters -%}
+            {%- for active_value in filter.active_values -%}
+              <input type="hidden" name="{{ active_value.param_name }}" value="{{ active_value.value | escape }}">
+            {%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value != blank -%}
+                <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}">
+              {%- endif -%}
+              {%- if filter.max_value.value != blank -%}
+                <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}">
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
           <label for="SortByDrawer" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
           <select id="SortByDrawer" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
             {%- for option in collection.sort_options -%}
@@ -96,6 +117,11 @@
               </option>
             {%- endfor -%}
           </select>
+          <noscript>
+            <button type="submit" class="kt-collection__sort-apply button">
+              {{ 'kt.section.collection.apply' | t | default: 'Apply' }}
+            </button>
+          </noscript>
         </form>
       </div>
 
@@ -167,8 +193,17 @@
           no way to apply filter selections. The form's surrounding
           submit handles GET method navigation; the close drawer
           attribute is preserved for JS-on UX.
+
+          R299 FILTER-DRAWER-SUBMIT-LINK-1: button lives OUTSIDE the
+          rendered form (the `collection-filters` snippet emits its
+          own `<form id="CollectionFiltersForm">` inside the drawer
+          body). Without an explicit `form="CollectionFiltersForm"`
+          association attribute the JS-off submit was a dead click —
+          the browser had no form to navigate. The id matches the
+          snippet's default `form_id`. Theme Store paid-tier
+          requirement: filter form must submit with JS disabled.
         {%- endcomment -%}
-        <button type="submit" class="kt-filter-drawer__apply" data-close-filter-drawer>
+        <button type="submit" form="CollectionFiltersForm" class="kt-filter-drawer__apply" data-close-filter-drawer>
           {{ 'kt.section.collection.show_results' | t | default: 'Show Results' }}
         </button>
       </div>

@@ -25,6 +25,13 @@
     var total = slides.length;
     var interval = null;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* R232.74 — Autoplay interval now driven by merchant setting.
+       `data-autoplay-interval` is in SECONDS; 0 = autoplay disabled
+       (the default). Previously hardcoded to 7000ms which made
+       autoplay always-on regardless of merchant preference and
+       forced the WCAG 2.2.2 pause button to render on every install. */
+    var autoplaySeconds = parseInt(root.getAttribute('data-autoplay-interval') || '0', 10);
+    var autoplayMs = (isNaN(autoplaySeconds) || autoplaySeconds <= 0) ? 0 : autoplaySeconds * 1000;
 
     function goTo(i) {
       if (i < 0) i = total - 1;
@@ -50,11 +57,16 @@
 
     function startAuto() {
       if (reduceMotion || interval) return;
+      /* R232.74 — Skip when autoplay is disabled (merchant left
+         interval at 0). With autoplay off there's no auto-motion
+         and no need for the WCAG 2.2.2 pause control either (which
+         is now also conditionally rendered). */
+      if (autoplayMs <= 0) return;
       /* R87 — designMode pause so merchant editing a quote block
-         doesn't see the slide rotate every 7s. block:select still
-         drives navigation in editor. */
+         doesn't see the slide rotate. block:select still drives
+         navigation in editor. */
       if (window.Shopify && window.Shopify.designMode) return;
-      interval = setInterval(function () { goTo(index + 1); }, 7000);
+      interval = setInterval(function () { goTo(index + 1); }, autoplayMs);
     }
     function stopAuto() {
       if (interval) { clearInterval(interval); interval = null; }

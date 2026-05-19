@@ -15,6 +15,7 @@
   class="kt-testimonials-pullquote color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-pullquote"
+  data-autoplay-interval="{{ section.settings.autoplay_interval | default: 0 }}"
   style="--kt-pullquote-padding: {{ vertical_padding }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   {%- comment -%}
     When quote blocks render as a slider, the inner slides carry
@@ -113,29 +114,33 @@
           </button>
 
           {%- comment -%}
-            WCAG 2.2.2 Pause, Stop, Hide — autoplay interval is 7s
-            (>5s), so a user-controllable pause is mandatory. The
-            hover/focus pause we already have only mitigates pointer
-            and keyboard users; touch and screen reader users have no
-            mechanism otherwise. This button shares the same pattern
-            as the hero / cinematic-hero / editorial-split / banner
-            slider play-toggles.
+            R232.74 — WCAG 2.2.2 pause control now CONDITIONAL on
+            autoplay actually being enabled. Default is
+            `autoplay_interval = 0` (autoplay OFF), so the pause
+            button doesn't render on fresh installs — there's no
+            auto-motion to pause. When a merchant turns autoplay on
+            via the section setting, this conditional re-emits the
+            button automatically and WCAG 2.2.2 compliance is
+            restored. Matches the hero / slider-cinematic-hero /
+            slider-editorial-split pattern.
           {%- endcomment -%}
-          <button
-            type="button"
-            class="kt-testimonials-pullquote__nav kt-testimonials-pullquote__play-toggle"
-            data-pullquote-play-toggle
-            aria-pressed="true"
-            aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play testimonials carousel' }}"
-          >
-            <svg class="kt-testimonials-pullquote__play-icon kt-testimonials-pullquote__play-icon--pause" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6" y="4" width="4" height="16"></rect>
-              <rect x="14" y="4" width="4" height="16"></rect>
-            </svg>
-            <svg class="kt-testimonials-pullquote__play-icon kt-testimonials-pullquote__play-icon--play" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </button>
+          {%- if section.settings.autoplay_interval > 0 -%}
+            <button
+              type="button"
+              class="kt-testimonials-pullquote__nav kt-testimonials-pullquote__play-toggle"
+              data-pullquote-play-toggle
+              aria-pressed="true"
+              aria-label="{{ 'kt.a11y.carousel_pause' | t | default: 'Pause or play testimonials carousel' }}"
+            >
+              <svg class="kt-testimonials-pullquote__play-icon kt-testimonials-pullquote__play-icon--pause" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <svg class="kt-testimonials-pullquote__play-icon kt-testimonials-pullquote__play-icon--play" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+          {%- endif -%}
         </div>
       {%- endif -%}
     {%- elsif section.settings.quote != blank -%}
@@ -217,6 +222,17 @@
     {
       "type": "header",
       "content": "t:sections.testimonials-pullquote.settings.header__layout.content"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "t:sections.testimonials-pullquote.settings.autoplay_interval.label",
+      "info": "t:sections.testimonials-pullquote.settings.autoplay_interval.info",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "default": 0
     },
     {
       "type": "range",

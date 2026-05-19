@@ -38,6 +38,7 @@
   data-auto-rotate="{{ should_rotate }}"
   data-rotate-speed="{{ rotate_speed_ms }}"
   role="region"
+  aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
   aria-label="{{ 'kt.section.announcement-banner.aria_label' | t }}"
 >
   {%- comment -%}
@@ -78,6 +79,7 @@
             <div
               class="kt-announcement-banner__slide{% if announcement_index == 0 %} kt-announcement-banner__slide--active{% endif %}"
               data-slide-index="{{ announcement_index }}"
+              aria-roledescription="{{ 'kt.a11y.slide' | t | default: 'slide' }}"
               {% if announcement_index > 0 %}aria-hidden="true"{% endif %}
               {{ block.shopify_attributes }}
             >
