@@ -26,6 +26,14 @@
 
 {%- if pickup_count > 0 -%}
   {%- assign primary = pickup_availabilities | first -%}
+  {%- comment -%}
+    Shopify's `t` filter does NOT auto-escape interpolated
+    arguments. Merchant-controlled location names can legitimately
+    contain quotes or other characters that would break attributes
+    or inject markup. Escape once up front so both the `t`
+    argument AND the `default` fallback render safely.
+  {%- endcomment -%}
+  {%- assign safe_primary_location_name = primary.location.name | escape -%}
   <div
     class="kt-pickup"
     data-pickup-availability
@@ -35,7 +43,7 @@
       {% render 'icon-check', stroke_width: 2, class: 'kt-pickup__icon kt-pickup__icon--available' %}
       <div class="kt-pickup__text">
         <p class="kt-pickup__status">
-          <strong>{{ 'kt.product.pickup.available_at' | t: location_name: primary.location.name | default: primary.location.name }}</strong>
+          <strong>{{ 'kt.product.pickup.available_at' | t: location_name: safe_primary_location_name | default: safe_primary_location_name }}</strong>
         </p>
         <p class="kt-pickup__time">
           {{ primary.pick_up_time }}

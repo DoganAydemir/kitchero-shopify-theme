@@ -36,6 +36,13 @@
   assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign heading_id = 'FeaturedCollectionTitle-' | append: section.id
   assign view_all_default = 'kt.section.featured_collection.view_all_default' | t
+  # safe_collection_title — escaped once so it can be safely
+  # interpolated into the aria-label attribute, both as the `t`
+  # argument and as the `default` fallback. Shopify's `t` filter
+  # does NOT auto-escape interpolated args, and merchant-controlled
+  # collection titles can contain quote characters that would
+  # otherwise break the attribute or inject markup.
+  assign safe_collection_title = section_collection.title | escape
 -%}
 
 {%- comment -%}
@@ -101,7 +108,7 @@
           <a
             href="{{ section_collection.url }}"
             class="kt-featured-collection__view-all"
-            aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: section_collection.title | default: section_collection.title }}"
+            aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: safe_collection_title | default: safe_collection_title }}"
           >
             {{- section.settings.view_all_label | default: view_all_default | escape -}}
             {% render 'icon-arrow-right', stroke_width: 1.5 %}
@@ -136,7 +143,7 @@
         <a
           href="{{ section_collection.url }}"
           class="kt-featured-collection__view-all kt-featured-collection__view-all--mobile"
-          aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: section_collection.title | default: section_collection.title }}"
+          aria-label="{{ 'kt.section.featured-collection.view_all_aria' | t: collection: safe_collection_title | default: safe_collection_title }}"
         >
           {{- section.settings.view_all_label | default: view_all_default | escape -}}
         </a>

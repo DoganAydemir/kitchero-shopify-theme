@@ -98,11 +98,16 @@
                 {%- comment -%}
                   R296 — `search.terms` is user-controlled (?q=…) and
                   Shopify's `t` filter does NOT auto-escape interpolated
-                  args. Without `| escape` here, `/search?q=<script>`
-                  injects raw markup into the breadcrumb text. Mirrors
-                  the safe_terms pattern in `sections/main-search.liquid:58`.
+                  args. Filter chaining is left-to-right, so we MUST
+                  escape `search.terms` BEFORE passing it as the
+                  `terms` argument — `| escape` chained after `| t`
+                  would only escape the final string (already too
+                  late) and leave injected markup inside the
+                  `{{ terms }}` interpolation. Mirrors the safe_terms
+                  pattern in `sections/main-search.liquid`.
                 {%- endcomment -%}
-                {{ 'kt.search.results_for' | t: terms: search.terms | escape }}
+                {%- assign safe_terms = search.terms | escape -%}
+                {{ 'kt.search.results_for' | t: terms: safe_terms }}
               {%- else -%}
                 {{ 'kt.search.search' | t }}
               {%- endif -%}

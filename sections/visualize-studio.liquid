@@ -201,6 +201,19 @@
               value="{{ visualize_body_message | strip | escape }}"
             >
 
+            {%- comment -%}
+              R342 LEGAL-PRIVACY-VISUALIZE: PII collection (name +
+              email) triggers GDPR Art. 13 disclosure-at-collection.
+              Privacy policy link gated on shop.privacy_policy so
+              brand-new stores without a published policy don't
+              render a broken link.
+            {%- endcomment -%}
+            {%- if shop.privacy_policy != blank -%}
+              <p class="kt-visualize-studio__privacy">
+                {{ 'kt.section.contact.privacy_note_html' | t: link: shop.privacy_policy.url }}
+              </p>
+            {%- endif -%}
+
             {%- assign visualize_submit_default = 'kt.section.visualize_studio.submit_default' | t -%}
             <button type="submit" class="kt-visualize-studio__submit">
               {{ section.settings.submit_text | default: visualize_submit_default }}

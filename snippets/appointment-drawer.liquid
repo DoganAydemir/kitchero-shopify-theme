@@ -205,6 +205,19 @@
           <input type="text" id="appointment-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
         </p>
 
+        {%- comment -%}
+          R342 LEGAL-PRIVACY-APPOINTMENT: PII collection (name +
+          email + phone + message) triggers GDPR Art. 13
+          disclosure-at-collection. Link gated on
+          shop.privacy_policy so stores without a published
+          policy don't ship a dangling link.
+        {%- endcomment -%}
+        {%- if shop.privacy_policy != blank -%}
+          <p class="kt-appointment-drawer__privacy">
+            {{ 'kt.section.contact.privacy_note_html' | t: link: shop.privacy_policy.url }}
+          </p>
+        {%- endif -%}
+
         {%- comment -%} Submit {%- endcomment -%}
         <div class="kt-appointment-drawer__footer">
           <button type="submit" class="button kt-appointment-drawer__submit">

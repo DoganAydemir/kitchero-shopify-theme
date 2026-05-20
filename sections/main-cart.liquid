@@ -309,9 +309,22 @@
                     {%- assign cart_can_remove = item.instructions.can_remove | default: true -%}
 
                     {%- if cart_can_remove -%}
-                      {%- comment -%} Mobile-only: inline remove link under info {%- endcomment -%}
+                      {%- comment -%}
+                        Mobile-only inline remove. Mirrors the icon button
+                        below: `type="submit" name="updates[key]" value="0"`
+                        so JS-off shoppers can still remove the line via
+                        the native cart form POST (Shopify's /cart handler
+                        treats `updates[key]=0` as a deletion). main-cart.js
+                        intercepts the click via `data-cart-remove` and
+                        runs the AJAX path; if JS is on, preventDefault
+                        stops the native submit. A `type="button"` here
+                        left the no-JS shopper with a dead "Remove" tap
+                        on mobile.
+                      {%- endcomment -%}
                       <button
-                        type="button"
+                        type="submit"
+                        name="updates[{{ item.key }}]"
+                        value="0"
                         class="kt-cart-page__item-remove-link"
                         data-cart-remove
                         data-line-key="{{ item.key }}"
@@ -588,7 +601,14 @@
                   `form="CartDiscountForm"` attribute — valid markup
                   and identical UX. The visual wrapper stays a `<div>`
                   so layout CSS is unaffected.
+
+                  R301 — Switch from undocumented `cart.discount_codes`
+                  to the officially documented
+                  `cart.cart_level_discount_applications` filtered by
+                  `type == "discount_code"`. Same applied-chip list,
+                  using the property Theme Store reviewers expect.
                 {%- endcomment -%}
+                {%- assign page_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
                 <div class="kt-cart-page__discount" data-cart-discount-form>
                   <input form="CartDiscountForm" type="hidden" name="redirect" value="{{ routes.cart_url }}">
                   <label for="cart-discount-code" class="visually-hidden">
@@ -610,11 +630,12 @@
                       {{ 'kt.cart.discount.apply' | t | default: 'Apply' }}
                     </button>
                   </div>
-                  {%- if cart.discount_codes.size > 0 -%}
+                  {%- if page_applied_codes.size > 0 -%}
                     <ul class="kt-cart-page__discount-applied" role="list">
-                      {%- for code in cart.discount_codes -%}
+                      {%- for applied_discount in page_applied_codes -%}
+                        {%- assign safe_page_discount_code = applied_discount.title | escape -%}
                         <li class="kt-cart-page__discount-chip">
-                          <span>{{ code }}</span>
+                          <span>{{ safe_page_discount_code }}</span>
                           {%- comment -%}
                             Server-side remove: GET /discount/<empty>
                             clears the code. Shopify's native endpoint
@@ -623,7 +644,7 @@
                           <a
                             href="{{ routes.root_url }}discount?redirect={{ routes.cart_url | url_encode }}"
                             class="kt-cart-page__discount-remove"
-                            aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: code | default: 'Remove discount code' }}"
+                            aria-label="{{ 'kt.cart.discount.remove_aria' | t: code: safe_page_discount_code | default: 'Remove discount code' }}"
                           >&times;</a>
                         </li>
                       {%- endfor -%}
@@ -883,9 +904,15 @@
         the wrong encoding for a URL path component.
       {%- endcomment -%}
       {%- if cart.item_count > 0 and settings.kt_cart_show_discount -%}
+        {%- comment -%}
+          R301 — Pre-fill form action with the first applied discount code
+          via the officially documented `cart_level_discount_applications`
+          (filtered to user-applied codes). Mirrors the chip list above.
+        {%- endcomment -%}
+        {%- assign page_form_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
         <form
           id="CartDiscountForm"
-          action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+          action="{{ routes.root_url }}discount/{% if page_form_applied_codes.size > 0 %}{{ page_form_applied_codes.first.title | url_encode }}{% endif %}"
           method="get"
           hidden
           aria-hidden="true"

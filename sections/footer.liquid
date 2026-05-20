@@ -177,7 +177,20 @@
                     sends accepts_marketing=true legitimately.
                   {%- endcomment -%}
                   {%- if block.settings.show_consent_checkbox -%}
-                    <p class="kt-footer__newsletter-consent">
+                    {%- comment -%}
+                      Wrapper is a <div>, NOT a <p>. `consent_label` is a
+                      richtext that defaults to `<p>I agree…</p>`. Putting
+                      that inside an outer `<p>` is invalid nesting; the
+                      HTML5 parser auto-closes the outer `<p>` the moment
+                      it sees the inner one, orphaning the input from its
+                      label. Strip the surrounding `<p>` tags from the
+                      richtext so the label's contents (inline phrasing
+                      only) sit cleanly inside the `<label>`. Matches the
+                      identical fix in `sections/newsletter-signup.liquid`.
+                    {%- endcomment -%}
+                    {%- assign footer_consent_html = block.settings.consent_label | default: footer_consent_label_default -%}
+                    {%- assign footer_consent_html = footer_consent_html | replace: '<p>', '' | replace: '</p>', '' -%}
+                    <div class="kt-footer__newsletter-consent">
                       <input
                         type="checkbox"
                         id="footer-newsletter-consent"
@@ -187,9 +200,9 @@
                         aria-required="true"
                       >
                       <label for="footer-newsletter-consent" class="kt-footer__newsletter-consent-label">
-                        {{- block.settings.consent_label | default: footer_consent_label_default -}}
+                        {{- footer_consent_html -}}
                       </label>
-                    </p>
+                    </div>
                   {%- endif -%}
                   {%- if form.errors -%}
                     {%- comment -%}
@@ -445,6 +458,9 @@
 {
   "name": "t:sections.footer.name",
   "class": "section-footer",
+  "enabled_on": {
+    "groups": ["footer"]
+  },
   "settings": [
     {
       "type": "header",

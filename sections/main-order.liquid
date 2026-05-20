@@ -85,14 +85,33 @@
     </div>
 
     {%- comment -%}
-      Shipment tracking links. `order.fulfillments` is populated once
-      the order is partially/fully fulfilled; each fulfillment carries
-      a carrier + tracking number + tracking URL. Without this block
-      the customer has no way to track their package from the order
-      page — they have to dig into the shipping-confirmation email.
-      Gate on fulfillments.size so pending orders render nothing
-      extra.
+      Shipment tracking links. Shopify's documented Liquid surface does
+      NOT expose `order.fulfillments` directly; the documented pattern
+      is to iterate `order.line_items` and read
+      each line's `line_item.fulfillment`. We collect unique fulfillment
+      IDs in a first pass so repeated fulfillments (multi-line shipments)
+      render only one tracking entry, then iterate line items a second
+      time emitting one tracking row per fulfillment. Without this block
+      the customer has no way to track their package from the order page
+      — they have to dig into the shipping-confirmation email.
+
+      R301 — Migrated off undocumented `order.fulfillments`. Same surface,
+      same tracking output, using the property Theme Store reviewers
+      expect (line_item.fulfillment, per Shopify's official line_item
+      object reference).
     {%- endcomment -%}
+    {%- assign fulfillment_ids_seen = '' -%}
+    {%- assign fulfillment_count = 0 -%}
+    {%- for line_item in order.line_items -%}
+      {%- if line_item.fulfillment -%}
+        {%- assign fulfillment_id_str = line_item.fulfillment.created_at | append: '|' | append: line_item.fulfillment.tracking_number | append: '|' | append: line_item.fulfillment.tracking_company -%}
+        {%- unless fulfillment_ids_seen contains fulfillment_id_str -%}
+          {%- assign fulfillment_ids_seen = fulfillment_ids_seen | append: fulfillment_id_str | append: '||' -%}
+          {%- assign fulfillment_count = fulfillment_count | plus: 1 -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+
     {%- comment -%}
       Pending-fulfillment note. When an order has been placed but no
       fulfillment has started yet (common first 1-6 hours post-order),
@@ -102,7 +121,7 @@
       copy, suppressed once a fulfillment exists or the order is
       cancelled (cancellation note above already explains THAT state).
     {%- endcomment -%}
-    {%- if order.fulfillments.size == 0 and order.cancelled_at == blank -%}
+    {%- if fulfillment_count == 0 and order.cancelled_at == blank -%}
       <div class="kt-order__pending" role="note">
         <p class="kt-order__pending-text">
           {{ 'kt.customer.order.pending_fulfillment' | t | default: 'Your order is being prepared. Tracking details will appear here once it ships.' }}
@@ -110,39 +129,47 @@
       </div>
     {%- endif -%}
 
-    {%- if order.fulfillments.size > 0 -%}
+    {%- if fulfillment_count > 0 -%}
       <div class="kt-order__tracking" aria-label="{{ 'kt.customer.order.tracking_heading' | t }}">
         <h2 class="kt-order__tracking-heading">{{ 'kt.customer.order.tracking_heading' | t }}</h2>
         <ul class="kt-order__tracking-list" role="list">
-          {%- for fulfillment in order.fulfillments -%}
-            <li class="kt-order__tracking-item">
-              {%- if fulfillment.tracking_company != blank -%}
-                <span class="kt-order__tracking-carrier">{{ fulfillment.tracking_company | escape }}</span>
-              {%- endif -%}
-              {%- comment -%}
-                R148 TRACKING-URLS-1: iterate `tracking_urls` (plural)
-                instead of `tracking_url` (singular). Carriers like UPS
-                that split a single fulfillment into multiple packages
-                return multiple URLs — singular returned only the first
-                package's link, hiding the rest from customers. Now
-                emits one tracking link per package. Defence-in-depth
-                escape on `tracking_company` (merchant- and carrier-
-                set string) to match the rest of the order page.
-              {%- endcomment -%}
-              {%- if fulfillment.tracking_urls != blank and fulfillment.tracking_urls.size > 0 -%}
-                {%- for tracking_url in fulfillment.tracking_urls -%}
-                  <a href="{{ tracking_url | escape }}" class="kt-order__tracking-link" target="_blank" rel="noopener noreferrer">
-                    {%- if fulfillment.tracking_number != blank -%}
-                      {{ 'kt.customer.order.track_package_with_number' | t: number: fulfillment.tracking_number }}
-                    {%- else -%}
-                      {{ 'kt.customer.order.track_package' | t }}
-                    {%- endif -%}
-                  </a>
-                {%- endfor -%}
-              {%- elsif fulfillment.tracking_number != blank -%}
-                <span class="kt-order__tracking-number">{{ fulfillment.tracking_number | escape }}</span>
-              {%- endif -%}
-            </li>
+          {%- assign rendered_fulfillment_keys = '' -%}
+          {%- for line_item in order.line_items -%}
+            {%- if line_item.fulfillment -%}
+              {%- assign fulfillment_key = line_item.fulfillment.created_at | append: '|' | append: line_item.fulfillment.tracking_number | append: '|' | append: line_item.fulfillment.tracking_company -%}
+              {%- unless rendered_fulfillment_keys contains fulfillment_key -%}
+                {%- assign rendered_fulfillment_keys = rendered_fulfillment_keys | append: fulfillment_key | append: '||' -%}
+                {%- assign fulfillment = line_item.fulfillment -%}
+                <li class="kt-order__tracking-item">
+                  {%- if fulfillment.tracking_company != blank -%}
+                    <span class="kt-order__tracking-carrier">{{ fulfillment.tracking_company | escape }}</span>
+                  {%- endif -%}
+                  {%- comment -%}
+                    R148 TRACKING-URLS-1: iterate `tracking_urls` (plural)
+                    instead of `tracking_url` (singular). Carriers like UPS
+                    that split a single fulfillment into multiple packages
+                    return multiple URLs — singular returned only the first
+                    package's link, hiding the rest from customers. Now
+                    emits one tracking link per package. Defence-in-depth
+                    escape on `tracking_company` (merchant- and carrier-
+                    set string) to match the rest of the order page.
+                  {%- endcomment -%}
+                  {%- if fulfillment.tracking_urls != blank and fulfillment.tracking_urls.size > 0 -%}
+                    {%- for tracking_url in fulfillment.tracking_urls -%}
+                      <a href="{{ tracking_url | escape }}" class="kt-order__tracking-link" target="_blank" rel="noopener noreferrer">
+                        {%- if fulfillment.tracking_number != blank -%}
+                          {{ 'kt.customer.order.track_package_with_number' | t: number: fulfillment.tracking_number }}
+                        {%- else -%}
+                          {{ 'kt.customer.order.track_package' | t }}
+                        {%- endif -%}
+                      </a>
+                    {%- endfor -%}
+                  {%- elsif fulfillment.tracking_number != blank -%}
+                    <span class="kt-order__tracking-number">{{ fulfillment.tracking_number | escape }}</span>
+                  {%- endif -%}
+                </li>
+              {%- endunless -%}
+            {%- endif -%}
           {%- endfor -%}
         </ul>
       </div>

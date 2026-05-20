@@ -334,9 +334,24 @@
                 </div>
               {%- endif -%}
               {%- if form.posted_successfully? -%}
-                <div class="kt-article__comment-form-success" role="status">
-                  {{ 'kt.blog.article.success' | t | default: 'Your comment was posted successfully! Thank you!' }}
-                </div>
+                {%- comment -%}
+                  Moderated blogs queue every submitted comment until
+                  the merchant approves it from admin. Showing the same
+                  "posted successfully" copy in both cases misleads the
+                  customer into thinking their comment is already live —
+                  Theme Store reviewers explicitly flag this. Branch the
+                  message so the moderated state surfaces a distinct
+                  "awaiting moderation" notice.
+                {%- endcomment -%}
+                {%- if blog.moderated? -%}
+                  <div class="kt-article__comment-form-success" role="status">
+                    {{ 'kt.blog.article.success_pending' | t | default: 'Thanks! Your comment is awaiting moderation and will appear once approved.' }}
+                  </div>
+                {%- else -%}
+                  <div class="kt-article__comment-form-success" role="status">
+                    {{ 'kt.blog.article.success' | t | default: 'Your comment was posted successfully! Thank you!' }}
+                  </div>
+                {%- endif -%}
               {%- endif -%}
 
               {%- comment -%}

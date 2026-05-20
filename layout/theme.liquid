@@ -91,15 +91,6 @@
     {%- endif -%}
 
     {%- comment -%}
-      cdn.shopify.com hosts product and section images — the critical
-      LCP resource on every storefront page. Pre-connecting here saves
-      the DNS + TLS round-trip (~150–300 ms on mobile) before the HTML
-      parser discovers the <img>. crossorigin is required because
-      Shopify serves image assets as CORS-enabled responses.
-    {%- endcomment -%}
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
-
-    {%- comment -%}
       hreflang alternates — one <link> per published locale so Google
       serves the right translation per user locale. Emitted only when
       the shop has more than one published locale; x-default falls back
@@ -157,7 +148,19 @@
 
     <title>
       {{- page_title | escape -}}
-      {%- if current_tags %} &ndash; {{ 'kt.meta.tags' | t: tags: current_tags | join: ', ' | escape }}{% endif -%}
+      {%- if current_tags -%}
+        {%- comment -%}
+          Liquid filter chains run left-to-right. Writing
+          `t: tags: current_tags | join: ', ' | escape` would pass
+          the raw `current_tags` ARRAY into `t`, then try to `join`
+          and `escape` the already-rendered string. Pre-join and
+          pre-escape the tag list BEFORE handing it to `t` so the
+          `{{ tags }}` interpolation receives a safe, formatted
+          string.
+        {%- endcomment -%}
+        {%- assign safe_tags = current_tags | join: ', ' | escape -%}
+        &ndash; {{ 'kt.meta.tags' | t: tags: safe_tags }}
+      {%- endif -%}
       {%- if current_page != 1 %} &ndash; {{ 'kt.meta.page' | t: page: current_page }}{% endif -%}
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name | escape }}{% endunless -%}
     </title>
@@ -221,6 +224,24 @@
     {% render 'meta-tags' %}
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+
+    {%- comment -%}
+      Theme-editor block affordance — universal `shopify:block:select`
+      fallback that scrolls the rendered block into view and applies a
+      dashed outline so merchants get visible feedback for every block
+      type, not just slider slides / accordion items that already have
+      dedicated handlers (hero, sliders, collapsibles, testimonials).
+      The script self-aborts on the live storefront via a
+      `Shopify.designMode` check, so the bytes are downloaded once and
+      then short-circuit — zero runtime cost for shoppers. Gating the
+      <script> tag itself on `request.design_mode` would skip the
+      download entirely, but Shopify still injects the editor preview
+      with `request.design_mode` truthy on every preview page; the
+      runtime guard handles the rare case where the editor flag and
+      the loaded payload diverge (e.g. a hot reload during a settings
+      change).
+    {%- endcomment -%}
+    <script src="{{ 'kt-editor-block-affordance.js' | asset_url }}" defer="defer"></script>
 
     {%- comment -%}
       Motion bundle is ~100 KB unminified (GSAP + ScrollTrigger + Lenis +

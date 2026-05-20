@@ -648,8 +648,17 @@
           discount entry on /cart also get it hidden in the drawer.
         {%- endcomment -%}
         {%- if settings.kt_cart_show_discount -%}
+          {%- comment -%}
+            R301 — Switch from undocumented `cart.discount_codes` to the
+            officially documented `cart.cart_level_discount_applications`
+            filtered by `type == "discount_code"`. Same chip list and
+            form-action pre-fill, but using the property Theme Store
+            reviewers expect (the `discount_codes` property is absent
+            from Shopify's current Liquid object reference).
+          {%- endcomment -%}
+          {%- assign drawer_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
           <form
-            action="{{ routes.root_url }}discount/{% if cart.discount_codes.size > 0 %}{{ cart.discount_codes | first | url_encode }}{% endif %}"
+            action="{{ routes.root_url }}discount/{% if drawer_applied_codes.size > 0 %}{{ drawer_applied_codes.first.title | url_encode }}{% endif %}"
             method="get"
             class="kt-cart-drawer__discount-form"
             data-cart-drawer-discount-form
@@ -673,15 +682,15 @@
                 {{ 'kt.cart.discount.apply' | t | default: 'Apply' }}
               </button>
             </div>
-            {%- if cart.discount_codes.size > 0 -%}
+            {%- if drawer_applied_codes.size > 0 -%}
               <ul class="kt-cart-drawer__discount-applied" role="list">
-                {%- for code in cart.discount_codes -%}
+                {%- for applied_discount in drawer_applied_codes -%}
                   {%- comment -%}
                     R296 — Discount code is merchant-controlled but Theme
                     Store rejects any unescaped string in HTML attributes.
                     Pre-escape once for both display and aria-label.
                   {%- endcomment -%}
-                  {%- assign safe_discount_code = code | escape -%}
+                  {%- assign safe_discount_code = applied_discount.title | escape -%}
                   <li class="kt-cart-drawer__discount-chip">
                     <span>{{ safe_discount_code }}</span>
                     <a
