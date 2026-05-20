@@ -81,4 +81,19 @@
       delete instances[id];
     }
   });
+
+  /* Theme editor: when merchant selects a category block in the
+     sidebar, scroll the corresponding card into view so it's visible
+     while they edit settings. The horizontal-scroll pin is skipped in
+     designMode (see early return above), so the card is in normal
+     flow and scrollIntoView works naturally. */
+  document.addEventListener('shopify:block:select', function (event) {
+    var card = event.target;
+    if (!card || !card.classList || !card.classList.contains('kt-shop-categories__card')) return;
+    try {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    } catch (err) {
+      card.scrollIntoView();
+    }
+  });
 })();

@@ -142,4 +142,18 @@
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
     }
   });
+
+  /* Theme editor: when merchant selects a feature block in the
+     sidebar, scroll it into view. Feature blocks render as
+     `.kt-ecosystem__feature.eco-item` with `block.shopify_attributes`,
+     so block:select fires on the feature element itself. */
+  document.addEventListener('shopify:block:select', function (event) {
+    var item = event.target;
+    if (!item || !item.classList || !item.classList.contains('kt-ecosystem__feature')) return;
+    try {
+      item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      item.scrollIntoView();
+    }
+  });
 })();

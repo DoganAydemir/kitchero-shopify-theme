@@ -116,5 +116,29 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       });
       delete section.dataset.kitcheroGalleryMarqueePauseBound;
     });
+
+    /* Theme editor: when merchant selects an image block, pause the
+       marquee animation (so the tile stops sliding) and scroll the
+       row into view so the chosen tile is reachable. The pause class
+       is the same one already used for keyboard-focus pause and is
+       cleared on block:deselect. */
+    document.addEventListener('shopify:block:select', function (event) {
+      var item = event.target;
+      if (!item || !item.classList || !item.classList.contains('kt-gallery-marquee__item')) return;
+      var section = item.closest('[data-section-type="gallery-marquee"]');
+      if (section) section.classList.add(PAUSE_CLASS);
+      try {
+        item.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      } catch (err) {
+        item.scrollIntoView();
+      }
+    });
+
+    document.addEventListener('shopify:block:deselect', function (event) {
+      var item = event.target;
+      if (!item || !item.classList || !item.classList.contains('kt-gallery-marquee__item')) return;
+      var section = item.closest('[data-section-type="gallery-marquee"]');
+      if (section) section.classList.remove(PAUSE_CLASS);
+    });
   })();
 }

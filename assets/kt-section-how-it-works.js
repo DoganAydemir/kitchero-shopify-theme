@@ -75,4 +75,19 @@
       delete instances[e.detail.sectionId];
     }
   });
+
+  /* Theme editor: when merchant selects a step block in the sidebar,
+     scroll the corresponding card into view so it's visible while
+     they edit settings. Steps are rendered as `.kt-how-it-works__card`
+     with `{{ block.shopify_attributes }}`, so block:select fires on
+     the card element directly. */
+  document.addEventListener('shopify:block:select', function (event) {
+    var card = event.target;
+    if (!card || !card.classList || !card.classList.contains('kt-how-it-works__card')) return;
+    try {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      card.scrollIntoView();
+    }
+  });
 })();
