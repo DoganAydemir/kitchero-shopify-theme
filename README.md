@@ -74,12 +74,30 @@ After installing the theme, complete these steps to get it fully operational. De
 
 ### 1. Create required metafields
 
-The theme reads two optional product metafields. Create them in **Settings > Custom data > Products**:
+The theme reads several optional product and variant metafields. Create them in **Settings > Custom data**. All are optional — each feature falls back gracefully when its metafield is not set. See [`SETUP.md`](./SETUP.md) for full instructions.
+
+**Product metafields** (Settings > Custom data > Products):
 
 | Namespace & key | Type | Purpose |
 |---|---|---|
 | `custom.deal_ends_at` | Date and time | Powers the countdown timer on deal products |
 | `custom.rating` | Decimal (0–5) | Manual fallback star rating if you don't use a review app |
+| `custom.door_sample` | File (image) | Door-sample thumbnail next to the title on `product.showroom` |
+
+**Variant metafields** (Settings > Custom data > Variants):
+
+| Namespace & key | Type | Purpose |
+|---|---|---|
+| `custom.swatch_color` | Color (or text hex) | Overrides color swatch on the variant picker |
+| `custom.swatch_image` | File (image) | Renders an image swatch (wood grain, marble, fabric) on the variant picker |
+
+**Shopify-native metafields** (populated automatically by Shopify or apps):
+
+| Namespace & key | Source | Purpose |
+|---|---|---|
+| `reviews.rating` / `reviews.rating_count` | Review apps (Judge.me, Loox, Stamped, Shopify Reviews) | Star ratings on PDP + product cards + SEO structured data |
+| `shopify--discovery--product_recommendation.complementary_products` | Search & Discovery app | "Complete the look" block on PDP |
+| `shopify--discovery--product_recommendation.related_products` | Search & Discovery app | Cart-page / cart-drawer cross-sell recommendations |
 
 ### 2. Set up navigation menus
 

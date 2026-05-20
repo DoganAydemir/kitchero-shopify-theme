@@ -424,7 +424,22 @@
         link is omitted so the card composition stays balanced.
       {%- endcomment -%}
       {%- unless show_quote_button -%}
-        <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__view-link">
+        {%- comment -%}
+          R-A11Y-CARD-LINK — WCAG 2.4.4 (Link Purpose). Generic
+          "View details" text is ambiguous when SRs walk a grid of
+          24 cards — every card announces the same 11 characters.
+          Adding `aria-label` with the product title makes each
+          link's purpose programmatically determinable in isolation
+          while the visible text stays compact for sighted users.
+          Pairs with the title `<h2>` link and image `<a>` which
+          already carry the title context.
+        {%- endcomment -%}
+        <a
+          href="{{ product.url }}"
+          tabindex="-1"
+          class="kt-card-product__view-link"
+          aria-label="{{ 'kt.product.view_details_for' | t: title: product.title | default: product.title }}"
+        >
           {{ 'kt.product.view_details' | t | default: 'View Details' }}
         </a>
       {%- endunless -%}
@@ -441,9 +456,17 @@
         has ONE clear CTA whose label matches what actually happens
         on click. The `kt.product.get_quote` key is now orphaned
         and has been removed from the locale data files.
+
+        R-A11Y-CARD-LINK — aria-label adds product title context for
+        WCAG 2.4.4 (Link Purpose). See note on the view-link above.
       {%- endcomment -%}
       <div>
-        <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__quote-btn">
+        <a
+          href="{{ product.url }}"
+          tabindex="-1"
+          class="kt-card-product__quote-btn"
+          aria-label="{{ 'kt.product.view_details_for' | t: title: product.title | default: product.title }}"
+        >
           {{ 'kt.product.view_details' | t | default: 'View Details' }}
         </a>
       </div>

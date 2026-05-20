@@ -165,6 +165,18 @@
                         aria-invalid="false"
                       {%- endif -%}
                     >
+                    {%- comment -%}
+                      Honeypot — invisible to humans, populated by naive bots.
+                      Backend can reject submissions where contact[website] is
+                      non-empty. Field uses .kt-form__honeypot positioning trick
+                      (off-screen, not display:none) so determined bots that
+                      skip hidden fields still trip it. Matches pattern in
+                      newsletter-signup.liquid and newsletter-popup.liquid.
+                    {%- endcomment -%}
+                    <p class="kt-form__honeypot" aria-hidden="true" inert>
+                      <label for="footer-newsletter-website-trap-{{ block.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
+                      <input type="text" id="footer-newsletter-website-trap-{{ block.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
+                    </p>
                     <button type="submit" class="button kt-footer__newsletter-btn">
                       {{ 'kt.newsletter.button_label' | t }}
                     </button>

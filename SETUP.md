@@ -87,6 +87,55 @@ The Showroom product page shows a small 80×106 door-sample thumbnail next to th
 
 ---
 
+### 5. Variant Color Swatch (per variant override)
+
+| Field | Value |
+|---|---|
+| **Namespace & key** | `custom.swatch_color` |
+| **Type** | `color` (or `single_line_text_field` containing a CSS hex like `#1a1a1a`) |
+| **Required** | No (optional per variant) |
+| **Applies to** | **Variants** (Settings > Custom data > Variants) |
+| **Used by** | Product variant picker — color option swatches |
+
+The color swatch on the variant picker is resolved in this order:
+
+1. **`custom.swatch_color` variant metafield** (hex string — overrides everything)
+2. **`custom.swatch_image` variant metafield** (image swatch — see #6 below)
+3. **CSS named color** matching the option value (e.g., `Black`, `White`)
+4. **Built-in finish palette** for brand-specific names (`Espresso`, `Walnut`, `Oak`, `Beige`, etc.)
+
+Only valid CSS hex strings (`#rgb`, `#rrggbb`, `#rrggbbaa`) are accepted from the metafield — any other value is ignored to prevent CSS injection.
+
+**How to set it:**
+1. Go to **Settings > Custom data > Variants**.
+2. Click **Add definition**.
+3. Set namespace and key to `custom.swatch_color`.
+4. Choose type **Color** (recommended) or **Single line text** if you need to paste hex from a design system.
+5. Save, then edit any variant to set the color.
+
+---
+
+### 6. Variant Image Swatch (per variant override)
+
+| Field | Value |
+|---|---|
+| **Namespace & key** | `custom.swatch_image` |
+| **Type** | `File` (file_reference, accepts images) |
+| **Required** | No (optional per variant) |
+| **Applies to** | **Variants** (Settings > Custom data > Variants) |
+| **Used by** | Product variant picker — image-pattern swatches |
+
+Use this when a flat color isn't enough — e.g., wood grain, marble veining, fabric texture. The image is rendered as the swatch chip background (covered, centered, ~40×40 px display).
+
+**How to set it:**
+1. Go to **Settings > Custom data > Variants**.
+2. Click **Add definition**.
+3. Set namespace and key to `custom.swatch_image`.
+4. Choose type **File** with **Accept files of type: Image** enabled.
+5. Save, then edit any variant to upload a swatch tile (recommended 200×200 px, square).
+
+---
+
 ## Navigation Menus
 
 ### Main Menu
