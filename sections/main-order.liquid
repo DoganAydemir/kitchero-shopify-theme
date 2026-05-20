@@ -459,14 +459,28 @@
 
         {%- for shipping_method in order.shipping_methods -%}
           <div class="kt-order__totals-row">
-            <dt>{{ 'kt.customer.order.shipping' | t }}{% if shipping_method.title %} ({{ shipping_method.title }}){% endif %}</dt>
+            {%- comment -%}
+              Defence-in-depth `| escape` on shipping_method.title.
+              Carrier-rate titles are merchant-configured strings
+              (manual shipping rates, third-party shipping app
+              labels, B2B custom shipping rate names). Matches the
+              escape pattern applied to discount.title above and
+              tracking_company on the tracking block.
+            {%- endcomment -%}
+            <dt>{{ 'kt.customer.order.shipping' | t }}{% if shipping_method.title %} ({{ shipping_method.title | escape }}){% endif %}</dt>
             <dd>{{ shipping_method.price | money_with_currency }}</dd>
           </div>
         {%- endfor -%}
 
         {%- for tax_line in order.tax_lines -%}
           <div class="kt-order__totals-row">
-            <dt>{{ 'kt.customer.order.tax' | t }}{% if tax_line.title %} ({{ tax_line.title }}){% endif %}</dt>
+            {%- comment -%}
+              Defence-in-depth `| escape` on tax_line.title. Tax
+              labels typically come from Shopify Tax / third-party
+              tax apps; custom-tax merchants can rename them via
+              admin so user-controlled content is possible.
+            {%- endcomment -%}
+            <dt>{{ 'kt.customer.order.tax' | t }}{% if tax_line.title %} ({{ tax_line.title | escape }}){% endif %}</dt>
             <dd>{{ tax_line.price | money_with_currency }}</dd>
           </div>
         {%- endfor -%}

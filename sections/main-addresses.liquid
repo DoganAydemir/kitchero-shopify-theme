@@ -137,8 +137,19 @@
                   so JS-off customers can type their province manually
                   (Shopify accepts free-text province strings on form
                   POST and validates server-side).
+
+                  PROVINCE-DUP-NAME-1: the empty `<select>` is rendered
+                  with `disabled` so JS-off browsers don't submit an
+                  empty `address[province]` alongside the `<noscript>`
+                  input that uses the same name. Disabled form controls
+                  are excluded from submission per HTML spec, so the
+                  `<input>` inside `<noscript>` becomes the sole carrier
+                  of the province value when scripting is off. The
+                  customer-addresses.js handler removes `disabled` when
+                  it populates options so JS-on users get a working
+                  select.
                 {%- endcomment -%}
-                <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province | escape }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="AddressProvinceNew-error"{% endif %}>
+                <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province | escape }}" disabled autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="AddressProvinceNew-error"{% endif %}>
 
                 </select>
                 <noscript>
@@ -209,7 +220,18 @@
                       delete-form pattern.
                     {%- endcomment -%}
                     {%- form 'customer_address', address, class: 'kt-addresses__delete-form', method: 'delete' -%}
-                      <button type="submit" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t }}">
+                      {%- comment -%}
+                        `data-confirm-message` carries a translated
+                        string into an HTML attribute. Translators
+                        may include straight double quotes ("") which
+                        would terminate the attribute prematurely
+                        and break parsing. `| escape` converts " to
+                        &quot; so the JS readback via
+                        getAttribute('data-confirm-message') still
+                        receives the original string. Same goes for
+                        `address.url` — defence-in-depth.
+                      {%- endcomment -%}
+                      <button type="submit" class="kt-addresses__btn kt-addresses__btn--danger" data-addresses-delete="{{ address.url | escape }}" data-confirm-message="{{ 'kt.customer.addresses.delete_confirm' | t | escape }}">
                         {{ 'kt.customer.addresses.delete' | t }}
                       </button>
                     {%- endform -%}
@@ -320,8 +342,11 @@
                           {%- comment -%}
                             R148 JS-OFF-PROVINCE-1: edit-form parity
                             with new-form noscript fallback above.
+                            PROVINCE-DUP-NAME-1: `disabled` attribute
+                            prevents the empty select from submitting
+                            alongside the noscript input.
                           {%- endcomment -%}
-                          <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province | escape }}" autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="{{ err_province }}"{% endif %}>
+                          <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province | escape }}" disabled autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="{{ err_province }}"{% endif %}>
 
                 </select>
                 <noscript>

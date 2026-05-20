@@ -28,10 +28,19 @@
         provinceSelect.innerHTML = '';
         if (!parsed.length) {
           if (provinceField) provinceField.hidden = true;
+          // PROVINCE-DUP-NAME-1: keep the select `disabled` when empty
+          // so the browser excludes it from form submission (matches
+          // the initial server-rendered state). Without disabling, an
+          // empty `<select name="address[province]">` would submit "",
+          // overwriting any value the customer typed elsewhere.
           provinceSelect.disabled = true;
           return;
         }
         if (provinceField) provinceField.hidden = false;
+        // Enable submission now that we have real options to choose
+        // from. The server-rendered markup ships `disabled` so JS-off
+        // browsers don't submit an empty province alongside the
+        // <noscript> input fallback (same name attribute).
         provinceSelect.disabled = false;
         var defaultValue = provinceSelect.getAttribute('data-default') || '';
         parsed.forEach(function (pair) {
