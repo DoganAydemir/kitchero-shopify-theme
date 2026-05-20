@@ -736,6 +736,27 @@
 {%- endcomment -%}
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
 
+{%- comment -%}
+  R298 PARITY — Only load the product-model custom element
+  registration when the product actually has 3D model media.
+  Mirrors the gate in sections/main-product.liquid:728-737. Without
+  this, showroom PDPs that ship a 3D model render the
+  `<product-model>` wrapper but never lazy-load Shopify's model-viewer
+  library on intent, leaving the AR / orbit controls non-functional —
+  a Theme Store reject because rich product media must work on every
+  template that surfaces it.
+{%- endcomment -%}
+{%- assign has_3d_model = false -%}
+{%- for media in product.media -%}
+  {%- if media.media_type == 'model' -%}
+    {%- assign has_3d_model = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- if has_3d_model -%}
+  <script src="{{ 'product-model.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.main-product-showroom.name",

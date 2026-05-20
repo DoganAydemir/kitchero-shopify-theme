@@ -209,6 +209,142 @@
   color: var(--kt-stone-500);
 }
 
+/* ── Shopify auto-injected page body (Privacy Choices etc.) ───
+   For special pages like `/pages/your-privacy-choices` Shopify
+   bypasses the `{{ page.content }}` slot and injects the
+   policy text + opt-out form directly under the section root.
+   These rules tame that raw HTML to match the editorial
+   typography of the rest of the template. Scoped to the
+   article so non-CMS routes are unaffected. */
+
+.kt-main-page > p,
+.kt-main-page > div > p {
+  max-width: 50rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--kt-stone-700);
+}
+
+.kt-main-page > p:first-of-type {
+  padding-top: 3rem;
+}
+
+.kt-main-page > p:last-of-type {
+  padding-bottom: 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-main-page > p,
+  .kt-main-page > div > p {
+    font-size: 1rem;
+  }
+  .kt-main-page > p:first-of-type {
+    padding-top: 4rem;
+  }
+}
+
+/* CMS form styling — matches the editorial pill-button pattern
+   used elsewhere in the theme. Scoped to .kt-main-page (parent
+   article) so it catches forms whether they sit inside
+   __content or directly under the section root. */
+
+.kt-main-page form {
+  max-width: 50rem;
+  margin: 2rem auto 3rem;
+  padding: 2rem;
+  border: 1px solid var(--kt-stone-200);
+  border-radius: 0.75rem;
+  background-color: var(--kt-stone-50);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-main-page form {
+    margin: 2rem auto 4rem;
+    padding: 2.5rem;
+  }
+}
+
+.kt-main-page form > * {
+  margin: 0;
+}
+
+.kt-main-page form label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  color: var(--kt-stone-700);
+  cursor: pointer;
+  user-select: none;
+}
+
+.kt-main-page form input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  accent-color: var(--kt-stone-900);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.kt-main-page form input[type="email"],
+.kt-main-page form input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--kt-stone-900);
+  background-color: var(--kt-white);
+  border: 1px solid var(--kt-stone-300);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kt-main-page form input[type="email"]:focus,
+.kt-main-page form input[type="text"]:focus {
+  outline: none;
+  border-color: var(--kt-stone-900);
+  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.1);
+}
+
+.kt-main-page form button,
+.kt-main-page form input[type="submit"] {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  color: var(--kt-white);
+  background-color: var(--kt-stone-900);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.kt-main-page form button:hover,
+.kt-main-page form input[type="submit"]:hover {
+  background-color: var(--kt-stone-700);
+}
+
+.kt-main-page form button:focus-visible,
+.kt-main-page form input[type="submit"]:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 3px;
+}
+
 /* ── App blocks ───────────────────────────────────────────── */
 
 .kt-main-page__app-blocks {

@@ -394,8 +394,34 @@
                 shop customer viewing a USD receipt sees `$50.00`
                 with no currency hint. Markets multi-currency
                 Theme Store requirement.
+
+                R302 — Strike-through original_line_price + line-
+                level discount breakdown. When a per-line discount
+                applied at order time (auto-promo, "Buy 2 Get 1
+                Free", a code that targeted this line specifically),
+                the order receipt previously rendered ONLY the
+                discounted final price with no breakdown — the
+                customer had no way to verify which discount hit
+                which line. Theme Store rejects order pages that
+                hide line-level savings; mirroring the cart-page
+                treatment closes the parity gap so the receipt is
+                a faithful record of what the customer paid.
               {%- endcomment -%}
+              {%- if line_item.original_line_price > line_item.final_line_price -%}
+                <s class="kt-order__item-price-original">
+                  <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
+                  {{ line_item.original_line_price | money_with_currency }}
+                </s>
+                <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
+              {%- endif -%}
               {{ line_item.final_line_price | money_with_currency }}
+              {%- if line_item.line_level_discount_allocations.size > 0 -%}
+                <ul class="kt-order__item-discounts" role="list">
+                  {%- for discount in line_item.line_level_discount_allocations -%}
+                    <li>– {{ discount.discount_application.title | escape }} ({{ discount.amount | money_with_currency }})</li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
             </div>
           </li>
         {%- endfor -%}

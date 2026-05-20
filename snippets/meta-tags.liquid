@@ -153,15 +153,23 @@
   <meta name="robots" content="noindex">
 {%- comment -%}
   Faceted collection / search URLs (`?filter.v.option.color=red`,
-  `?filter.p.tag=...`, `?q=` on collections) generate a high-
-  cardinality URL space — without `noindex,follow` Google indexes
-  thousands of filter permutations, dilutes the parent collection's
-  link equity, and Search Console shows the parent dropping out of
-  the top results. `follow` keeps the linked products themselves
-  crawlable so the discovery path stays intact. Mirrors what
-  premium peer themes (and the Shopify Online Store team) recommend.
+  `?filter.p.tag=...`, `?sort_by=price-ascending`, `?q=` on
+  collections) generate a high-cardinality URL space — without
+  `noindex,follow` Google indexes thousands of filter / sort
+  permutations, dilutes the parent collection's link equity, and
+  Search Console shows the parent dropping out of the top results.
+  `follow` keeps the linked products themselves crawlable so the
+  discovery path stays intact. Sort permutations
+  (`?sort_by=created-descending`, `?sort_by=best-selling`, …) get
+  the same noindex treatment as filters because each sort just
+  re-orders the same product set and is therefore a duplicate-
+  content candidate per Google's faceted-navigation guidance.
+  Mirrors what premium peer themes (and the Shopify Online Store
+  team) recommend.
 {%- endcomment -%}
 {%- elsif request.path contains '/collections/' and request.query_string contains 'filter.' -%}
+  <meta name="robots" content="noindex,follow">
+{%- elsif request.path contains '/collections/' and request.query_string contains 'sort_by=' -%}
   <meta name="robots" content="noindex,follow">
 {%- endif -%}
 

@@ -391,5 +391,38 @@ if (!window.__kitcheroCookieBannerLoaded) {
       event.preventDefault();
       openCookieBanner();
     });
+
+    /* R401 CCPA-YOUR-PRIVACY-CHOICES: California Consumer Privacy Act
+       (CCPA) + CPRA require a footer "Your Privacy Choices" /
+       "Do Not Sell or Share My Personal Information" link that lets
+       California residents opt out of sale/sharing of personal data.
+       Clicking [data-privacy-choices] re-opens the cookie banner with
+       the customize panel pre-expanded so the sale_of_data toggle is
+       immediately reachable. preventDefault stops the href fallback
+       (a static /pages/your-privacy-choices link) from navigating
+       away when JS is available — the in-page panel is the better
+       affordance because it writes through Shopify.customerPrivacy
+       directly. When JS is disabled the anchor still navigates to
+       the dedicated policy page. */
+    document.addEventListener('click', function (event) {
+      var trigger = event.target.closest('[data-privacy-choices]');
+      if (!trigger) return;
+      event.preventDefault();
+      var opened = openCookieBanner();
+      if (!opened) return;
+      var banner = document.querySelector(SELECTORS.banner);
+      if (!banner) return;
+      setCustomizePanelExpanded(banner, true);
+      /* Focus the sale_of_data toggle for keyboard users — it's the
+         specific choice CCPA visitors came to make. */
+      var saleToggle = banner.querySelector('[data-cookie-purpose="sale_of_data"]');
+      if (saleToggle && typeof saleToggle.focus === 'function') {
+        /* Defer to next frame so the panel's hidden attribute is
+           removed before we try to focus the now-visible input. */
+        requestAnimationFrame(function () {
+          try { saleToggle.focus(); } catch (e) { /* noop */ }
+        });
+      }
+    });
   })();
 }

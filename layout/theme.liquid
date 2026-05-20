@@ -78,11 +78,18 @@
       indexed, but Google still sees competing canonical declarations
       and may choose the filtered URL over the parent collection in
       search results. Branch: when a collection URL carries `filter.`
-      query params, point the canonical at the un-filtered collection
-      so all filter permutations consolidate to the parent. Same
-      pattern when /search carries `q=` — point canonical at /search.
+      OR `sort_by=` query params, point the canonical at the
+      un-filtered/un-sorted collection so every permutation
+      consolidates to the parent. Same pattern when /search carries
+      `q=` — point canonical at /search. Sort permutations
+      (`?sort_by=price-ascending`, `?sort_by=created-descending`, …)
+      otherwise multiply the URL space the same way filters do and
+      dilute the parent collection's link equity, so they collapse
+      to the same parent canonical.
     {%- endcomment -%}
-    {%- if request.path contains '/collections/' and request.query_string contains 'filter.' and collection -%}
+    {%- if request.path contains '/collections/' and collection and request.query_string contains 'filter.' -%}
+      <link rel="canonical" href="{{ shop.url }}{{ collection.url }}">
+    {%- elsif request.path contains '/collections/' and collection and request.query_string contains 'sort_by=' -%}
       <link rel="canonical" href="{{ shop.url }}{{ collection.url }}">
     {%- elsif request.page_type == 'search' and request.query_string != '' -%}
       <link rel="canonical" href="{{ shop.url }}{{ routes.search_url }}">

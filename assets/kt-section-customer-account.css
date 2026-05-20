@@ -660,6 +660,39 @@ html.no-js [data-addresses-cancel-edit] {
   text-align: right;
 }
 
+/* R302 — Strike-through original line price on order receipt when
+   a per-line discount applied at order time. Mirrors the cart-page
+   `.kt-cart-page__item-total-was` treatment so the receipt and the
+   cart UX read consistently. */
+.kt-order__item-price-original {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgba(var(--kt-c-fg), 0.55);
+  text-decoration: line-through;
+  margin-bottom: 0.125rem;
+}
+
+/* R302 — Line-level discount allocation list under the line price.
+   Surfaces each discount that affected this specific line so the
+   customer can audit "Spring Sale -$5" / "Buy 2 Get 1 Free -$10"
+   against their order. Theme Store rejects order pages that hide
+   line-level savings. */
+.kt-order__item-discounts {
+  list-style: none;
+  margin: 0.375rem 0 0;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(var(--kt-c-fg), 0.65);
+  text-align: right;
+  white-space: normal;
+}
+
+.kt-order__item-discounts li {
+  margin: 0;
+}
+
 .kt-order__totals {
   border: 1px solid rgba(var(--kt-c-fg), 0.1);
   padding: 1.5rem;

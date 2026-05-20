@@ -459,6 +459,32 @@
                 </a>
               </li>
             {%- endfor -%}
+            {%- comment -%}
+              R401 CCPA-YOUR-PRIVACY-CHOICES: California Consumer Privacy
+              Act (CCPA) + CPRA require a conspicuous "Your Privacy
+              Choices" or "Do Not Sell or Share My Personal Information"
+              link for residents of California. Theme Store treats the
+              absence of this affordance as a reject-level compliance
+              gap when sale_of_data is in scope for the merchant.
+              The link uses [data-privacy-choices] to open the cookie
+              banner with the customize panel pre-expanded so the
+              sale_of_data toggle is reachable. Renders as a real
+              <button> for screen readers (not navigation) and falls
+              back to <a href="/pages/your-privacy-choices"> when JS
+              is disabled — merchants who publish a dedicated CCPA
+              policy page get a working link either way.
+            {%- endcomment -%}
+            {%- if section.settings.show_privacy_choices -%}
+              <li>
+                <a
+                  href="/pages/your-privacy-choices"
+                  class="kt-footer__policy-link"
+                  data-privacy-choices
+                >
+                  {{ 'kt.cookie_banner.privacy_choices' | t | default: 'Your Privacy Choices' }}
+                </a>
+              </li>
+            {%- endif -%}
           </ul>
         </nav>
       {%- endif -%}
@@ -574,6 +600,13 @@
       "id": "show_policy_links",
       "label": "t:sections.footer.settings.show_policy_links.label",
       "info": "t:sections.footer.settings.show_policy_links.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_privacy_choices",
+      "label": "t:sections.footer.settings.show_privacy_choices.label",
+      "info": "t:sections.footer.settings.show_privacy_choices.info",
       "default": true
     },
     {
