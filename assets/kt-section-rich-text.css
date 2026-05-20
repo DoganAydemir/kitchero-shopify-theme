@@ -42,11 +42,15 @@
   margin: 0;
   padding: 2rem;
   text-align: center;
-  border: 1px dashed rgba(var(--kt-c-fg), 0.3);
+  /* Subtle scheme-aware tint so the hint reads against any scheme.
+     Previous transparent-with-dashed-border + 0.85 opacity made the
+     copy disappear inside dark schemes (text + container both
+     muted on dark bg). */
+  background-color: rgba(var(--kt-c-fg), 0.06);
+  border: 1px dashed rgba(var(--kt-c-fg), 0.4);
   border-radius: 0.75rem;
-  color: rgb(var(--kt-c-fg));
+  color: rgba(var(--kt-c-fg), 0.75);
   font-size: 0.9375rem;
-  opacity: 0.85;
   width: 100%;
 }
 
@@ -73,7 +77,7 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg), 0.7);
+  color: rgba(var(--kt-c-fg), 0.55);
 }
 
 /* ── Block: text (richtext) ──────────────────────────────────────── */

@@ -165,7 +165,7 @@
 .kt-testimonials__header-desc {
   max-width: 20rem;
   /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
   font-weight: 300;
   line-height: 1.625;
   font-size: 0.9375rem;
@@ -206,22 +206,24 @@
   }
 }
 
-/* Card: p-8 rounded-2xl bg-stone-900/40 backdrop-blur-md border border-white/5 */
+/* Card: scheme-aware glassmorphic. Light scheme → near-white frosted
+   panel over the background image; dark scheme → dark frosted panel.
+   Both deliver consistent readability. */
 .kt-testimonials__card {
   display: flex;
   flex-direction: column;
   padding: 2rem;
   border-radius: 1rem;
-  background: rgba(28, 25, 23, 0.4);
+  background: rgba(var(--kt-c-bg, 28 25 23), 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.08);
   transition: background-color 0.5s ease, border-color 0.5s ease;
 }
 
 .kt-testimonials__card:hover {
-  background: rgba(28, 25, 23, 0.6);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--kt-c-bg, 28 25 23), 0.88);
+  border-color: rgba(var(--kt-c-fg, 255 255 255), 0.2);
 }
 
 /* R209 — R208 added a `.kt-testimonials--no-bg .kt-testimonials__card`

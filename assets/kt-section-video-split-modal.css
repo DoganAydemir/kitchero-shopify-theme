@@ -14,8 +14,8 @@
 .kt-video-split {
   padding: 3rem 0;
   /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
-  background-color: rgb(var(--kt-c-bg, 250 250 249));
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  background-color: rgb(250 250 249);
+  color: rgb(28 25 23);
 }
 
 @media screen and (min-width: 750px) {
@@ -31,7 +31,7 @@
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.25);
   /* R232.50 — scheme-aware card surface (was white). */
-  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  background-color: rgb(255 255 255);
 }
 
 @media screen and (min-width: 750px) {
@@ -54,7 +54,7 @@
   flex-shrink: 0;
   overflow: hidden;
   /* R232.50 — scheme-aware fallback behind the video. */
-  background-color: rgba(var(--kt-c-fg, 12 10 9), 0.9);
+  background-color: rgba(12, 10, 9, 0.9);
 }
 
 @media screen and (min-width: 750px) {
@@ -104,7 +104,7 @@
   letter-spacing: 0.3em;
   text-transform: uppercase;
   /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgba(122, 122, 122, 0.6);
 }
 
 .kt-video-split__heading {
@@ -114,7 +114,7 @@
   line-height: 1.15;
   letter-spacing: -0.015em;
   /* R232.50 — scheme-aware (was stone-900). */
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(28 25 23);
   margin: 0.25rem 0 0 0;
 }
 
@@ -135,8 +135,13 @@
 .kt-video-split__description {
   font-size: 0.9375rem;
   line-height: 1.7;
-  /* R232.50 — scheme-aware (was stone-600). */
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
+  /* R281c — earlier comment claimed scheme-aware but the value was
+     still a hardcoded stone-600 rgba. Wire to the live --kt-c-fg
+     token at 0.7 alpha so the description tracks any merchant
+     scheme flip and stays subordinate to the heading (which uses
+     full --kt-c-fg). Matches the muted-body treatment across
+     featured-collection / rich-text / iwt-* descriptions. */
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
   margin: 0.25rem 0 0 0;
   max-width: 32rem;
 }
@@ -154,7 +159,7 @@
   border: none;
   cursor: pointer;
   /* R232.50 — scheme-aware label. */
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(28 25 23);
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
@@ -165,7 +170,7 @@
 
 .kt-video-split__play:focus-visible {
   /* R232.50 — scheme-aware focus ring. */
-  outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
+  outline: 2px solid rgb(28 25 23);
   outline-offset: 3px;
   border-radius: 9999px;
 }
@@ -178,8 +183,8 @@
   height: 3rem;
   border-radius: 9999px;
   /* R232.50 — action-themed play pill (was stone-900 + white). */
-  background-color: rgb(var(--kt-c-action, 28 25 23));
-  color: rgb(var(--kt-c-action-text, 255 255 255));
+  background-color: rgb(28 25 23);
+  color: rgb(255 255 255);
   flex-shrink: 0;
   transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
 }

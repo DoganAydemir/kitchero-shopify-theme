@@ -23,6 +23,16 @@
   the kt-section-hero.css (and inline rules below) consume.
   Defaults match the previous hardcoded behaviour so existing
   storefronts don't regress visually after this density bump.
+
+  DESIGN INTENT — no section-level color_scheme / bg_color settings:
+  Hero is a full-bleed image slider with merchant-controlled
+  `overlay_color` + `overlay_opacity` + `text_color` settings. The
+  hero image fills the viewport so section background never paints
+  through, and overlay+text colors directly govern legibility. A
+  color_scheme dropdown would be redundant (its bg is invisible
+  behind the image, its fg overridden by the explicit text_color).
+  Theme-level color customization remains available via the global
+  color_scheme_group (kt_schemes) in settings_schema.json.
 {%- endcomment -%}
 {%- liquid
   assign hero_height_d = section.settings.section_height_desktop | default: 100
@@ -37,14 +47,14 @@
   endif
 -%}
 <section
-  class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %} color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %}"
   data-section-id="{{ section.id }}"
   data-section-type="hero"
   data-allows-transparent-header="true"
   data-autoplay="{{ hero_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
   data-show-pagination="{{ section.settings.show_pagination | default: true }}"
-  style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};"
   {%- comment -%}
     R93 — every `<section>` landmark needs an accessible name so SR
     landmarks navigation (NVDA Insert+F7, VoiceOver rotor) lists
@@ -434,36 +444,6 @@
       "label": "t:sections.hero.settings.text_color.label",
       "info": "t:sections.hero.settings.text_color.info",
       "default": "#ffffff"
-    },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
-      "type": "header",
-      "content": "t:sections.shared.color_scheme.header"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-1"
     }
   ],
   "blocks": [
@@ -526,19 +506,12 @@
     "groups": [
       "header",
       "footer"
-    ],
-    "templates": [
-      "cart",
-      "search",
-      "password",
-      "gift_card",
-      "404"
     ]
   },
   "presets": [
     {
       "name": "t:sections.hero.presets.name",
-      "category": "t:sections.categories.image.label",
+      "category": "Image",
       "blocks": [
         {
           "type": "slide",

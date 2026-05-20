@@ -9,6 +9,15 @@
   The modal opens via `[data-modal-video-open="{url}"]` on the play
   button. assets/video-modal.js handles the open/close lifecycle —
   it's a shared controller used by this section and video-poster-modal.
+
+  DESIGN INTENT — no section-level color_scheme setting:
+  Cinematic split layout requires a dark video panel paired with a
+  light editorial content pane. Arbitrary schemes (especially the
+  dark stone-800/stone-900 variants) would merge the two panels
+  visually and break the split. Colors are intentionally fixed:
+  stone-50 outer, white inner card, stone-900 typography and play
+  button. Theme-level color customization remains available via the
+  global color_scheme_group (kt_schemes) in settings_schema.json.
 {%- endcomment -%}
 
 {{ 'kt-section-video-split-modal.css' | asset_url | stylesheet_tag }}
@@ -22,10 +31,10 @@
 -%}
 
 <section
-  class="kt-video-split color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-video-split--video-{{ video_position }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-video-split kt-video-split--video-{{ video_position }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="video-split-modal"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  {% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}style="--kt-section-bg-custom: {{ section.settings.bg_color_custom }};"{% endif %}
 >
   <div class="page-width">
     <div class="kt-video-split__inner">
@@ -264,25 +273,16 @@
       "label": "t:sections.shared.bg_color_custom.label",
       "info": "t:sections.shared.bg_color_custom.info",
       "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
-      "type": "header",
-      "content": "t:sections.shared.color_scheme.header"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-1"
+      "visible_if": "{{ section.settings.bg_color == 'custom' }}"
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"],
-    "templates": ["cart", "search", "password", "gift_card", "404"]
+    "groups": ["header", "footer"]
   },
   "presets": [
     {
       "name": "t:sections.video_split_modal.presets.name",
+      "category": "Video",
       "settings": {
         "eyebrow": "Featured",
         "heading": "Watch the film.",
