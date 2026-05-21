@@ -662,9 +662,24 @@
   JS-controlled modal which doesn't exist in the JS-off fallback, so
   they're also script-attached.
 {%- endcomment -%}
+{%- comment -%}
+  R-SS1 — mobile panel is rendered OUTSIDE the <header> element (see
+  the comment block above for why), so it doesn't inherit the
+  `color-{scheme}` class from `<header>`. Without an explicit scheme
+  applied here, `--kt-c-bg` / `--kt-c-fg` fall back to whatever scheme
+  the <body> resolves to (usually scheme-1 = light surface), so the
+  drawer renders white-on-black or vice versa depending on the body
+  scheme rather than the merchant's intent. The dedicated
+  `mobile_menu_color_scheme` setting decouples the drawer chrome from
+  the header chrome so merchants can keep a light header + dark
+  drawer (or vice versa). Default is scheme-7 (stone-900) so a fresh
+  install reads as a cinematic dark drawer — matches the original
+  ported Next.js design.
+{%- endcomment -%}
+{%- assign mobile_menu_scheme = section.settings.mobile_menu_color_scheme | default: 'scheme-7' -%}
 <div
   id="kt-mobile-panel-{{ section.id }}"
-  class="kt-header__mobile-panel"
+  class="kt-header__mobile-panel color-{{ mobile_menu_scheme }}"
   aria-label="{{ 'kt.a11y.navigation' | t }}"
 >
   <div class="kt-header__mobile-panel-header">
@@ -744,71 +759,18 @@
           {%- endif -%}
 
           {%- comment -%}
-            R232.44 — Mobile-drawer locale + country selectors.
-
-            The desktop header has a popover-style language / country
-            disclosure (gated by `kt_show_locale_selector` +
-            `kt_show_country_selector`), but the matching popover was
-            hidden on mobile (<990px) via CSS so the cluster wouldn't
-            crowd the icon row. The original plan (called out in the
-            CSS comment at `.kt-header__locale`) was that mobile
-            shoppers would reach the same selectors from inside the
-            mobile-nav drawer's bottom footer. That markup was never
-            ported, leaving mobile users with no way to change
-            country or language — user feedback: "Ülke seçimi neden
-            yok, olmalı mı?". The CSS hooks
-            (`kt-header__mobile-locale-form` etc.) already exist;
-            this block emits the matching markup. Same auto-submit
-            pattern as the desktop popover: `assets/localization-form.js`
-            listens for `change` and submits, with a `<noscript>`
-            fallback button for JS-off shoppers (WCAG 3.2.2 + F36).
+            R-SS4 — Mobile-drawer locale/country selectors REMOVED.
+            Merchants explicitly requested locale switching to live in
+            the footer only on mobile. The previous in-drawer
+            selectors took up valuable above-the-fold real estate and
+            pushed the primary navigation (CTA, links) below the menu
+            scroll line. Footer-only locale switching is not a Theme
+            Store rejection criterion — Shopify only requires the
+            selector to be somewhere in the storefront chrome, and
+            the footer satisfies that. Markup deliberately removed
+            rather than gated on a setting because reintroducing it
+            would re-create the crowded layout the merchant flagged.
           {%- endcomment -%}
-          {%- liquid
-            assign show_m_locale_select = false
-            if settings.kt_show_locale_selector and localization.available_languages.size > 1
-              assign show_m_locale_select = true
-            endif
-            assign show_m_country_select = false
-            if settings.kt_show_country_selector and localization.available_countries.size > 1
-              assign show_m_country_select = true
-            endif
-          -%}
-          {%- if show_m_locale_select or show_m_country_select -%}
-            <div class="kt-header__mobile-locale">
-              {%- if show_m_locale_select -%}
-                {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'kt-header__mobile-locale-form' -%}
-                  <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-                  <label for="HeaderMobileLanguageSelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
-                  <select name="language_code" id="HeaderMobileLanguageSelector" class="kt-header__mobile-locale-select">
-                    {%- for language in localization.available_languages -%}
-                      <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
-                        {{ language.endonym_name | capitalize }}
-                      </option>
-                    {%- endfor -%}
-                  </select>
-                  <noscript>
-                    <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                  </noscript>
-                {%- endform -%}
-              {%- endif -%}
-              {%- if show_m_country_select -%}
-                {%- form 'localization', id: 'HeaderMobileCountryForm', class: 'kt-header__mobile-locale-form' -%}
-                  <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-                  <label for="HeaderMobileCountrySelector" class="kt-header__mobile-locale-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
-                  <select name="country_code" id="HeaderMobileCountrySelector" class="kt-header__mobile-locale-select">
-                    {%- for country in localization.available_countries -%}
-                      <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
-                        {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
-                      </option>
-                    {%- endfor -%}
-                  </select>
-                  <noscript>
-                    <button type="submit" class="kt-header__mobile-locale-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
-                  </noscript>
-                {%- endform -%}
-              {%- endif -%}
-            </div>
-          {%- endif -%}
         </div>
       </div>
 
@@ -1012,6 +974,13 @@
       "id": "color_scheme",
       "label": "t:sections.shared.color_scheme.label",
       "default": "scheme-4"
+    },
+    {
+      "type": "color_scheme",
+      "id": "mobile_menu_color_scheme",
+      "label": "t:sections.header.settings.mobile_menu_color_scheme.label",
+      "info": "t:sections.header.settings.mobile_menu_color_scheme.info",
+      "default": "scheme-7"
     }
   ],
   "blocks": [

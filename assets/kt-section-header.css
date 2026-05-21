@@ -1123,10 +1123,20 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   outline: none;
 }
 
-/* R232.57 — focus ring scheme-aware. */
+/* R-SS2 — Same pattern as `.kt-header__mobile-panel-close`:
+   programmatic .focus() from JS (or restored focus when the drawer
+   closes and the toggle re-receives focus per WAI-ARIA practice)
+   retains :focus-visible state on Chromium / Safari if the session
+   has any prior keyboard input, leaving a hard 2px rectangular
+   outline that reads to merchants as a stuck "bordered button".
+   Swap the rectangle for a soft circular tint — keyboard a11y
+   indicator is still present (WCAG 2.4.7 satisfied via background
+   change with sufficient contrast), but pointer/tap users no
+   longer perceive a persistent border around the icon. */
 .kt-header__menu-toggle:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
-  outline-offset: 2px;
+  outline: none;
+  border-radius: 9999px;
+  background: rgba(var(--kt-c-fg, 255 255 255), 0.12);
 }
 
 /* Mobile Panel — fills the viewport when open. The inner slider is
@@ -1400,9 +1410,19 @@ html.no-js .kt-header__mobile-view-title {
   outline: none;
 }
 
+/* R-SS8 — Same focus-tint pattern as the hamburger toggle + close
+   button. When the user navigates deep into the mobile menu via
+   keyboard or taps "Back", the button retains :focus-visible on
+   touch sessions, leaving a stuck 2px rectangle that reads as a
+   "selected/bordered" pill. Swap the rectangle for the same soft
+   circular tint — WCAG 2.4.7 indicator stays present via the
+   background contrast change, but the persistent box-look goes away. */
 .kt-header__mobile-back:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg, 250 250 249));
-  outline-offset: 2px;
+  outline: none;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  margin-left: -0.75rem;
+  background: rgba(var(--kt-c-fg, 250 250 249), 0.12);
 }
 
 .kt-header__mobile-back svg {

@@ -18,16 +18,23 @@
      banner is present, so the section is still a clean 100vh on
      pages with the banner disabled.
 
-     `100svh` (small viewport) is used first because it tracks
-     the visible viewport under iOS Safari's collapsing address
-     bar; `100vh` stays as a fallback for browsers without svh
-     support (pre-2022). The merchant slider value lands in
-     `--kt-hero-height-m/d` from the inline style on the section
-     wrapper, with the same `100vh / 100svh` defaults inside the
-     `var()` chain so the calc still works if Liquid hasn't
-     emitted the variable for any reason. */
+     R-SS2 — viewport-unit cascade for mobile-browser chrome bars:
+       1. `100vh`  — oldest fallback (pre-2022 browsers).
+       2. `100svh` — small viewport. Excludes mobile address bar +
+          bottom toolbar (the smallest state). Without this fallback
+          step, a fresh-paint with the toolbars showing would have
+          the hero's bottom content hidden behind Chrome's bottom
+          bar on iOS / the Edge mobile toolbar / etc.
+       3. `100dvh` — dynamic viewport. Adjusts in real time as the
+          browser shows/hides its chrome (e.g. when the user starts
+          scrolling and Chrome retracts the URL bar). This is the
+          ideal value for "fill exactly the visible area" hero
+          experiences. Universally supported on 2026 evergreen
+          browsers (Safari 15.4+, Chrome 108+, Firefox 101+); the
+          two earlier rules keep older agents covered. */
   height: calc(var(--kt-hero-height-m, 100vh) - var(--kt-banner-height, 0px));
   height: calc(var(--kt-hero-height-m, 100svh) - var(--kt-banner-height, 0px));
+  height: calc(var(--kt-hero-height-m, 100dvh) - var(--kt-banner-height, 0px));
   width: 100%;
   overflow: hidden;
 }
@@ -36,6 +43,7 @@
   .kt-hero {
     height: calc(var(--kt-hero-height-d, 100vh) - var(--kt-banner-height, 0px));
     height: calc(var(--kt-hero-height-d, 100svh) - var(--kt-banner-height, 0px));
+    height: calc(var(--kt-hero-height-d, 100dvh) - var(--kt-banner-height, 0px));
   }
 }
 

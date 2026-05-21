@@ -119,20 +119,27 @@
   margin-bottom: 1.5rem;
 }
 
+/* R-SS6 — accent decoration (eyebrow + rule) reads from the
+   section-level `accent_color` setting via the
+   `--kt-visualize-accent` custom property (set inline on the
+   section root). Defaults to white to match the cinematic dark
+   background; merchants can pick any accent in the editor. The
+   former hardcoded `var(--kt-amber-500)` clashed with merchants
+   whose theme primary wasn't amber. */
 .kt-visualize-studio__rule {
   display: block;
   width: 3rem;
   height: 1px;
-  background-color: var(--kt-amber-500);
+  background-color: var(--kt-visualize-accent, #ffffff);
 }
 
-/* eyebrow: text-xs font-bold tracking-widest uppercase text-amber-500 */
+/* eyebrow: text-xs font-bold tracking-widest uppercase */
 .kt-visualize-studio__eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--kt-amber-500);
+  color: var(--kt-visualize-accent, #ffffff);
   margin: 0;
 }
 

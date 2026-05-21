@@ -112,6 +112,56 @@
   cursor: zoom-in;
 }
 
+/* R-SS5 — Loader during thumbnail-driven image swap.
+   product-gallery.js adds `.kt-gallery__main--loading` to this
+   container when the user taps a thumbnail whose image hasn't
+   finished loading yet, and removes it when `load` (or `error`)
+   fires. The spinner is a CSS-only ::after element, centred via
+   the position: absolute + 50% / translate trick, so no extra
+   markup is needed. Sits at z-index 5 above the slide stack but
+   below the lightbox so opening the lightbox while loading
+   doesn't trap the spinner in front. The keyframes animate
+   independently of the JS so reduced-motion users still see
+   that something is happening without the rotation. */
+.kt-gallery__main--loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(245, 245, 244, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.kt-gallery__main--loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -1.25rem 0 0 -1.25rem;
+  border: 2px solid rgba(28, 25, 23, 0.18);
+  border-top-color: rgba(28, 25, 23, 0.7);
+  border-radius: 50%;
+  animation: kt-gallery-spin 0.7s linear infinite;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes kt-gallery-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-gallery__main--loading::after {
+    animation: none;
+    /* Static dot pulse via opacity instead of rotation. */
+    opacity: 0.6;
+  }
+}
+
 @media screen and (min-width: 750px) {
   .kt-gallery__main {
     aspect-ratio: 4 / 3;

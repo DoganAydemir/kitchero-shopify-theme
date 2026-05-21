@@ -407,7 +407,9 @@
 .kt-card-product__content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  /* R-SS7 — tighter gap groups title + price + CTA into one visual
+     unit instead of letting the 1rem spacing read as separation. */
+  gap: 0.75rem;
 }
 
 .kt-card-product__info {
@@ -807,10 +809,21 @@
 /* Wrapper `<div>` around the quote anchor in the markup. Default
    `<div>` is block which fills the column already; explicit width:100%
    ensures the inner anchor stretches even on browsers that interpret
-   flex parents differently. */
+   flex parents differently.
+
+   R-SS7 — `margin-top: auto` REMOVED. Equal-height grid rows gave
+   cards with shorter info text (typically the second card in a row
+   when titles vary) a stretched content box, and the auto-margin
+   ate that slack ABOVE the button — pushing the CTA visually far
+   from the price block it belongs to. Result was a broken
+   "grouping" where each card's CTA floated low instead of staying
+   tethered to the card's own title + price. Without the auto-
+   margin the button sits at the natural end of the info column
+   (separated by the `gap: 0.75rem` below), so the title-price-CTA
+   trio reads as one tight unit and the inter-card row-gap on the
+   grid does the spacing work between adjacent cards. */
 .kt-card-product__content > div:has(> .kt-card-product__quote-btn) {
   width: 100%;
-  margin-top: auto;
 }
 
 .kt-card-product__quote-btn:hover {

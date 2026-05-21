@@ -17,10 +17,31 @@
   via the global color_scheme_group (kt_schemes) in settings_schema.
 {%- endcomment -%}
 
+{%- comment -%}
+  R-SS6 — accent color from merchant setting. The previous amber-500
+  decoration was a holdover from the Next.js source palette and
+  clashed with merchants who picked a different primary color in
+  theme settings. The new `accent_color` setting (defaults to the
+  theme primary set in settings_schema) lets every visualize-studio
+  instance match the rest of the storefront's accent treatment.
+  Token name uses the theme primary token (--kt-c-primary) when the
+  merchant leaves the setting blank, with a final hardcoded white
+  fallback so the eyebrow + rule always have some visible color.
+{%- endcomment -%}
+{%- liquid
+  capture visualize_inline_vars
+    if section.settings.accent_color != blank
+      echo '--kt-visualize-accent: '
+      echo section.settings.accent_color
+      echo ';'
+    endif
+  endcapture
+-%}
 <section
   class="kt-visualize-studio"
   data-section-id="{{ section.id }}"
   data-section-type="visualize-studio"
+  {% if visualize_inline_vars != blank %}style="{{ visualize_inline_vars | strip_newlines }}"{% endif %}
 >
   {%- comment -%} Immersive background {%- endcomment -%}
   <div class="kt-visualize-studio__bg" aria-hidden="true">
@@ -257,6 +278,13 @@
       "id": "eyebrow",
       "label": "t:sections.visualize-studio.settings.eyebrow.label",
       "default": "Visualize"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:sections.visualize-studio.settings.accent_color.label",
+      "info": "t:sections.visualize-studio.settings.accent_color.info",
+      "default": "#FFFFFF"
     },
     {
       "type": "text",

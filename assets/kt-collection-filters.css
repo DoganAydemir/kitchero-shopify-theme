@@ -395,9 +395,22 @@
   pointer-events: auto;
 }
 
+/* R-SS9 — Explicit z-index on backdrop + panel. Both are absolute
+   siblings inside `.kt-filter-drawer`. Without explicit values,
+   source order alone determined paint order — fine in theory, but
+   the backdrop's `backdrop-filter: blur(4px)` creates its own
+   stacking context which, in some Chromium versions, raises the
+   backdrop above the panel and intercepts pointer events on the
+   filter controls. Result: the drawer was visible but its
+   checkboxes / inputs / dropdowns silently ignored taps (the user
+   reported "üzerine bir overlay gelmiş gibi tıklayamıyorum").
+   Explicit `z-index: 1` on the backdrop and `z-index: 2` on the
+   panel pins the stacking deterministically across engines, so
+   the panel's children receive every tap. */
 .kt-filter-drawer__backdrop {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background-color: rgba(28, 25, 23, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -407,6 +420,7 @@
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 2;
   height: 100%;
   width: 88%;
   max-width: 24rem;
@@ -644,19 +658,82 @@
   flex-shrink: 0;
 }
 
+/* R-SS9 — Price-range filter inside the mobile drawer.
+   The desktop sidebar's `.kt-filter__price-*` styles weren't
+   ported to the drawer's `.kt-filter-drawer__price-*` selectors,
+   so on mobile the two number inputs rendered with the
+   browser's default heavy-bordered look (the reporter said:
+   "price kısmındaki input lar berbat görünüyor"). These rules
+   give the inputs the same editorial pill treatment as the
+   desktop sidebar — slim 1px border, clean focus ring, no
+   spinner buttons. */
+.kt-filter-drawer__price-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kt-filter-drawer__price-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.kt-filter-drawer__price-separator {
+  flex-shrink: 0;
+  color: var(--kt-stone-400);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.kt-filter-drawer__price-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--kt-stone-900);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--kt-stone-300);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  /* Touch target floor — 44px ÷ default font-size keeps WCAG 2.5.5. */
+  min-height: 44px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kt-filter-drawer__price-input:focus,
+.kt-filter-drawer__price-input:focus-visible {
+  outline: none;
+  border-color: var(--kt-stone-900);
+  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.12);
+}
+
+.kt-filter-drawer__price-input::-webkit-inner-spin-button,
+.kt-filter-drawer__price-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox spinner removal. */
+.kt-filter-drawer__price-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .kt-filter-drawer__footer {
   flex-shrink: 0;
-  /* Stack the count/clear-all row ABOVE the full-width Show
-     Results button. Was a single horizontal flex row with
-     CLEAR ALL pinned left + button taking the rest — on
-     narrow phones the button squeezed to a hard-to-tap
-     fraction and the row felt like a balanced inline group
-     instead of a primary CTA + secondary helper. Vertical
-     stack makes the primary action unmistakable. */
+  /* R-SS9 — Stack: Clear-all link on top (auto-width, centred),
+     primary Show-Results button below at full width. The earlier
+     `align-items: stretch` flattened the Clear-all underline link
+     into a full-width banner which read as a secondary CTA
+     (looked "saçma" — awkward, per the reporter). Centring keeps
+     the link inline-block-sized, so the primary button is
+     visually the dominant action and Clear All sits as a small
+     editorial helper above it. */
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.875rem;
   padding: 1.25rem 1.5rem;
   /* Respect iPhone home-indicator safe area — max() keeps the
      standard 1.25rem on devices without a bottom inset. */
@@ -670,6 +747,7 @@
    keeps both elements visually balanced when the count is
    short ("0 Matches Found"). */
 .kt-filter-drawer__footer-info {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -678,6 +756,8 @@
 
 .kt-filter-drawer__clear {
   flex-shrink: 0;
+  /* Sit as an inline-block link, not a stretched flex item. */
+  align-self: center;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.2em;

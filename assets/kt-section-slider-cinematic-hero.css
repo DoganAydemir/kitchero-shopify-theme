@@ -22,28 +22,37 @@
   isolation: isolate;
 }
 
-/* Height variants */
+/* Height variants
+   R-SS2 — viewport-unit cascade (vh → svh → dvh) so the slider tracks
+   the visible viewport even when Chrome/Edge mobile bottom toolbar or
+   Safari address bar is showing. dvh adjusts in real time as the
+   chrome retracts on scroll. See kt-section-hero.css for the full
+   rationale on the three-step fallback. */
 .kt-slider-cinematic--full {
-  /* 100svh avoids the iOS address-bar jump; 100vh fallback for
-     browsers without svh support (see kt-section-hero.css note). */
   min-height: calc(100vh - var(--kt-header-height, 0px));
   min-height: calc(100svh - var(--kt-header-height, 0px));
+  min-height: calc(100dvh - var(--kt-header-height, 0px));
   height: calc(100vh - var(--kt-header-height, 0px));
   height: calc(100svh - var(--kt-header-height, 0px));
+  height: calc(100dvh - var(--kt-header-height, 0px));
 }
 
 .kt-slider-cinematic--large {
   min-height: 85vh;
   min-height: 85svh;
+  min-height: 85dvh;
   height: 85vh;
   height: 85svh;
+  height: 85dvh;
 }
 
 .kt-slider-cinematic--medium {
   min-height: 65vh;
   min-height: 65svh;
+  min-height: 65dvh;
   height: 65vh;
   height: 65svh;
+  height: 65dvh;
 }
 
 /* ------------------------------------------------------------

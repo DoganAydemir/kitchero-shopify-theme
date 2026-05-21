@@ -135,6 +135,25 @@
       }
     }
 
+    /* R-SS5 — Loader during thumbnail switch.
+       Non-active slides are emitted with `loading="lazy"` so the
+       initial page payload stays light. Lazy-loaded images inside
+       `display: none` slides may not be fetched until the slide
+       becomes visible, and on slower connections the customer
+       sees ~1-2s of a white panel between thumb tap and the new
+       image appearing. The fix shows a centred spinner the
+       moment a non-cached image is requested, and hides it as
+       soon as the new image's `load` event (or `complete`) fires.
+       Cached images skip the spinner entirely so there's no
+       flash for frequent re-clicks. */
+    var galleryMain = gallery.querySelector('.kt-gallery__main');
+    function showLoader() {
+      if (galleryMain) galleryMain.classList.add('kt-gallery__main--loading');
+    }
+    function hideLoader() {
+      if (galleryMain) galleryMain.classList.remove('kt-gallery__main--loading');
+    }
+
     /* Switch to slide by index */
     function goTo(index) {
       if (index < 0) index = totalSlides - 1;
@@ -144,6 +163,27 @@
       /* Pause any active media before switching slides. Avoids the
          audio-leak / multi-video-playing footgun reviewers test for. */
       pauseAllMedia();
+
+      /* R-SS5 — Inspect the image in the target slide. If it's
+         a real `<img>` and hasn't finished loading yet (`complete`
+         false), arm the loader and wait for `load` / `error`
+         before hiding it. Bind both events so a 404 doesn't leave
+         the spinner stuck. Wrapped in a try/catch so a non-image
+         slide (video / model_viewer / external_video) silently
+         no-ops. */
+      var targetImg = slides[index] && slides[index].querySelector('img.kt-gallery__image');
+      if (targetImg && !targetImg.complete) {
+        showLoader();
+        var clearLoader = function () {
+          hideLoader();
+          targetImg.removeEventListener('load', clearLoader);
+          targetImg.removeEventListener('error', clearLoader);
+        };
+        targetImg.addEventListener('load', clearLoader);
+        targetImg.addEventListener('error', clearLoader);
+      } else {
+        hideLoader();
+      }
 
       slides.forEach(function (s) { s.classList.remove('kt-gallery__slide--active'); });
       /* R92 — flip aria-current alongside the visual --active class so
