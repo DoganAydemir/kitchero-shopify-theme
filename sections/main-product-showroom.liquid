@@ -371,34 +371,53 @@
                   see sections/main-product.liquid line 90).
                 {%- endcomment -%}
                 {%- comment -%}
-                  R-thumb-merchant — Door thumbnail sourced ONLY from
-                  the per-product metafield `custom.door_sample`.
-                  Merchants create the metafield definition once
-                  (Settings → Custom data → Products → Add definition,
-                  namespace `custom`, key `door_sample`, type
-                  File → Image-only), then set a different sample
-                  image on every product via the product's Metafields
-                  section.
+                  R-thumb-merchant — Door thumbnail resolution is now
+                  TIERED so the theme works out of the box without any
+                  merchant configuration AND still gives power-users
+                  fine-grained control:
 
-                  Earlier code fell back to `product.featured_image`
-                  when no metafield was set, but the featured image
-                  is the wide kitchen lifestyle scene — when downscaled
-                  to the 80×106 thumb slot with `object-fit: cover` it
-                  shows a featureless slab of fridge / cabinet wall
-                  that reads as a "blurry placeholder" (merchant flagged
-                  this in the latest screenshot). Per the request the
-                  thumb slot stays EMPTY when no door sample is set —
-                  clean is better than an accidental decoy.
+                    Tier 1: `product.metafields.custom.door_sample`
+                            (per-product metafield, set in Shopify
+                            Admin → Products → [P] → Metafields).
+                            One-time setup of the metafield definition
+                            (Settings → Custom data → Products → Add
+                            definition) unlocks this on every product.
+                            Best for stores with a dedicated swatch
+                            photo per product.
 
-                  Non-image file references (PDF spec sheets, CAD
-                  files, etc.) are filtered out via the `media_type`
-                  check so a merchant pointing the metafield at a
-                  document doesn't blow up the image_tag call.
+                    Tier 2: `product.selected_or_first_available_variant
+                             .featured_image` (variant featured image).
+                            Catches the common cabinet store pattern
+                            where each variant ("Door Style: Slab",
+                            "Door Style: Shaker", etc.) ships its own
+                            swatch photo via Shopify's standard variant
+                            image picker — zero metafield setup.
+                            Skipped when the variant image is the same
+                            as the product's master featured image
+                            (otherwise the thumb would just duplicate
+                            the gallery hero, which is the blurry
+                            placeholder problem the merchant flagged).
+
+                    Tier 3: Nothing — slot stays empty.
+                            Cleaner than a duplicate of the gallery
+                            hero or a generic fallback image.
+
+                  Non-image metafield values (PDF spec sheets, CAD
+                  files, etc.) are filtered via the `media_type`
+                  check on the metafield path so a merchant pointing
+                  the metafield at a document doesn't blow up the
+                  image_tag call below.
                 {%- endcomment -%}
                 {%- assign door_sample_image = nil -%}
                 {%- if product.metafields.custom.door_sample.value != blank
                        and product.metafields.custom.door_sample.value.media_type == 'image' -%}
                   {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
+                {%- else -%}
+                  {%- assign door_thumb_variant = product.selected_or_first_available_variant -%}
+                  {%- if door_thumb_variant.featured_image != blank
+                         and door_thumb_variant.featured_image != product.featured_image -%}
+                    {%- assign door_sample_image = door_thumb_variant.featured_image -%}
+                  {%- endif -%}
                 {%- endif -%}
                 <div class="kt-showroom__title-row" {{ block.shopify_attributes }}>
                   <h1 class="kt-showroom__title">{{ product.title | escape }}</h1>
