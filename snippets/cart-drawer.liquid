@@ -849,7 +849,39 @@
             </details>
           {%- endif -%}
 
-          <button type="submit" name="checkout" class="kt-cart-drawer__checkout">
+          {%- comment -%}
+            R-cart-audit — Optional terms consent checkbox.
+            Setting lives on `main-cart` schema (per Shopify pattern
+            of one source of truth for cart options) but the drawer
+            reads `settings.kt_cart_show_terms` via theme-level
+            settings_schema so BOTH surfaces honour the same toggle
+            without per-section duplication. JS in cart-drawer.js
+            wires the disabled state on the checkout button.
+          {%- endcomment -%}
+          {%- if settings.kt_cart_show_terms -%}
+            {%- assign cart_terms_default = 'kt.cart.terms.default_html' | t -%}
+            <div class="kt-cart-drawer__terms">
+              <input
+                type="checkbox"
+                id="CartDrawerTerms"
+                name="attributes[Terms accepted]"
+                value="Yes"
+                class="kt-cart-drawer__terms-input"
+                required
+                data-cart-terms-checkbox
+              >
+              <label for="CartDrawerTerms" class="kt-cart-drawer__terms-label">
+                {{ settings.kt_cart_terms_text | default: cart_terms_default }}
+              </label>
+            </div>
+          {%- endif -%}
+
+          <button
+            type="submit"
+            name="checkout"
+            class="kt-cart-drawer__checkout"
+            {% if settings.kt_cart_show_terms %}disabled data-cart-terms-gated{% endif %}
+          >
             {{ 'kt.cart.checkout' | t | default: 'Checkout' }}
           </button>
 

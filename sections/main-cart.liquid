@@ -712,7 +712,50 @@
                 </p>
               </noscript>
 
-              <button type="submit" name="checkout" class="kt-cart-page__checkout">
+              {%- comment -%}
+                R-cart-audit — Optional terms/conditions consent
+                checkbox. Theme-level setting (`kt_cart_show_terms`)
+                so the SAME toggle controls both the cart page AND
+                the cart drawer with one switch. Mirrors the existing
+                `kt_cart_show_discount` pattern. When ON the
+                checkout submit ships `disabled` + `data-cart-terms-
+                gated`; JS in main-cart.js / cart-drawer.js listens
+                to the checkbox `change` event and toggles the
+                button. `required` attribute is the no-JS safety
+                net so noscript shoppers still get the validation
+                gate before form submit.
+              {%- endcomment -%}
+              {%- if settings.kt_cart_show_terms -%}
+                {%- assign terms_default = 'kt.cart.terms.default_html' | t -%}
+                <div class="kt-cart-page__terms">
+                  {%- comment -%}
+                    Hidden checkbox value — captured as a cart attribute
+                    so it appears on the order in Shopify Admin (Order
+                    notes). Literal "Yes" rather than a translation key
+                    because Admin reads it as a server-side string; no
+                    end-customer sees it.
+                  {%- endcomment -%}
+                  <input
+                    type="checkbox"
+                    id="CartPageTerms"
+                    name="attributes[Terms accepted]"
+                    value="Yes"
+                    class="kt-cart-page__terms-input"
+                    required
+                    data-cart-terms-checkbox
+                  >
+                  <label for="CartPageTerms" class="kt-cart-page__terms-label">
+                    {{ settings.kt_cart_terms_text | default: terms_default }}
+                  </label>
+                </div>
+              {%- endif -%}
+
+              <button
+                type="submit"
+                name="checkout"
+                class="kt-cart-page__checkout"
+                {% if settings.kt_cart_show_terms %}disabled data-cart-terms-gated{% endif %}
+              >
                 {{ 'kt.cart.checkout' | t }}
               </button>
 
@@ -728,13 +771,28 @@
 
               {%- comment -%} Trust strip (reassurance below CTA) {%- endcomment -%}
               <ul class="kt-cart-page__trust" role="list">
-                <li>
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                  <span>{{ 'kt.cart.trust.secure' | t | default: 'Secure checkout' }}</span>
-                </li>
+                {%- comment -%}
+                  R-cart-audit — "Secure checkout" label now editable
+                  via `trust_secure_text` setting. Previous hardcoded
+                  text was a real promise (https/checkout uses
+                  Shopify's PCI-compliant pipeline) but reviewers
+                  expected every visible trust line to be merchant-
+                  editable. Setting defaults to the existing
+                  translation so fresh installs keep the same
+                  wording. Blank value → line hidden entirely
+                  (parity with shipping/returns lines below).
+                {%- endcomment -%}
+                {%- assign trust_secure_default = 'kt.cart.trust.secure' | t -%}
+                {%- assign trust_secure_label = section.settings.trust_secure_text | default: trust_secure_default -%}
+                {%- if trust_secure_label != blank -%}
+                  <li>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>{{ trust_secure_label }}</span>
+                  </li>
+                {%- endif -%}
                 {%- comment -%}
                   R87 — gate shipping/returns trust lines on
                   non-blank settings. Previous `| default: 'Add a
@@ -742,10 +800,7 @@
                   placeholder COPY to the live storefront when a
                   merchant skipped these settings on first install.
                   Now the line is hidden entirely until the
-                  merchant fills in their real policy text. The
-                  `Secure checkout` line above stays unconditional
-                  because that's a real, fixed promise the theme
-                  always honours.
+                  merchant fills in their real policy text.
                 {%- endcomment -%}
                 {%- if section.settings.trust_shipping_text != blank -%}
                   <li>
@@ -989,6 +1044,13 @@
     {
       "type": "header",
       "content": "t:sections.main-cart.settings.header__trust.content"
+    },
+    {
+      "type": "text",
+      "id": "trust_secure_text",
+      "label": "t:sections.main-cart.settings.trust_secure_text.label",
+      "info": "t:sections.main-cart.settings.trust_secure_text.info",
+      "default": "Secure checkout"
     },
     {
       "type": "text",

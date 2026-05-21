@@ -1141,3 +1141,52 @@
     page-break-inside: avoid;
   }
 }
+
+/* ============================================================
+   R-cart-audit — Terms & conditions checkbox
+
+   Optional consent gate before checkout when `kt_cart_show_terms`
+   is enabled. The checkbox row sits between the cart subtotal +
+   the checkout CTA so the customer must explicitly confirm before
+   the Checkout button becomes interactive.
+   ============================================================ */
+
+.kt-cart-page__terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.kt-cart-page__terms-input {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  accent-color: var(--kt-stone-900);
+  cursor: pointer;
+}
+
+.kt-cart-page__terms-label {
+  color: var(--kt-stone-700);
+  cursor: pointer;
+}
+
+.kt-cart-page__terms-label a {
+  color: var(--kt-stone-900);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.kt-cart-page__terms-label a:hover {
+  text-decoration: none;
+}
+
+/* Disabled checkout state — visually clear when the gate is on
+   and the box isn't ticked. */
+.kt-cart-page__checkout:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

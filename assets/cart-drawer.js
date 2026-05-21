@@ -85,6 +85,26 @@
         }
       });
 
+      /* R-cart-audit — Terms checkbox checkout gate. When the
+         merchant enables `kt_cart_show_terms`, the drawer's
+         checkout button ships `disabled` + `data-cart-terms-gated`.
+         This listener watches the matching checkbox and toggles
+         the disabled state. Mirrors the main-cart.js implementation
+         so both surfaces honour the same gate. */
+      this.addEventListener('change', function (event) {
+        var checkbox = event.target.closest('[data-cart-terms-checkbox]');
+        if (!checkbox) return;
+        var gatedButtons = self.panel.querySelectorAll('[data-cart-terms-gated]');
+        gatedButtons.forEach(function (btn) {
+          btn.disabled = !checkbox.checked;
+          if (checkbox.checked) {
+            btn.removeAttribute('aria-disabled');
+          } else {
+            btn.setAttribute('aria-disabled', 'true');
+          }
+        });
+      });
+
       /* Escape key — document-scoped because the drawer is a modal; a
          key listener on the drawer itself would miss because focus may
          be inside a descendant input when Esc is pressed. */

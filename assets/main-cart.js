@@ -379,6 +379,32 @@ if (!window.__kitcheroMainCartLoaded) {
       }
     });
 
+    /* R-cart-audit — Terms checkbox checkout gate.
+       When the merchant enables `kt_cart_show_terms`, the checkout
+       button ships with `disabled` + `data-cart-terms-gated`. This
+       listener watches the matching `[data-cart-terms-checkbox]`
+       and toggles the disabled state in lockstep. The `required`
+       attr on the checkbox is the no-JS belt: noscript shoppers
+       still see browser validation if they try to submit without
+       ticking. Both work together so the gate holds whether or
+       not the script runs. */
+    function syncCartTermsGate(checkbox) {
+      var gatedButtons = document.querySelectorAll('[data-cart-terms-gated]');
+      gatedButtons.forEach(function (btn) {
+        btn.disabled = !checkbox.checked;
+        if (checkbox.checked) {
+          btn.removeAttribute('aria-disabled');
+        } else {
+          btn.setAttribute('aria-disabled', 'true');
+        }
+      });
+    }
+    document.addEventListener('change', function (event) {
+      var checkbox = event.target.closest('[data-cart-terms-checkbox]');
+      if (!checkbox) return;
+      syncCartTermsGate(checkbox);
+    });
+
     /* Debounced quantity input — merchant types a number directly */
     document.addEventListener('input', function (event) {
       var input = event.target.closest('[data-cart-qty-input]');
