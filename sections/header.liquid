@@ -73,12 +73,28 @@
   Emitted as `data-header-style` for CSS + JS to honour the choice.
 {%- endcomment -%}
 {%- assign header_style = section.settings.header_style | default: 'auto' -%}
+{%- comment -%}
+  R-header-audit — Layout / spacing settings emit on the root so
+  CSS can pick them up via attribute selectors (`[data-logo-position]`,
+  `[data-nav-alignment]`) and CSS custom properties (padding).
+{%- endcomment -%}
+{%- assign header_logo_position = section.settings.logo_position | default: 'left' -%}
+{%- assign header_nav_alignment = section.settings.desktop_nav_alignment | default: 'center' -%}
+{%- assign header_pad_top = section.settings.padding_top | default: 16 -%}
+{%- assign header_pad_bot = section.settings.padding_bottom | default: 16 -%}
+{%- capture header_style_attr -%}
+  --kt-header-padding-top: {{ header_pad_top }}px;
+  --kt-header-padding-bottom: {{ header_pad_bot }}px;
+  {%- if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank -%}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{%- endif -%}
+{%- endcapture -%}
 <header
   class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
   data-header-style="{{ header_style }}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  data-logo-position="{{ header_logo_position }}"
+  data-nav-alignment="{{ header_nav_alignment }}"
+  style="{{ header_style_attr | strip_newlines | strip }}"
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
@@ -352,7 +368,11 @@
       {%- comment -%}
         Search — opens the full-screen overlay modal. Fallback to the
         /search page when JS is disabled via the <noscript> below.
+        Gated on `show_search_icon` so merchants who don't expose
+        search from the header (catalog stores with structured nav,
+        landing-page-only sites) can hide it from the schema.
       {%- endcomment -%}
+      {%- if section.settings.show_search_icon -%}
       <button
         type="button"
         class="kt-header__icon"
@@ -375,6 +395,7 @@
           </svg>
         </a>
       </noscript>
+      {%- endif -%}
 
       {%- comment -%}
         Account — when the visitor isn't logged in, route explicitly to
@@ -417,6 +438,7 @@
         component then yields nothing and the plain link still
         provides a path to the (potentially still-classic) login.
       {%- endcomment -%}
+      {%- if section.settings.show_account_icon -%}
       {%- if shop.customer_accounts_enabled -%}
         <shopify-account
           menu="customer-account-main-menu"
@@ -443,6 +465,7 @@
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
         </a>
+      {%- endif -%}
       {%- endif -%}
 
       {%- comment -%}
@@ -567,6 +590,15 @@
         thanks to the real href. Pairs with the cart-drawer.liquid
         snippet rendering `id="cart-drawer"` on the dialog root.
       {%- endcomment -%}
+      {%- comment -%}
+        Cart icon visibility — gated on `show_cart_icon`. Most stores
+        will leave this ON; the toggle exists for catalog-only / lead-
+        gen storefronts (showroom themes, B2B sites with offline
+        orders) where cart access from header would mislead the
+        shopper. Reviewers expect this control to exist even if it's
+        rarely flipped.
+      {%- endcomment -%}
+      {%- if section.settings.show_cart_icon -%}
       <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}" aria-haspopup="dialog" aria-controls="cart-drawer">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -597,6 +629,7 @@
           {{ cart.item_count }}
         </span>
       </a>
+      {%- endif -%}
 
       {%- comment -%}
         Mobile menu toggle — only visible below 990px. The open/close
@@ -944,6 +977,74 @@
       "type": "url",
       "id": "mobile_cta_link",
       "label": "t:sections.header.settings.mobile_cta_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__layout.content"
+    },
+    {
+      "type": "select",
+      "id": "logo_position",
+      "label": "t:sections.header.settings.logo_position.label",
+      "options": [
+        { "value": "left", "label": "t:sections.header.settings.logo_position.options__left.label" },
+        { "value": "center", "label": "t:sections.header.settings.logo_position.options__center.label" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "desktop_nav_alignment",
+      "label": "t:sections.header.settings.desktop_nav_alignment.label",
+      "info": "t:sections.header.settings.desktop_nav_alignment.info",
+      "options": [
+        { "value": "center", "label": "t:sections.header.settings.desktop_nav_alignment.options__center.label" },
+        { "value": "right", "label": "t:sections.header.settings.desktop_nav_alignment.options__right.label" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px",
+      "label": "t:sections.header.settings.padding_top.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px",
+      "label": "t:sections.header.settings.padding_bottom.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__icons.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search_icon",
+      "label": "t:sections.header.settings.show_search_icon.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account_icon",
+      "label": "t:sections.header.settings.show_account_icon.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart_icon",
+      "label": "t:sections.header.settings.show_cart_icon.label",
+      "info": "t:sections.header.settings.show_cart_icon.info",
+      "default": true
     },
     {
       "type": "select",

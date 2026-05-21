@@ -270,25 +270,19 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  /* R-header-audit — Padding sourced from merchant settings via
+     `--kt-header-padding-top` / `--kt-header-padding-bottom`. Falls
+     back to the previous hardcoded 1rem when the section style
+     attribute is absent. */
+  padding-top: var(--kt-header-padding-top, 1rem);
+  padding-bottom: var(--kt-header-padding-bottom, 1rem);
   max-width: 1536px;
   margin: 0 auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  /* R232.40 — guarantee a minimum gap between the logo and the
-     icons cluster so they never visually touch even when the
-     cluster grows (search + account + cart + hamburger). Falls
-     back to flex `space-between` for the natural distribution; gap
-     only kicks in when the items would otherwise be flush. */
   gap: 0.5rem;
 }
 
-/* R232.40 — On the smallest mobile viewports the 1.5rem (24px) side
-   padding combined with the 4-icon cluster leaves no breathing room
-   next to the logo. Tighten container side-padding to 1rem (16px)
-   to reclaim 16px of visual gap. Pair with the kt-header__icons gap
-   reduction above for ~28px total of recovered space. */
 @media (max-width: 640px) {
   .kt-header__inner {
     padding-left: 1rem;
@@ -298,10 +292,63 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 @media screen and (min-width: 750px) {
   .kt-header__inner {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+}
+
+/* ============================================================
+   R-header-audit — Layout variants
+
+   `[data-logo-position]` + `[data-nav-alignment]` on the <header>
+   pick between four practical layouts on desktop (≥ 990 px where
+   the desktop nav is visible):
+
+     1. logo=left  + nav=center  (default — classic split-nav)
+     2. logo=left  + nav=right   (nav clusters next to icons)
+     3. logo=center + nav=center (logo dominant centre, nav stacks
+        below or wraps — on this theme it stays inline; nav still
+        renders to the right of the centred logo)
+     4. logo=center + nav=right  (same as #3 for inline behaviour)
+
+   The `kt-header__inner` is a single flex row. We achieve the
+   variants by toggling `margin-left: auto` on the nav element to
+   pull it left or right against the natural `space-between`.
+   Mobile keeps the existing logo-left layout regardless of these
+   settings because the desktop nav is hidden < 990 px.
+   ============================================================ */
+
+@media screen and (min-width: 990px) {
+  /* Default: logo=left, nav=center — flex `space-between`
+     naturally puts logo on the far-left and icons on the far-
+     right; the nav between them sits centred under the bigger
+     flex gaps. */
+
+  /* logo=left, nav=right — push nav up to the icons cluster. */
+  .kt-header[data-logo-position="left"][data-nav-alignment="right"] .kt-header__nav {
+    margin-left: auto;
+    margin-right: 1.5rem;
+  }
+
+  /* logo=center — slide logo into the horizontal centre and let
+     nav + icons sit on opposite ends. We use position: absolute
+     on the logo with a transform so it stays perfectly centred
+     regardless of nav width. */
+  .kt-header[data-logo-position="center"] .kt-header__inner {
+    position: relative;
+  }
+  .kt-header[data-logo-position="center"] .kt-header__logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+  /* When logo is centred, nav floats LEFT (so it doesn't collide
+     with the centred logo); icons stay on the right. The split-
+     symmetry keeps the centred logo balanced. */
+  .kt-header[data-logo-position="center"] .kt-header__nav {
+    margin-right: auto;
   }
 }
 
@@ -357,6 +404,12 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__menu {
   display: flex;
+  /* R-header-audit — Wrap to multi-row when the merchant has many
+     menu items (>8 at default widths). Without `flex-wrap`, the
+     menu would push the icons cluster off-screen on narrower
+     laptops. Two-row nav is visually heavier than ideal, but
+     it's a graceful degradation vs. a hidden / clipped nav. */
+  flex-wrap: wrap;
   align-items: center;
   gap: 0;
 }
@@ -382,6 +435,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   text-decoration: none;
   transition: color 0.2s ease;
   white-space: nowrap;
+  /* R-header-audit — Long menu name + many-items overflow safety.
+     `max-width` truncates a single item's text with an ellipsis if
+     a merchant types a particularly long menu label ("Black Friday
+     Holiday Sale Collection 2026"). Pair with the wrap rule on the
+     parent `.kt-header__menu` so >8 items wrap to a second row
+     instead of pushing icons off-screen on narrower laptops. */
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kt-header__menu-link:hover,
@@ -1805,5 +1867,38 @@ html.no-js .kt-header__mobile-view-title {
      visible on desktop where the footer copy already ships. */
   .kt-header__mobile-locale {
     display: none;
+  }
+}
+
+/* ============================================================
+   R-header-audit — prefers-reduced-motion compliance
+
+   Header's scroll-state transitions (background-color, backdrop-
+   filter, box-shadow morphing on .kt-header--scrolled) and the
+   mobile drawer's slide animations both run at 400-500ms eases
+   by default. Visitors with reduced-motion preference (vestibular
+   disorders, motion sickness, OS-level "Reduce motion" toggle)
+   need these animations zeroed so the header still changes state
+   but does so instantly. axe-core and Theme Store reviewers test
+   this preference explicitly.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-header,
+  .kt-header--scrolled,
+  .kt-header__mobile-panel,
+  .kt-header__mobile-view,
+  .kt-header__mega-menu,
+  .kt-header__flyout {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  /* Mobile slider transforms still need to animate to a final
+     position — zero the transition so the snap is instant. The
+     `translateX` math stays, just without the cubic easing. */
+  .kt-header__mobile-view {
+    transition: none !important;
   }
 }
