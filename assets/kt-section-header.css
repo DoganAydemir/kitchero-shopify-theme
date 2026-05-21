@@ -1380,16 +1380,29 @@ html.no-js .kt-header__mobile-view-title {
    paint frames. Pinned to stone-50 in every state so the BACK chip
    reads as the same light tone whether the user has tapped it,
    hovered (desktop sim), or just opened the panel. */
-/* R232.57 — back link color follows scheme fg in every state. */
+/* R232.57 — back link color follows scheme fg in every state.
+   R-SS8-followup — Merchant screenshot showed the BACK button
+   wrapped in a crisp rectangular outline at rest. `border: none`
+   + `background: none` alone don't kill iOS Safari's native
+   `<button>` chrome — Mobile WebKit paints its own outer shell
+   (subtle inset shadow + thin outline) unless `appearance: none`
+   is explicitly applied. Adding the appearance reset across the
+   three vendor prefixes plus an explicit `box-shadow: none`
+   nukes the UA-painted box so only our own styling remains. */
 .kt-header__mobile-back {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
   align-self: flex-start;
   padding: 0;
   margin-bottom: 2.5rem;
-  background: none;
-  border: none;
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
   color: rgb(var(--kt-c-fg, 250 250 249));
   font-family: var(--kt-f-body-family);
   font-size: 0.75rem;
