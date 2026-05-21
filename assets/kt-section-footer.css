@@ -158,14 +158,28 @@
 .kt-footer__link-list {
   display: flex;
   flex-direction: column;
-  /* R-SS2 — 1rem → 1.25rem so the link rows breathe a little more.
-     Combined with the existing 0.5rem block padding on each link
-     this lands at ~28px between link tap centres — tight enough
-     to read as a list, loose enough not to feel piled-up. */
-  gap: 1.25rem;
+  /* R-SS2-followup — Mobile gap walked back from 1.25rem to 0.25rem.
+     Each link already carries `padding: 0.5rem 0` (1rem total
+     vertical) for its WCAG 2.5.8 tap target, so a 0.25rem flex gap
+     stacks to a ~22px effective separation between link centres —
+     dense enough that the list reads as one continuous column,
+     not a bullet-spaced list. The merchant flagged the 1.25rem
+     value as "aşırı fazla boşluk" on mobile; this restores the
+     compact density they wanted while the column-title margin
+     (2.5rem) and grid gap (4.5rem between columns) still carry
+     the heavy lifting on group separation. Desktop bumps back up
+     a notch via the breakpoint below — wider screens benefit
+     from a slightly looser list rhythm. */
+  gap: 0.25rem;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-footer__link-list {
+    gap: 0.75rem;
+  }
 }
 
 /* Empty-state hint shown only inside the theme editor when the

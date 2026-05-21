@@ -412,8 +412,21 @@
   gap: 0.75rem;
 }
 
+/* R-SS7-followup — `flex: 1` REMOVED. With grid rows stretched to
+   the tallest card's height (default grid `align-items: stretch`)
+   AND `__info` declaring `flex: 1`, the info block expanded to
+   fill the leftover vertical space inside `.kt-card-product__content`,
+   pushing the sibling button wrapper to the bottom of the card.
+   That re-created the exact "button floats far from price" pattern
+   the SS7 fix tried to kill — removing `margin-top: auto` on the
+   wrapper alone wasn't enough because `flex: 1` here was doing
+   the same job from the other direction. Without `flex: 1`,
+   `__info` sizes to its content, the button sits right under the
+   price block at the configured 0.75rem gap, and the grid's row-
+   stretch slack falls below the CTA — exactly where the merchant
+   asked for it (group title + price + button together, gap to
+   the next card visually doubled by the extra slack). */
 .kt-card-product__info {
-  flex: 1;
   min-width: 0;
 }
 
