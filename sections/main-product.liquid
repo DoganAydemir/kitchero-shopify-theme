@@ -644,6 +644,78 @@
                   </div>
                 {%- endif -%}
 
+              {%- when 'specifications' -%}
+                {%- comment -%}
+                  R-pdp-completeness — Multi-row specifications table.
+                  5 label+value pairs; each value supports dynamic
+                  sources so the merchant can connect it to any
+                  product metafield via the editor's link icon
+                  (e.g. Snowboard length → custom.snowboard_length).
+                  Rows with blank label or value self-suppress.
+                  Editor hint surfaces when nothing is configured
+                  (design_mode only) so the merchant sees what to do.
+                {%- endcomment -%}
+                {%- liquid
+                  assign spec_any = false
+                  for i in (1..5)
+                    assign label_key = 'label_' | append: i
+                    assign value_key = 'value_' | append: i
+                    if block.settings[label_key] != blank and block.settings[value_key] != blank
+                      assign spec_any = true
+                      break
+                    endif
+                  endfor
+                -%}
+                {%- if spec_any -%}
+                  <div class="kt-pdp__specs" {{ block.shopify_attributes }}>
+                    {%- if block.settings.title != blank -%}
+                      <h2 class="kt-pdp__specs-title">{{ block.settings.title | escape }}</h2>
+                    {%- endif -%}
+                    <dl class="kt-pdp__specs-list">
+                      {%- for i in (1..5) -%}
+                        {%- assign label_key = 'label_' | append: i -%}
+                        {%- assign value_key = 'value_' | append: i -%}
+                        {%- if block.settings[label_key] != blank and block.settings[value_key] != blank -%}
+                          <div class="kt-pdp__specs-row">
+                            <dt class="kt-pdp__specs-label">{{ block.settings[label_key] | escape }}</dt>
+                            <dd class="kt-pdp__specs-value">{{ block.settings[value_key] }}</dd>
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </dl>
+                  </div>
+                {%- elsif request.design_mode -%}
+                  <div class="kt-pdp__specs kt-pdp__specs--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__specs-hint">
+                      {{ 'kt.product.specifications.editor_hint' | t | default: 'Add a label and value for each row, or connect the value field to a product metafield via the dynamic source icon.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'tags' -%}
+                {%- comment -%}
+                  R-pdp-completeness — Tags block. Showroom template
+                  has this already (`{%- when 'tag' -%}`); main-product
+                  now mirrors so merchants on the standard template
+                  can also surface product tags as small pill chips
+                  near the title / metadata cluster. Tags often double
+                  as "feature flags" (Eco / Limited / New Arrival) so
+                  exposing them visibly is a common ask.
+                {%- endcomment -%}
+                {%- if product.tags.size > 0 -%}
+                  <ul class="kt-pdp__tags" {{ block.shopify_attributes }} aria-label="{{ 'kt.product.tags_label' | t | default: 'Tags' }}">
+                    {%- for tag in product.tags -%}
+                      <li class="kt-pdp__tag">{{ tag | escape }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- elsif request.design_mode -%}
+                  <div class="kt-pdp__tags kt-pdp__tags--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__tags-hint">
+                      {{ 'kt.product.tags.editor_hint' | t | default: 'Tags appear here when the product has any assigned in Admin → Products → Tags.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
               {%- when 'liquid' -%}
                 {%- comment -%}
                   Custom Liquid block — Theme Store requires Custom Liquid
@@ -1132,6 +1204,48 @@
           "id": "custom_liquid",
           "label": "t:sections.main-product.blocks.liquid.settings.custom_liquid.label",
           "info": "t:sections.main-product.blocks.liquid.settings.custom_liquid.info"
+        }
+      ]
+    },
+    {
+      "type": "specifications",
+      "name": "t:sections.main-product.blocks.specifications.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.specifications.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.main-product.blocks.specifications.settings.title.label",
+          "default": "Specifications"
+        },
+        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_1" },
+        { "type": "text", "id": "label_1", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_1", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_2" },
+        { "type": "text", "id": "label_2", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_2", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_3" },
+        { "type": "text", "id": "label_3", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_3", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_4" },
+        { "type": "text", "id": "label_4", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_4", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_5" },
+        { "type": "text", "id": "label_5", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_5", "label": "t:sections.main-product.blocks.specifications.settings.row_value" }
+      ]
+    },
+    {
+      "type": "tags",
+      "name": "t:sections.main-product.blocks.tags.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.tags.settings.info"
         }
       ]
     },

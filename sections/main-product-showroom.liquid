@@ -444,6 +444,32 @@
                   -%}
                 </div>
 
+              {%- when 'description' -%}
+                {%- comment -%}
+                  R-pdp-completeness — Standalone description block,
+                  separate from the accordion fallback that lives
+                  inside an accordion when no custom content is set.
+                  Use this when the merchant wants the full product
+                  description displayed inline in the info column
+                  (above accordions / specs), not buried behind a
+                  collapsible. Mirrors the main-product template's
+                  description block (truncate + word_limit settings)
+                  so editors get a consistent set of controls across
+                  templates.
+                {%- endcomment -%}
+                {%- if product.description != blank -%}
+                  {%- if block.settings.truncate -%}
+                    {%- assign showroom_word_limit_safe = block.settings.word_limit | default: 40 -%}
+                    <div class="kt-showroom__desc-block" {{ block.shopify_attributes }}>
+                      {{ product.description | strip_html | truncatewords: showroom_word_limit_safe }}
+                    </div>
+                  {%- else -%}
+                    <div class="kt-showroom__desc-block rte" {{ block.shopify_attributes }}>
+                      {{ product.description }}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+
               {%- when 'variant_picker' -%}
                 <div {{ block.shopify_attributes }}>
                   {%- render 'product-variant-picker', product: product, section: section -%}
@@ -559,6 +585,95 @@
                   </div>
                   {%- assign accordions_rendered = true -%}
                 {%- endunless -%}
+
+              {%- when 'metafield' -%}
+                {%- comment -%}
+                  R-pdp-completeness — Single-metafield row. Same
+                  pattern as main-product.liquid's metafield block:
+                  read `product.metafields[ns][key]` via merchant-
+                  set namespace + key, render the typed `.value`
+                  (Shopify auto-coerces references to links, plain
+                  metafields to text). Silent on fresh installs
+                  with no configuration; editor hint inside theme
+                  editor (design_mode) so the merchant knows the
+                  block needs ns/key inputs.
+                {%- endcomment -%}
+                {%- assign mf_ns = block.settings.namespace | default: 'custom' -%}
+                {%- assign mf_key = block.settings.key -%}
+                {%- if mf_ns != blank and mf_key != blank -%}
+                  {%- assign mf_value = product.metafields[mf_ns][mf_key].value -%}
+                  {%- if mf_value != blank -%}
+                    <div class="kt-showroom__metafield" {{ block.shopify_attributes }}>
+                      {%- if block.settings.label != blank -%}
+                        <p class="kt-showroom__metafield-label">{{ block.settings.label | escape }}</p>
+                      {%- endif -%}
+                      <div class="kt-showroom__metafield-value">
+                        {{- product.metafields[mf_ns][mf_key] -}}
+                      </div>
+                    </div>
+                  {%- elsif request.design_mode -%}
+                    <div class="kt-showroom__metafield kt-showroom__metafield--placeholder" {{ block.shopify_attributes }}>
+                      <p class="kt-showroom__metafield-hint">
+                        {{ 'kt.product.metafield.editor_hint' | t | default: 'Configure namespace + key in the editor sidebar to surface a product metafield.' }}
+                      </p>
+                    </div>
+                  {%- endif -%}
+                {%- elsif request.design_mode -%}
+                  <div class="kt-showroom__metafield kt-showroom__metafield--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-showroom__metafield-hint">
+                      {{ 'kt.product.metafield.editor_hint' | t | default: 'Configure namespace + key in the editor sidebar to surface a product metafield.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'specifications' -%}
+                {%- comment -%}
+                  R-pdp-completeness — Multi-row specifications table.
+                  5 label+value pairs, each value field is dynamic-
+                  source enabled so the merchant can either type a
+                  literal value OR connect the field to any product
+                  metafield via the theme editor's dynamic source
+                  icon. Rows with blank label OR value self-suppress
+                  so a partially-configured block doesn't render
+                  empty rows. Editor hint shown when zero rows
+                  are configured (design_mode only).
+                {%- endcomment -%}
+                {%- liquid
+                  assign spec_any = false
+                  for i in (1..5)
+                    assign label_key = 'label_' | append: i
+                    assign value_key = 'value_' | append: i
+                    if block.settings[label_key] != blank and block.settings[value_key] != blank
+                      assign spec_any = true
+                      break
+                    endif
+                  endfor
+                -%}
+                {%- if spec_any -%}
+                  <div class="kt-showroom__specs" {{ block.shopify_attributes }}>
+                    {%- if block.settings.title != blank -%}
+                      <h2 class="kt-showroom__specs-title">{{ block.settings.title | escape }}</h2>
+                    {%- endif -%}
+                    <dl class="kt-showroom__specs-list">
+                      {%- for i in (1..5) -%}
+                        {%- assign label_key = 'label_' | append: i -%}
+                        {%- assign value_key = 'value_' | append: i -%}
+                        {%- if block.settings[label_key] != blank and block.settings[value_key] != blank -%}
+                          <div class="kt-showroom__specs-row">
+                            <dt class="kt-showroom__specs-label">{{ block.settings[label_key] | escape }}</dt>
+                            <dd class="kt-showroom__specs-value">{{ block.settings[value_key] }}</dd>
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </dl>
+                  </div>
+                {%- elsif request.design_mode -%}
+                  <div class="kt-showroom__specs kt-showroom__specs--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-showroom__specs-hint">
+                      {{ 'kt.product.specifications.editor_hint' | t | default: 'Add a label and value for each row, or connect the value field to a product metafield via the dynamic source icon.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
 
               {%- when 'warranty' -%}
                 <div class="kt-showroom__warranty" {{ block.shopify_attributes }}>
@@ -862,6 +977,89 @@
       "name": "t:sections.main-product-showroom.blocks.variant_picker.name",
       "limit": 1,
       "settings": []
+    },
+    {
+      "type": "description",
+      "name": "t:sections.main-product-showroom.blocks.description.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "truncate",
+          "label": "t:sections.main-product-showroom.blocks.description.settings.truncate.label",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "word_limit",
+          "label": "t:sections.main-product-showroom.blocks.description.settings.word_limit.label",
+          "min": 10,
+          "max": 120,
+          "step": 5,
+          "default": 40
+        }
+      ]
+    },
+    {
+      "type": "metafield",
+      "name": "t:sections.main-product-showroom.blocks.metafield.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.metafield.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.main-product-showroom.blocks.metafield.settings.label.label",
+          "info": "t:sections.main-product-showroom.blocks.metafield.settings.label.info",
+          "default": "Label"
+        },
+        {
+          "type": "text",
+          "id": "namespace",
+          "label": "t:sections.main-product-showroom.blocks.metafield.settings.namespace.label",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "key",
+          "label": "t:sections.main-product-showroom.blocks.metafield.settings.key.label",
+          "info": "t:sections.main-product-showroom.blocks.metafield.settings.key.info",
+          "default": "Key"
+        }
+      ]
+    },
+    {
+      "type": "specifications",
+      "name": "t:sections.main-product-showroom.blocks.specifications.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.specifications.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.main-product-showroom.blocks.specifications.settings.title.label",
+          "default": "Specifications"
+        },
+        { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_1" },
+        { "type": "text", "id": "label_1", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_1", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_2" },
+        { "type": "text", "id": "label_2", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_2", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_3" },
+        { "type": "text", "id": "label_3", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_3", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_4" },
+        { "type": "text", "id": "label_4", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_4", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" },
+        { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_5" },
+        { "type": "text", "id": "label_5", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
+        { "type": "text", "id": "value_5", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" }
+      ]
     },
     {
       "type": "ctas",
