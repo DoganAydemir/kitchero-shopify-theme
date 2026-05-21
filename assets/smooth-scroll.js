@@ -35,30 +35,37 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 
-  /* R269 — Touch device handling.
+  /* R-SS7 — Skip Lenis entirely on touch-primary devices.
 
-     Earlier config carried `smoothWheel: true` AND `touchMultiplier: 2`
-     without explicitly setting `smoothTouch`. On bundled Lenis 1.x
-     builds the default for `smoothTouch` is unstable across versions
-     and could end up smoothing touch flicks too. Reported symptom on
-     iOS Safari: "parmakla scroll yaptık ve bıraktık, yumuşakça
-     kayarken birden bire çat diye duruyor" — native iOS rubber-band
-     momentum was fighting Lenis's RAF easing, and at the moment one
-     side's animation completed the other side hadn't, snapping the
-     scroll to a hard stop mid-glide.
+     Earlier configuration set `smoothTouch: false` + `syncTouch:
+     false` + `touchMultiplier: 1` to keep Lenis on the page but
+     hand touch events back to native iOS / Android momentum
+     scrolling. In practice Lenis 1.x still attached touch
+     listeners (wheel→scroll bridge, programmatic scrollTo, raf
+     pipeline) which competed with the OS's rubber-band engine
+     in subtle ways. Reported symptom on iOS Safari: "parmakla
+     scroll yapıp bıraktığımızda yumuşakça kayarken birden bire
+     çat diye duruyor" — the native momentum animation got
+     pre-empted mid-glide by Lenis's internal ScrollTrigger
+     update tick, producing the abrupt stop the merchant
+     described.
 
-     Native iOS / Android momentum scroll is already best-in-class
-     on touch; the value of Lenis on the wheel scrollbar (desktop)
-     doesn't translate to touch surfaces, where mimicking it costs
-     more than it gains. Standard practice on premium themes
-     (Aalto, Trade, Studio) is to disable smooth scroll on touch
-     and let the OS handle it.
+     Premium themes (Aalto, Trade, Studio) skip smooth-scroll on
+     touch entirely, since native iOS / Android momentum is
+     already best-in-class. Lenis was only ever a wheel-scroll
+     enhancement; cutting it on phones costs nothing visual and
+     fixes the choppy-stop.
 
-     `syncTouch: false` (Lenis 1.x naming) leaves touch events
-     un-intercepted; the page scrolls with native momentum, and
-     ScrollTrigger picks up the resulting scroll events naturally.
-     `touchMultiplier: 1` is the no-op identity (kept for clarity
-     in case the option key changes between Lenis versions). */
+     Detection uses `(hover: none) and (pointer: coarse)` —
+     matches phones + touch-only tablets, excludes laptops with
+     touchscreens that also have a trackpad / mouse (those keep
+     the wheel-side Lenis benefit). If `matchMedia` is missing
+     (very old browsers), we fall through to the original Lenis
+     init so the desktop fallback still works. */
+  var isTouchOnly = window.matchMedia
+    && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (isTouchOnly) return;
+
   var lenis = new Lenis({
     duration: 1.2,
     easing: function (t) {

@@ -187,39 +187,35 @@
    ============================================================ */
 
 .kt-search-overlay .kt-predictive-search {
-  /* R232.45 — Push groups much further apart. Previous spacing was
-     1.75rem outer + 1.5rem inner top + 0.25rem title margin which
-     still let the three categories (Products / Journal / Pages) read
-     as one continuous list — user feedback: "her şey çok iç içe!
-     ayrık durmalı grup grup durmalı içerikler!". The new figures
-     produce roughly 80px of vertical breathing room between the
-     last item of one group and the eyebrow label of the next, plus
-     a clearer divider + 16px under each label before its items so
-     each chunk reads as its own block. */
-  gap: 2.75rem;
+  /* R-SS1 — Even bigger between-group spacing. The previous 2.75rem
+     gap + 2.25rem padding-top + thin 0.18-alpha divider still let
+     the three categories (PRODUCTS / JOURNAL / PAGES) read as one
+     continuous list per the latest mobile screenshots. Bumping the
+     gap to 3.5rem, padding-top to 2.75rem, and tightening the
+     bottom of each group with a 1rem padding-bottom puts ~96px of
+     breathing room between the last item of one group and the
+     eyebrow label of the next — enough that each chunk reads as
+     its own block instead of a vertically-flowing list. */
+  gap: 3.5rem;
   padding-top: 1rem;
 }
 
 /* Hairline AT THE TOP of each group plus extra padding so the
- * sections read as discrete blocks (PRODUCTS / JOURNAL / PAGES).
- * Earlier revision put the separator under each group title, which
- * cleaved the heading from its items but left the GROUPS visually
- * fused — user feedback: "alanlar ayrık duramlaı!". Top-of-group
- * separator matches the convention the rest of the search overlay
- * content sections already use. */
+ * sections read as discrete blocks (PRODUCTS / JOURNAL / PAGES). */
 .kt-search-overlay .kt-predictive-search__group {
-  /* R232.46 — `gap` 0.625rem → 0.75rem to match the light-context
-     spacing. Combined with the zero title margin-bottom below this
-     is the ONLY spacing between the eyebrow label and the first
-     item, so the chunk reads as a tight unit. The 2.25rem padding-
-     top still sits above the divider for between-group breathing
-     room. */
-  gap: 0.75rem;
-  padding-top: 2.25rem;
-  /* Stronger top hairline (0.18 vs 0.1) so the chunk boundary is
-     visible at a glance on the dark stone-950 backdrop without
-     reading as a heavy rule. */
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  /* `gap: 0.875rem` between eyebrow and first item — tight enough
+     to bind label + items as one chunk, loose enough to give the
+     label a clear leading margin. */
+  gap: 0.875rem;
+  padding-top: 2.75rem;
+  /* Light bottom padding so the chunk has air under its last item
+     before the next group's divider starts. */
+  padding-bottom: 0.25rem;
+  /* R-SS1 — Hairline boosted to 0.25 alpha so the chunk boundary
+     is unmistakable on the dark stone-950 backdrop. The previous
+     0.18 alpha was readable but failed the user's "ayrık durmalı"
+     test in screenshot review. */
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .kt-search-overlay .kt-predictive-search__group:first-child {
@@ -228,19 +224,13 @@
 }
 
 .kt-search-overlay .kt-predictive-search__group-title {
-  font-size: 0.6875rem;
-  /* Slightly wider tracking + explicit bold makes the eyebrow label
-     read as a category header instead of melting into the items
-     above it, which on a dark surface with only text-styling
-     differences was the root cause of "groups blur together". */
+  /* R-SS1 — eyebrow nudged from 0.6875 → 0.75 rem and alpha
+     0.55 → 0.7 so the category header reads as a deliberate
+     label, not a faded ghost. */
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.55);
-  /* R232.46 — margin-bottom REMOVED (was 1rem). The parent group
-     uses flex `gap` to space the title from items; combining the
-     two pushed the eyebrow ~26px off its first item, orphaning
-     each label visually. Zero margin here + `gap: 0.75rem` on the
-     parent = clean 12px between label and first row. */
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 0;
 }
 

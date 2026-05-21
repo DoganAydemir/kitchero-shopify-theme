@@ -93,11 +93,24 @@
   font-size: 1rem;
   line-height: 1.7;
   color: var(--kt-stone-700);
+  /* R-SS4 — Extra horizontal padding so raw CMS prose doesn't
+     hug the viewport edges on phones. `.page-width` already
+     supplies 1.5rem outer padding, but for typography-heavy
+     pages like Privacy / Terms the content reads more
+     comfortably with a little more breathing room — especially
+     for the merchant-pasted h1/h2 that don't get the same
+     `max-width: 50rem` clamp the body copy does. Mobile only;
+     desktop padding from the centred max-width container is
+     already generous. */
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-main-page__content {
     font-size: 1.0625rem;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
@@ -119,18 +132,33 @@
   letter-spacing: -0.015em;
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
+  /* R-SS4 — long policy titles ("Privacy Policy", "Terms of
+     Service") wrap cleanly without forcing a horizontal scroll
+     on small viewports. */
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* R-SS4 — Explicit h1 size. The browser default (~2em / 32px)
+   came across as oversized on mobile in the "Privacy policy"
+   page screenshot — too dominant for an editorial document.
+   The clamp scales it 1.75rem → 2.5rem so phones read it as a
+   strong header without shouting, and desktop keeps it as a
+   proper page title. */
+.kt-main-page__content > h1 {
+  font-size: clamp(1.75rem, 4.5vw + 0.5rem, 2.5rem);
 }
 
 .kt-main-page__content > h2 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
 }
 
 .kt-main-page__content > h3 {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
 }
 
 .kt-main-page__content > h4 {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
 }
 
 @media screen and (min-width: 750px) {

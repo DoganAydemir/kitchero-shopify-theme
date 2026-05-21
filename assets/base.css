@@ -937,81 +937,133 @@ select:-webkit-autofill {
    indicator matches the same box so adjacent hit areas align.
    ============================================================ */
 
+/* R-SS6 — Premium pagination redesign.
+   Earlier CSS targeted the old `.kt-pagination__item` /
+   `.kt-pagination__current` classes that the snippet stopped
+   emitting (it now uses `__cell`, `__link--current`,
+   `__link--step`). The mismatch left the rendered control
+   without any of its intended styling — bare anchors with
+   browser defaults, which the merchant flagged as "çok basit
+   görünüyor". New rule set matches the live snippet markup and
+   gives the rail an editorial finish: pill prev/next steppers,
+   numbered links with hover lift, a filled current-page chip
+   that contrasts the surface. Touch-target compliant (44×44). */
+
 .kt-pagination {
   display: flex;
   justify-content: center;
-  padding: 2rem 0;
+  padding: 2.5rem 0;
 }
 
 .kt-pagination__rail {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem;
+  /* Tighter inner gap so the numeric run reads as one cluster,
+     prev/next steppers separated by a wider margin via
+     `kt-pagination__cell--prev/--next` below. */
+  gap: 0.375rem;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.kt-pagination__item {
+.kt-pagination__cell {
   display: flex;
 }
 
+/* Prev/next step buttons sit slightly off the numeric cluster
+   so the arrows read as distinct controls. */
+.kt-pagination__cell--prev {
+  margin-right: 0.25rem;
+}
+
+.kt-pagination__cell--next {
+  margin-left: 0.25rem;
+}
+
 .kt-pagination__link,
-.kt-pagination__current,
 .kt-pagination__ellipsis {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  padding: 0 0.5rem;
+  padding: 0 0.625rem;
   font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
   color: rgb(var(--kt-c-fg));
   text-decoration: none;
+  background-color: transparent;
   border: 1px solid transparent;
-  border-radius: 0.25rem;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border-radius: 9999px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
+/* Numeric link hover/focus lift — subtle surface tint, hairline
+   border so the chip materialises only when the customer hovers. */
 .kt-pagination__link:hover,
 .kt-pagination__link:focus-visible {
-  background-color: rgba(var(--kt-c-fg), 0.06);
-  border-color: rgba(var(--kt-c-fg), 0.18);
+  background-color: rgba(var(--kt-c-fg), 0.05);
+  border-color: rgba(var(--kt-c-fg), 0.2);
 }
 
-.kt-pagination__current {
+.kt-pagination__link:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+/* Current page — filled chip using scheme action color so it
+   reads as the strongest anchor in the row. */
+.kt-pagination__link--current {
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
+  border-color: rgb(var(--kt-c-action, 28 25 23));
   font-weight: 600;
-  border-color: rgba(var(--kt-c-fg), 0.3);
+}
+
+.kt-pagination__link--current:hover {
+  /* No-op visual change — current page isn't clickable; keep the
+     filled state stable. */
+  background-color: rgb(var(--kt-c-action, 28 25 23));
+  color: rgb(var(--kt-c-action-text, 255 255 255));
+}
+
+/* Prev/Next step pills — circular outline so the arrow controls
+   read as discrete navigation affordances, not page numbers. */
+.kt-pagination__link--step {
+  border-color: rgba(var(--kt-c-fg), 0.2);
+  background-color: rgba(var(--kt-c-fg), 0.02);
+}
+
+.kt-pagination__link--step:hover,
+.kt-pagination__link--step:focus-visible {
+  background-color: rgb(var(--kt-c-fg));
+  color: rgb(var(--kt-c-bg));
+  border-color: rgb(var(--kt-c-fg));
 }
 
 .kt-pagination__ellipsis {
-  /* alpha 0.5 against scheme surface yielded 2.58–3.30:1 across the
-     range of scheme surfaces a merchant could plausibly configure
-     — fails WCAG AA 4.5:1 for what axe treats as visible text
-     content (the rendered "…" character). 0.7 brings the lowest-
-     contrast surface (a soft mint or pastel scheme a merchant
-     might add) to ~5.0:1 while keeping the pagination row
-     visually subdued. */
   color: rgba(var(--kt-c-fg), 0.7);
   border: none;
+  min-width: 32px;
+  padding: 0 0.25rem;
 }
 
+.kt-pagination__glyph,
 .kt-pagination__link svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* ============================================================
    RTL Support
    ============================================================ */
 
-[dir="rtl"] .kt-pagination__item--prev svg {
-  transform: scaleX(-1);
-}
-
-[dir="rtl"] .kt-pagination__item--next svg {
+[dir="rtl"] .kt-pagination__cell--prev .kt-pagination__glyph,
+[dir="rtl"] .kt-pagination__cell--next .kt-pagination__glyph {
   transform: scaleX(-1);
 }
 

@@ -89,16 +89,28 @@
   background-color: rgba(var(--kt-c-fg, 250 250 249), 0.04);
 }
 
-/* Summary — hide default marker */
+/* Summary — hide default marker
+   R-SS5 — Horizontal padding so the summary text + chevron sit
+   inside the open-state tinted card with breathing room. Without
+   it the question text + toggle icon both kissed the left/right
+   edges, and the open content panel below inherited the same
+   zero-padding look — the merchant flagged this as "content
+   padding eksik" on mobile. */
 .kt-collapsible-accordion__summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.5rem 0;
+  padding: 1.5rem 1rem;
   cursor: pointer;
   list-style: none;
   user-select: none;
+}
+
+@media (min-width: 768px) {
+  .kt-collapsible-accordion__summary {
+    padding: 1.5rem 1.5rem;
+  }
 }
 
 .kt-collapsible-accordion__summary::-webkit-details-marker {
@@ -241,9 +253,14 @@
   opacity: 1;
 }
 
+/* R-SS5 — Content panel needs horizontal padding on mobile so the
+   answer copy doesn't run flush against the card edges (the panel
+   sits inside the same `[open]` tinted item box as the summary
+   above). Mobile uses a uniform 1rem horizontal padding matching
+   the summary; desktop keeps the 2.25rem left indent that aligns
+   the answer with the numbered-question text. */
 .kt-collapsible-accordion__content {
-  padding: 0 0 1.5rem 0;
-  padding-top: 1rem;
+  padding: 1rem 1rem 1.5rem 1rem;
   /* Matches the muted body-copy treatment used elsewhere (image-
      with-text alternating, etc.) — stone-500 base with an opacity
      nudge to soften the on-screen contrast so the answer reads as
@@ -265,7 +282,8 @@
        up to 1.125rem — keeps the answer paragraph clearly secondary
        to the serif title across every breakpoint. */
     font-size: 0.9375rem;
-    padding-left: 2.25rem; /* align with title indent after number */
+    /* Desktop indent aligns with the title's number prefix. */
+    padding: 1rem 1.5rem 1.5rem 2.25rem;
   }
 }
 
