@@ -371,36 +371,33 @@
                   see sections/main-product.liquid line 90).
                 {%- endcomment -%}
                 {%- comment -%}
-                  R-thumb-merchant — Resolve the door thumbnail from two
-                  merchant-controlled sources, in priority order:
-                    1. `block.settings.door_thumb_image` — picked in the
-                       theme editor for the current product template.
-                       This is the path most merchants will use because
-                       it lives in the standard Shopify section editor
-                       UI ("Customize → Product → Title block →
-                       Door thumbnail").
-                    2. `product.metafields.custom.door_sample` — set
-                       per-product via Shopify Admin → Products → [P]
-                       → Metafields. Power-user path for stores with a
-                       large catalogue: define the metafield once,
-                       attach a different sample image to every
-                       product without touching the theme editor.
+                  R-thumb-merchant — Door thumbnail sourced ONLY from
+                  the per-product metafield `custom.door_sample`.
+                  Merchants create the metafield definition once
+                  (Settings → Custom data → Products → Add definition,
+                  namespace `custom`, key `door_sample`, type
+                  File → Image-only), then set a different sample
+                  image on every product via the product's Metafields
+                  section.
 
                   Earlier code fell back to `product.featured_image`
-                  when neither source was set, but the featured image
+                  when no metafield was set, but the featured image
                   is the wide kitchen lifestyle scene — when downscaled
                   to the 80×106 thumb slot with `object-fit: cover` it
                   shows a featureless slab of fridge / cabinet wall
                   that reads as a "blurry placeholder" (merchant flagged
                   this in the latest screenshot). Per the request the
-                  thumb slot now stays EMPTY when no door sample is
-                  picked — clean is better than an accidental decoy.
+                  thumb slot stays EMPTY when no door sample is set —
+                  clean is better than an accidental decoy.
+
+                  Non-image file references (PDF spec sheets, CAD
+                  files, etc.) are filtered out via the `media_type`
+                  check so a merchant pointing the metafield at a
+                  document doesn't blow up the image_tag call.
                 {%- endcomment -%}
                 {%- assign door_sample_image = nil -%}
-                {%- if block.settings.door_thumb_image != blank -%}
-                  {%- assign door_sample_image = block.settings.door_thumb_image -%}
-                {%- elsif product.metafields.custom.door_sample.value != blank
-                          and product.metafields.custom.door_sample.value.media_type == 'image' -%}
+                {%- if product.metafields.custom.door_sample.value != blank
+                       and product.metafields.custom.door_sample.value.media_type == 'image' -%}
                   {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
                 {%- endif -%}
                 <div class="kt-showroom__title-row" {{ block.shopify_attributes }}>
@@ -810,13 +807,8 @@
           "type": "checkbox",
           "id": "show_door_thumb",
           "label": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.label",
+          "info": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.info",
           "default": true
-        },
-        {
-          "type": "image_picker",
-          "id": "door_thumb_image",
-          "label": "t:sections.main-product-showroom.blocks.title.settings.door_thumb_image.label",
-          "info": "t:sections.main-product-showroom.blocks.title.settings.door_thumb_image.info"
         }
       ]
     },
