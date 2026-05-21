@@ -228,6 +228,16 @@
 }
 
 .kt-search-overlay__suggestion-pill {
+  /* R-search-audit — Touch-target floor (WCAG 2.5.5). The pills
+     used to render at ~32px tall (0.5rem vertical padding × 2 +
+     line-height) which fell short of the 44×44 minimum on touch.
+     `min-height: 44px` enforces the floor without changing the
+     visual padding (it just lets the pill grow vertically when
+     content is shorter than 44px). `display: inline-flex` +
+     `align-items: center` keeps the label vertically centred. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   color: var(--kt-stone-500);

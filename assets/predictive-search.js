@@ -136,10 +136,14 @@
     /* R88 — offline gate. Browser dispatches `TypeError: Failed to
        fetch` for offline mode; without this gate we'd repeatedly
        hit the catch path on every keystroke, clearing results +
-       logging warnings. Bail early with a non-error UX instead. */
+       logging warnings. Bail early with a non-error UX instead.
+
+       R-search-audit — Surface an inline "offline" message so the
+       customer knows search is unavailable, not just an empty
+       dropdown. Audit flagged the silent UX dead-end. */
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-      resultsContainer.innerHTML = '';
-      setExpanded(input, false);
+      resultsContainer.innerHTML = renderError('offline');
+      setExpanded(input, true);
       return;
     }
 
@@ -147,8 +151,14 @@
        Shopify endpoint over its threshold get HTTP 429; without
        backoff the next keystroke fires another fetch, hitting 429
        again. Skip fetches for 5s after a 429 response to give the
-       endpoint room to reset. */
+       endpoint room to reset.
+
+       R-search-audit — Surface a "Search temporarily unavailable"
+       message during the 5s cool-off so the customer sees why
+       results stopped updating. */
     if (predictiveSearchRateLimitedUntil > Date.now()) {
+      resultsContainer.innerHTML = renderError('rate_limited');
+      setExpanded(input, true);
       return;
     }
 
@@ -165,8 +175,14 @@
     /* R91 — aria-busy signals "results are loading" to screen-reader
        users while the fetch is in flight. Without it SR announces
        the current (stale) DOM as the only state until the response
-       lands. Cleared in tail .then so success/error both release. */
+       lands. Cleared in tail .then so success/error both release.
+
+       R-search-audit — Render a VISIBLE skeleton (3 ghost rows)
+       while aria-busy is true, so the sighted customer sees that
+       results are loading instead of an empty void. Replaced by
+       real results or the empty-state in the response handler. */
     resultsContainer.setAttribute('aria-busy', 'true');
+    resultsContainer.innerHTML = renderSkeleton();
 
     fetch(url, { signal: localAbortCtl.signal })
       .then(function (response) {
@@ -222,11 +238,13 @@
            on a newer keystroke. Silently ignore; any other error
            clears the results so the UI doesn't freeze on stale data. */
         if (err && err.name === 'AbortError') return;
-        if (window.console && console.warn) {
-          console.warn('[Kitchero] predictive search failed:', err);
-        }
-        resultsContainer.innerHTML = '';
-        setExpanded(input, false);
+        /* R-search-audit — Render a visible error message instead
+           of clearing silently. Differentiates rate-limit (the
+           caller already set predictiveSearchRateLimitedUntil) from
+           generic failure for clearer recovery messaging. */
+        var errKind = (err && err.message === 'Search rate-limited') ? 'rate_limited' : 'generic';
+        resultsContainer.innerHTML = renderError(errKind);
+        setExpanded(input, true);
       });
   }
 
@@ -359,6 +377,51 @@
     var tpl = s.noResults || 'No results found for "[terms]".';
     var msg = tpl.replace('[terms]', query);
     return '<p class="kt-predictive-search__empty" role="status">' + escapeHtml(msg) + '</p>';
+  }
+
+  /* R-search-audit — Visible loading skeleton.
+     Three ghost rows that pulse via CSS keyframes; aria-busy on the
+     parent container takes care of the SR announcement, the visual
+     skeleton stops the dropdown from looking dead during fetch.
+     Replaced by real results / empty-state / error-state in the
+     fetch chain. */
+  function renderSkeleton() {
+    var rows = '';
+    for (var i = 0; i < 3; i++) {
+      rows += '<div class="kt-predictive-search__skeleton-row" aria-hidden="true">'
+        + '<div class="kt-predictive-search__skeleton-thumb"></div>'
+        + '<div class="kt-predictive-search__skeleton-lines">'
+        +   '<div class="kt-predictive-search__skeleton-line"></div>'
+        +   '<div class="kt-predictive-search__skeleton-line kt-predictive-search__skeleton-line--short"></div>'
+        + '</div>'
+        + '</div>';
+    }
+    return '<div class="kt-predictive-search__skeleton">' + rows + '</div>';
+  }
+
+  /* R-search-audit — Visible error state.
+     Three kinds:
+       • offline      — navigator.onLine === false branch
+       • rate_limited — 429 cool-off (5s window)
+       • generic      — any other fetch failure
+     Each maps to a translation string from the locale; falls back
+     to English copy if the key isn't set. role="status" so SR
+     announces the change politely (not assertive — error here is
+     soft, customer can try again). */
+  function renderError(kind) {
+    var s = strings();
+    var key;
+    switch (kind) {
+      case 'offline':
+        key = s.offline || 'You appear to be offline. Reconnect and try again.';
+        break;
+      case 'rate_limited':
+        key = s.rateLimited || 'Search is temporarily unavailable. Please try again in a moment.';
+        break;
+      default:
+        key = s.genericError || 'Search failed. Please try again.';
+    }
+    return '<p class="kt-predictive-search__error" role="status">' + escapeHtml(key) + '</p>';
   }
 
   /* Money formatting — best-effort using Intl.NumberFormat. Shopify's

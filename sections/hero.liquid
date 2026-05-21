@@ -53,7 +53,10 @@
   data-allows-transparent-header="true"
   data-autoplay="{{ hero_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
-  data-show-pagination="{{ section.settings.show_pagination | default: true }}"
+  {%- comment -%} R-homepage-audit — `data-show-pagination` attribute + matching
+    `show_pagination` setting REMOVED. JS never bound dot markup, so the toggle
+    silently no-op'd in the editor (audit gap). Native arrow keys + ARIA
+    play/pause toggle remain the keyboard affordances for the slider. {%- endcomment -%}
   style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};"
   {%- comment -%}
     R93 — every `<section>` landmark needs an accessible name so SR
@@ -404,13 +407,6 @@
       "id": "show_play_toggle",
       "label": "t:sections.hero.settings.show_play_toggle.label",
       "info": "t:sections.hero.settings.show_play_toggle.info",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_pagination",
-      "label": "t:sections.hero.settings.show_pagination.label",
-      "info": "t:sections.hero.settings.show_pagination.info",
       "default": true
     },
     {

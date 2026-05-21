@@ -318,3 +318,99 @@
 .kt-search-overlay .kt-predictive-search__empty {
   color: rgba(255, 255, 255, 0.55);
 }
+
+/* ============================================================
+   R-search-audit — Loading skeleton + error state + CLS guard
+
+   Three new states surface to the customer during fetch:
+     • Skeleton  — 3 ghost rows pulsing while results load
+     • Error     — visible message on offline / rate-limit / fail
+     • Min-height — reserve 240px on the results container so the
+                    overlay doesn't reflow when the first response
+                    swaps the skeleton out
+   ============================================================ */
+
+#predictive-search-results {
+  /* CLS guard — without this, the overlay's `__results` div is
+     0-height before the first fetch and grows to ~240px when
+     skeleton/results land, shifting the suggestion pills below.
+     Reserve enough space to fit the skeleton's three rows. */
+  min-height: 13rem;
+}
+
+.kt-predictive-search__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+.kt-predictive-search__skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.5rem;
+}
+
+.kt-predictive-search__skeleton-thumb {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.25rem;
+  background-color: rgba(var(--kt-c-fg, 41 37 36), 0.08);
+  animation: kt-predictive-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.kt-predictive-search__skeleton-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kt-predictive-search__skeleton-line {
+  height: 0.625rem;
+  border-radius: 0.25rem;
+  background-color: rgba(var(--kt-c-fg, 41 37 36), 0.08);
+  animation: kt-predictive-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.kt-predictive-search__skeleton-line--short {
+  width: 60%;
+}
+
+@keyframes kt-predictive-skeleton-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-predictive-search__skeleton-thumb,
+  .kt-predictive-search__skeleton-line {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Error message styling — same typography as the empty state but
+   distinguishable via the `__error` BEM modifier so future
+   error-specific affordances (retry button) can be added without
+   regressing the empty-state copy. */
+.kt-predictive-search__error {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
+}
+
+/* Dark overlay variant — invert skeleton + error tones so the
+   ghost rows + message read against the overlay's stone-950 bg. */
+.kt-search-overlay .kt-predictive-search__skeleton-thumb,
+.kt-search-overlay .kt-predictive-search__skeleton-line {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.kt-search-overlay .kt-predictive-search__error {
+  color: rgba(255, 255, 255, 0.65);
+}

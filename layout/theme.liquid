@@ -693,6 +693,16 @@
           resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
           noResults:           {{ 'kt.search.no_results_announcement' | t | json }},
           {%- comment -%}
+            R-search-audit — Visible error / offline / rate-limit
+            strings consumed by predictive-search.js renderError().
+            Each falls back to a translation key with sensible
+            English default so a fresh install on any locale shows
+            meaningful copy.
+          {%- endcomment -%}
+          offline:             {{ 'kt.search.offline' | t | json }},
+          rateLimited:         {{ 'kt.search.rate_limited' | t | json }},
+          genericError:        {{ 'kt.search.generic_error' | t | json }},
+          {%- comment -%}
             R-locale-jsfallback — Predictive-search group headers +
             "View all" CTA. Without these keys, `assets/predictive-
             search.js` fell back to hardcoded English strings
