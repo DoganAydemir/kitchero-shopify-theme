@@ -1,6 +1,13 @@
 {{ 'kt-section-main-collection.css' | asset_url | stylesheet_tag }}
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
-{{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  R-collection-audit — Conditional asset loading. Filter CSS is
+  only emitted when the merchant has enabled the filter bar; sort-
+  only stores skip the ~12 KB stylesheet entirely.
+{%- endcomment -%}
+{%- if section.settings.enable_filter_bar -%}
+  {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- comment -%}
   R136 / HG-3 — wired settings:
@@ -755,8 +762,25 @@
 </div>
 
 <script src="{{ 'kt-section-main-collection.js' | asset_url }}" defer="defer"></script>
-<script src="{{ 'collection-filters.js' | asset_url }}" defer="defer"></script>
-<script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+{%- if section.settings.enable_filter_bar -%}
+  <script src="{{ 'collection-filters.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{%- comment -%}
+  R-collection-audit — countdown.js is only emitted when at least
+  one product on the current page actually has a `deal_ends_at`
+  metafield. Cuts the script payload on most collection pages
+  (cabinetry / catalog stores usually have no time-bounded deals).
+{%- endcomment -%}
+{%- assign collection_has_deal = false -%}
+{%- for product in collection.products -%}
+  {%- if product.metafields.custom.deal_ends_at.value != blank -%}
+    {%- assign collection_has_deal = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- if collection_has_deal -%}
+  <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {% schema %}
 {

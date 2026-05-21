@@ -2,7 +2,21 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
 
-<div class="kt-collection" data-section-id="{{ section.id }}" data-section-type="main-collection">
+{%- comment -%}
+  R-collection-audit — Settings wiring for schema parity with the
+  default collection template.
+{%- endcomment -%}
+{%- assign vert_cols_d = section.settings.cols_desktop | default: 3 -%}
+{%- assign vert_cols_m = section.settings.cols_mobile | default: 2 -%}
+{%- assign vert_pad_top = section.settings.padding_top | default: 0 -%}
+{%- assign vert_pad_bot = section.settings.padding_bottom | default: 64 -%}
+{%- assign vert_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
+<div
+  class="kt-collection color-{{ vert_scheme }} kt-collection--cols-d-{{ vert_cols_d }} kt-collection--cols-m-{{ vert_cols_m }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="main-collection"
+  style="--kt-section-padding-top: {{ vert_pad_top }}px; --kt-section-padding-bottom: {{ vert_pad_bot }}px;"
+>
   {%- comment -%} Hero Header (shared) {%- endcomment -%}
   <section class="kt-collection__hero" data-collection-hero>
     <div class="kt-collection__dots-base" aria-hidden="true"></div>
@@ -19,10 +33,12 @@
         <div>
           <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
           <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
-          {%- if collection.description != blank -%}
-            <p class="kt-collection__desc">{{ collection.description }}</p>
-          {%- else -%}
-            <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t }}</p>
+          {%- if section.settings.show_collection_description -%}
+            {%- if collection.description != blank -%}
+              <p class="kt-collection__desc">{{ collection.description }}</p>
+            {%- else -%}
+              <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t }}</p>
+            {%- endif -%}
           {%- endif -%}
         </div>
         <span class="kt-collection__count">
@@ -185,6 +201,28 @@
       "label": "t:sections.main-collection-vertical.settings.products_per_page.label"
     },
     {
+      "type": "header",
+      "content": "t:sections.main-collection-vertical.settings.header__grid.content"
+    },
+    {
+      "type": "range",
+      "id": "cols_desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "label": "t:sections.main-collection-vertical.settings.cols_desktop.label"
+    },
+    {
+      "type": "range",
+      "id": "cols_mobile",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 2,
+      "label": "t:sections.main-collection-vertical.settings.cols_mobile.label"
+    },
+    {
       "type": "checkbox",
       "id": "show_secondary_image",
       "label": "t:sections.main-collection-vertical.settings.show_secondary_image.label",
@@ -195,6 +233,50 @@
       "id": "show_quote_button",
       "label": "t:sections.main-collection-vertical.settings.show_quote_button.label",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-vertical.settings.header__hero.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "label": "t:sections.main-collection-vertical.settings.show_collection_description.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-vertical.settings.header__spacing.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0,
+      "unit": "px",
+      "label": "t:sections.main-collection-vertical.settings.padding_top.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 64,
+      "unit": "px",
+      "label": "t:sections.main-collection-vertical.settings.padding_bottom.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-vertical.settings.header__color.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main-collection-vertical.settings.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

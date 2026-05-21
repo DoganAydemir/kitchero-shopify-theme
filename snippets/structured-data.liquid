@@ -293,3 +293,90 @@
     }
   </script>
 {%- endif -%}
+
+{%- comment -%}
+  R-collection-audit — CollectionPage + ItemList JSON-LD.
+
+  Per Google's Schema.org guidance for product listing pages
+  (collection / category pages in e-commerce), emit a
+  `CollectionPage` whose `mainEntity` is an `ItemList` of
+  `ListItem` → `Product` entries. This is what Google Search
+  expects to index collection pages with structured product
+  data — without it, the page can't surface as a "Product Grid"
+  rich result, only a generic web result.
+
+  Per-card Product JSON-LD (one <script> block per card) is a
+  legacy pattern that Google explicitly cautions against on
+  category pages — they want ONE consolidated ItemList per page,
+  not N+1 product blocks. This snippet emits a single ItemList
+  including up to 60 products from `paginate.products | default:
+  collection.products`, covering the first page of pagination
+  (later pages emit their own ItemList with `position` offset
+  by the current page).
+
+  Gated on `request.page_type == 'collection'` AND a non-empty
+  collection so an empty collection doesn't emit a malformed
+  ItemList. The Product entries include name + url + image +
+  offers (price, currency, availability) — the minimum field
+  set Google's rich result validators require.
+
+  Currency uses `cart.currency.iso_code` so the schema respects
+  the active Shopify Market (multi-currency stores). Image uses
+  the largest available featured-media URL to give crawlers the
+  highest-quality reference.
+{%- endcomment -%}
+{%- if request.page_type == 'collection' and collection.products.size > 0 -%}
+  {%- assign collection_page_size = paginate.page_size | default: 24 -%}
+  {%- assign collection_current_page = paginate.current_page | default: 1 -%}
+  {%- assign collection_position_offset = collection_current_page | minus: 1 | times: collection_page_size -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": {{ collection.title | json }},
+      "url": {{ shop.url | append: collection.url | json }},
+      {%- if collection.description != blank -%}
+        "description": {{ collection.description | strip_html | json }},
+      {%- endif -%}
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": {{ collection.products_count | json }},
+        "itemListElement": [
+          {%- for product in collection.products -%}
+            {%- assign item_position = forloop.index | plus: collection_position_offset -%}
+            {
+              "@type": "ListItem",
+              "position": {{ item_position }},
+              "item": {
+                "@type": "Product",
+                "name": {{ product.title | json }},
+                "url": {{ shop.url | append: product.url | json }}
+                {%- if product.featured_media != blank -%}
+                  ,"image": {{ product.featured_media | image_url: width: 1200 | prepend: 'https:' | json }}
+                {%- endif -%}
+                {%- if product.vendor != blank -%}
+                  ,"brand": {
+                    "@type": "Brand",
+                    "name": {{ product.vendor | json }}
+                  }
+                {%- endif -%}
+                ,"offers": {
+                  "@type": "Offer",
+                  "priceCurrency": {{ cart.currency.iso_code | json }},
+                  {%- if product.price_varies -%}
+                    "lowPrice": {{ product.price_min | money_without_currency | strip_html | strip | json }},
+                    "highPrice": {{ product.price_max | money_without_currency | strip_html | strip | json }},
+                  {%- else -%}
+                    "price": {{ product.price | money_without_currency | strip_html | strip | json }},
+                  {%- endif -%}
+                  "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+                  "url": {{ shop.url | append: product.url | json }}
+                }
+              }
+            }{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        ]
+      }
+    }
+  </script>
+{%- endif -%}
