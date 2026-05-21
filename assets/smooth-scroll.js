@@ -35,7 +35,7 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion || typeof Lenis === 'undefined') return;
 
-  /* R-SS7 — Skip Lenis entirely on touch-primary devices.
+  /* R-SS7 — Skip Lenis entirely on touch-capable devices.
 
      Earlier configuration set `smoothTouch: false` + `syncTouch:
      false` + `touchMultiplier: 1` to keep Lenis on the page but
@@ -50,21 +50,40 @@
      update tick, producing the abrupt stop the merchant
      described.
 
-     Premium themes (Aalto, Trade, Studio) skip smooth-scroll on
-     touch entirely, since native iOS / Android momentum is
-     already best-in-class. Lenis was only ever a wheel-scroll
-     enhancement; cutting it on phones costs nothing visual and
-     fixes the choppy-stop.
+     R-SS7b — First-pass detection only used
+     `(hover: none) and (pointer: coarse)`, which misses real-
+     world touch surfaces:
+       • iPad Pro + Apple Pencil reports `hover: hover` because
+         the pencil can hover over the screen.
+       • iPads in "Request Desktop Site" mode lie about every
+         input modality.
+       • Surface tablets in tablet posture sometimes keep their
+         attached-keyboard hover capability advertised.
+     The new detection is OR-chained: if ANY signal indicates
+     touch capability, skip Lenis. Falls back to viewport width
+     (<990px = mobile/tablet) as the final belt-and-braces
+     check for any UA that lies about all three primary
+     signals. Desktop with a real mouse keeps Lenis untouched —
+     the canonical "narrow viewport on big screen" scenario
+     would only briefly drop smooth scroll if the user manually
+     resized to a phone width, which is fine. */
+  var hasTouchEvents = ('ontouchstart' in window)
+    || (window.DocumentTouch && document instanceof window.DocumentTouch);
+  var hasTouchPoints = navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
+  var noHover = window.matchMedia
+    && window.matchMedia('(hover: none)').matches;
+  var coarsePointer = window.matchMedia
+    && window.matchMedia('(pointer: coarse)').matches;
+  var narrowViewport = window.matchMedia
+    && window.matchMedia('(max-width: 989px)').matches;
 
-     Detection uses `(hover: none) and (pointer: coarse)` —
-     matches phones + touch-only tablets, excludes laptops with
-     touchscreens that also have a trackpad / mouse (those keep
-     the wheel-side Lenis benefit). If `matchMedia` is missing
-     (very old browsers), we fall through to the original Lenis
-     init so the desktop fallback still works. */
-  var isTouchOnly = window.matchMedia
-    && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-  if (isTouchOnly) return;
+  var isTouchCapable = hasTouchEvents
+    || hasTouchPoints
+    || noHover
+    || coarsePointer
+    || narrowViewport;
+
+  if (isTouchCapable) return;
 
   var lenis = new Lenis({
     duration: 1.2,
