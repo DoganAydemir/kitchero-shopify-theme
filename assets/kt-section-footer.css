@@ -142,16 +142,25 @@
      ul: space-y-4 text-stone-300 text-lg font-light
      a:  hover:text-white transition-colors */
 .kt-footer__column-title {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  /* R-followup — Eyebrow weight dropped 600 → 500 and alpha
+     0.55 → 0.38. The previous combination (bold + uppercase +
+     wide tracking + 0.55 alpha) optically matched the lighter
+     links underneath (font-weight 300, alpha 0.75) — bold + lower
+     alpha balanced against light + higher alpha, so the eyebrow
+     read at the same "weight" as the navigation items it was
+     supposed to sit above. Reporter: "başlıklar link lerle aynı
+     renk sertliğinde, daha muted durmalı". Pulling the eyebrow
+     to alpha 0.38 with weight 500 keeps the uppercase + tracking
+     typographic distinction intact while clearly demoting the
+     label below the link contrast — the column title now reads
+     as a quiet section marker, links read as the primary
+     content. Font-size also dropped 0.875 → 0.75rem to reinforce
+     the hierarchy. */
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  /* R232.54 — scheme-aware eyebrow. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
-  /* R-SS2 — Bigger eyebrow-to-list gap so the heading reads as a
-     deliberate label, not the first link in the list. Previous
-     2rem felt cramped on mobile where the column eyebrow + link
-     stack are pinned to the left edge. */
+  letter-spacing: 0.22em;
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.38);
   margin-bottom: 2.5rem;
 }
 
