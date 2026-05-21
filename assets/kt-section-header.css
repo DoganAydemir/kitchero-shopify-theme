@@ -1419,23 +1419,34 @@ html.no-js .kt-header__mobile-view-title {
   color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
-.kt-header__mobile-back:focus {
-  outline: none;
-}
+/* R-SS8 round 3 — Earlier attempts swapped the UA focus rectangle
+   for a soft pill-tint background, but `kt-section-header-mobile-nav.js`
+   programmatically calls `.focus()` on the BACK button when a
+   sub-panel slides into view (`focusCurrentPanel()` at line 210
+   of the nav JS, for SR announcement parity). iOS Safari treats
+   that programmatic focus as triggering `:focus` (NOT always
+   `:focus-visible`), so the pill-tint rule never matched and the
+   button retained its UA-painted button chrome — exactly the
+   "bordered box" the merchant kept screenshotting.
 
-/* R-SS8 — Same focus-tint pattern as the hamburger toggle + close
-   button. When the user navigates deep into the mobile menu via
-   keyboard or taps "Back", the button retains :focus-visible on
-   touch sessions, leaving a stuck 2px rectangle that reads as a
-   "selected/bordered" pill. Swap the rectangle for the same soft
-   circular tint — WCAG 2.4.7 indicator stays present via the
-   background contrast change, but the persistent box-look goes away. */
+   The cleanest fix sidesteps the focus-visible / focus split
+   entirely: kill the outline on BOTH states, kill any UA chrome
+   on every state, and use a text-underline as the focus indicator
+   instead of any box/background. The underline reads as an
+   editorial affordance (matches the BACK label's existing
+   typographic treatment) and ALWAYS satisfies WCAG 2.4.7
+   regardless of which focus pseudo the browser decides to fire. */
+.kt-header__mobile-back:focus,
 .kt-header__mobile-back:focus-visible {
   outline: none;
-  border-radius: 9999px;
-  padding: 0.375rem 0.75rem;
-  margin-left: -0.75rem;
-  background: rgba(var(--kt-c-fg, 250 250 249), 0.12);
+  outline-offset: 0;
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.5em;
 }
 
 .kt-header__mobile-back svg {
