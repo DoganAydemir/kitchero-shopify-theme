@@ -142,8 +142,26 @@
   font-size: 1rem;
 }
 
-/* Count pill: px-4 py-2 border border-stone-300 text-stone-500 text-xs font-bold tracking-widest uppercase rounded-full */
+/* Count pill: px-4 py-2 border border-stone-300 text-stone-500 text-xs font-bold tracking-widest uppercase rounded-full
+   R-followup-3 — The merchant kept reporting "3 PRODUCTS still
+   full width" after three rounds of fixes on the DOTTED-header
+   shared snippet (`kt-page-header-dotted__count-wrap`). Turned
+   out the collection drawer template renders its OWN count pill
+   via `.kt-collection__count` inside `.kt-collection__hero-inner`
+   — a separate element from the dotted-header snippet. The hero
+   inner is `display: flex; flex-direction: column;` on mobile,
+   so the `<span>` becomes a flex item and inherits the default
+   cross-axis `stretch`, pinning the bordered pill to the full
+   container width. Apply the same shrink-wrap defenses as the
+   dotted-header pill: `align-self: flex-start` opts out of
+   stretch on mobile, `display: inline-block` forces inline-level
+   sizing as a belt to the align-self suspenders. Desktop hero
+   switches to flex-row at 750px so the existing `align-items:
+   flex-end` parent rule keeps the pill bottom-right naturally —
+   no align-self override needed there. */
 .kt-collection__count {
+  align-self: flex-start;
+  display: inline-block;
   padding: 0.5rem 1rem;
   border: 1px solid var(--kt-stone-300);
   color: var(--kt-stone-500);
