@@ -208,6 +208,79 @@
   letter-spacing: 0.1em;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
+  /* Sit above the spinner so the counter stays readable while a
+     lazy-loaded slide image is still fetching. */
+  z-index: 3;
+}
+
+/* R-SS5-showroom — Per-slide loader for the showroom gallery.
+   Non-first images carry `loading="lazy"` so the initial payload
+   stays light; once the customer swipes / drags to the next
+   slide on mobile (native scroll-snap, no JS-driven goTo) or
+   scrolls the desktop grid into view, the lazy image starts
+   downloading and the slide briefly paints as an empty stone-100
+   panel while the bytes arrive. The merchant flagged the white
+   gap on the e-commerce gallery (R-SS5 in commit 0731113) and
+   wants the same loading affordance on the showroom template.
+
+   The spinner is an `::after` pseudo-element on every slide. The
+   image inside paints on z-index 2 (above the spinner) so the
+   moment the bytes land the spinner is visually covered without
+   any JS intervention. `[data-image-loaded]` is a belt-and-
+   suspenders attribute the JS in product-gallery.js sets when
+   the image's `load` event fires — when present, it hard-hides
+   the spinner so cached images don't keep paying the animation
+   tick. */
+.kt-showroom__gallery-full::after,
+.kt-showroom__gallery-half::after,
+.kt-showroom__gallery-mobile-slide::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -1.25rem 0 0 -1.25rem;
+  border: 2px solid rgba(28, 25, 23, 0.18);
+  border-top-color: rgba(28, 25, 23, 0.7);
+  border-radius: 50%;
+  animation: kt-showroom-gallery-spin 0.7s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.kt-showroom__gallery-full[data-image-loaded]::after,
+.kt-showroom__gallery-half[data-image-loaded]::after,
+.kt-showroom__gallery-mobile-slide[data-image-loaded]::after {
+  display: none;
+}
+
+/* Media slides (video / external_video / model) never have an
+   `<img>` to await, so the loader would spin forever. Hide it
+   on those via the `--media` modifier the liquid already
+   applies. */
+.kt-showroom__gallery-full--media::after,
+.kt-showroom__gallery-mobile-slide--media::after {
+  display: none;
+}
+
+/* The image stacks above the spinner so the moment the browser
+   paints the loaded image, the spinner is hidden under it. */
+.kt-showroom__gallery-image {
+  z-index: 2;
+}
+
+@keyframes kt-showroom-gallery-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-showroom__gallery-full::after,
+  .kt-showroom__gallery-half::after,
+  .kt-showroom__gallery-mobile-slide::after {
+    animation: none;
+    opacity: 0.6;
+  }
 }
 
 /* Info column: 27% */

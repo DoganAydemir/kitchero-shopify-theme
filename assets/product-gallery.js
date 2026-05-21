@@ -53,6 +53,35 @@
       }
       imageUrls.push(url);
       imageAlts.push(img.alt || '');
+
+      /* R-SS5-showroom — Mark each slide loaded as soon as its
+         image finishes downloading. CSS shows a centred spinner on
+         every slide; this attribute hard-hides it. Pattern works
+         for both gallery types:
+           • Default product gallery — JS-driven goTo() also paints
+             a spinner over the active slide via
+             `.kt-gallery__main--loading` (added in commit 0731113),
+             but THAT only covers the active slide. This per-slide
+             attribute covers ALL slides at init, so cached / eager
+             images skip the spinner entirely.
+           • Showroom gallery — no goTo() flow (mobile is scroll-
+             snap, desktop is a multi-slide grid). The per-slide
+             attribute is the ONLY signal we have, so the spinner
+             on the next horizontal slide stays visible until its
+             lazy-loaded bytes arrive. */
+      if (img.complete && img.naturalWidth > 0) {
+        slide.setAttribute('data-image-loaded', 'true');
+      } else {
+        var markLoaded = function () {
+          slide.setAttribute('data-image-loaded', 'true');
+          img.removeEventListener('load', markLoaded);
+          img.removeEventListener('error', markLoaded);
+        };
+        img.addEventListener('load', markLoaded);
+        /* `error` also clears the loader — a broken image src must
+           not leave the spinner stuck spinning over a dead slide. */
+        img.addEventListener('error', markLoaded);
+      }
     });
 
     /* Pause every active video / external video / model on slide
