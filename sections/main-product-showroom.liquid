@@ -46,6 +46,18 @@
   - "Order a Door Sample" box — the ONLY place ATC happens
 {%- endcomment -%}
 
+{%- comment -%}
+  R-pdp-audit — Breadcrumb render. Standard product template
+  renders the breadcrumb trail via `{% render 'breadcrumbs' %}`
+  at the top of its `<section>`; the showroom template skipped it,
+  leaving a SEO + UX gap (no path back to the collection). Use the
+  theme-global `settings.kt_show_breadcrumbs` toggle so merchants
+  keep one switch for breadcrumbs across every template.
+{%- endcomment -%}
+{%- if settings.kt_show_breadcrumbs -%}
+  {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
+{%- endif -%}
+
 <section class="kt-showroom" data-section-id="{{ section.id }}" data-section-type="main-product">
   <div class="kt-showroom__container">
     <div class="kt-showroom__layout">
@@ -675,6 +687,111 @@
                   </div>
                 {%- endif -%}
 
+              {%- when 'liquid' -%}
+                {%- comment -%}
+                  R-pdp-audit — Custom Liquid block, parity with
+                  main-product. Theme Store requires Custom Liquid
+                  blocks "wherever app blocks would be used", and
+                  showroom previously lacked this slot — merchants
+                  who needed to drop in inline Liquid (e.g. a
+                  marketing snippet, an inline structured-data
+                  block, or a vendored app embed) had nowhere to
+                  put it in this template.
+                {%- endcomment -%}
+                <div class="kt-showroom__custom-liquid" {{ block.shopify_attributes }}>
+                  {{ block.settings.custom_liquid }}
+                </div>
+
+              {%- when 'trust_badges' -%}
+                {%- comment -%}
+                  R-pdp-audit — Trust badges, parity with main-product.
+                  Same 4-badge slot pattern + 4 hand-picked icons
+                  (shipping / returns / warranty / package). Block
+                  emits nothing when every text slot is blank, so the
+                  default install stays clean.
+                {%- endcomment -%}
+                <div class="kt-showroom__trust-badges" {{ block.shopify_attributes }}>
+                  {%- for i in (1..4) -%}
+                    {%- assign icon_key = 'badge_' | append: i | append: '_icon' -%}
+                    {%- assign text_key = 'badge_' | append: i | append: '_text' -%}
+                    {%- assign icon_val = block.settings[icon_key] -%}
+                    {%- assign text_val = block.settings[text_key] -%}
+                    {%- if text_val != blank -%}
+                      <div class="kt-showroom__trust-badge">
+                        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          {%- case icon_val -%}
+                            {%- when 'shipping' -%}
+                              <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+                            {%- when 'returns' -%}
+                              <polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                            {%- when 'warranty' -%}
+                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            {%- when 'package' -%}
+                              <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                          {%- endcase -%}
+                        </svg>
+                        <span class="kt-showroom__trust-badge-text">{{ text_val }}</span>
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+
+              {%- when 'complementary_products' -%}
+                {%- comment -%}
+                  R-pdp-audit — Complementary products, parity with
+                  main-product. Reads the Search & Discovery curated
+                  picks from `shopify--discovery--product_recommendation
+                  .complementary_products`. Editor hint surfaces only
+                  in design_mode when the metafield is empty, so the
+                  live storefront stays silent on stores without the
+                  app installed.
+                {%- endcomment -%}
+                {%- assign comp_products = product.metafields.shopify--discovery--product_recommendation.complementary_products.value -%}
+                {%- if comp_products and comp_products.size > 0 -%}
+                  <div class="kt-showroom__complementary" {{ block.shopify_attributes }}>
+                    {%- if block.settings.heading != blank -%}
+                      <h3 class="kt-showroom__complementary-heading">{{ block.settings.heading | escape }}</h3>
+                    {%- endif -%}
+                    <ul class="kt-showroom__complementary-list" role="list">
+                      {%- for comp_product in comp_products limit: block.settings.products_count -%}
+                        <li class="kt-showroom__complementary-item">
+                          <a class="kt-showroom__complementary-link" href="{{ comp_product.url }}">
+                            <div class="kt-showroom__complementary-media">
+                              {%- if comp_product.featured_media != blank -%}
+                                {{ comp_product.featured_media | image_url: width: 200 | image_tag:
+                                    loading: 'lazy',
+                                    widths: '100, 200, 300',
+                                    sizes: '100px',
+                                    width: 100,
+                                    height: 100,
+                                    class: 'kt-showroom__complementary-image',
+                                    alt: comp_product.featured_media.alt | default: comp_product.title }}
+                              {%- else -%}
+                                {{ 'product-1' | placeholder_svg_tag: 'kt-showroom__complementary-image kt-showroom__complementary-image--placeholder' }}
+                              {%- endif -%}
+                            </div>
+                            <div class="kt-showroom__complementary-text">
+                              <p class="kt-showroom__complementary-title">{{ comp_product.title | escape }}</p>
+                              {%- if comp_product.price_varies -%}
+                                {%- assign comp_price_money = comp_product.price_min | money -%}
+                                <p class="kt-showroom__complementary-price">{{ 'kt.product.from_price_label' | t }} {{ comp_price_money }}</p>
+                              {%- else -%}
+                                <p class="kt-showroom__complementary-price">{{ comp_product.price | money }}</p>
+                              {%- endif -%}
+                            </div>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- elsif request.design_mode -%}
+                  <div class="kt-showroom__complementary kt-showroom__complementary--empty" {{ block.shopify_attributes }}>
+                    <p class="kt-showroom__complementary-hint">
+                      {{ 'kt.product.complementary.editor_hint' | t | default: 'Install the Shopify Search & Discovery app and pick complementary products for this product to populate this block.' }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
               {%- when 'warranty' -%}
                 <div class="kt-showroom__warranty" {{ block.shopify_attributes }}>
                   <div class="kt-showroom__warranty-icon">
@@ -1059,6 +1176,104 @@
         { "type": "header", "content": "t:sections.main-product-showroom.blocks.specifications.settings.row_5" },
         { "type": "text", "id": "label_5", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_label" },
         { "type": "text", "id": "value_5", "label": "t:sections.main-product-showroom.blocks.specifications.settings.row_value" }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.main-product-showroom.blocks.liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.main-product-showroom.blocks.liquid.settings.custom_liquid.label",
+          "info": "t:sections.main-product-showroom.blocks.liquid.settings.custom_liquid.info"
+        }
+      ]
+    },
+    {
+      "type": "trust_badges",
+      "name": "t:sections.main-product-showroom.blocks.trust_badges.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "badge_1_icon",
+          "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_1_icon.label",
+          "options": [
+            { "value": "shipping", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__1.label" },
+            { "value": "returns", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__2.label" },
+            { "value": "warranty", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__3.label" },
+            { "value": "package", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__4.label" }
+          ],
+          "default": "shipping"
+        },
+        { "type": "text", "id": "badge_1_text", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_1_text.label", "default": "Badge" },
+        {
+          "type": "select",
+          "id": "badge_2_icon",
+          "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_2_icon.label",
+          "options": [
+            { "value": "shipping", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__1.label" },
+            { "value": "returns", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__2.label" },
+            { "value": "warranty", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__3.label" },
+            { "value": "package", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__4.label" }
+          ],
+          "default": "returns"
+        },
+        { "type": "text", "id": "badge_2_text", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_2_text.label", "default": "Badge" },
+        {
+          "type": "select",
+          "id": "badge_3_icon",
+          "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_3_icon.label",
+          "options": [
+            { "value": "shipping", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__1.label" },
+            { "value": "returns", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__2.label" },
+            { "value": "warranty", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__3.label" },
+            { "value": "package", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__4.label" }
+          ],
+          "default": "warranty"
+        },
+        { "type": "text", "id": "badge_3_text", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_3_text.label", "default": "Badge" },
+        {
+          "type": "select",
+          "id": "badge_4_icon",
+          "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_4_icon.label",
+          "options": [
+            { "value": "shipping", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__1.label" },
+            { "value": "returns", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__2.label" },
+            { "value": "warranty", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__3.label" },
+            { "value": "package", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_icon.options__4.label" }
+          ],
+          "default": "package"
+        },
+        { "type": "text", "id": "badge_4_text", "label": "t:sections.main-product-showroom.blocks.trust_badges.settings.badge_4_text.label", "default": "Badge" }
+      ]
+    },
+    {
+      "type": "complementary_products",
+      "name": "t:sections.main-product-showroom.blocks.complementary_products.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.complementary_products.settings.paragraph.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.main-product-showroom.blocks.complementary_products.settings.heading.label",
+          "default": "Pairs well with"
+        },
+        {
+          "type": "range",
+          "id": "products_count",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "default": 3,
+          "label": "t:sections.main-product-showroom.blocks.complementary_products.settings.products_count.label",
+          "info": "t:sections.main-product-showroom.blocks.complementary_products.settings.products_count.info"
+        }
       ]
     },
     {
