@@ -87,16 +87,27 @@
 }
 
 .kt-variant-picker__swatch-input:checked + .kt-variant-picker__swatch {
-  /* Single ring on selection. Previously paired the swatch border
-     (2px stone-900) with a layered box-shadow that drew TWO more
-     rings — `0 0 0 2px bg, 0 0 0 4px fg` produced an inner white
-     gap + outer dark ring, so the chosen colour had a 3-layer
-     halo (border + gap + ring) reading as "two borders" on
-     mobile. A simple 1px outset shadow at the edge of the border
-     keeps the affordance ("this one is selected") with one
-     continuous dark line, no concentric halos. */
-  border-color: rgb(var(--kt-c-fg));
-  box-shadow: 0 0 0 1px rgb(var(--kt-c-fg));
+  /* R-swatch-premium — Premium "spacer ring" selection style.
+     Hide the chip's own 2px border so the variant colour reaches
+     the visible edge, then paint two concentric OUTSET shadows
+     around the chip:
+       • 2px scheme-bg ring → the "breathing gap" between colour
+         and outer ring (white on light schemes, dark on dark
+         schemes — adapts automatically so it always reads as a
+         neutral spacer against the page surface).
+       • 2px scheme-fg ring → the actual selection indicator,
+         pushed out by the spacer so it doesn't kiss the colour
+         and stays unmistakable on every hue.
+     Layout-stable: the chip itself keeps its original dimensions
+     (only outset shadows extend beyond), and the parent label's
+     existing 2px padding plus the natural gap between swatches
+     leaves room for the 4px outer halo without bumping adjacent
+     chips. Same canonical pattern Apple / Stripe / modern Shopify
+     themes use for selected swatches. */
+  border-color: transparent;
+  box-shadow:
+    0 0 0 2px rgb(var(--kt-c-bg, 255 255 255)),
+    0 0 0 4px rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* R298 — Keyboard focus ring on swatches. The radio input is
