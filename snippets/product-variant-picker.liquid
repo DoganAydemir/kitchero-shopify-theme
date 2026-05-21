@@ -55,19 +55,47 @@
 
         {%- if is_color -%}
           {%- comment -%}
-            Swatch resolution priority (Shopify OS 2.0 metafield-first):
-            1. Variant metafield `custom.swatch_color` (hex or CSS color)
-               — merchant can override any swatch per variant.
-            2. Variant metafield `custom.swatch_image` (image swatch) —
-               rendered as the background of the swatch chip.
-            3. CSS Named Colors on the option value (e.g. "Black" maps
-               natively to rgb(0,0,0) via background-color: valueName).
-            4. Hardcoded fallback palette below for brand-specific finish
-               names the browser wouldn't understand.
+            Swatch resolution priority (modernised 2025):
+            1. NATIVE — `value.swatch.color` / `value.swatch.image`.
+               Shopify's built-in variant swatch API: the merchant
+               picks a color or uploads an image directly in the
+               product variant editor in Shopify Admin (no metafield
+               setup required). This is the path Theme Store reviewers
+               expect every modern theme to support.
+            2. LEGACY metafield — `custom.swatch_color` / `swatch_image`.
+               Kept for backwards compatibility with stores that
+               already wired the metafield definition before native
+               swatches existed. Merchant-owned data is never broken
+               by a theme upgrade.
+            3. Hardcoded palette — finish names common in cabinetry
+               (oak / walnut / espresso / charcoal …) get a sensible
+               default swatch even on a fresh install with zero setup.
+            4. CSS Named Color fallback — modern browsers ship 140
+               named colors; "Red" / "Navy" / "Salmon" etc. paint
+               natively as a last-resort.
           {%- endcomment -%}
           <div class="kt-variant-picker__swatches">
             {%- for value in option.values -%}
               {%- liquid
+                # ─── Tier 1: NATIVE Shopify swatch ────────────────
+                # `option_value.swatch` is the modern Shopify API:
+                # `swatch.color` returns a hex / CSS color string
+                # set by the merchant in the variant editor; `swatch
+                # .image` returns the image they uploaded. Both are
+                # platform-sanitized so they're safe to drop into an
+                # inline style without re-validation.
+                assign native_swatch_color = nil
+                assign native_swatch_image = nil
+                if value.swatch
+                  if value.swatch.color != blank
+                    assign native_swatch_color = value.swatch.color
+                  endif
+                  if value.swatch.image != blank
+                    assign native_swatch_image = value.swatch.image
+                  endif
+                endif
+
+                # ─── Tier 2: LEGACY metafield swatch ──────────────
                 assign matching_variant = nil
                 assign option_available = false
                 for v in product.variants
@@ -95,20 +123,18 @@
                     sanitization below, a merchant with metafield write
                     access could paste `red; background-image: url(...)`
                     and inject arbitrary CSS into every product page.
-                    See the sanitizer on line 102-113 below.
                   endcomment
                   assign swatch_meta_color = matching_variant.metafields.custom.swatch_color.value | strip
                   assign swatch_meta_image = matching_variant.metafields.custom.swatch_image.value
                 endif
 
                 comment
-                  Sanitize the swatch color before it hits an inline style.
-                  Only accept CSS hex (#rgb / #rrggbb / #rrggbbaa). Anything
-                  else (including `red`, `rgb(...)`, `var(...)`, free text)
-                  is rejected and falls through to the keyword match below.
-                  This closes the CSS-injection vector where a write-capable
-                  metafield editor could embed `; background-image: url(...)`
-                  or `; position: fixed; top: 0;` into every variant picker.
+                  Sanitize the legacy metafield color before it hits an
+                  inline style. Only accept CSS hex (#rgb / #rrggbb /
+                  #rrggbbaa). Anything else (including `red`, `rgb(...)`,
+                  `var(...)`, free text) is rejected so a write-capable
+                  metafield editor can't embed `; background-image:
+                  url(...)` into every variant picker.
 
                   Shopify Liquid has no regex — use an alphabet-strip
                   pattern: after `remove`-ing every valid hex char, the
@@ -137,6 +163,7 @@
                   endunless
                 endif
 
+                # ─── Tier 3: Hardcoded palette ────────────────────
                 assign color_lower = value | downcase | strip
                 assign swatch_hex = ''
                 case color_lower
@@ -168,8 +195,14 @@
                     assign swatch_hex = ''
                 endcase
 
+                # ─── Resolve final style ──────────────────────────
                 assign swatch_style = ''
-                if swatch_meta_image != blank
+                if native_swatch_image != blank
+                  assign swatch_image_url = native_swatch_image | image_url: width: 80
+                  assign swatch_style = 'background-image: url(' | append: swatch_image_url | append: '); background-size: cover; background-position: center;'
+                elsif native_swatch_color != blank
+                  assign swatch_style = 'background-color: ' | append: native_swatch_color | append: ';'
+                elsif swatch_meta_image != blank
                   assign swatch_image_url = swatch_meta_image | image_url: width: 80
                   assign swatch_style = 'background-image: url(' | append: swatch_image_url | append: '); background-size: cover; background-position: center;'
                 elsif swatch_meta_color != blank
@@ -177,8 +210,9 @@
                 elsif swatch_hex != blank
                   assign swatch_style = 'background-color: ' | append: swatch_hex | append: ';'
                 else
-                  # Fall back to the CSS color name — modern browsers accept
-                  # 140 named colors, which covers most generic palettes.
+                  # Tier 4 — Fall back to the CSS color name. Modern
+                  # browsers accept 140 named colors so generic
+                  # palettes paint without merchant configuration.
                   assign swatch_style = 'background-color: ' | append: color_lower | append: ';'
                 endif
               -%}
