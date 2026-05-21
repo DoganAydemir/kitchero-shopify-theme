@@ -244,26 +244,39 @@
   }
 }
 
-/* Count pill wrap — sits inside the flex column on mobile. The wrap
-   itself is a flex item AND a reveal mask (overflow: hidden in the
-   group rule above). Without explicit sizing, flex column items
-   stretch to fill the cross-axis, so the wrap (and its `overflow:
-   hidden` background) would span 100% of the inner row width.
+/* Count pill wrap — sits inside the flex column on mobile.
+   R-SS10 round 3 — Earlier passes (inline-flex + max-content,
+   then block + fit-content) still let the pill render full
+   width on mobile per the merchant's latest screenshot. Root
+   cause was the flex-item default behaviour winning out:
+     • Flex items default to `flex-shrink: 1 / flex-grow: 0 /
+       flex-basis: auto`. In a column-direction flex container,
+       the cross-axis defaults to `stretch` UNLESS the child
+       sets `align-self`.
+     • Adding `align-self: flex-start` SHOULD shut off stretch,
+       but Safari iOS sometimes resolved `width: fit-content` to
+       the available cross-axis space when combined with
+       `overflow: hidden` (which the reveal-mask group rule sets
+       on this same selector).
 
-   R-SS10 — Earlier attempts used `display: inline-flex` + `width:
-   max-content` to shrink-wrap the pill, but Safari iOS 17 was
-   computing the wrap to the parent's content-box width anyway
-   (the merchant flagged a screenshot where "3 PRODUCTS" still
-   rendered ~80% width on mobile). The bullet-proof combination is
-   `display: block` with `width: fit-content` — `fit-content`
-   resolves to the *intrinsic preferred width* clamped by the
-   available space, and a block element with that width sizes
-   exactly to its contents in every layout pass. `align-self:
-   flex-start` still pins the wrap to the left edge of the column
-   flex parent so the pill doesn't drift to centre. */
+   The bullet-proof combination layers FIVE defensive properties
+   so no single browser quirk can defeat it:
+     1. `align-self: flex-start` — opt out of cross-axis stretch.
+     2. `flex: 0 0 auto` — explicit shorthand for "don't grow,
+        don't shrink, basis follows width property".
+     3. `display: inline-block` — natural inline-level sizing
+        that always shrink-wraps content regardless of parent
+        layout (block-formatting context can't stretch an
+        inline-level element).
+     4. `width: -webkit-fit-content; width: fit-content;` — for
+        engines that still want a width hint.
+     5. `max-width: 100%` — guard against very long count
+        labels overflowing the viewport. */
 .kt-page-header-dotted__count-wrap {
   align-self: flex-start;
-  display: block;
+  flex: 0 0 auto;
+  display: inline-block;
+  width: -webkit-fit-content;
   width: fit-content;
   max-width: 100%;
 }
@@ -274,6 +287,12 @@
   }
 }
 
+/* The inner pill carries the border / padding / typography.
+   `display: inline-block` here is BELT to the wrap's `flex:
+   0 0 auto` SUSPENDERS — even if the wrap somehow stretches
+   in a future browser, this inline-level child still sizes to
+   its own text + padding so the visible border continues to
+   shrink-wrap. */
 .kt-page-header-dotted__count {
   display: inline-block;
   padding: 0.5rem 1rem;

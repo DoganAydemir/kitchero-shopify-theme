@@ -236,12 +236,24 @@
     flex-shrink: 0;
   }
   .kt-collection__sort-form {
-    /* Allow the form to flex-shrink so its select doesn't push
-       the filter button off-screen on narrow phones. */
+    /* R-followup — Sort dropdown was sitting at the right edge of
+       the controls row on mobile (flex: 1 1 auto + justify-content:
+       flex-end) so the Best-selling chip drifted away from the
+       collection content it described. Merchant: "best selling
+       sola dayalı durmalı mobilde". Shrink the form to content
+       (`flex: 0 0 auto`) and use `margin-right: auto` to push the
+       filter button to the right edge — same effect as the
+       desktop count-anchored layout, just with sort taking
+       count's left-pinning role on phones where count is hidden. */
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    margin-right: auto;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
+  }
+  [dir="rtl"] .kt-collection__sort-form {
+    margin-right: 0;
+    margin-left: auto;
   }
   .kt-collection__sort-label {
     display: none;
