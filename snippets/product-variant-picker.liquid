@@ -57,20 +57,24 @@
           {%- comment -%}
             Swatch resolution priority (modernised 2025):
             1. NATIVE — `value.swatch.color` / `value.swatch.image`.
-               Shopify's built-in variant swatch API: the merchant
-               picks a color or uploads an image directly in the
-               product variant editor in Shopify Admin (no metafield
-               setup required). This is the path Theme Store reviewers
-               expect every modern theme to support.
-            2. LEGACY metafield — `custom.swatch_color` / `swatch_image`.
-               Kept for backwards compatibility with stores that
-               already wired the metafield definition before native
-               swatches existed. Merchant-owned data is never broken
-               by a theme upgrade.
-            3. Hardcoded palette — finish names common in cabinetry
+               Shopify's built-in variant swatch API (auto-derived
+               from standard taxonomy colors or merchant-attached
+               metaobjects). Zero theme-side setup.
+            2. LEGACY metafield — `custom.swatch_color` /
+               `custom.swatch_image`. Kept for backwards compat with
+               stores that wired the metafield before native
+               swatches existed.
+            3. VARIANT IMAGE — `matching_variant.featured_image`.
+               When the merchant uploads a per-variant image via
+               Shopify Admin's standard variant editor (the dashed
+               image placeholder next to each variant row), use it
+               as the swatch background. Zero metafield setup: just
+               drag-drop an image per variant. Most merchant-friendly
+               path for non-technical stores.
+            4. Hardcoded palette — finish names common in cabinetry
                (oak / walnut / espresso / charcoal …) get a sensible
                default swatch even on a fresh install with zero setup.
-            4. CSS Named Color fallback — modern browsers ship 140
+            5. CSS Named Color fallback — modern browsers ship 140
                named colors; "Red" / "Navy" / "Salmon" etc. paint
                natively as a last-resort.
           {%- endcomment -%}
@@ -207,10 +211,18 @@
                   assign swatch_style = 'background-image: url(' | append: swatch_image_url | append: '); background-size: cover; background-position: center;'
                 elsif swatch_meta_color != blank
                   assign swatch_style = 'background-color: ' | append: swatch_meta_color | append: ';'
+                elsif matching_variant.featured_image != blank
+                  # Tier 3 — Variant image as swatch backdrop. Lets the
+                  # merchant set a swatch by just uploading an image in
+                  # the standard variant editor — no metafield setup.
+                  # Object-fit: cover via background-size keeps the
+                  # image fitted to the round chip.
+                  assign swatch_image_url = matching_variant.featured_image | image_url: width: 80
+                  assign swatch_style = 'background-image: url(' | append: swatch_image_url | append: '); background-size: cover; background-position: center;'
                 elsif swatch_hex != blank
                   assign swatch_style = 'background-color: ' | append: swatch_hex | append: ';'
                 else
-                  # Tier 4 — Fall back to the CSS color name. Modern
+                  # Tier 5 — Fall back to the CSS color name. Modern
                   # browsers accept 140 named colors so generic
                   # palettes paint without merchant configuration.
                   assign swatch_style = 'background-color: ' | append: color_lower | append: ';'
