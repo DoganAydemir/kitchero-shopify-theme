@@ -271,19 +271,19 @@
   color: var(--kt-stone-500);
 }
 
-/* Single ring on focus. The earlier rules paired:
-   - :focus → 1px white border-color shift on the input itself
-   - :focus-visible → 2px amber outline + 2px offset
-   …which painted TWO rectangles on every tap into a field (the
-   input's own white border AND an amber ring 2px outside it).
-   Collapse both states into one rule: kill the outline, keep the
-   border-color shift as the indicator. Border becomes the amber
-   accent so keyboard navigation still has a high-contrast cue
-   distinct from the resting state. */
+/* R-SS6-followup — Focus border was hardcoded to `--kt-amber-500`,
+   producing the orange ring the merchant flagged on the showroom's
+   "Book a studio visit" form ("input focus border link alakasız").
+   The amber was a holdover from the Next.js source palette; pre-
+   SS6 refresh it sat alongside the amber eyebrow / rule. With the
+   accent now driven by the merchant's `accent_color` setting (see
+   --kt-visualize-accent), inputs should follow the same token so
+   the entire form interactive language stays coherent. Defaults
+   to white when the merchant hasn't overridden the accent. */
 .kt-visualize-studio__field input:focus,
 .kt-visualize-studio__field input:focus-visible {
   outline: none;
-  border-color: var(--kt-amber-500, #f59e0b);
+  border-color: var(--kt-visualize-accent, #ffffff);
 }
 
 /* Submit button — pill-shaped, tight on mobile so the label stays on one
@@ -343,8 +343,43 @@
 }
 
 .kt-visualize-studio__submit:focus-visible {
-  outline: 2px solid var(--kt-amber-500);
+  /* R-SS6-followup — Submit focus outline follows the accent
+     token instead of the legacy amber, so the keyboard cue
+     reads as the same colour as the input focus borders above. */
+  outline: 2px solid var(--kt-visualize-accent, #ffffff);
   outline-offset: 2px;
+}
+
+/* R-followup — Privacy-note paragraph + inline anchor. The
+   translated `privacy_note_html` emits a bare `<a>` without a
+   class, so the link inherited UA default styling (heavy blue
+   underline on dark bg) which the merchant flagged as "patlamış"
+   on mobile. Style the paragraph as muted body copy and the
+   anchor as a clean editorial underline that contrasts the
+   surrounding text without competing with the primary CTA. */
+.kt-visualize-studio__privacy {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.kt-visualize-studio__privacy a {
+  color: var(--kt-white, #ffffff);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.kt-visualize-studio__privacy a:hover {
+  opacity: 0.7;
+}
+
+.kt-visualize-studio__privacy a:focus-visible {
+  outline: 2px solid var(--kt-visualize-accent, #ffffff);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .kt-visualize-studio__success {
