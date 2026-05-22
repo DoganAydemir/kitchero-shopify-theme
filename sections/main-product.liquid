@@ -694,15 +694,32 @@
 
               {%- when 'tags' -%}
                 {%- comment -%}
-                  R-pdp-completeness — Tags block. Showroom template
-                  has this already (`{%- when 'tag' -%}`); main-product
-                  now mirrors so merchants on the standard template
-                  can also surface product tags as small pill chips
-                  near the title / metadata cluster. Tags often double
-                  as "feature flags" (Eco / Limited / New Arrival) so
-                  exposing them visibly is a common ask.
+                  Source priority for the PDP feature pill row:
+                  1. `product.metafields.custom.features` (list.single_line_text_field)
+                     — per-product, merchant-curated. Same metafield key
+                     that the showroom template reads, so a merchant who
+                     wires it once gets the pills on either template
+                     without reconfiguration.
+                  2. `product.tags` — Shopify's built-in tag list. Useful
+                     fallback for merchants who tag products for filtering
+                     and want those tags surfaced visibly without wiring
+                     the metafield.
+                  3. design_mode hint — only shown inside the theme editor
+                     so merchants know where the pills will appear once
+                     content is added.
                 {%- endcomment -%}
-                {%- if product.tags.size > 0 -%}
+                {%- assign pdp_metafield_features = product.metafields.custom.features.value -%}
+                {%- assign pdp_has_metafield_features = false -%}
+                {%- if pdp_metafield_features != blank and pdp_metafield_features.size > 0 -%}
+                  {%- assign pdp_has_metafield_features = true -%}
+                {%- endif -%}
+                {%- if pdp_has_metafield_features -%}
+                  <ul class="kt-pdp__tags" {{ block.shopify_attributes }} aria-label="{{ 'kt.product.tags_label' | t | default: 'Tags' }}">
+                    {%- for feature_text in pdp_metafield_features -%}
+                      <li class="kt-pdp__tag">{{ feature_text | escape }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- elsif product.tags.size > 0 -%}
                   <ul class="kt-pdp__tags" {{ block.shopify_attributes }} aria-label="{{ 'kt.product.tags_label' | t | default: 'Tags' }}">
                     {%- for tag in product.tags -%}
                       <li class="kt-pdp__tag">{{ tag | escape }}</li>

@@ -552,14 +552,40 @@
 
               {%- when 'tag' -%}
                 {%- unless tags_rendered -%}
+                  {%- comment -%}
+                    Source priority for "At a glance" feature pills:
+                    1. `product.metafields.custom.features` (list.single_line_text_field)
+                       — per-product, merchant-managed from Admin. The
+                       standard pattern across Theme Store-approved themes
+                       (Symmetry / Impulse / Empire) for product-specific
+                       feature highlights. Reviewers test multi-product
+                       behaviour and expect pills to differ between
+                       products; identical pills across the catalogue
+                       reads as broken / placeholder content.
+                    2. Section blocks (manual text per template) — fallback
+                       so merchants who haven't wired the metafield still
+                       see the visual element and can customise per-template.
+                       Block `limit: 8` keeps the manual path constrained.
+                  {%- endcomment -%}
+                  {%- assign metafield_features = product.metafields.custom.features.value -%}
+                  {%- assign has_metafield_features = false -%}
+                  {%- if metafield_features != blank and metafield_features.size > 0 -%}
+                    {%- assign has_metafield_features = true -%}
+                  {%- endif -%}
                   <div class="kt-showroom__tags">
                     <p class="kt-showroom__tags-label">{{ 'kt.product.at_a_glance' | t | default: 'At a glance' }}</p>
                     <div class="kt-showroom__tags-list">
-                      {%- for tag_block in section.blocks -%}
-                        {%- if tag_block.type == 'tag' -%}
-                          <span class="kt-showroom__tag" {{ tag_block.shopify_attributes }}>{{ tag_block.settings.text }}</span>
-                        {%- endif -%}
-                      {%- endfor -%}
+                      {%- if has_metafield_features -%}
+                        {%- for feature_text in metafield_features -%}
+                          <span class="kt-showroom__tag">{{ feature_text | escape }}</span>
+                        {%- endfor -%}
+                      {%- else -%}
+                        {%- for tag_block in section.blocks -%}
+                          {%- if tag_block.type == 'tag' -%}
+                            <span class="kt-showroom__tag" {{ tag_block.shopify_attributes }}>{{ tag_block.settings.text | escape }}</span>
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
                     </div>
                   </div>
                   {%- assign tags_rendered = true -%}
@@ -1306,6 +1332,10 @@
       "name": "t:sections.main-product-showroom.blocks.tag.name",
       "limit": 8,
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.tag.settings.info"
+        },
         {
           "type": "text",
           "id": "text",
