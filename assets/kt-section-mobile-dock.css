@@ -1,0 +1,169 @@
+/* Mobile Dock — fixed bottom-of-viewport quick-access bar.
+   Painted only below the per-section breakpoint set by the
+   merchant (--kt-dock-hide-above, default 750px). Above that
+   the dock collapses to display:none so it reserves no layout
+   space alongside the desktop header. */
+
+.kt-mobile-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100%;
+  background: var(--kt-c-surface, #ffffff);
+  color: rgb(var(--kt-c-fg));
+  /* iPhone safe-area — without padding-bottom honoring the
+     home-indicator inset, the dock items overlap the system bar
+     on notched devices (iPhone X+, every iPhone 12+).
+     `max(0.25rem, ...)` floors the padding so non-notched
+     devices still get a baseline gap below the icons. */
+  padding-top: 0.5rem;
+  padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+}
+
+.kt-mobile-dock--border {
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
+  box-shadow: 0 -1px 24px -8px rgba(0, 0, 0, 0.08);
+}
+
+.kt-mobile-dock--rounded {
+  border-radius: 16px 16px 0 0;
+}
+
+/* Hide above the merchant breakpoint. Default 750px keeps the
+   dock on tablet-portrait and below; merchant can flip to 600
+   (phone-only) or 990 (full-tablet). */
+@media (min-width: 600px) {
+  .kt-mobile-dock {
+    display: none;
+  }
+}
+
+/* Re-enable selectively based on merchant setting via inline
+   CSS variable --kt-dock-hide-above. Liquid emits one of the
+   three preset values; matching `@media (min-width: ...)` below
+   gates display:none. Using inline custom property + matching
+   media queries avoids generating extra CSS files per
+   breakpoint. */
+.kt-mobile-dock[style*="--kt-dock-hide-above: 600"] {
+  /* default behaviour above already hides at 600px+ */
+}
+
+/* When merchant picks 750px, paint up to 749px. */
+@media (min-width: 600px) and (max-width: 749px) {
+  .kt-mobile-dock[style*="--kt-dock-hide-above: 750"],
+  .kt-mobile-dock[style*="--kt-dock-hide-above: 990"] {
+    display: flex;
+  }
+}
+
+/* When merchant picks 990px, paint up to 989px. */
+@media (min-width: 750px) and (max-width: 989px) {
+  .kt-mobile-dock[style*="--kt-dock-hide-above: 990"] {
+    display: flex;
+  }
+}
+
+/* ── Dock item ─────────────────────────────────────────────── */
+.kt-mobile-dock__item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  /* WCAG 2.5.5 touch target — 44×44 minimum. */
+  min-height: 48px;
+}
+
+.kt-mobile-dock__item:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.kt-mobile-dock__icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: rgba(var(--kt-c-fg), 0.85);
+}
+
+.kt-mobile-dock__icon svg {
+  display: block;
+}
+
+.kt-mobile-dock__label {
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: rgba(var(--kt-c-fg), 0.7);
+  letter-spacing: 0.01em;
+  /* Prevent long labels from breaking the layout — clip with
+     ellipsis. Long labels at 11px on a 75px column wrap or
+     overflow; a single-line cap keeps the dock visually calm. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Cart count badge ──────────────────────────────────────── */
+.kt-mobile-dock__count {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(var(--kt-c-fg));
+  color: rgb(var(--kt-c-bg));
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 9999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kt-mobile-dock__count[hidden] {
+  display: none;
+}
+
+/* Body padding so the dock doesn't cover the page's bottom-most
+   content. Applied only on breakpoints where the dock paints. */
+@media (max-width: 749px) {
+  body:has(.kt-mobile-dock[style*="--kt-dock-hide-above: 750"]),
+  body:has(.kt-mobile-dock[style*="--kt-dock-hide-above: 990"]) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 599px) {
+  body:has(.kt-mobile-dock[style*="--kt-dock-hide-above: 600"]) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 989px) and (min-width: 750px) {
+  body:has(.kt-mobile-dock[style*="--kt-dock-hide-above: 990"]) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
