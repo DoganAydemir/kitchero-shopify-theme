@@ -295,6 +295,40 @@
   <div class="kt-product-form__error" data-product-form-error role="alert" hidden></div>
 
   {%- comment -%}
+    Back-in-stock notification — captures the customer's email when
+    the selected variant is unavailable so the merchant can ping
+    them on restock. Submissions land in Shopify Admin → Settings →
+    Notifications → Customer contact (native contact form endpoint;
+    no theme-side integration required). Gated on the theme setting
+    `kt_back_in_stock_enabled` so merchants who handle restock
+    notifications via a dedicated app (Klaviyo, Back in Stock, etc.)
+    can disable the built-in form. The trigger button visibility
+    mirrors the variant's `available` state — server-rendered for
+    JS-off support, JS-toggled on variant change.
+  {%- endcomment -%}
+  {%- if settings.kt_back_in_stock_enabled -%}
+    {%- comment -%}
+      Snippet ships its own trigger button + modal. Trigger is
+      always rendered (so JS-off customers see it when they land on
+      a sold-out variant) but initially hidden when the active
+      variant is available; product-form.js toggles `hidden` on the
+      `[data-back-in-stock-trigger]` element when the customer
+      switches between available and unavailable variants. The
+      snippet handles all five 5-locale strings, focus trap,
+      success-state re-open, and variant-aware hidden message body.
+    {%- endcomment -%}
+    {%- render 'back-in-stock',
+        product: product,
+        variant: current_variant,
+        section_id: pf_uid,
+        heading: settings.kt_back_in_stock_heading,
+        description: settings.kt_back_in_stock_description,
+        show_name: settings.kt_back_in_stock_show_name,
+        show_phone: settings.kt_back_in_stock_show_phone
+    -%}
+  {%- endif -%}
+
+  {%- comment -%}
     R232.20 — Dynamic checkout button moved INSIDE the buy-row above
     so it sits side-by-side with the ATC button (showroom CTA pair
     pattern). The standalone block here is removed.

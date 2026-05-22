@@ -15,6 +15,9 @@
 {{ 'kt-product-price.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
+{%- if settings.kt_back_in_stock_enabled -%}
+  {{ 'kt-back-in-stock.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- comment -%}
   R141 (final audit) — was a `media="print" onload="this.media='all'"`
@@ -775,6 +778,9 @@
 
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- if settings.kt_back_in_stock_enabled -%}
+  <script src="{{ 'kt-back-in-stock.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
 

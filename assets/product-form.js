@@ -1026,6 +1026,19 @@
         }
       }
 
+      /* Toggle the back-in-stock notification CTA. The trigger button
+         + modal are always rendered server-side (so JS-off customers
+         still see the notify form when they land on a sold-out variant);
+         visibility is JS-driven from the matched variant's available
+         flag. Hidden when the variant is buyable to keep the buy-block
+         visually focused on the primary action. */
+      try {
+        var backInStockTrigger = container.querySelector('[data-back-in-stock-trigger]');
+        if (backInStockTrigger) {
+          backInStockTrigger.hidden = matchedVariant.available;
+        }
+      } catch (e) { /* non-critical */ }
+
       /* Announce the variant change + new price to the polite SR live
          region. Visual swatch + label swap happens silently otherwise
          — blind users hear nothing after picking a swatch, and the
