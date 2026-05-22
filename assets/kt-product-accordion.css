@@ -1,12 +1,18 @@
-/* Product Accordion — birebir from source AccordionItem
-   Uses details/summary for no-JS, animated with CSS grid */
+/* Product Accordion — birebir from source AccordionItem.
+   Uses details/summary for no-JS, animated with CSS grid.
+   Colours are scheme-aware via rgba(--kt-c-fg) channels so the
+   accordion adapts to dark / cream / editorial schemes without
+   per-scheme overrides. */
 
 .kt-accordion {
-  border-top: 1px solid var(--kt-stone-200);
+  /* Soft divider — lower-alpha than a hard `--kt-stone-200` line
+     so the rule reads as a section separator rather than a hard
+     boundary that competes with the title for visual weight. */
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
 .kt-accordion:last-of-type {
-  border-bottom: 1px solid var(--kt-stone-200);
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
 /* summary: w-full flex items-center justify-between py-5 */
@@ -23,41 +29,50 @@
   display: none;
 }
 
-/* text-sm font-bold text-stone-900 uppercase tracking-widest */
+/* text-sm font-semibold uppercase tracking-widest.
+   Dropped weight 700 → 600. The 700 + uppercase + tracking
+   combination read as a hammer-hit at every row; the screenshot
+   review flagged "no visual hierarchy, all dark, harsh". 600
+   keeps the brand voice (uppercase + widely-spaced) but
+   softens the visual mass so the cluster of three rows doesn't
+   compete with each other or the rest of the PDP. */
 .kt-accordion__title {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--kt-stone-900);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--kt-c-fg), 0.95);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   transition: color 0.2s ease;
 }
 
 .kt-accordion__header:hover .kt-accordion__title {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.6);
 }
 
 .kt-accordion__header:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
 }
 
 /* Animated +/- icon using two crossing bars */
 .kt-accordion__icon {
   position: relative;
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  /* Slightly muted icon so it doesn't pull focus from the title.
+     Same opacity ramp the content body uses for cohesion. */
+  color: rgba(var(--kt-c-fg), 0.7);
 }
 
 .kt-accordion__icon-h {
   position: absolute;
   width: 100%;
   height: 1px;
-  background-color: var(--kt-stone-900);
+  background-color: currentColor;
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
@@ -65,7 +80,7 @@
   position: absolute;
   width: 1px;
   height: 100%;
-  background-color: var(--kt-stone-900);
+  background-color: currentColor;
   transition: transform 0.5s ease;
 }
 
@@ -93,6 +108,14 @@
 .kt-accordion__content {
   overflow: hidden;
   padding-bottom: 0;
+  /* Scheme-aware body colour — softer than the 95%-opacity title
+     so the eye lands on the heading first and then settles into
+     the body copy. The 0.6 ramp matches the discount label /
+     summary muted text used elsewhere in the theme so accordion
+     copy feels consistent with the global typographic system. */
+  color: rgba(var(--kt-c-fg), 0.6);
+  line-height: 1.65;
+  font-size: 0.9375rem;
 }
 
 .kt-accordion[open] .kt-accordion__content {
@@ -101,9 +124,30 @@
 
 /* Content typography */
 .kt-accordion__content p {
-  font-size: 0.875rem;
-  color: var(--kt-stone-600);
-  line-height: 1.625;
+  margin: 0 0 0.75rem;
+  color: inherit;
+  line-height: inherit;
+  font-size: inherit;
+}
+
+.kt-accordion__content p:last-child {
+  margin-bottom: 0;
+}
+
+.kt-accordion__content a {
+  color: rgba(var(--kt-c-fg), 0.85);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.kt-accordion__content a:hover {
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-accordion__content strong,
+.kt-accordion__content b {
+  color: rgba(var(--kt-c-fg), 0.85);
+  font-weight: 600;
 }
 
 .kt-accordion__content ul {
@@ -115,19 +159,27 @@
 .kt-accordion__content li {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
   font-size: 0.875rem;
-  border-bottom: 1px solid var(--kt-stone-100);
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.06);
+  padding-bottom: 0.625rem;
+  margin-bottom: 0.875rem;
+}
+
+.kt-accordion__content li:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
 }
 
 .kt-accordion__content li span:first-child {
-  color: var(--kt-stone-500);
+  color: rgba(var(--kt-c-fg), 0.55);
+  flex-shrink: 0;
 }
 
 .kt-accordion__content li span:last-child {
-  color: var(--kt-stone-900);
+  color: rgba(var(--kt-c-fg), 0.85);
   font-weight: 500;
+  text-align: right;
 }
 
 /* ============================================================
@@ -137,11 +189,11 @@
    ============================================================ */
 
 .kt-accordion--serif {
-  border-top: 1px solid var(--kt-stone-300);
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.12);
 }
 
 .kt-accordion--serif:last-of-type {
-  border-bottom: 1px solid var(--kt-stone-300);
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.12);
 }
 
 .kt-accordion--serif .kt-accordion__header {
@@ -187,13 +239,15 @@
 .kt-accordion--serif .kt-accordion__content li span:first-child {
   font-size: 0.625rem;
   font-weight: 700;
-  color: var(--kt-stone-500); /* stone-500 — AA contrast on white accordion bg */
+  color: rgba(var(--kt-c-fg), 0.55);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  text-align: left;
 }
 
 .kt-accordion--serif .kt-accordion__content li span:last-child {
   font-size: 0.875rem;
-  color: var(--kt-stone-700);
+  color: rgba(var(--kt-c-fg), 0.85);
   font-weight: 400;
+  text-align: left;
 }
