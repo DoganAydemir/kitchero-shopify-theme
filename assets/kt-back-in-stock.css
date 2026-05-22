@@ -65,6 +65,10 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
+  /* Establish a clean stacking context so backdrop + panel sit
+     above all page chrome (header sticky bars, accordion content)
+     regardless of where they appear in the DOM. */
+  isolation: isolate;
 }
 
 .kt-back-in-stock__modal[aria-hidden="false"] {
@@ -75,25 +79,49 @@
 .kt-back-in-stock__backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  /* Stronger dim so the underlying page content reads as clearly
+     out-of-focus and doesn't compete with the modal panel
+     (previous 0.55 alpha was too soft on cream / light schemes
+     and the accordion content below leaked through visually). */
+  background-color: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
+  z-index: 0;
 }
 
 .kt-back-in-stock__panel {
   position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 460px;
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
+  /* Cap panel height so long content (Notify form + disclaimer
+     + name/phone fields when enabled) doesn't push past the
+     viewport. `min(...)` floors to the smaller of two limits:
+     the available viewport minus modal padding OR a sensible
+     desktop ceiling. `dvh` (dynamic viewport height) accounts
+     for mobile browser chrome (Safari URL bar collapse) so the
+     panel doesn't get clipped when the address bar shows. */
+  max-height: min(calc(100dvh - 2rem), 720px);
   padding: 2rem;
   background: var(--kt-c-surface, #ffffff);
   color: rgb(var(--kt-c-fg));
-  border-radius: 8px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
   transform: translateY(8px);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Scroll containment — when the form is taller than the
+     panel (mobile, name/phone fields enabled, long product
+     title) the panel itself becomes the scroll container.
+     `overscroll-behavior: contain` stops scroll-chaining to
+     the underlying page so a swipe inside the modal doesn't
+     leak through to the page below even on iOS where Lenis
+     isn't blocking the touch event chain. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .kt-back-in-stock__modal[aria-hidden="false"] .kt-back-in-stock__panel {
@@ -108,19 +136,29 @@
 }
 
 .kt-back-in-stock__close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  /* Sticky to the top of the scroll container so the close
+     button stays visible when the panel's internal content
+     scrolls. Previous absolute positioning scrolled the close
+     button out of view on overflowing content. The negative
+     top + right margins pull it into the panel's padding zone
+     so it sits flush with the corner without needing extra
+     padding around the heading. */
+  position: sticky;
+  top: 0.25rem;
+  float: right;
+  margin-right: -0.5rem;
+  margin-bottom: -2.25rem;
   width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  background: transparent;
+  background: var(--kt-c-surface, #ffffff);
   color: rgba(var(--kt-c-fg), 0.7);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 999px;
+  z-index: 2;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -281,16 +319,34 @@
 }
 
 /* ── Mobile tuning ──────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 749px) {
+  /* Wider breakpoint than the prior 600px — phone-portrait
+     viewports on iPhone 14 Pro Max / Android XL are ~430px and
+     iPad mini portrait is 744px; we want the bottom-sheet
+     treatment on both so the modal doesn't float awkwardly
+     centred on narrow tablets. */
   .kt-back-in-stock__modal {
     padding: 0;
     align-items: flex-end;
+    /* `justify-content: stretch` on a flex column wouldn't work;
+       full-width is achieved by the panel taking max-width: 100%
+       at this breakpoint. */
   }
 
   .kt-back-in-stock__panel {
     max-width: 100%;
-    max-height: 90vh;
+    max-height: min(85dvh, 720px);
     border-radius: 16px 16px 0 0;
-    padding: 1.5rem 1.25rem 2rem;
+    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    /* `env(safe-area-inset-bottom)` keeps the bottom of the
+       sheet above the iPhone home indicator on notched devices. */
+  }
+
+  .kt-back-in-stock__close {
+    /* Pull close button into the rounded top corner of the
+       bottom sheet. The negative top margin doesn't bleed past
+       the radius because the panel's `overflow-y: auto` clips. */
+    margin-right: -0.25rem;
+    top: 0;
   }
 }
