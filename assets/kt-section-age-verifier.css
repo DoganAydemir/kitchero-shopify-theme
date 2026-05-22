@@ -1,0 +1,232 @@
+/* Age Verifier — full-viewport blocking modal for age-restricted
+   storefronts. Mandatory gate: NO close button, NO ESC dismiss,
+   no backdrop-click dismiss. Customer either accepts or follows
+   the decline link out of the store. */
+
+.kt-age-verifier {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  /* No transition on open — the modal must be in place before the
+     customer sees ANY storefront content. JS removes [hidden]
+     synchronously on page load so there's no flash of unverified
+     content (FOUC) where the customer briefly sees products
+     before the gate paints. */
+}
+
+.kt-age-verifier[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.kt-age-verifier__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  /* Stronger blur than the standard modal — the storefront behind
+     should be completely illegible. A reviewer who can read
+     product titles through the backdrop on Theme Store screenshots
+     flags the gate as soft. */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.kt-age-verifier__panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--kt-c-surface, #ffffff);
+  color: rgb(var(--kt-c-fg));
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.kt-age-verifier__image {
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+}
+
+.kt-age-verifier__image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  max-height: 240px;
+}
+
+.kt-age-verifier__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 2rem auto 0;
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-age-verifier__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.kt-age-verifier__content {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kt-age-verifier__heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.kt-age-verifier__description {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(var(--kt-c-fg), 0.75);
+}
+
+.kt-age-verifier__description p {
+  margin: 0;
+}
+
+.kt-age-verifier__description p + p {
+  margin-top: 0.75rem;
+}
+
+.kt-age-verifier__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.kt-age-verifier__accept {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.875rem 1.5rem;
+  border: 0;
+  border-radius: var(--kt-btn-radius, 9999px);
+  background-color: rgb(var(--kt-c-fg));
+  color: rgb(var(--kt-c-bg));
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.kt-age-verifier__accept:hover {
+  opacity: 0.9;
+}
+
+.kt-age-verifier__accept:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 3px;
+}
+
+.kt-age-verifier__decline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  color: rgba(var(--kt-c-fg), 0.7);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.kt-age-verifier__decline:hover {
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-age-verifier__decline:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.kt-age-verifier__disclaimer {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(var(--kt-c-fg), 0.55);
+}
+
+.kt-age-verifier__disclaimer a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* When the modal is open, lock the underlying page scroll. JS
+   adds `kt-age-verifier-open` to <html>; CSS handles the rest so
+   the lock survives JS errors after this point. */
+html.kt-age-verifier-open {
+  overflow: hidden;
+}
+
+html.kt-age-verifier-open body {
+  /* Prevent the visual jolt from scrollbar removal on Windows /
+     Linux. Mirror cart-drawer's scroll-lock pattern. */
+  overflow: hidden;
+  padding-right: var(--kt-scrollbar-width, 0);
+}
+
+@media (max-width: 600px) {
+  .kt-age-verifier {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .kt-age-verifier__panel {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .kt-age-verifier__image {
+    border-radius: 16px 16px 0 0;
+    max-height: 200px;
+  }
+
+  .kt-age-verifier__image img {
+    max-height: 200px;
+  }
+
+  .kt-age-verifier__content {
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  .kt-age-verifier__heading {
+    font-size: 1.25rem;
+  }
+}

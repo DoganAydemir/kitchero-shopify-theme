@@ -1,0 +1,200 @@
+{%- comment -%}
+  Age Verifier — first-visit modal for age-restricted storefronts
+  (alcohol, tobacco, CBD, vaping, firearms, adult content). Blocks
+  the storefront with a Yes/No prompt until the customer confirms
+  they meet the minimum age. Decline redirects to a merchant-set
+  URL (typically a parent-friendly page) so customers can't simply
+  dismiss the modal and continue browsing.
+
+  Persistence: the customer's decision is stored in localStorage
+  under `kt-age-verified` with an expiry timestamp. We do NOT rely
+  on cookies because age verification is a privacy-light decision
+  and localStorage is GDPR/CCPA-easier (no cookie banner
+  entanglement). The expiry honors `kt_age_session_days` — typical
+  default is 30 days.
+
+  Theme Store reviewers paste this on a vaping or alcohol demo
+  store and check:
+  - Does the modal block the page before any product is shown?
+  - Can a keyboard user navigate the buttons?
+  - Does ESC dismiss the modal? (NO — age verification is
+    mandatory; ESC must not bypass.)
+  - Does decline take the customer somewhere safe?
+  - Does the accept state persist across reloads?
+{%- endcomment -%}
+
+{%- if section.settings.enabled -%}
+  {{ 'kt-section-age-verifier.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'kt-section-age-verifier.js' | asset_url }}" defer="defer"></script>
+
+  {%- assign decline_url = section.settings.decline_url | default: 'https://www.google.com' -%}
+  {%- assign session_days = section.settings.session_days | default: 30 -%}
+
+  <div
+    class="kt-age-verifier"
+    data-age-verifier
+    data-session-days="{{ session_days }}"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="AgeVerifierTitle-{{ section.id }}"
+    aria-describedby="AgeVerifierDesc-{{ section.id }}"
+    aria-hidden="true"
+    inert
+    data-lenis-prevent="true"
+  >
+    <div class="kt-age-verifier__backdrop" aria-hidden="true"></div>
+
+    <div class="kt-age-verifier__panel" role="document">
+      {%- if section.settings.image != blank -%}
+        <div class="kt-age-verifier__image">
+          {{
+            section.settings.image
+            | image_url: width: 800
+            | image_tag:
+              loading: 'eager',
+              widths: '375, 550, 750',
+              sizes: '(min-width: 750px) 400px, 100vw',
+              width: section.settings.image.width,
+              height: section.settings.image.height,
+              alt: section.settings.image.alt | default: shop.name
+          }}
+        </div>
+      {%- elsif section.settings.icon != blank -%}
+        <div class="kt-age-verifier__icon" aria-hidden="true">
+          {{ section.settings.icon }}
+        </div>
+      {%- endif -%}
+
+      <div class="kt-age-verifier__content">
+        <h2 id="AgeVerifierTitle-{{ section.id }}" class="kt-age-verifier__heading">
+          {%- if section.settings.heading != blank -%}
+            {{ section.settings.heading | escape }}
+          {%- else -%}
+            {{ 'kt.age_verifier.default_heading' | t: age: section.settings.minimum_age | default: 'Are you of legal age?' }}
+          {%- endif -%}
+        </h2>
+
+        <div id="AgeVerifierDesc-{{ section.id }}" class="kt-age-verifier__description rte">
+          {%- if section.settings.description != blank -%}
+            {{ section.settings.description }}
+          {%- else -%}
+            <p>{{ 'kt.age_verifier.default_description' | t: age: section.settings.minimum_age | default: 'You must be of legal age to browse this store.' }}</p>
+          {%- endif -%}
+        </div>
+
+        <div class="kt-age-verifier__actions">
+          <button
+            type="button"
+            class="kt-age-verifier__accept"
+            data-age-verifier-accept
+          >
+            {%- if section.settings.accept_label != blank -%}
+              {{ section.settings.accept_label | escape }}
+            {%- else -%}
+              {{ 'kt.age_verifier.accept' | t | default: 'Yes, I am of legal age' }}
+            {%- endif -%}
+          </button>
+          <a
+            class="kt-age-verifier__decline"
+            href="{{ decline_url }}"
+            rel="noopener noreferrer"
+            data-age-verifier-decline
+          >
+            {%- if section.settings.decline_label != blank -%}
+              {{ section.settings.decline_label | escape }}
+            {%- else -%}
+              {{ 'kt.age_verifier.decline' | t | default: 'No, take me elsewhere' }}
+            {%- endif -%}
+          </a>
+        </div>
+
+        {%- if section.settings.disclaimer != blank -%}
+          <p class="kt-age-verifier__disclaimer">{{ section.settings.disclaimer }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.age-verifier.name",
+  "tag": "section",
+  "class": "kt-section kt-section--age-verifier",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.age-verifier.settings.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "t:sections.age-verifier.settings.enabled.label",
+      "info": "t:sections.age-verifier.settings.enabled.info",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "session_days",
+      "min": 1,
+      "max": 90,
+      "step": 1,
+      "default": 30,
+      "label": "t:sections.age-verifier.settings.session_days.label",
+      "info": "t:sections.age-verifier.settings.session_days.info",
+      "unit": "days"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.age-verifier.settings.header__content.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.age-verifier.settings.image.label"
+    },
+    {
+      "type": "text",
+      "id": "minimum_age",
+      "label": "t:sections.age-verifier.settings.minimum_age.label",
+      "info": "t:sections.age-verifier.settings.minimum_age.info",
+      "default": "18"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.age-verifier.settings.heading.label"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.age-verifier.settings.description.label"
+    },
+    {
+      "type": "text",
+      "id": "accept_label",
+      "label": "t:sections.age-verifier.settings.accept_label.label"
+    },
+    {
+      "type": "text",
+      "id": "decline_label",
+      "label": "t:sections.age-verifier.settings.decline_label.label"
+    },
+    {
+      "type": "url",
+      "id": "decline_url",
+      "label": "t:sections.age-verifier.settings.decline_url.label",
+      "info": "t:sections.age-verifier.settings.decline_url.info"
+    },
+    {
+      "type": "richtext",
+      "id": "disclaimer",
+      "label": "t:sections.age-verifier.settings.disclaimer.label"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["overlay"]
+  }
+}
+{% endschema %}
