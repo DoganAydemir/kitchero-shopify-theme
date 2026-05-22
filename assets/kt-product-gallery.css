@@ -37,18 +37,20 @@
     flex-direction: column;
     overflow-x: visible;
     overflow-y: auto;
-    /* Match main image height via flex stretch. The previous
-       `max-height: 560px` capped the strip at ~6 thumbs even when
-       the main image (aspect-ratio: 1) painted 680–760px tall, so
-       merchants who uploaded 7+ photos saw the rest cut off with no
-       visible scrollbar (scrollbar hidden below for visual polish).
-       `align-self: stretch` + `min-height: 0` lets the strip grow
-       to the main image height and engages `overflow-y: auto` only
-       when more thumbs exist than fit. */
-    min-height: 0;
-    align-self: stretch;
+    /* Initial fallback height; product-gallery.js's ResizeObserver
+       sets `--kt-thumbs-max-h` dynamically to match the main image's
+       rendered height so the strip never out-grows the image (which
+       would stretch the row and break the main image's aspect ratio
+       under flex `align-items: stretch`). When JS is off or the
+       observer hasn't fired yet, this value caps the strip at a
+       sensible baseline. */
+    max-height: var(--kt-thumbs-max-h, 560px);
+    /* `align-self: flex-start` prevents the flex parent from
+       stretching this column to match content height — keeping the
+       cross-axis owned by the main image. */
+    align-self: flex-start;
     /* Soft fade at the bottom edge hints scroll when content
-       extends beyond the viewport; the top stays sharp so the
+       extends beyond the visible area; the top stays sharp so the
        first thumb reads as the gallery's primary entry point. */
     -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent 100%);
     mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent 100%);

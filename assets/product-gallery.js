@@ -598,8 +598,56 @@
     }
     document.addEventListener('keydown', onKeydown);
 
+    /* Vertical thumb strip height sync — the main image is
+       `aspect-ratio: 1` with a fluid width, so its rendered height
+       depends on the column width at the current viewport. A fixed
+       CSS `max-height` either crops the strip too short (forcing the
+       customer to scroll for thumbs the main image had room for) or
+       lets the strip's natural content height push the flex row
+       taller than the main image (which then stretches under
+       `align-items: stretch` and breaks the aspect ratio).
+       Solution: observe the main image's rendered height with a
+       ResizeObserver and write it into `--kt-thumbs-max-h` on the
+       thumb container so the CSS `max-height` always matches the
+       image. Only active >=990px; below that the gallery is a
+       column layout with a horizontal thumb rail, no height match
+       needed. */
+    var thumbsEl = gallery.querySelector('[data-gallery-thumbs]');
+    var thumbResizeObserver = null;
+    var applyThumbsHeight = null;
+    if (thumbsEl && mainArea && typeof ResizeObserver !== 'undefined') {
+      applyThumbsHeight = function () {
+        if (window.innerWidth >= 990) {
+          var h = mainArea.getBoundingClientRect().height;
+          if (h > 0) {
+            thumbsEl.style.setProperty('--kt-thumbs-max-h', h + 'px');
+          }
+        } else {
+          thumbsEl.style.removeProperty('--kt-thumbs-max-h');
+        }
+      };
+      thumbResizeObserver = new ResizeObserver(applyThumbsHeight);
+      thumbResizeObserver.observe(mainArea);
+      /* Window resize covers the desktop ↔ mobile breakpoint
+         crossing (ResizeObserver fires on box changes but not on
+         media-query state changes that don't alter the observed
+         box itself). */
+      window.addEventListener('resize', applyThumbsHeight);
+      /* Run once after the next paint so the main image's intrinsic
+         dimensions are settled (image_tag width/height attrs lock
+         the aspect immediately, but full layout settles on
+         requestAnimationFrame). */
+      requestAnimationFrame(applyThumbsHeight);
+    }
+
     return function destroy() {
       document.removeEventListener('keydown', onKeydown);
+      if (thumbResizeObserver) {
+        thumbResizeObserver.disconnect();
+        if (applyThumbsHeight) {
+          window.removeEventListener('resize', applyThumbsHeight);
+        }
+      }
       /* Defensive: if the section unloads while the lightbox is
          open (editor re-render during zoom), the previous close()
          path never ran, so body.style.overflow stays 'hidden' and
