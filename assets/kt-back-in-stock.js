@@ -61,6 +61,45 @@
     var modalId = modal.id;
     if (!modalId) return;
 
+    /* Capture the product container BEFORE moving the modal to
+       <body>. After the move, modal.closest() won't reach the
+       product section anymore — the variant-change sync would
+       silently break. */
+    var productContainer = modal.closest('[data-product-info]') || modal.closest('section');
+
+    /* Portal pattern — move the modal to <body> on init so any
+       ancestor `transform`, `filter`, `perspective`, or `will-
+       change` doesn't create a containing block for our
+       `position: fixed`. The PDP product card sections animate
+       via GSAP/ScrollTrigger and set inline `transform` on
+       wrappers, which silently turns `position: fixed` into
+       `position: absolute` relative to the transformed ancestor
+       — modal anchored to the product card instead of the
+       viewport, page content visible around it.
+       Moving the modal to `<body>` puts it OUT of every
+       transformed subtree so position: fixed works as expected.
+
+       Section reload handling: when Shopify reloads a section
+       (theme editor / Section Rendering API), the OLD modal —
+       now living at body, detached from its source section —
+       stays orphaned while a NEW copy renders inside the fresh
+       section markup. We detect the duplicate by ID and remove
+       the orphan before appending the new one, so re-renders
+       don't accumulate ghost modals at body. */
+    if (modal.parentNode !== document.body) {
+      /* getElementById would return the first match (likely the
+         in-section new modal, which IS the one we have a ref to).
+         querySelectorAll lets us iterate every element with this
+         ID and remove any orphan body-child with the same ID. */
+      var dupes = document.querySelectorAll('[id="' + CSS.escape(modalId) + '"]');
+      Array.prototype.forEach.call(dupes, function (d) {
+        if (d !== modal && d.parentNode === document.body) {
+          d.parentNode.removeChild(d);
+        }
+      });
+      document.body.appendChild(modal);
+    }
+
     var triggers = document.querySelectorAll('[data-modal-target="' + modalId + '"]');
     var closeEls = modal.querySelectorAll('[data-back-in-stock-close]');
     var panel = modal.querySelector('.kt-back-in-stock__panel');
@@ -185,12 +224,9 @@
     document.addEventListener('keydown', onKeydown);
 
     /* Sync hidden message field with the active variant. The PDP's
-       option radios live OUTSIDE the modal (in the variant picker
-       above the form), so we listen on the broader product
-       container. Re-finds the picker on each event so a section
-       re-render (Shopify editor / Section Rendering API after ATC)
-       doesn't leave us with a stale reference. */
-    var productContainer = modal.closest('[data-product-info]') || modal.closest('section');
+       option radios live in the product section (now physically
+       far from the modal after the portal move above), so we
+       listen on the captured productContainer reference. */
     if (productContainer) {
       productContainer.addEventListener('change', function (e) {
         if (!e.target || !e.target.matches('input[data-option-value]')) return;
