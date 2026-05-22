@@ -1,0 +1,78 @@
+/* Description truncate + Read more / Read less toggle.
+   Used on main-product PDP and main-product-showroom description
+   blocks. Server-rendered preview + hidden full body + JS swap
+   means the collapsed state ships without FOUC and JS-off users
+   still see the preview text plus a non-functional toggle button
+   (the button is `type="button"`, not a link, so it does nothing
+   without JS — acceptable degradation). */
+
+.kt-desc-truncate {
+  display: block;
+}
+
+.kt-desc-truncate__short,
+.kt-desc-truncate__full {
+  display: block;
+}
+
+.kt-desc-truncate__full[hidden] {
+  display: none;
+}
+
+.kt-desc-truncate__short[hidden] {
+  display: none;
+}
+
+.kt-desc-truncate__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--kt-c-fg));
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  /* Subtle arrow that rotates 180° on expanded state. Uses a
+     `::after` pseudo so we don't have to ship an SVG in JS when
+     toggling button content. */
+  position: relative;
+}
+
+.kt-desc-truncate__toggle::after {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: 0.25rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  transform-origin: 70% 70%;
+}
+
+.kt-desc-truncate__toggle[aria-expanded="true"]::after {
+  transform: rotate(-135deg);
+}
+
+.kt-desc-truncate__toggle:hover {
+  opacity: 0.8;
+}
+
+.kt-desc-truncate__toggle:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-desc-truncate__toggle::after {
+    transition: none;
+  }
+}

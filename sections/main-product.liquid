@@ -15,6 +15,7 @@
 {{ 'kt-product-price.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
+{{ 'kt-desc-truncate.css' | asset_url | stylesheet_tag }}
 {%- if settings.kt_back_in_stock_enabled -%}
   {{ 'kt-back-in-stock.css' | asset_url | stylesheet_tag }}
 {%- endif -%}
@@ -302,10 +303,41 @@
                       raises a Liquid error or silently returns the
                       whole description. Pre-assign a safe local
                       so `default` lands on the variable.
+
+                      Read-more / Read-less toggle: only renders the
+                      toggle button when the actual word count
+                      exceeds the limit (so a 30-word description
+                      with a 40-word limit doesn't show a useless
+                      "Read more" that points at the same content).
+                      Full description ships in a sibling node with
+                      `hidden`; vanilla JS in kt-desc-truncate.js
+                      swaps which one is visible.
                     {%- endcomment -%}
                     {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
-                    <div class="kt-pdp__short-desc" {{ block.shopify_attributes }}>
-                      {{ product.description | strip_html | truncatewords: word_limit_safe }}
+                    {%- assign desc_stripped = product.description | strip_html -%}
+                    {%- assign desc_word_count = desc_stripped | split: ' ' | size -%}
+                    {%- assign needs_toggle = false -%}
+                    {%- if desc_word_count > word_limit_safe -%}
+                      {%- assign needs_toggle = true -%}
+                    {%- endif -%}
+                    <div class="kt-pdp__short-desc kt-desc-truncate" data-desc-truncate {{ block.shopify_attributes }}>
+                      <div class="kt-desc-truncate__short" data-desc-short>
+                        {{ desc_stripped | truncatewords: word_limit_safe }}
+                      </div>
+                      {%- if needs_toggle -%}
+                        <div class="kt-desc-truncate__full rte" data-desc-full hidden>
+                          {{ product.description }}
+                        </div>
+                        <button
+                          type="button"
+                          class="kt-desc-truncate__toggle"
+                          data-desc-toggle
+                          aria-expanded="false"
+                        >
+                          <span data-desc-toggle-more>{{ 'kt.product.read_more' | t | default: 'Read more' }}</span>
+                          <span data-desc-toggle-less hidden>{{ 'kt.product.read_less' | t | default: 'Read less' }}</span>
+                        </button>
+                      {%- endif -%}
                     </div>
                   {%- else -%}
                     <div class="kt-pdp__short-desc rte" {{ block.shopify_attributes }}>
@@ -778,6 +810,7 @@
 
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-desc-truncate.js' | asset_url }}" defer="defer"></script>
 {%- if settings.kt_back_in_stock_enabled -%}
   <script src="{{ 'kt-back-in-stock.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
