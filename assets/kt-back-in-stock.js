@@ -66,15 +66,54 @@
     var panel = modal.querySelector('.kt-back-in-stock__panel');
     var lastTrigger = null;
 
+    /* Saved scroll Y at lock time — restored on unlock so the
+       customer returns to the same scroll position. Without
+       this the iOS-safe lock pattern below jumps the page to
+       the top when the modal closes. */
+    var savedScrollY = 0;
+
+    function lockScroll() {
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.lock('back-in-stock-' + modalId);
+        return;
+      }
+      /* iOS-safe body scroll lock. `overflow: hidden` on body
+         is insufficient on iOS Safari — the browser still
+         allows touch-scroll of the body via WebKit's elastic
+         scroll. The `position: fixed` + negative top trick
+         actually freezes the body, while leaving inner
+         scrollable containers (the modal panel) free to
+         scroll internally. */
+      savedScrollY = window.scrollY || window.pageYOffset || 0;
+      var body = document.body;
+      body.style.position = 'fixed';
+      body.style.top = '-' + savedScrollY + 'px';
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+    }
+
+    function unlockScroll() {
+      if (window.Kitchero && Kitchero.scrollLock) {
+        Kitchero.scrollLock.unlock('back-in-stock-' + modalId);
+        return;
+      }
+      var body = document.body;
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      /* Restore the scroll position the customer was at before
+         opening the modal. Without this they snap to top. */
+      window.scrollTo(0, savedScrollY);
+    }
+
     function open(triggerEl) {
       lastTrigger = triggerEl || document.activeElement;
       modal.removeAttribute('inert');
       modal.setAttribute('aria-hidden', 'false');
-      if (window.Kitchero && Kitchero.scrollLock) {
-        Kitchero.scrollLock.lock('back-in-stock-' + modalId);
-      } else {
-        document.body.style.overflow = 'hidden';
-      }
+      lockScroll();
       /* Defer focus until the CSS opacity transition has begun so
          screen readers don't announce the panel before it's visually
          in place. */
@@ -97,11 +136,7 @@
       if (modal.getAttribute('aria-hidden') === 'true') return;
       modal.setAttribute('aria-hidden', 'true');
       modal.setAttribute('inert', '');
-      if (window.Kitchero && Kitchero.scrollLock) {
-        Kitchero.scrollLock.unlock('back-in-stock-' + modalId);
-      } else {
-        document.body.style.overflow = '';
-      }
+      unlockScroll();
       if (lastTrigger && typeof lastTrigger.focus === 'function') {
         lastTrigger.focus();
       }

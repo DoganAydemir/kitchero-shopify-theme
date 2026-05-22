@@ -55,8 +55,19 @@
    drawer's recommendations slot can still pop the back-in-stock
    form without the drawer overlapping. */
 .kt-back-in-stock__modal {
-  position: fixed;
-  inset: 0;
+  /* `!important` on position + inset ensures the modal always
+     anchors to the viewport even when an ancestor (parent
+     section, theme wrapper) tries to clip via overflow or
+     `position: relative`. Without it, a stale CSS cache or a
+     conflicting parent rule pinned the modal to its DOM
+     ancestor instead of the viewport, leaving the page content
+     visible around the panel. */
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   z-index: 1100;
   display: flex;
   align-items: center;
