@@ -640,6 +640,7 @@ html.no-js .kt-cart-drawer {
 .kt-cart-drawer__item-discounts li {
   margin: 0;
   padding: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Cart-level discount applications in the footer (e.g. WELCOME10
@@ -655,6 +656,7 @@ html.no-js .kt-cart-drawer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   color: var(--kt-emerald-700);
@@ -665,10 +667,15 @@ html.no-js .kt-cart-drawer {
 
 .kt-cart-drawer__discount-label {
   font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .kt-cart-drawer__discount-amount {
   font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Discount-code entry form — drawer parity with /cart page. Mirrors
@@ -753,6 +760,8 @@ html.no-js .kt-cart-drawer {
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .kt-cart-drawer__discount-remove {
