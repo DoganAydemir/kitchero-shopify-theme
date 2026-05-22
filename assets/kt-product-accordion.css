@@ -108,13 +108,16 @@
 .kt-accordion__content {
   overflow: hidden;
   padding-bottom: 0;
-  /* Scheme-aware body colour — softer than the 95%-opacity title
-     so the eye lands on the heading first and then settles into
-     the body copy. The 0.6 ramp matches the discount label /
-     summary muted text used elsewhere in the theme so accordion
-     copy feels consistent with the global typographic system. */
-  color: rgba(var(--kt-c-fg), 0.6);
-  line-height: 1.65;
+  /* Apply muted typography to the container itself so non-<p>
+     children (div, span, raw text in richtext) inherit cleanly,
+     AND duplicate on the <p> rule below so DevTools clearly
+     shows the active color on each paragraph without strikethrough
+     confusion. The previous `color: inherit` pattern made DevTools
+     display the parent rule with strikethrough, which read as
+     "not applied" even though it was (inherit). Direct values
+     read unambiguously in both the cascade and the visual. */
+  color: rgba(var(--kt-c-fg), 0.55);
+  line-height: 1.7;
   font-size: 0.9375rem;
 }
 
@@ -125,9 +128,10 @@
 /* Content typography */
 .kt-accordion__content p {
   margin: 0 0 0.75rem;
-  color: inherit;
-  line-height: inherit;
-  font-size: inherit;
+  color: rgba(var(--kt-c-fg), 0.55);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+  font-weight: 400;
 }
 
 .kt-accordion__content p:last-child {
