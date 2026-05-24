@@ -27,6 +27,43 @@
     var lightboxPrev = gallery.querySelector('[data-lightbox-prev]');
     var lightboxNext = gallery.querySelector('[data-lightbox-next]');
 
+    /* Portal the lightbox to <body> — same reason as the back-in-
+       stock modal (commit 8a19ef7): the PDP wraps product cards in
+       Lenis/GSAP-animated containers that set inline `transform`
+       on themselves, and CSS spec turns `position: fixed` into
+       `position: absolute` against the nearest transformed ancestor.
+       Without this move, the lightbox would anchor to the gallery's
+       transformed wrapper instead of the viewport, painting at a
+       weird position with the page content visible around it.
+
+       Section reload cleanup: when Shopify re-renders the gallery's
+       owning section (theme editor / Section Rendering API), the
+       old portaled lightbox would stay orphaned at body while a
+       new copy renders inside the fresh section markup. We tag
+       each lightbox with the section id it belongs to and purge
+       any prior orphan that carries the same tag before appending
+       the new one.
+
+       The JS references captured above stay valid after the DOM
+       move — variable bindings persist across reparenting.
+       Idempotent: skips the append when the lightbox is already
+       a body child. */
+    if (lightbox) {
+      var sectionEl = container.closest('.shopify-section') || container;
+      var sectionId = (sectionEl && sectionEl.id) || 'gallery';
+      var ownerTag = 'data-lightbox-owner';
+      if (lightbox.parentNode !== document.body) {
+        var existing = document.body.querySelectorAll('[' + ownerTag + '="' + CSS.escape(sectionId) + '"]');
+        Array.prototype.forEach.call(existing, function (el) {
+          if (el !== lightbox && el.parentNode === document.body) {
+            el.parentNode.removeChild(el);
+          }
+        });
+        lightbox.setAttribute(ownerTag, sectionId);
+        document.body.appendChild(lightbox);
+      }
+    }
+
     var currentIndex = 0;
     var totalSlides = slides.length;
     var imageUrls = [];
