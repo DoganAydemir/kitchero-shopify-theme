@@ -164,11 +164,35 @@ if (window.__kitcheroCollectionFiltersLoaded) {
         var parser = new DOMParser();
         var doc = parser.parseFromString(html, 'text/html');
 
-        /* Replace product grid */
+        /* Replace product grid OR empty state. The Liquid template
+           renders `#product-grid` when results > 0, OR
+           `.kt-collection__empty` when filters/sort produce zero
+           matches. Previously this code only swapped #product-grid
+           and silently dropped the empty-state node when results
+           collapsed — customer saw a stale grid disappear with no
+           "no results" CTA. Same broken state in reverse when
+           clearing filters from an empty state back to results.
+           Solution: handle the four corner cases explicitly. */
         var newGrid = doc.getElementById('product-grid');
         var oldGrid = document.getElementById('product-grid');
+        var newEmpty = doc.querySelector('.kt-collection__empty');
+        var oldEmpty = document.querySelector('.kt-collection__empty');
         if (newGrid && oldGrid) {
+          /* Both have grid — straight inner-HTML swap. */
           oldGrid.innerHTML = newGrid.innerHTML;
+        } else if (newEmpty && oldGrid) {
+          /* Results collapsed to zero — replace the grid node with
+             the empty state in-place. */
+          oldGrid.replaceWith(newEmpty.cloneNode(true));
+        } else if (newGrid && oldEmpty) {
+          /* User cleared filters from empty state — replace the
+             empty-state node with a fresh grid. */
+          oldEmpty.replaceWith(newGrid.cloneNode(true));
+        } else if (newEmpty && oldEmpty) {
+          /* Both empty — refresh the empty-state copy (clear-
+             filters CTA visibility depends on active_filters_count
+             which differs between requests). */
+          oldEmpty.outerHTML = newEmpty.outerHTML;
         }
 
         /* Replace active filters */
@@ -351,9 +375,24 @@ if (window.__kitcheroCollectionFiltersLoaded) {
       .then(function (r) { if (!r.ok) throw new Error('popstate fetch failed'); return r.text(); })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
+        /* Mirror applyFilters() — handle both grid + empty state
+           corner cases so back/forward navigation across an
+           empty-results URL doesn't leave the page in a stale
+           state. See applyFilters() for the full 4-branch
+           rationale. */
         var newGrid = doc.getElementById('product-grid');
         var oldGrid = document.getElementById('product-grid');
-        if (newGrid && oldGrid) oldGrid.innerHTML = newGrid.innerHTML;
+        var newEmpty = doc.querySelector('.kt-collection__empty');
+        var oldEmpty = document.querySelector('.kt-collection__empty');
+        if (newGrid && oldGrid) {
+          oldGrid.innerHTML = newGrid.innerHTML;
+        } else if (newEmpty && oldGrid) {
+          oldGrid.replaceWith(newEmpty.cloneNode(true));
+        } else if (newGrid && oldEmpty) {
+          oldEmpty.replaceWith(newGrid.cloneNode(true));
+        } else if (newEmpty && oldEmpty) {
+          oldEmpty.outerHTML = newEmpty.outerHTML;
+        }
         var newPagination = doc.querySelector('.kt-collection__pagination');
         var oldPagination = document.querySelector('.kt-collection__pagination');
         if (newPagination && oldPagination) oldPagination.innerHTML = newPagination.innerHTML;

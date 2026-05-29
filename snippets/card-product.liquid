@@ -84,7 +84,12 @@
   {%- if show_secondary_image and secondary_image -%}
     {%- assign hover_has_secondary = true -%}
   {%- endif -%}
-  <a href="{{ product.url }}" class="kt-card-product__image-link{% unless hover_has_secondary %} kt-card-product__image-link--zoom-only{% endunless %}{% unless product.available %} kt-card-product__image-link--soldout{% endunless %}" aria-label="{{ product.title | escape }}">
+  {%- comment -%}
+    Gift cards never get the sold-out visual treatment (greyscale,
+    overlay) since they're inventory-less. `product.gift_card?`
+    guard mirrors the badge gate above.
+  {%- endcomment -%}
+  <a href="{{ product.url }}" class="kt-card-product__image-link{% unless hover_has_secondary %} kt-card-product__image-link--zoom-only{% endunless %}{% unless product.available or product.gift_card? %} kt-card-product__image-link--soldout{% endunless %}" aria-label="{{ product.title | escape }}">
     {%- comment -%} Gradient overlay {%- endcomment -%}
     <div class="kt-card-product__gradient" aria-hidden="true"></div>
 
@@ -206,7 +211,16 @@
     {%- if product.price == 0 -%}
       {%- assign card_is_free = true -%}
     {%- endif -%}
-    {%- if product.available == false -%}
+    {%- comment -%}
+      Gift cards never sell out (inventory-less product type). Theme
+      Store reviewers paste a gift card product into a collection and
+      flag a "Sold out" badge as broken merchandising — gift cards
+      are always available even with zero inventory tracking. The
+      `product.gift_card?` predicate covers both legacy gift-card
+      products (template suffix) and Shopify's native gift card
+      products.
+    {%- endcomment -%}
+    {%- if product.available == false and product.gift_card? == false -%}
       <span class="kt-card-product__badge kt-card-product__badge--soldout kt-card-product__badge--corner-bl">
         {{ 'kt.product.sold_out' | t | default: 'Sold out' }}
       </span>

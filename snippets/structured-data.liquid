@@ -379,7 +379,7 @@
                   {%- else -%}
                     "price": {{ product.price | divided_by: 100.0 | round: 2 | json }},
                   {%- endif -%}
-                  "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+                  "availability": "{% if product.available or product.gift_card? %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
                   "url": {{ request.origin | append: product.url | json }}
                 }
               }

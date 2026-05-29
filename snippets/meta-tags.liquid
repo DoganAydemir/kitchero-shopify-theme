@@ -303,8 +303,8 @@
     required FB catalog field; default to "new" — merchants selling
     refurbished/used can override via a future metafield.
   {%- endcomment -%}
-  <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
-  <meta property="og:availability" content="{% if product.available %}instock{% else %}oos{% endif %}">
+  <meta property="product:availability" content="{% if product.available or product.gift_card? %}in stock{% else %}out of stock{% endif %}">
+  <meta property="og:availability" content="{% if product.available or product.gift_card? %}instock{% else %}oos{% endif %}">
   <meta property="product:condition" content="new">
   {%- if product.vendor != blank -%}
     <meta property="product:brand" content="{{ product.vendor | escape }}">

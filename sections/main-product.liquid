@@ -145,10 +145,22 @@
                   {%- if meta_has_rating -%}
                     {{ meta_rating_html }}
                   {%- endif -%}
-                  {%- if meta_has_rating and block.settings.show_stock -%}
+                  {%- comment -%}
+                    Gift cards never display stock pills — they're
+                    inventory-less by definition. Theme Store reviewers
+                    flag "Sold out" or "In Stock" status on gift card
+                    PDPs as broken merchandising; the gate hides every
+                    stock-status surface for gift cards even when the
+                    merchant has the show_stock block setting on.
+                  {%- endcomment -%}
+                  {%- assign show_stock_block = block.settings.show_stock -%}
+                  {%- if product.gift_card? -%}
+                    {%- assign show_stock_block = false -%}
+                  {%- endif -%}
+                  {%- if meta_has_rating and show_stock_block -%}
                     <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
                   {%- endif -%}
-                  {%- if block.settings.show_stock -%}
+                  {%- if show_stock_block -%}
                     {%- comment -%}
                       R122 — three-state stock indicator with low-stock
                       "Only N left" messaging when:
