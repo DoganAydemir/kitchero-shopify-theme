@@ -20,8 +20,21 @@ if (!window.__kitcheroCountdownLoaded) {
       return String(n).padStart(2, '0');
     }
 
+    /* Normalise Shopify's `%z` UTC offset output (e.g. `+0100`) to
+       the ISO-8601 strict form (`+01:00`) so older WebKit parsers
+       (Safari < 13.4 / iOS < 13.4 — still ~3-5% of mobile traffic)
+       accept the timestamp. Without this the countdown silently
+       hides on those browsers via the isNaN guard below — merchant
+       configured a real deal, customer sees nothing. RegExp matches
+       `±HHMM` at end-of-string and inserts the colon. Leaves
+       already-colon-formatted offsets untouched. */
+    function normaliseIsoOffset(str) {
+      if (typeof str !== 'string') return str;
+      return str.replace(/([+-])(\d{2})(\d{2})$/, '$1$2:$3');
+    }
+
     function initCountdown(el) {
-      var endsAt = new Date(el.dataset.endsAt);
+      var endsAt = new Date(normaliseIsoOffset(el.dataset.endsAt));
       if (isNaN(endsAt.getTime())) {
         el.style.display = 'none';
         return null;

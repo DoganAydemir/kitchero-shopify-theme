@@ -52,7 +52,23 @@
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
       {%- if brand_logo != blank -%}
-        ,"logo": {{ brand_logo | image_url: width: 512 | prepend: 'https:' | json }}
+        {%- comment -%}
+          Google's Knowledge Panel + Organization Rich Result spec
+          requires `logo` as ImageObject with explicit width/height,
+          NOT a plain URL string. Previous emission ("logo": "https
+          ://...") passed the Liquid stage but the Rich Results Test
+          flagged it as invalid schema. We pin width to 512 (matches
+          the asked-for asset width above) and resolve the actual
+          height from the source so the ratio stays accurate
+          rather than guessing 1:1.
+        {%- endcomment -%}
+        {%- assign brand_logo_h = 512 | times: brand_logo.height | divided_by: brand_logo.width -%}
+        ,"logo": {
+          "@type": "ImageObject",
+          "url": {{ brand_logo | image_url: width: 512 | prepend: 'https:' | json }},
+          "width": 512,
+          "height": {{ brand_logo_h | json }}
+        }
       {%- endif -%}
       {%- if social_urls.size > 0 -%}
         ,"sameAs": [

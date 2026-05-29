@@ -432,11 +432,35 @@
     native block per the same-@id graph spec.
   {%- endcomment -%}
   {%- assign article_publisher_logo = settings.kt_logo | default: shop.brand.logo -%}
+  {%- comment -%}
+    Build the description for the Article rich result. Google
+    flags missing description as a REJECT-grade validator error.
+    Resolution chain: merchant-set `article.excerpt` (richtext)
+    → first 160 chars of `article.content` stripped → article
+    title as last-resort. `strip_html` removes tags so the
+    description is plain text. `truncate: 200, '…'` keeps the
+    SERP snippet under Google's 160-character display cap with
+    buffer for word boundaries.
+  {%- endcomment -%}
+  {%- assign article_description = article.excerpt | default: article.content | strip_html | strip | truncate: 200, '…' -%}
+  {%- comment -%}
+    Logo dimensions — Google's Article publisher.logo schema
+    requires width + height numerics on the ImageObject. Pin
+    width to 600 (matches the image_url filter above) and
+    derive height from the asset's intrinsic aspect ratio so
+    the ratio is accurate per scheme.
+  {%- endcomment -%}
+  {%- if article_publisher_logo != blank -%}
+    {%- assign article_publisher_logo_h = 600 | times: article_publisher_logo.height | divided_by: article_publisher_logo.width -%}
+  {%- endif -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Article",
       "@id": {{ canonical_url | json }},
+      {%- if article_description != blank -%}
+        "description": {{ article_description | json }},
+      {%- endif -%}
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": {{ canonical_url | json }}
@@ -447,7 +471,9 @@
         {%- if article_publisher_logo != blank -%}
         ,"logo": {
           "@type": "ImageObject",
-          "url": {{ article_publisher_logo | image_url: width: 600 | prepend: 'https:' | json }}
+          "url": {{ article_publisher_logo | image_url: width: 600 | prepend: 'https:' | json }},
+          "width": 600,
+          "height": {{ article_publisher_logo_h | json }}
         }
         {%- endif -%}
       }
