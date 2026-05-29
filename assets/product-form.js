@@ -1291,6 +1291,38 @@
       if (discountEl) discountEl.style.display = 'none';
     }
 
+    /* Volume pricing (B2B / wholesale) — rebuild the
+       quantity_price_breaks list when the customer flips a
+       variant. Previously the list was server-rendered for the
+       initial variant only; flipping bulk SKUs left the table
+       frozen on the first variant's tiers, mis-pricing the
+       buy decision. The wrapper ships in the DOM at all times
+       (hidden when empty) so we can always find the target.
+       `quantity_price_breaks_configured?` isn't on the variant
+       JSON blob; we infer it from a non-empty `quantity_price_breaks`
+       array directly. */
+    var volumeEl = container.querySelector('[data-volume-pricing]');
+    if (volumeEl) {
+      var breaks = variant && variant.quantity_price_breaks;
+      if (breaks && breaks.length) {
+        var template = (window.Kitchero && Kitchero.variantStrings && Kitchero.variantStrings.volumeQtyHtml) || '[qty]+';
+        var html = '';
+        for (var bi = 0; bi < breaks.length; bi++) {
+          var brk = breaks[bi];
+          var qtyLabel = template.replace('[qty]', String(brk.minimum_quantity));
+          html += '<li class="kt-product-price__break">' +
+            '<span class="kt-product-price__break-qty">' + qtyLabel + '</span>' +
+            '<span class="kt-product-price__break-price">' + formatMoney(brk.price) + '</span>' +
+          '</li>';
+        }
+        volumeEl.innerHTML = html;
+        volumeEl.hidden = false;
+      } else {
+        volumeEl.innerHTML = '';
+        volumeEl.hidden = true;
+      }
+    }
+
     /* Unit price (groceries / wellness / cosmetics with reference unit
        like "$2.50/100ml"). Theme Store testing checklist explicitly
        requires "Unit prices change dynamically on variant selection".

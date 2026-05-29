@@ -755,6 +755,14 @@
             replaces with the matched variant's inventory_quantity.
           {%- endcomment -%}
           lowStockHtml:   {{ 'kt.product.low_stock_html' | t: count: '[count]' | json }},
+          {%- comment -%}
+            Volume pricing tier label template. `[qty]` placeholder
+            is replaced by product-form.js when rebuilding the
+            quantity-price-break <li> rows on variant change.
+            Without this template the JS would have to hardcode
+            "X+ items" in English and break for FR/DE/TR/ES.
+          {%- endcomment -%}
+          volumeQtyHtml:  {{ 'kt.product.volume_qty_html' | t: qty: '[qty]' | json }},
         },
         {%- comment -%}
           R298 — Theme-settings-driven low-stock threshold so

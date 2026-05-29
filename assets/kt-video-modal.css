@@ -7,7 +7,13 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  /* Above lightbox tier (5000) — when a customer opens the
+     product gallery lightbox then taps a video tile in an
+     adjacent section, the modal must layer ON TOP of the
+     lightbox, not behind it. Previously z-index: 1200 sat
+     between drawer (1100) and lightbox (5000), so the
+     lightbox covered the video. */
+  z-index: 5500;
 }
 
 .kt-video-modal[aria-hidden="false"] {

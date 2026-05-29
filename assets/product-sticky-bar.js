@@ -140,15 +140,50 @@
     }
     if (cta) cta.addEventListener('click', ctaHandler);
 
-    /* Variant change: refresh price + sold-out label. product-form.js
-       dispatches `variant:change` on the form container with
-       detail.variant. Listen on the document so we don't have to
-       re-bind if the form re-renders (Section Rendering API path). */
-    function variantChangeHandler(event) {
-      var variant = event && event.detail ? event.detail.variant : null;
-      if (!variant) return;
+    /* Sticky bar state: cache the latest variant + active selling
+       plan so either event (variant:change OR selling-plan:change)
+       can re-render the price atomically with both inputs. Without
+       this the bar would forget the active plan when a customer
+       flips variants, and forget the active variant when they
+       flip plans — either case painting a stale price.
+       Initial values are read from the form's current state via
+       the data-variant blob + the selling_plan radio at init. */
+    var latestVariant = null;
+    var latestPlanId = null;
+
+    /* Resolve the price + compare-at pair for the current
+       (variant, planId) combination. Mirrors the canonical
+       resolution in product-form.js renderPriceForVariant —
+       a subscription's price comes from the matching allocation
+       and the compare-at is the larger of the one-time price
+       and any sale compare-at so savings never understate. */
+    function resolveStickyPrice(variant, planId) {
+      var displayPrice = variant.price;
+      var comparePrice = variant.compare_at_price || 0;
+      if (planId && variant.selling_plan_allocations && variant.selling_plan_allocations.length) {
+        for (var i = 0; i < variant.selling_plan_allocations.length; i++) {
+          var alloc = variant.selling_plan_allocations[i];
+          if (String(alloc.selling_plan_id) === String(planId)) {
+            displayPrice = alloc.price;
+            /* One-time price acts as the "was" so the customer
+               sees the subscription savings. Keep the merchant
+               compare-at if higher (sale + sub stacked). */
+            var subCompare = variant.price;
+            if (subCompare > displayPrice) {
+              comparePrice = Math.max(comparePrice, subCompare);
+            }
+            break;
+          }
+        }
+      }
+      return { displayPrice: displayPrice, comparePrice: comparePrice };
+    }
+
+    function renderStickyPrice() {
+      if (!latestVariant) return;
       var priceEl = bar.querySelector('[data-pdp-sticky-price]');
       var ctaLabel = bar.querySelector('.kt-pdp-sticky__cta-label');
+      var prices = resolveStickyPrice(latestVariant, latestPlanId);
 
       if (priceEl) {
         /* Build with DOM nodes (not innerHTML string concat) so the
@@ -156,15 +191,15 @@
            symbols — never need HTML escaping and never accept HTML
            injection. */
         priceEl.textContent = '';
-        if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+        if (prices.comparePrice && prices.comparePrice > prices.displayPrice) {
           var was = document.createElement('s');
           was.className = 'kt-pdp-sticky__price-was';
-          was.textContent = formatMoney(variant.compare_at_price);
+          was.textContent = formatMoney(prices.comparePrice);
           priceEl.appendChild(was);
         }
         var now = document.createElement('span');
         now.className = 'kt-pdp-sticky__price-now';
-        now.textContent = formatMoney(variant.price);
+        now.textContent = formatMoney(prices.displayPrice);
         priceEl.appendChild(now);
       }
 
@@ -175,10 +210,33 @@
         var addString =
           (window.Kitchero && window.Kitchero.variantStrings && window.Kitchero.variantStrings.addToCart) ||
           'Add to cart';
-        ctaLabel.textContent = variant.available ? addString : soldOutString;
+        ctaLabel.textContent = latestVariant.available ? addString : soldOutString;
       }
     }
+
+    /* Variant change: refresh price + sold-out label. product-form.js
+       dispatches `variant:change` on the form container with
+       detail.variant. Listen on the document so we don't have to
+       re-bind if the form re-renders (Section Rendering API path). */
+    function variantChangeHandler(event) {
+      var variant = event && event.detail ? event.detail.variant : null;
+      if (!variant) return;
+      latestVariant = variant;
+      renderStickyPrice();
+    }
     document.addEventListener('variant:change', variantChangeHandler);
+
+    /* Selling-plan change: subscription pickers dispatch this on
+       plan radio change. Bar re-renders against the cached
+       variant + new plan id so price reflects the allocation
+       (e.g., 15% subscribe-and-save) the moment the customer
+       picks it. Theme Store "selection updates atomically" rule. */
+    function sellingPlanChangeHandler(event) {
+      var planId = event && event.detail ? event.detail.planId : null;
+      latestPlanId = planId || null;
+      renderStickyPrice();
+    }
+    document.addEventListener('selling-plan:change', sellingPlanChangeHandler);
 
     /* Cleanup function returned to the registry so unload events can
        restore the page to a no-bar state without leaks. */
@@ -186,6 +244,7 @@
       observer.disconnect();
       if (cta) cta.removeEventListener('click', ctaHandler);
       document.removeEventListener('variant:change', variantChangeHandler);
+      document.removeEventListener('selling-plan:change', sellingPlanChangeHandler);
     });
   }
 

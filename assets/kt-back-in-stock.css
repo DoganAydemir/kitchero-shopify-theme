@@ -68,7 +68,12 @@
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  z-index: 1100;
+  /* Popover tier (1500) — sits ABOVE the drawer tier (1100) so
+     a customer opening the cart drawer, seeing a sold-out item
+     in the recommendations slot, and clicking "Notify me" gets
+     the modal layering over the drawer instead of fighting for
+     the same 1100 layer (where DOM order arbitrarily wins). */
+  z-index: 1500;
   display: flex;
   align-items: center;
   justify-content: center;
