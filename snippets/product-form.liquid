@@ -253,7 +253,20 @@
 
     {%- comment -%} Dynamic Checkout Button (Buy Now / Shop Pay etc.) — sibling of ATC for the side-by-side layout {%- endcomment -%}
     {%- if show_dynamic_checkout -%}
-      <div class="kt-product-form__dynamic-checkout{% if settings.kt_buy_now_show_icon %} kt-product-form__dynamic-checkout--with-icon{% endif %}">
+      {%- comment -%}
+        `data-payment-button-wrapper` is the JS hook that
+        product-form.js uses to disable Shop Pay / Apple Pay /
+        Google Pay / Buy It Now in lockstep with the ATC button
+        when the customer selects a sold-out variant. Shopify's
+        custom checkout elements live in shadow DOM and don't
+        expose `.disabled` directly, so we use pointer-events +
+        opacity + aria-disabled at the wrapper level.
+      {%- endcomment -%}
+      <div
+        class="kt-product-form__dynamic-checkout{% if settings.kt_buy_now_show_icon %} kt-product-form__dynamic-checkout--with-icon{% endif %}"
+        data-payment-button-wrapper
+        {% unless current_variant.available %}aria-disabled="true" style="pointer-events: none; opacity: 0.5;"{% endunless %}
+      >
         {{ form | payment_button }}
       </div>
     {%- endif -%}

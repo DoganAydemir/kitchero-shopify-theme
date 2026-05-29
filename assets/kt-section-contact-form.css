@@ -279,7 +279,12 @@
   font-size: 1rem;
   font-weight: 500;
   color: rgb(var(--kt-c-fg, 28 25 23));
-  transition: border-color 0.2s ease, border-bottom-width 0.2s ease, padding-bottom 0.2s ease;
+  /* CLS-safe focus transition: previously animated `border-bottom-
+     width` (1px → 2px) + `padding-bottom` (compensation) which
+     trigger layout on every focus and reflow neighbouring fields.
+     Switched to `box-shadow` (0 1px → 0 2px) which paints on the
+     composite layer with no layout cost. */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
 }
 
@@ -314,7 +319,12 @@
   color: rgb(var(--kt-c-fg, 28 25 23));
   resize: vertical;
   min-height: 100px;
-  transition: border-color 0.2s ease, border-bottom-width 0.2s ease, padding-bottom 0.2s ease;
+  /* CLS-safe focus transition: previously animated `border-bottom-
+     width` (1px → 2px) + `padding-bottom` (compensation) which
+     trigger layout on every focus and reflow neighbouring fields.
+     Switched to `box-shadow` (0 1px → 0 2px) which paints on the
+     composite layer with no layout cost. */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
   margin-bottom: 2rem;
 }

@@ -54,7 +54,15 @@
       <div class="kt-ecosystem__text-col">
         <div class="kt-ecosystem__title-block">
           {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-          <{{ heading_tag }} id="EcosystemTitle-{{ section.id }}" class="kt-ecosystem__title">{{ section.settings.heading }}</{{ heading_tag }}>
+          {%- comment -%}
+            Guard the heading render so a merchant who clears the
+            heading setting in the editor doesn't ship an empty
+            `<h2></h2>` to the storefront. axe-core and Lighthouse
+            flag empty headings as WCAG 1.3.1 violations.
+          {%- endcomment -%}
+          {%- if section.settings.heading != blank -%}
+            <{{ heading_tag }} id="EcosystemTitle-{{ section.id }}" class="kt-ecosystem__title">{{ section.settings.heading | escape }}</{{ heading_tag }}>
+          {%- endif -%}
           {%- if section.settings.subtitle != blank -%}
             <p class="kt-ecosystem__subtitle">{{ section.settings.subtitle }}</p>
           {%- endif -%}

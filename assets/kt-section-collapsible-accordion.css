@@ -184,8 +184,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  /* WCAG 2.5.5 — interactive controls require 44×44 CSS px
+     minimum touch target. Previous 36×36 left the toggle 8px
+     short and would flag on Theme Store automated axe-core
+     audits. The visible icon stays 14px (inner SVG); the
+     extra padding is invisible but tappable. */
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
   border-radius: 50%;
   background-color: rgba(var(--kt-c-fg, 250 250 249), 0.04);

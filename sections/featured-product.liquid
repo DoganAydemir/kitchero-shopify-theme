@@ -35,6 +35,21 @@
       <div class="kt-featured-product__media" data-variant-featured-image>
         {%- if product != blank and product.featured_media != blank -%}
           {%- assign media_alt = product.featured_media.alt | default: product.title -%}
+          {%- comment -%}
+            Eager-load + high fetchpriority when this section is
+            the first one on the page — featured-product is
+            often used as a hero replacement on homepages and is
+            the LCP candidate there. Below-fold instances stay
+            lazy via the index check. Mirrors the same eager/lazy
+            split card-product.liquid uses for collection cards.
+          {%- endcomment -%}
+          {%- if section.index0 == 0 -%}
+            {%- assign fp_loading = 'eager' -%}
+            {%- assign fp_priority = 'high' -%}
+          {%- else -%}
+            {%- assign fp_loading = 'lazy' -%}
+            {%- assign fp_priority = 'auto' -%}
+          {%- endif -%}
           {{
             product.featured_media
             | image_url: width: 1200
@@ -45,7 +60,8 @@
               width: 1200,
               height: media_height,
               alt: media_alt,
-              loading: 'lazy'
+              loading: fp_loading,
+              fetchpriority: fp_priority
           }}
         {%- else -%}
           {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-featured-product__image' }}

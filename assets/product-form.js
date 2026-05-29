@@ -1038,6 +1038,39 @@
         }
       }
 
+      /* Sync the dynamic checkout cluster (Shop Pay / Apple Pay /
+         Google Pay / Buy It Now) to the variant's availability.
+         Shopify's `{{ form | payment_button }}` filter renders
+         shadow-DOM custom elements (`<shopify-accelerated-checkout>`,
+         `<shopify-buy-it-now-button>`) that maintain their OWN
+         enabled/disabled state independently of the regular
+         `<button data-add-to-cart>`. Without this sync a customer
+         on a sold-out variant sees the ATC button greyed out but
+         Shop Pay still clickable — clicking it boots them into
+         the Shopify-Pay checkout flow where they hit the
+         "unavailable" wall. Theme Store flags this as a buy-
+         cluster atomic-update violation.
+         We disable the wrapper's child controls via the
+         `pointer-events: none; opacity: 0.5` CSS pair (custom
+         element internals don't expose a clean `.disabled`
+         property across the iframe boundary) AND set
+         `aria-disabled` on the wrapper for SR users. */
+      try {
+        var dynCheckoutWraps = container.querySelectorAll('[data-payment-button-wrapper]');
+        for (var dci = 0; dci < dynCheckoutWraps.length; dci++) {
+          var wrap = dynCheckoutWraps[dci];
+          if (matchedVariant.available) {
+            wrap.removeAttribute('aria-disabled');
+            wrap.style.pointerEvents = '';
+            wrap.style.opacity = '';
+          } else {
+            wrap.setAttribute('aria-disabled', 'true');
+            wrap.style.pointerEvents = 'none';
+            wrap.style.opacity = '0.5';
+          }
+        }
+      } catch (e) { /* non-critical */ }
+
       /* Toggle the back-in-stock notification CTA. The trigger button
          + modal are always rendered server-side (so JS-off customers
          still see the notify form when they land on a sold-out variant);
