@@ -19,15 +19,15 @@
   <div class="page-width kt-financing-cta__inner">
     <{{ heading_tag }} class="kt-financing-cta__title">
       {%- if section.settings.heading_line1 != blank -%}
-        <span>{{ section.settings.heading_line1 }}</span>
+        <span>{{ section.settings.heading_line1 | escape }}</span>
       {%- endif -%}
       {%- if section.settings.heading_line2 != blank -%}
-        <span class="kt-financing-cta__title-accent">{{ section.settings.heading_line2 }}</span>
+        <span class="kt-financing-cta__title-accent">{{ section.settings.heading_line2 | escape }}</span>
       {%- endif -%}
     </{{ heading_tag }}>
 
     {%- if section.settings.description != blank -%}
-      <p class="kt-financing-cta__desc">{{ section.settings.description }}</p>
+      <p class="kt-financing-cta__desc">{{ section.settings.description | escape | newline_to_br }}</p>
     {%- endif -%}
 
     <div class="kt-financing-cta__buttons">
@@ -41,7 +41,7 @@
           href="{{ section.settings.primary_link | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--primary"
         >
-          {{ section.settings.primary_text }}
+          {{ section.settings.primary_text | escape }}
           {% render 'icon-arrow-right', width: 14, height: 14 %}
         </a>
       {%- elsif section.settings.primary_text != blank and request.design_mode -%}
@@ -55,7 +55,7 @@
           href="{{ section.settings.secondary_link | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--secondary"
         >
-          {{ section.settings.secondary_text }}
+          {{ section.settings.secondary_text | escape }}
         </a>
       {%- elsif section.settings.secondary_text != blank and request.design_mode -%}
         <p class="kt-financing-cta__btn-empty">

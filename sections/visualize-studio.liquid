@@ -73,7 +73,7 @@
               class so the visual "uppercase small caps" treatment
               persists without polluting the heading hierarchy.
             {%- endcomment -%}
-            <p class="kt-visualize-studio__eyebrow">{{ section.settings.eyebrow }}</p>
+            <p class="kt-visualize-studio__eyebrow">{{ section.settings.eyebrow | escape }}</p>
           {%- endif -%}
         </div>
 
@@ -89,15 +89,15 @@
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         {%- if section.settings.heading_line1 != blank or section.settings.heading_line2 != blank -%}
           <{{ heading_tag }} class="kt-visualize-studio__heading">
-            {{ section.settings.heading_line1 }}
+            {{ section.settings.heading_line1 | escape }}
             {%- if section.settings.heading_line2 != blank -%}
-              <br><span class="kt-visualize-studio__heading-italic">{{ section.settings.heading_line2 }}</span>
+              <br><span class="kt-visualize-studio__heading-italic">{{ section.settings.heading_line2 | escape }}</span>
             {%- endif -%}
           </{{ heading_tag }}>
         {%- endif -%}
 
         {%- if section.settings.description != blank -%}
-          <p class="kt-visualize-studio__desc">{{ section.settings.description }}</p>
+          <p class="kt-visualize-studio__desc">{{ section.settings.description | escape | newline_to_br }}</p>
         {%- endif -%}
       </div>
 
@@ -105,10 +105,10 @@
       <div class="kt-visualize-studio__form-wrap">
         <div class="kt-visualize-studio__form-card">
           {%- if section.settings.form_heading != blank -%}
-            <h3 class="kt-visualize-studio__form-heading">{{ section.settings.form_heading }}</h3>
+            <h3 class="kt-visualize-studio__form-heading">{{ section.settings.form_heading | escape }}</h3>
           {%- endif -%}
           {%- if section.settings.form_subheading != blank -%}
-            <p class="kt-visualize-studio__form-subheading">{{ section.settings.form_subheading }}</p>
+            <p class="kt-visualize-studio__form-subheading">{{ section.settings.form_subheading | escape }}</p>
           {%- endif -%}
 
           {%- comment -%}

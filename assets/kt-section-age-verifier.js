@@ -132,31 +132,43 @@
       }
     }
 
-    if (acceptBtn) {
-      acceptBtn.addEventListener('click', function () {
-        if (!inDesignMode()) {
-          setVerified(sessionDays);
-        }
+    /* Named handlers so we can detach them on shopify:section:
+       unload — anonymous listeners would leak on every section
+       reload in the theme editor (Theme Store reviewer reproduces
+       this by editing settings + saving, which re-renders the
+       section). REJ-JS-001: handlers must be cleaned on unload. */
+    function onAcceptClick() {
+      if (!inDesignMode()) {
+        setVerified(sessionDays);
+      }
+      close();
+    }
+
+    function onDeclineClick(e) {
+      if (inDesignMode()) {
+        e.preventDefault();
         close();
-      });
+      }
     }
 
-    /* Decline button is a native <a> with href; default click
-       navigates the customer away. No JS handler needed — letting
-       the browser do its thing is the cleanest path. The handler
-       below is just a safety net for design_mode previews where
-       the merchant might click decline and would otherwise be
-       navigated out of the editor. */
-    if (declineBtn) {
-      declineBtn.addEventListener('click', function (e) {
-        if (inDesignMode()) {
-          e.preventDefault();
-          close();
-        }
-      });
-    }
-
+    if (acceptBtn) acceptBtn.addEventListener('click', onAcceptClick);
+    if (declineBtn) declineBtn.addEventListener('click', onDeclineClick);
     document.addEventListener('keydown', onKeydown);
+
+    /* Expose a destroyer so shopify:section:unload can detach
+       every listener this initModal added, plus release the
+       scroll lock and lock-class if the modal is open at unload
+       time (rare but possible during a force re-render). */
+    modal._kitcheroAgeDestroy = function () {
+      if (acceptBtn) acceptBtn.removeEventListener('click', onAcceptClick);
+      if (declineBtn) declineBtn.removeEventListener('click', onDeclineClick);
+      document.removeEventListener('keydown', onKeydown);
+      if (modal.getAttribute('aria-hidden') === 'false') {
+        document.documentElement.classList.remove('kt-age-verifier-open');
+      }
+      modal._kitcheroAgeInited = false;
+      modal._kitcheroAgeDestroy = null;
+    };
 
     open();
   }
@@ -180,5 +192,18 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     init(e.target);
+  });
+
+  /* REJ-JS-001 fix: tear down every listener and DOM mutation
+     installed by initModal so a section reload doesn't leak
+     handlers. Without this, repeated section saves in the
+     editor accumulate keydown listeners and the modal's
+     accept/decline buttons fire multiple times per click. */
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e || !e.target) return;
+    var modals = e.target.querySelectorAll('[data-age-verifier]');
+    Array.prototype.forEach.call(modals, function (modal) {
+      if (modal._kitcheroAgeDestroy) modal._kitcheroAgeDestroy();
+    });
   });
 })();

@@ -208,17 +208,28 @@
       }
     }
 
+    /* Named handlers + tracked refs so shopify:section:unload can
+       detach everything cleanly. Section-reload safety: theme
+       editor saves re-render the section and would otherwise
+       leave document-level + productContainer-level listeners
+       attached to the now-detached modal instance, causing the
+       Accept/Close handlers to fire multiple times per click
+       (REJ-JS-001 — Theme Store reject). */
+    var triggerHandlers = [];
     Array.prototype.forEach.call(triggers, function (trigger) {
-      trigger.addEventListener('click', function (e) {
+      var h = function (e) {
         e.preventDefault();
         open(trigger);
-      });
+      };
+      trigger.addEventListener('click', h);
+      triggerHandlers.push({ el: trigger, fn: h });
     });
 
+    var closeHandlers = [];
     Array.prototype.forEach.call(closeEls, function (el) {
-      el.addEventListener('click', function () {
-        close();
-      });
+      var h = function () { close(); };
+      el.addEventListener('click', h);
+      closeHandlers.push({ el: el, fn: h });
     });
 
     document.addEventListener('keydown', onKeydown);
@@ -227,12 +238,34 @@
        option radios live in the product section (now physically
        far from the modal after the portal move above), so we
        listen on the captured productContainer reference. */
+    var onVariantChange = null;
     if (productContainer) {
-      productContainer.addEventListener('change', function (e) {
+      onVariantChange = function (e) {
         if (!e.target || !e.target.matches('input[data-option-value]')) return;
         syncVariantContext(modal, productContainer);
-      });
+      };
+      productContainer.addEventListener('change', onVariantChange);
     }
+
+    /* Expose teardown — invoked from the document-level
+       shopify:section:unload listener below so every handler
+       installed above is removed when the owning section
+       unloads. The portaled modal is also removed from <body>
+       since it no longer has a section to belong to. */
+    modal._kitcheroBackInStockDestroy = function () {
+      triggerHandlers.forEach(function (h) { h.el.removeEventListener('click', h.fn); });
+      closeHandlers.forEach(function (h) { h.el.removeEventListener('click', h.fn); });
+      document.removeEventListener('keydown', onKeydown);
+      if (productContainer && onVariantChange) {
+        productContainer.removeEventListener('change', onVariantChange);
+      }
+      unlockScroll();
+      if (modal.parentNode === document.body) {
+        modal.parentNode.removeChild(modal);
+      }
+      modal._kitcheroBackInStockInited = false;
+      modal._kitcheroBackInStockDestroy = null;
+    };
 
     /* Auto-open after a successful contact form POST so the
        customer actually sees the success alert. Without this the
@@ -324,5 +357,29 @@
 
   document.addEventListener('shopify:section:load', function (e) {
     initAll(e.target);
+  });
+
+  /* REJ-JS-001 fix: when the owning section unloads, find the
+     portaled modal (now living at body, not inside the section)
+     by matching the section.id suffix on the modal's element id
+     — modal IDs are emitted as `BackInStockModal-{productId}-
+     {sectionId}` from the snippet, so the section id is the
+     suffix after the last hyphen pair that contains the section
+     handle. Calls the per-instance destroyer to remove every
+     listener and the body-portaled DOM node. */
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!e || !e.target || !e.target.id) return;
+    var sectionId = e.target.id.replace(/^shopify-section-/, '');
+    /* CSS.escape needed because Shopify section IDs contain
+       `template--<digits>__main` — the `--` and `__` are valid
+       CSS but the suffix selector needs escaping for safety. */
+    var modals = document.querySelectorAll('[data-back-in-stock-modal]');
+    Array.prototype.forEach.call(modals, function (modal) {
+      if (modal.id && modal.id.indexOf(sectionId) !== -1) {
+        if (modal._kitcheroBackInStockDestroy) {
+          modal._kitcheroBackInStockDestroy();
+        }
+      }
+    });
   });
 })();
