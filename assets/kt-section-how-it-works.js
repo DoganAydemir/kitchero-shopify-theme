@@ -85,7 +85,7 @@
     var card = event.target;
     if (!card || !card.classList || !card.classList.contains('kt-how-it-works__card')) return;
     try {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
     } catch (err) {
       card.scrollIntoView();
     }

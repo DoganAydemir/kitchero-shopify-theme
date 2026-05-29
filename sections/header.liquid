@@ -524,8 +524,8 @@
                   documents this as the spec field.
                 {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-                <label for="HeaderLanguageSelector" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
-                <select name="language_code" id="HeaderLanguageSelector" class="kt-header__locale-form-select">
+                <label for="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
+                <select name="language_code" id="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-select">
                   {%- for language in localization.available_languages -%}
                     <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
                       {{ language.endonym_name | capitalize }}
@@ -551,8 +551,8 @@
               {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
                 {%- comment -%} R122 — return_to lands customer back on the same URL after country switch. {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
-                <label for="HeaderCountrySelector" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
-                <select name="country_code" id="HeaderCountrySelector" class="kt-header__locale-form-select">
+                <label for="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
+                <select name="country_code" id="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-select">
                   {%- for country in localization.available_countries -%}
                     <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
                       {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})

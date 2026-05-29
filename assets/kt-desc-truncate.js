@@ -45,9 +45,15 @@
         toggleBtn.setAttribute('aria-expanded', 'false');
         /* Scroll the container's top edge into view so the user
            lands at the start of the description, not somewhere
-           halfway down the full text. Smooth scroll respects
-           prefers-reduced-motion automatically. */
-        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+           halfway down the full text. `scrollIntoView({ behavior:
+           'smooth' })` does NOT automatically honor `prefers-
+           reduced-motion` — the browser only consults the media
+           query for CSS `scroll-behavior`, not for the JS API. We
+           branch explicitly on `matchMedia('(prefers-reduced-
+           motion: reduce)')` to fall back to `behavior: 'auto'`
+           (instant scroll) for users who set the system
+           preference. WCAG 2.3.3 (Animation from Interactions). */
+        container.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
       } else {
         /* Expand */
         shortEl.hidden = true;

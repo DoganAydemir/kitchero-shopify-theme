@@ -130,6 +130,21 @@ if (!window.__kitcheroSearchOverlayLoaded) {
         }
         return;
       }
+
+      /* Predictive result link → close overlay before navigation.
+         Without this, the customer clicks a result, the page
+         navigates, but the overlay stays open in the previous
+         page's render — visible briefly on back-nav or whenever
+         page load stalls. Match any `<a>` inside the predictive
+         results container; don't preventDefault so the native
+         navigation still happens. */
+      var resultLink = e.target.closest('[data-search-overlay] [data-predictive-search] a, [data-search-overlay] .kt-predictive-search__link');
+      if (resultLink && overlay && overlay.getAttribute('aria-hidden') === 'false') {
+        closeOverlay();
+        /* Don't return — let the click default bubble so navigation
+           proceeds. The closeOverlay() above releases scroll lock
+           + focus trap before the new page begins loading. */
+      }
     });
 
     /* Keyboard handlers: Escape to close, Tab to trap */

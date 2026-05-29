@@ -25,7 +25,7 @@ if (!window.__kitcheroFeaturedProductsLoaded) {
       var item = event.target;
       if (!item || !item.matches || !item.matches(ITEM_SELECTOR)) return;
       try {
-        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
       } catch (err) {
         item.scrollIntoView();
       }

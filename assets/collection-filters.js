@@ -127,7 +127,7 @@ if (window.__kitcheroCollectionFiltersLoaded) {
        would rapid-click the same checkbox wondering if anything
        registered. aria-busy cues SR users of pending work; the CSS
        class is opt-in for a dim/spinner overlay on the grid. */
-    var oldGridEarly = document.getElementById('product-grid');
+    var oldGridEarly = document.querySelector('[data-product-grid]');
     if (oldGridEarly) {
       oldGridEarly.setAttribute('aria-busy', 'true');
       oldGridEarly.classList.add('kt-collection__grid--loading');
@@ -173,8 +173,8 @@ if (window.__kitcheroCollectionFiltersLoaded) {
            "no results" CTA. Same broken state in reverse when
            clearing filters from an empty state back to results.
            Solution: handle the four corner cases explicitly. */
-        var newGrid = doc.getElementById('product-grid');
-        var oldGrid = document.getElementById('product-grid');
+        var newGrid = doc.querySelector('[data-product-grid]');
+        var oldGrid = document.querySelector('[data-product-grid]');
         var newEmpty = doc.querySelector('.kt-collection__empty');
         var oldEmpty = document.querySelector('.kt-collection__empty');
         if (newGrid && oldGrid) {
@@ -311,7 +311,7 @@ if (window.__kitcheroCollectionFiltersLoaded) {
            every case — the `.catch` above navigates, but if the
            navigation is slow the visual state should clear so the
            grid doesn't look dead. */
-        var oldGrid = document.getElementById('product-grid');
+        var oldGrid = document.querySelector('[data-product-grid]');
         if (oldGrid) {
           oldGrid.removeAttribute('aria-busy');
           oldGrid.classList.remove('kt-collection__grid--loading');
@@ -380,8 +380,8 @@ if (window.__kitcheroCollectionFiltersLoaded) {
            empty-results URL doesn't leave the page in a stale
            state. See applyFilters() for the full 4-branch
            rationale. */
-        var newGrid = doc.getElementById('product-grid');
-        var oldGrid = document.getElementById('product-grid');
+        var newGrid = doc.querySelector('[data-product-grid]');
+        var oldGrid = document.querySelector('[data-product-grid]');
         var newEmpty = doc.querySelector('.kt-collection__empty');
         var oldEmpty = document.querySelector('.kt-collection__empty');
         if (newGrid && oldGrid) {

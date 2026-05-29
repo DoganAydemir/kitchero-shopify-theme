@@ -403,8 +403,8 @@
                 {%- endif -%}
               {%- endif -%}
             {%- endfor -%}
-            <label for="SortBy" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by:' }}</label>
-            <select id="SortBy" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
+            <label for="SortBy-{{ section.id }}" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by:' }}</label>
+            <select id="SortBy-{{ section.id }}" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
               {%- for option in collection.sort_options -%}
                 <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
                   {{ option.name }}
@@ -719,7 +719,7 @@
   <div class="page-width">
     {%- paginate collection.products by section.settings.products_per_page -%}
       {%- if collection.products.size > 0 -%}
-        <div class="kt-collection__grid kt-collection__grid--cols-{{ cols_desktop }} kt-collection__grid--cols-m-{{ cols_mobile }}" id="product-grid" role="list" aria-busy="false">
+        <div class="kt-collection__grid kt-collection__grid--cols-{{ cols_desktop }} kt-collection__grid--cols-m-{{ cols_mobile }}" id="product-grid-{{ section.id }}" data-product-grid role="list" aria-busy="false">
           {%- for product in collection.products -%}
             {%- comment -%}
               `lcp_priority: false` — collection template already renders

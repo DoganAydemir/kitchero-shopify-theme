@@ -128,7 +128,7 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       var section = item.closest('[data-section-type="gallery-marquee"]');
       if (section) section.classList.add(PAUSE_CLASS);
       try {
-        item.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
       } catch (err) {
         item.scrollIntoView();
       }

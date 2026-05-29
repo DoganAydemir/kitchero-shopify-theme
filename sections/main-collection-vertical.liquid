@@ -89,8 +89,8 @@
               {%- endif -%}
             {%- endif -%}
           {%- endfor -%}
-          <label for="SortBy" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
-          <select id="SortBy" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
+          <label for="SortBy-{{ section.id }}" class="kt-collection__sort-label">{{ 'kt.section.collection.sort_by' | t | default: 'Sort by' }}</label>
+          <select id="SortBy-{{ section.id }}" name="sort_by" class="kt-collection__sort-select" data-collection-sort>
             {%- for option in collection.sort_options -%}
               <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
                 {{ option.name }}
@@ -149,7 +149,7 @@
       <div class="kt-collection__vertical-grid-wrap">
         {%- paginate collection.products by section.settings.products_per_page -%}
           {%- if collection.products.size > 0 -%}
-            <div class="kt-collection__grid" id="product-grid" role="list" aria-busy="false">
+            <div class="kt-collection__grid" id="product-grid-{{ section.id }}" data-product-grid role="list" aria-busy="false">
               {%- for product in collection.products -%}
                 {%- render 'card-product', product: product, show_vendor: settings.kt_pdp_show_vendor, show_secondary_image: section.settings.show_secondary_image, show_quote_button: section.settings.show_quote_button, index: forloop.index0 -%}
               {%- endfor -%}

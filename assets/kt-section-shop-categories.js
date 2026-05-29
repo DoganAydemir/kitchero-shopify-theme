@@ -91,7 +91,7 @@
     var card = event.target;
     if (!card || !card.classList || !card.classList.contains('kt-shop-categories__card')) return;
     try {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      card.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
     } catch (err) {
       card.scrollIntoView();
     }

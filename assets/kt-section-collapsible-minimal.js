@@ -30,7 +30,7 @@ if (!window.__kitcheroCollapsibleMinimalLoaded) {
       if (!item || !item.matches || !item.matches(ITEM_SELECTOR)) return;
       if (!item.open) item.open = true;
       try {
-        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
       } catch (err) {
         item.scrollIntoView();
       }

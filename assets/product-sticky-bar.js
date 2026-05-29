@@ -132,7 +132,7 @@
        too long and the user sees a lag). */
     var cta = bar.querySelector('[data-pdp-sticky-cta]');
     function ctaHandler() {
-      productForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      productForm.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
       window.setTimeout(function () {
         var submit = productForm.querySelector('button[type="submit"], [data-product-form-submit]');
         if (submit && typeof submit.focus === 'function') submit.focus();

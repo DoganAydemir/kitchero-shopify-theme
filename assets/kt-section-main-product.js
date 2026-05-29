@@ -105,4 +105,40 @@
     /* No-op: GSAP timelines + dataset state live on the removed
        DOM tree and are released with it. */
   });
+
+  /* Theme editor block:select — when the merchant clicks an accordion
+     (or other) block in the editor sidebar, Shopify fires this event
+     scoped to the block element. Theme Store rejects sections with
+     collapsible blocks that don't reveal the selected block in the
+     preview iframe. For the accordion blocks rendered via
+     `snippets/product-accordion.liquid` (each <details data-product-
+     accordion>), we:
+       1. Open the `<details>` so the merchant sees the content they
+          configured (especially the description / shipping copy).
+       2. Scroll the block into view so it lands in the editor
+          viewport — using `block: 'center'` for a comfortable read.
+       3. Respect `prefers-reduced-motion` so the scroll is instant
+          when the merchant has the system flag set.
+     For non-accordion block types the scrollIntoView still runs so
+     the merchant always sees what they clicked, but no extra DOM
+     mutation happens (graceful no-op). */
+  document.addEventListener('shopify:block:select', function (event) {
+    if (!event || !event.target) return;
+    var blockEl = event.target;
+    /* `event.target` is the block's root element; find the nearest
+       <details data-product-accordion> within it (or which IS it). */
+    var detailsEl = blockEl.matches && blockEl.matches('details[data-product-accordion]')
+      ? blockEl
+      : (blockEl.querySelector && blockEl.querySelector('details[data-product-accordion]'));
+    if (detailsEl && !detailsEl.open) {
+      detailsEl.open = true;
+    }
+    if (typeof blockEl.scrollIntoView === 'function') {
+      var prm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      blockEl.scrollIntoView({
+        behavior: prm ? 'auto' : 'smooth',
+        block: 'center'
+      });
+    }
+  });
 })();
