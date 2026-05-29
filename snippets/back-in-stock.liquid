@@ -194,7 +194,7 @@
 {{- safe_product_title -}}
 {%- unless product.has_only_default_variant %}
 {% for option in product.options_with_values %}{{ option.name | escape }}: {% for value in option.values %}{% if option.selected_value == value %}{{ value | escape }}{% endif %}{% endfor %}{% unless forloop.last %}, {% endunless %}{% endfor %}{%- endunless %}
-{{ shop.url }}{{ return_to }}
+{{ request.origin }}{{ return_to }}
       </textarea>
 
       <button type="submit" class="kt-back-in-stock__submit">

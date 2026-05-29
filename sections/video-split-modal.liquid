@@ -92,6 +92,15 @@
             }}
           {%- endif -%}
         {%- elsif section.settings.loop_poster != blank -%}
+          {%- comment -%}
+            Alt text resolution: prefer the image asset's own alt
+            (set by the merchant in Shopify Files) → fall back to
+            the section heading (relevant section context) → final
+            fallback to the shop name so we never ship an empty
+            alt on a meaningful visual. Theme Store reviewers
+            flag empty alts on non-decorative content.
+          {%- endcomment -%}
+          {%- assign loop_poster_alt = section.settings.loop_poster.alt | default: section.settings.heading | default: shop.name -%}
           {{
             section.settings.loop_poster
             | image_url: width: 1200
@@ -102,7 +111,7 @@
               sizes: '(min-width: 990px) 50vw, 100vw',
               width: section.settings.loop_poster.width,
               height: section.settings.loop_poster.height,
-              alt: ''
+              alt: loop_poster_alt
           }}
         {%- else -%}
           {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-video-split__poster' }}

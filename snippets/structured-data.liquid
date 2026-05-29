@@ -334,7 +334,7 @@
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": {{ collection.title | json }},
-      "url": {{ shop.url | append: collection.url | json }},
+      "url": {{ request.origin | append: collection.url | json }},
       {%- if collection.description != blank -%}
         "description": {{ collection.description | strip_html | json }},
       {%- endif -%}
@@ -350,7 +350,7 @@
               "item": {
                 "@type": "Product",
                 "name": {{ product.title | json }},
-                "url": {{ shop.url | append: product.url | json }}
+                "url": {{ request.origin | append: product.url | json }}
                 {%- if product.featured_media != blank -%}
                   ,"image": {{ product.featured_media | image_url: width: 1200 | prepend: 'https:' | json }}
                 {%- endif -%}
@@ -363,14 +363,24 @@
                 ,"offers": {
                   "@type": "Offer",
                   "priceCurrency": {{ cart.currency.iso_code | json }},
+                  {%- comment -%}
+                    Schema.org Offer requires plain-decimal price
+                    (e.g., "99.00"). `| money_without_currency` emits
+                    locale-formatted output ("99,00" on FR/DE/TR
+                    stores) which Google Rich Results flags as
+                    invalid. `| divided_by: 100.0 | round: 2`
+                    converts the Shopify integer cents to a
+                    schema-safe decimal regardless of the buyer's
+                    locale.
+                  {%- endcomment -%}
                   {%- if product.price_varies -%}
-                    "lowPrice": {{ product.price_min | money_without_currency | strip_html | strip | json }},
-                    "highPrice": {{ product.price_max | money_without_currency | strip_html | strip | json }},
+                    "lowPrice": {{ product.price_min | divided_by: 100.0 | round: 2 | json }},
+                    "highPrice": {{ product.price_max | divided_by: 100.0 | round: 2 | json }},
                   {%- else -%}
-                    "price": {{ product.price | money_without_currency | strip_html | strip | json }},
+                    "price": {{ product.price | divided_by: 100.0 | round: 2 | json }},
                   {%- endif -%}
                   "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
-                  "url": {{ shop.url | append: product.url | json }}
+                  "url": {{ request.origin | append: product.url | json }}
                 }
               }
             }{%- unless forloop.last -%},{%- endunless -%}

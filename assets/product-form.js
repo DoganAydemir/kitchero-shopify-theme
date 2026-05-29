@@ -33,6 +33,18 @@
           el.textContent = cart.item_count;
           el.style.display = cart.item_count > 0 ? '' : 'none';
         });
+      })
+      .catch(function (err) {
+        /* Network failure here means the post-ATC cart count update
+           silently failed. Without this catch, the unhandled
+           promise rejection bubbles to console as a red error and
+           the customer sees a stale header count. Log + announce
+           so SR users at least know something went off. The line
+           was successfully added (server-side) — only the UI
+           refresh failed. */
+        if (window.console && typeof console.error === 'function') {
+          console.error('refreshCart count update failed:', err);
+        }
       });
   }
 

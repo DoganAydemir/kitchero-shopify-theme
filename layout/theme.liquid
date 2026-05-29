@@ -88,11 +88,11 @@
       to the same parent canonical.
     {%- endcomment -%}
     {%- if request.path contains '/collections/' and collection and request.query_string contains 'filter.' -%}
-      <link rel="canonical" href="{{ shop.url }}{{ collection.url }}">
+      <link rel="canonical" href="{{ request.origin }}{{ collection.url }}">
     {%- elsif request.path contains '/collections/' and collection and request.query_string contains 'sort_by=' -%}
-      <link rel="canonical" href="{{ shop.url }}{{ collection.url }}">
+      <link rel="canonical" href="{{ request.origin }}{{ collection.url }}">
     {%- elsif request.page_type == 'search' and request.query_string != '' -%}
-      <link rel="canonical" href="{{ shop.url }}{{ routes.search_url }}">
+      <link rel="canonical" href="{{ request.origin }}{{ routes.search_url }}">
     {%- else -%}
       <link rel="canonical" href="{{ canonical_url }}">
     {%- endif -%}

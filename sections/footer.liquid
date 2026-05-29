@@ -106,7 +106,7 @@
               {%- if block.settings.heading != blank -%}
                 <h2 class="kt-footer__column-title">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
-              {%- form 'customer', id: 'FooterNewsletter' -%}
+              {%- form 'customer', id: 'FooterNewsletter-' | append: block.id -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
                 {%- comment -%}
                   No `contact[accepts_marketing]=true` hidden field —
@@ -124,13 +124,13 @@
                   </p>
                 {%- else -%}
                   <div class="kt-footer__newsletter">
-                    <label for="footer-newsletter-email" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
+                    <label for="footer-newsletter-email-{{ block.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
                     <input
                       type="email"
                       autocapitalize="off"
                       autocorrect="off"
                       spellcheck="false"
-                      id="footer-newsletter-email"
+                      id="footer-newsletter-email-{{ block.id }}"
                       name="contact[email]"
                       class="field__input kt-footer__newsletter-input"
                       placeholder="{{ 'kt.newsletter.label' | t }}"
@@ -160,7 +160,7 @@
                       {%- endcomment -%}
                       {%- if form.errors -%}
                         aria-invalid="true"
-                        aria-describedby="FooterNewsletter-error"
+                        aria-describedby="FooterNewsletter-error-{{ block.id }}"
                       {%- else -%}
                         aria-invalid="false"
                       {%- endif -%}
@@ -205,13 +205,13 @@
                     <div class="kt-footer__newsletter-consent">
                       <input
                         type="checkbox"
-                        id="footer-newsletter-consent"
+                        id="footer-newsletter-consent-{{ block.id }}"
                         name="contact[accepts_marketing]"
                         value="true"
                         required
                         aria-required="true"
                       >
-                      <label for="footer-newsletter-consent" class="kt-footer__newsletter-consent-label">
+                      <label for="footer-newsletter-consent-{{ block.id }}" class="kt-footer__newsletter-consent-label">
                         {{- footer_consent_html -}}
                       </label>
                     </div>
@@ -227,7 +227,7 @@
                     {%- endcomment -%}
                     <div
                       class="kt-footer__newsletter-error"
-                      id="FooterNewsletter-error"
+                      id="FooterNewsletter-error-{{ block.id }}"
                       data-form-error-summary
                       tabindex="-1"
                     >
@@ -236,7 +236,7 @@
                         {%- for field in form.errors -%}
                           <li>
                             {%- if field == 'form' or field == 'email' -%}
-                              <a href="#footer-newsletter-email">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
+                              <a href="#footer-newsletter-email-{{ block.id }}">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
                             {%- else -%}
                               {{ form.errors.translated_messages[field] }}
                             {%- endif -%}
