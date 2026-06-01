@@ -21,6 +21,25 @@
 (function () {
   'use strict';
 
+  /* R12-C: Editor section-reload would re-run this IIFE, leaving the
+     previous run's MutationObserver (line ~113) + two ResizeObservers
+     (line ~411 / ~422) attached to body-level nodes that DO survive
+     the reload (<main>, .kt-announcement-banner). Multiple observers
+     stack up across reload cycles, each firing the same sync
+     callbacks and recomputing the same CSS variables — observable
+     CPU drag once a merchant has saved 4-5 times. The fix is a
+     window-scoped registry: before installing new observers, tear
+     down any registered from a prior invocation. */
+  if (window.__kitcheroHeaderObservers && window.__kitcheroHeaderObservers.length) {
+    for (var __i = 0; __i < window.__kitcheroHeaderObservers.length; __i++) {
+      var __obs = window.__kitcheroHeaderObservers[__i];
+      if (__obs && typeof __obs.disconnect === 'function') {
+        try { __obs.disconnect(); } catch (e) { /* nothing to clean up */ }
+      }
+    }
+  }
+  window.__kitcheroHeaderObservers = [];
+
   var SCROLL_THRESHOLD = 50;
   // Cache the header ref + rAF gate: previously `updateScrollState`
   // did a fresh document.querySelector on every scroll tick (50-100
@@ -124,6 +143,7 @@
       attributes: true,
       attributeFilter: ['data-allows-transparent-header']
     });
+    window.__kitcheroHeaderObservers.push(mainObserver);
   }
 
   /* R232.21b — Editor-mode safety net: poll the transparent state
@@ -410,6 +430,7 @@
     if (observerHeader) {
       var headerOffsetObserver = new ResizeObserver(syncHeaderOffset);
       headerOffsetObserver.observe(observerHeader);
+      window.__kitcheroHeaderObservers.push(headerOffsetObserver);
     }
     var observerBanner = document.querySelector('.kt-announcement-banner');
     if (observerBanner) {
@@ -424,6 +445,7 @@
         updateHeaderTop();
       });
       bannerHeightObserver.observe(observerBanner);
+      window.__kitcheroHeaderObservers.push(bannerHeightObserver);
     }
   }
   if (document.readyState === 'loading') {

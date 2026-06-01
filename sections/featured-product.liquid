@@ -12,6 +12,36 @@
   assign featured_product_add_to_cart_default = 'kt.product.add_to_cart' | t
 -%}
 
+{%- comment -%}
+  Fresh-install / no-product-picked fallback. Without this branch
+  a merchant who drags featured-product onto the homepage but
+  hasn't picked a product yet sees a blank section with no
+  indication what to configure (Theme Store reviewer flags as
+  "broken section / unfinished theme"). Inside the editor we
+  show an editorial hint pointing at the picker setting; on the
+  live storefront we render nothing so the page doesn't have a
+  hollow section band.
+{%- endcomment -%}
+{%- if product == blank -%}
+  {%- if request.design_mode -%}
+    <section
+      class="kt-featured-product kt-featured-product--empty color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+      data-section-id="{{ section.id }}"
+      data-section-type="featured-product"
+      aria-label="{{ 'kt.section.featured_product.region_label' | t | default: 'Featured product' }}"
+    >
+      <div class="page-width">
+        <div class="kt-featured-product__placeholder">
+          <p class="kt-featured-product__placeholder-hint">
+            {{ 'kt.section.featured_product.editor_hint' | t | default: 'Pick a product in the section settings to feature it here.' }}
+          </p>
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+  {%- comment -%} Live storefront: render nothing rather than a hollow band. {%- endcomment -%}
+{%- else -%}
+
 <section
   class="kt-featured-product color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
@@ -329,6 +359,7 @@
 {%- if product.selling_plan_groups.size > 0 -%}
   <script src="{{ 'selling-plan-picker.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
+{%- endif -%}{%- comment -%} /product == blank branch above {%- endcomment -%}
 
 {% schema %}
 {
