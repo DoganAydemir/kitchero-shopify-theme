@@ -50,7 +50,17 @@
     <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
   </head>
   <body class="kt-gift-card-page">
-    <main class="kt-gift-card">
+    {%- comment -%}
+      Skip-to-content link — WCAG 2.4.1 "Bypass Blocks". On the gift
+      card template the customer (or store employee redeeming a card
+      at the till) lands on the logo link; without this they'd have
+      to tab through 14+ focusable controls (logo, decorative
+      sections, print/download buttons) before reaching the actual
+      code / QR / balance. Matches the skip links already present in
+      layout/theme.liquid + layout/password.liquid.
+    {%- endcomment -%}
+    <a class="skip-to-content-link visually-hidden" href="#MainContent">{{ 'kt.a11y.skip_to_text' | t | default: 'Skip to content' }}</a>
+    <main id="MainContent" class="kt-gift-card">
       <a href="{{ shop.url | default: routes.root_url }}" class="kt-gift-card__logo" aria-label="{{ shop.name | escape }}">
         {%- if settings.kt_logo != blank -%}
           {{

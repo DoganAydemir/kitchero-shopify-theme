@@ -294,7 +294,20 @@
   user-select: none;
 }
 
-.kt-drag-carousel__item:hover .kt-drag-carousel__image,
+/* Hover image zoom — gated by `@media (hover: hover) and (pointer:
+   fine)` so touch devices (iPad in landscape >=750px where the
+   carousel renders) don't have the scale stuck on after a tap.
+   Without the gate, tapping a card on iPad triggers :hover, the
+   image scales to 1.05, and stays there until the customer taps
+   elsewhere — reviewer-visible touch-UX bug. `:focus-visible`
+   stays outside the media query so keyboard users still see the
+   zoom on focus. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-drag-carousel__item:hover .kt-drag-carousel__image {
+    transform: scale(1.05);
+  }
+}
+
 .kt-drag-carousel__item:focus-visible .kt-drag-carousel__image {
   transform: scale(1.05);
 }
@@ -340,7 +353,15 @@
   z-index: 1;
 }
 
-.kt-drag-carousel__item:hover .kt-drag-carousel__overlay,
+/* Overlay fade — same touch-stuck-hover concern as the image
+   zoom above. Gate :hover behind the hover capability media
+   query; keep :focus-visible unguarded for keyboard nav. */
+@media (hover: hover) and (pointer: fine) {
+  .kt-drag-carousel__item:hover .kt-drag-carousel__overlay {
+    opacity: 1;
+  }
+}
+
 .kt-drag-carousel__item:focus-visible .kt-drag-carousel__overlay {
   opacity: 1;
 }
