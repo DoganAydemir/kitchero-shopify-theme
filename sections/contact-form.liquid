@@ -42,7 +42,14 @@
       <div class="page-width">
         <div class="kt-contact__showrooms-header">
           <span class="kt-contact__label">{{ section.settings.showrooms_label | default: contact_showrooms_label_default }}</span>
-          <h2 class="kt-contact__showrooms-title">{{ section.settings.showrooms_heading | default: contact_showrooms_heading_default }}</h2>
+          {%- comment -%}
+            R16-E: heading_tag is merchant-editable. On a /pages/contact
+            layout the page.title is the H1 — this block then renders
+            H2. On builder/custom layouts that omit page title, the
+            merchant can promote this to H1 from the editor.
+          {%- endcomment -%}
+          {%- assign showrooms_heading_tag = section.settings.showrooms_heading_tag | default: 'h2' -%}
+          <{{ showrooms_heading_tag }} class="kt-contact__showrooms-title">{{ section.settings.showrooms_heading | default: contact_showrooms_heading_default }}</{{ showrooms_heading_tag }}>
         </div>
 
         <div class="kt-contact__showrooms-grid">
@@ -107,7 +114,8 @@
       <div class="kt-contact__form-layout">
         <div class="kt-contact__form-intro">
           <span class="kt-contact__label">{{ section.settings.form_label | default: contact_form_label_default }}</span>
-          <h2 class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: contact_form_heading_line1_default }}<br>{{ section.settings.form_heading_line2 | default: contact_form_heading_line2_default }}</h2>
+          {%- assign form_heading_tag = section.settings.form_heading_tag | default: 'h2' -%}
+          <{{ form_heading_tag }} class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: contact_form_heading_line1_default }}<br>{{ section.settings.form_heading_line2 | default: contact_form_heading_line2_default }}</{{ form_heading_tag }}>
           <p class="kt-contact__form-desc">{{ section.settings.form_description | default: contact_form_description_default }}</p>
 
           <div class="kt-contact__form-social">
@@ -360,6 +368,18 @@
       "default": "Visit our locations"
     },
     {
+      "type": "select",
+      "id": "showrooms_heading_tag",
+      "label": "t:sections.contact-form.settings.showrooms_heading_tag.label",
+      "info": "t:sections.contact-form.settings.showrooms_heading_tag.info",
+      "options": [
+        { "value": "h1", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h1.label" },
+        { "value": "h2", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h2.label" },
+        { "value": "h3", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h3.label" }
+      ],
+      "default": "h2"
+    },
+    {
       "type": "header",
       "content": "t:sections.contact-form.settings.header__contact_form.content"
     },
@@ -380,6 +400,18 @@
       "id": "form_heading_line2",
       "label": "t:sections.contact-form.settings.form_heading_line2.label",
       "default": "A studio designer will reply within two working days."
+    },
+    {
+      "type": "select",
+      "id": "form_heading_tag",
+      "label": "t:sections.contact-form.settings.form_heading_tag.label",
+      "info": "t:sections.contact-form.settings.form_heading_tag.info",
+      "options": [
+        { "value": "h1", "label": "t:sections.contact-form.settings.form_heading_tag.options__h1.label" },
+        { "value": "h2", "label": "t:sections.contact-form.settings.form_heading_tag.options__h2.label" },
+        { "value": "h3", "label": "t:sections.contact-form.settings.form_heading_tag.options__h3.label" }
+      ],
+      "default": "h2"
     },
     {
       "type": "textarea",

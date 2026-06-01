@@ -145,7 +145,13 @@
           <article class="kt-slider-editorial__copy-slide is-active">
             <span class="kt-slider-editorial__index" aria-hidden="true">01</span>
             <span class="kt-slider-editorial__eyebrow">{{ 'kt.section.slider_editorial_split.placeholder.eyebrow' | t }}</span>
-            <h2 class="kt-slider-editorial__heading">{{ 'kt.section.slider_editorial_split.placeholder.heading' | t }}</h2>
+            {%- comment -%}
+              R16-E: empty-state heading uses the same merchant-chosen
+              heading_tag as the slide heading above (line ~115) so the
+              placeholder doesn't accidentally introduce a hardcoded H2
+              on a page that promoted the slide heading to H1.
+            {%- endcomment -%}
+            <{{ heading_tag }} class="kt-slider-editorial__heading">{{ 'kt.section.slider_editorial_split.placeholder.heading' | t }}</{{ heading_tag }}>
             <p class="kt-slider-editorial__description">{{ 'kt.section.slider_editorial_split.placeholder.description' | t }}</p>
           </article>
         {%- endif -%}
@@ -264,6 +270,7 @@
       "id": "heading_tag",
       "label": "t:sections.slider_editorial_split.settings.heading_tag.label",
       "options": [
+        { "value": "h1", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h1" },
         { "value": "h2", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h2" },
         { "value": "h3", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h3" }
       ],

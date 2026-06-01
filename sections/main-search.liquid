@@ -314,6 +314,16 @@
     {%- else -%}
       {%- render 'search-popular-queries', section: section -%}
     {%- endif -%}
+
+    {%- comment -%}
+      R16-J: Theme Store requires the search template to host app
+      blocks — review apps, wishlist apps, and merchandising apps
+      frequently target this surface to upsell relevant collections
+      from no-results / popular-queries states. Renders below the
+      results region so apps don't fight the primary content for
+      visual hierarchy.
+    {%- endcomment -%}
+    {%- render 'section-app-blocks' -%}
   </div>
 </section>
 
@@ -385,6 +395,9 @@
           "label": "t:sections.main-search.blocks.collection_link.settings.collection.label"
         }
       ]
+    },
+    {
+      "type": "@app"
     }
   ],
   "default": {
