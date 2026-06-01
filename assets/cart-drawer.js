@@ -223,6 +223,18 @@
       this.classList.add('kt-cart-drawer--open');
       this.setAttribute('aria-hidden', 'false');
 
+      /* WCAG 4.1.2 — sync `aria-expanded="true"` on every cart
+         trigger (header icon, mobile dock cart, any custom trigger
+         using `aria-controls="cart-drawer"`). Without this, SR
+         users navigating with the cart icon don't hear the
+         "expanded" state change when the drawer opens. */
+      var openTriggers = document.querySelectorAll('[aria-controls="cart-drawer"]');
+      for (var oi = 0; oi < openTriggers.length; oi++) {
+        if (openTriggers[oi].hasAttribute('aria-expanded')) {
+          openTriggers[oi].setAttribute('aria-expanded', 'true');
+        }
+      }
+
       /* R296 — Lightweight background-scroll suppression.
        *
        * Background: the heavy `Kitchero.scrollLock` (position:fixed +
@@ -292,6 +304,16 @@
       this.classList.remove('kt-cart-drawer--open');
       this.classList.add('kt-cart-drawer--closing');
       this.setAttribute('aria-hidden', 'true');
+
+      /* WCAG 4.1.2 — flip every cart trigger's aria-expanded back
+         to "false" when the drawer closes. Mirror of the open
+         path above. */
+      var closeTriggers = document.querySelectorAll('[aria-controls="cart-drawer"]');
+      for (var ci = 0; ci < closeTriggers.length; ci++) {
+        if (closeTriggers[ci].hasAttribute('aria-expanded')) {
+          closeTriggers[ci].setAttribute('aria-expanded', 'false');
+        }
+      }
 
       var self = this;
       setTimeout(function () {
