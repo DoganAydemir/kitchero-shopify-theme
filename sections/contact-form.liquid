@@ -80,8 +80,17 @@
                   {%- endif -%}
                 </div>
                 {%- if block.settings.directions_url != blank -%}
+                  {%- comment -%}
+                    Sr-only "(opens in new window)" suffix — WCAG
+                    3.2.2 (Predictable Context Change) requires
+                    target="_blank" links to announce the new-window
+                    behaviour to assistive tech. Visible UI keeps
+                    just "Get Directions"; SR users hear the full
+                    "Get Directions, opens in new window".
+                  {%- endcomment -%}
                   <a href="{{ block.settings.directions_url | escape }}" class="kt-contact__showroom-link" target="_blank" rel="noopener noreferrer">
                     {{ 'kt.section.contact.directions' | t | default: 'Get Directions' }}
+                    <span class="visually-hidden">{{ 'kt.a11y.opens_in_new_window' | t | default: '(opens in new window)' }}</span>
                   </a>
                 {%- endif -%}
               </div>

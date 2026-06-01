@@ -199,6 +199,16 @@
                 {%- endcase -%}
               </span>
               <span class="kt-mobile-dock__label">{{ block_title | escape }}</span>
+              {%- if block.settings.open_in_new_tab -%}
+                {%- comment -%}
+                  WCAG 3.2.2 — target="_blank" needs a new-window
+                  announcement for SR users. The merchant's label
+                  (potentially generic like "Shop" or "Learn more")
+                  carries no context about the new tab; the sr-only
+                  suffix announces it without changing visual UI.
+                {%- endcomment -%}
+                <span class="visually-hidden">{{ 'kt.a11y.opens_in_new_window' | t | default: '(opens in new window)' }}</span>
+              {%- endif -%}
             </a>
           {%- endif -%}
       {%- endcase -%}
