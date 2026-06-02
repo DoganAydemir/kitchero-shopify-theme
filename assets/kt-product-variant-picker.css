@@ -80,6 +80,13 @@
   border-radius: var(--kt-swatch-shape, 50%);
   border: 2px solid rgba(var(--kt-c-fg), 0.12);
   transition: all 0.2s ease;
+  /* R22-A: preserve the actual variant color in Windows High
+     Contrast / forced-colors mode. Without this, the system
+     overrides every background to Canvas — the customer can't
+     see what color they're picking. WCAG 1.4.1 (Use of Color)
+     requires that color-conveying UI remains comprehensible;
+     swatches are the canonical example. */
+  forced-color-adjust: none;
 }
 
 .kt-variant-picker__swatch:hover {

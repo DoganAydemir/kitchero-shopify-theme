@@ -293,6 +293,44 @@
   color: var(--kt-white);
 }
 
+/* R22-A: Windows High Contrast / forced-colors override.
+   In forced-colors mode every `background-color` is replaced with
+   the system Canvas color and every `color` with CanvasText, so
+   the red sale pill, emerald new pill, and amber low-stock pill
+   all flatten into "rectangle with no fill" + black text — losing
+   the at-a-glance state signal. Mapping each modifier to a
+   distinct system color (Highlight for sale, Mark for new, system
+   buttons for the rest) restores the visual differentiation
+   without overriding the customer's contrast theme. WCAG 1.4.1
+   (Use of Color) — state must be communicated by more than just
+   the swatch color in forced-colors. */
+@media (forced-colors: active) {
+  .kt-card-product__badge {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+  .kt-card-product__badge--sale {
+    background: Mark;
+    color: MarkText;
+    border-color: MarkText;
+  }
+  .kt-card-product__badge--bestseller,
+  .kt-card-product__badge--new {
+    background: Highlight;
+    color: HighlightText;
+    border-color: HighlightText;
+  }
+  .kt-card-product__badge--low-stock {
+    background: Canvas;
+    color: CanvasText;
+    /* Dotted border carries the urgency cue when color is stripped. */
+    border-style: dashed;
+    border-width: 2px;
+  }
+}
+
 /* Type badge — lowest priority in the chain (R-badge-stacking).
    Reuses the base ` .kt-card-product__badge` light pill styling.
    No state modifier needed; the type string is merchant-controlled
