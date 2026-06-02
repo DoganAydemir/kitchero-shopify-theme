@@ -49,6 +49,16 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      {%- comment -%}
+        R18-H: a stable `@id` lets Google merge this Organization
+        node with the WebSite + Product/Article publisher references
+        across the rest of the JSON-LD graph. Without it, Google
+        treats each emission as a separate Organization (weaker
+        Knowledge Panel coverage). Anchor on request.origin + a
+        fragment so the same `@id` resolves across every page in
+        the theme.
+      {%- endcomment -%}
+      "@id": {{ request.origin | append: '#organization' | json }},
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
       {%- if brand_logo != blank -%}
@@ -142,7 +152,14 @@
         schema.org. Single-locale stores still benefit (clears the
         "missing field" recommendation in Rich Results Test).
       {%- endcomment -%}
-      "inLanguage": {{ request.locale.iso_code | json }},
+      {%- comment -%}
+        R18-H: hard-fallback to 'en' so single-locale stores that
+        haven't enabled localization (request.locale.iso_code is
+        sometimes nil in dev / unconfigured environments) still emit
+        a valid value rather than `null`, which Rich Results Test
+        flags as a schema warning.
+      {%- endcomment -%}
+      "inLanguage": {{ request.locale.iso_code | default: 'en' | json }},
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
@@ -396,6 +413,15 @@
                     "price": {{ product.price | divided_by: 100.0 | round: 2 | json }},
                   {%- endif -%}
                   "availability": "{% if product.available or product.gift_card? %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+                  {%- comment -%}
+                    R18-H: itemCondition is a Google Shopping-recommended
+                    field on Offer; without it Merchant Center may warn
+                    "missing condition". Defaulting to NewCondition is
+                    safe for a fresh-cabinet-store theme — refurbished
+                    or used goods stores can override the schema later
+                    via metafield (out of scope for the default emission).
+                  {%- endcomment -%}
+                  "itemCondition": "https://schema.org/NewCondition",
                   "url": {{ request.origin | append: product.url | json }}
                 }
               }

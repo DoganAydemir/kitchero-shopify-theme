@@ -665,14 +665,28 @@
                 {%- assign mf_ns = block.settings.namespace | default: 'custom' -%}
                 {%- assign mf_key = block.settings.key -%}
                 {%- if mf_ns != blank and mf_key != blank -%}
-                  {%- assign mf_value = product.metafields[mf_ns][mf_key].value -%}
+                  {%- assign mf_object = product.metafields[mf_ns][mf_key] -%}
+                  {%- assign mf_value = mf_object.value -%}
                   {%- if mf_value != blank -%}
                     <div class="kt-pdp__metafield" {{ block.shopify_attributes }}>
                       {%- if block.settings.label != blank -%}
                         <p class="kt-pdp__metafield-label">{{ block.settings.label | escape }}</p>
                       {%- endif -%}
                       <div class="kt-pdp__metafield-value">
-                        {{- product.metafields[mf_ns][mf_key] -}}
+                        {%- comment -%}
+                          R18-F (security): `{{ metafield }}` outputs text-type
+                          metafield values RAW — Shopify Liquid does not
+                          auto-escape strings, so a merchant with admin
+                          access could inject `<script>` into a
+                          single_line_text_field and execute it on every
+                          PDP. `| metafield_tag` is Shopify's type-aware
+                          safe renderer: text fields render escaped inside
+                          a wrapping element, rich_text renders sanitized
+                          HTML, references and image metafields render the
+                          appropriate semantic element. Same plumbing
+                          across both main-product and main-product-showroom.
+                        {%- endcomment -%}
+                        {{- mf_object | metafield_tag -}}
                       </div>
                     </div>
                   {%- elsif request.design_mode -%}

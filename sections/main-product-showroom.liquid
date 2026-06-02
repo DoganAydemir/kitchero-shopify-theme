@@ -676,14 +676,22 @@
                 {%- assign mf_ns = block.settings.namespace | default: 'custom' -%}
                 {%- assign mf_key = block.settings.key -%}
                 {%- if mf_ns != blank and mf_key != blank -%}
-                  {%- assign mf_value = product.metafields[mf_ns][mf_key].value -%}
+                  {%- assign mf_object = product.metafields[mf_ns][mf_key] -%}
+                  {%- assign mf_value = mf_object.value -%}
                   {%- if mf_value != blank -%}
                     <div class="kt-showroom__metafield" {{ block.shopify_attributes }}>
                       {%- if block.settings.label != blank -%}
                         <p class="kt-showroom__metafield-label">{{ block.settings.label | escape }}</p>
                       {%- endif -%}
                       <div class="kt-showroom__metafield-value">
-                        {{- product.metafields[mf_ns][mf_key] -}}
+                        {%- comment -%}
+                          R18-F (security): see main-product.liquid for the
+                          full rationale. `metafield_tag` is Shopify's
+                          type-aware safe renderer; raw `{{ metafield }}`
+                          output of a text-type metafield is RAW and would
+                          execute injected `<script>` tags.
+                        {%- endcomment -%}
+                        {{- mf_object | metafield_tag -}}
                       </div>
                     </div>
                   {%- elsif request.design_mode -%}

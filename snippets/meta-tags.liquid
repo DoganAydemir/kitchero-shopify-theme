@@ -467,6 +467,14 @@
       },
       "publisher": {
         "@type": "Organization",
+        {%- comment -%}
+          R18-H: link this publisher node to the Organization @id
+          emitted in snippets/structured-data.liquid. The shared
+          `request.origin#organization` anchor lets Google merge the
+          Article's publisher with the site-wide Organization rather
+          than treating them as two disconnected Organization entities.
+        {%- endcomment -%}
+        "@id": {{ request.origin | append: '#organization' | json }},
         "name": {{ shop.name | json }}
         {%- if article_publisher_logo != blank -%}
         ,"logo": {
