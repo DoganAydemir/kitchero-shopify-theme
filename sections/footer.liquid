@@ -477,7 +477,17 @@
             {%- if section.settings.show_privacy_choices -%}
               <li>
                 <a
-                  href="/pages/your-privacy-choices"
+                  {%- comment -%}
+                    R20-C: route through the pages object so Markets-
+                    enabled stores get the locale-prefixed URL
+                    (/de/pages/your-privacy-choices etc). Falls back
+                    to the static path when the page hasn't been
+                    created yet — Shopify still resolves that to 404
+                    or the merchant's chosen redirect, which is
+                    better than a localized 404 with the JS path
+                    not matching the legal-required CCPA URL.
+                  {%- endcomment -%}
+                  href="{{ pages['your-privacy-choices'].url | default: '/pages/your-privacy-choices' }}"
                   class="kt-footer__policy-link"
                   data-privacy-choices
                 >
