@@ -81,7 +81,18 @@
               {{ 'kt.section.blog.all_tags' | t | default: 'All' }}
             </a>
           </li>
-          {%- for tag in blog.all_tags -%}
+          {%- comment -%}
+            R19-B: defensive cap on tag iteration. blog.all_tags
+            surfaces every tag used on every article in the blog —
+            on stores that have accumulated thousands of one-off
+            tags over years, the unbounded `for` becomes a render-
+            cost hot-spot (1000 tags × chip markup ≈ 200ms server
+            time on a cold cache). 30 tags is enough for any usable
+            chip nav (anything more is visual noise); merchants who
+            need deeper navigation should switch to the dedicated
+            tag template (/blogs/handle/tagged/X).
+          {%- endcomment -%}
+          {%- for tag in blog.all_tags limit: 30 -%}
             {%- assign tag_first_char = tag | slice: 0 -%}
             {%- comment -%}
               Skip internal-curation tags (underscore-prefixed) per

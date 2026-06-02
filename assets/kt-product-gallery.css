@@ -363,6 +363,33 @@ button.kt-gallery__slide--image {
   .kt-lightbox__nav--next { right: 2rem; }
 }
 
+/* R19-E: lightbox slide counter. Top-centered pill behind the
+   close button. Position fixed inside the modal so it survives
+   the zoomed-image translate. Uses translucent background so it
+   reads against any product photo behind. Hidden in print —
+   counters belong on screen, not paper. */
+.kt-lightbox__counter {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.375rem 0.875rem;
+  background: rgba(15, 13, 12, 0.62);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media print {
+  .kt-lightbox__counter { display: none; }
+}
+
 .kt-lightbox__viewport {
   position: relative;
   width: 100%;

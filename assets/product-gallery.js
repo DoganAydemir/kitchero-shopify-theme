@@ -282,6 +282,17 @@
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false' && lightboxImage && imageUrls[index]) {
         setLightboxImage(imageUrls[index], imageAlts[index]);
       }
+
+      /* R19-E: keep the lightbox slide counter in sync with the
+         active slide. aria-live="polite" on the wrapper handles the
+         SR announce; the visible "N / M" reads correctly because
+         the slash node sits between two content nodes (current and
+         total). Only present on multi-media products (counter is
+         conditionally rendered in the snippet). */
+      if (lightbox) {
+        var counterCurrent = lightbox.querySelector('[data-lightbox-counter-current]');
+        if (counterCurrent) counterCurrent.textContent = (index + 1);
+      }
     }
 
     /* Thumb click */
@@ -622,7 +633,36 @@
       }
     }
 
-    /* Keyboard: Escape close, arrows navigate */
+    /* R19-E: keyboard zoom toggle. Mouse/touch users have click +
+       pinch; keyboard-only users had no way to invoke the zoomed
+       state, which fails WCAG 2.1.1 (Keyboard) because the zoomed
+       view is the canonical way to inspect product details (grain,
+       finish, stitch). `+` / `=` toggles into zoom (or re-centers
+       if already zoomed); `-` toggles out. Pan after zoom-in stays
+       mouse-driven on desktop (cursor-follow) and overflow-driven
+       on touch — that's acceptable because the keyboard user can
+       still see the centered zoom; we don't need to add arrow-key
+       panning on top. Skipped when no viewport (single-media flow
+       hides the viewport entirely on some product layouts). */
+    function toggleLightboxZoom(forceZoomState) {
+      if (!lightboxViewport || !lightboxImage) return;
+      if (lightboxViewport.classList.contains('is-loading')) return;
+      var isCurrentlyZoomed = lightboxViewport.classList.contains('kt-lightbox__viewport--zoomed');
+      var wantsZoom = typeof forceZoomState === 'boolean' ? forceZoomState : !isCurrentlyZoomed;
+      if (wantsZoom === isCurrentlyZoomed) return;
+      lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed', wantsZoom);
+      if (!wantsZoom) {
+        lightboxImage.style.transform = '';
+      } else if (hasFinePointer) {
+        // Center the zoom for keyboard users (no cursor coords to
+        // anchor on); mouse users still get cursor-follow via the
+        // existing mousemove handler.
+        var rect = lightboxViewport.getBoundingClientRect();
+        updateZoomPan(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    }
+
+    /* Keyboard: Escape close, arrows navigate, +/- zoom */
     function onKeydown(e) {
       if (!lightbox || lightbox.getAttribute('aria-hidden') !== 'false') return;
       // Only handle Escape / arrow keys if this lightbox is the
@@ -632,6 +672,16 @@
       if (e.code === 'Escape') closeLightbox();
       if (e.code === 'ArrowLeft') goTo(currentIndex - 1);
       if (e.code === 'ArrowRight') goTo(currentIndex + 1);
+      // R19-E: +/= zooms in (toggles), - / _ zooms out. e.code is
+      // physical-key-based (Equal / Minus / NumpadAdd / NumpadSubtract)
+      // so the same keys work across keyboard layouts.
+      if (e.code === 'Equal' || e.code === 'NumpadAdd') {
+        e.preventDefault();
+        toggleLightboxZoom(true);
+      } else if (e.code === 'Minus' || e.code === 'NumpadSubtract') {
+        e.preventDefault();
+        toggleLightboxZoom(false);
+      }
     }
     document.addEventListener('keydown', onKeydown);
 
