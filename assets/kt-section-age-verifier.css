@@ -6,7 +6,12 @@
 .kt-age-verifier {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  /* R17-A: align with the design-system z-index ladder defined in
+     snippets/kt-css-variables.liquid (--kt-z-loader: 9999). Same
+     visual stacking, no magic number. The fallback keeps the
+     value if the host page somehow loses the snippet (e.g. on
+     legacy gift_card.liquid which doesn't render kt-css-variables). */
+  z-index: var(--kt-z-loader, 9999);
   display: flex;
   align-items: center;
   justify-content: center;
