@@ -73,7 +73,11 @@
                 Check and prevents the reflow.
               {%- endcomment -%}
               {%- assign brand_logo_width = block.settings.image.width | times: 40 | divided_by: block.settings.image.height -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', width: brand_logo_width, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
+              {%- assign brand_logo_width_2x = brand_logo_width | times: 2 -%}
+              {%- assign brand_logo_width_3x = brand_logo_width | times: 3 -%}
+              {%- capture brand_logo_widths -%}{{ brand_logo_width }}, {{ brand_logo_width_2x }}, {{ brand_logo_width_3x }}{%- endcapture -%}
+              {%- capture brand_logo_sizes -%}{{ brand_logo_width }}px{%- endcapture -%}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', widths: brand_logo_widths, sizes: brand_logo_sizes, width: brand_logo_width, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
             {%- else -%}
               {%- comment -%}
                 R197 — dropped the placeholder_svg from the no-image

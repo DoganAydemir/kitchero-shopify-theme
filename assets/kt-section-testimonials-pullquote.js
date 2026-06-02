@@ -154,6 +154,11 @@
       goTo(index + (dx < 0 ? 1 : -1));
       stopAuto();
     }, { passive: true });
+    /* R21-C: touchcancel resets touchActive so a system-interrupted
+       swipe doesn't strand the next gesture in mid-state. */
+    track.addEventListener('touchcancel', function () {
+      touchActive = false;
+    }, { passive: true });
 
     /* Expose goTo + stopAuto so the theme editor block:select handler
        can jump to a specific slide when the merchant clicks a block. */

@@ -269,6 +269,17 @@
     /* Swipe-to-close gesture (R141 NAV-SWIPE-1). */
     document.addEventListener('touchstart', handleSwipeStart, { passive: true });
     document.addEventListener('touchend', handleSwipeEnd, { passive: true });
+    /* R21-C: clear the swipe origin when iOS / Android system gestures
+       (notification panel pulldown, edge-back swipe, incoming call)
+       interrupt the touch sequence. Without this, the stored
+       swipeStartX/Y/time persists into the next touch sequence — and
+       handleSwipeEnd would compute deltas against the old origin,
+       potentially closing the menu after a benign tap. */
+    document.addEventListener('touchcancel', function () {
+      swipeStartX = 0;
+      swipeStartY = 0;
+      swipeStartTime = 0;
+    }, { passive: true });
     /* Apply JS-only attrs to every panel present at bind time. */
     document.querySelectorAll('.kt-header__mobile-panel').forEach(applyPanelAttrs);
   }

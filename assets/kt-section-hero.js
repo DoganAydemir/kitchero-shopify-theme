@@ -177,6 +177,12 @@
         self._resumeAutoplay();
       }
     }, { passive: true });
+    /* R21-C: touchcancel resets swipe state + resumes autoplay when
+       iOS / Android system gestures interrupt the touch sequence. */
+    this.section.addEventListener('touchcancel', function () {
+      touchMoved = false;
+      self._resumeAutoplay();
+    }, { passive: true });
   };
 
   KitcheroHero.prototype.goTo = function (index) {

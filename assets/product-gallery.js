@@ -372,6 +372,13 @@
           if (currentIndex > 0) goTo(currentIndex - 1);
         }
       }, { passive: true });
+      /* R21-C: reset inline-swipe state when iOS / Android system
+         gestures interrupt mid-swipe — without this, inlineSwipeMoved
+         can stay true and the next genuine tap would be treated as a
+         swipe-end. */
+      mainArea.addEventListener('touchcancel', function () {
+        inlineSwipeMoved = false;
+      }, { passive: true });
     }
 
     /* Slide click → open lightbox to that specific image (Showroom PDP

@@ -169,6 +169,17 @@ if (!window.__kitcheroSliderCinematicLoaded) {
           if (!reducedMotion && interval > 0) controller.start();
         }
       }, { passive: true });
+      /* R21-C: touchcancel resets the swipe state when iOS / Android
+         system gestures (pulldown notification panel, edge-swipe to go
+         back, incoming call sheet) interrupt the touch sequence
+         mid-gesture. Without this, `swipeMoved` stays true into the
+         next interaction and autoplay never resumes — the carousel
+         visually freezes from the customer's perspective until they
+         manually swipe again. */
+      root.addEventListener('touchcancel', function () {
+        swipeMoved = false;
+        if (!reducedMotion && interval > 0) controller.start();
+      }, { passive: true });
 
       var dotList = root.querySelectorAll('[data-slide-dot]');
       dotList.forEach(function (dot) {

@@ -445,7 +445,7 @@
                       detail on iPhone Pro / Plus-class displays.
                     {%- endcomment -%}
                     <div class="kt-showroom__door-thumb">
-                      {{ door_sample_image | image_url: width: 240 | image_tag: loading: 'lazy', width: 80, height: 106, alt: door_sample_image.alt | default: product.title }}
+                      {{ door_sample_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '80, 120, 160, 240', sizes: '80px', width: 80, height: 106, alt: door_sample_image.alt | default: product.title }}
                     </div>
                   {%- endif -%}
                 </div>
@@ -898,7 +898,7 @@
                       <div class="kt-showroom__sample-top">
                         <div class="kt-showroom__sample-thumb">
                           {%- if sample_product.featured_image != blank -%}
-                            {{ sample_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', width: 72, height: 96, alt: sample_product.title }}
+                            {{ sample_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', widths: '72, 108, 144, 200', sizes: '72px', width: 72, height: 96, alt: sample_product.title }}
                           {%- else -%}
                             {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
                           {%- endif -%}
