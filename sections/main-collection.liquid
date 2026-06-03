@@ -170,7 +170,14 @@
                       >
                         {%- for value in filter.values -%}
                           <li>
-                            <label class="kt-filter__option" for="Bar-{{ filter.param_name }}-{{ forloop.index }}">
+                            {%- comment -%}
+                              Implicit label association — see the
+                              sidebar variant in snippets/collection-
+                              filters.liquid for the rationale. Wrapping
+                              label without `for=""` prevents the
+                              double-fire click bug that broke uncheck.
+                            {%- endcomment -%}
+                            <label class="kt-filter__option">
                               <input
                                 type="checkbox"
                                 id="Bar-{{ filter.param_name }}-{{ forloop.index }}"
@@ -618,7 +625,13 @@
                   {%- for value in filter.values -%}
                     {%- assign drawer_filter_id = 'FilterDrawer-' | append: filter.param_name | append: '-' | append: forloop.index -%}
                     <li class="kt-filter-drawer__option">
-                      <label class="kt-filter-drawer__check" for="{{ drawer_filter_id }}">
+                      {%- comment -%}
+                        Implicit label association — see the sidebar
+                        variant in snippets/collection-filters.liquid
+                        for the rationale on omitting `for=""` when
+                        the input is nested.
+                      {%- endcomment -%}
+                      <label class="kt-filter-drawer__check">
                         <input
                           type="checkbox"
                           id="{{ drawer_filter_id }}"
