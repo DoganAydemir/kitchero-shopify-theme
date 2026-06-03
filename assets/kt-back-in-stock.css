@@ -1,14 +1,13 @@
 /* Back-in-Stock Notification — trigger button + modal form.
-   Mirrors the pickup-availability modal pattern: native <details>
-   isn't used here because the form is meant to feel like a focused
-   capture surface, not a disclosure widget. Custom modal with focus
-   trap (kt-back-in-stock.js) + native dialog semantics on the
-   markup (role="dialog", aria-modal, inert when closed). */
+   Premium capture surface with focused typography rhythm, soft
+   borders, and a product summary card that anchors the request
+   visually. The trigger sits next to the disabled add-to-cart on
+   the PDP and the modal portals to <body> via kt-back-in-stock.js
+   so it always layers above the cart drawer / search overlay. */
 
-/* ── Trigger button ─────────────────────────────────────────────
-   Sits next to / below the disabled ATC. Outline style so it reads
-   as a secondary action and doesn't compete visually with the
-   primary buy button on available variants. */
+/* ── Trigger button ────────────────────────────────────────────
+   Outline secondary so it reads as a notification opt-in rather
+   than competing with the buy button on available variants. */
 .kt-back-in-stock__trigger {
   display: inline-flex;
   align-items: center;
@@ -45,45 +44,27 @@
 }
 
 /* ── Modal overlay ──────────────────────────────────────────────
-   Fixed-positioned full-viewport overlay with a centred panel.
-   Hidden by default via `aria-hidden="true"` + `inert`; opened via
-   JS toggling those attributes. Pointer-events: none on the
-   closed state so it never blocks clicks underneath.
-
-   z-index above cart-drawer (1000) and announcement bar (50) so a
-   sold-out variant on a product the customer reached via the cart
-   drawer's recommendations slot can still pop the back-in-stock
-   form without the drawer overlapping. */
+   Full-viewport fixed overlay. !important on anchoring properties
+   defends against parents that try to clip via overflow or pin
+   via position: relative on a stale CSS cache. */
 .kt-back-in-stock__modal {
-  /* `!important` on position + inset ensures the modal always
-     anchors to the viewport even when an ancestor (parent
-     section, theme wrapper) tries to clip via overflow or
-     `position: relative`. Without it, a stale CSS cache or a
-     conflicting parent rule pinned the modal to its DOM
-     ancestor instead of the viewport, leaving the page content
-     visible around the panel. */
   position: fixed !important;
   inset: 0 !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  /* Popover tier (1500) — sits ABOVE the drawer tier (1100) so
-     a customer opening the cart drawer, seeing a sold-out item
-     in the recommendations slot, and clicking "Notify me" gets
-     the modal layering over the drawer instead of fighting for
-     the same 1100 layer (where DOM order arbitrarily wins). */
+  /* Popover tier — sits above the drawer tier so a customer hitting
+     "Notify me" from a sold-out item inside the cart drawer's
+     recommendations slot doesn't lose the modal to the drawer. */
   z-index: 1500;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.25rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
-  /* Establish a clean stacking context so backdrop + panel sit
-     above all page chrome (header sticky bars, accordion content)
-     regardless of where they appear in the DOM. */
+  transition: opacity 0.22s ease;
   isolation: isolate;
 }
 
@@ -95,13 +76,13 @@
 .kt-back-in-stock__backdrop {
   position: absolute;
   inset: 0;
-  /* Stronger dim so the underlying page content reads as clearly
-     out-of-focus and doesn't compete with the modal panel
-     (previous 0.55 alpha was too soft on cream / light schemes
-     and the accordion content below leaked through visually). */
-  background-color: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  /* Slightly less aggressive dim than the previous 0.72 alpha —
+     paired with the panel's subtle border ring it still pops the
+     modal off the page without painting the storefront as fully
+     "switched off". */
+  background-color: rgba(15, 13, 12, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
   z-index: 0;
 }
@@ -111,36 +92,22 @@
   z-index: 1;
   width: 100%;
   max-width: 460px;
-  /* Cap panel height so long content (Notify form + disclaimer
-     + name/phone fields when enabled) doesn't push past the
-     viewport. `min(...)` floors to the smaller of two limits:
-     the available viewport minus modal padding OR a sensible
-     desktop ceiling. `dvh` (dynamic viewport height) accounts
-     for mobile browser chrome (Safari URL bar collapse) so the
-     panel doesn't get clipped when the address bar shows. */
-  max-height: min(calc(100dvh - 2rem), 720px);
-  padding: 2rem;
+  max-height: min(calc(100dvh - 2.5rem), 720px);
+  padding: 2rem 2rem 1.75rem;
   background: var(--kt-c-surface, #ffffff);
   color: rgb(var(--kt-c-fg));
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(0, 0, 0, 0.08);
-  transform: translateY(8px);
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  /* Scroll containment — when the form is taller than the
-     panel (mobile, name/phone fields enabled, long product
-     title) the panel itself becomes the scroll container.
-     `overscroll-behavior: contain` stops scroll-chaining to
-     the underlying page so a swipe inside the modal doesn't
-     leak through to the page below even on iOS where Lenis
-     isn't blocking the touch event chain. */
+    0 30px 60px -20px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  transform: translateY(12px) scale(0.985);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .kt-back-in-stock__modal[aria-hidden="false"] .kt-back-in-stock__panel {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -148,36 +115,39 @@
   .kt-back-in-stock__panel {
     transition: none;
   }
+  .kt-back-in-stock__panel {
+    transform: translateY(0) scale(1);
+  }
 }
 
+/* ── Close button ──────────────────────────────────────────────
+   Absolute-positioned so it never participates in the content
+   flow (previous float+sticky pattern caused the description text
+   to wrap underneath it). The hit area stays WCAG 2.5.5 compliant
+   at 44×44 even though the visible chip is 32×32 — extra padding
+   absorbs the touch target without growing the visible footprint. */
 .kt-back-in-stock__close {
-  /* Sticky to the top of the scroll container so the close
-     button stays visible when the panel's internal content
-     scrolls. Previous absolute positioning scrolled the close
-     button out of view on overflowing content. The negative
-     top + right margins pull it into the panel's padding zone
-     so it sits flush with the corner without needing extra
-     padding around the heading. */
-  position: sticky;
-  top: 0.25rem;
-  float: right;
-  margin-right: -0.5rem;
-  margin-bottom: -2.25rem;
-  /* WCAG 2.5.5 — close button is a primary dismiss control on
-     a modal; must be 44×44 minimum touch target on mobile.
-     Previous 36×36 fell 8px short. */
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
   width: 44px;
   height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   border: 0;
-  background: var(--kt-c-surface, #ffffff);
-  color: rgb(var(--kt-c-fg-muted));
+  background: transparent;
+  color: rgba(var(--kt-c-fg), 0.5);
   cursor: pointer;
   border-radius: 999px;
   z-index: 2;
   transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.kt-back-in-stock__close svg {
+  width: 18px;
+  height: 18px;
 }
 
 .kt-back-in-stock__close:hover {
@@ -190,49 +160,115 @@
   outline-offset: 2px;
 }
 
-.kt-back-in-stock__heading {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+/* ── Header (icon + heading + description) ────────────────────── */
+.kt-back-in-stock__header {
+  /* Right padding keeps the heading clear of the absolute close
+     button at every line length — even when a long localized
+     heading wraps to two lines, the second line doesn't slide
+     under the close chip. */
   padding-right: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.kt-back-in-stock__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0.875rem;
+  border-radius: 999px;
+  background: rgba(var(--kt-c-fg), 0.06);
+  color: rgb(var(--kt-c-fg));
+}
+
+.kt-back-in-stock__heading {
+  margin: 0 0 0.375rem;
+  font-size: 1.3125rem;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .kt-back-in-stock__description {
-  margin: 0 0 1.25rem;
+  margin: 0;
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: rgb(var(--kt-c-fg-muted));
 }
 
+/* ── Product summary card ──────────────────────────────────────
+   Image thumbnail + label/title/variant stack. Anchors the
+   "which item are you watching" answer visually. */
 .kt-back-in-stock__product {
-  margin: 0 0 1.25rem;
-  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem;
+  background: rgba(var(--kt-c-fg), 0.035);
+  border: 1px solid rgba(var(--kt-c-fg), 0.06);
+  border-radius: 10px;
+}
+
+.kt-back-in-stock__product-media {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  overflow: hidden;
   background: rgba(var(--kt-c-fg), 0.04);
-  border-radius: 4px;
-  font-size: 0.875rem;
+  /* Subtle inner ring lifts the thumb off the card panel without
+     adding visual weight. */
+  box-shadow: inset 0 0 0 1px rgba(var(--kt-c-fg), 0.04);
+}
+
+.kt-back-in-stock__product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kt-back-in-stock__product-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.0625rem;
 }
 
 .kt-back-in-stock__product-label {
-  color: rgb(var(--kt-c-fg-muted));
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: rgba(var(--kt-c-fg), 0.5);
+}
+
+.kt-back-in-stock__product-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: rgb(var(--kt-c-fg));
+  /* Single-line ellipsis if the product title is long. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kt-back-in-stock__variant {
-  color: rgb(var(--kt-c-fg-muted));
   font-size: 0.8125rem;
+  color: rgb(var(--kt-c-fg-muted));
+  margin-top: 0.0625rem;
 }
 
 /* ── Form ────────────────────────────────────────────────────── */
 .kt-back-in-stock__form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .kt-back-in-stock__field {
@@ -244,25 +280,35 @@
 .kt-back-in-stock__field label {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: rgba(var(--kt-c-fg), 0.8);
+  color: rgba(var(--kt-c-fg), 0.78);
 }
 
 .kt-back-in-stock__field input {
   width: 100%;
-  padding: 0.75rem 0.875rem;
-  border: 1px solid rgba(var(--kt-c-fg), 0.18);
-  border-radius: 4px;
+  padding: 0.75rem 0.9375rem;
+  border: 1px solid rgba(var(--kt-c-fg), 0.14);
+  border-radius: 8px;
   background: var(--kt-c-surface, #ffffff);
   color: rgb(var(--kt-c-fg));
   font-size: 0.9375rem;
   font-family: inherit;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kt-back-in-stock__field input::placeholder {
+  color: rgba(var(--kt-c-fg), 0.32);
+}
+
+.kt-back-in-stock__field input:hover {
+  border-color: rgba(var(--kt-c-fg), 0.25);
 }
 
 .kt-back-in-stock__field input:focus-visible {
   outline: 0;
-  border-color: rgb(var(--kt-c-fg));
-  box-shadow: 0 0 0 1px rgb(var(--kt-c-fg));
+  border-color: rgba(var(--kt-c-fg), 0.55);
+  /* Single 3px ring at 8% alpha — visible focus indicator without
+     the heavy 2px solid-dark slab from the previous design. */
+  box-shadow: 0 0 0 3px rgba(var(--kt-c-fg), 0.08);
 }
 
 .kt-back-in-stock__hidden-message {
@@ -283,21 +329,28 @@
   justify-content: center;
   width: 100%;
   min-height: 48px;
-  padding: 0.75rem 1.5rem;
-  margin-top: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  margin-top: 0.25rem;
   border: 0;
-  border-radius: var(--kt-btn-radius, 9999px);
+  border-radius: 10px;
   background-color: rgb(var(--kt-c-fg));
   color: rgb(var(--kt-c-bg));
   font-size: 0.9375rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.015em;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .kt-back-in-stock__submit:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.5);
+}
+
+.kt-back-in-stock__submit:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .kt-back-in-stock__submit:focus-visible {
@@ -305,66 +358,93 @@
   outline-offset: 2px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .kt-back-in-stock__submit:hover {
+    transform: none;
+  }
+}
+
 .kt-back-in-stock__alert {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
+  padding: 0.75rem 0.875rem;
+  border-radius: 8px;
   font-size: 0.875rem;
   line-height: 1.4;
 }
 
 .kt-back-in-stock__alert--error {
-  background-color: rgba(220, 38, 38, 0.08);
+  background-color: rgba(220, 38, 38, 0.07);
   color: var(--kt-red-700, #b91c1c);
   border: 1px solid rgba(220, 38, 38, 0.18);
 }
 
 .kt-back-in-stock__alert--success {
-  background-color: rgba(16, 185, 129, 0.08);
+  background-color: rgba(16, 185, 129, 0.07);
   color: var(--kt-emerald-700, #047857);
-  border: 1px solid rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+/* hCaptcha / reCAPTCHA disclaimer. Pushed to the very bottom in a
+   small, muted treatment so it reads as fine-print and doesn't
+   compete with the submit button visually. The wider letter-
+   spacing and slightly smaller font deliberately echo the legal-
+   copy pattern from the footer policy strip. */
 .kt-back-in-stock__legal {
-  margin: 0;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: rgb(var(--kt-c-fg-muted));
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  color: rgba(var(--kt-c-fg), 0.5);
+  letter-spacing: 0.005em;
 }
 
 .kt-back-in-stock__legal a {
-  color: inherit;
+  color: rgba(var(--kt-c-fg), 0.72);
   text-decoration: underline;
+  text-decoration-color: rgba(var(--kt-c-fg), 0.25);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.kt-back-in-stock__legal a:hover {
+  color: rgb(var(--kt-c-fg));
+  text-decoration-color: rgb(var(--kt-c-fg));
 }
 
 /* ── Mobile tuning ──────────────────────────────────────────── */
 @media (max-width: 749px) {
-  /* Wider breakpoint than the prior 600px — phone-portrait
-     viewports on iPhone 14 Pro Max / Android XL are ~430px and
-     iPad mini portrait is 744px; we want the bottom-sheet
-     treatment on both so the modal doesn't float awkwardly
-     centred on narrow tablets. */
   .kt-back-in-stock__modal {
     padding: 0;
     align-items: flex-end;
-    /* `justify-content: stretch` on a flex column wouldn't work;
-       full-width is achieved by the panel taking max-width: 100%
-       at this breakpoint. */
   }
 
   .kt-back-in-stock__panel {
     max-width: 100%;
-    max-height: min(85dvh, 720px);
-    border-radius: 16px 16px 0 0;
-    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
-    /* `env(safe-area-inset-bottom)` keeps the bottom of the
-       sheet above the iPhone home indicator on notched devices. */
+    max-height: min(88dvh, 720px);
+    border-radius: 18px 18px 0 0;
+    padding: 1.5rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    transform: translateY(40px);
+  }
+
+  .kt-back-in-stock__modal[aria-hidden="false"] .kt-back-in-stock__panel {
+    transform: translateY(0);
   }
 
   .kt-back-in-stock__close {
-    /* Pull close button into the rounded top corner of the
-       bottom sheet. The negative top margin doesn't bleed past
-       the radius because the panel's `overflow-y: auto` clips. */
-    margin-right: -0.25rem;
-    top: 0;
+    top: 0.625rem;
+    right: 0.625rem;
+  }
+
+  .kt-back-in-stock__header {
+    padding-right: 2.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .kt-back-in-stock__icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.75rem;
+  }
+
+  .kt-back-in-stock__heading {
+    font-size: 1.1875rem;
   }
 }

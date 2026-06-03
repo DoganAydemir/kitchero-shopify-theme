@@ -87,29 +87,69 @@
       </svg>
     </button>
 
-    <h2 id="{{ title_id }}" class="kt-back-in-stock__heading">
-      {%- if heading != blank -%}
-        {{ heading | escape }}
+    <header class="kt-back-in-stock__header">
+      {%- comment -%}
+        Header groups the icon + heading + description so the panel
+        reads as a focused notification capture surface rather than
+        a stack of disconnected text blocks. The bell glyph adds a
+        small piece of visual furniture above the heading without
+        adding meaningful UI weight.
+      {%- endcomment -%}
+      <span class="kt-back-in-stock__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+        </svg>
+      </span>
+      <h2 id="{{ title_id }}" class="kt-back-in-stock__heading">
+        {%- if heading != blank -%}
+          {{ heading | escape }}
+        {%- else -%}
+          {{ 'kt.product.back_in_stock.heading' | t | default: 'Notify me when back in stock' }}
+        {%- endif -%}
+      </h2>
+      {%- if description != blank -%}
+        <div class="kt-back-in-stock__description rte">{{ description }}</div>
       {%- else -%}
-        {{ 'kt.product.back_in_stock.heading' | t | default: 'Notify me when back in stock' }}
+        <p class="kt-back-in-stock__description">
+          {{ 'kt.product.back_in_stock.description' | t | default: 'Drop your email and we will let you know the moment this item is available again.' }}
+        </p>
       {%- endif -%}
-    </h2>
+    </header>
 
-    {%- if description != blank -%}
-      <div class="kt-back-in-stock__description rte">{{ description }}</div>
-    {%- else -%}
-      <p class="kt-back-in-stock__description">
-        {{ 'kt.product.back_in_stock.description' | t | default: 'Drop your email and we will let you know the moment this item is available again.' }}
-      </p>
-    {%- endif -%}
-
-    <p class="kt-back-in-stock__product">
-      <span class="kt-back-in-stock__product-label">{{ 'kt.product.back_in_stock.product_label' | t | default: 'Item' }}:</span>
-      <strong data-back-in-stock-product-title>{{ safe_product_title }}</strong>
-      {%- unless product.has_only_default_variant -%}
-        <span class="kt-back-in-stock__variant" data-back-in-stock-variant-title>{{ variant.title | escape }}</span>
-      {%- endunless -%}
-    </p>
+    <div class="kt-back-in-stock__product">
+      {%- comment -%}
+        Product thumbnail anchors the "which item are you watching"
+        question visually. Falls through to the product placeholder
+        when the merchant hasn't set a featured image yet so the
+        layout never collapses to text-only.
+      {%- endcomment -%}
+      <div class="kt-back-in-stock__product-media">
+        {%- if product.featured_image != blank -%}
+          {{
+            product.featured_image
+            | image_url: width: 160
+            | image_tag:
+              loading: 'lazy',
+              widths: '64, 96, 128, 160',
+              sizes: '64px',
+              width: 64,
+              height: 64,
+              alt: safe_product_title,
+              class: 'kt-back-in-stock__product-image'
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-back-in-stock__product-image' }}
+        {%- endif -%}
+      </div>
+      <div class="kt-back-in-stock__product-body">
+        <span class="kt-back-in-stock__product-label">{{ 'kt.product.back_in_stock.product_label' | t | default: 'Item' }}</span>
+        <strong class="kt-back-in-stock__product-title" data-back-in-stock-product-title>{{ safe_product_title }}</strong>
+        {%- unless product.has_only_default_variant -%}
+          <span class="kt-back-in-stock__variant" data-back-in-stock-variant-title>{{ variant.title | escape }}</span>
+        {%- endunless -%}
+      </div>
+    </div>
 
     {%- form 'contact', id: form_id, class: 'kt-back-in-stock__form' -%}
       {%- comment -%}
