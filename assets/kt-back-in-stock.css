@@ -330,7 +330,13 @@
   width: 100%;
   min-height: 48px;
   padding: 0.875rem 1.5rem;
-  margin-top: 0.25rem;
+  /* Generous gap above the submit so the input → button rhythm
+     reads as two distinct steps. The form-level `gap` already
+     contributes 0.875rem; this margin adds another 0.5rem for a
+     1.375rem total — enough breathing room to separate the input
+     stack from the primary action without pushing the modal taller
+     than the viewport on phones. */
+  margin-top: 0.5rem;
   border: 0;
   border-radius: 10px;
   background-color: rgb(var(--kt-c-fg));
@@ -385,15 +391,28 @@
 
 /* hCaptcha / reCAPTCHA disclaimer. Pushed to the very bottom in a
    small, muted treatment so it reads as fine-print and doesn't
-   compete with the submit button visually. The wider letter-
-   spacing and slightly smaller font deliberately echo the legal-
-   copy pattern from the footer policy strip. */
-.kt-back-in-stock__legal {
-  margin: 0.25rem 0 0;
+   compete with the submit button visually.
+
+   Selectors target BOTH the wrapper div AND any nested <p> Shopify
+   may emit inside the disclaimer_html translation. Without the
+   descendant rule, when Shopify wraps the disclaimer text in <p>
+   the inner paragraph would fall back to UA-default 16px / full
+   opacity and the muted treatment would only land on the empty
+   parent. */
+.kt-back-in-stock__legal,
+.kt-back-in-stock__legal p {
+  margin: 0;
   font-size: 0.6875rem;
   line-height: 1.55;
   color: rgba(var(--kt-c-fg), 0.5);
   letter-spacing: 0.005em;
+}
+
+.kt-back-in-stock__legal {
+  /* Gap above the legal block — keeps it visually separated from
+     the submit button without piling onto the next stacking step
+     in the flex form layout. */
+  margin-top: 0.75rem;
 }
 
 .kt-back-in-stock__legal a {

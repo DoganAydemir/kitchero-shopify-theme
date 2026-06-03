@@ -250,7 +250,19 @@
         which Theme Store reviewers flag as visual noise.
       {%- endcomment -%}
       {% comment %}theme-check-disable TranslationKeyExists{% endcomment %}
-      <p class="kt-back-in-stock__legal">{{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}</p>
+      {%- comment -%}
+        Wrapper is intentionally a <div> rather than <p>. Shopify's
+        `shopify.online_store.spam_detection.disclaimer_html`
+        translation can ship its own block-level wrapping in some
+        locales — when it does, the HTML parser auto-closes a
+        nesting `<p>` before opening the inner one, which leaves
+        the .kt-back-in-stock__legal class on an empty paragraph
+        and the actual disclaimer text on a naked default-styled
+        <p>. The <div> wrapper + descendant `p` / `a` selectors in
+        the companion CSS guarantee the muted-fine-print treatment
+        whether Shopify emits text-with-anchors or a wrapped block.
+      {%- endcomment -%}
+      <div class="kt-back-in-stock__legal">{{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}</div>
       {% comment %}theme-check-enable TranslationKeyExists{% endcomment %}
     {%- endform -%}
   </div>
