@@ -62,6 +62,29 @@ if (window.__kitcheroCollectionFiltersLoaded) {
   function buildFilterUrl() {
     var params = new URLSearchParams();
 
+    /* Build the "ownership set" of every key name the filter form
+       controls — regardless of whether the box is currently
+       checked or the price input is empty. Without this set, the
+       URL-preserve loop below couldn't distinguish "this key is
+       ours but the user just unchecked the last value" from "this
+       key belongs to /search or analytics". Result: unchecking
+       the last value of a filter copied the stale param back from
+       the URL, the fetch returned the filtered state, the sidebar
+       swap restored the `checked` attribute, and the customer
+       could never uncheck a filter (R-filter-uncheck-2).
+
+       Collected from ALL `[data-filter-checkbox]` (regardless of
+       :checked) + `[data-filter-price]` (regardless of value) so
+       every filter-owned key is recognized as ours-to-write even
+       in its empty / unchecked state. */
+    var ownedKeys = new Set();
+    document.querySelectorAll('[data-filter-checkbox]').forEach(function (cb) {
+      if (cb.name) ownedKeys.add(cb.name);
+    });
+    document.querySelectorAll('[data-filter-price]').forEach(function (input) {
+      if (input.name) ownedKeys.add(input.name);
+    });
+
     /* Collect all checked checkboxes */
     document.querySelectorAll('[data-filter-checkbox]:checked').forEach(function (cb) {
       params.append(cb.name, cb.value);
@@ -88,11 +111,13 @@ if (window.__kitcheroCollectionFiltersLoaded) {
            shouldn't evaporate when a customer refines a search
            filter mid-session.
        Skip param names we own (filter checkboxes / price ranges)
-       so we don't double-write them. */
+       so we don't double-write them AND so unchecking the last
+       value of a filter drops that key entirely instead of having
+       this loop copy it back from the previous URL. */
     var currentUrl = new URL(window.location.href);
     currentUrl.searchParams.forEach(function (value, key) {
-      if (params.has(key)) return; // owned by checkbox/price loop above
-      if (key === 'page') return;  // pagination resets on filter change
+      if (ownedKeys.has(key)) return; // we control this key; trust the form state, not the URL
+      if (key === 'page') return;     // pagination resets on filter change
       params.append(key, value);
     });
 
