@@ -18,10 +18,18 @@
 
 /* ---------------------------------------------------------------- Heading */
 .kt-testimonials-marquee__container {
-  max-width: 1280px;
+  /* Aligned to global --kt-page-max so the testimonials heading's
+     left edge matches the header logo on wide viewports. */
+  max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding: 0 1.5rem;
   margin-bottom: 4rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-testimonials-marquee__container {
+    padding: 0 2rem;
+  }
 }
 
 .kt-testimonials-marquee__heading-block {
