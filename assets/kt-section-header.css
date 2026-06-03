@@ -688,7 +688,12 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
      least 220px, fits as many as possible per row, wraps cleanly
      for narrower viewports. */
   grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 2rem;
+  /* Row-gap is generous (2.75rem) so a second-row column ("BY
+     BRAND" wrapping below "BY STYLE" on a wide menu) reads as a
+     distinct group from the column above it rather than a
+     continuation of the same list. Column gap stays 2rem. */
+  row-gap: 2.75rem;
+  column-gap: 2rem;
 }
 
 /* Staggered column entrance — each column slides up with delay */
@@ -741,25 +746,32 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    Next.js source uses text-stone-400 but that fails WCAG AA on the
    white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
    4.8:1 contrast — still muted, still reads as an eyebrow label. */
-/* Eyebrow label pinned to stone-500 so it always reads on the
-   light mega-menu surface — see .kt-header__mega-menu for full
-   rationale on why the desktop dropdown isn't scheme-aware. */
+/* Eyebrow label — deliberately lifted UP the color ramp (lighter
+   than the link list below) so the title reads as scaffolding
+   metadata rather than a competing line. Previous stone-500 sat
+   too close to the link rest color, which blurred the
+   eyebrow → list hierarchy. The increased margin-bottom buys
+   the title clear vertical space; pair this with the darker link
+   color below for a clean two-tier visual stack. */
 .kt-header__mega-column-title {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--kt-stone-500, #7a7a7a);
-  margin-bottom: 1rem;
+  color: var(--kt-stone-400, #9f9f9e);
+  margin-bottom: 1.5rem;
 }
 
-/* R232.8 — tighter gap between menu links; previously gap-1rem +
-   15px serif-inherited links created an oversized hierarchy that
-   read like top-level navigation instead of a sub-menu list. */
+/* Slightly bumped gap between mega-menu list items so the dark
+   stone-700 links breathe properly under the muted title above.
+   Previous 0.625rem was tight when the link color was light;
+   now that the links are darker (and therefore read with more
+   visual weight per row) the list needs more breathing space to
+   stay scannable. */
 .kt-header__mega-list {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.75rem;
 }
 
 /* R232.8 — Body-font (not heading serif), 13.5px, regular weight.
@@ -769,15 +781,20 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    the secondary-link tier they should be. Pinning font-family
    here keeps the hierarchy (eyebrow label → link) legible at
    small sizes. */
-/* Mega link rest + hover pinned to stone-600/stone-900 so the
-   text stays high-contrast on the always-light dropdown surface —
-   see .kt-header__mega-menu for the full rationale. */
+/* Mega link rest is anchored to stone-700 (#434343) so the items
+   sit clearly DARKER than the eyebrow title above. Previous
+   rgba(87,83,78,0.85) ≈ #7c7872 was visually indistinguishable
+   from the title color, which collapsed the hierarchy — both
+   rendering as the same medium-gray tone. stone-700 + bumped
+   line-height gives the list crisp legibility and proper rank
+   below the eyebrow scaffolding. Hover darkens to near-black
+   plus the existing letter-spacing animation. */
 .kt-header__mega-link {
   font-family: var(--kt-f-body, system-ui, sans-serif);
   font-size: 0.84375rem;
   font-weight: 400;
-  line-height: 1.4;
-  color: rgba(87, 83, 78, 0.85);
+  line-height: 1.5;
+  color: var(--kt-stone-700, #434343);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease, letter-spacing 0.2s ease;
@@ -785,7 +802,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__mega-link:hover,
 .kt-header__mega-link:focus-visible {
-  color: rgb(28, 25, 23);
+  color: rgb(12, 10, 9);
   letter-spacing: 0.025em;
 }
 
