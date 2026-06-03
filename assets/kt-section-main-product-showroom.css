@@ -19,7 +19,13 @@
 }
 
 .kt-showroom__container {
-  max-width: 1536px;
+  /* Match `.page-width` (--kt-page-max, 1500px) so the showroom
+     template's columns align with the header logo and the rest of
+     the storefront sections. Hardcoded 1536px previously made the
+     showroom container 36px wider than every neighboring section,
+     producing a subtle left-edge shift between the logo, hero,
+     and showroom content. */
+  max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding: 0 0;
 }

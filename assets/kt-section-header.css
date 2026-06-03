@@ -276,7 +276,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
      attribute is absent. */
   padding-top: var(--kt-header-padding-top, 1rem);
   padding-bottom: var(--kt-header-padding-bottom, 1rem);
-  max-width: 1536px;
+  /* Container width MUST match `.page-width` (--kt-page-max, 1500px)
+     so the logo's left edge sits at the exact same x as every
+     section body's left edge. Previously hardcoded 1536px while
+     `.page-width` resolved to 1500px — the 36px delta produced an
+     18px horizontal shift between the logo and section content
+     ("KITCHERO" sitting noticeably left of "STUDIO" / "OUR
+     PHILOSOPHY"). Sharing the merchant-controlled token keeps
+     them locked regardless of the "Page width" slider. */
+  max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
