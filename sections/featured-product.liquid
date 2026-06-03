@@ -283,7 +283,25 @@
                       output when the merchant hasn't configured them, so
                       always-on is safe.
                     {%- endcomment -%}
-                    <div class="kt-featured-product__dynamic-checkout">
+                    {%- comment -%}
+                      R27-INV: mirror snippets/product-form.liquid's
+                      data-payment-button-wrapper hook so kt-section-
+                      main-product.js + product-form.js can disable
+                      Shop Pay / Apple Pay / Google Pay synchronously
+                      with the regular submit button when the customer
+                      switches to a sold-out variant. Without the hook
+                      the shadow-DOM Dynamic Checkout buttons remain
+                      clickable + would attempt to checkout an
+                      unavailable variant (Shopify checkout 422 surface,
+                      poor UX). Initial-render sold-out state is also
+                      gated server-side via aria-disabled + style for
+                      the no-JS path.
+                    {%- endcomment -%}
+                    <div
+                      class="kt-featured-product__dynamic-checkout"
+                      data-payment-button-wrapper
+                      {% unless current_variant.available %}aria-disabled="true" style="pointer-events: none; opacity: 0.5;"{% endunless %}
+                    >
                       {{ form | payment_button }}
                     </div>
                     <div class="kt-featured-product__installments">
