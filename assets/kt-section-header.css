@@ -508,8 +508,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   top: 100%;
   left: 50%;
   width: 200px;
-  background-color: rgb(var(--kt-c-bg, 255 255 255));
-  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
+  /* Desktop dropdown surface is intentionally decoupled from the
+     header's color scheme: when a merchant runs a dark-glass header
+     the flyout still renders as a light surface so the link list
+     stays high-contrast and matches the original Next.js design
+     intent. Mobile drawer (.kt-header__mobile-panel) keeps the
+     scheme-aware treatment via its own `mobile_menu_color_scheme`
+     setting; only the desktop hover/click dropdown is pinned here. */
+  background-color: #ffffff;
+  border: 1px solid var(--kt-stone-200, #e7e5e4);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   border-radius: 2px;
   padding: 0.5rem 0;
@@ -544,21 +551,23 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   transform: translateX(-50%) translateY(0);
 }
 
-/* R232.57 — flyout link colors scheme-aware. */
+/* Light desktop dropdown — see .kt-header__flyout for rationale.
+   Link text uses stone-700 at 80% opacity to match the design
+   spec and clear WCAG AA on the always-white surface. */
 .kt-header__flyout-link {
   display: block;
   padding: 0.75rem 1.25rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
+  color: rgba(68, 64, 60, 0.8);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .kt-header__flyout-link:hover {
-  background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  background-color: rgba(28, 25, 23, 0.06);
+  color: rgb(28, 25, 23);
 }
 
 /* Inline badge in menu title — admin writes: Deals <span>Sale</span>
@@ -627,9 +636,14 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   min-width: min(600px, calc(100vw - 3rem));
   max-width: min(1100px, calc(100vw - 3rem));
   padding: 2.5rem;
-  /* R232.57 — mega menu surface scheme-aware. */
-  background-color: rgb(var(--kt-c-bg, 255 255 255));
-  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
+  /* Mega menu surface is intentionally NOT scheme-aware so a
+     merchant running a dark-glass header still gets a high-contrast
+     light dropdown for the multi-column link list. The featured-
+     card lives on its own dark gradient overlay regardless, and
+     the mobile drawer has a dedicated `mobile_menu_color_scheme`
+     setting — only the desktop dropdown surface is pinned light. */
+  background-color: #ffffff;
+  border: 1px solid var(--kt-stone-200, #e7e5e4);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border-radius: 2px;
   opacity: 0;
@@ -727,13 +741,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    Next.js source uses text-stone-400 but that fails WCAG AA on the
    white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
    4.8:1 contrast — still muted, still reads as an eyebrow label. */
-/* R232.57 — eyebrow label scheme-aware (muted fg). */
+/* Eyebrow label pinned to stone-500 so it always reads on the
+   light mega-menu surface — see .kt-header__mega-menu for full
+   rationale on why the desktop dropdown isn't scheme-aware. */
 .kt-header__mega-column-title {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
+  color: var(--kt-stone-500, #7a7a7a);
   margin-bottom: 1rem;
 }
 
@@ -753,13 +769,15 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    the secondary-link tier they should be. Pinning font-family
    here keeps the hierarchy (eyebrow label → link) legible at
    small sizes. */
-/* R232.57 — mega link rest + hover scheme-aware. */
+/* Mega link rest + hover pinned to stone-600/stone-900 so the
+   text stays high-contrast on the always-light dropdown surface —
+   see .kt-header__mega-menu for the full rationale. */
 .kt-header__mega-link {
   font-family: var(--kt-f-body, system-ui, sans-serif);
   font-size: 0.84375rem;
   font-weight: 400;
   line-height: 1.4;
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
+  color: rgba(87, 83, 78, 0.85);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease, letter-spacing 0.2s ease;
@@ -767,7 +785,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__mega-link:hover,
 .kt-header__mega-link:focus-visible {
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(28, 25, 23);
   letter-spacing: 0.025em;
 }
 
