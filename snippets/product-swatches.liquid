@@ -50,7 +50,7 @@
   {%- assign max_visible = settings.kt_swatch_max_visible | default: 5 -%}
   {%- assign total_count = color_option.values.size -%}
   {%- assign hidden_count = total_count | minus: max_visible -%}
-  <div class="kt-swatches" aria-label="{{ color_option.name }}">
+  <div class="kt-swatches" aria-label="{{ color_option.name | escape }}">
     {%- for value in color_option.values limit: max_visible -%}
       {%- liquid
         # 1. Native OS 2.0 swatch on the option value. `value` here is
