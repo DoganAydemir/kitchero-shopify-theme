@@ -12,5 +12,23 @@ support = "https://kitchero.com/theme-support"
 
 # Environments used during development/packaging.
 # Populate store + password via `shopify theme` CLI env flags or
-# a local `.env` file (not committed). This block stays empty in VCS.
+# a local `.env` file (not committed). The two named environments
+# below pair with the `main` / `demo` branch split documented in
+# WORKFLOW.md.
 [environments]
+
+# `main` branch → production / Theme Store target.
+# Use when shipping audited code that's safe for every merchant.
+[environments.prod]
+theme = "kitchero-v3"
+# store = "kitchero-prod.myshopify.com"   # fill in when ready
+# allow-live = true                       # only set when pushing to the live theme
+
+# `demo` branch → marketing / demo store target.
+# Use when previewing demo content for prospects or the Theme Store
+# submission demo-store URL. Real testimonials, brand metaobjects,
+# and polished copy live here. Never used for code-only work.
+[environments.demo]
+# theme = "kitchero-demo"                 # the demo theme name
+# store = "kitchero-demo.myshopify.com"   # fill in when the demo store is provisioned
+# unpublished = true                      # if pushing to an unpublished theme
