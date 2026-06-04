@@ -911,30 +911,64 @@
         };
 
         /* Mirror Shopify's `weight_with_unit` Liquid filter on the JS
-           side. variant.weight is already in `variant.weight_unit`
-           units (kg / g / lb / oz) per Shopify's variant JSON. Strip
-           trailing zeros so "1.50 kg" → "1.5 kg" and integers render
-           without a decimal point. */
-        var formatVariantWeight = function (weight, unit) {
+           side. Two precision points the previous implementation
+           missed:
+
+             1. variant.weight is already in `variant.weight_unit`
+                units (kg / g / lb / oz) per Shopify's variant JSON
+                shape — same as the Liquid filter expects.
+
+             2. Number formatting needs to match the storefront locale's
+                decimal separator. `1.5 kg` on EN vs `1,5 kg` on DE/FR;
+                the prior raw `String(rounded)` always emitted a `.`
+                regardless of locale, so a DE shopper saw `1,5 kg` at
+                first paint (server-rendered via Liquid) and then `1.5
+                kg` after variant change — visible flicker for the
+                same value. `Number.toLocaleString()` keyed off
+                `document.documentElement.lang` gives the matching
+                separator across all 5 supported locales.
+
+             3. The unit string itself ("kg", "lb") isn't translated
+                here because Shopify's Liquid filter doesn't translate
+                it either — both surfaces show the raw unit code. The
+                row's `data-weight-unit` attribute (set in the Liquid
+                template) is the ground-truth unit for the active
+                variant, used in preference to `matchedVariant.weight_unit`
+                so an undocumented JSON shape difference can never
+                cause an `oz` shop to display `kg`. */
+        var docLang = (document.documentElement.lang || 'en').replace('_', '-');
+        var formatVariantWeight = function (weight, unitFromRow) {
           if (weight === null || weight === undefined || weight <= 0) return '';
           var num = Number(weight);
           if (!isFinite(num) || num <= 0) return '';
           var rounded = Math.round(num * 100) / 100;
-          var asString = (rounded % 1 === 0) ? String(Math.round(rounded)) : String(rounded);
-          return asString + ' ' + (unit || 'kg');
+          var numString;
+          try {
+            numString = rounded.toLocaleString(docLang, { maximumFractionDigits: 2 });
+          } catch (e) {
+            numString = (rounded % 1 === 0) ? String(Math.round(rounded)) : String(rounded);
+          }
+          return numString + ' ' + (unitFromRow || 'kg');
         };
 
-        var refreshDetail = function (selector, rawValue) {
+        var refreshDetail = function (selector, rawValue, options) {
           var elements = container.querySelectorAll(selector);
           if (!elements.length) return;
-          var hasValue = (rawValue !== null && rawValue !== undefined && rawValue !== '' && rawValue !== 0 && rawValue !== false);
+          var opts = options || {};
           for (var i = 0; i < elements.length; i++) {
             var el = elements[i];
             var row = el.closest('[data-product-detail-row]');
+            /* Per-element value computation lets the weight formatter
+               read each row's own `data-weight-unit` attribute, which
+               matters when (rare but supported) a merchant runs side-
+               by-side product forms with different shop weight units
+               via section embed. */
+            var value = (typeof opts.compute === 'function') ? opts.compute(row) : rawValue;
+            var hasValue = (value !== null && value !== undefined && value !== '' && value !== 0 && value !== false);
             if (row) {
               if (hasValue) {
                 row.hidden = false;
-                el.textContent = rawValue;
+                el.textContent = value;
               } else {
                 row.hidden = true;
                 el.textContent = '';
@@ -944,7 +978,7 @@
               var hiddenLabelText = hiddenLabel ? hiddenLabel.outerHTML : '';
               if (hasValue) {
                 el.hidden = false;
-                el.innerHTML = hiddenLabelText + ' ' + escapeDetail(rawValue);
+                el.innerHTML = hiddenLabelText + ' ' + escapeDetail(value);
               } else {
                 el.hidden = true;
               }
@@ -954,7 +988,12 @@
 
         refreshDetail('[data-product-sku]', matchedVariant.sku);
         refreshDetail('[data-product-barcode]', matchedVariant.barcode);
-        refreshDetail('[data-product-weight]', formatVariantWeight(matchedVariant.weight, matchedVariant.weight_unit));
+        refreshDetail('[data-product-weight]', null, {
+          compute: function (row) {
+            var unit = (row && row.getAttribute('data-weight-unit')) || matchedVariant.weight_unit;
+            return formatVariantWeight(matchedVariant.weight, unit);
+          }
+        });
       } catch (e) { /* product detail updates are non-critical */ }
 
       /* Re-read the active selling plan (if any) so the new variant
