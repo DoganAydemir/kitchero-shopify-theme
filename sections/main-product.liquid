@@ -787,15 +787,31 @@
                 {%- liquid
                   assign pd_variant = product.selected_or_first_available_variant
                   assign pd_any = false
-                  if block.settings.show_sku and pd_variant.sku != blank
+
+                  # Variant-dependent rows (SKU / Barcode / Weight) — render
+                  # the <dl> as long as the merchant has the toggle ON, even
+                  # when the FIRST variant's value is blank. The row wrapper
+                  # carries the `hidden` attribute and JS un-hides it on
+                  # variant change when the matched variant has data. Without
+                  # this the <dl> would miss from the DOM entirely on
+                  # products where the first variant has no SKU but later
+                  # variants do — and the variant-change refresh would have
+                  # nothing to write into.
+                  if block.settings.show_sku
                     assign pd_any = true
                   endif
-                  if block.settings.show_barcode and pd_variant.barcode != blank
+                  if block.settings.show_barcode
                     assign pd_any = true
                   endif
-                  if block.settings.show_weight and pd_variant.weight > 0
+                  if block.settings.show_weight
                     assign pd_any = true
                   endif
+
+                  # Product-level rows (vendor / type / origin / tags /
+                  # dimensions) DON'T change across variants — only render
+                  # them when the underlying product field actually has
+                  # data. An empty toggle here would surface a label with
+                  # an empty value.
                   if block.settings.show_vendor and product.vendor != blank
                     assign pd_any = true
                   endif
@@ -819,22 +835,35 @@
                 -%}
                 {%- if pd_any -%}
                   <dl class="kt-pdp__details kt-pdp__details--{{ block.settings.layout | default: 'inline' }}" {{ block.shopify_attributes }}>
-                    {%- if block.settings.show_sku and pd_variant.sku != blank -%}
-                      <div class="kt-pdp__details-row">
+                    {%- comment -%}
+                      Variant-dependent rows (SKU, barcode, weight) carry
+                      a `data-product-detail-row="X"` wrapper so product-
+                      form.js can hide/show + refresh them on variant
+                      change. We render the row even when the FIRST
+                      variant's value is blank — the wrapper is hidden
+                      server-side via the `hidden` attribute when blank,
+                      but JS can then UN-hide and populate it when the
+                      customer picks a variant whose field is filled.
+                      Without this two-state pre-render the row would
+                      stay missing from the DOM and JS would have
+                      nothing to update.
+                    {%- endcomment -%}
+                    {%- if block.settings.show_sku -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="sku"{% if pd_variant.sku == blank %} hidden{% endif %}>
                         <dt class="kt-pdp__details-label">{{ 'kt.product.details.sku' | t | default: 'SKU' }}</dt>
                         <dd class="kt-pdp__details-value" data-product-sku>{{ pd_variant.sku | escape }}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_barcode and pd_variant.barcode != blank -%}
-                      <div class="kt-pdp__details-row">
+                    {%- if block.settings.show_barcode -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="barcode"{% if pd_variant.barcode == blank %} hidden{% endif %}>
                         <dt class="kt-pdp__details-label">{{ 'kt.product.details.barcode' | t | default: 'Barcode' }}</dt>
                         <dd class="kt-pdp__details-value" data-product-barcode>{{ pd_variant.barcode | escape }}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_weight and pd_variant.weight > 0 -%}
-                      <div class="kt-pdp__details-row">
+                    {%- if block.settings.show_weight -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="weight"{% if pd_variant.weight <= 0 %} hidden{% endif %}>
                         <dt class="kt-pdp__details-label">{{ 'kt.product.details.weight' | t | default: 'Weight' }}</dt>
-                        <dd class="kt-pdp__details-value" data-product-weight>{{ pd_variant.weight | weight_with_unit: pd_variant.weight_unit }}</dd>
+                        <dd class="kt-pdp__details-value" data-product-weight>{% if pd_variant.weight > 0 %}{{ pd_variant.weight | weight_with_unit: pd_variant.weight_unit }}{% endif %}</dd>
                       </div>
                     {%- endif -%}
                     {%- if block.settings.show_dimensions -%}

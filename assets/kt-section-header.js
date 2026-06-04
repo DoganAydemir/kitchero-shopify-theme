@@ -40,6 +40,31 @@
   }
   window.__kitcheroHeaderObservers = [];
 
+  /* R12-C — Same hazard applies to the plain `addEventListener` calls
+     against `window` / `document` further down (scroll, load, resize,
+     shopify:section:* etc.). The IIFE re-runs every time the theme
+     editor saves the header section, leaving the previous closure's
+     handlers permanently attached because the function references
+     differ from run to run (`addEventListener` does not dedupe by
+     intent — only by exact reference). Across 4-5 editor saves the
+     scroll handler would fire 5× per scroll, doubling work each
+     tick. The registry pattern below mirrors the observer cleanup:
+     register every listener at install time, tear down everything
+     registered by the prior run before the new IIFE proceeds. */
+  if (window.__kitcheroHeaderListeners && window.__kitcheroHeaderListeners.length) {
+    for (var __li = 0; __li < window.__kitcheroHeaderListeners.length; __li++) {
+      var __ln = window.__kitcheroHeaderListeners[__li];
+      if (__ln && __ln.target && typeof __ln.target.removeEventListener === 'function') {
+        try { __ln.target.removeEventListener(__ln.type, __ln.handler, __ln.opts); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+  window.__kitcheroHeaderListeners = [];
+  function bindListener(target, type, handler, opts) {
+    target.addEventListener(type, handler, opts);
+    window.__kitcheroHeaderListeners.push({ target: target, type: type, handler: handler, opts: opts });
+  }
+
   var SCROLL_THRESHOLD = 50;
   // Cache the header ref + rAF gate: previously `updateScrollState`
   // did a fresh document.querySelector on every scroll tick (50-100
@@ -169,13 +194,21 @@
      Formula: `top = max(0, bannerHeight - scrollY)` — mirrors the
      sticky behavior the user expects but stays out of flow so the
      hero can still bleed behind the header. */
+  /* R12-D — bannerHeight is sampled here on demand only by the ResizeObserver
+     and on theme:section:load / window resize via `syncBannerHeight()` below.
+     `updateHeaderTop()` runs inside the scroll rAF tick and must NOT call
+     `offsetHeight` — reading layout there forces a flush each frame and was
+     the long-task fingerprint in the R12-D Web-Vital audit. */
   var cachedBannerEl = null;
-  function updateHeaderTop() {
+  var cachedBannerHeight = 0;
+  function refreshBannerCache() {
     if (!cachedBannerEl || !cachedBannerEl.isConnected) {
       cachedBannerEl = document.querySelector('.kt-announcement-banner');
     }
-    var bannerHeight = cachedBannerEl ? cachedBannerEl.offsetHeight : 0;
-    var newTop = Math.max(0, bannerHeight - window.scrollY);
+    cachedBannerHeight = cachedBannerEl ? cachedBannerEl.offsetHeight : 0;
+  }
+  function updateHeaderTop() {
+    var newTop = Math.max(0, cachedBannerHeight - window.scrollY);
     document.documentElement.style.setProperty('--kt-header-top', newTop + 'px');
   }
 
@@ -185,28 +218,28 @@
     requestAnimationFrame(computeScrollState);
   }
 
-  window.addEventListener('scroll', updateScrollState, { passive: true });
+  bindListener(window, 'scroll', updateScrollState, { passive: true });
 
   updateScrollState();
   syncTransparentBodyClass();
   watchMainForSections();
   pollInDesignMode();
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateScrollState);
-    document.addEventListener('DOMContentLoaded', syncTransparentBodyClass);
-    document.addEventListener('DOMContentLoaded', watchMainForSections);
-    document.addEventListener('DOMContentLoaded', pollInDesignMode);
+    bindListener(document, 'DOMContentLoaded', updateScrollState);
+    bindListener(document, 'DOMContentLoaded', syncTransparentBodyClass);
+    bindListener(document, 'DOMContentLoaded', watchMainForSections);
+    bindListener(document, 'DOMContentLoaded', pollInDesignMode);
   }
-  window.addEventListener('load', updateScrollState);
-  window.addEventListener('load', syncTransparentBodyClass);
-  window.addEventListener('load', watchMainForSections);
+  bindListener(window, 'load', updateScrollState);
+  bindListener(window, 'load', syncTransparentBodyClass);
+  bindListener(window, 'load', watchMainForSections);
 
-  document.addEventListener('shopify:section:load', updateScrollState);
-  document.addEventListener('shopify:section:load', syncTransparentBodyClass);
-  document.addEventListener('shopify:section:select', updateScrollState);
-  document.addEventListener('shopify:section:select', syncTransparentBodyClass);
-  document.addEventListener('shopify:section:unload', syncTransparentBodyClass);
-  document.addEventListener('shopify:section:reorder', syncTransparentBodyClass);
+  bindListener(document, 'shopify:section:load', updateScrollState);
+  bindListener(document, 'shopify:section:load', syncTransparentBodyClass);
+  bindListener(document, 'shopify:section:select', updateScrollState);
+  bindListener(document, 'shopify:section:select', syncTransparentBodyClass);
+  bindListener(document, 'shopify:section:unload', syncTransparentBodyClass);
+  bindListener(document, 'shopify:section:reorder', syncTransparentBodyClass);
   /* Intentionally NO body-overflow reset on section:unload. The mobile
      nav owns its own scrollLock owner id and releases it from
      kt-section-header-mobile-nav.js's own shopify:section:unload
@@ -285,19 +318,20 @@
      rejection). The CSS hover gate `@media (hover: hover) and (pointer:
      fine)` was already in place for visual state, but the JS handlers
      fired unconditionally. */
-  document.addEventListener('pointerenter', function (e) {
+  bindListener(document, 'pointerenter', function (e) {
     if (e.pointerType === 'touch') return;
     var item = e.target && e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item) return;
     setExpanded(item, true);
   }, true);
 
-  document.addEventListener('pointerleave', function (e) {
+  bindListener(document, 'pointerleave', function (e) {
     if (e.pointerType === 'touch') return;
     var item = e.target && e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item) return;
     setExpanded(item, false);
   }, true);
+
 
   /* Click handler on the [data-flyout-trigger] anchor. Toggles [open] without
      navigating away — preventDefault is critical because the trigger
@@ -307,7 +341,7 @@
      focused anchor naturally fire `click` in browsers, so a single
      click handler covers both pointer and keyboard activation
      (matches the "open on click, not on focus" Theme Store rule). */
-  document.addEventListener('click', function (e) {
+  bindListener(document, 'click', function (e) {
     var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [data-flyout-trigger]');
     if (!trigger) return;
     var item = trigger.closest('.kt-header__menu-item');
@@ -324,7 +358,7 @@
   });
 
   /* Click outside the header closes any open dropdown. */
-  document.addEventListener('click', function (e) {
+  bindListener(document, 'click', function (e) {
     var insideHeader = e.target && e.target.closest && e.target.closest('.kt-header');
     if (insideHeader) return;
     closeAll();
@@ -332,7 +366,7 @@
 
   /* Escape collapses the currently-active dropdown and returns focus
      to its trigger anchor — Theme Store explicit a11y requirement. */
-  document.addEventListener('keydown', function (e) {
+  bindListener(document, 'keydown', function (e) {
     if (e.key !== 'Escape' && e.code !== 'Escape') return;
     var active = document.activeElement;
     if (!active) return;
@@ -348,7 +382,7 @@
      and check that the new focus target is outside this menu-item.
      Note: this is NOT a focus-trigger to OPEN; it only handles the
      reverse case (close when keyboard moves on). */
-  document.addEventListener('focusout', function (e) {
+  bindListener(document, 'focusout', function (e) {
     var item = e.target.closest && e.target.closest('.kt-header__menu-item');
     if (!item || !item.hasAttribute('data-open')) return;
     var next = e.relatedTarget;
@@ -365,7 +399,7 @@
      lands in nowhere — the merchant cannot see what they're editing.
      Force-open the matching parent menu item on `:block:select` and
      close it again on `:block:deselect`. */
-  document.addEventListener('shopify:block:select', function (event) {
+  bindListener(document, 'shopify:block:select', function (event) {
     var block = event.target;
     if (!block) return;
     var featured = block.classList && block.classList.contains('kt-header__mega-featured')
@@ -379,7 +413,7 @@
     }
   });
 
-  document.addEventListener('shopify:block:deselect', function (event) {
+  bindListener(document, 'shopify:block:deselect', function (event) {
     var block = event.target;
     if (!block) return;
     var featured = block.classList && block.classList.contains('kt-header__mega-featured')
@@ -423,6 +457,11 @@
     if (height > 0) {
       document.documentElement.style.setProperty('--kt-banner-height', height + 'px');
     }
+    /* R12-D — keep the scroll-tick cache in lock-step so `updateHeaderTop()`
+       reads a fresh value without ever calling offsetHeight on the scroll
+       handler's hot path. */
+    cachedBannerEl = bannerEl;
+    cachedBannerHeight = height;
   }
 
   if (typeof ResizeObserver !== 'undefined') {
@@ -449,14 +488,14 @@
     }
   }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncHeaderOffset);
-    document.addEventListener('DOMContentLoaded', syncBannerHeight);
+    bindListener(document, 'DOMContentLoaded', syncHeaderOffset);
+    bindListener(document, 'DOMContentLoaded', syncBannerHeight);
   } else {
     syncHeaderOffset();
     syncBannerHeight();
   }
-  window.addEventListener('resize', syncHeaderOffset);
-  window.addEventListener('resize', syncBannerHeight);
-  document.addEventListener('shopify:section:load', syncHeaderOffset);
-  document.addEventListener('shopify:section:load', syncBannerHeight);
+  bindListener(window, 'resize', syncHeaderOffset);
+  bindListener(window, 'resize', syncBannerHeight);
+  bindListener(document, 'shopify:section:load', syncHeaderOffset);
+  bindListener(document, 'shopify:section:load', syncBannerHeight);
 })();

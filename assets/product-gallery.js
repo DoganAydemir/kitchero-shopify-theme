@@ -176,6 +176,10 @@
         lightboxViewport.classList.add('is-loading');
         lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
       }
+      /* R12-D — Drop the cached viewport+image rects. New slide has
+         different intrinsic dimensions; the next zoom-in must read
+         fresh measurements. */
+      if (typeof invalidateZoomCache === 'function') invalidateZoomCache();
 
       // Detach previous onload to avoid stale callbacks.
       lightboxImage.onload = null;
@@ -585,28 +589,62 @@
        click coordinates for the initial position) and on mousemove
        while zoomed. No-op on touch devices — those still use the
        native overflow scroll. */
+    /* R12-D — Both the viewport rect and the rendered image rect stay
+       constant for the lifetime of a single zoom session (the image
+       only translates, never scales mid-session). Caching them on
+       zoom-in eliminates two forced layout reads per mousemove —
+       previously a 60-120 Hz cursor stream was running Read-Read-Write
+       at every event. Cache is invalidated on zoom-out, window resize,
+       slide navigation, and image load (handled by the surrounding
+       click / keyboard / nav handlers via `invalidateZoomCache`). */
+    var zoomViewportRect = null;
+    var zoomImageOverflowX = 0;
+    var zoomImageOverflowY = 0;
+    var zoomRafPending = false;
+    var zoomLastX = 0;
+    var zoomLastY = 0;
+    function invalidateZoomCache() {
+      zoomViewportRect = null;
+    }
+    function ensureZoomCache() {
+      if (zoomViewportRect) return true;
+      if (!lightboxImage || !lightboxViewport) return false;
+      var rect = lightboxViewport.getBoundingClientRect();
+      var imgRect = lightboxImage.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+      zoomViewportRect = rect;
+      zoomImageOverflowX = Math.max(0, imgRect.width - rect.width);
+      zoomImageOverflowY = Math.max(0, imgRect.height - rect.height);
+      return true;
+    }
+    function applyZoomPan() {
+      zoomRafPending = false;
+      if (!zoomViewportRect) return;
+      var px = (zoomLastX - zoomViewportRect.left) / zoomViewportRect.width;
+      var py = (zoomLastY - zoomViewportRect.top) / zoomViewportRect.height;
+      px = Math.max(0, Math.min(1, px));
+      py = Math.max(0, Math.min(1, py));
+      var tx = -px * zoomImageOverflowX;
+      var ty = -py * zoomImageOverflowY;
+      lightboxImage.style.transform = 'translate(' + tx + 'px, ' + ty + 'px)';
+    }
     function updateZoomPan(clientX, clientY) {
       if (!lightboxImage || !lightboxViewport) return;
       if (!lightboxViewport.classList.contains('kt-lightbox__viewport--zoomed')) return;
-
-      var rect = lightboxViewport.getBoundingClientRect();
-      var px = (clientX - rect.left) / rect.width;
-      var py = (clientY - rect.top) / rect.height;
-
-      // Clamp to [0, 1] so the edges of the image stay pinned to the
-      // edges of the viewport — no black gap on aggressive cursor moves.
-      px = Math.max(0, Math.min(1, px));
-      py = Math.max(0, Math.min(1, py));
-
-      var imgRect = lightboxImage.getBoundingClientRect();
-      var overflowX = Math.max(0, imgRect.width - rect.width);
-      var overflowY = Math.max(0, imgRect.height - rect.height);
-
-      var tx = -px * overflowX;
-      var ty = -py * overflowY;
-
-      lightboxImage.style.transform = 'translate(' + tx + 'px, ' + ty + 'px)';
+      if (!ensureZoomCache()) return;
+      zoomLastX = clientX;
+      zoomLastY = clientY;
+      if (zoomRafPending) return;
+      zoomRafPending = true;
+      requestAnimationFrame(applyZoomPan);
     }
+    /* Invalidate the cache whenever the layout that the cached rects
+       depend on can change — window resize, lightbox-image load swap,
+       and zoom-out transition. (Navigation between slides triggers
+       a fresh image load → existing handlers already reset transform,
+       and the load callback below clears the cache so the next zoom
+       reads fresh dimensions.) */
+    window.addEventListener('resize', invalidateZoomCache, { passive: true });
 
     /* Lightbox zoom toggle — clicking anywhere inside the viewport
        (image, padding area, or loaded image bounds) toggles the zoomed
@@ -624,9 +662,11 @@
         if (!isNowZoomed) {
           // Un-zoomed → reset inline transform so the next zoom starts fresh.
           if (lightboxImage) lightboxImage.style.transform = '';
+          invalidateZoomCache();
         } else if (hasFinePointer) {
           // Initial pan based on where the user clicked — so the clicked
           // spot is what remains visible after the zoom-in.
+          invalidateZoomCache();
           updateZoomPan(e.clientX, e.clientY);
         }
       });
@@ -660,10 +700,12 @@
       lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed', wantsZoom);
       if (!wantsZoom) {
         lightboxImage.style.transform = '';
+        invalidateZoomCache();
       } else if (hasFinePointer) {
         // Center the zoom for keyboard users (no cursor coords to
         // anchor on); mouse users still get cursor-follow via the
         // existing mousemove handler.
+        invalidateZoomCache();
         var rect = lightboxViewport.getBoundingClientRect();
         updateZoomPan(rect.left + rect.width / 2, rect.top + rect.height / 2);
       }

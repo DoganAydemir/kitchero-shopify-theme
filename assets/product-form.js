@@ -882,32 +882,80 @@
         container.dataset.currentVariantJson = JSON.stringify(matchedVariant);
       } catch (e) { /* circular / non-serializable — ignore */ }
 
-      /* Refresh visible SKU — Theme Store Section 7 requires the SKU
-         to update with the variant. The element is rendered server-side
-         from `selected_or_first_available_variant.sku`; we sync it
-         here on every variant change. Hidden when the matched variant
-         has no SKU (some products skip SKU per variant).
-         R297 — Was `document.querySelector(...)` which picked the FIRST
-         `[data-product-sku]` in the DOM. On pages combining `main-
-         product` + a `featured-product` block referencing a different
-         product (homepage "today's pick"), switching variant on EITHER
-         updated the OTHER product's SKU. Scoping to `container` (the
-         current product-form's host element) keeps the update local. */
+      /* Refresh visible SKU / Barcode / Weight — Theme Store Section 7
+         requires variant-bound merchant data (SKU at minimum) to update
+         with the variant. The elements are rendered server-side from
+         `selected_or_first_available_variant.{sku,barcode,weight}`; we
+         sync them here on every variant change. Two markup patterns
+         coexist:
+           1. Title block — single `<p data-product-sku>` with a
+              `.visually-hidden` label as its first child. The `hidden`
+              attribute lives ON the `<p>` itself.
+           2. Product details block — `<dd data-product-sku>` (and
+              -barcode, -weight) nested inside a
+              `<div data-product-detail-row="…">` wrapper. The wrapper
+              owns the `hidden` attribute so the entire row (label + value)
+              disappears together.
+         Both patterns route through `refreshDetail()` below — it detects
+         the wrapper if present, else operates on the element directly.
+         R297 — querySelectorAll (not querySelector) so the update lands
+         on every matching node across blocks (title + product_details).
+         Scoped to `container` to keep multiple product forms on a single
+         page (e.g., main-product + featured-product for a different
+         product) independent. */
       try {
-        var skuEl = container.querySelector('[data-product-sku]');
-        if (skuEl) {
-          var hiddenLabel = skuEl.querySelector('.visually-hidden');
-          var hiddenLabelText = hiddenLabel ? hiddenLabel.outerHTML : '';
-          if (matchedVariant.sku) {
-            skuEl.hidden = false;
-            skuEl.innerHTML = hiddenLabelText + ' ' + matchedVariant.sku.replace(/[<>"&]/g, function (c) {
-              return c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&amp;';
-            });
-          } else {
-            skuEl.hidden = true;
+        var escapeDetail = function (str) {
+          return String(str).replace(/[<>"&]/g, function (c) {
+            return c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&amp;';
+          });
+        };
+
+        /* Mirror Shopify's `weight_with_unit` Liquid filter on the JS
+           side. variant.weight is already in `variant.weight_unit`
+           units (kg / g / lb / oz) per Shopify's variant JSON. Strip
+           trailing zeros so "1.50 kg" → "1.5 kg" and integers render
+           without a decimal point. */
+        var formatVariantWeight = function (weight, unit) {
+          if (weight === null || weight === undefined || weight <= 0) return '';
+          var num = Number(weight);
+          if (!isFinite(num) || num <= 0) return '';
+          var rounded = Math.round(num * 100) / 100;
+          var asString = (rounded % 1 === 0) ? String(Math.round(rounded)) : String(rounded);
+          return asString + ' ' + (unit || 'kg');
+        };
+
+        var refreshDetail = function (selector, rawValue) {
+          var elements = container.querySelectorAll(selector);
+          if (!elements.length) return;
+          var hasValue = (rawValue !== null && rawValue !== undefined && rawValue !== '' && rawValue !== 0 && rawValue !== false);
+          for (var i = 0; i < elements.length; i++) {
+            var el = elements[i];
+            var row = el.closest('[data-product-detail-row]');
+            if (row) {
+              if (hasValue) {
+                row.hidden = false;
+                el.textContent = rawValue;
+              } else {
+                row.hidden = true;
+                el.textContent = '';
+              }
+            } else {
+              var hiddenLabel = el.querySelector('.visually-hidden');
+              var hiddenLabelText = hiddenLabel ? hiddenLabel.outerHTML : '';
+              if (hasValue) {
+                el.hidden = false;
+                el.innerHTML = hiddenLabelText + ' ' + escapeDetail(rawValue);
+              } else {
+                el.hidden = true;
+              }
+            }
           }
-        }
-      } catch (e) { /* SKU update is non-critical */ }
+        };
+
+        refreshDetail('[data-product-sku]', matchedVariant.sku);
+        refreshDetail('[data-product-barcode]', matchedVariant.barcode);
+        refreshDetail('[data-product-weight]', formatVariantWeight(matchedVariant.weight, matchedVariant.weight_unit));
+      } catch (e) { /* product detail updates are non-critical */ }
 
       /* Re-read the active selling plan (if any) so the new variant
          shows the subscription-discounted price instead of flipping
