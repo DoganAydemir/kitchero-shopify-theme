@@ -321,14 +321,14 @@
   {%- endcomment -%}
   {%- if settings.kt_back_in_stock_enabled -%}
     {%- comment -%}
-      Snippet ships its own trigger button + modal. Trigger is
-      always rendered (so JS-off customers see it when they land on
-      a sold-out variant) but initially hidden when the active
-      variant is available; product-form.js toggles `hidden` on the
-      `[data-back-in-stock-trigger]` element when the customer
-      switches between available and unavailable variants. The
-      snippet handles all five 5-locale strings, focus trap,
-      success-state re-open, and variant-aware hidden message body.
+      Render the TRIGGER button here (inside the product form) so it
+      sits visually below the disabled add-to-cart button. The MODAL
+      itself is rendered AFTER `{% endform %}` below — see the
+      render_mode rationale in snippets/back-in-stock.liquid. Putting
+      the modal inside the product form would create a nested-<form>
+      parse error; the HTML5 parser would silently drop the inner
+      `{% form 'contact' %}` tag and the Notify-me submit would post
+      to /cart/add instead of /contact (user-reported regression).
     {%- endcomment -%}
     {%- render 'back-in-stock',
         product: product,
@@ -337,7 +337,8 @@
         heading: settings.kt_back_in_stock_heading,
         description: settings.kt_back_in_stock_description,
         show_name: settings.kt_back_in_stock_show_name,
-        show_phone: settings.kt_back_in_stock_show_phone
+        show_phone: settings.kt_back_in_stock_show_phone,
+        render_mode: 'trigger'
     -%}
   {%- endif -%}
 
@@ -388,4 +389,24 @@
     </button>
   </div>
 {%- endform -%}
+
+{%- comment -%}
+  Back-in-stock modal — emitted AFTER the product form so the
+  modal's `{% form 'contact' %}` is a sibling of the product form,
+  not nested inside it. See snippets/back-in-stock.liquid's
+  render_mode comment block + the trigger-render call above for
+  the full rationale.
+{%- endcomment -%}
+{%- if settings.kt_back_in_stock_enabled -%}
+  {%- render 'back-in-stock',
+      product: product,
+      variant: current_variant,
+      section_id: pf_uid,
+      heading: settings.kt_back_in_stock_heading,
+      description: settings.kt_back_in_stock_description,
+      show_name: settings.kt_back_in_stock_show_name,
+      show_phone: settings.kt_back_in_stock_show_phone,
+      render_mode: 'modal'
+  -%}
+{%- endif -%}
 </div>

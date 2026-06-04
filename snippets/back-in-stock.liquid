@@ -27,11 +27,26 @@
   - description   (optional) Richtext copy shown above the form
   - show_name     (optional, bool) Render the optional name field
   - show_phone    (optional, bool) Render the optional phone field
+  - render_mode   (optional) 'trigger' | 'modal' | 'both' (default 'both').
+                  When the caller is INSIDE another <form> (e.g. the
+                  product-form's <form action="/cart/add">), the modal's
+                  inner `{% form 'contact' %}` becomes invalid nested
+                  markup — HTML5 parsers ignore the inner <form> tag and
+                  re-parent the email input + submit button onto the
+                  OUTER form. The Notify-me button then silently posts
+                  to /cart/add instead of /contact and the customer
+                  sees "nothing happens". Use render_mode: 'trigger'
+                  inside the form (just the button) and render_mode:
+                  'modal' AFTER the form's {% endform %} (just the
+                  modal). The JS pairs them via [data-modal-target=ID].
 {%- endcomment -%}
 
 {%- liquid
   unless variant
     assign variant = product.selected_or_first_available_variant
+  endunless
+  unless render_mode
+    assign render_mode = 'both'
   endunless
   assign form_id = 'BackInStockForm-' | append: section_id | append: '-' | append: product.id
   assign trigger_id = 'BackInStockTrigger-' | append: section_id | append: '-' | append: product.id
@@ -41,6 +56,7 @@
   assign safe_product_title = product.title | escape
 -%}
 
+{%- if render_mode == 'trigger' or render_mode == 'both' -%}
 <button
   type="button"
   id="{{ trigger_id }}"
@@ -61,7 +77,9 @@
   </svg>
   <span>{{ 'kt.product.back_in_stock.notify_me' | t | default: 'Notify me when available' }}</span>
 </button>
+{%- endif -%}
 
+{%- if render_mode == 'modal' or render_mode == 'both' -%}
 <div
   id="{{ modal_id }}"
   class="kt-back-in-stock__modal"
@@ -267,3 +285,4 @@
     {%- endform -%}
   </div>
 </div>
+{%- endif -%}
