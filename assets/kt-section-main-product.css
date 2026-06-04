@@ -157,6 +157,89 @@
   }
 }
 
+/* SKU — small muted eyebrow under the title.
+   Liquid emits `<p class="kt-pdp__sku" data-product-sku>` from
+   sections/main-product.liquid:111 whenever `selected_or_first_
+   available_variant.sku` isn't blank. The element ships with a
+   visually-hidden "SKU:" prefix so SR users get the label;
+   visually we just show the SKU value at eyebrow scale so the
+   merchant's identifier reads as scaffolding metadata rather than
+   competing with the title/price hierarchy. JS in assets/product-
+   form.js refreshes the text on variant change. */
+.kt-pdp__sku {
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg), 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.kt-pdp__sku[hidden] {
+  display: none;
+}
+
+/* Vendor row — "By {vendor}" inline above the price column.
+   Liquid emits `<div class="kt-pdp__vendor">` from main-product
+   .liquid:236 when product.vendor is set. Optional "By" prefix
+   carries `kt-pdp__vendor-label`; the vendor name itself is a
+   link via `url_for_vendor` for cross-product navigation. Same
+   muted weight as the SKU so vendor metadata reads as scaffolding,
+   then the link picks up the body color on hover for affordance. */
+.kt-pdp__vendor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: rgba(var(--kt-c-fg), 0.65);
+}
+
+.kt-pdp__vendor-label {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.kt-pdp__vendor-link {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.25);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.kt-pdp__vendor-link:hover,
+.kt-pdp__vendor-link:focus-visible {
+  color: rgb(var(--kt-c-fg));
+  border-bottom-color: rgb(var(--kt-c-fg));
+}
+
+/* Custom-liquid + app block wrappers. Both blocks let merchants
+   drop arbitrary content into the PDP info column — the wrappers
+   exist to namespace any styles the merchant's own content
+   carries, plus to give them a consistent vertical rhythm with
+   the rest of the column. No visual treatment of their own —
+   intentionally invisible so the merchant's content is the only
+   thing visible. */
+.kt-pdp__custom-liquid,
+.kt-pdp__app-block {
+  margin: 0 0 1.25rem;
+}
+
+/* Door-sample body wrapper — holds the name + price stack under
+   the badge / title header. The header/badge/title/name/price
+   parts are styled below (the existing block has them); the
+   body wrapper itself just provides the flex column rhythm. */
+.kt-pdp__door-sample-body,
+.kt-pdp__door-sample-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .kt-pdp__meta {
   display: flex;
   align-items: center;
@@ -886,6 +969,150 @@ html.no-js [data-kt-pdp-anim-group] > * {
   font-size: 0.8125rem;
   color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
   font-style: italic;
+}
+
+/* ============================================================
+   Product details block — auto-rendered metadata list
+   (SKU / barcode / weight / dimensions / vendor / type /
+   origin / tags). Merchants toggle which fields show via the
+   block's checkbox settings; values pull from variant + product
+   natively, so the same admin field that the merchant filled
+   out renders here automatically.
+
+   Two layouts:
+   - inline (default): label on left, value on right per row,
+     space-between like a spec sheet. Optimised for short values
+     (codes, weights, country names).
+   - stack: label above value, each row a stacked block.
+     Optimised for long values or wrapping tag chips.
+
+   Visual treatment intentionally mirrors `.kt-pdp__specs` so a
+   merchant who uses both blocks gets a consistent look.
+   ============================================================ */
+
+.kt-pdp__details {
+  margin: 1.5rem 0;
+  padding: 0;
+  border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.1);
+}
+
+.kt-pdp__details-row {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.1);
+}
+
+/* inline layout — label left, value right on the same row. */
+.kt-pdp__details--inline .kt-pdp__details-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kt-pdp__details--inline .kt-pdp__details-value {
+  text-align: right;
+}
+
+/* stack layout — label above value. Better for long values
+   (multi-word vendor names, dimension strings, tag chips). */
+.kt-pdp__details--stack .kt-pdp__details-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kt-pdp__details-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+}
+
+.kt-pdp__details-value {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  font-variant-numeric: tabular-nums;
+}
+
+/* Vendor / type / country-of-origin values that need to link
+   out for cross-product navigation (vendor handle pages, type
+   handle pages). Underline only on hover so the value reads as
+   plain text at rest. */
+.kt-pdp__details-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.kt-pdp__details-link:hover,
+.kt-pdp__details-link:focus-visible {
+  border-bottom-color: rgb(var(--kt-c-fg, 28 25 23));
+}
+
+/* Tags row — value column becomes a flex-wrap row of chips
+   instead of a single string. */
+.kt-pdp__details-row--tags .kt-pdp__details-value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  justify-content: flex-end;
+}
+
+.kt-pdp__details--stack .kt-pdp__details-row--tags .kt-pdp__details-value {
+  justify-content: flex-start;
+}
+
+.kt-pdp__details-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: rgba(var(--kt-c-fg, 28 25 23), 0.78);
+  background: rgba(var(--kt-c-fg, 41 37 36), 0.06);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.kt-pdp__details-tag:hover,
+.kt-pdp__details-tag:focus-visible {
+  background: rgba(var(--kt-c-fg, 41 37 36), 0.12);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+}
+
+/* Editor-only placeholder when no fields toggled / empty. */
+.kt-pdp__details--placeholder {
+  padding: 1rem;
+  border: 1px dashed rgba(var(--kt-c-fg, 41 37 36), 0.25);
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.kt-pdp__details-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
+  font-style: italic;
+}
+
+/* Mobile tuning — tighter padding + smaller font on inline
+   layout, value right-align preserved on small screens. */
+@media screen and (max-width: 749px) {
+  .kt-pdp__details--inline .kt-pdp__details-row {
+    gap: 0.75rem;
+  }
+  .kt-pdp__details-label {
+    font-size: 0.6875rem;
+  }
+  .kt-pdp__details-value {
+    font-size: 0.875rem;
+  }
 }
 
 /* ============================================================
