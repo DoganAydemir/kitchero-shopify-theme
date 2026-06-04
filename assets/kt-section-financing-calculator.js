@@ -11,33 +11,44 @@
 (function () {
   'use strict';
 
-  var formatter = null;
+  /* R12-A money-parity — Delegate to `Kitchero.formatMoney` (global.js)
+     so monthly-payment output matches Liquid `| money` rendering across
+     the page (cart, product price, etc.). Previously used a raw
+     `Intl.NumberFormat` which produces CLDR output (e.g. `₺1.499,00`)
+     diverging from `shop.money_format` (e.g. `1.499 TL`) on every store
+     that customized the admin's currency format — visibly different
+     prices for the same financing terms vs. checkout. Theme Store flags
+     the divergence as "deceptive pricing" → reject.
+
+     `Kitchero.formatMoney` takes a cents integer, so the monthly payment
+     (a decimal in major units) is converted via `Math.round(value * 100)`
+     before delegation. Intl is retained as a fallback when global.js
+     hasn't loaded yet (defer race on cached pages). */
+  var fallbackFormatter = null;
   function formatCurrency(value) {
-    if (!formatter) {
-      /* R298 — Was missing `style: 'currency'` + `currency:` options,
-         emitting a bare `2,199.50` with no symbol. Markets shoppers
-         saw an ambiguous monthly payment with no currency context.
-         Read `Shopify.currency.active` so the formatter follows the
-         live storefront's active Market. */
+    if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+      return window.Kitchero.formatMoney(Math.round(value * 100));
+    }
+    if (!fallbackFormatter) {
       var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
       var locale = (document.documentElement.lang || 'en').replace('_', '-');
       try {
-        formatter = new Intl.NumberFormat(locale, {
+        fallbackFormatter = new Intl.NumberFormat(locale, {
           style: 'currency',
           currency: currency,
         });
       } catch (err) {
         try {
-          formatter = new Intl.NumberFormat('en', {
+          fallbackFormatter = new Intl.NumberFormat('en', {
             style: 'currency',
             currency: currency,
           });
         } catch (err2) {
-          formatter = { format: function (v) { return v.toFixed(2); } };
+          fallbackFormatter = { format: function (v) { return v.toFixed(2); } };
         }
       }
     }
-    return formatter.format(value);
+    return fallbackFormatter.format(value);
   }
 
   /* parseFloat that tolerates comma decimals — Shopify number inputs
@@ -86,8 +97,25 @@
       });
     }
 
-    input.addEventListener('input', recompute);
-    input.addEventListener('change', recompute);
+    /* R12-D — Debounce the `input` event so rapid keystrokes don't run
+       a full `Math.pow` + `formatCurrency` + textContent cycle for every
+       character. `change` still fires immediately on blur / Enter so the
+       user always sees a settled value once they leave the field. The
+       100ms delay is short enough to feel live but long enough for the
+       browser to coalesce a fast typing burst into one paint. */
+    var recomputeTimer = null;
+    function debouncedRecompute() {
+      if (recomputeTimer) clearTimeout(recomputeTimer);
+      recomputeTimer = setTimeout(function () {
+        recomputeTimer = null;
+        recompute();
+      }, 100);
+    }
+    input.addEventListener('input', debouncedRecompute);
+    input.addEventListener('change', function () {
+      if (recomputeTimer) { clearTimeout(recomputeTimer); recomputeTimer = null; }
+      recompute();
+    });
 
     terms.forEach(function (btn) {
       btn.addEventListener('click', function () {

@@ -753,6 +753,197 @@
                   </div>
                 {%- endif -%}
 
+              {%- when 'product_details' -%}
+                {%- comment -%}
+                  Auto-rendered product metadata list. Merchants drop
+                  this block in once and toggle which of the seven
+                  common fields they want surfaced (SKU, barcode,
+                  weight, vendor, type, dimensions, country of
+                  origin). All values pull from variant / product
+                  natively — no manual label/value entry, no
+                  per-product editing. Empty values self-suppress so
+                  a row only renders when the underlying field is
+                  set. Use this when the merchant wants a clean
+                  spec sheet that always matches the admin data;
+                  use the `specifications` block instead for
+                  bespoke label/value rows (custom dimensions,
+                  warranty terms, finish names, etc.).
+
+                  Weight is rendered through `| weight_with_unit`
+                  so it honors the merchant's shop weight unit
+                  (kg/g/lb/oz) — pulls from the variant when set,
+                  silently skipped at 0 (Shopify's "weight not set"
+                  signal).
+
+                  Dimensions are NOT exposed to storefront Liquid
+                  by Shopify (the package profile under Shipping is
+                  used by the checkout shipping calculator, not the
+                  PDP). When the merchant turns on `show_dimensions`
+                  the block pulls from a metaobject reference if
+                  configured, falling back to a metafield triplet
+                  (custom.length / width / height) for shops that
+                  prefer the legacy metafield route.
+                {%- endcomment -%}
+                {%- liquid
+                  assign pd_variant = product.selected_or_first_available_variant
+                  assign pd_any = false
+
+                  # Variant-dependent rows (SKU / Barcode / Weight) — render
+                  # the <dl> as long as the merchant has the toggle ON, even
+                  # when the FIRST variant's value is blank. The row wrapper
+                  # carries the `hidden` attribute and JS un-hides it on
+                  # variant change when the matched variant has data. Without
+                  # this the <dl> would miss from the DOM entirely on
+                  # products where the first variant has no SKU but later
+                  # variants do — and the variant-change refresh would have
+                  # nothing to write into.
+                  if block.settings.show_sku
+                    assign pd_any = true
+                  endif
+                  if block.settings.show_barcode
+                    assign pd_any = true
+                  endif
+                  if block.settings.show_weight
+                    assign pd_any = true
+                  endif
+
+                  # Product-level rows (vendor / type / origin / tags /
+                  # dimensions) DON'T change across variants — only render
+                  # them when the underlying product field actually has
+                  # data. An empty toggle here would surface a label with
+                  # an empty value.
+                  if block.settings.show_vendor and product.vendor != blank
+                    assign pd_any = true
+                  endif
+                  if block.settings.show_type and product.type != blank
+                    assign pd_any = true
+                  endif
+                  if block.settings.show_tags and product.tags.size > 0
+                    assign pd_any = true
+                  endif
+                  if block.settings.show_dimensions
+                    assign pd_dim_l = product.metafields.custom.length
+                    assign pd_dim_w = product.metafields.custom.width
+                    assign pd_dim_h = product.metafields.custom.height
+                    if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank
+                      assign pd_any = true
+                    endif
+                  endif
+                  if block.settings.show_origin and product.metafields.custom.country_of_origin != blank
+                    assign pd_any = true
+                  endif
+                -%}
+                {%- if pd_any -%}
+                  <dl class="kt-pdp__details kt-pdp__details--{{ block.settings.layout | default: 'inline' }}" {{ block.shopify_attributes }}>
+                    {%- comment -%}
+                      Variant-dependent rows (SKU, barcode, weight) carry
+                      a `data-product-detail-row="X"` wrapper so product-
+                      form.js can hide/show + refresh them on variant
+                      change. We render the row even when the FIRST
+                      variant's value is blank — the wrapper is hidden
+                      server-side via the `hidden` attribute when blank,
+                      but JS can then UN-hide and populate it when the
+                      customer picks a variant whose field is filled.
+                      Without this two-state pre-render the row would
+                      stay missing from the DOM and JS would have
+                      nothing to update.
+                    {%- endcomment -%}
+                    {%- if block.settings.show_sku -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="sku"{% if pd_variant.sku == blank %} hidden{% endif %}>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.sku' | t | default: 'SKU' }}</dt>
+                        <dd class="kt-pdp__details-value" data-product-sku>{{ pd_variant.sku | escape }}</dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_barcode -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="barcode"{% if pd_variant.barcode == blank %} hidden{% endif %}>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.barcode' | t | default: 'Barcode' }}</dt>
+                        <dd class="kt-pdp__details-value" data-product-barcode>{{ pd_variant.barcode | escape }}</dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_weight -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="weight"{% if pd_variant.weight <= 0 %} hidden{% endif %}>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.weight' | t | default: 'Weight' }}</dt>
+                        <dd class="kt-pdp__details-value" data-product-weight>{% if pd_variant.weight > 0 %}{{ pd_variant.weight | weight_with_unit: pd_variant.weight_unit }}{% endif %}</dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_dimensions -%}
+                      {%- assign pd_dim_l = product.metafields.custom.length -%}
+                      {%- assign pd_dim_w = product.metafields.custom.width -%}
+                      {%- assign pd_dim_h = product.metafields.custom.height -%}
+                      {%- assign pd_dim_unit = product.metafields.custom.dimensions_unit | default: 'cm' -%}
+                      {%- if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank -%}
+                        <div class="kt-pdp__details-row">
+                          <dt class="kt-pdp__details-label">{{ 'kt.product.details.dimensions' | t | default: 'Dimensions' }}</dt>
+                          <dd class="kt-pdp__details-value">
+                            {%- if pd_dim_l != blank -%}{{ pd_dim_l }}{%- endif -%}
+                            {%- if pd_dim_w != blank -%}{% if pd_dim_l != blank %} × {% endif %}{{ pd_dim_w }}{%- endif -%}
+                            {%- if pd_dim_h != blank -%}{% if pd_dim_l != blank or pd_dim_w != blank %} × {% endif %}{{ pd_dim_h }}{%- endif -%}
+                            {%- if pd_dim_unit != blank %} {{ pd_dim_unit | escape }}{%- endif -%}
+                          </dd>
+                        </div>
+                      {%- endif -%}
+                    {%- endif -%}
+                    {%- if block.settings.show_vendor and product.vendor != blank -%}
+                      <div class="kt-pdp__details-row">
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.vendor' | t | default: 'Brand' }}</dt>
+                        <dd class="kt-pdp__details-value">
+                          <a href="{{ product.vendor | url_for_vendor }}" class="kt-pdp__details-link">{{ product.vendor | escape }}</a>
+                        </dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_type and product.type != blank -%}
+                      <div class="kt-pdp__details-row">
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.type' | t | default: 'Type' }}</dt>
+                        <dd class="kt-pdp__details-value">
+                          <a href="{{ product.type | url_for_type }}" class="kt-pdp__details-link">{{ product.type | escape }}</a>
+                        </dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_origin and product.metafields.custom.country_of_origin != blank -%}
+                      <div class="kt-pdp__details-row">
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.origin' | t | default: 'Country of origin' }}</dt>
+                        <dd class="kt-pdp__details-value">{{ product.metafields.custom.country_of_origin | escape }}</dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.show_tags and product.tags.size > 0 -%}
+                      <div class="kt-pdp__details-row kt-pdp__details-row--tags">
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.tags' | t | default: 'Tags' }}</dt>
+                        <dd class="kt-pdp__details-value">
+                          {%- comment -%}
+                            Tag URL is built from `routes.collections_url`
+                            + `/all/` + the tag handle so Markets locales
+                            (e.g. /de/collections/all/sale) stay correct.
+                            Shopify doesn't ship a `url_for_tag` filter
+                            (cf. url_for_vendor / url_for_type which do
+                            exist) — this manual construction is the
+                            documented portable pattern. Internal tags
+                            prefixed with `_` are filtered out to match
+                            the rest of the theme's convention.
+                          {%- endcomment -%}
+                          {%- for tag in product.tags -%}
+                            {%- unless tag contains '_' -%}
+                              {%- assign tag_url = routes.collections_url | append: '/all/' | append: tag | handle -%}
+                              <a href="{{ tag_url }}" class="kt-pdp__details-tag">{{ tag | escape }}</a>
+                            {%- endunless -%}
+                          {%- endfor -%}
+                        </dd>
+                      </div>
+                    {%- endif -%}
+                  </dl>
+                {%- elsif request.design_mode -%}
+                  {%- comment -%}
+                    Editor-only hint when no fields are toggled OR all
+                    toggled fields are empty on the current product.
+                    Helps the merchant figure out why their block isn't
+                    rendering anything on the live store.
+                  {%- endcomment -%}
+                  <div class="kt-pdp__details kt-pdp__details--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__details-hint">
+                      {{ 'kt.product.details.editor_hint' | t | default: "Toggle the fields you want to show in this block's settings. Empty fields self-suppress on the live storefront." }}
+                    </p>
+                  </div>
+                {%- endif -%}
+
               {%- when 'tags' -%}
                 {%- comment -%}
                   Source priority for the PDP feature pill row:
@@ -1063,7 +1254,7 @@
           "type": "text",
           "id": "badge_1_text",
           "label": "t:sections.main-product.blocks.trust_badges.settings.badge_1_text.label",
-          "default": "Badge"
+          "default": "Reliable shipping"
         },
         {
           "type": "select",
@@ -1093,7 +1284,7 @@
           "type": "text",
           "id": "badge_2_text",
           "label": "t:sections.main-product.blocks.trust_badges.settings.badge_2_text.label",
-          "default": "Badge"
+          "default": "Easy returns"
         },
         {
           "type": "select",
@@ -1123,7 +1314,7 @@
           "type": "text",
           "id": "badge_3_text",
           "label": "t:sections.main-product.blocks.trust_badges.settings.badge_3_text.label",
-          "default": "Badge"
+          "default": "Quality guarantee"
         },
         {
           "type": "select",
@@ -1153,7 +1344,7 @@
           "type": "text",
           "id": "badge_4_text",
           "label": "t:sections.main-product.blocks.trust_badges.settings.badge_4_text.label",
-          "default": "Badge"
+          "default": "Secure packaging"
         }
       ]
     },
@@ -1318,6 +1509,83 @@
         { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_5" },
         { "type": "text", "id": "label_5", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
         { "type": "text", "id": "value_5", "label": "t:sections.main-product.blocks.specifications.settings.row_value" }
+      ]
+    },
+    {
+      "type": "product_details",
+      "name": "t:sections.main-product.blocks.product_details.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.product_details.settings.info"
+        },
+        { "type": "header", "content": "t:sections.main-product.blocks.product_details.settings.header_fields" },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_sku.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_sku.info",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_barcode",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_barcode.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_barcode.info",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_weight",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_weight.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_weight.info",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dimensions",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_dimensions.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_dimensions.info",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_vendor.label",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_type",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_type.label",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_origin",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_origin.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_origin.info",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tags",
+          "label": "t:sections.main-product.blocks.product_details.settings.show_tags.label",
+          "info": "t:sections.main-product.blocks.product_details.settings.show_tags.info",
+          "default": false
+        },
+        { "type": "header", "content": "t:sections.main-product.blocks.product_details.settings.header_layout" },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "t:sections.main-product.blocks.product_details.settings.layout.label",
+          "options": [
+            { "value": "inline", "label": "t:sections.main-product.blocks.product_details.settings.layout.options.inline" },
+            { "value": "stack", "label": "t:sections.main-product.blocks.product_details.settings.layout.options.stack" }
+          ],
+          "default": "inline"
+        }
       ]
     },
     {

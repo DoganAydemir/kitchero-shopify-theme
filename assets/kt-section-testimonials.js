@@ -77,10 +77,26 @@
       }
     }
 
+    /* R12-D — Cache the section's viewport rect on mouseenter and
+       invalidate it only when the layout the cache depends on can
+       change (scroll, resize). The previous implementation called
+       `section.getBoundingClientRect()` on every mousemove — a 60 Hz
+       cursor stream forced layout flushes that surfaced as a
+       Long-Task warning. The cached rect stays accurate for the
+       entire hover unless the user scrolls or the viewport resizes,
+       both of which invalidate it. */
+    var cachedRect = null;
+    function refreshRect() {
+      cachedRect = section.getBoundingClientRect();
+    }
+    function invalidateRect() {
+      cachedRect = null;
+    }
+
     function onMove(e) {
-      var rect = section.getBoundingClientRect();
-      targetX = e.clientX - rect.left;
-      targetY = e.clientY - rect.top;
+      if (!cachedRect) refreshRect();
+      targetX = e.clientX - cachedRect.left;
+      targetY = e.clientY - cachedRect.top;
 
       // On first move inside the section, snap the spotlight to the cursor
       // so it doesn't slide in from (0, 0) on the first hover.
@@ -95,21 +111,27 @@
 
     function onEnter() {
       isHovering = true;
+      refreshRect();
     }
 
     function onLeave() {
       isHovering = false;
       initialized = false;
+      cachedRect = null;
     }
 
     section.addEventListener('mousemove', onMove);
     section.addEventListener('mouseenter', onEnter);
     section.addEventListener('mouseleave', onLeave);
+    window.addEventListener('scroll', invalidateRect, { passive: true });
+    window.addEventListener('resize', invalidateRect, { passive: true });
 
     return function destroy() {
       section.removeEventListener('mousemove', onMove);
       section.removeEventListener('mouseenter', onEnter);
       section.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('scroll', invalidateRect);
+      window.removeEventListener('resize', invalidateRect);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }
