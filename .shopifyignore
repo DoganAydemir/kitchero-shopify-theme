@@ -51,12 +51,21 @@
 # Theme Store-banned patterns below (.md files, docs/) MUST stay ignored —
 # Shopify rejects uploads containing them.
 
-# Merchant content — preserve live-theme edits across code pushes
-# TEMPORARILY DISABLED to push placeholder/reset content to live store.
-# Uncomment after the placeholder push to protect merchant edits again.
-# templates/*.json
-# config/settings_data.json
-# sections/*-group.json
+# Merchant content — preserve live-theme edits across code pushes.
+# These three patterns are ACTIVE: every `shopify theme push` skips
+# them, so a code-only push from `main` to the live theme never wipes
+# the merchant's Theme Editor content (templates' section composition,
+# scheme/font/social settings, header & footer group config).
+#
+# Reminder for Theme Store submission: `shopify theme package` honors
+# the same .shopifyignore. Before generating the submission .zip,
+# temporarily comment these three lines back out, run package, verify
+# the zip contains templates/*.json + settings_data.json + section-
+# group.json, then restore them. The detailed flow is in the header
+# block above (lines 3-17).
+templates/*.json
+config/settings_data.json
+sections/*-group.json
 
 # Theme Store ban-list — never push any of these
 *.md
