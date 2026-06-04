@@ -785,51 +785,74 @@
                   prefer the legacy metafield route.
                 {%- endcomment -%}
                 {%- liquid
+                  # Per-row "should render" flags are computed once here
+                  # and reused both for the outer pd_any flag (which
+                  # wraps the description list) and each row's own
+                  # if-guard at the render site. The earlier pattern
+                  # repeated the same `block.settings.show_X and X !=
+                  # blank` expression in two places per row — a
+                  # maintenance hazard (if one guard drifts the list
+                  # might open with no children, or a row might render
+                  # with an empty label). Centralising the truth table
+                  # here keeps the render site readable and DRY.
                   assign pd_variant = product.selected_or_first_available_variant
-                  assign pd_any = false
 
                   # Variant-dependent rows (SKU / Barcode / Weight) — render
-                  # the <dl> as long as the merchant has the toggle ON, even
-                  # when the FIRST variant's value is blank. The row wrapper
-                  # carries the `hidden` attribute and JS un-hides it on
-                  # variant change when the matched variant has data. Without
-                  # this the <dl> would miss from the DOM entirely on
-                  # products where the first variant has no SKU but later
-                  # variants do — and the variant-change refresh would have
-                  # nothing to write into.
-                  if block.settings.show_sku
-                    assign pd_any = true
-                  endif
-                  if block.settings.show_barcode
-                    assign pd_any = true
-                  endif
-                  if block.settings.show_weight
-                    assign pd_any = true
-                  endif
+                  # the row markup as long as the merchant has the toggle
+                  # ON, even when the FIRST variant's value is blank. The
+                  # row wrapper carries the `hidden` attribute and JS
+                  # un-hides it on variant change when the matched
+                  # variant has data. Without this two-state pre-render
+                  # the variant-change refresh would have nothing to
+                  # write into.
+                  assign pd_render_sku = block.settings.show_sku
+                  assign pd_render_barcode = block.settings.show_barcode
+                  assign pd_render_weight = block.settings.show_weight
 
                   # Product-level rows (vendor / type / origin / tags /
-                  # dimensions) DON'T change across variants — only render
-                  # them when the underlying product field actually has
-                  # data. An empty toggle here would surface a label with
-                  # an empty value.
+                  # dimensions) DON'T change across variants — only
+                  # render them when the underlying field actually has
+                  # data. An empty toggle here would surface a label
+                  # with an empty value.
+                  assign pd_render_vendor = false
                   if block.settings.show_vendor and product.vendor != blank
-                    assign pd_any = true
+                    assign pd_render_vendor = true
                   endif
+                  assign pd_render_type = false
                   if block.settings.show_type and product.type != blank
-                    assign pd_any = true
+                    assign pd_render_type = true
                   endif
+                  assign pd_render_origin = false
+                  if block.settings.show_origin and product.metafields.custom.country_of_origin.value != blank
+                    assign pd_render_origin = true
+                  endif
+                  assign pd_render_tags = false
                   if block.settings.show_tags and product.tags.size > 0
-                    assign pd_any = true
+                    assign pd_render_tags = true
                   endif
+
+                  # Dimensions read the three component metafields once
+                  # so the render site can reuse them without re-reading.
+                  assign pd_dim_l = blank
+                  assign pd_dim_w = blank
+                  assign pd_dim_h = blank
+                  assign pd_dim_unit = 'cm'
+                  assign pd_render_dimensions = false
                   if block.settings.show_dimensions
-                    assign pd_dim_l = product.metafields.custom.length
-                    assign pd_dim_w = product.metafields.custom.width
-                    assign pd_dim_h = product.metafields.custom.height
+                    assign pd_dim_l = product.metafields.custom.length.value
+                    assign pd_dim_w = product.metafields.custom.width.value
+                    assign pd_dim_h = product.metafields.custom.height.value
+                    assign pd_dim_unit = product.metafields.custom.dimensions_unit.value | default: 'cm'
                     if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank
-                      assign pd_any = true
+                      assign pd_render_dimensions = true
                     endif
                   endif
-                  if block.settings.show_origin and product.metafields.custom.country_of_origin != blank
+
+                  # pd_any is the OR of all per-row flags — single
+                  # source of truth deciding whether the description
+                  # list opens at all.
+                  assign pd_any = false
+                  if pd_render_sku or pd_render_barcode or pd_render_weight or pd_render_vendor or pd_render_type or pd_render_origin or pd_render_tags or pd_render_dimensions
                     assign pd_any = true
                   endif
                 -%}
@@ -848,82 +871,114 @@
                       stay missing from the DOM and JS would have
                       nothing to update.
                     {%- endcomment -%}
-                    {%- if block.settings.show_sku -%}
+                    {%- if pd_render_sku -%}
                       <div class="kt-pdp__details-row" data-product-detail-row="sku"{% if pd_variant.sku == blank %} hidden{% endif %}>
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.sku' | t | default: 'SKU' }}</dt>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.sku' | t }}</dt>
                         <dd class="kt-pdp__details-value" data-product-sku>{{ pd_variant.sku | escape }}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_barcode -%}
+                    {%- if pd_render_barcode -%}
                       <div class="kt-pdp__details-row" data-product-detail-row="barcode"{% if pd_variant.barcode == blank %} hidden{% endif %}>
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.barcode' | t | default: 'Barcode' }}</dt>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.barcode' | t }}</dt>
                         <dd class="kt-pdp__details-value" data-product-barcode>{{ pd_variant.barcode | escape }}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_weight -%}
-                      <div class="kt-pdp__details-row" data-product-detail-row="weight"{% if pd_variant.weight <= 0 %} hidden{% endif %}>
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.weight' | t | default: 'Weight' }}</dt>
+                    {%- if pd_render_weight -%}
+                      {%- comment -%}
+                        `data-weight-unit` on the row carries the merchant's
+                        configured weight unit so product-form.js doesn't
+                        have to guess on variant change (some products mix
+                        unit per variant, but Shopify exposes a single
+                        `weight_unit` per variant in the JSON — we surface
+                        whichever one the selected variant declares). The
+                        attribute is a JS read-only ground truth so weight
+                        format never accidentally renders kg-on-an-oz shop.
+                      {%- endcomment -%}
+                      <div class="kt-pdp__details-row" data-product-detail-row="weight" data-weight-unit="{{ pd_variant.weight_unit | escape }}"{% if pd_variant.weight <= 0 %} hidden{% endif %}>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.weight' | t }}</dt>
                         <dd class="kt-pdp__details-value" data-product-weight>{% if pd_variant.weight > 0 %}{{ pd_variant.weight | weight_with_unit: pd_variant.weight_unit }}{% endif %}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_dimensions -%}
-                      {%- assign pd_dim_l = product.metafields.custom.length -%}
-                      {%- assign pd_dim_w = product.metafields.custom.width -%}
-                      {%- assign pd_dim_h = product.metafields.custom.height -%}
-                      {%- assign pd_dim_unit = product.metafields.custom.dimensions_unit | default: 'cm' -%}
-                      {%- if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank -%}
-                        <div class="kt-pdp__details-row">
-                          <dt class="kt-pdp__details-label">{{ 'kt.product.details.dimensions' | t | default: 'Dimensions' }}</dt>
-                          <dd class="kt-pdp__details-value">
-                            {%- if pd_dim_l != blank -%}{{ pd_dim_l }}{%- endif -%}
-                            {%- if pd_dim_w != blank -%}{% if pd_dim_l != blank %} × {% endif %}{{ pd_dim_w }}{%- endif -%}
-                            {%- if pd_dim_h != blank -%}{% if pd_dim_l != blank or pd_dim_w != blank %} × {% endif %}{{ pd_dim_h }}{%- endif -%}
-                            {%- if pd_dim_unit != blank %} {{ pd_dim_unit | escape }}{%- endif -%}
-                          </dd>
-                        </div>
-                      {%- endif -%}
-                    {%- endif -%}
-                    {%- if block.settings.show_vendor and product.vendor != blank -%}
+                    {%- if pd_render_dimensions -%}
+                      {%- comment -%}
+                        Every dim value is `| escape`d at output — the
+                        metafields are merchant-trusted (admin-set) but
+                        customer-untrusted on render. A
+                        `single_line_text_field` typed metafield could
+                        accept any string including HTML; escaping
+                        defangs the stored-XSS vector.
+
+                        `dimensions_unit` falls back to `cm` for new
+                        shops with no metafield set. Merchants on
+                        Imperial-locale Markets should set the metafield
+                        to `in` per product or globally — there's no
+                        shop-locale-aware Shopify-native dimensions
+                        unit. The metafield values + unit are read once
+                        in the `liquid` block above and reused here.
+                      {%- endcomment -%}
                       <div class="kt-pdp__details-row">
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.vendor' | t | default: 'Brand' }}</dt>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.dimensions' | t }}</dt>
+                        <dd class="kt-pdp__details-value">
+                          {%- if pd_dim_l != blank -%}{{ pd_dim_l | escape }}{%- endif -%}
+                          {%- if pd_dim_w != blank -%}{% if pd_dim_l != blank %} × {% endif %}{{ pd_dim_w | escape }}{%- endif -%}
+                          {%- if pd_dim_h != blank -%}{% if pd_dim_l != blank or pd_dim_w != blank %} × {% endif %}{{ pd_dim_h | escape }}{%- endif -%}
+                          {%- if pd_dim_unit != blank %} {{ pd_dim_unit | escape }}{%- endif -%}
+                        </dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if pd_render_vendor -%}
+                      <div class="kt-pdp__details-row">
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.vendor' | t }}</dt>
                         <dd class="kt-pdp__details-value">
                           <a href="{{ product.vendor | url_for_vendor }}" class="kt-pdp__details-link">{{ product.vendor | escape }}</a>
                         </dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_type and product.type != blank -%}
+                    {%- if pd_render_type -%}
                       <div class="kt-pdp__details-row">
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.type' | t | default: 'Type' }}</dt>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.type' | t }}</dt>
                         <dd class="kt-pdp__details-value">
                           <a href="{{ product.type | url_for_type }}" class="kt-pdp__details-link">{{ product.type | escape }}</a>
                         </dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_origin and product.metafields.custom.country_of_origin != blank -%}
+                    {%- if pd_render_origin -%}
                       <div class="kt-pdp__details-row">
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.origin' | t | default: 'Country of origin' }}</dt>
-                        <dd class="kt-pdp__details-value">{{ product.metafields.custom.country_of_origin | escape }}</dd>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.origin' | t }}</dt>
+                        <dd class="kt-pdp__details-value">{{ product.metafields.custom.country_of_origin.value | escape }}</dd>
                       </div>
                     {%- endif -%}
-                    {%- if block.settings.show_tags and product.tags.size > 0 -%}
+                    {%- if pd_render_tags -%}
                       <div class="kt-pdp__details-row kt-pdp__details-row--tags">
-                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.tags' | t | default: 'Tags' }}</dt>
+                        <dt class="kt-pdp__details-label">{{ 'kt.product.details.tags' | t }}</dt>
                         <dd class="kt-pdp__details-value">
                           {%- comment -%}
-                            Tag URL is built from `routes.collections_url`
-                            + `/all/` + the tag handle so Markets locales
-                            (e.g. /de/collections/all/sale) stay correct.
+                            Tag URL inlines `{{ routes.collections_url }}`
+                            + `/all/` + `{{ tag | handle }}` so Markets
+                            locales (e.g. /de/collections/all/sale) stay
+                            correct. Earlier this was built via `assign`
+                            with a trailing `| append: tag | handle` —
+                            Liquid filter chaining ran `| handle` against
+                            the WHOLE concatenated URL string, producing a
+                            broken slug like `collections-all-sale` and
+                            sending every tag chip to a 404. The inline
+                            pattern matches the proven `main-blog.liquid`
+                            convention.
+
                             Shopify doesn't ship a `url_for_tag` filter
-                            (cf. url_for_vendor / url_for_type which do
-                            exist) — this manual construction is the
-                            documented portable pattern. Internal tags
+                            (cf. `url_for_vendor` / `url_for_type` which
+                            do exist) — this manual construction is the
+                            documented portable approach. Internal tags
                             prefixed with `_` are filtered out to match
                             the rest of the theme's convention.
+
+                            `limit: 30` bounds iteration on pathological
+                            products with hundreds of tags — keeps the
+                            PDP HTML payload predictable.
                           {%- endcomment -%}
-                          {%- for tag in product.tags -%}
+                          {%- for tag in product.tags limit: 30 -%}
                             {%- unless tag contains '_' -%}
-                              {%- assign tag_url = routes.collections_url | append: '/all/' | append: tag | handle -%}
-                              <a href="{{ tag_url }}" class="kt-pdp__details-tag">{{ tag | escape }}</a>
+                              <a href="{{ routes.collections_url }}/all/{{ tag | handle }}" class="kt-pdp__details-tag">{{ tag | escape }}</a>
                             {%- endunless -%}
                           {%- endfor -%}
                         </dd>
@@ -938,9 +993,7 @@
                     rendering anything on the live store.
                   {%- endcomment -%}
                   <div class="kt-pdp__details kt-pdp__details--placeholder" {{ block.shopify_attributes }}>
-                    <p class="kt-pdp__details-hint">
-                      {{ 'kt.product.details.editor_hint' | t | default: "Toggle the fields you want to show in this block's settings. Empty fields self-suppress on the live storefront." }}
-                    </p>
+                    <p class="kt-pdp__details-hint">{{ 'kt.product.details.editor_hint' | t }}</p>
                   </div>
                 {%- endif -%}
 
