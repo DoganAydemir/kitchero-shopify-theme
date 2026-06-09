@@ -58,6 +58,38 @@
   /* Image visibility is a function of overlay: darker overlay = slightly dimmer image */
 }
 
+/* ── Empty-state (no merchant image uploaded yet) ─────────
+   R-bc-placeholder — When the merchant hasn't picked a hero image,
+   the Liquid template emits an empty `<div class="kt-banner-cover__
+   image--placeholder">` and adds `--placeholder` to the section
+   root. We paint a deep stone gradient so:
+     • The white `__title` text clears WCAG AAA contrast (~16:1)
+       instead of failing 1.4.3 on a light-grey Shopify default.
+     • Theme Store reviewers + merchant first-open see a polished
+       surface, not the "bag/shoe/handbag" stroke illustrations of
+       the `lifestyle-1` placeholder SVG.
+   The moment the merchant uploads an image the section root drops
+   `--placeholder`, the `.kt-banner-cover__image` rule above takes
+   over (object-fit cover), and these rules never apply. */
+.kt-banner-cover__image--placeholder {
+  /* Opacity calc inherited from the base image rule was tuned for a
+     photo with dim overlay; the gradient is already final-tinted, so
+     pin to full opacity to keep the colour stops at their intended
+     contrast. */
+  opacity: 1;
+  background-image:
+    radial-gradient(120% 80% at 50% 0%, rgba(68, 64, 60, 0.65) 0%, rgba(28, 25, 23, 0) 60%),
+    linear-gradient(180deg, var(--kt-stone-900, #1c1917) 0%, var(--kt-stone-950, #0c0a09) 100%);
+  background-color: var(--kt-stone-900, #1c1917);
+}
+
+/* Suppress the photo→gradient soft-out (`__gradient`) when the
+   backdrop is already a gradient — stacking another linear-gradient
+   on top muddied the top edge with a faint band. */
+.kt-banner-cover--placeholder .kt-banner-cover__gradient {
+  display: none;
+}
+
 .kt-banner-cover__gradient {
   position: absolute;
   inset: 0;

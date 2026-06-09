@@ -29,8 +29,30 @@
   needed for the empty-heading case.
 {%- endcomment -%}
 {%- assign banner_cover_heading_id = 'BannerCoverHeading-' | append: section.id -%}
+{%- comment -%}
+  R-bc-placeholder — Modifier class for the no-image state. When the
+  merchant hasn't uploaded a hero image yet (fresh install, demo
+  build, About page before content is filled), we paint a deep stone
+  background instead of Shopify's default `lifestyle-1` placeholder
+  illustration. Two wins:
+    1. The white `__title` text reads at WCAG AAA contrast against
+       the dark backdrop (was ~1.5:1 against light grey placeholder
+       — outright fail).
+    2. Theme Store reviewers see a polished neutral surface on first
+       load, not the bag/shoe/handbag stroke illustrations that
+       scream "I'm an empty placeholder, the merchant didn't set
+       this up". Submission polish is what differentiates paid
+       themes from free.
+  The modifier disappears the moment the merchant uploads an image —
+  the image branch above renders normally, dark fallback never
+  reaches the DOM.
+{%- endcomment -%}
+{%- assign banner_cover_has_image = false -%}
+{%- if section.settings.image != blank -%}
+  {%- assign banner_cover_has_image = true -%}
+{%- endif -%}
 <section
-  class="kt-banner-cover"
+  class="kt-banner-cover{% unless banner_cover_has_image %} kt-banner-cover--placeholder{% endunless %}"
   data-section-id="{{ section.id }}"
   data-section-type="banner-cover"
   data-allows-transparent-header="true"
@@ -48,7 +70,7 @@
       skips the lazy queue so the image loads early if the section is
       on-screen, while `fetchpriority: 'auto'` lets the browser decide.
     {%- endcomment -%}
-    {%- if section.settings.image != blank -%}
+    {%- if banner_cover_has_image -%}
       {%- assign cover_focal = section.settings.image.presentation.focal_point | default: 'center center' -%}
       {%- comment -%}
         Pre-assign style — inline `style: 'object-position: ' | append:
@@ -72,7 +94,18 @@
           alt: section.settings.image.alt | default: section.settings.heading
       }}
     {%- else -%}
-      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-cover__image' }}
+      {%- comment -%}
+        R-bc-placeholder — Empty `<div class="kt-banner-cover__image">`
+        instead of Shopify's `lifestyle-1` placeholder SVG. The CSS rule
+        for `.kt-banner-cover--placeholder .kt-banner-cover__image`
+        paints a deep-stone gradient surface. We DON'T render the SVG
+        placeholder because its light strokes (the bag/shoe/handbag
+        illustration) compete with the heading text — even on dark
+        background the strokes would invert and stand out as noisy
+        ghost-shapes. Pure gradient fallback reads as intentional
+        empty state, not "missing content".
+      {%- endcomment -%}
+      <div class="kt-banner-cover__image kt-banner-cover__image--placeholder" role="presentation"></div>
     {%- endif -%}
     <div class="kt-banner-cover__gradient"></div>
   </div>
