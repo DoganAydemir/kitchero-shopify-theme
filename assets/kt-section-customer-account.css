@@ -917,8 +917,49 @@ html.no-js [data-addresses-cancel-edit] {
 }
 
 .kt-password__newsletter-btn {
+  /* R-password-newsletter-btn — Override `.kt-customer__submit`'s
+     `width: 100%`. That width is correct for the standalone
+     login / register / reset forms (column layout, single button
+     per row) but inside the password page's inline newsletter row
+     (input + button side by side) the 100% width collapsed the
+     adjacent email input to ~0px and the button stretched to take
+     the whole row, leaving a 1px sliver on the left. `width: auto`
+     resets it so `flex: 0 0 auto` can size by content. */
+  width: auto;
   flex: 0 0 auto;
   white-space: nowrap;
+  /* R-password-newsletter-btn-v2 — Bordered ghost variant + match
+     the input's vertical metric.
+
+     Visual change: the filled black "SUBSCRIBE" button on a light
+     page bg felt CTA-loud for a secondary opt-in beneath the
+     primary "ENTER" form. Switched to an outline button (transparent
+     bg, scheme-fg border, scheme-fg text) so the password form
+     remains the primary action and the newsletter row reads as
+     supplementary. Hover swaps to filled for affordance.
+
+     Height match: input uses `padding: 0.85rem 1rem` + `font-size:
+     0.9375rem` (line-height 1.5 by default). Button keeps its
+     uppercase 0.75rem 700 tracking type, so its line-height is
+     ~14px while the input is ~22px — to land both controls at the
+     same outer height the button needs padding-y ≈ 1.05rem
+     (calculated to give ~46px outer when border + content match
+     the input's ~46px). Using padding-y: 1rem + border lands the
+     final pixel at 48 vs input 46 — close enough that the eye
+     reads them as aligned; align-items: stretch picks up any
+     2px residual without text mis-baseline. */
+  padding: 1rem 2rem;
+  background: transparent;
+  color: rgb(var(--kt-c-fg));
+  border: 1px solid rgb(var(--kt-c-fg));
+  margin-top: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kt-password__newsletter-btn:hover,
+.kt-password__newsletter-btn:focus-visible {
+  background: rgb(var(--kt-c-fg));
+  color: rgb(var(--kt-c-bg));
 }
 
 .kt-password__newsletter-success {

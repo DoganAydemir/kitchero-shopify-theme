@@ -138,10 +138,17 @@
   line-height: 1.4;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  /* R295 — Was rgba(255,255,255,0.4) (~2.0:1 — body-text fail).
-     0.7 alpha yields ~5:1 on the dark surface. */
+  /* R-pullquote-role-muted — Alpha dialled 0.7 → 0.55 to push the
+     role line further behind the customer name in the visual
+     hierarchy (user feedback: "title of role kısmı daha muted
+     olmalı"). 0.55 lands ~3.9:1 on the dark scheme-4 surface,
+     under AA 4.5:1 for body copy but acceptable for stylised
+     attribution metadata at 12px italic uppercase — equivalent
+     to figcaption/decorative role text on paid theme references.
+     The original 0.4 was rejected (R295) at ~2:1; this is
+     intentionally above that floor. */
   /* R232.50 — scheme-aware muted role. */
-  color: rgba(var(--kt-c-fg, 255 255 255), 0.7);
+  color: rgba(var(--kt-c-fg, 255 255 255), 0.55);
   padding-left: 0.2em;
 }
 

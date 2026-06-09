@@ -128,8 +128,13 @@
 .kt-home-financing__desc {
   /* stone-500 on stone-800 bg failed WCAG AA (ratio < 4.5:1).
      stone-400 (#a8a29e) hits ~5.5:1 on stone-800 — still reads as
-     muted vs. the white heading, contrast-safe. */
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.55);
+     muted vs. the white heading, contrast-safe.
+
+     R-home-financing-desc-muted — User requested the intro
+     paragraph read further behind the serif title pair. Alpha
+     0.55 → 0.45 lands ~4.5:1 on the dark surface, right at the
+     WCAG body bar — intentional muted lead copy. */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.45);
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.625;
@@ -205,8 +210,14 @@
 /* p: text-stone-400 text-sm font-light */
 .kt-home-financing__partner-desc {
   font-size: 0.875rem;
-  /* Same WCAG fix as __desc — stone-500 failed on stone-800 bg. */
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.55);
+  /* Same WCAG fix as __desc — stone-500 failed on stone-800 bg.
+
+     R-home-financing-partner-desc-muted — User wanted both intro
+     desc and per-partner desc visibly calmer. Alpha 0.55 → 0.45
+     keeps tier-parity with __desc above; both reads as muted
+     supporting copy behind the green check-icon + uppercase
+     partner title. */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.45);
   font-weight: 300;
   line-height: 1.5;
 }

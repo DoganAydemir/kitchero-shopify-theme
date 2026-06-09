@@ -143,6 +143,25 @@
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
+/* R-newsletter-note-link — Privacy-policy anchor inside the
+   note line was inheriting the browser's default link blue
+   because no scoped rule overrode it. Pin to the scheme fg
+   (slightly muted so the link reads as inline emphasis rather
+   than a CTA), keep underline + 3px offset for hit-target +
+   accessibility (WCAG anchor recognisability). Hover bumps to
+   full fg for the affordance. */
+.kt-newsletter-page__note-link {
+  color: rgba(var(--kt-c-fg, 28 25 23), 0.85);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.kt-newsletter-page__note-link:hover,
+.kt-newsletter-page__note-link:focus-visible {
+  color: rgb(var(--kt-c-fg, 28 25 23));
+}
+
 /* Success + error states for newsletter form */
 .kt-newsletter-page__success {
   display: inline-flex;

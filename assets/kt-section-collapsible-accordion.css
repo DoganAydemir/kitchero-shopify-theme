@@ -85,8 +85,24 @@
 }
 
 .kt-collapsible-accordion__item[open] {
-  /* scheme-aware subtle open-state lift */
-  background-color: rgba(var(--kt-c-fg, 250 250 249), 0.04);
+  /* R-faq-cleanup — Open state used a 4% fg tint to "lift" the
+     active item; user feedback flagged the resulting grey card
+     as too heavy against the source design, which keeps every
+     item on the section bg with only a divider line between.
+     Tint removed; the chevron rotation + divider rule provide
+     enough open-vs-collapsed cue on their own. */
+  background-color: transparent;
+}
+
+/* R-faq-spacing — Compact the open-state summary's bottom padding so
+   the question→answer pair reads as a tightly coupled Q-and-A unit
+   rather than two separate blocks. Top padding stays at 1.5rem so the
+   summary still has a clean top edge against the divider above; bottom
+   trims to 0.5rem and the content panel below (padding-top 0) sits
+   immediately under the question. Closed-state items keep the original
+   1.5rem all-around padding so the collapsed list stays roomy. */
+.kt-collapsible-accordion__item[open] .kt-collapsible-accordion__summary {
+  padding-bottom: 0.5rem;
 }
 
 /* Summary — hide default marker
@@ -157,20 +173,27 @@
 }
 
 .kt-collapsible-accordion__title {
-  font-family: var(--kt-f-heading-family, 'Georgia', serif);
-  font-size: calc(var(--kt-f-heading-scale, 1) * (1.5rem));
-
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  /* R-faq-cleanup — Switched from heading serif (Georgia) at
+     24/30px down to body sans-serif at 17/19px with weight 700.
+     The reference Next.js source treats the question line as
+     bold body copy, not an editorial heading — pairing serif
+     titles with a muted body answer made the question read as
+     a sub-section header and broke the FAQ "scannable list"
+     hierarchy. Sans + bold keeps every question recognisable
+     at a glance and matches the body family used elsewhere
+     for actionable text. */
+  font-family: inherit;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
   color: rgb(var(--kt-c-fg, 28 25 23));
   transition: color 0.3s ease;
 }
 
 @media (min-width: 768px) {
   .kt-collapsible-accordion__title {
-    font-size: calc(var(--kt-f-heading-scale, 1) * (1.875rem));
-
+    font-size: 1.1875rem;
   }
 }
 
@@ -265,7 +288,14 @@
    the summary; desktop keeps the 2.25rem left indent that aligns
    the answer with the numbered-question text. */
 .kt-collapsible-accordion__content {
-  padding: 1rem 1rem 1.5rem 1rem;
+  /* R-faq-spacing — Removed top padding entirely (was 1rem). Combined
+     with the summary's own 1.5rem vertical padding, the gap between
+     question baseline and answer top was ~40px — too far apart, the
+     pair stopped reading as a Q-and-A unit. Now the summary's bottom
+     padding owns the entire spacing budget; content sits flush
+     underneath with only the bottom padding (1.5rem) for breathing
+     room before the divider line below. */
+  padding: 0 1rem 1.5rem 1rem;
   /* Matches the muted body-copy treatment used elsewhere (image-
      with-text alternating, etc.) — stone-500 base with an opacity
      nudge to soften the on-screen contrast so the answer reads as
@@ -287,8 +317,9 @@
        up to 1.125rem — keeps the answer paragraph clearly secondary
        to the serif title across every breakpoint. */
     font-size: 0.9375rem;
-    /* Desktop indent aligns with the title's number prefix. */
-    padding: 1rem 1.5rem 1.5rem 2.25rem;
+    /* Desktop indent aligns with the title's number prefix; padding-
+       top stays 0 — see mobile rule above for the rationale. */
+    padding: 0 1.5rem 1.5rem 2.25rem;
   }
 }
 
