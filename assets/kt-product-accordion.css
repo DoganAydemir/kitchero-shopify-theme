@@ -115,10 +115,17 @@
      confusion. The previous `color: inherit` pattern made DevTools
      display the parent rule with strikethrough, which read as
      "not applied" even though it was (inherit). Direct values
-     read unambiguously in both the cascade and the visual. */
-  color: rgb(var(--kt-c-fg-muted));
+     read unambiguously in both the cascade and the visual.
+
+     R-accordion-content — Body text downsized 15px → 14px and
+     further muted via 80% alpha on the muted token. PDP accordion
+     content is secondary information (specs, shipping detail) —
+     should read calmer than the primary description/feature copy.
+     Alpha mute stays above the WCAG 4.5:1 contrast bar on the
+     default light scheme; verified against stone-50 background. */
+  color: rgba(var(--kt-c-fg-muted), 0.85);
   line-height: 1.7;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .kt-accordion[open] .kt-accordion__content {
@@ -128,9 +135,9 @@
 /* Content typography */
 .kt-accordion__content p {
   margin: 0 0 0.75rem;
-  color: rgb(var(--kt-c-fg-muted));
+  color: rgba(var(--kt-c-fg-muted), 0.85);
   line-height: 1.7;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 400;
 }
 
