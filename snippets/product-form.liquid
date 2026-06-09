@@ -146,8 +146,23 @@
     <div class="kt-product-form__qty-row">
       <div class="kt-product-form__qty">
         <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_product_title }}">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
+        {%- comment -%}
+          R-PDP6 — `autocomplete="off"` keeps browsers from re-populating
+          the qty with the customer's previous purchase quantity on
+          another product (Chrome's "Last typed value" heuristic for
+          numeric inputs). Without it a B2B shopper who bought 12 of
+          item A and navigates to item B with `step=6` would silently
+          land on `12` and submit — bypassing the step snap until
+          they manually adjust. WHATWG recommends `off` for purely
+          mechanical numeric steppers; semantic counterparts (qty in
+          a saved order template) are the exception.
+
+          The previous `pattern="[0-9]*"` is moot on `type=number`
+          (HTML spec — pattern doesn't apply to non-text types) so
+          it's removed to avoid misleading future maintainers.
+        {%- endcomment -%}
         <input
           type="number"
           name="quantity"
@@ -157,7 +172,7 @@
           step="{{ qty_step }}"
           {% if qty_max != blank %}max="{{ qty_max }}"{% endif %}
           inputmode="numeric"
-          pattern="[0-9]*"
+          autocomplete="off"
           class="kt-product-form__qty-input"
           data-qty-input
           data-qty-min="{{ qty_min }}"
@@ -227,7 +242,7 @@
         icon doesn't compete with the "Sold out" label.
       {%- endcomment -%}
       {%- if settings.kt_atc_show_icon -%}
-        <svg class="kt-product-form__atc-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="kt-product-form__atc-icon" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <path d="M16 10a4 4 0 0 1-8 0"></path>
@@ -378,7 +393,7 @@
       data-label-default="{{ 'kt.product.share' | t }}"
       data-label-copied="{{ 'kt.product.share_copied' | t }}"
     >
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle>
         <circle cx="6" cy="12" r="3"></circle>
         <circle cx="18" cy="19" r="3"></circle>

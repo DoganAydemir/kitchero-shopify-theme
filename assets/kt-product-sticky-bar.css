@@ -12,7 +12,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 50;
+  /* R-PDP6 — Centralized z-index token. Was hardcoded `50`; now flows
+     through the design-token tier table in kt-css-variables.liquid so
+     the bar's stack relationship to the rest of the theme (sticky
+     header → drawer → popover → lightbox → loader) is documented in
+     ONE place and merchants integrating cookie banners / chat widgets
+     can reason about their own layer without guessing what 50 means. */
+  z-index: var(--kt-z-sticky-bar, 50);
   background-color: var(--kt-white, #ffffff);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 -4px 24px -12px rgba(0, 0, 0, 0.18);

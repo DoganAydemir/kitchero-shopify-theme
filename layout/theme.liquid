@@ -118,10 +118,24 @@
           {%- assign primary_root = locale.root_url -%}
         {%- endif -%}
       {%- endfor -%}
+      {%- comment -%}
+        R-PDP6 — Guard `request.locale.root_url` against blank. On the
+        primary locale Shopify returns the path without a prefix; in
+        some edge configurations (single-locale-but-Markets-enabled
+        store, brand-new dev store, fresh theme preview) the value
+        comes through blank instead of `/`. Liquid `replace_first`
+        with an EMPTY needle replaces nothing (target locale's
+        root_url never gets injected), so the hreflang for every
+        non-primary locale silently points back at the primary URL.
+        Defaulting to `/` keeps the replace path stable so each
+        locale gets its correct prefix even when the source root
+        is reported blank.
+      {%- endcomment -%}
+      {%- assign current_root = request.locale.root_url | default: '/' -%}
       {%- for locale in shop.published_locales -%}
-        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: request.locale.root_url, locale.root_url }}">
+        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: current_root, locale.root_url }}">
       {%- endfor -%}
-      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: request.locale.root_url, primary_root }}">
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: current_root, primary_root }}">
     {%- endif -%}
 
     {%- comment -%}

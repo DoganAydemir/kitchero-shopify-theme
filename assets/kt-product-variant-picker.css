@@ -79,7 +79,12 @@
   height: calc(var(--kt-swatch-size, 18px) * 2);
   border-radius: var(--kt-swatch-shape, 50%);
   border: 2px solid rgba(var(--kt-c-fg), 0.12);
-  transition: all 0.2s ease;
+  /* R-PDP6 — Explicit transition prop list (not `all`) so
+     prefers-reduced-motion can opt out of transform/scale changes
+     specifically without flattening color hover feedback. `all`
+     was sweeping `transform` for the hover scale, which is exactly
+     what motion-sensitive shoppers want suppressed. */
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
   /* R22-A: preserve the actual variant color in Windows High
      Contrast / forced-colors mode. Without this, the system
      overrides every background to Canvas — the customer can't
@@ -158,7 +163,12 @@
   letter-spacing: 0.05em;
   color: rgb(var(--kt-c-fg-muted));
   border-radius: 4px;
-  transition: all 0.2s ease;
+  /* R-PDP6 — Explicit transition prop list (not `all`) so
+     prefers-reduced-motion can opt out of transform/scale changes
+     specifically without flattening color hover feedback. `all`
+     was sweeping `transform` for the hover scale, which is exactly
+     what motion-sensitive shoppers want suppressed. */
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
   text-align: center;
   /* R87 — long color names ("Burnt Sienna Tuscany Sunset") used to
      overflow the grid track at 12px font + repeat(3, 1fr) on
@@ -283,4 +293,22 @@
 .kt-variant-picker__nojs-submit:focus-visible {
   outline: 2px solid var(--kt-stone-900, #1c1917);
   outline-offset: 3px;
+}
+
+/* R-PDP6 — Reduced-motion guard. Variant picker swatch hover
+   stretches transform: scale, which is exactly the kind of
+   subtle animation `prefers-reduced-motion: reduce` users want
+   suppressed (vestibular sensitivity triggers). Color/border
+   hover feedback stays — those convey state, not motion. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-variant-picker__swatch,
+  .kt-variant-picker__option-chip {
+    transition: background-color 0.01s, border-color 0.01s, color 0.01s;
+  }
+  .kt-variant-picker__swatch:hover,
+  .kt-variant-picker__option-chip:hover,
+  .kt-variant-picker__swatch:focus-visible,
+  .kt-variant-picker__option-chip:focus-visible {
+    transform: none;
+  }
 }

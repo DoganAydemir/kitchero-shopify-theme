@@ -356,7 +356,7 @@
         {% render 'icon-chevron-left', width: 32, height: 32, stroke_width: 1.5 %}
       </button>
       <button type="button" class="kt-lightbox__nav kt-lightbox__nav--next" data-lightbox-next aria-label="{{ 'kt.section.hero.next_slide' | t | default: 'Next' }}">
-        <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        <svg aria-hidden="true" focusable="false" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 6 15 12 9 18"></polyline></svg>
       </button>
       {%- comment -%}
         R19-E: WCAG 1.3.1 — screen-reader users navigating with arrow
@@ -386,6 +386,18 @@
         meaningful default; assets/product-gallery.js overrides this with
         the actual gallery image's alt the moment a thumbnail is clicked.
       {%- endcomment -%}
+      {%- comment -%}
+        R-PDP6 — `decoding="async"` lets the browser decode the
+        lightbox image off the main thread so the modal-open paint
+        isn't blocked by image decode time (matters on 4K+ source
+        photos that approach 10 MB once decompressed). `srcset` +
+        `sizes` aren't pre-rendered here because the actual src is
+        set by `assets/product-gallery.js:setLightboxImage` at open
+        time — that JS now computes a 2x-DPI-aware variant via the
+        Shopify CDN `?width=` transform on demand. Keeping srcset
+        empty in markup avoids a stale `1200w` hint mismatching
+        whatever the JS later assigns.
+      {%- endcomment -%}
       <img
         class="kt-lightbox__image"
         data-lightbox-image
@@ -393,6 +405,8 @@
         width="1200"
         height="900"
         loading="lazy"
+        decoding="async"
+        sizes="100vw"
       >
     </div>
   </div>
