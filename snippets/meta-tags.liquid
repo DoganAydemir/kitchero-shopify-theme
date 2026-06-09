@@ -63,6 +63,21 @@
   case request.page_type
     when 'product'
       assign og_type = 'product'
+      # R-PDP5 — Variant-aware social share URL. The PDP's canonical
+      # URL intentionally drops `?variant=N` (Google best practice:
+      # one canonical per product, variants are facets). But when a
+      # shopper picks a specific variant ("Forest Green / XL") and
+      # taps Share, the OG preview their Slack/FB/iMessage friend
+      # opens should land on THAT variant — same image, same price,
+      # same configured selection. share_url here is what feeds
+      # og:url, og:image, etc.; we keep canonical_url at base and
+      # append the variant query only when a variant is actually
+      # selected. The first available variant case is preserved as
+      # base URL since that's what visitors hitting the bare product
+      # URL already see.
+      if product and product.selected_variant
+        assign share_url = canonical_url | append: '?variant=' | append: product.selected_variant.id
+      endif
     when 'article'
       assign og_type = 'article'
     when 'password'
@@ -416,6 +431,58 @@
           "worstRating": 1,
           "reviewCount": {{ sd_rating_count | json }}
         }
+      }
+    </script>
+  {%- endif -%}
+  {%- comment -%}
+    R-PDP3 BRAND-GTIN-SUPPLEMENT: Shopify's `| structured_data` filter
+    emits the core Product graph (name / image / sku / offers /
+    availability / priceCurrency) but does NOT always populate
+    `brand` (Shopify uses product.vendor → an Organization fallback
+    only when Shop Brand is configured) or any GTIN identifier
+    (gtin13 / gtin8 / mpn). Google Merchant Center + Rich Results
+    Test warn "Missing field brand" and "Missing global identifier"
+    on stores where vendor is set as plain text and barcode lives
+    in the product/variant `barcode` field.
+
+    Emit a supplement Product block with matching `@id: canonical_url`
+    so Google merges it into the same graph node as the native filter
+    (same-@id graph merge per schema.org spec). Brand renders as a
+    full Brand Organization object so Google's brand-card pipeline
+    can ingest it; gtin13 is emitted only when the variant's barcode
+    is exactly 13 digits to avoid false-positives on internal SKU
+    codes (the most common abuse of the barcode field). The block
+    is gated on actually having data — empty vendor + no barcode
+    surfaces nothing.
+  {%- endcomment -%}
+  {%- assign sd_variant = product.selected_or_first_available_variant -%}
+  {%- assign sd_gtin = blank -%}
+  {%- if sd_variant.barcode != blank -%}
+    {%- assign sd_barcode_clean = sd_variant.barcode | strip -%}
+    {%- assign sd_barcode_size = sd_barcode_clean | size -%}
+    {%- if sd_barcode_size == 13 or sd_barcode_size == 12 or sd_barcode_size == 8 -%}
+      {%- assign sd_gtin = sd_barcode_clean -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if product.vendor != blank or sd_gtin != blank -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": {{ canonical_url | json }}
+        {%- if product.vendor != blank -%}
+        ,"brand": {
+          "@type": "Brand",
+          "name": {{ product.vendor | json }}
+        }
+        {%- endif -%}
+        {%- if sd_gtin != blank -%}
+        ,{%- assign sd_gtin_size = sd_gtin | size -%}
+        {%- if sd_gtin_size == 13 -%}"gtin13"{%- elsif sd_gtin_size == 12 -%}"gtin12"{%- else -%}"gtin8"{%- endif -%}: {{ sd_gtin | json }}
+        {%- endif -%}
+        {%- if sd_variant.sku != blank -%}
+        ,"mpn": {{ sd_variant.sku | json }}
+        {%- endif -%}
       }
     </script>
   {%- endif -%}

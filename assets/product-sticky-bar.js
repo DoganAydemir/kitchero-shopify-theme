@@ -66,7 +66,17 @@
        always-visible would be wrong UX, so we no-op instead. */
     if (typeof window.IntersectionObserver === 'undefined') return;
 
-    var productForm = document.querySelector('[data-product-form]');
+    /* R-PDP3 — Scope the form lookup to the main-product section so a
+       co-located featured-product (homepage "today's pick") or quick-
+       view doesn't get observed instead. The bar belongs to THIS PDP
+       only; pre-scope ensures the IntersectionObserver tracks the
+       correct form even if the document has multiple
+       `[data-product-form]` instances. Falls back to the global
+       lookup when the section ancestor can't be resolved (e.g. the
+       bar markup gets ported to a non-main-product template by a
+       merchant — unusual but possible). */
+    var stickyScope = bar.closest('[data-section-type="main-product"]') || document;
+    var productForm = stickyScope.querySelector('[data-product-form]');
     if (!productForm) return;
 
     /* Reduced-motion users still get the functional bar but without the
@@ -88,6 +98,15 @@
       });
     }
 
+    /* R-PDP5 — Track the hide-transition timer id so the cleanup
+       function below can clear it on section unload. Without this a
+       pending timer can fire ~260ms after the bar's DOM has been
+       removed (theme editor reload between scroll-down and scroll-
+       past), running `setAttribute('hidden', '')` on a detached
+       node — silent no-op today but a real leak surface once the
+       bar later gets a removeEventListener-style teardown the
+       leaked timer would race with. */
+    var hideTimerId = null;
     function hideBar() {
       bar.classList.remove(visibilityClass);
       bar.setAttribute('aria-hidden', 'true');
@@ -99,7 +118,9 @@
         ? window.matchMedia('(prefers-reduced-motion: no-preference)').matches
         : true;
       var delay = motionOK ? 260 : 0;
-      window.setTimeout(function () {
+      if (hideTimerId) clearTimeout(hideTimerId);
+      hideTimerId = window.setTimeout(function () {
+        hideTimerId = null;
         if (!bar.classList.contains(visibilityClass)) {
           bar.setAttribute('hidden', '');
         }
@@ -212,6 +233,40 @@
           'Add to cart';
         ctaLabel.textContent = latestVariant.available ? addString : soldOutString;
       }
+
+      /* R-PDP5 — Keep the sticky bar's thumbnail aligned with the
+         active variant. Customer picks the "Forest Green" swatch but
+         the bar still shows the default "Sandstone" thumbnail →
+         deceptive UI failure ("the image shown for the price is
+         not the variant being bought"), a common Theme Store
+         rejection note on submissions with sticky/quick-buy bars.
+
+         We swap to `variant.featured_image.src` (or `featured_media`'s
+         `preview_image` for video/3D primary media) when the variant
+         carries one of its own; if it doesn't (variants share the
+         product-level image — common on size-only options), we leave
+         the existing thumb in place so we never paint a broken
+         image. The URL parse mirrors the gallery's fragment-strip
+         pattern from R-PDP3 so query/hash residue doesn't break the
+         `?width=` Shopify CDN transform. */
+      var thumbImg = bar.querySelector('.kt-pdp-sticky__image');
+      var variantImage = latestVariant && (
+        latestVariant.featured_image ||
+        (latestVariant.featured_media && latestVariant.featured_media.preview_image)
+      );
+      if (thumbImg && variantImage && variantImage.src) {
+        try {
+          var parsed = new URL(variantImage.src, window.location.origin);
+          parsed.search = '';
+          parsed.hash = '';
+          var baseSrc = parsed.toString();
+          var thumbW = parseInt(thumbImg.getAttribute('width'), 10) || 96;
+          thumbImg.src = baseSrc + '?width=' + (thumbW * 2);
+          thumbImg.srcset = baseSrc + '?width=' + thumbW + ' 1x, ' +
+                            baseSrc + '?width=' + (thumbW * 2) + ' 2x';
+          if (variantImage.alt) thumbImg.alt = variantImage.alt;
+        } catch (e) { /* malformed CDN URL — keep existing thumb */ }
+      }
     }
 
     /* Variant change: refresh price + sold-out label. product-form.js
@@ -245,6 +300,12 @@
       if (cta) cta.removeEventListener('click', ctaHandler);
       document.removeEventListener('variant:change', variantChangeHandler);
       document.removeEventListener('selling-plan:change', sellingPlanChangeHandler);
+      /* R-PDP5 — Clear the pending hide-transition timer so it can't
+         write to the detached bar after unload completes. */
+      if (hideTimerId) {
+        clearTimeout(hideTimerId);
+        hideTimerId = null;
+      }
     });
   }
 

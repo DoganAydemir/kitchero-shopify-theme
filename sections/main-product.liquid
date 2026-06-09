@@ -52,7 +52,7 @@
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 
-<section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
+<section class="kt-pdp color-{{ section.settings.color_scheme | default: 'scheme-1' }}" data-section-id="{{ section.id }}" data-section-type="main-product">
   {%- comment -%}
     Breadcrumb at the very top of the PDP — sits between the
     header above and the gallery + info layout below, so the
@@ -245,7 +245,23 @@
 
               {%- when 'countdown' -%}
                 {%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
-                {%- if deal_ends_at != blank -%}
+                {%- if deal_ends_at == blank and request.design_mode -%}
+                  {%- comment -%}
+                    Editor-only hint when the merchant has added the
+                    countdown block but the product is missing the
+                    `custom.deal_ends_at` metafield (which the timer
+                    needs to render). Without this the block silently
+                    disappears in the editor and the merchant can't
+                    tell whether they configured it incorrectly or
+                    whether it's hidden behind another panel — Theme
+                    Store reviewers flag this as broken UX. Live
+                    storefront still renders nothing when the
+                    metafield is blank (no urgency clutter).
+                  {%- endcomment -%}
+                  <div class="kt-pdp__countdown-block kt-pdp__countdown-block--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__details-hint">{{ 'kt.product.countdown.editor_hint' | t }}</p>
+                  </div>
+                {%- elsif deal_ends_at != blank -%}
                   <div class="kt-pdp__countdown-block" {{ block.shopify_attributes }}>
                     <div class="kt-pdp__countdown-glow" aria-hidden="true"></div>
                     <div class="kt-pdp__countdown-top">
@@ -254,7 +270,7 @@
                         <span>{{ block.settings.label | escape }}</span>
                       </div>
                       {%- if block.settings.badge != blank -%}
-                        <span class="kt-pdp__countdown-badge">{{ block.settings.badge }}</span>
+                        <span class="kt-pdp__countdown-badge">{{ block.settings.badge | escape }}</span>
                       {%- endif -%}
                     </div>
                     <div class="kt-pdp__countdown-bottom">
@@ -264,17 +280,27 @@
                         data-ends-at="{{ deal_ends_at | date: '%Y-%m-%dT%H:%M:%S%z' }}"
                         aria-label="{{ block.settings.label | default: main_product_countdown_label_default | escape }}"
                       >
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">D</span></div>
+                        {%- comment -%}
+                          R-PDP5 — Short unit labels routed through
+                          locale strings so FR/DE/TR/ES shoppers get
+                          their own initials (G for Gün, J for Jour,
+                          T for Tag, etc.) instead of the EN D/H/M/S.
+                          The CSS rule limits visual width to ~1ch so
+                          single-character locales render identically;
+                          multi-character locales degrade gracefully
+                          (the label wraps within the unit's flex cell).
+                        {%- endcomment -%}
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.days_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-hours>00</span><span class="kt-pdp__countdown-key">H</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-hours>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.hours_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-minutes>00</span><span class="kt-pdp__countdown-key">M</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-minutes>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.minutes_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-seconds>00</span><span class="kt-pdp__countdown-key">S</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-seconds>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.seconds_short' | t }}</span></div>
                       </div>
                       {%- if block.settings.ending_label != blank -%}
                         <div class="kt-pdp__countdown-ends">
-                          <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label }}</div>
+                          <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label | escape }}</div>
                           <div class="kt-pdp__countdown-progress"><div class="kt-pdp__countdown-progress-fill"></div></div>
                         </div>
                       {%- else -%}
@@ -438,23 +464,52 @@
                 </div>
 
               {%- when 'door_sample' -%}
-                {%- assign sample_product = block.settings.sample_product | default: product -%}
-                {%- if sample_product != blank -%}
+                {%- assign sample_product = block.settings.sample_product -%}
+                {%- if sample_product == blank and request.design_mode -%}
+                  {%- comment -%}
+                    Editor-only hint when the merchant added the door-
+                    sample block but didn't pick a sample product yet.
+                    Previously the snippet silently fell back to the
+                    current PDP product (`| default: product`) which
+                    rendered a self-sample button — confusing because
+                    a $1 sample-box product is meant to be a tiny
+                    physical preview, not the SKU shoppers are looking
+                    at. Removing the fallback + showing this hint
+                    forces the merchant to make a deliberate pick,
+                    aligning with the showroom/door-sample UX intent.
+                  {%- endcomment -%}
+                  <div class="kt-pdp__door-sample kt-pdp__door-sample--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__details-hint">{{ 'kt.product.sample.editor_hint' | t }}</p>
+                  </div>
+                {%- elsif sample_product != blank -%}
                   {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
                   <div class="kt-pdp__door-sample" {{ block.shopify_attributes }}>
                     <div class="kt-pdp__door-sample-header">
                       <span class="kt-pdp__door-sample-title">{{ block.settings.header_title | default: main_product_sample_header_default }}</span>
                       {%- if block.settings.ships_badge != blank -%}
-                        <span class="kt-pdp__door-sample-badge">{{ block.settings.ships_badge }}</span>
+                        <span class="kt-pdp__door-sample-badge">{{ block.settings.ships_badge | escape }}</span>
                       {%- endif -%}
                     </div>
                     <div class="kt-pdp__door-sample-body">
                       <div class="kt-pdp__door-sample-info">
-                        <h2 class="kt-pdp__door-sample-name">{{ sample_product.title }}</h2>
+                        {%- comment -%}
+                          R-PDP4 M5 — Demote sample-product title to
+                          h3. The PDP's primary heading is the product
+                          <h1> (title block); section-level headings
+                          (related-products, why-choose-us, concierge)
+                          sit at <h2>. The door-sample product is a
+                          contextually subordinate offering — a low-
+                          cost preview of the main product — and
+                          shouldn't compete with the section-level
+                          outline. <h3> reflects the actual semantic
+                          depth and keeps screen-reader heading
+                          navigation predictable.
+                        {%- endcomment -%}
+                        <h3 class="kt-pdp__door-sample-name">{{ sample_product.title | escape }}</h3>
                         <div class="kt-pdp__door-sample-price">
                           <span>{{ sample_variant.price | money }}</span>
                           {%- if block.settings.refundable -%}
-                            <span class="kt-pdp__door-sample-refundable">{{ 'kt.product.sample.refundable' | t | default: 'Refundable' }}</span>
+                            <span class="kt-pdp__door-sample-refundable">{{ 'kt.product.sample.refundable' | t }}</span>
                           {%- endif -%}
                         </div>
                         {%- if block.settings.description != blank -%}
@@ -466,7 +521,7 @@
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="kt-pdp__door-sample-btn" {% unless sample_variant.available %}disabled{% endunless %}>
                           {%- if sample_variant.available -%}
-                            {{ block.settings.button_text | default: main_product_add_sample_default }}
+                            {{ block.settings.button_text | default: main_product_add_sample_default | escape }}
                           {%- else -%}
                             {{ 'kt.product.sold_out' | t }}
                           {%- endif -%}
@@ -497,11 +552,11 @@
                     <h2 class="kt-pdp__concierge-heading">{{ block.settings.heading | escape }}</h2>
                   {%- endif -%}
                   {%- if block.settings.body != blank -%}
-                    <p class="kt-pdp__concierge-body">{{ block.settings.body }}</p>
+                    <p class="kt-pdp__concierge-body">{{ block.settings.body | escape | newline_to_br }}</p>
                   {%- endif -%}
                   {%- if block.settings.cta_text != blank and concierge_cta_url != blank -%}
                     <a href="{{ concierge_cta_url | escape }}" class="kt-pdp__concierge-cta">
-                      {{ block.settings.cta_text }}
+                      {{ block.settings.cta_text | escape }}
                       {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.6 %}
                     </a>
                   {%- endif -%}
@@ -739,7 +794,7 @@
                         {%- if block.settings[label_key] != blank and block.settings[value_key] != blank -%}
                           <div class="kt-pdp__specs-row">
                             <dt class="kt-pdp__specs-label">{{ block.settings[label_key] | escape }}</dt>
-                            <dd class="kt-pdp__specs-value">{{ block.settings[value_key] }}</dd>
+                            <dd class="kt-pdp__specs-value">{{ block.settings[value_key] | escape }}</dd>
                           </div>
                         {%- endif -%}
                       {%- endfor -%}
@@ -1157,6 +1212,16 @@
       "label": "t:sections.main-product.settings.show_sticky_atc.label",
       "info": "t:sections.main-product.settings.show_sticky_atc.info",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
@@ -1700,6 +1765,7 @@
     {
       "type": "metafield",
       "name": "t:sections.main-product.blocks.metafield.name",
+      "limit": 10,
       "settings": [
         {
           "type": "paragraph",

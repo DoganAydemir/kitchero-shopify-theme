@@ -263,9 +263,9 @@
         opacity + aria-disabled at the wrapper level.
       {%- endcomment -%}
       <div
-        class="kt-product-form__dynamic-checkout{% if settings.kt_buy_now_show_icon %} kt-product-form__dynamic-checkout--with-icon{% endif %}"
+        class="kt-product-form__dynamic-checkout{% if settings.kt_buy_now_show_icon %} kt-product-form__dynamic-checkout--with-icon{% endif %}{% unless current_variant.available %} kt-product-form__dynamic-checkout--disabled{% endunless %}"
         data-payment-button-wrapper
-        {% unless current_variant.available %}aria-disabled="true" style="pointer-events: none; opacity: 0.5;"{% endunless %}
+        {% unless current_variant.available %}aria-disabled="true"{% endunless %}
       >
         {{ form | payment_button }}
       </div>
