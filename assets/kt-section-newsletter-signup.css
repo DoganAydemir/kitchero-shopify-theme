@@ -97,7 +97,14 @@
      downgraded resting-state contrast is acceptable in exchange
      for the visual polish merchants asked for. */
   border: 1px solid rgba(var(--kt-c-fg, 0 0 0), 0.18);
-  border-radius: 0;
+  /* R-newsletter-input-pill — Was border-radius: 0 (sharp
+     rectangle). Aligned with Kitchero pill-button convention
+     used across banner-hero, banner-minimal, banner-split,
+     brands, deals-grid, cookie-banner, customer-account,
+     financing-cta — all 9999px. The input + submit button sit
+     in the same row; both pills keeps the row coherent and
+     matches the design language. */
+  border-radius: 9999px;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: rgb(var(--kt-c-fg, 28 25 23));
@@ -125,10 +132,13 @@
   background-color: rgb(var(--kt-c-action, 28 25 23));
   color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  /* R-newsletter-btn-pill — Same rationale as input above:
+     match the pill convention used theme-wide. */
+  border-radius: 9999px;
+  /* R-btn-case-normalize — Theme-wide natural-case convention. */
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;

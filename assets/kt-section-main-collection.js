@@ -115,6 +115,17 @@
     function openDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'false');
+      /* R-filter-inert-fix — Liquid markup ships `inert` on the
+         drawer for SR/keyboard safety while it's closed (so the
+         CSS-hidden controls don't surface in the tab order or AT
+         tree). `aria-hidden=false` without removing `inert` left
+         the drawer visible but every control DEAD — checkboxes,
+         selects, inputs all silently swallowed taps. The sibling
+         `collection-drawer-filter.js` does this toggle correctly;
+         this in-section binding was the outlier. Mirror the
+         sibling's pattern so any drawer instance bound by this
+         section also becomes interactive on open. */
+      drawer.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('collection-section-filter-drawer');
       } else {
@@ -130,6 +141,10 @@
     function closeDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'true');
+      /* Re-apply inert when closing so SR/keyboard users can't
+         tab into the hidden controls. Same pair as
+         collection-drawer-filter.js. */
+      drawer.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('collection-section-filter-drawer');
       } else {

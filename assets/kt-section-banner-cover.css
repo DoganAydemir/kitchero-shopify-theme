@@ -81,6 +81,29 @@
     radial-gradient(120% 80% at 50% 0%, rgba(68, 64, 60, 0.65) 0%, rgba(28, 25, 23, 0) 60%),
     linear-gradient(180deg, var(--kt-stone-900, #1c1917) 0%, var(--kt-stone-950, #0c0a09) 100%);
   background-color: var(--kt-stone-900, #1c1917);
+  /* R-bc-placeholder-svg — Container for Shopify's lifestyle-1
+     placeholder SVG. The SVG sits on top of the gradient stack
+     above; positioning + sizing so it fills the section and
+     reads as a soft silhouette behind the heading content. */
+  position: relative;
+  overflow: hidden;
+}
+
+/* R-bc-placeholder-svg-v3 — Same scheme-injection issue as the
+   __desc rule below: `rgba(var(--kt-c-fg), 0.18)` rendered
+   invisible because the token didn't resolve on this section's
+   design-mode preview. Switching to a hardcoded white channel
+   (backdrop is always dark — gradient stone-900→stone-950 or
+   merchant photo with dark overlay). 0.22 alpha lands the
+   silhouette as a soft ambient texture — visible without
+   competing with the heading + eyebrow + desc on top. */
+.kt-banner-cover__image--placeholder .placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: rgba(255, 255, 255, 0.22);
+  background-color: transparent;
 }
 
 /* Suppress the photo→gradient soft-out (`__gradient`) when the
@@ -154,7 +177,14 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.625;
-  color: var(--kt-stone-300); /* stone-300 */
+  /* R-banner-cover-desc-muted-v4 — 0.78 alpha read too close
+     to pure white against the heading; user wanted a noticeably
+     "broken white" muted tone. Stepped down to 0.6 alpha — lands
+     ~5:1 on stone-900 (above the WCAG 4.5:1 body bar) but the
+     visual gap vs the 100% heading widens enough that the desc
+     clearly sits in a supporting tier. Stays hardcoded white
+     (scheme-coherence not needed — backdrop is always dark). */
+  color: rgba(255, 255, 255, 0.6);
   max-width: 42rem;
   margin: 0 auto;
 }

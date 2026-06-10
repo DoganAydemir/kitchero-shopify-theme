@@ -95,17 +95,26 @@
       }}
     {%- else -%}
       {%- comment -%}
-        R-bc-placeholder — Empty `<div class="kt-banner-cover__image">`
-        instead of Shopify's `lifestyle-1` placeholder SVG. The CSS rule
-        for `.kt-banner-cover--placeholder .kt-banner-cover__image`
-        paints a deep-stone gradient surface. We DON'T render the SVG
-        placeholder because its light strokes (the bag/shoe/handbag
-        illustration) compete with the heading text — even on dark
-        background the strokes would invert and stand out as noisy
-        ghost-shapes. Pure gradient fallback reads as intentional
-        empty state, not "missing content".
+        R-bc-placeholder-v2 — Earlier round opted out of Shopify's
+        placeholder SVG entirely (just a gradient) to avoid the
+        light SVG strokes competing with the heading. Reverting
+        that choice per user request — every other section in the
+        theme renders a Shopify SVG placeholder when its image
+        slot is empty (CLAUDE.md "Empty States" pattern), so
+        banner-cover staying silent broke the family rule.
+
+        Workaround for the heading-competition issue: render the
+        `lifestyle-1` SVG behind the gradient + dark overlay, and
+        the CSS `__image--placeholder` rule heavily mutes its
+        opacity (~0.08) so it reads as a soft silhouette rather
+        than a foreground illustration. Theme Store reviewers
+        also expect this — an empty banner section in a fresh
+        install needs an obvious visual placeholder, not a flat
+        gradient that reads as "intentional design". */
       {%- endcomment -%}
-      <div class="kt-banner-cover__image kt-banner-cover__image--placeholder" role="presentation"></div>
+      <div class="kt-banner-cover__image kt-banner-cover__image--placeholder" role="presentation">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-cover__image-placeholder-svg' }}
+      </div>
     {%- endif -%}
     <div class="kt-banner-cover__gradient"></div>
   </div>
@@ -146,7 +155,16 @@
   banner-cover on the homepage doesn't accidentally render a
   stray trail.
 {%- endcomment -%}
-{%- if settings.kt_show_breadcrumbs -%}
+{%- comment -%}
+  R-banner-breadcrumb-toggle — Section-level escape hatch. The
+  global `settings.kt_show_breadcrumbs` flag still gates the entire
+  theme; this section-level `show_breadcrumbs` defaults to true so
+  existing banner-cover instances keep their breadcrumb, but lets
+  a merchant hide it per-instance (landing page hero, marketing
+  campaign banner, etc. — where the trail adds noise). Both must
+  be true to render.
+{%- endcomment -%}
+{%- if settings.kt_show_breadcrumbs and section.settings.show_breadcrumbs -%}
   {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}
 {%- endif -%}
 
@@ -237,6 +255,17 @@
       "step": 20,
       "unit": "px",
       "default": 640
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner-cover.settings.header__breadcrumb.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.banner-cover.settings.show_breadcrumbs.label",
+      "info": "t:sections.banner-cover.settings.show_breadcrumbs.info",
+      "default": true
     },
     {
       "type": "header",

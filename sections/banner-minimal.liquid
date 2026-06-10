@@ -44,11 +44,16 @@
         {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-minimal__image' }}
       {%- endif -%}
       <div class="kt-banner-minimal__overlay" aria-hidden="true"></div>
-      {%- if request.design_mode and section.settings.image == blank -%}
-        <p class="kt-banner-minimal__editor-hint" aria-live="polite">
-          {{ 'kt.section.banner_minimal.editor_hint_no_image' | t | default: "Pick an image in this section's settings to replace this placeholder on the live storefront." }}
-        </p>
-      {%- endif -%}
+      {%- comment -%}
+        R-banner-minimal-hint-removed — Earlier rounds rendered a
+        design-mode-only "pick an image" coaching hint when the
+        merchant hadn't picked one yet. User feedback: the hint
+        adds noise without information — merchants opening this
+        section already know they need to upload an image, the
+        placeholder SVG below the overlay carries the visual cue
+        on its own, and Shopify's settings panel on the right
+        spells out "Image" as an explicit setting.
+      {%- endcomment -%}
     </div>
 
     <div class="kt-banner-minimal__content">

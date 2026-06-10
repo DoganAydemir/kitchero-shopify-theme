@@ -239,7 +239,14 @@
 .kt-collapsible-visual__content {
   display: block;
   padding-top: 1rem;
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.6);
+  /* R-collapsible-visual-content-muted — Was scheme-aware 0.6 alpha
+     but landed too white-ish against the dark section backdrop;
+     user wanted a clearly muted "broken white" supporting tier.
+     Hardcoded white at 0.5 alpha lands ~4.5:1 on the dark bg —
+     at the WCAG body bar, reads supporting vs the 100% heading.
+     This section is always rendered on dark, so the scheme-
+     coherence trade-off matches banner-cover __desc v3. */
+  color: rgba(255, 255, 255, 0.5);
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.7;
@@ -304,6 +311,24 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* R-cv-svg-cover — SVG elements ignore `object-fit: cover` (it's
+   only valid for replaced elements like img/video — for an inline
+   SVG the user agent honours the SVG's own preserveAspectRatio
+   attribute, which Shopify's placeholder ships as `xMidYMid meet`
+   = "fit inside, leave letterbox bars"). On this 4:5 card the
+   SVG's natural aspect ratio left grey margins around the
+   silhouette instead of filling the frame edge to edge.
+   Force-scaling the SVG element so it overflows its native
+   bounds, then letting the parent's `overflow: hidden` crop the
+   excess, simulates `xMidYMid slice` (cover). scale(2.5) was
+   tuned to fill comfortably for both lifestyle-1 and product-N
+   placeholder artworks at this aspect ratio. */
+.kt-collapsible-visual__image svg,
+.kt-collapsible-visual__placeholder-svg {
+  transform: scale(2.5);
+  transform-origin: center;
 }
 
 .kt-collapsible-visual__image-overlay {

@@ -414,6 +414,18 @@
   background-color: rgba(28, 25, 23, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  /* R-filter-backdrop-pointer-none — `backdrop-filter: blur()`
+     creates a new stacking context whose paint order can land
+     above siblings in some Chromium / Safari builds, even when
+     z-index is explicitly lower. Earlier round tried fixing the
+     symptom (z-index: 1 vs 2). The deterministic fix is to make
+     the backdrop transparent to pointer events entirely — taps
+     fall through to the panel beneath / the drawer parent. The
+     panel keeps `pointer-events` auto (inherited) so its
+     children (checkboxes, selects, price inputs) receive every
+     tap. Backdrop close-on-tap was never wired (X button + ESC
+     handle close), so this doesn't break any close path. */
+  pointer-events: none;
 }
 
 .kt-filter-drawer__panel {
@@ -509,7 +521,14 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--kt-stone-500); /* stone-500 — AA contrast on white panel bg */
-  margin: 0 0 1.25rem 0;
+  /* R-filter-spacing — Tightened label → control gap from
+     1.25rem (20px) to 0.75rem (12px) to match the sort fieldset's
+     legend → select gap below (also adjusted to 0.75rem). Earlier
+     mismatch (sort 10px / price 20px) made the drawer read
+     visually uneven; user reported "sort by ile altındaki dropdown
+     ve price ile altındaki inputlara baktığımızda aralarındaki
+     boşluklar eşit değil". Both groups now share the same rhythm. */
+  margin: 0 0 0.75rem 0;
 }
 
 /* Sort fieldset inside `main-collection.liquid`'s filter drawer.
@@ -531,7 +550,10 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  /* R-filter-spacing — Match group-title's bottom margin (0.75rem)
+     so the legend → select gap reads the same as title → control
+     in the availability + price groups. */
+  gap: 0.75rem;
 }
 
 .kt-filter-drawer__sort-legend {
@@ -543,12 +565,23 @@
   color: var(--kt-stone-500);
 }
 
-.kt-filter-drawer__sort-select {
+.kt-filter-drawer__sort-select,
+#FilterDrawerSortBy.kt-filter-drawer__sort-select {
   width: 100%;
-  /* 16px = iOS Safari zoom-on-focus threshold. */
-  font-size: 1rem;
-  min-height: 44px;
-  padding: 0.625rem 2.25rem 0.625rem 1rem;
+  /* R-filter-sort-size-v2 — Previous round (0.9375rem) didn't
+     visually land for the user; suspect ID-level inline default
+     or a `select` global rule winning specificity. Doubled the
+     selector with the input's ID so the class + ID composite
+     wins against any base/global rule. Also dropped min-height
+     44 → 40 since the user reported the control felt oversized
+     for a single-line select inside a tight filter drawer; 40px
+     still clears WCAG 2.5.5 (24px) and AA Theme Store touch
+     bar; the actual hit area is what matters, not the visual
+     control height. */
+  font-size: 0.9375rem;
+  min-height: 40px;
+  padding: 0.5rem 2.25rem 0.5rem 0.875rem;
+  line-height: 1.4;
   border: 1px solid var(--kt-stone-300);
   border-radius: 0;
   background-color: var(--kt-white);
@@ -685,18 +718,33 @@
   user-select: none;
 }
 
-.kt-filter-drawer__price-input {
+/* R-filter-price-input-specificity — Selector promoted to
+   `input.kt-filter-drawer__price-input[type="number"]` (0,0,2,1)
+   to beat base.css's `@media (max-width: 749px) input[type=
+   number] { font-size: 16px }` iOS-zoom-prevention rule
+   (0,0,1,1) which was winning over the plain class selector. */
+input.kt-filter-drawer__price-input[type="number"] {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  /* R-filter-price-input-tighter — Font 14px → 13px, padding
+     pulled in, min-height 44 → 40 (still above WCAG 2.5.5
+     24px floor + above Theme Store touch bar). Price inputs
+     read as small data fields next to the title + sort select
+     above; bumping them to 44px+ kept them feeling form-heavy
+     on the compact drawer. Now sized in line with the sort
+     select (40px outer height) for visual rhythm.
+
+     iOS zoom-on-focus is prevented by theme.liquid's
+     `maximum-scale=1` viewport meta, so dropping below 16px
+     is safe on this theme without triggering the auto-zoom. */
+  padding: 0.5rem 0.75rem;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--kt-stone-900);
   background-color: rgba(255, 255, 255, 0.85);
   border: 1px solid var(--kt-stone-300);
   border-radius: 0.5rem;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  /* Touch target floor — 44px ÷ default font-size keeps WCAG 2.5.5. */
-  min-height: 44px;
+  min-height: 40px;
   -webkit-appearance: none;
   appearance: none;
 }
