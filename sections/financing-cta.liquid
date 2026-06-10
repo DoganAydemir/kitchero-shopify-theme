@@ -30,37 +30,50 @@
       <p class="kt-financing-cta__desc">{{ section.settings.description | escape | newline_to_br }}</p>
     {%- endif -%}
 
+    {%- comment -%}
+      R-financing-cta-link-fallback — Schema `default` only fires
+      for instances Shopify hasn't already saved a value for.
+      Sections added via theme editor get `primary_link: ""` /
+      `secondary_link: ""` written to the template JSON on first
+      save, which then overrides the schema default forever
+      (Shopify treats `""` as a real merchant choice, not absent).
+      Coalesce empty strings to sensible defaults here so existing
+      and fresh-install instances both render filled CTAs by
+      default. Merchant picking their own URL still wins because
+      it's a non-blank value.
+    {%- endcomment -%}
+    {%- assign primary_href = section.settings.primary_link -%}
+    {%- if primary_href == blank -%}
+      {%- assign primary_href = 'shopify://pages/contact' -%}
+    {%- endif -%}
+    {%- assign secondary_href = section.settings.secondary_link -%}
+    {%- if secondary_href == blank -%}
+      {%- assign secondary_href = 'shopify://collections' -%}
+    {%- endif -%}
+
     <div class="kt-financing-cta__buttons">
       {%- comment -%}
         R162 EMPTY-HREF-1: each CTA emits ONLY when both label AND
         URL are configured. Theme Store flags `<a href="#">` as a
         broken link. Editor hint surfaces the gap to merchants.
       {%- endcomment -%}
-      {%- if section.settings.primary_text != blank and section.settings.primary_link != blank -%}
+      {%- if section.settings.primary_text != blank -%}
         <a
-          href="{{ section.settings.primary_link | escape }}"
+          href="{{ primary_href | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--primary"
         >
           {{ section.settings.primary_text | escape }}
           {% render 'icon-arrow-right', width: 14, height: 14 %}
         </a>
-      {%- elsif section.settings.primary_text != blank and request.design_mode -%}
-        <p class="kt-financing-cta__btn-empty">
-          {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
-        </p>
       {%- endif -%}
 
-      {%- if section.settings.secondary_text != blank and section.settings.secondary_link != blank -%}
+      {%- if section.settings.secondary_text != blank -%}
         <a
-          href="{{ section.settings.secondary_link | escape }}"
+          href="{{ secondary_href | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--secondary"
         >
           {{ section.settings.secondary_text | escape }}
         </a>
-      {%- elsif section.settings.secondary_text != blank and request.design_mode -%}
-        <p class="kt-financing-cta__btn-empty">
-          {{ 'kt.editor.empty_link_notice' | t | default: 'Add a link URL to enable this CTA.' }}
-        </p>
       {%- endif -%}
     </div>
   </div>

@@ -27,7 +27,7 @@
   - description   (optional) Richtext copy shown above the form
   - show_name     (optional, bool) Render the optional name field
   - show_phone    (optional, bool) Render the optional phone field
-  - render_mode   (optional) 'trigger' | 'modal' | 'both' (default 'both').
+  - render_mode   (optional) 'trigger' | 'modal' | 'both' (default 'trigger').
                   When the caller is INSIDE another <form> (e.g. the
                   product-form's <form action="/cart/add">), the modal's
                   inner `{% form 'contact' %}` becomes invalid nested
@@ -39,6 +39,17 @@
                   inside the form (just the button) and render_mode:
                   'modal' AFTER the form's {% endform %} (just the
                   modal). The JS pairs them via [data-modal-target=ID].
+
+                  R-PDP2 — Default flipped from 'both' to 'trigger' so
+                  the duplicate-ID exposure (button + modal sharing the
+                  same `trigger_id` / `modal_id` / `form_id` / `title_id`
+                  when both render at once) can't sneak into a future
+                  caller that forgets to specify the mode. WCAG 4.1.1
+                  (Parsing) explicitly forbids duplicate id attributes;
+                  Theme Store reviewers flag this on automated scans.
+                  Callers that legitimately need both pieces (no outer
+                  form, single render site) still opt in by passing
+                  'both' explicitly.
 {%- endcomment -%}
 
 {%- liquid
@@ -46,7 +57,7 @@
     assign variant = product.selected_or_first_available_variant
   endunless
   unless render_mode
-    assign render_mode = 'both'
+    assign render_mode = 'trigger'
   endunless
   assign form_id = 'BackInStockForm-' | append: section_id | append: '-' | append: product.id
   assign trigger_id = 'BackInStockTrigger-' | append: section_id | append: '-' | append: product.id

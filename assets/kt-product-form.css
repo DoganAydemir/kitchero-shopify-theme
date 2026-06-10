@@ -29,15 +29,23 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  /* R-buy-cluster — gap between quantity stepper and the buy-row
+     (ATC + dynamic checkout). 0.75rem was visually cramped (qty
+     and buttons nearly touched); 1.25rem gives the buttons breathing
+     room without breaking the compact info-column layout. */
+  margin-bottom: 1.25rem;
 }
 
 /* R232.20 — Buy cluster: ATC + dynamic checkout button. Stacked
-   on mobile (each button full-width), side-by-side from 750px+. */
+   on mobile (each button full-width), side-by-side from 750px+.
+   R-buy-cluster — gap raised from 0.625rem to 0.875rem so the two
+   buttons feel like a deliberate pair instead of accidentally
+   stuck together (mobile: visible vertical separation; desktop:
+   visible horizontal separation). */
 .kt-product-form__buy-row {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.875rem;
   margin-bottom: 1rem;
 }
 
@@ -96,9 +104,24 @@
   background-color: rgba(var(--kt-c-fg), 0.08);
 }
 
-.kt-product-form__qty-btn:focus-visible {
+/* R-PDP4 H9 — WCAG 2.4.13 (Focus Appearance). The previous inset
+   focus ring (`outline-offset: -2px`) painted INSIDE the stepper's
+   clipping container (`.kt-product-form__qty` has `overflow:hidden`
+   for rounded-corner masking). The visible ring then competed
+   with the button's own background; against the disabled-button
+   muted gradient the contrast dropped below 3:1.
+   Lifting the focus indicator to the WRAPPER via `:focus-within`
+   surrounds the whole stepper with a 2px solid ring outside the
+   clipping context — no clip, predictable ~4-CSS-px-thick visible
+   area on every side, 3:1+ contrast against any scheme background.
+   The button itself drops its outline entirely; the wrapper's
+   ring is the canonical focus signal. */
+.kt-product-form__qty:focus-within {
   outline: 2px solid rgb(var(--kt-c-fg));
-  outline-offset: -2px;
+  outline-offset: 2px;
+}
+.kt-product-form__qty-btn:focus-visible {
+  outline: none;
 }
 
 .kt-product-form__qty-btn:disabled {
@@ -245,10 +268,21 @@
   display: none;
 }
 
+/* R-PDP4 M11 — Drop `pointer-events: none` on the loading state.
+   The intent was double-submit prevention, but keyboard activation
+   (Space/Enter on a focused button) is NOT a pointer event and
+   isn't blocked by `pointer-events: none` — meaning the rule
+   provides false confidence while a keyboard user could still
+   trigger a second submit. The actual guard lives in JS:
+   `atcInflight` returns early at the top of the submit handler
+   (assets/product-form.js:323), and `aria-disabled="true"` +
+   `aria-busy="true"` are set on the button during the inflight
+   window for AT users. With those in place the CSS `pointer-events`
+   becomes redundant and harmful — it breaks `:hover` testability
+   for axe-core hover-target assertions in the loading state. */
 .kt-product-form__atc--loading {
   cursor: wait;
   opacity: 0.8;
-  pointer-events: none;
 }
 
 .kt-product-form__atc--loading:hover {
@@ -352,6 +386,23 @@
    inline `<svg>` into its shadow DOM. The `--with-icon` modifier
    on the wrapper toggles visibility from a theme setting — merchants
    who prefer a text-only CTA disable "Show icon on Buy it now". */
+/* R-PDP2 — Sold-out / unavailable variant lock for the dynamic-
+   checkout wrapper. Shopify's `shopify-buy-it-now-button` and
+   `<shopify-payment-button>` custom elements live in shadow DOM and
+   ignore native `disabled`; intercepting at the wrapper layer with
+   `pointer-events: none` + reduced opacity is the canonical pattern.
+   Previously this was an inline style on the wrapper — moved to a
+   CSS class so the project's "no inline styles" convention stays
+   intact and the rule cascades to focus/hover states too. */
+.kt-product-form__dynamic-checkout--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.kt-product-form__dynamic-checkout--disabled :focus,
+.kt-product-form__dynamic-checkout--disabled :focus-visible {
+  outline: none;
+}
+
 .kt-product-form__dynamic-checkout--with-icon .shopify-payment-button__button--unbranded::before {
   content: '';
   display: inline-block;
@@ -949,4 +1000,82 @@
 
 .kt-pickup__directions svg {
   flex-shrink: 0;
+}
+
+/* ==========================================================================
+   R-PDP4 M2 — Windows High Contrast Mode (forced-colors: active)
+   --------------------------------------------------------------------------
+   In Windows High Contrast the theme's color-scheme tokens collapse to the
+   system palette (Canvas, CanvasText, ButtonFace, ButtonText, Highlight).
+   The product-form's ATC / dynamic-checkout / quantity stepper rely on
+   `rgb(var(--kt-c-action))` etc. — under forced-colors those vars
+   evaluate to `Canvas` and the buttons visually disappear against the
+   same Canvas page background. WCAG 1.4.1 + 1.4.11 explicit fail under
+   HC if the controls aren't kept distinguishable.
+
+   Sibling components (`kt-product-variant-picker.css`, `kt-card-product.css`)
+   already declare `@media (forced-colors: active)` blocks; this is the
+   matching coverage for the buy-row + qty stepper so the whole purchase
+   surface remains usable under HC. We pin to system colors directly
+   (ButtonText / ButtonFace / Highlight) rather than the theme vars so
+   the rules survive any future scheme refactor.
+   ========================================================================== */
+@media (forced-colors: active) {
+  .kt-product-form__atc,
+  .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+  .kt-product-form__atc:hover:not(:disabled),
+  .kt-product-form__atc:focus-visible,
+  .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover {
+    background: Highlight;
+    color: HighlightText;
+    outline: 2px solid ButtonText;
+    outline-offset: 2px;
+  }
+  .kt-product-form__atc:disabled,
+  .kt-product-form__dynamic-checkout--disabled .shopify-payment-button__button--unbranded {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  .kt-product-form__qty {
+    border: 1px solid ButtonText;
+  }
+  .kt-product-form__qty:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .kt-product-form__qty-btn {
+    color: ButtonText;
+    background: ButtonFace;
+  }
+  .kt-product-form__qty-btn:disabled {
+    color: GrayText;
+  }
+  .kt-product-form__qty-input {
+    color: ButtonText;
+    background: Canvas;
+  }
+}
+
+/* R-PDP6 — Reduced-motion guard for ATC + qty stepper transitions.
+   ATC carries `transform 0.1s` for the :active press-down cue and
+   `opacity 0.2s` for loading/disabled fade. Motion-sensitive
+   shoppers (WCAG 2.3.3 Animation from Interactions) get the cues
+   suppressed; color/background state transitions stay so the
+   button still LOOKS interactive — just without the spatial
+   shifts the criterion targets. */
+@media (prefers-reduced-motion: reduce) {
+  .kt-product-form__atc {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .kt-product-form__atc:active:not(:disabled) {
+    transform: none;
+  }
+  .kt-product-form__qty-btn {
+    transition: color 0.01s, background-color 0.01s;
+  }
 }

@@ -192,3 +192,21 @@
   left: auto;
   right: 0;
 }
+
+/* R-fresh-install-v2 — Onboarding placeholder cards render on the
+   LIVE storefront when the merchant hasn't published articles yet
+   (and hasn't added Article blocks). Mirrors the CLAUDE.md
+   image-placeholder rule at the section level: "Never leave a
+   blank or broken space when an image is missing". The cards
+   stay fully visible (no opacity dim, no pointer-events lock) so
+   they read as intentional onboarding state rather than disabled
+   skeleton — Theme Store reviewer pattern from Skeleton.
+
+   The card markup is the same `kt-guide-teaser__card` container,
+   so width/spacing/typography inherit untouched. The `--placeholder`
+   modifier is a CSS hook for any future "mark as empty" visual
+   variant (e.g. subtle "Coming soon" pill); kept empty intentionally
+   so today's onboarding cards visually MATCH future real cards. */
+.kt-guide-teaser__card--placeholder {
+  /* Intentionally empty — full visibility, no dim. See comment above. */
+}

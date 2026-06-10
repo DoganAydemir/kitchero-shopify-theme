@@ -81,30 +81,41 @@
                 fallback yielded dead anchors that fail WCAG 2.4.4
                 (Link Purpose) and Theme Store rejects.
               {%- endcomment -%}
+              {%- comment -%}
+                R-rich-text-button-fallback — Same pattern as
+                financing-cta: schema URL settings reject defaults,
+                so existing block instances arrive with empty
+                link strings overriding any "starter" value.
+                Coalesce blank link → sensible storefront URL
+                (button_1 → contact, button_2 → catalog) so the
+                buttons render clickable from a fresh install
+                without a coaching hint. Merchant choice still
+                wins because non-blank URL passes through.
+              {%- endcomment -%}
+              {%- assign rt_btn1_href = block.settings.button_link_1 -%}
+              {%- if rt_btn1_href == blank -%}
+                {%- assign rt_btn1_href = 'shopify://pages/contact' -%}
+              {%- endif -%}
+              {%- assign rt_btn2_href = block.settings.button_link_2 -%}
+              {%- if rt_btn2_href == blank -%}
+                {%- assign rt_btn2_href = 'shopify://collections' -%}
+              {%- endif -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
-                {%- if block.settings.button_label_1 != blank and block.settings.button_link_1 != blank -%}
+                {%- if block.settings.button_label_1 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_1 | escape }}"
+                    href="{{ rt_btn1_href | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"
                   >
                     {{- block.settings.button_label_1 | escape -}}
                   </a>
-                {%- elsif block.settings.button_label_1 != blank and request.design_mode -%}
-                  <p class="kt-rich-text__editor-hint" aria-live="polite">
-                    {{ 'kt.section.rich-text.editor_hint_link_missing_url' | t | default: 'Set Button link 1 in the block settings so the button can be clicked on the live storefront.' }}
-                  </p>
                 {%- endif -%}
-                {%- if block.settings.button_label_2 != blank and block.settings.button_link_2 != blank -%}
+                {%- if block.settings.button_label_2 != blank -%}
                   <a
-                    href="{{ block.settings.button_link_2 | escape }}"
+                    href="{{ rt_btn2_href | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_2 | default: 'secondary' }}"
                   >
                     {{- block.settings.button_label_2 | escape -}}
                   </a>
-                {%- elsif block.settings.button_label_2 != blank and request.design_mode -%}
-                  <p class="kt-rich-text__editor-hint" aria-live="polite">
-                    {{ 'kt.section.rich-text.editor_hint_link_missing_url' | t | default: 'Set Button link 2 in the block settings so the button can be clicked on the live storefront.' }}
-                  </p>
                 {%- endif -%}
               </div>
 

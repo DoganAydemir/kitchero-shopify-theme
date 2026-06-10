@@ -473,6 +473,13 @@
     function openLightbox() {
       if (!lightbox || !lightboxImage) return;
       lightboxLastTrigger = document.activeElement;
+      /* R-PDP3 — Flip `loading="lazy"` to "eager" before setting the
+         src so Chrome's lazy-loading IntersectionObserver doesn't
+         defer the request behind the modal animation. The lightbox
+         is now in-viewport by definition (it's a fullscreen dialog);
+         lazy semantics no longer make sense and the deferral was
+         visible as a 100-200ms blank-spinner gap on first open. */
+      lightboxImage.loading = 'eager';
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
       /* Remove inert so the close/prev/next buttons re-enter the
@@ -519,6 +526,20 @@
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    /* R-PDP4 H7 — bfcache restore reset. Safari/Firefox persist full
+       JS state + DOM when the user navigates away from a PDP whose
+       lightbox is open (e.g. they tap the cart link inside the
+       lightbox-stacked back-in-stock modal). On Back, the `pageshow`
+       event fires with `event.persisted === true` and the restored
+       DOM has `aria-hidden="false"`, focus trap stale, body overflow
+       locked — visually a stuck modal blocking the page.
+       Force-close on every persisted restore so the customer lands
+       on a clean PDP. */
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted && lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
+        closeLightbox();
+      }
+    });
     /* R128 — backdrop click closes the lightbox to match every other modal
        in the theme (cart-drawer, search-overlay, video-modal, etc.). The
        click is gated to events that target the kt-lightbox root (not
@@ -778,6 +799,14 @@
 
     return function destroy() {
       document.removeEventListener('keydown', onKeydown);
+      /* R-PDP2 — Tear down the window-scoped `resize` listener that
+         feeds the lightbox-zoom cache (`invalidateZoomCache`). Without
+         this the listener accumulates on every section reload (theme
+         editor save loop) and the previous closures keep firing
+         against detached lightbox nodes — both a memory leak and a
+         silent error path. The listener was registered around line
+         ~647 in `setupLightboxZoom`. */
+      window.removeEventListener('resize', invalidateZoomCache);
       if (thumbResizeObserver) {
         thumbResizeObserver.disconnect();
         if (applyThumbsHeight) {

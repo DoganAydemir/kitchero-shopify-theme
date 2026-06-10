@@ -158,6 +158,7 @@
         name="properties[Send on]"
         class="kt-gift-recipient__input"
         min="{{ 'now' | date: '%Y-%m-%d' }}"
+        autocomplete="off"
         disabled
         {% if form.errors contains 'send_on' %}aria-invalid="true" aria-describedby="GiftRecipientSendOn-{{ uid }}-error"{% endif %}
         value="{{ form.send_on | escape }}"
@@ -179,6 +180,7 @@
         class="kt-gift-recipient__textarea"
         rows="3"
         maxlength="200"
+        autocomplete="off"
         disabled
         {% if form.errors contains 'message' %}aria-invalid="true" aria-describedby="GiftRecipientMessage-{{ uid }}-error"{% endif %}
       >{{ form.message | escape }}</textarea>

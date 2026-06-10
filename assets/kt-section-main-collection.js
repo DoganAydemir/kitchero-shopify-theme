@@ -60,25 +60,48 @@
       state.onScroll = onScroll;
     }
 
-    /* Grid column toggle — uses CSS classes, not inline styles */
-    var grid = section.querySelector('#product-grid');
+    /* Grid column toggle — uses CSS classes, not inline styles.
+       R-grid-toggle — Two bugs in the previous implementation:
+       1. `section.querySelector('#product-grid')` matched a bare id
+          but the Liquid template emits `id="product-grid-{{ section.id }}"`
+          (section-id-suffixed for multi-section pages). The bare
+          selector never found the grid, the early `return` aborted
+          every click, the toggle did nothing.
+       2. The remove-list only stripped `--cols-3` / `--cols-4`. The
+          Liquid template always emits a `--cols-{N}` class (default
+          `--cols-3`), so switching FROM 3 TO 2 left the `--cols-3`
+          class behind because it wasn't in the strip list — the
+          new `--cols-2` add (also missing) couldn't override the
+          stale class.
+       Now uses the `[data-product-grid]` hook (same selector across
+       all section instances) and strips/adds all three cols variants. */
+    var grid = section.querySelector('[data-product-grid]');
     section.querySelectorAll('[data-grid-cols]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var cols = btn.dataset.gridCols;
         if (!grid) return;
 
-        /* Remove all col classes */
-        grid.classList.remove('kt-collection__grid--cols-3', 'kt-collection__grid--cols-4');
+        /* Remove all desktop col classes — order independent. */
+        grid.classList.remove(
+          'kt-collection__grid--cols-2',
+          'kt-collection__grid--cols-3',
+          'kt-collection__grid--cols-4'
+        );
 
-        /* Add class only for 3 or 4 (2 is default from CSS) */
-        if (cols === '3') grid.classList.add('kt-collection__grid--cols-3');
-        if (cols === '4') grid.classList.add('kt-collection__grid--cols-4');
+        /* Add the matching class for the clicked col count. Liquid
+           initial render always emits one of these three, so we
+           always add one back here. */
+        if (cols === '2' || cols === '3' || cols === '4') {
+          grid.classList.add('kt-collection__grid--cols-' + cols);
+        }
 
-        /* Active state on buttons */
+        /* Active state + aria-pressed sync across all toggle buttons. */
         section.querySelectorAll('[data-grid-cols]').forEach(function (b) {
           b.classList.remove('kt-collection__grid-btn--active');
+          b.setAttribute('aria-pressed', 'false');
         });
         btn.classList.add('kt-collection__grid-btn--active');
+        btn.setAttribute('aria-pressed', 'true');
       });
     });
 
@@ -92,6 +115,17 @@
     function openDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'false');
+      /* R-filter-inert-fix — Liquid markup ships `inert` on the
+         drawer for SR/keyboard safety while it's closed (so the
+         CSS-hidden controls don't surface in the tab order or AT
+         tree). `aria-hidden=false` without removing `inert` left
+         the drawer visible but every control DEAD — checkboxes,
+         selects, inputs all silently swallowed taps. The sibling
+         `collection-drawer-filter.js` does this toggle correctly;
+         this in-section binding was the outlier. Mirror the
+         sibling's pattern so any drawer instance bound by this
+         section also becomes interactive on open. */
+      drawer.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('collection-section-filter-drawer');
       } else {
@@ -107,6 +141,10 @@
     function closeDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'true');
+      /* Re-apply inert when closing so SR/keyboard users can't
+         tab into the hidden controls. Same pair as
+         collection-drawer-filter.js. */
+      drawer.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('collection-section-filter-drawer');
       } else {

@@ -1710,3 +1710,46 @@ html:not(.js) .kt-loader {
 ) {
   border-radius: 0;
 }
+
+/* ============================================================
+   R-mobile-btn-padding — Theme-wide CTA mobile padding normalize.
+   17 section-scoped CTA classes ship desktop padding ≥1rem
+   vertical / ≥2rem horizontal — visually balanced on desktop
+   but too chunky on mobile (480px viewport, button stretches
+   ≥56px tall against tight content). Aggregate override under
+   one media query so every CTA reads the same tighter mobile
+   metric. Vertical 0.75rem (12px) + horizontal 1.5rem (24px)
+   = ~44px outer height with min-height floor, matching WCAG
+   2.5.5 touch target. Desktop ≥750px untouched — each section's
+   own rule still owns the larger desktop padding for visual
+   balance against the bigger surrounding type/spacing.
+
+   Buttons already at ≤0.875rem vertical (appointment-drawer,
+   back-in-stock, pdp-sticky, banner-minimal, cookie-banner,
+   mid-cta, rich-text, slider-editorial, visualize-studio,
+   variant-picker, customer-account-addresses, main-search,
+   iwt-parallax) are EXCLUDED — they're already mobile-correct.
+   ============================================================ */
+@media (max-width: 749px) {
+  .kt-banner-hero__cta,
+  .kt-banner-split__cta,
+  .kt-customer__submit,
+  .kt-deals-cta__btn,
+  .kt-featured-product__submit,
+  .kt-financing-calculator__cta,
+  .kt-financing-cta__btn,
+  .kt-financing-panel__cta,
+  .kt-hero__cta,
+  .kt-home-financing__cta,
+  .kt-newsletter-popup__submit,
+  .kt-newsletter-page__btn,
+  .kt-parallax-cta__btn,
+  .kt-shop-color__cta-btn,
+  .kt-showroom__cta,
+  .kt-slider-cinematic__cta,
+  .kt-video-bg-hero__cta,
+  .kt-account__cta {
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+  }
+}

@@ -97,7 +97,14 @@
      downgraded resting-state contrast is acceptable in exchange
      for the visual polish merchants asked for. */
   border: 1px solid rgba(var(--kt-c-fg, 0 0 0), 0.18);
-  border-radius: 0;
+  /* R-newsletter-input-pill — Was border-radius: 0 (sharp
+     rectangle). Aligned with Kitchero pill-button convention
+     used across banner-hero, banner-minimal, banner-split,
+     brands, deals-grid, cookie-banner, customer-account,
+     financing-cta — all 9999px. The input + submit button sit
+     in the same row; both pills keeps the row coherent and
+     matches the design language. */
+  border-radius: 9999px;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: rgb(var(--kt-c-fg, 28 25 23));
@@ -125,10 +132,13 @@
   background-color: rgb(var(--kt-c-action, 28 25 23));
   color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  /* R-newsletter-btn-pill — Same rationale as input above:
+     match the pill convention used theme-wide. */
+  border-radius: 9999px;
+  /* R-btn-case-normalize — Theme-wide natural-case convention. */
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
@@ -141,6 +151,25 @@
 .kt-newsletter-page__note {
   font-size: 0.75rem;
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+}
+
+/* R-newsletter-note-link — Privacy-policy anchor inside the
+   note line was inheriting the browser's default link blue
+   because no scoped rule overrode it. Pin to the scheme fg
+   (slightly muted so the link reads as inline emphasis rather
+   than a CTA), keep underline + 3px offset for hit-target +
+   accessibility (WCAG anchor recognisability). Hover bumps to
+   full fg for the affordance. */
+.kt-newsletter-page__note-link {
+  color: rgba(var(--kt-c-fg, 28 25 23), 0.85);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.kt-newsletter-page__note-link:hover,
+.kt-newsletter-page__note-link:focus-visible {
+  color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
 /* Success + error states for newsletter form */

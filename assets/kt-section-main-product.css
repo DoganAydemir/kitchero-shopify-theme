@@ -461,10 +461,16 @@
 /* ── Trust badges ──────────────────────────────────────── */
 
 .kt-pdp__trust-badges {
+  /* R-PDP6 — `<ul>` semantics now wrap each badge; strip browser
+     list defaults so the grid layout stays identical to the old
+     `<div>` markup. `list-style: none` + zero padding/margin keeps
+     the visual surface byte-for-byte. */
+  list-style: none;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  margin-bottom: 2rem;
+  margin: 0 0 2rem;
 }
 
 .kt-pdp__trust-badge {

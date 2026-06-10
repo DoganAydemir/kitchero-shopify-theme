@@ -52,7 +52,7 @@
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 
-<section class="kt-pdp" data-section-id="{{ section.id }}" data-section-type="main-product">
+<section class="kt-pdp color-{{ section.settings.color_scheme | default: 'scheme-1' }}" data-section-id="{{ section.id }}" data-section-type="main-product">
   {%- comment -%}
     Breadcrumb at the very top of the PDP — sits between the
     header above and the gallery + info layout below, so the
@@ -245,7 +245,23 @@
 
               {%- when 'countdown' -%}
                 {%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
-                {%- if deal_ends_at != blank -%}
+                {%- if deal_ends_at == blank and request.design_mode -%}
+                  {%- comment -%}
+                    Editor-only hint when the merchant has added the
+                    countdown block but the product is missing the
+                    `custom.deal_ends_at` metafield (which the timer
+                    needs to render). Without this the block silently
+                    disappears in the editor and the merchant can't
+                    tell whether they configured it incorrectly or
+                    whether it's hidden behind another panel — Theme
+                    Store reviewers flag this as broken UX. Live
+                    storefront still renders nothing when the
+                    metafield is blank (no urgency clutter).
+                  {%- endcomment -%}
+                  <div class="kt-pdp__countdown-block kt-pdp__countdown-block--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__details-hint">{{ 'kt.product.countdown.editor_hint' | t }}</p>
+                  </div>
+                {%- elsif deal_ends_at != blank -%}
                   <div class="kt-pdp__countdown-block" {{ block.shopify_attributes }}>
                     <div class="kt-pdp__countdown-glow" aria-hidden="true"></div>
                     <div class="kt-pdp__countdown-top">
@@ -254,7 +270,7 @@
                         <span>{{ block.settings.label | escape }}</span>
                       </div>
                       {%- if block.settings.badge != blank -%}
-                        <span class="kt-pdp__countdown-badge">{{ block.settings.badge }}</span>
+                        <span class="kt-pdp__countdown-badge">{{ block.settings.badge | escape }}</span>
                       {%- endif -%}
                     </div>
                     <div class="kt-pdp__countdown-bottom">
@@ -264,17 +280,27 @@
                         data-ends-at="{{ deal_ends_at | date: '%Y-%m-%dT%H:%M:%S%z' }}"
                         aria-label="{{ block.settings.label | default: main_product_countdown_label_default | escape }}"
                       >
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">D</span></div>
+                        {%- comment -%}
+                          R-PDP5 — Short unit labels routed through
+                          locale strings so FR/DE/TR/ES shoppers get
+                          their own initials (G for Gün, J for Jour,
+                          T for Tag, etc.) instead of the EN D/H/M/S.
+                          The CSS rule limits visual width to ~1ch so
+                          single-character locales render identically;
+                          multi-character locales degrade gracefully
+                          (the label wraps within the unit's flex cell).
+                        {%- endcomment -%}
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.days_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-hours>00</span><span class="kt-pdp__countdown-key">H</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-hours>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.hours_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-minutes>00</span><span class="kt-pdp__countdown-key">M</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-minutes>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.minutes_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
-                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-seconds>00</span><span class="kt-pdp__countdown-key">S</span></div>
+                        <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-seconds>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.seconds_short' | t }}</span></div>
                       </div>
                       {%- if block.settings.ending_label != blank -%}
                         <div class="kt-pdp__countdown-ends">
-                          <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label }}</div>
+                          <div class="kt-pdp__countdown-ends-label">{{ block.settings.ending_label | escape }}</div>
                           <div class="kt-pdp__countdown-progress"><div class="kt-pdp__countdown-progress-fill"></div></div>
                         </div>
                       {%- else -%}
@@ -399,15 +425,28 @@
                 </div>
 
               {%- when 'trust_badges' -%}
-                <div class="kt-pdp__trust-badges" {{ block.shopify_attributes }}>
+                {%- comment -%}
+                  R-PDP6 — Semantic list markup. The badges are a
+                  list of guarantee/policy claims; screen readers
+                  benefit from a `<ul role="list">` container so AT
+                  users hear "list, 4 items" before walking the
+                  badges (some browsers' AT integration drops the
+                  implicit list role when `list-style: none` is
+                  applied via CSS — `role="list"` re-asserts it).
+                  Each badge becomes an `<li>` instead of a
+                  generic `<div>`; the SVG keeps `aria-hidden` +
+                  `focusable="false"` because the adjacent text
+                  label is the canonical accessible name.
+                {%- endcomment -%}
+                <ul class="kt-pdp__trust-badges" role="list" {{ block.shopify_attributes }}>
                   {%- for i in (1..4) -%}
                     {%- assign icon_key = 'badge_' | append: i | append: '_icon' -%}
                     {%- assign text_key = 'badge_' | append: i | append: '_text' -%}
                     {%- assign icon_val = block.settings[icon_key] -%}
                     {%- assign text_val = block.settings[text_key] -%}
                     {%- if text_val != blank -%}
-                      <div class="kt-pdp__trust-badge">
-                        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <li class="kt-pdp__trust-badge">
+                        <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                           {%- case icon_val -%}
                             {%- when 'shipping' -%}
                               <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
@@ -419,11 +458,11 @@
                               <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                           {%- endcase -%}
                         </svg>
-                        <span class="kt-pdp__trust-badge-text">{{ text_val }}</span>
-                      </div>
+                        <span class="kt-pdp__trust-badge-text">{{ text_val | escape }}</span>
+                      </li>
                     {%- endif -%}
                   {%- endfor -%}
-                </div>
+                </ul>
 
               {%- when 'accordion' -%}
                 {%- capture accordion_content -%}
@@ -438,23 +477,52 @@
                 </div>
 
               {%- when 'door_sample' -%}
-                {%- assign sample_product = block.settings.sample_product | default: product -%}
-                {%- if sample_product != blank -%}
+                {%- assign sample_product = block.settings.sample_product -%}
+                {%- if sample_product == blank and request.design_mode -%}
+                  {%- comment -%}
+                    Editor-only hint when the merchant added the door-
+                    sample block but didn't pick a sample product yet.
+                    Previously the snippet silently fell back to the
+                    current PDP product (`| default: product`) which
+                    rendered a self-sample button — confusing because
+                    a $1 sample-box product is meant to be a tiny
+                    physical preview, not the SKU shoppers are looking
+                    at. Removing the fallback + showing this hint
+                    forces the merchant to make a deliberate pick,
+                    aligning with the showroom/door-sample UX intent.
+                  {%- endcomment -%}
+                  <div class="kt-pdp__door-sample kt-pdp__door-sample--placeholder" {{ block.shopify_attributes }}>
+                    <p class="kt-pdp__details-hint">{{ 'kt.product.sample.editor_hint' | t }}</p>
+                  </div>
+                {%- elsif sample_product != blank -%}
                   {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
                   <div class="kt-pdp__door-sample" {{ block.shopify_attributes }}>
                     <div class="kt-pdp__door-sample-header">
                       <span class="kt-pdp__door-sample-title">{{ block.settings.header_title | default: main_product_sample_header_default }}</span>
                       {%- if block.settings.ships_badge != blank -%}
-                        <span class="kt-pdp__door-sample-badge">{{ block.settings.ships_badge }}</span>
+                        <span class="kt-pdp__door-sample-badge">{{ block.settings.ships_badge | escape }}</span>
                       {%- endif -%}
                     </div>
                     <div class="kt-pdp__door-sample-body">
                       <div class="kt-pdp__door-sample-info">
-                        <h2 class="kt-pdp__door-sample-name">{{ sample_product.title }}</h2>
+                        {%- comment -%}
+                          R-PDP4 M5 — Demote sample-product title to
+                          h3. The PDP's primary heading is the product
+                          <h1> (title block); section-level headings
+                          (related-products, why-choose-us, concierge)
+                          sit at <h2>. The door-sample product is a
+                          contextually subordinate offering — a low-
+                          cost preview of the main product — and
+                          shouldn't compete with the section-level
+                          outline. <h3> reflects the actual semantic
+                          depth and keeps screen-reader heading
+                          navigation predictable.
+                        {%- endcomment -%}
+                        <h3 class="kt-pdp__door-sample-name">{{ sample_product.title | escape }}</h3>
                         <div class="kt-pdp__door-sample-price">
                           <span>{{ sample_variant.price | money }}</span>
                           {%- if block.settings.refundable -%}
-                            <span class="kt-pdp__door-sample-refundable">{{ 'kt.product.sample.refundable' | t | default: 'Refundable' }}</span>
+                            <span class="kt-pdp__door-sample-refundable">{{ 'kt.product.sample.refundable' | t }}</span>
                           {%- endif -%}
                         </div>
                         {%- if block.settings.description != blank -%}
@@ -466,7 +534,7 @@
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="kt-pdp__door-sample-btn" {% unless sample_variant.available %}disabled{% endunless %}>
                           {%- if sample_variant.available -%}
-                            {{ block.settings.button_text | default: main_product_add_sample_default }}
+                            {{ block.settings.button_text | default: main_product_add_sample_default | escape }}
                           {%- else -%}
                             {{ 'kt.product.sold_out' | t }}
                           {%- endif -%}
@@ -494,14 +562,15 @@
                 {%- assign concierge_cta_url = block.settings.cta_link | default: pages.contact.url -%}
                 <div class="kt-pdp__concierge" {{ block.shopify_attributes }}>
                   {%- if block.settings.heading != blank -%}
-                    <h2 class="kt-pdp__concierge-heading">{{ block.settings.heading | escape }}</h2>
+                    {%- assign concierge_heading_tag = block.settings.heading_tag | default: 'h2' -%}
+                    <{{ concierge_heading_tag }} class="kt-pdp__concierge-heading">{{ block.settings.heading | escape }}</{{ concierge_heading_tag }}>
                   {%- endif -%}
                   {%- if block.settings.body != blank -%}
-                    <p class="kt-pdp__concierge-body">{{ block.settings.body }}</p>
+                    <p class="kt-pdp__concierge-body">{{ block.settings.body | escape | newline_to_br }}</p>
                   {%- endif -%}
                   {%- if block.settings.cta_text != blank and concierge_cta_url != blank -%}
                     <a href="{{ concierge_cta_url | escape }}" class="kt-pdp__concierge-cta">
-                      {{ block.settings.cta_text }}
+                      {{ block.settings.cta_text | escape }}
                       {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.6 %}
                     </a>
                   {%- endif -%}
@@ -553,7 +622,8 @@
                 {%- if comp_products and comp_products.size > 0 -%}
                   <div class="kt-pdp__complementary" {{ block.shopify_attributes }}>
                     {%- if block.settings.heading != blank -%}
-                      <h3 class="kt-pdp__complementary-heading">{{ block.settings.heading | escape }}</h3>
+                      {%- assign complementary_heading_tag = block.settings.heading_tag | default: 'h3' -%}
+                      <{{ complementary_heading_tag }} class="kt-pdp__complementary-heading">{{ block.settings.heading | escape }}</{{ complementary_heading_tag }}>
                     {%- endif -%}
                     <ul class="kt-pdp__complementary-list" role="list">
                       {%- for comp_product in comp_products limit: block.settings.products_count -%}
@@ -628,10 +698,27 @@
                     <p class="kt-pdp__payment-icons-heading">{{ block.settings.heading | escape }}</p>
                   {%- endif -%}
                   {%- if shop.enabled_payment_types.size > 0 -%}
+                    {%- comment -%}
+                      R-PDP6 — Each `<li>` carries a `visually-hidden`
+                      label naming the payment method. Shopify's
+                      `payment_type_svg_tag` filter injects a `<title>`
+                      inside the SVG (accessible name) but several
+                      payment-type SVG bundles ship with an empty
+                      `<title>` element on certain Shopify versions —
+                      AT then reads the icon as "image" with no label.
+                      Adding an external visually-hidden span guarantees
+                      every method has an accessible name regardless of
+                      Shopify filter behavior across versions. The type
+                      string ("shopify_pay" / "amazon" / "google_pay")
+                      is humanized via `replace: '_', ' ' | capitalize`
+                      so SR users hear "Shopify pay" rather than
+                      "shopify_pay".
+                    {%- endcomment -%}
                     <ul class="kt-pdp__payment-icons-list" role="list" aria-label="{{ 'kt.product.payment_icons.aria_label' | t | default: 'Accepted payment methods' }}">
                       {%- for type in shop.enabled_payment_types -%}
                         <li class="kt-pdp__payment-icon">
                           {{ type | payment_type_svg_tag: class: 'kt-pdp__payment-icon-svg' }}
+                          <span class="visually-hidden">{{ type | replace: '_', ' ' | capitalize | escape }}</span>
                         </li>
                       {%- endfor -%}
                     </ul>
@@ -730,7 +817,8 @@
                 {%- if spec_any -%}
                   <div class="kt-pdp__specs" {{ block.shopify_attributes }}>
                     {%- if block.settings.title != blank -%}
-                      <h2 class="kt-pdp__specs-title">{{ block.settings.title | escape }}</h2>
+                      {%- assign specs_heading_tag = block.settings.heading_tag | default: 'h2' -%}
+                      <{{ specs_heading_tag }} class="kt-pdp__specs-title">{{ block.settings.title | escape }}</{{ specs_heading_tag }}>
                     {%- endif -%}
                     <dl class="kt-pdp__specs-list">
                       {%- for i in (1..5) -%}
@@ -739,7 +827,7 @@
                         {%- if block.settings[label_key] != blank and block.settings[value_key] != blank -%}
                           <div class="kt-pdp__specs-row">
                             <dt class="kt-pdp__specs-label">{{ block.settings[label_key] | escape }}</dt>
-                            <dd class="kt-pdp__specs-value">{{ block.settings[value_key] }}</dd>
+                            <dd class="kt-pdp__specs-value">{{ block.settings[value_key] | escape }}</dd>
                           </div>
                         {%- endif -%}
                       {%- endfor -%}
@@ -1157,6 +1245,16 @@
       "label": "t:sections.main-product.settings.show_sticky_atc.label",
       "info": "t:sections.main-product.settings.show_sticky_atc.info",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
@@ -1396,8 +1494,7 @@
         {
           "type": "text",
           "id": "badge_4_text",
-          "label": "t:sections.main-product.blocks.trust_badges.settings.badge_4_text.label",
-          "default": "Secure packaging"
+          "label": "t:sections.main-product.blocks.trust_badges.settings.badge_4_text.label"
         }
       ]
     },
@@ -1486,6 +1583,16 @@
           "default": "Need help?"
         },
         {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.main-product.blocks.concierge_box.settings.heading_tag.label",
+          "options": [
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h2"
+        },
+        {
           "type": "textarea",
           "id": "body",
           "label": "t:sections.main-product.blocks.concierge_box.settings.body.label",
@@ -1546,6 +1653,16 @@
           "id": "title",
           "label": "t:sections.main-product.blocks.specifications.settings.title.label",
           "default": "Specifications"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.main-product.blocks.specifications.settings.heading_tag.label",
+          "options": [
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h2"
         },
         { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_1" },
         { "type": "text", "id": "label_1", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
@@ -1686,6 +1803,16 @@
           "default": "Pairs well with"
         },
         {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.main-product.blocks.complementary_products.settings.heading_tag.label",
+          "options": [
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h3"
+        },
+        {
           "type": "range",
           "id": "products_count",
           "min": 1,
@@ -1700,6 +1827,7 @@
     {
       "type": "metafield",
       "name": "t:sections.main-product.blocks.metafield.name",
+      "limit": 10,
       "settings": [
         {
           "type": "paragraph",

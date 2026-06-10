@@ -304,10 +304,10 @@
   background-color: rgb(255 255 255);
   color: rgb(28 25 23);
   font-family: inherit;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  /* R-btn-case-normalize — Theme-wide natural-case convention. */
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   border: 1px solid transparent;
   border-radius: 9999px;
   cursor: pointer;
@@ -322,8 +322,7 @@
 @media screen and (min-width: 750px) {
   .kt-visualize-studio__submit {
     padding: 1rem 2.25rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.24em;
+    font-size: 0.9375rem;
     min-height: 3rem;
   }
 }
@@ -359,9 +358,16 @@
    surrounding text without competing with the primary CTA. */
 .kt-visualize-studio__privacy {
   margin: 0.75rem 0 0;
-  font-size: 0.8125rem;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.6);
+  /* R-visualize-privacy-fineprint — 13px → 11px. Privacy
+     disclosure is legally-required microcopy; should read as
+     fine-print footnote, not body copy. 11px stays above the
+     10px Lighthouse legibility floor (same threshold used in
+     pullquote __author-title). Alpha lowered 0.6 → 0.5 to
+     pair with the smaller size — visibly secondary against
+     the 100% form heading + 0.6 subheading. */
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .kt-visualize-studio__privacy a {

@@ -154,6 +154,22 @@
                 }
                 break;
               }
+            } else {
+              /* R-PDP4 M1 — Strip `?option_values` from the URL when no
+                 variant matches the IDs in the param. Marketing surfaces
+                 (recommendation engines, affiliate links) occasionally
+                 send URLs with stale or wrong option_value IDs — without
+                 this cleanup the URL keeps polluting subsequent share/
+                 back-navigation states forever, and `?variant=N` writes
+                 from the same session coexist with the dead
+                 `option_values` so the resolver re-runs on every
+                 pushState. Replace the URL in place (no history entry)
+                 so the customer's back-button history isn't polluted. */
+              try {
+                var cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.delete('option_values');
+                window.history.replaceState(window.history.state, '', cleanUrl.toString());
+              } catch (cleanErr) { /* URL constructor missing — leave URL */ }
             }
           }
         }
@@ -170,6 +186,17 @@
       if (!errorEl) return;
       errorEl.textContent = message;
       errorEl.hidden = false;
+      /* R-PDP4 H3 — Move keyboard focus to the error region so SR
+         users can re-read with their cursor and sighted keyboard
+         users don't lose context. `tabindex="-1"` is required for
+         programmatic focus on a non-focusable element; we set it
+         lazily so the markup stays clean for the default (hidden)
+         state. role="alert" already implies aria-live="assertive"
+         (declared in snippets/product-form.liquid) so the screen
+         reader reads the message; the .focus() call lands the
+         visual cursor + Tab anchor for follow-up. */
+      if (!errorEl.hasAttribute('tabindex')) errorEl.setAttribute('tabindex', '-1');
+      try { errorEl.focus({ preventScroll: false }); } catch (e) { /* old browser */ }
     }
 
     /* Quantity buttons — honour the variant's quantity_rule. The Liquid
@@ -258,6 +285,26 @@
         qtyInput.value = val;
         syncStepperDisabled();
       });
+      /* R-PDP4 H11 — Enter on the qty input would natively submit the
+         form WITHOUT running the blur snap above first (Chrome implicit-
+         submit fires before blur in the same task). Customer typing "7"
+         on a B2B step-6 product and pressing Enter would post 7 → 422.
+         Intercept Enter, run blur (triggers the snap), then dispatch
+         the form's submit programmatically so the regular ATC handler
+         (with reportValidity + offline + timeout guards) runs against
+         a now-valid quantity. */
+      qtyInput.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.code !== 'Enter') return;
+        event.preventDefault();
+        qtyInput.blur();
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          /* Safari <16 doesn't have requestSubmit; fall back to manual
+             event dispatch which preserves the submit listener path. */
+          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        }
+      });
     }
 
     /* Initial sync so a freshly-rendered form with rule.min > 1 starts
@@ -321,8 +368,67 @@
          idempotent: two identical POSTs within 100 ms add the item
          twice. Reject the second submit until the first finishes. */
       if (atcInflight) return;
+
+      /* R-PDP2 — Empty-variant submit guard. When the customer picks an
+         unavailable option combination, `updateVariant()` further down
+         sets `variantIdInput.value = ''` and disables the ATC button.
+         But native form submit can still fire via Enter on a non-button
+         control (Chrome implicit-submit) — which would POST `id=` to
+         `/cart/add.js` and surface a confusing 422. The disabled state
+         + missing variant id are the canonical "do not submit" signal;
+         catch them here before the inflight flag flips and before any
+         payload is built. */
+      var currentVariantIdInput = form.querySelector('[name="id"]');
+      var currentVariantId = currentVariantIdInput ? String(currentVariantIdInput.value || '').trim() : '';
+      if (!currentVariantId) return;
+
+      /* R-PDP4 H5 — Native HTML5 validation gate. Quantity input has
+         `min`/`max`/`step` attributes for B2B quantity-rule products
+         (sold in multiples of 6, etc.); if the customer typed an
+         out-of-bounds value and tabbed away (so the blur snap from
+         the qty stepper hasn't fired) the form would post the bad
+         number and surface a 422 with raw server text. Triggering
+         `reportValidity()` here gives the customer the browser's
+         native, localized constraint message in-place, focused on
+         the bad input — meeting WCAG 3.3.1 (Error Identification)
+         without an extra round-trip. */
+      if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
+
+      /* R-PDP4 H2 — Offline pre-check. Shopify's /cart/add.js fetch
+         throws a raw `TypeError: Failed to fetch` when the device is
+         offline; the catch branch falls through to the generic
+         `addToCartError` string, which is technically true but
+         actionable only if the customer is told it's a connectivity
+         issue. Peek at `navigator.onLine` first; if the API reports
+         false, surface the localized offline message and abort
+         before the fetch is even constructed. (`navigator.onLine`
+         being true does NOT guarantee internet — captive portals,
+         enterprise proxies — but a false reading is reliable on every
+         modern browser and saves a 10-second hang on flaky cellular). */
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        var offlineMsg = (Kitchero.variantStrings && Kitchero.variantStrings.offlineError)
+          || 'You appear to be offline. Reconnect and try again.';
+        showError(offlineMsg);
+        return;
+      }
+
       atcInflight = true;
       atcController = new AbortController();
+      /* R-PDP4 H1 — 30-second timeout. Without an explicit deadline a
+         stalled connection (Theme Store reviewers test on simulated
+         slow 3G) leaves `atcInflight = true` forever — the customer
+         taps ATC, sees the spinner, then nothing happens. The button
+         stays aria-disabled and there's no recovery path short of a
+         page refresh. Aborting after 30s lets the catch branch
+         surface a timeout-specific message and reset the button. */
+      var atcTimeoutId = setTimeout(function () {
+        if (atcController) {
+          try { atcController.abort(); } catch (e) { /* already aborted */ }
+        }
+      }, 30000);
+      /* Hang the timer id off the controller so the finally block
+         (.then below) can clear it on every settle path. */
+      atcController.__kitcheroTimeoutId = atcTimeoutId;
       /* Expose the controller on the form so the section:unload
          listener at the bottom of this file can find and abort it. */
       form.__kitcheroAtcController = atcController;
@@ -393,7 +499,34 @@
              verbatim since it's already localized by Shopify. */
           return response.json().then(function (data) {
             if (!response.ok) {
-              var msg = (data && (data.description || data.message))
+              /* R-PDP4 H4 — Extended error resolver. Shopify's
+                 /cart/add.js returns three different 4xx body shapes:
+                   1. `{ description, message }`         (classic 422)
+                   2. `{ errors: ["text"...] }`           (some quantity-rule failures)
+                   3. `{ errors: { quantity: ["text"...] } }`  (Bundle / Shop Pay accelerated)
+                 The previous resolver only handled shape 1 and fell
+                 through to the generic string on shapes 2/3 — losing
+                 actionable detail like "Order minimum is 6 units".
+                 Flatten any `errors` array or object-of-arrays into
+                 a single comma-joined string when description/message
+                 are absent. */
+              var serverMsg = data && (data.description || data.message);
+              if (!serverMsg && data && data.errors) {
+                if (Array.isArray(data.errors)) {
+                  serverMsg = data.errors.filter(Boolean).join(', ');
+                } else if (typeof data.errors === 'object') {
+                  var flat = [];
+                  for (var ek in data.errors) {
+                    if (Object.prototype.hasOwnProperty.call(data.errors, ek)) {
+                      var ev = data.errors[ek];
+                      if (Array.isArray(ev)) flat.push.apply(flat, ev);
+                      else if (ev) flat.push(String(ev));
+                    }
+                  }
+                  serverMsg = flat.join(', ');
+                }
+              }
+              var msg = serverMsg
                 || (Kitchero.variantStrings && Kitchero.variantStrings.addToCartError)
                 || 'Something went wrong. Please try again.';
               var err = new Error(msg);
@@ -431,6 +564,32 @@
           if (window.Kitchero && typeof Kitchero.announce === 'function') {
             Kitchero.announce(addedLabel);
           }
+
+          /* R-PDP5 — Publish a standard ecommerce event so any GA4 /
+             GTM / pixel app block listening for `product_added_to_cart`
+             receives the variant id + quantity. Shopify's Web Pixels
+             Manager (`Shopify.analytics.publish`) is the official
+             event bus and is in the Theme Store / Shopify Plus
+             review checklists. We DO NOT replicate any data Shopify
+             already auto-emits via the platform-level Pixel ATC
+             instrumentation; this is the THEME's explicit hook so
+             custom merchant scripts can react to the moment our
+             AJAX submit succeeds (vs. waiting on the cart API
+             round-trip that the Pixels Manager listens to). Safe
+             fallback: if `Shopify.analytics` is missing (older
+             store before Web Pixels Manager), dispatch a CustomEvent
+             that GTM dataLayer scripts can subscribe to. */
+          try {
+            var addedPayload = {
+              productVariantId: data && data.variant_id ? String(data.variant_id) : (data && data.id ? String(data.id) : ''),
+              productId: data && data.product_id ? String(data.product_id) : '',
+              quantity: data && data.quantity ? Number(data.quantity) : 1
+            };
+            if (window.Shopify && window.Shopify.analytics && typeof window.Shopify.analytics.publish === 'function') {
+              window.Shopify.analytics.publish('product_added_to_cart', addedPayload);
+            }
+            document.dispatchEvent(new CustomEvent('kitchero:cart:added', { bubbles: true, detail: addedPayload }));
+          } catch (e) { /* analytics publish is non-critical */ }
 
           var cartType = document.body.getAttribute('data-cart-type') || 'drawer';
 
@@ -491,9 +650,25 @@
                 /* header count refresh failed; still navigate. */
               })
               .then(function () {
-                setTimeout(function () {
+                /* R-PDP4 M3 — Track the timer id and clear it on
+                   page-leave events so a customer who clicks Back or
+                   another link inside the 700ms window doesn't see
+                   the cart redirect fire against a possibly-unmounted
+                   page. `pagehide`/`beforeunload` both clear; we use
+                   `pagehide` first (bfcache-friendly), `beforeunload`
+                   as backstop for browsers where pagehide doesn't
+                   fire on rapid same-document navigations. */
+                var redirectTimerId = setTimeout(function () {
                   window.location.href = Kitchero.routes.cart;
                 }, 700);
+                function cancelRedirect() {
+                  if (redirectTimerId) {
+                    clearTimeout(redirectTimerId);
+                    redirectTimerId = null;
+                  }
+                }
+                window.addEventListener('pagehide', cancelRedirect, { once: true });
+                window.addEventListener('beforeunload', cancelRedirect, { once: true });
               });
           } else {
             /* Drawer mode — apply the cart-drawer + header-cart-icon
@@ -567,7 +742,17 @@
                    just clicked, which no longer represents the primary
                    action. Falls back to raw aria-hidden toggle for the
                    rare case where the custom element hasn't upgraded
-                   yet (script eval race). */
+                   yet (script eval race).
+
+                   R-PDP4 H12 — Re-query the drawer reference AFTER the
+                   `applySectionsHTML` resolution. The earlier capture
+                   (line ~530, `drawerForApply`) could point at a node
+                   that the section swap detached/replaced; calling
+                   `.open()` on the stale reference toggles aria-hidden
+                   on a node no longer in the document while the fresh
+                   replacement stays hidden. The fresh query inside the
+                   .then() guarantees the open() targets the current
+                   DOM. */
                 var drawerEl = (window.Kitchero && window.Kitchero.cartDrawer)
                   || window.kitcheroCartDrawer
                   || document.querySelector('cart-drawer')
@@ -601,9 +786,28 @@
           if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
         })
         .catch(function (error) {
-          /* Section unloaded mid-fetch — controller was aborted.
-             Don't surface an error to the user; the section is gone. */
-          if (error && error.name === 'AbortError') return;
+          /* R-PDP4 H1 — Distinguish AbortError caused by the section
+             unloading mid-fetch (silent — the page is gone, no UI to
+             surface to) from AbortError caused by our own 30-second
+             timeout (which IS surfaceable as "request timed out").
+             The section-unload handler at the bottom of this file
+             nulls `atcController` BEFORE calling `.abort()`, so we
+             can detect "did the timeout abort fire?" by whether the
+             controller is still present and its timer id was reached. */
+          if (error && error.name === 'AbortError') {
+            if (atcController) {
+              /* Timer-initiated abort — surface a timeout message. */
+              if (atcBtn) {
+                atcBtn.classList.remove('kt-product-form__atc--loading');
+                atcBtn.removeAttribute('aria-busy');
+                atcBtn.removeAttribute('aria-disabled');
+              }
+              var timeoutMsg = (Kitchero.variantStrings && Kitchero.variantStrings.timeoutError)
+                || 'The request timed out. Check your connection and retry.';
+              showError(timeoutMsg);
+            }
+            return;
+          }
           if (!error || !error.handled) console.error('Add to cart error:', error);
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
@@ -614,12 +818,15 @@
             || 'Something went wrong. Please try again.';
           var errorMessage = (error && error.message) || fallback;
           showError(errorMessage);
-          /* Announce the error assertively — blind users otherwise
-             only discover the failure after pressing ATC again and
-             wondering why the cart count didn't advance. */
-          if (window.Kitchero && typeof Kitchero.announce === 'function') {
-            Kitchero.announce(errorMessage, 'assertive');
-          }
+          /* R-PDP4 H3 — Drop the explicit `Kitchero.announce(..., 'assertive')`.
+             The error region already carries `role="alert"` (verified in
+             snippets/product-form.liquid) which gives it an implicit
+             aria-live="assertive". The previous double-announce path
+             (announce() + role=alert) resulted in NVDA reading the
+             error twice — confusing recovery UX. The single role=alert
+             announcement is enough; the showError() side effect now
+             includes focus management to put SR users right on the
+             error region for re-read. */
         })
         .then(function () {
           /* Release inflight lock regardless of path. On success the
@@ -628,6 +835,12 @@
              a 700ms delay). Page-mode re-enables the button briefly
              before the navigation actually happens; that's cosmetic
              and harmless. */
+          /* R-PDP4 H1 — Always clear the timeout id so it doesn't fire
+             stale aborts against a fresh later submit. Hung off the
+             controller as a property in the submit handler. */
+          if (atcController && atcController.__kitcheroTimeoutId) {
+            clearTimeout(atcController.__kitcheroTimeoutId);
+          }
           atcInflight = false;
           atcController = null;
           if (form.__kitcheroAtcController) delete form.__kitcheroAtcController;
@@ -702,6 +915,15 @@
     for (var idx = 0; idx < variants.length; idx++) {
       var variant = variants[idx];
       if (!variant || !variant.options) continue;
+      /* R-PDP2 — Require exact option-arity match. Iterating only
+         over `selectedOptions.length` and breaking on mismatch lets a
+         partial-prefix variant ("Red" alone) win over a fully
+         qualified variant ("Red / XL") when the customer's UI hasn't
+         registered every required option yet (rare race during JS
+         hydration on multi-option products). Comparing array sizes
+         first guarantees we only match a variant that exposes the
+         same number of axes the customer just picked. */
+      if (variant.options.length !== selectedOptions.length) continue;
       var match = true;
       for (var i = 0; i < selectedOptions.length; i++) {
         if (variant.options[i] !== selectedOptions[i]) {
@@ -749,6 +971,24 @@
           window.history.pushState({ variantId: matchedVariant.id }, '', url.toString());
           container._kitcheroHistoryPushed = true;
         }
+
+        /* R-PDP2 — Keep the share button URL aligned with the active
+           variant. Without this sync the button captured `request.origin
+           + product.url` at first paint and forever shared the default-
+           variant link; a shopper who configured a colour/size and then
+           hit Share would send a friend to the unconfigured PDP. The
+           share URL mirrors `window.location.href` (which we just
+           updated above with `?variant=…`) so SMS/Twitter/Web-Share
+           recipients land on the exact variant the sender is viewing.
+           Falls back to product.url-derived value on featured-product
+           cards where we deliberately don't push history. */
+        try {
+          var shareUrl = window.location.href;
+          var shareButtons = container.querySelectorAll('[data-share-btn][data-share-url]');
+          for (var si = 0; si < shareButtons.length; si++) {
+            shareButtons[si].setAttribute('data-share-url', shareUrl);
+          }
+        } catch (e) { /* share URL sync is non-critical */ }
       }
 
       /* Dispatch `variant:change` event so Shopify-native custom
@@ -1025,7 +1265,14 @@
           }
         }
         if (!planStillValid) {
-          activePlanInput.checked = false;
+          /* R-PDP3 — Defensive null guard on `activePlanInput`. The
+             logical invariant `activePlanId truthy ⇒ activePlanInput
+             non-null` holds in the current code path (see assignment
+             above) but the cost of a single `&&` is dwarfed by the
+             cost of a runtime TypeError on subscription products if
+             a future refactor mutates `activePlanId` independently
+             of `activePlanInput`. */
+          if (activePlanInput) activePlanInput.checked = false;
           activePlanId = null;
           /* Tell SR users the subscription option dropped — they may
              have selected a cadence then switched colour and the radio
@@ -1036,7 +1283,7 @@
         }
       } else if (activePlanId && !matchedVariant.selling_plan_allocations) {
         /* New variant carries no subscription allocations at all. */
-        activePlanInput.checked = false;
+        if (activePlanInput) activePlanInput.checked = false;
         activePlanId = null;
       }
 
@@ -1064,7 +1311,19 @@
             trackedQty <= threshold
           );
           if (showLowStock) {
-            var tmpl = (window.Kitchero && Kitchero.variantStrings && Kitchero.variantStrings.lowStockHtml) || 'Only [count] left';
+            /* R-PDP5 — Pick the plural form matching `trackedQty`.
+               Layout exposes both `lowStockOneHtml` (singular,
+               passed count:1 through Shopify's plural selector) and
+               `lowStockHtml` (other, passed count:[count]). Choosing
+               by `trackedQty === 1` keeps Spanish "Solo queda 1" vs
+               "Solo quedan 5" grammatically correct, and stays
+               functionally identical in languages without one/other
+               distinction (Turkish) since Shopify resolves both
+               keys to the same string there. */
+            var lowStrings = (window.Kitchero && Kitchero.variantStrings) || {};
+            var tmpl = (trackedQty === 1 && lowStrings.lowStockOneHtml)
+              ? lowStrings.lowStockOneHtml
+              : (lowStrings.lowStockHtml || 'Only [count] left');
             lowStockEl.textContent = tmpl.replace('[count]', trackedQty);
             lowStockEl.hidden = false;
           } else {
@@ -1246,8 +1505,28 @@
             /* Strip any existing Shopify CDN transform suffix and re-
                construct widths so srcset stays in sync. variantImage.src
                from `product.variants | json` already includes the base
-               CDN URL without size transforms. */
-            var baseSrc = variantImage.src.split('?')[0];
+               CDN URL without size transforms.
+
+               R-PDP3 — Use the URL constructor instead of `split('?')`
+               so both query AND fragment (`#...`) get cleanly dropped
+               from the base. `split('?')[0]` left fragments intact
+               (`cdn.shopify.com/.../image.jpg#abc`) which then leaked
+               into the generated srcset entries and broke loading on
+               some CDN proxies that treat fragments as part of the
+               cache key. The URL parse also defends against malformed
+               relative URLs by routing through the document origin. */
+            var baseSrc;
+            try {
+              var parsed = new URL(variantImage.src, window.location.origin);
+              parsed.search = '';
+              parsed.hash = '';
+              baseSrc = parsed.toString();
+            } catch (urlErr) {
+              /* URL constructor unavailable / malformed src — fall back
+                 to the legacy split so we never lose the image swap
+                 entirely on legacy browsers (Theme Store iOS 14 floor). */
+              baseSrc = variantImage.src.split('?')[0].split('#')[0];
+            }
             var existingWidths = [400, 600, 900, 1200];
             try {
               imgEl.src = baseSrc + '?width=1200';
@@ -1521,7 +1800,17 @@
     if (!variant) {
       /* First plan change before any variant swap — find the
          currently-selected variant by id in the cached data blob. */
-      var form = container.querySelector('form[action*="/cart/add"]');
+      /* R-PDP3 — Locale-prefix-safe form lookup. The earlier
+         `action*="/cart/add"` substring match worked on shops without
+         Markets but missed `/de/cart/add`, `/fr/cart/add` etc. on
+         localized storefronts because the actual rendered action URL
+         is the locale-prefixed routes.cart_add_url, not always the
+         bare `/cart/add` string. `data-product-form` is the canonical
+         hook we already emit on the wrapper element in
+         snippets/product-form.liquid; falling back to `action$=
+         "/cart/add"` keeps backward-compat with any inherited form
+         that omits the hook. */
+      var form = container.querySelector('[data-product-form] form, form[data-product-form], form[action$="/cart/add"]');
       var select = form && form.querySelector('[data-variant-select]');
       if (select && select.value) {
         var targetId = Number(select.value);
@@ -1665,24 +1954,38 @@
      graceful no-op. */
   if (!window.__kitcheroProductPopstateBound) {
     window.__kitcheroProductPopstateBound = true;
-    window.addEventListener('popstate', function () {
+    /* R-PDP4 H6/M7 — Shared URL→picker sync. The popstate handler
+       and the new pageshow bfcache restore handler both need this
+       logic, so it's factored out. `variantParam` absent +
+       `resetToDefault` true means "URL has no ?variant= so put the
+       picker back on the product's default variant" (WCAG 1.3.2
+       Meaningful Sequence — URL and UI must agree). */
+    function syncPickerFromUrl(resetToDefault) {
       var section = document.querySelector('[data-section-type="main-product"]');
       if (!section) return;
       var params = new URLSearchParams(window.location.search);
       var variantParam = params.get('variant');
-      if (!variantParam) return;
-      var targetVariantId = parseInt(variantParam, 10);
-      if (isNaN(targetVariantId)) return;
       var variants = getVariantsData(section);
       var targetVariant = null;
-      for (var v = 0; v < variants.length; v++) {
-        if (variants[v].id === targetVariantId) { targetVariant = variants[v]; break; }
+      if (variantParam) {
+        var targetVariantId = parseInt(variantParam, 10);
+        if (!isNaN(targetVariantId)) {
+          for (var v = 0; v < variants.length; v++) {
+            if (variants[v].id === targetVariantId) { targetVariant = variants[v]; break; }
+          }
+        }
+      } else if (resetToDefault) {
+        /* No ?variant in URL — pick the first available variant the
+           way Liquid's `selected_or_first_available_variant` would
+           on a fresh page load. Without this, hitting Back from a
+           navigated-to variant URL left the picker frozen on the
+           last-selected swatch even though the URL had reverted. */
+        for (var vi = 0; vi < variants.length; vi++) {
+          if (variants[vi] && variants[vi].available) { targetVariant = variants[vi]; break; }
+        }
+        if (!targetVariant && variants.length) targetVariant = variants[0];
       }
       if (!targetVariant || !targetVariant.options) return;
-      /* Re-check the matching option radios — `change` events on
-         radios trigger updateVariant(), which finishes the sync
-         (price, sku, image, atc label). Skip if the radio is
-         already checked to avoid an infinite popstate loop. */
       targetVariant.options.forEach(function (optValue, optIndex) {
         var radios = section.querySelectorAll('[data-option-index="' + optIndex + '"] [data-option-value]');
         radios.forEach(function (radio) {
@@ -1692,6 +1995,22 @@
           }
         });
       });
+    }
+    window.addEventListener('popstate', function () { syncPickerFromUrl(true); });
+
+    /* R-PDP4 H6 — bfcache restore. Safari/Firefox keep the full JS
+       state + DOM when navigating away then back (Back-Forward Cache);
+       the `pageshow` event fires on restore with `event.persisted ===
+       true`. The cached variants array + memoized history-pushed
+       state can be out of sync with the restored URL (e.g. user
+       picked variant N, navigated to cart, hit Back — URL has
+       `?variant=N` but the picker silently re-painted from
+       `_kitcheroVariants` cache with no change events firing).
+       Re-running the URL→picker sync inside the persisted branch
+       guarantees the visible picker matches the restored URL on
+       every bfcache return. */
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) syncPickerFromUrl(true);
     });
   }
 

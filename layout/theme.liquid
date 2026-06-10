@@ -118,10 +118,24 @@
           {%- assign primary_root = locale.root_url -%}
         {%- endif -%}
       {%- endfor -%}
+      {%- comment -%}
+        R-PDP6 — Guard `request.locale.root_url` against blank. On the
+        primary locale Shopify returns the path without a prefix; in
+        some edge configurations (single-locale-but-Markets-enabled
+        store, brand-new dev store, fresh theme preview) the value
+        comes through blank instead of `/`. Liquid `replace_first`
+        with an EMPTY needle replaces nothing (target locale's
+        root_url never gets injected), so the hreflang for every
+        non-primary locale silently points back at the primary URL.
+        Defaulting to `/` keeps the replace path stable so each
+        locale gets its correct prefix even when the source root
+        is reported blank.
+      {%- endcomment -%}
+      {%- assign current_root = request.locale.root_url | default: '/' -%}
       {%- for locale in shop.published_locales -%}
-        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: request.locale.root_url, locale.root_url }}">
+        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: current_root, locale.root_url }}">
       {%- endfor -%}
-      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: request.locale.root_url, primary_root }}">
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: current_root, primary_root }}">
     {%- endif -%}
 
     {%- comment -%}
@@ -745,6 +759,17 @@
           addSubscription: {{ 'kt.product.add_subscription_to_cart' | t | json }},
           addedToCart:    {{ 'kt.product.added_to_cart' | t | json }},
           addToCartError: {{ 'kt.product.add_to_cart_error' | t | json }},
+          {%- comment -%}
+            R-PDP4 — Offline + timeout strings surfaced for the ATC
+            submit handler. Both are user-facing recovery cues for
+            network-degraded states the customer can act on (toggle
+            airplane mode, switch wifi, retry). Theme Store reviewers
+            test offline + slow-3G scenarios on every paid submission
+            and expect graceful messaging, not the raw browser
+            "Failed to fetch" leak.
+          {%- endcomment -%}
+          offlineError:   {{ 'kt.product.offline_error' | t | json }},
+          timeoutError:   {{ 'kt.product.timeout_error' | t | json }},
           soldOut:        {{ 'kt.product.sold_out' | t | json }},
           unavailable:    {{ 'kt.product.unavailable' | t | json }},
           subscriptionUnavailable: {{ 'kt.product.subscription_unavailable' | t | json }},
@@ -753,8 +778,21 @@
             variant-change updates in `assets/product-form.js`. The
             template carries a `[count]` placeholder that JS
             replaces with the matched variant's inventory_quantity.
+
+            R-PDP5 — Both one + other plural forms exposed so the JS
+            variant-change handler can pick the right grammatical
+            form. Passing `count: 1` and `count: 2` to the same key
+            lets Shopify's pluralization selector resolve the
+            language-specific branch (one/other in EN/DE/FR/ES; TR
+            has no plural distinction but still benefits from the
+            paired emit so future locales drop in cleanly). Without
+            this the JS always used the "other" string — ES rendered
+            "Solo quedan 1" instead of "Solo queda 1" on a 1-stock
+            variant (verb-conjugation grammar error visible to every
+            Spanish-speaking shopper).
           {%- endcomment -%}
-          lowStockHtml:   {{ 'kt.product.low_stock_html' | t: count: '[count]' | json }},
+          lowStockHtml:    {{ 'kt.product.low_stock_html' | t: count: '[count]' | json }},
+          lowStockOneHtml: {{ 'kt.product.low_stock_html' | t: count: 1 | replace: '1', '[count]' | json }},
           {%- comment -%}
             Volume pricing tier label template. `[qty]` placeholder
             is replaced by product-form.js when rebuilding the

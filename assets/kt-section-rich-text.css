@@ -140,7 +140,17 @@
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
-  border-radius: var(--kt-btn-radius, 4px);
+  /* R-rich-text-btn-pill — Was `var(--kt-btn-radius, 4px)` —
+     `--kt-btn-radius` defaults to 0 in settings_schema, so the
+     buttons rendered as sharp rectangles while the rest of the
+     theme (banner-hero, banner-minimal, banner-split, brands,
+     deals-grid, cookie-banner, customer-account, financing-cta,
+     financing-cta__btn) all hardcode pill 9999px. Switched to
+     match — Kitchero brand convention is pill buttons. The
+     global token is retained on its own pages where merchants
+     can dial it in, but the rich-text block sits inside the
+     in-section CTA pattern and should always be a pill. */
+  border-radius: 9999px;
   transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 

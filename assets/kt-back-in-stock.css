@@ -44,20 +44,23 @@
 }
 
 /* ── Modal overlay ──────────────────────────────────────────────
-   Full-viewport fixed overlay. !important on anchoring properties
-   defends against parents that try to clip via overflow or pin
-   via position: relative on a stale CSS cache. */
-.kt-back-in-stock__modal {
-  position: fixed !important;
-  inset: 0 !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  /* Popover tier — sits above the drawer tier so a customer hitting
-     "Notify me" from a sold-out item inside the cart drawer's
-     recommendations slot doesn't lose the modal to the drawer. */
-  z-index: 1500;
+   Full-viewport fixed overlay.
+
+   R-PDP6 — Specificity refactor. The earlier rule stacked 6×
+   `!important` on the anchor properties to defend against parents
+   that try to clip via `overflow: hidden` or pin via `position:
+   relative`. Wrapping the selector with `:where()` keeps the
+   specificity at 0 while ALSO pinning the rules — modal portals
+   to `<body>` via JS so there are no real parent constraints to
+   fight, the `!important`s were belt-and-braces against an
+   imagined ancestor that doesn't exist in this theme's tree. The
+   z-index also moves to the centralized `--kt-z-popover` design
+   token so the modal's tier relationship is documented in
+   kt-css-variables.liquid alongside drawer/lightbox/loader. */
+:where(.kt-back-in-stock__modal) {
+  position: fixed;
+  inset: 0;
+  z-index: var(--kt-z-popover, 1500);
   display: flex;
   align-items: center;
   justify-content: center;

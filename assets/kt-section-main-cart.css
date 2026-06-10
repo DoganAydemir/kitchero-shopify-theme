@@ -817,9 +817,14 @@
 }
 
 .kt-cart-page__summary-row--total .kt-cart-page__summary-value {
-  font-family: var(--kt-f-accent-family, Georgia, serif);
+  /* R-cart-numerics — Drop the serif accent family for price figures.
+     Inherits the body font (sans-serif) like the rest of the summary
+     row values; only the section heading + product titles keep the
+     editorial serif treatment. Mirrors the cart-drawer change so the
+     two checkout surfaces stay visually consistent. */
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .kt-cart-page__taxes-note {

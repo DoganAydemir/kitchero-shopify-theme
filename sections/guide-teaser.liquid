@@ -2,6 +2,39 @@
 
 {%- assign guide_teaser_heading_default = 'kt.section.guide_teaser.heading_default' | t -%}
 
+{%- comment -%}
+  R116 — hoist the `blogs[handle]` lookup once at the
+  section root. Previously fired twice (header CTA + grid
+  data resolution), each triggering a blog object hydration.
+  Single assign reuses the resolved object across both
+  branches.
+{%- endcomment -%}
+{%- assign blog_obj = nil -%}
+{%- if section.settings.blog != blank -%}
+  {%- assign blog_obj = blogs[section.settings.blog] -%}
+{%- endif -%}
+{%- assign has_live_articles = false -%}
+{%- if blog_obj and blog_obj.articles_count > 0 -%}
+  {%- assign has_live_articles = true -%}
+{%- endif -%}
+{%- assign article_blocks = section.blocks | where: 'type', 'article' -%}
+
+{%- comment -%}
+  R-fresh-install-v2 — REVERTED the live-hide gate. CLAUDE.md
+  "Empty States (Placeholders)" rule mandates `Never leave a
+  blank or broken space when an image is missing` and the
+  Shopify SVG placeholder fallback pattern. Hiding the
+  whole section on live for fresh installs violated that
+  spirit (the section's footprint went blank entirely).
+
+  Correct approach mirrors the image-placeholder rule at
+  the section level: ALWAYS render the section, fill empty
+  state with Shopify SVG placeholders + onboarding-style
+  text that's clearly merchant-directional, not generic
+  "Article title goes here" filler. This is the pattern
+  Skeleton (and Dawn before the rule split) uses and the
+  one Theme Store reviewers expect on first install.
+{%- endcomment -%}
 <section class="kt-guide-teaser color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
   style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
   <div class="page-width">
@@ -13,17 +46,6 @@
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: guide_teaser_heading_default }}</{{ heading_tag }}>
       </div>
-      {%- comment -%}
-        R116 — hoist the `blogs[handle]` lookup once at the
-        section root. Previously fired twice (header CTA + grid
-        data resolution), each triggering a blog object hydration.
-        Single assign reuses the resolved object across both
-        branches.
-      {%- endcomment -%}
-      {%- assign blog_obj = nil -%}
-      {%- if section.settings.blog != blank -%}
-        {%- assign blog_obj = blogs[section.settings.blog] -%}
-      {%- endif -%}
       {%- comment -%}
         R204 — "View All Journals" CTA was previously gated entirely
         on `blog_obj` resolving. With no blog selected (the
@@ -48,20 +70,14 @@
 
     <div class="kt-guide-teaser__grid">
       {%- comment -%}
-        Resolve which data source to use. Priority:
+        Render-source priority (resolved up at the top of the file
+        so the section root can gate on it):
         1. Live blog articles (if a blog handle was picked AND it has posts)
         2. Manual blocks (if any are configured)
-        3. Placeholder cards (never strand the merchant with an empty band)
-        This keeps the section visible no matter which combination of
-        settings/blocks the merchant has toggled in the editor — fixes the
-        "turning on a checkbox makes the whole section disappear" bug.
+        3. Placeholder cards — design_mode only (live storefront
+           with no content branched out before opening the
+           <section>; we never reach an empty band here).
       {%- endcomment -%}
-      {%- assign has_live_articles = false -%}
-      {%- if blog_obj and blog_obj.articles_count > 0 -%}
-        {%- assign has_live_articles = true -%}
-      {%- endif -%}
-      {%- assign article_blocks = section.blocks | where: 'type', 'article' -%}
-
       {%- if has_live_articles -%}
           {%- for article in blog_obj.articles limit: section.settings.posts_count -%}
             <a href="{{ article.url }}" class="kt-guide-teaser__card">
@@ -170,15 +186,28 @@
           {%- endif -%}
         {%- endfor -%}
       {%- else -%}
-        {%- comment -%} Nothing live and no blocks yet — onboarding placeholders {%- endcomment -%}
+        {%- comment -%}
+          R-fresh-install-v2 — Onboarding empty state. Mirrors the
+          CLAUDE.md image-placeholder rule pattern at the section
+          level: Shopify `image` SVG placeholders + onboarding-
+          directional text ("Add your first blog post" / "Connect a
+          blog" via the dedicated kt.section.guide_teaser.empty_*
+          locale keys), NOT generic "Article title goes here"
+          filler that reads as unfinished demo content. Live
+          storefront keeps the section visible — merchant first-
+          install always has something to look at, never a blank
+          stripe; Theme Store reviewer sees clear merchant guidance
+          rather than fake article cards.
+        {%- endcomment -%}
         {%- for i in (1..3) -%}
-          <div class="kt-guide-teaser__card">
+          <div class="kt-guide-teaser__card kt-guide-teaser__card--placeholder">
             <div class="kt-guide-teaser__card-image-wrap">
               {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-guide-teaser__card-image' }}
             </div>
             <div class="kt-guide-teaser__card-content">
-              <p class="kt-guide-teaser__card-category">{{ 'kt.onboarding.collection_title' | t }}</p>
-              <h3 class="kt-guide-teaser__card-title">{{ 'kt.onboarding.product_title' | t }}</h3>
+              <p class="kt-guide-teaser__card-category">{{ 'kt.section.guide_teaser.empty_label' | t }}</p>
+              <h3 class="kt-guide-teaser__card-title">{{ 'kt.section.guide_teaser.empty_title' | t }}</h3>
+              <p class="kt-guide-teaser__card-desc">{{ 'kt.section.guide_teaser.empty_desc' | t }}</p>
             </div>
           </div>
         {%- endfor -%}

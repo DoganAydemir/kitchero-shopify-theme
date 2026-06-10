@@ -9,8 +9,21 @@
 
 .kt-why-choose-us-product {
   padding: 6rem 0;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
-  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  /* R-why-choose-bg-v2 — Section background pinned to `--kt-stone-50`
+     (#fafaf9), the exact warm-grey the Next.js source uses for this
+     section's tier. Matches `lab(98.27% -.099 .364)` from the design
+     reference. The fg-overlay approach (6% darken on scheme bg) had
+     two issues vs the source:
+       1. It produced a noticeably darker tone than the reference's
+          near-white warm grey — visually too heavy.
+       2. It coupled to the scheme bg, so a merchant changing scheme
+          to a non-light surface drifted the tier-shift away from the
+          intended design.
+     Pinning to `--kt-stone-50` keeps the slim white→stone-50 contrast
+     against the page bg consistent regardless of scheme; cards inside
+     stay on the active scheme bg (white by default) and read as
+     elevated tiles. */
+  background-color: var(--kt-stone-50, #fafaf9);
   color: rgb(var(--kt-c-fg, 28 25 23));
   /* R232.50 — scheme-aware top rule (was stone-200). */
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
@@ -94,12 +107,21 @@
      light schemes). Fallback stays close to the original white. */
   /* R232.72 — `--kt-c-bg-contrast` Shopify 25%-darken calc was too
      aggressive on light schemes (cream card → medium grey).
-     Stable scheme-aware pattern: section's scheme bg + 6% fg
-     overlay = subtle tier-shift card surface that reads against
-     the section bg on any scheme without going heavy. */
-  background-color: rgb(var(--kt-c-bg, 255 255 255));
-  background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.06), rgba(var(--kt-c-fg, 28 25 23), 0.06));
-  border: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
+
+     R-why-choose-cards-v3 — Card bg pinned to pure #ffffff. Earlier
+     attempts referenced `--kt-c-bg` which on light schemes resolves
+     to the same stone-50 (#fafaf9) the section uses, so the cards
+     vanished into the section background. Pinning to pure white
+     matches the Next.js source (white cards on stone-50 section)
+     and gives a consistent ~3% tier-shift everywhere. Section bg is
+     already hardcoded to stone-50 above for the same design-fidelity
+     reason. */
+  background-color: #ffffff;
+  /* R-why-choose-cards-noborder — Border removed; the white tile vs.
+     stone-50 section provides enough edge definition on its own, and
+     the thin shadow below adds subtle elevation. Border on top of
+     that read as "bordered + shadowed" double-treatment, fighting
+     the clean Next.js source. */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.5s ease;
 }
