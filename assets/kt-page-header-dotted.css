@@ -188,7 +188,18 @@
 }
 
 .kt-page-header-dotted__eyebrow-wrap {
-  margin-bottom: 1rem;
+  /* R-dotted-eyebrow-gap — Default 1rem (16px) read fine on
+     desktop but landed ~36px on mobile after the dotted-grid
+     vertical rhythm, leaving an awkward gap between the eyebrow
+     and the title. Tighter 0.375rem (6px) on mobile keeps the
+     pair coupled; desktop unchanged. */
+  margin-bottom: 0.375rem;
+}
+
+@media (min-width: 750px) {
+  .kt-page-header-dotted__eyebrow-wrap {
+    margin-bottom: 1rem;
+  }
 }
 
 /* Eyebrow — small uppercase category */

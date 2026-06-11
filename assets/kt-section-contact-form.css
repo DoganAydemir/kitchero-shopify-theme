@@ -269,11 +269,11 @@
   width: 100%;
   border: none;
   border-bottom: 1px solid rgba(var(--kt-c-fg, 211 211 211), 0.22);
-  /* `padding-bottom: calc(1rem - 1px)` reserves 1px for the focus
-     state's thicker border so the input doesn't visibly shift when
-     it gains focus. The transition runs on border + padding both,
-     keeping the swap smooth. */
-  padding: 1rem 0 calc(1rem - 1px) 0;
+  /* R-contact-input-tight — Padding pulled 1rem → 0.5rem so the
+     border-bottom reads visually attached to its own input (not
+     floating between rows closer to the next label). Bottom
+     padding keeps the focus-state 1px-shift compensation. */
+  padding: 0.5rem 0 calc(0.5rem - 1px) 0;
   background: transparent;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
@@ -304,14 +304,15 @@
   outline: none;
   border-bottom-width: 2px;
   border-color: rgb(var(--kt-c-fg, 28 25 23));
-  padding-bottom: calc(1rem - 2px);
+  padding-bottom: calc(0.5rem - 2px);
 }
 
 .kt-contact__form-textarea {
   width: 100%;
   border: none;
   border-bottom: 1px solid rgba(var(--kt-c-fg, 211 211 211), 0.22);
-  padding: 1rem 0 calc(1rem - 1px) 0;
+  /* R-contact-input-tight — same rationale as __form-input above. */
+  padding: 0.5rem 0 calc(0.5rem - 1px) 0;
   background: transparent;
   /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
@@ -360,10 +361,13 @@
   background-color: rgb(var(--kt-c-action, 28 25 23));
   color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  /* R-contact-submit-pill — pill-radius + natural-case per theme-
+     wide CTA convention (financing-cta, newsletter-page,
+     customer-account etc. all 9999px + Title Case). */
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: all 0.3s ease;
 }

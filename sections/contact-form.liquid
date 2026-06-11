@@ -118,10 +118,20 @@
           <{{ form_heading_tag }} class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: contact_form_heading_line1_default }}<br>{{ section.settings.form_heading_line2 | default: contact_form_heading_line2_default }}</{{ form_heading_tag }}>
           <p class="kt-contact__form-desc">{{ section.settings.form_description | default: contact_form_description_default }}</p>
 
-          <div class="kt-contact__form-social">
-            <span class="kt-contact__label">{{ 'kt.section.contact.follow_us' | t | default: 'Follow Us' }}</span>
-            {%- render 'social-icons' -%}
-          </div>
+          {%- comment -%}
+            R-contact-follow-gate — Only render the "Follow us" cluster
+            when at least one social URL is set in theme settings. The
+            block previously emitted the label + an empty social-icons
+            render whenever the merchant hadn't connected any
+            account, producing the orphan "FOLLOW US" caption the
+            user flagged on the contact page.
+          {%- endcomment -%}
+          {%- if settings.kt_social_facebook != blank or settings.kt_social_instagram != blank or settings.kt_social_youtube != blank or settings.kt_social_tiktok != blank or settings.kt_social_twitter != blank or settings.kt_social_pinterest != blank or settings.kt_social_linkedin != blank -%}
+            <div class="kt-contact__form-social">
+              <span class="kt-contact__label">{{ 'kt.section.contact.follow_us' | t | default: 'Follow Us' }}</span>
+              {%- render 'social-icons' -%}
+            </div>
+          {%- endif -%}
         </div>
 
         <div class="kt-contact__form-wrap">

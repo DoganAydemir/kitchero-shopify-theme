@@ -1273,6 +1273,17 @@ select:-webkit-autofill {
   padding: 1rem 0;
 }
 
+/* R-breadcrumbs-mobile-tight — User flagged "mobilde breadcrumb
+   üst kısmında çok boşluk var". On phones the 1rem vertical
+   padding combined with the page-header padding stacked into a
+   ~3rem gap between the announcement bar and the breadcrumb,
+   reading as broken whitespace. Trim to 0.375rem top on mobile. */
+@media (max-width: 749px) {
+  .kt-breadcrumbs {
+    padding: 0.375rem 0 0.625rem;
+  }
+}
+
 /* The breadcrumb wrapper is no longer rendered as a direct child
    of `<main>` — it's rendered INSIDE each intro component
    (page-header-dotted snippet, main-collection-banner, main-
@@ -1730,6 +1741,107 @@ html:not(.js) .kt-loader {
    variant-picker, customer-account-addresses, main-search,
    iwt-parallax) are EXCLUDED — they're already mobile-correct.
    ============================================================ */
+/* ============================================================
+   R-shopify-policy-style — Style Shopify's built-in policy
+   container (`/policies/privacy-policy`, refund, shipping,
+   TOS, subscription). Shopify renders a fixed markup pair
+   inside MainContent that the theme template can't replace:
+     <div class="shopify-policy__container">
+       <div class="shopify-policy__title"><h1>…</h1></div>
+       <div class="shopify-policy__body">…raw policy HTML…</div>
+     </div>
+   Default policy stylesheet ships only `max-width: 65ch` +
+   20px horizontal padding — no vertical breathing room, no
+   editorial typography. Theming the container directly here
+   layers on the same prose chrome used elsewhere on the
+   theme (serif heading, padding tokens, muted body color).
+   ============================================================ */
+.shopify-policy__container {
+  /* Top + bottom breathing room — matches main-page section
+     padding so policy pages read at the same vertical density
+     as merchant-authored CMS pages. */
+  padding-top: clamp(2.5rem, 6vw, 5rem) !important;
+  padding-bottom: clamp(4rem, 8vw, 7rem) !important;
+}
+
+.shopify-policy__title {
+  margin-bottom: 2rem;
+}
+
+.shopify-policy__title h1 {
+  font-family: var(--kt-f-accent-family, Georgia, serif);
+  font-size: clamp(1.875rem, 5vw + 0.5rem, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  margin: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.shopify-policy__body {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: rgba(var(--kt-c-fg, 28 25 23), 0.78);
+}
+
+@media screen and (min-width: 750px) {
+  .shopify-policy__body {
+    font-size: 1rem;
+  }
+}
+
+/* Paragraph + heading rhythm — same scale + spacing as the
+   regular CMS page template's `.rte` rules. */
+.shopify-policy__body p {
+  margin: 0 0 1.25rem;
+}
+
+.shopify-policy__body h1,
+.shopify-policy__body h2,
+.shopify-policy__body h3,
+.shopify-policy__body h4 {
+  font-family: var(--kt-f-accent-family, Georgia, serif);
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.shopify-policy__body h2 { font-size: 1.5rem; }
+.shopify-policy__body h3 { font-size: 1.25rem; }
+.shopify-policy__body h4 { font-size: 1.0625rem; }
+
+@media screen and (min-width: 750px) {
+  .shopify-policy__body h2 { font-size: 2rem; }
+  .shopify-policy__body h3 { font-size: 1.5rem; }
+}
+
+.shopify-policy__body a {
+  color: rgb(var(--kt-c-fg, 28 25 23));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.shopify-policy__body ul,
+.shopify-policy__body ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.shopify-policy__body li + li {
+  margin-top: 0.5rem;
+}
+
+.shopify-policy__body strong {
+  font-weight: 600;
+  color: rgb(var(--kt-c-fg, 28 25 23));
+}
+
 @media (max-width: 749px) {
   .kt-banner-hero__cta,
   .kt-banner-split__cta,

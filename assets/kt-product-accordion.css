@@ -11,8 +11,14 @@
   border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
-.kt-accordion:last-of-type {
-  border-bottom: 1px solid rgba(var(--kt-c-fg), 0.1);
+/* R-accordion-edge-no-border — Remove the top border on the FIRST
+   accordion and the bottom border on the LAST one. The edge rules
+   added an unnecessary frame outside the accordion stack which read
+   as box-chrome competing with the rest of the PDP info column.
+   Inner dividers between accordions stay (border-top on every item
+   except the first), so the visual rhythm between items is intact. */
+.kt-accordion:first-of-type {
+  border-top: 0;
 }
 
 /* summary: w-full flex items-center justify-between py-5 */
