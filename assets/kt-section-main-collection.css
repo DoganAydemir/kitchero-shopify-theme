@@ -13,10 +13,19 @@
   min-height: 100svh;
   padding-top: var(--kt-coll-pad-top, 0px);
   /* R136 — additive bottom padding from merchant settings on top of
-     the existing 10rem editorial baseline. Merchant slider stays
-     at 0 → 120px range with 0 default, so behaviour matches before
-     the density bump unless the merchant explicitly raises it. */
-  padding-bottom: calc(10rem + var(--kt-coll-pad-bottom, 0px));
+     the existing editorial baseline. Merchant slider stays at
+     0 → 120px range with 0 default, so behaviour matches before
+     the density bump unless the merchant explicitly raises it.
+
+     R-collection-pad-trim — Baseline dropped 10rem (160px) → 4rem
+     (64px). Collections with few products + a pagination row
+     pushed an oversized white band before the footer; the
+     "editorial" baseline was tuned for a hero-height bottom on
+     very long grids but read as broken white space on short
+     ones. 4rem keeps grid → footer breathing room while
+     trimming the gap the user flagged. Merchants who want the
+     old breathing room can raise the per-section slider. */
+  padding-bottom: calc(4rem + var(--kt-coll-pad-bottom, 0px));
 }
 
 /* Hero header: from PageHeader.tsx — pt adjusted for solid header spacer */
@@ -177,7 +186,16 @@
 /* Sticky control bar: sticky top-0 z-40 border-y border-stone-200 */
 .kt-collection__controls {
   position: sticky;
-  top: 0;
+  /* R-collection-controls-header-offset-v2 — Previous round used
+     `--kt-header-height` (wrong token name — JS never set it,
+     fallback 80px always won, leaving a gap on mobile and
+     unpredictable offsets after the header chrome changed
+     height). Real token published by `assets/kt-section-header.js`
+     is `--kt-header-offset`, set to the live measured
+     `header.offsetHeight`. Switched to it so the controls bar
+     pins flush to the header bottom on every scroll position,
+     across viewport sizes + header variants. */
+  top: var(--kt-header-offset, 80px);
   z-index: 40;
   border-top: 1px solid var(--kt-stone-200);
   border-bottom: 1px solid var(--kt-stone-200);
@@ -518,7 +536,17 @@
 .kt-collection__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 4rem 1.5rem;
+  /* R-grid-row-gap — Row gap eased 4rem → 2.5rem so the View
+     Details button doesn't read as belonging to the row below
+     it. Combined with `align-items: start` (next rule), the CTA
+     sits tight under its own price block. */
+  gap: 2.5rem 1.5rem;
+  /* R-grid-align-start — was stretch (default); equal-height
+     rows pushed short cards' View Details button down to the
+     tallest card's bottom, leaving it visually closer to the
+     NEXT row than its own price block. start lets each card
+     size to its own content. */
+  align-items: start;
   margin-top: 4rem;
   transition: gap 0.7s ease-in-out;
   width: 100%;
@@ -612,7 +640,12 @@
 
 /* Pagination wrapper */
 .kt-collection__pagination {
-  margin-top: 8rem;
+  /* R-collection-pagination-margin — 8rem (128px) → 3rem (48px).
+     Combined with the 4rem section padding-bottom this lands
+     ~7rem (112px) between the last product row and the footer
+     edge — generous breathing room without the broken white
+     band the merchant flagged. */
+  margin-top: 3rem;
   display: flex;
   justify-content: center;
 }

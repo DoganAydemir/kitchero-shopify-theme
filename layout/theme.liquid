@@ -39,7 +39,18 @@
       hero design — `cover` is the only sane choice for a modern
       Shopify storefront.
     {%- endcomment -%}
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {%- comment -%}
+      R-viewport-no-zoom — Added `maximum-scale=1, user-scalable=no`
+      so iOS Safari stops auto-zooming when a customer taps a
+      number/text input. The filter-drawer price inputs and the
+      contact form fields are sized below 16px to fit the editorial
+      density, and Safari's default zoom-on-focus broke the layout.
+      Trade-off: accessibility users who pinch-zoom on iOS get
+      blocked. We compensate with min-height 44px touch targets +
+      14-15px body text + WCAG AAA contrast across the theme so
+      the platform's own zoom isn't required for legibility.
+    {%- endcomment -%}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     {%- comment -%}
       R296 — Cross-origin Referer policy. Sets the page's referrer
       policy so the Referer header sent to third-party domains
