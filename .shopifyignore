@@ -63,9 +63,19 @@
 # the zip contains templates/*.json + settings_data.json + section-
 # group.json, then restore them. The detailed flow is in the header
 # block above (lines 3-17).
-templates/*.json
-config/settings_data.json
-sections/*-group.json
+#
+# BRANCH-SPECIFIC BEHAVIOUR — these three lines are PROTECTED on
+# `main` (so code pushes to live never overwrite merchant-edited
+# content) and COMMENTED OUT on `demo` (so `shopify theme pull`
+# into demo captures the full live site — templates, settings,
+# section groups — for version control). The "update from main"
+# merge into demo will produce a predictable conflict on this
+# block; resolve it by keeping the demo side (commented-out
+# pattern). The header-block instructions above still apply for
+# Theme Store packaging.
+# templates/*.json
+# config/settings_data.json
+# sections/*-group.json
 
 # Theme Store ban-list — never push any of these
 *.md
