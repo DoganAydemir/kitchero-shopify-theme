@@ -1,83 +1,52 @@
-# .shopifyignore — files excluded from `shopify theme push` and `shopify theme dev`
+# .shopifyignore — DEMO BRANCH
+# ============================================================
+# Purpose: this branch's only job is to mirror the LIVE STORE's
+# merchant-edited CONTENT (templates, global settings, header/
+# footer section groups) for version control. Code (CSS / JS /
+# Liquid / snippets / layout / locales / settings_schema.json)
+# is owned by the `main` branch; demo does NOT track it.
 #
-# !!! CRITICAL BEFORE THEME STORE SUBMISSION !!!
-# `shopify theme package` ALSO honours this file. Lines 39-41 below
-# (templates/*.json, config/settings_data.json, sections/*-group.json)
-# are intentional for `theme push` (protects merchant edits) but they
-# would EXCLUDE these files from the submission zip too — and the zip
-# REQUIRES them for the Theme Store reviewer to see the default home
-# composition, header/footer groups, and the seeded scheme. Before
-# running `shopify theme package`:
+# How this file is wired:
+#   * Code patterns BELOW are listed as ignored, so a
+#     `shopify theme pull --store=... --theme="kitchero-1-0-0"`
+#     on this branch DROPS every code file from the download
+#     and only writes content files to disk.
+#   * Content patterns (templates/*.json, config/settings_data.json,
+#     sections/*-group.json) are intentionally NOT in the ignore
+#     list, so the pull captures them.
 #
-#   1. Comment out lines 39-41 (templates/*.json, settings_data.json,
-#      sections/*-group.json).
-#   2. Run `shopify theme package`.
-#   3. Verify the generated zip contains templates/*.json, the two
-#      section-group JSONs, and config/settings_data.json.
-#   4. Restore lines 39-41 to keep `theme push` safe.
+# Workflow:
+#   1. Switch to `demo` branch.
+#   2. `shopify theme pull --store=kitchero-4zilkgr1.myshopify.com --theme="kitchero-1-0-0"`
+#      → only content files land in the working tree.
+#   3. Commit + push → snapshot of live content saved on GitHub.
 #
-# Strategy (R216 — production phase):
-#   - Code files (sections/, snippets/, assets/, layout/, locales/,
-#     config/settings_schema.json) are always pushed.
-#   - Merchant-content files (templates/*.json, config/settings_data.json,
-#     sections/*-group.json) are IGNORED on push to the live theme so code
-#     revisions never wipe out merchant edits made in the theme editor.
+# `main` branch keeps the OPPOSITE pattern: code is tracked, the
+# three content patterns are ignored so a `shopify theme push`
+# from main never overwrites admin-edited content on the live
+# theme. Expect a predictable conflict on this file every time
+# you "update from main" into demo — resolve it by KEEPING the
+# DEMO side (this version).
 #
-# Why these specific files:
-#   * templates/*.json — every page's section composition + per-section
-#     settings (heading text, image refs, color pickers, etc.). When a
-#     merchant edits via the theme editor, the JSON is rewritten with
-#     their inputs. A `shopify theme push` from this codebase would
-#     overwrite all of that with placeholder defaults.
-#   * config/settings_data.json — global theme settings (active color
-#     scheme, brand colours, fonts, social URLs, etc.). Merchant tunes
-#     these in Theme Settings; a push from this codebase would reset
-#     everything to the defaults declared in settings_schema.json.
-#   * sections/*-group.json — header-group / footer-group composition,
-#     announcement-banner copy, footer menu links, payment-icon toggle,
-#     etc. Same overwrite risk as templates/*.json.
-#
-# Trade-off: `shopify theme dev` reads these from disk too — so the local
-# dev preview shows placeholder content (the defaults committed in this
-# repo) rather than what's on the live store. That's the right trade-off
-# for our workflow: the dev preview is for code testing, the live store
-# is for merchant content; the two stay independent.
-#
-# When you DO want to push a content-file change (e.g. adjusting a
-# placeholder default for a fresh-install demo), bypass with --only:
-#   shopify theme push --only "templates/index.json" --theme <ID>
-# Or comment out the matching ignore line below, push, then restore.
-#
-# Theme Store-banned patterns below (.md files, docs/) MUST stay ignored —
-# Shopify rejects uploads containing them.
+# !!! THEME STORE SUBMISSION !!!
+# Submitting the theme to the store? Do it from `main`, NOT demo.
+# Demo intentionally excludes the code Shopify reviews.
+# ============================================================
 
-# Merchant content — preserve live-theme edits across code pushes.
-# These three patterns are ACTIVE: every `shopify theme push` skips
-# them, so a code-only push from `main` to the live theme never wipes
-# the merchant's Theme Editor content (templates' section composition,
-# scheme/font/social settings, header & footer group config).
-#
-# Reminder for Theme Store submission: `shopify theme package` honors
-# the same .shopifyignore. Before generating the submission .zip,
-# temporarily comment these three lines back out, run package, verify
-# the zip contains templates/*.json + settings_data.json + section-
-# group.json, then restore them. The detailed flow is in the header
-# block above (lines 3-17).
-#
-# BRANCH-SPECIFIC BEHAVIOUR — these three lines are PROTECTED on
-# `main` (so code pushes to live never overwrite merchant-edited
-# content) and COMMENTED OUT on `demo` (so `shopify theme pull`
-# into demo captures the full live site — templates, settings,
-# section groups — for version control). The "update from main"
-# merge into demo will produce a predictable conflict on this
-# block; resolve it by keeping the demo side (commented-out
-# pattern). The header-block instructions above still apply for
-# Theme Store packaging.
-# templates/*.json
-# config/settings_data.json
-# sections/*-group.json
+# === Code files — IGNORED on demo (lives on main) ===
+assets/*
+snippets/*
+layout/*
+locales/*
+sections/*.liquid
+config/settings_schema.json
 
-# Theme Store ban-list — never push any of these
+# === Content files — NOT ignored (this is what demo tracks) ===
+#   templates/*.json
+#   config/settings_data.json
+#   sections/*-group.json
+
+# === Theme Store ban-list — never push any of these ===
 *.md
 docs/*
 references/*
