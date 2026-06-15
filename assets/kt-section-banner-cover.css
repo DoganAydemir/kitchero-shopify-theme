@@ -27,12 +27,22 @@
      who want breathing room set positive values). */
   padding-top: var(--kt-banner-cover-pad-top, 0);
   padding-bottom: var(--kt-banner-cover-pad-bottom, 0);
-  background-color: rgb(var(--kt-c-bg, 28 25 23));
+  /* R-bc-dark-backdrop — Backdrop pinned to a fixed dark stone, NOT
+     the scheme's `--kt-c-bg`. banner-cover is an editorial DARK hero:
+     the image renders at reduced opacity (see __image below) so the
+     backdrop colour shows through as the photo's tint. When this was
+     wired to `--kt-c-bg`, a page on a LIGHT colour scheme (e.g. the
+     About page) gave a near-white backdrop, so the photo composited
+     over white and read as a washed-out "light grey veil" instead of
+     the intended rich dark tone. The heading / eyebrow / desc are all
+     hardcoded light, so this hero only ever works on a dark backdrop —
+     pinning it keeps the dark tint consistent across every scheme. */
+  background-color: var(--kt-stone-900, #1c1917);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: rgb(var(--kt-c-fg, 255 255 255));
+  color: var(--kt-white, #ffffff);
 }
 
 @media screen and (min-width: 750px) {

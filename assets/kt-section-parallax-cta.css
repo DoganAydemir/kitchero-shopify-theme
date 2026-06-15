@@ -71,15 +71,18 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  /* R-parallax-fill — `background-attachment: fixed` (the scroll-
+     parallax window) is fundamentally broken in Chrome when paired
+     with `-webkit-background-clip: text`: the fixed layer fails to
+     paint across the full run of glyphs, so the right-hand letters
+     render with NO image — the "sağda dolmuyor" symptom. There's no
+     reliable cross-browser fix for fixed + clip:text, so we keep
+     `scroll` at every width. The headline-as-window effect (the real
+     hero treatment) is preserved and now fills every glyph; only the
+     marginal scroll-parallax is dropped. */
   background-attachment: scroll;
   user-select: none;
   margin: 0;
-}
-
-@media (pointer: fine) and (min-width: 1280px) {
-  .kt-parallax-cta__title {
-    background-attachment: fixed;
-  }
 }
 
 .kt-parallax-cta__action {
