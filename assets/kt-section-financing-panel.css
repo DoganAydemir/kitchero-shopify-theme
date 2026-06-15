@@ -106,9 +106,28 @@
      aggressive on light schemes; replaced with the subtle layered
      bg pattern (scheme bg + 6% fg overlay) so the placeholder reads
      as a soft tier-shifted frame on any scheme. */
+  /* R-cover-dark — Default (real merchant photo) backdrop is a fixed
+     dark stone. The editorial photo sits at 0.6 opacity (below), so
+     whatever shows through the 40% transparency must be DARK for the
+     image to read as a rich dark tone. When this was wired to
+     `--kt-c-bg` the backdrop went near-white on light colour schemes
+     and the photo composited to a washed-out light-grey veil — not the
+     intended moody cover treatment. The placeholder case overrides
+     this back to the soft scheme frame just below. */
+  background-color: var(--kt-stone-900, #1c1917);
+  background-image: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Empty state — no merchant image, Shopify's lifestyle-2 placeholder
+   SVG is showing. Restore the soft scheme-aware frame so the light
+   placeholder strokes read against it instead of vanishing into a
+   solid dark block (the earlier "soldaki foto neden tek renk?"
+   regression). `:has()` keys off the placeholder element the Liquid
+   renders only in the no-image branch. */
+.kt-financing-panel__media:has(.placeholder-svg) {
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.06), rgba(var(--kt-c-fg, 28 25 23), 0.06));
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 /* Inverted (dark mode) variant — only the surface treatment changes:

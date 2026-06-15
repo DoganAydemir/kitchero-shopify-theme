@@ -1,0 +1,42 @@
+/* ==========================================================================
+   Spacer — explicit vertical gap between sections + optional hairline rule.
+
+   The wrapper carries no `.section` class, so the global
+   `.section + .section` rhythm rule never stacks on top of the height
+   set here — the rendered gap is exactly the merchant's value. Mobile
+   height applies by default; the desktop value swaps in at >= 750px.
+   ========================================================================== */
+
+.kt-spacer {
+  /* min-height (not height) so a centered divider can never be clipped
+     if the merchant sets a thicker rule than the gap. */
+  min-height: var(--kt-spacer-h-mobile, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-spacer {
+    min-height: var(--kt-spacer-h-desktop, 64px);
+  }
+}
+
+/* Optional centered hairline. Scheme-aware subtle foreground tint so it
+   reads on any background without needing a colour setting. Width is a
+   percentage of the viewport, capped to the page-width container so the
+   rule never runs edge-to-edge on wide screens. */
+.kt-spacer__rule {
+  display: block;
+  width: var(--kt-spacer-rule-width, 100%);
+  max-width: var(--kt-page-max, 1500px);
+  height: var(--kt-spacer-rule-thickness, 1px);
+  margin: 0 auto;
+  background-color: rgba(var(--kt-c-fg, 28 25 23), 0.18);
+}
+
+@media (forced-colors: active) {
+  .kt-spacer__rule {
+    background-color: CanvasText;
+  }
+}

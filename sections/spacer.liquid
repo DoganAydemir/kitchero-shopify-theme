@@ -1,0 +1,97 @@
+{{ 'kt-section-spacer.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Spacer — adjustable vertical gap between sections, with an optional
+  centered hairline divider. Pure CSS, no JS — works with JavaScript
+  disabled.
+
+  Heights are set per breakpoint via custom properties so mobile and
+  desktop can differ. The wrapper deliberately does NOT carry the
+  global `.section` class: the theme-wide `.section + .section` rhythm
+  rule would otherwise stack its own margin on top of the height set
+  here and double the gap. With a neutral class the height below is the
+  exact space rendered.
+
+  Primary use: deliberate air between full-bleed sections that sit
+  flush by design (cinematic / editorial sliders, banner & video
+  heroes) on showcase pages where even vertical rhythm is wanted.
+{%- endcomment -%}
+
+<div
+  class="kt-spacer"
+  style="--kt-spacer-h-mobile: {{ section.settings.height_mobile }}px; --kt-spacer-h-desktop: {{ section.settings.height_desktop }}px;"
+>
+  {%- if section.settings.show_divider -%}
+    <span
+      class="kt-spacer__rule"
+      style="--kt-spacer-rule-thickness: {{ section.settings.divider_thickness }}px; --kt-spacer-rule-width: {{ section.settings.divider_width }}%;"
+      aria-hidden="true"
+    ></span>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.spacer.name",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.spacer.settings.height_desktop.label",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.spacer.settings.height_mobile.label",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "t:sections.spacer.settings.header__divider.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "t:sections.spacer.settings.show_divider.label",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "divider_thickness",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.spacer.settings.divider_thickness.label",
+      "default": 1,
+      "visible_if": "{{ section.settings.show_divider }}"
+    },
+    {
+      "type": "range",
+      "id": "divider_width",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.spacer.settings.divider_width.label",
+      "default": 100,
+      "visible_if": "{{ section.settings.show_divider }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.spacer.name"
+    }
+  ]
+}
+{% endschema %}
