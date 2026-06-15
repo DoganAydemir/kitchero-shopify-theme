@@ -82,7 +82,21 @@
      marginal scroll-parallax is dropped. */
   background-attachment: scroll;
   user-select: none;
-  margin: 0;
+  /* R-parallax-fill-2 — Break the headline OUT of the 1500px
+     `.page-width` cap. At 13vw the display text is ~80% of the
+     VIEWPORT width, which is wider than the capped 1500px container on
+     any screen past ~1700px — so the parent clipped the trailing glyph
+     (the "en sağdaki O kesik" report) once the section's
+     `overflow:hidden` sheared the overhang. Centering a 90vw-wide box
+     on the viewport gives the text the full screen to live in (it
+     still leaves ~5vw breathing room each side), so no glyph is ever
+     cut while the original 13vw scale is preserved. margin-left:50% +
+     translateX(-50%) re-centres the over-wide box on the viewport
+     regardless of the narrower page-width parent it sits in. */
+  width: 90vw;
+  max-width: none;
+  margin: 0 0 0 50%;
+  transform: translateX(-50%);
 }
 
 .kt-parallax-cta__action {
