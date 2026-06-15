@@ -572,7 +572,9 @@
     if (reflowTimer) clearTimeout(reflowTimer);
     reflowTimer = setTimeout(function () {
       reflowTimer = null;
-      if (global.ScrollTrigger && typeof global.ScrollTrigger.refresh === 'function') {
+      if (Kitchero.safeScrollTriggerRefresh) {
+        Kitchero.safeScrollTriggerRefresh();
+      } else if (global.ScrollTrigger && typeof global.ScrollTrigger.refresh === 'function') {
         try { global.ScrollTrigger.refresh(); } catch (_) {}
       }
       document.dispatchEvent(new CustomEvent('kitchero:viewport-reflow'));
@@ -585,6 +587,33 @@
   } else {
     global.addEventListener('resize', triggerReflow);
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Scroll-safe ScrollTrigger.refresh for theme editor                 */
+  /*                                                                    */
+  /* Inside Shopify's design_mode, every section re-render fires        */
+  /* shopify:section:load. If a section JS calls ScrollTrigger.refresh  */
+  /* immediately, GSAP recalculates all pin/trigger start positions     */
+  /* and the viewport jumps — the merchant sees the page scroll down    */
+  /* after uploading an image or toggling a setting. This wrapper       */
+  /* saves scrollY, runs the refresh, then restores the position.       */
+  /* On the live storefront (no designMode) it's a plain pass-through. */
+  /* ------------------------------------------------------------------ */
+
+  Kitchero.safeScrollTriggerRefresh = function () {
+    if (typeof ScrollTrigger === 'undefined' || typeof ScrollTrigger.refresh !== 'function') return;
+    if (!(global.Shopify && global.Shopify.designMode)) {
+      try { ScrollTrigger.refresh(); } catch (_) {}
+      return;
+    }
+    var savedY = global.pageYOffset || document.documentElement.scrollTop || 0;
+    try { ScrollTrigger.refresh(); } catch (_) {}
+    requestAnimationFrame(function () {
+      if (Math.abs((global.pageYOffset || 0) - savedY) > 2) {
+        global.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
+      }
+    });
+  };
 
   /* ------------------------------------------------------------------ */
   /* R138 FORM-DBL-1 — global double-submit guard                       */

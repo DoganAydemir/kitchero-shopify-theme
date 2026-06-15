@@ -124,7 +124,11 @@
        the page, layout doesn't stabilise until every section has
        attached its pin. */
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      ScrollTrigger.refresh();
+      if (window.Kitchero && Kitchero.safeScrollTriggerRefresh) {
+        Kitchero.safeScrollTriggerRefresh();
+      } else {
+        try { ScrollTrigger.refresh(); } catch (_) {}
+      }
     }
   }
 
@@ -139,7 +143,11 @@
     if (sid && instances[sid]) {
       if (typeof instances[sid].revert === 'function') instances[sid].revert();
       delete instances[sid];
-      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+      if (window.Kitchero && Kitchero.safeScrollTriggerRefresh) {
+        Kitchero.safeScrollTriggerRefresh();
+      } else if (typeof ScrollTrigger !== 'undefined') {
+        try { ScrollTrigger.refresh(); } catch (_) {}
+      }
     }
   });
 
