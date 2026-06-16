@@ -247,7 +247,17 @@
 }
 
 .kt-appointment-drawer__submit {
+  /* R-appt-submit-fullwidth — the global `.button` class is
+     `display: inline-flex`, which can shrink-wrap the CTA to its label
+     width. Force a block-level flex at full width so the submit always
+     spans the footer (matching the input fields above) regardless of
+     the inherited button chrome; centre the label inside it. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  max-width: none;
+  margin: 0;
   /* R-btn-case-normalize — Theme-wide natural-case convention. */
   letter-spacing: 0.01em;
   font-weight: 600;
@@ -266,4 +276,37 @@
   font-weight: 600;
   padding: 0.875rem 1.5rem;
   line-height: 1.1;
+}
+
+/* R-appt-privacy-fineprint — the GDPR disclosure had NO rule, so it
+   inherited body size + near-black colour and read like primary copy.
+   It's legally-required microcopy: render it as a muted 11px footnote
+   (panel is fixed white, so stone-500 is the muted tier). The
+   translated `privacy_note_html` emits a bare <a>; style it as a clean
+   editorial underline (stone-700) instead of the UA default blue so it
+   doesn't compete with the CTA. 11px stays above the 10px legibility
+   floor used elsewhere (pullquote, visualize-studio fine-print). */
+.kt-appointment-drawer__privacy {
+  margin: 0 0 1.25rem;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--kt-stone-500);
+}
+
+.kt-appointment-drawer__privacy a {
+  color: var(--kt-stone-700);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.kt-appointment-drawer__privacy a:hover {
+  opacity: 0.7;
+}
+
+.kt-appointment-drawer__privacy a:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
