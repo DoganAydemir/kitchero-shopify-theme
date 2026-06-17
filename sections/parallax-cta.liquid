@@ -8,13 +8,14 @@
   Effect: the merchant uploads an image; the section paints it as
   the heading's background, then uses `-webkit-background-clip:
   text` + `color: transparent` to make the text act as a window
-  onto the image. On large desktops (`pointer: fine` + viewport
-  ≥ 1280px) the background switches to `background-attachment:
-  fixed`, so as the customer scrolls past the section the image
-  stays anchored to the viewport while the text glides over it
-  — a true parallax window. Mobile falls back to `scroll`
-  because iOS Safari and most touch browsers don't honour
-  `fixed` reliably.
+  onto the image. The scroll-linked reveal (image pans inside the
+  glyphs as the section moves through the viewport) is driven by
+  `assets/kt-section-parallax-cta.js`, which shifts the heading's
+  `background-position` on scroll. We deliberately do NOT use
+  `background-attachment: fixed` for this — Chrome shears the
+  trailing glyphs with `clip:text` + `fixed`, and iOS Safari
+  ignores `fixed` entirely (see R-parallax-fill in the CSS). The
+  JS approach reproduces the motion safely on every browser.
 
   Used to live inside `sections/testimonials.liquid` as a built-
   in CTA block tied to the testimonials surface (gated by
@@ -47,6 +48,7 @@
     {%- endcomment -%}
     <{{ heading_tag }} class="kt-parallax-cta__title"
       {%- if section.settings.background_image != blank -%}
+        data-parallax-bg
         style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}');"
       {%- endif -%}
     >
@@ -83,6 +85,8 @@
     {%- endif -%}
   </div>
 </section>
+
+<script src="{{ 'kt-section-parallax-cta.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

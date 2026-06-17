@@ -359,33 +359,127 @@
 
 .kt-main-page form button,
 .kt-main-page form input[type="submit"] {
+  /* Mirror the theme's global primary button (.button, base.css) so the
+     CMS / Shopify-injected opt-out submit on /pages/your-privacy-choices
+     looks and behaves exactly like every other primary button — same
+     action colors, border, radius, and opacity-based hover that keeps
+     the border instead of dropping it. We can't add class="button" to
+     the auto-injected markup, so we replicate it here at higher
+     specificity. align-self/min-height are layout only (flex form
+     column + 44px touch target). */
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.8rem;
   min-height: 44px;
-  padding: 0.75rem 2rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  font-family: inherit;
-  letter-spacing: 0.02em;
-  color: var(--kt-white);
-  background-color: var(--kt-stone-900);
-  border: none;
-  border-radius: 9999px;
+  padding: 1.2rem 2.4rem;
+  font-family: var(--kt-f-body-family);
+  font-size: 1.4rem;
+  font-weight: var(--kt-f-body-weight-bold, 700);
+  letter-spacing: 0.06rem;
+  text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  border: var(--kt-btn-border-w) solid rgba(var(--kt-c-action), var(--kt-btn-border-op));
+  border-radius: var(--kt-btn-radius);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  box-shadow: var(--kt-btn-shadow-x, 0px) var(--kt-btn-shadow-y, 0px) var(--kt-btn-shadow-blur, 0px) rgba(var(--kt-c-shadow, 28, 25, 23), var(--kt-btn-shadow-op, 0));
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
 .kt-main-page form button:hover,
 .kt-main-page form input[type="submit"]:hover {
-  background-color: var(--kt-stone-700);
+  opacity: 0.85;
+}
+
+.kt-main-page form button:active,
+.kt-main-page form input[type="submit"]:active {
+  opacity: 0.7;
 }
 
 .kt-main-page form button:focus-visible,
 .kt-main-page form input[type="submit"]:focus-visible {
-  outline: 2px solid var(--kt-stone-900);
-  outline-offset: 3px;
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+/* ── Shopify data-sale opt-out widget overrides ──────────────
+   The "Your Privacy Choices" / opt-out UI is injected by Shopify and
+   styled by its own CDN sheet
+   (shopifycloud/privacy-banner/data-sale-opt-out.css) via id/class
+   selectors (`#pc--optOutFormContainer`, `.pc--opt-out-form-message`…).
+   Its controls live OUTSIDE a <form> element, so the generic
+   `.kt-main-page form …` rules above never match them. We override the
+   widget here through its real `pc--*` hooks, scoped under
+   `.kt-main-page` + the widget's own ids so we reliably out-specify the
+   CDN sheet regardless of load order. */
+
+/* Submit button → theme primary button (.button) look */
+.kt-main-page #pc--optOutFormContainer button,
+.kt-main-page #pc--optOutFormContainer input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.75rem 1.75rem;
+  font-family: var(--kt-f-body-family);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  border: var(--kt-btn-border-w) solid rgba(var(--kt-c-action), var(--kt-btn-border-op));
+  border-radius: var(--kt-btn-radius);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
+  transition: opacity 0.2s ease;
+}
+
+.kt-main-page #pc--optOutFormContainer button:hover,
+.kt-main-page #pc--optOutFormContainer input[type="submit"]:hover {
+  opacity: 0.85;
+}
+
+.kt-main-page #pc--optOutFormContainer button:active,
+.kt-main-page #pc--optOutFormContainer input[type="submit"]:active {
+  opacity: 0.7;
+}
+
+.kt-main-page #pc--optOutFormContainer button:focus-visible,
+.kt-main-page #pc--optOutFormContainer input[type="submit"]:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+/* Success confirmation ("You have successfully opted out") → the
+   theme's global success banner (.kt-form__success). Targeted by the
+   widget's own id so it always beats the CDN sheet. The sibling
+   #pc--opt-out-error stays untouched (it must read as an error). */
+.kt-main-page #pc--opt-out-success {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  /* Shrink to content — Shopify sets inline `display:flex` (can't be
+     overridden from CSS), which would otherwise stretch full-width.
+     `width: fit-content` constrains the flex box to its content. */
+  width: fit-content;
+  max-width: 100%;
+  margin: 1rem 0 0;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--kt-emerald-50, #ecfdf5);
+  border: 1px solid var(--kt-green-200, #bbf7d0);
+  color: var(--kt-emerald-800, #065f46);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.kt-main-page #pc--opt-out-success svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* ── App blocks ───────────────────────────────────────────── */

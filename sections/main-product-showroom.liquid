@@ -911,8 +911,10 @@
                     <div class="kt-showroom__sample-body">
                       <div class="kt-showroom__sample-top">
                         <div class="kt-showroom__sample-thumb">
-                          {%- if sample_product.featured_image != blank -%}
-                            {{ sample_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', widths: '72, 108, 144, 200', sizes: '72px', width: 72, height: 96, alt: sample_product.title }}
+                          {%- comment -%} Merchant-set cover overrides the sample product's featured image, then placeholder. {%- endcomment -%}
+                          {%- assign sample_cover = block.settings.sample_image | default: sample_product.featured_image -%}
+                          {%- if sample_cover != blank -%}
+                            {{ sample_cover | image_url: width: 160 | image_tag: loading: 'lazy', widths: '72, 108, 144, 200', sizes: '72px', width: 72, height: 96, alt: sample_cover.alt | default: sample_product.title }}
                           {%- else -%}
                             {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
                           {%- endif -%}
@@ -1439,6 +1441,12 @@
           "id": "sample_product",
           "label": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_product.label",
           "info": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_product.info"
+        },
+        {
+          "type": "image_picker",
+          "id": "sample_image",
+          "label": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_image.label",
+          "info": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_image.info"
         },
         {
           "type": "text",
