@@ -27,7 +27,7 @@
         "price": {
           "type": "price",
           "settings": {
-            "financing_months": 60,
+            "financing_months": 40,
             "financing_apr": 0,
             "financing_label": ""
           }
@@ -47,32 +47,32 @@
         "tag1": {
           "type": "tag",
           "settings": {
-            "text": "Tag"
+            "text": "Custom Made"
           }
         },
         "tag2": {
           "type": "tag",
           "settings": {
-            "text": "Tag"
+            "text": "Matte Finish"
           }
         },
         "tag3": {
           "type": "tag",
           "settings": {
-            "text": "Tag"
+            "text": "Soft-Close"
           }
         },
         "tag4": {
           "type": "tag",
           "settings": {
-            "text": "Tag"
+            "text": "Premium Storage"
           }
         },
         "acc1": {
           "type": "accordion",
           "settings": {
             "title": "About this product",
-            "content": "",
+            "content": "<p>{{ product.description }}</p>",
             "page": "",
             "open": true
           }
@@ -81,7 +81,7 @@
           "type": "accordion",
           "settings": {
             "title": "Specifications",
-            "content": "",
+            "content": "{{ product.metafields.custom.specifications | metafield_tag }}",
             "page": "",
             "open": false
           }
@@ -90,7 +90,7 @@
           "type": "accordion",
           "settings": {
             "title": "Installation",
-            "content": "",
+            "content": "{{ product.metafields.custom.installation | metafield_tag }}",
             "page": "",
             "open": false
           }
@@ -99,7 +99,7 @@
           "type": "accordion",
           "settings": {
             "title": "Delivery",
-            "content": "",
+            "content": "<p>{{ product.metafields.custom.delivery | metafield_tag }}</p>",
             "page": "",
             "open": false
           }
@@ -213,14 +213,17 @@
       "settings": {
         "eyebrow": "Why us",
         "heading": "Why Choose Us?",
-        "heading_tag": "h2"
+        "heading_tag": "h2",
+        "bg_color": "auto",
+        "bg_color_custom": "#ffffff",
+        "color_scheme": ""
       }
     },
     "visualize_studio": {
       "type": "visualize-studio",
       "settings": {
-        "background_image": "",
         "eyebrow": "Studio",
+        "accent_color": "#ffffff",
         "heading_line1": "See it in",
         "heading_line2": "your space.",
         "heading_tag": "h2",

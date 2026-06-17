@@ -23,14 +23,6 @@
             "show_stock": true
           }
         },
-        "countdown": {
-          "type": "countdown",
-          "settings": {
-            "label": "Offer label",
-            "badge": "",
-            "ending_label": ""
-          }
-        },
         "price": {
           "type": "price",
           "settings": {}
@@ -48,7 +40,9 @@
         },
         "buy_buttons": {
           "type": "buy_buttons",
-          "settings": {}
+          "settings": {
+            "show_pickup_availability": true
+          }
         },
         "trust_badges": {
           "type": "trust_badges",
@@ -67,26 +61,33 @@
           "type": "accordion",
           "settings": {
             "title": "Description",
+            "content": "{{ product.description }}",
+            "page": "",
             "open": true
           }
         },
         "acc2": {
           "type": "accordion",
           "settings": {
-            "title": "Specifications"
+            "title": "Specifications",
+            "content": "{{ product.metafields.custom.specifications | metafield_tag }}",
+            "page": "",
+            "open": false
           }
         },
         "acc3": {
           "type": "accordion",
           "settings": {
-            "title": "Shipping & Returns"
+            "title": "Delivery",
+            "content": "{{ product.metafields.custom.delivery | metafield_tag }}",
+            "page": "",
+            "open": false
           }
         }
       },
       "block_order": [
         "title",
         "meta",
-        "countdown",
         "price",
         "description",
         "variant_picker",
@@ -96,7 +97,10 @@
         "acc2",
         "acc3"
       ],
-      "settings": {}
+      "settings": {
+        "show_sticky_atc": false,
+        "color_scheme": ""
+      }
     },
     "why_choose_us": {
       "type": "why-choose-us-product",
@@ -161,13 +165,17 @@
       "settings": {
         "eyebrow": "Why us",
         "heading": "Why Choose Us?",
-        "heading_tag": "h2"
+        "heading_tag": "h2",
+        "bg_color": "auto",
+        "bg_color_custom": "#ffffff",
+        "color_scheme": ""
       }
     },
     "visualize_studio": {
       "type": "visualize-studio",
       "settings": {
         "eyebrow": "Visual Studio",
+        "accent_color": "#ffffff",
         "heading_line1": "Visualize It",
         "heading_line2": "In Your Home.",
         "heading_tag": "h2",
@@ -181,7 +189,13 @@
       "type": "related-products",
       "settings": {
         "heading": "You may also like",
-        "products_count": 4
+        "heading_tag": "h2",
+        "products_count": 4,
+        "complementary_count": 3,
+        "intent": "related",
+        "bg_color": "auto",
+        "bg_color_custom": "#ffffff",
+        "color_scheme": ""
       }
     }
   },
