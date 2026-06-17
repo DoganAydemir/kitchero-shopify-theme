@@ -151,30 +151,14 @@
         </div>
 
         {%- comment -%}
-          Interested In — three radios sharing contact[interest].
-          Unique `id` on each input + matching `<label for>` pairing
-          so assistive tech can programmatically link label↔input
-          (the wrapping-label pattern works visually but Theme Check
-          LabelMissing may flag unreferenced inputs, and some SRs
-          announce just the control without the wrapped span text).
+          R-appt-interest-removed — The "Interested in" radio group
+          (Option A / Option B) was hard-coded placeholder copy with no
+          merchant-facing setting, so a store owner had no way to relabel
+          or remove the options. Dropped from the consultation form to
+          keep it a clean name/email/phone/message lead capture. If a
+          merchant ever needs a category field, it should come back as a
+          configurable block setting, not fixed placeholder labels.
         {%- endcomment -%}
-        <fieldset class="kt-appointment-drawer__fieldset">
-          <legend class="field__label">{{ 'kt.section.appointment.interested_in' | t | default: 'Interested In' }} <span aria-hidden="true">*</span></legend>
-          <div class="kt-appointment-drawer__radio-group">
-            <label class="kt-appointment-drawer__radio-label" for="appointment-interest-a">
-              <input type="radio" id="appointment-interest-a" name="contact[interest]" value="{{ 'kt.section.appointment.interest_option_a' | t }}" checked class="kt-appointment-drawer__radio">
-              <span>{{ 'kt.section.appointment.interest_option_a' | t }}</span>
-            </label>
-            <label class="kt-appointment-drawer__radio-label" for="appointment-interest-b">
-              <input type="radio" id="appointment-interest-b" name="contact[interest]" value="{{ 'kt.section.appointment.interest_option_b' | t }}" class="kt-appointment-drawer__radio">
-              <span>{{ 'kt.section.appointment.interest_option_b' | t }}</span>
-            </label>
-            <label class="kt-appointment-drawer__radio-label" for="appointment-interest-both">
-              <input type="radio" id="appointment-interest-both" name="contact[interest]" value="{{ 'kt.section.appointment.interest_both' | t }}" class="kt-appointment-drawer__radio">
-              <span>{{ 'kt.section.appointment.interest_both' | t }}</span>
-            </label>
-          </div>
-        </fieldset>
 
         {%- comment -%} Message {%- endcomment -%}
         <div class="kt-appointment-drawer__field">

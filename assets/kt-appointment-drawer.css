@@ -242,12 +242,28 @@
      bottom inset on top of our 1.5rem base padding so the submit
      button doesn't sit under the home-indicator bar. Falls back
      silently on non-safe-area devices (env() returns 0). */
-  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  /* R-appt-footer-nopad — Horizontal padding is 0 on purpose: the
+     footer sits INSIDE __body, which already applies 1.5rem side
+     padding. Its own side padding double-indented the submit button,
+     making it visibly narrower than the input fields above it. Keep
+     only the top spacing + the safe-area bottom inset; the button's
+     width:100% then matches the fields exactly. */
+  padding: 1.5rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--kt-stone-200);
 }
 
 .kt-appointment-drawer__submit {
+  /* R-appt-submit-fullwidth — the global `.button` class is
+     `display: inline-flex`, which can shrink-wrap the CTA to its label
+     width. Force a block-level flex at full width so the submit always
+     spans the footer (matching the input fields above) regardless of
+     the inherited button chrome; centre the label inside it. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  max-width: none;
+  margin: 0;
   /* R-btn-case-normalize — Theme-wide natural-case convention. */
   letter-spacing: 0.01em;
   font-weight: 600;
@@ -266,4 +282,37 @@
   font-weight: 600;
   padding: 0.875rem 1.5rem;
   line-height: 1.1;
+}
+
+/* R-appt-privacy-fineprint — the GDPR disclosure had NO rule, so it
+   inherited body size + near-black colour and read like primary copy.
+   It's legally-required microcopy: render it as a muted 11px footnote
+   (panel is fixed white, so stone-500 is the muted tier). The
+   translated `privacy_note_html` emits a bare <a>; style it as a clean
+   editorial underline (stone-700) instead of the UA default blue so it
+   doesn't compete with the CTA. 11px stays above the 10px legibility
+   floor used elsewhere (pullquote, visualize-studio fine-print). */
+.kt-appointment-drawer__privacy {
+  margin: 0 0 1.25rem;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--kt-stone-500);
+}
+
+.kt-appointment-drawer__privacy a {
+  color: var(--kt-stone-700);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.kt-appointment-drawer__privacy a:hover {
+  opacity: 0.7;
+}
+
+.kt-appointment-drawer__privacy a:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
+  border-radius: 2px;
 }

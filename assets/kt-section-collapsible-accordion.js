@@ -161,17 +161,11 @@ if (!window.__kitcheroCollapsibleAccordionLoaded) {
         item.open = true;
         /* Toggle handler will fire from the .open setter and animate the panel */
       }
-      /* Scroll the opened item into view so the merchant can see their edits */
-      try {
-        /* R107 — Safari 15-17 (WebKit bug 218927) ignores the CSS
-           `scroll-behavior: auto` rule from prefers-reduced-motion
-           when JS explicitly passes `'smooth'`. Gate at runtime. */
-        var prm = window.matchMedia
-          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        item.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest' });
-      } catch (e) {
-        item.scrollIntoView();
-      }
+      /* Scroll-into-view is handled centrally by global.js's block:select
+         handler (50%-visibility-guarded). Opening the item is the local
+         side-effect we keep; the scroll itself was removed because a
+         local unconditional scrollIntoView re-jolted the page on every
+         re-select (section re-render after each setting tweak). */
     });
   })();
 }

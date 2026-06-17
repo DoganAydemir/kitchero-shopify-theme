@@ -643,7 +643,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--kt-stone-900);
+  /* R-sample-header-light — was a hard dark stone-900 bar; softened to a
+     light-grey header so the sample card reads as a calm secondary
+     surface (the showroom is lead-gen, not a commerce CTA). The card
+     body stays white; a hairline divider separates the two. */
+  background-color: var(--kt-stone-50);
+  border-bottom: 1px solid var(--kt-stone-200);
   padding: 0.75rem 1.25rem;
 }
 
@@ -652,7 +657,8 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--kt-white);
+  /* Muted label tone for the light header (was white on dark). */
+  color: var(--kt-stone-500);
 }
 
 .kt-showroom__sample-ships-badge {
@@ -660,8 +666,10 @@
   font-weight: 700;
   letter-spacing: 0.025em;
   text-transform: uppercase;
-  color: var(--kt-white);
-  background-color: rgba(255, 255, 255, 0.2);
+  /* Dark-on-light badge to match the new light header (was white on a
+     white-alpha pill, which is invisible on a light surface). */
+  color: var(--kt-stone-600);
+  background-color: var(--kt-stone-200);
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
 }

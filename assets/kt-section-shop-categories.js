@@ -90,10 +90,9 @@
   document.addEventListener('shopify:block:select', function (event) {
     var card = event.target;
     if (!card || !card.classList || !card.classList.contains('kt-shop-categories__card')) return;
-    try {
-      card.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
-    } catch (err) {
-      card.scrollIntoView();
-    }
+    /* Scroll-into-view handled centrally by global.js's block:select
+       handler (50%-visibility-guarded). A local unconditional scroll
+       re-jolted the page on every re-select (section re-render after a
+       setting tweak). */
   });
 })();

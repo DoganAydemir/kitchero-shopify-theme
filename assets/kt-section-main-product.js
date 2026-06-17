@@ -133,12 +133,11 @@
     if (detailsEl && !detailsEl.open) {
       detailsEl.open = true;
     }
-    if (typeof blockEl.scrollIntoView === 'function') {
-      var prm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      blockEl.scrollIntoView({
-        behavior: prm ? 'auto' : 'smooth',
-        block: 'center'
-      });
-    }
+    /* Scroll-into-view is intentionally NOT done here. The theme-wide
+       editor scroll lives in global.js's block:select handler, which is
+       50%-visibility-guarded so an already-visible block is never
+       re-scrolled. Doing our own unconditional scrollIntoView here
+       re-centred the block on every setting tweak (section re-render →
+       editor re-fires block:select) and jolted the PDP downward. */
   });
 })();

@@ -158,10 +158,9 @@
   document.addEventListener('shopify:block:select', function (event) {
     var item = event.target;
     if (!item || !item.classList || !item.classList.contains('kt-ecosystem__feature')) return;
-    try {
-      item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
-    } catch (err) {
-      item.scrollIntoView();
-    }
+    /* Scroll-into-view is handled centrally by global.js's block:select
+       handler (50%-visibility-guarded). A local unconditional scroll
+       re-centred the feature on every setting tweak (section re-render →
+       block re-select) and jolted the page downward. */
   });
 })();
