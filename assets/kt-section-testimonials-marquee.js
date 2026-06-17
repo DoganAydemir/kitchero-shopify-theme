@@ -123,15 +123,11 @@ if (!window.__kitcheroTestimonialsMarqueeLoaded) {
       var section = block.closest('[data-section-type="testimonials-marquee"]');
       if (!section) return;
       section.classList.add(PAUSE_CLASS);
-      try {
-        /* R107 — runtime prefers-reduced-motion gate; CSS-only
-           override is ignored by Safari 15-17 (WebKit 218927). */
-        var prm = window.matchMedia
-          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        block.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center', inline: 'center' });
-      } catch (e) {
-        block.scrollIntoView();
-      }
+      /* Scroll-into-view handled centrally by global.js's block:select
+         handler (50%-visibility-guarded); pausing the marquee is the
+         local side-effect we keep. The local unconditional scroll was
+         removed — it re-jolted the page on every re-select (section
+         re-render after a setting tweak). */
     });
 
     document.addEventListener('shopify:block:deselect', function (event) {

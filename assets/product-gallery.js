@@ -270,13 +270,21 @@
       if (thumbs[index]) {
         thumbs[index].classList.add('kt-gallery__thumb--active');
         thumbs[index].setAttribute('aria-current', 'true');
-        /* Scroll thumb into view.
+        /* Scroll thumb into view — but NEVER inside the theme editor.
+           setActive() re-runs on every shopify:section:load (i.e. every
+           setting tweak the merchant makes), and scrollIntoView there
+           yanked the whole page (the showroom "scroll to bottom on every
+           edit" report). The editor preview shows the full gallery
+           anyway, so the thumb is always reachable. Live storefront keeps
+           the behaviour for real image navigation.
            R107 — runtime prefers-reduced-motion gate. CSS rule is
            ignored by Safari 15-17 when JS passes 'smooth' (WebKit
            bug 218927). WCAG 2.3.3 — honor user motion preference. */
-        var prm = window.matchMedia
-          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        thumbs[index].scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' });
+        if (!(window.Shopify && window.Shopify.designMode)) {
+          var prm = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          thumbs[index].scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' });
+        }
       }
 
       /* Update lightbox image if open. Sentinel-aware — non-image
@@ -545,7 +553,7 @@
        click is gated to events that target the kt-lightbox root (not
        descendants) so clicks on viewport / image / nav buttons don't
        accidentally close. */
-    lightbox.addEventListener('click', function (event) {
+    if (lightbox) lightbox.addEventListener('click', function (event) {
       if (event.target === lightbox) closeLightbox();
     });
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });

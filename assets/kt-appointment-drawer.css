@@ -242,7 +242,13 @@
      bottom inset on top of our 1.5rem base padding so the submit
      button doesn't sit under the home-indicator bar. Falls back
      silently on non-safe-area devices (env() returns 0). */
-  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  /* R-appt-footer-nopad — Horizontal padding is 0 on purpose: the
+     footer sits INSIDE __body, which already applies 1.5rem side
+     padding. Its own side padding double-indented the submit button,
+     making it visibly narrower than the input fields above it. Keep
+     only the top spacing + the safe-area bottom inset; the button's
+     width:100% then matches the fields exactly. */
+  padding: 1.5rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--kt-stone-200);
 }
 

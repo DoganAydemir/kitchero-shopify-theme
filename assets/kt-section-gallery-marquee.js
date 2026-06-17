@@ -127,11 +127,10 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       if (!item || !item.classList || !item.classList.contains('kt-gallery-marquee__item')) return;
       var section = item.closest('[data-section-type="gallery-marquee"]');
       if (section) section.classList.add(PAUSE_CLASS);
-      try {
-        item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
-      } catch (err) {
-        item.scrollIntoView();
-      }
+      /* Scroll-into-view handled centrally by global.js (guarded);
+         pausing the marquee is the local side-effect we keep. The local
+         unconditional scroll was removed — it re-jolted the page on
+         every re-select (section re-render after a setting tweak). */
     });
 
     document.addEventListener('shopify:block:deselect', function (event) {

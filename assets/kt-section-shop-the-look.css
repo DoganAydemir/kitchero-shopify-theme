@@ -289,6 +289,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Minimum gap so a long title (which can wrap to two lines) never
+     touches/merges with the price on the right. */
+  gap: 1rem;
   margin-bottom: 0.75rem;
 }
 
@@ -307,6 +310,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--kt-stone-500);
+  /* Hold the price on one line at its natural width so the title wraps
+     instead of the two colliding. */
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Link: text-[11px] font-bold tracking-[0.15em] uppercase text-stone-400 hover:text-stone-900 */

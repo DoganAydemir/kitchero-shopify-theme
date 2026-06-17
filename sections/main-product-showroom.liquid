@@ -612,7 +612,21 @@
                   <div class="kt-showroom__tags">
                     <p class="kt-showroom__tags-label">{{ 'kt.product.at_a_glance' | t | default: 'At a glance' }}</p>
                     <div class="kt-showroom__tags-list">
-                      {%- if has_metafield_features -%}
+                      {%- comment -%}
+                        R-showroom-tag-editor — In the theme editor, ALWAYS
+                        render the manual `tag` blocks (each with its own
+                        shopify_attributes) so selecting "Feature tag" finds
+                        a real, positioned element. When `custom.features`
+                        metafield features take priority we'd otherwise emit
+                        attribute-less metafield spans and the manual blocks
+                        would have no DOM node — Shopify then logs "Could
+                        not find selected block" and its editor scroll jumps
+                        to the wrong place (the "scroll to bottom on select"
+                        report). The live storefront keeps the metafield
+                        priority; only the design-mode preview shows the
+                        editable blocks instead.
+                      {%- endcomment -%}
+                      {%- if has_metafield_features and request.design_mode == false -%}
                         {%- for feature_text in metafield_features -%}
                           <span class="kt-showroom__tag">{{ feature_text | escape }}</span>
                         {%- endfor -%}
@@ -975,45 +989,18 @@
                   {%- render 'pickup-availability', variant: product.selected_or_first_available_variant, product: product -%}
                 </div>
 
-              {%- when 'buy_controls' -%}
-                {%- comment -%}
-                  R157 SHOWROOM-BUY-BLOCK-1 / R166 SHOWROOM-BUY-PARITY-1:
-                  showroom template's primary UX is the appointment /
-                  consultation flow, but Shopify Theme Store reviewers
-                  test EVERY product template against the standard
-                  product-page checklist (variant integration, selling
-                  plans, quantity rules, dynamic checkout, gift card
-                  recipient form, payment_terms / installments). The
-                  R157 first-pass shipped an INLINE minimal form that
-                  bypassed the canonical snippets/product-form.liquid,
-                  so the variant picker (which writes to
-                  `[data-variant-id]` via product-form.js scoped to
-                  `[data-product-form]`) couldn't reach this form, and
-                  selling plans / payment_terms / gift card recipient
-                  / pre-order badge / error sentinel were all missing.
-                  R166 collapses the inline form into a single
-                  canonical render call so this surface inherits every
-                  PDP feature transparently. UX positioning still
-                  intentionally secondary — appointment CTA is the
-                  primary action above; this block sits beneath it.
-                  show_quantity = false posts a hidden qty=1 from
-                  inside the snippet, keeping the form submit shape
-                  consistent.
-                {%- endcomment -%}
-                <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
-                  {%- comment -%}
-                    R298 — `show_dynamic_checkout: false` removed.
-                    Theme Store mandates the accelerated checkout button
-                    inside every `{% form 'product' %}`. The snippet now
-                    defaults to `true`.
-                  {%- endcomment -%}
-                  {%- render 'product-form',
-                    product: product,
-                    section: section,
-                    show_quantity: block.settings.show_quantity,
-                    atc_label: block.settings.atc_label
-                  -%}
-                </div>
+              {%- comment -%}
+                R-showroom-no-buy — The `buy_controls` block (qty +
+                Reserve / Buy-it-now / Notify) was removed: the showroom
+                is a LEAD-GEN template (consultation request + door
+                sample), so a direct add-to-cart / accelerated-checkout
+                surface for the main product doesn't belong here. The
+                standard `product.json` template (main-product) keeps the
+                full purchase flow, and the `door_sample` block below
+                still provides a real `{% form 'product' %}` add-to-cart
+                path, so the theme's purchase capability is intact for
+                Theme Store review.
+              {%- endcomment -%}
 
               {%- when '@app' -%}
                 {%- comment -%}
@@ -1488,29 +1475,6 @@
       "type": "pickup_availability",
       "name": "t:sections.main-product-showroom.blocks.pickup_availability.name",
       "limit": 1
-    },
-    {
-      "type": "buy_controls",
-      "name": "t:sections.main-product-showroom.blocks.buy_controls.name",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "t:sections.main-product-showroom.blocks.buy_controls.settings.info"
-        },
-        {
-          "type": "text",
-          "id": "atc_label",
-          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.atc_label.label",
-          "default": "Add to cart"
-        },
-        {
-          "type": "checkbox",
-          "id": "show_quantity",
-          "label": "t:sections.main-product-showroom.blocks.buy_controls.settings.show_quantity.label",
-          "default": true
-        }
-      ]
     },
     {
       "type": "@app"

@@ -173,16 +173,10 @@
   document.addEventListener('shopify:block:select', function (e) {
     var card = e.target;
     if (!card || !card.classList || !card.classList.contains('kt-testimonials__card')) return;
-    try {
-      /* R107 — runtime prefers-reduced-motion gate; CSS rule is
-         not honored by Safari 15-17 (WebKit 218927) when the
-         JS call passes `'smooth'` explicitly. */
-      var prm = window.matchMedia
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      card.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center' });
-    } catch (err) {
-      card.scrollIntoView();
-    }
+    /* Scroll-into-view handled centrally by global.js's block:select
+       handler (50%-visibility-guarded). A local unconditional scroll
+       re-jolted the page on every re-select (section re-render after a
+       setting tweak). */
     /* Temporary highlight ring so the merchant can see which card is
        selected — clears itself after 1.5s. */
     card.classList.add('kt-testimonials__card--editor-selected');

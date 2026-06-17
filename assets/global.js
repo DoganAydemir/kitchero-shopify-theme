@@ -295,12 +295,21 @@
       var block = event.target;
       if (!block || !block.classList) return;
 
-      /* Scroll into view only if not fully visible — avoid jolting a
-         block that's already on-screen. */
+      /* Scroll into view only if not already MOSTLY visible. The prior
+         `fullyVisible` test (top >= 0 && bottom <= viewport) was too
+         strict: a block taller than the viewport — or one whose edge
+         sits a hair off-screen — is NEVER "fully" visible, so every
+         setting tweak (which re-renders the section and makes the
+         editor re-fire `shopify:block:select` for the still-selected
+         block) re-ran this scroll and the page kept jumping down. A
+         50%-visible threshold (matching kt-editor-block-affordance)
+         leaves an on-screen block alone, so re-selecting it never
+         jolts the page. This is THE theme-wide editor-scroll guard. */
       var rect = block.getBoundingClientRect();
       var viewportH = window.innerHeight || document.documentElement.clientHeight;
-      var fullyVisible = rect.top >= 0 && rect.bottom <= viewportH;
-      if (!fullyVisible && typeof block.scrollIntoView === 'function') {
+      var visH = Math.min(rect.bottom, viewportH) - Math.max(rect.top, 0);
+      var mostlyVisible = visH > 0 && visH >= Math.min(rect.height * 0.5, 240);
+      if (!mostlyVisible && typeof block.scrollIntoView === 'function') {
         try {
           /* R107 — Safari 15-17 (WebKit bug 218927) ignores the
              CSS-imposed `scroll-behavior: auto` from the
@@ -333,6 +342,112 @@
         clearTimeout(block.__ktBlockPulseTimer);
         block.__ktBlockPulseTimer = null;
       }
+    });
+
+    /* ------------------------------------------------------------------ */
+    /* Editor scroll-stability guard (THEME-WIDE).                        */
+    /*                                                                    */
+    /* Symptom merchants hit: change a section's settings in the editor   */
+    /* and the page immediately jumps — most often all the way to the     */
+    /* bottom. Cause: the settings change re-renders the section          */
+    /* (shopify:section:load) and the editor (or a section's own re-init: */
+    /* ScrollTrigger.refresh, a stale scrollIntoView, a focus(), a height */
+    /* shift) auto-scrolls before the new DOM is measured, landing at the */
+    /* wrong place. Per-section guards raced this with a single rAF and    */
+    /* kept missing the late / smooth scroll.                             */
+    /*                                                                    */
+    /* This is the single, theme-wide guard: snapshot the scroll position */
+    /* on every RE-RENDER and snap it back if it drifts hard over the     */
+    /* next ~0.5s. It deliberately does NOT touch the FIRST load of a      */
+    /* section or a freshly ADDED section — those should scroll into view */
+    /* — by only guarding section ids it has already seen. design_mode    */
+    /* only; the live storefront never runs any of this.                  */
+    /* ------------------------------------------------------------------ */
+    var ktSeenSections = new Set();
+    /* Seed with the sections already server-rendered into the editor on
+       load. shopify:section:load does NOT fire for those on the initial
+       load — it only fires on add / re-render — so without this seed the
+       FIRST settings change on a section looks like a brand-new add (its
+       id is "unseen") and slips past the guard, letting that very first
+       tweak jump the page. (This was the bug: the guard only kicked in
+       from the SECOND change onward.) `shopify-section-<id>` is the
+       canonical wrapper id; the suffix equals event.detail.sectionId.
+
+       Re-seed at several safe points (now, DOMContentLoaded, load, and a
+       1.5s backstop) because in the EDITOR iframe the server-rendered
+       sections are NOT always in the DOM yet when this deferred script
+       first runs — a single load-time seed returned 0 in testing. Adding
+       to a Set is idempotent, and every one of these fires well before a
+       human makes an edit, so the first settings change is guarded too. */
+    function ktSeedSections() {
+      var nodes = document.querySelectorAll('[id^="shopify-section-"]');
+      for (var i = 0; i < nodes.length; i += 1) {
+        ktSeenSections.add(nodes[i].id.replace(/^shopify-section-/, ''));
+      }
+    }
+    ktSeedSections();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', ktSeedSections);
+    }
+    global.addEventListener('load', ktSeedSections);
+    setTimeout(function () {
+      ktSeedSections();
+      /* TEMP DIAGNOSTIC [KT scroll-guard] — remove before Theme Store
+         submission. Final seed count after the editor has settled. */
+      console.log('[KT scroll-guard] seeded ' + ktSeenSections.size + ' sections (after settle)');
+    }, 1500);
+    /* TEMP DIAGNOSTIC [KT scroll-guard] — remove before Theme Store
+       submission. Confirms the code is loaded + shows the load-time count. */
+    console.log('[KT scroll-guard] loaded; seeded ' + ktSeenSections.size + ' sections at load');
+
+    /* Capture the REAL scroll APIs ONCE, before any neutering, so an
+       overlapping re-render can never save (and later restore) an
+       already-neutered no-op and break scrolling permanently. */
+    var ktTrueScrollTo = global.scrollTo;
+    var ktTrueScrollIntoView = Element.prototype.scrollIntoView;
+    var ktHoldTimer = null;
+    var ktPinY = 0;
+    function ktPin() {
+      /* Synchronous hard-pin on every scroll event: wins the frame even
+         against a direct scrollTop write, and self-stops once drift is 0
+         (setting scrollTop fires another scroll event whose drift is 0). */
+      if ((global.pageYOffset || document.documentElement.scrollTop || 0) !== ktPinY) {
+        document.documentElement.scrollTop = ktPinY;
+        if (document.body) { document.body.scrollTop = ktPinY; }
+      }
+    }
+    function ktHoldScroll(savedY) {
+      ktPinY = savedY;
+      if (!ktHoldTimer) {
+        /* Engage. Fighting the editor's smooth auto-scroll with scrollTo
+           only ESCALATED (logged drift grew 208 -> 1959px) because the
+           animation keeps advancing toward its target. So instead we stop
+           it at the source: neuter the scroll APIs it calls (scrollTo /
+           scrollIntoView) AND pin scrollTop directly. design_mode only —
+           the live storefront never touches these globals. */
+        global.scrollTo = function () {};
+        Element.prototype.scrollIntoView = function () {};
+        global.addEventListener('scroll', ktPin, { passive: true });
+        console.log('[KT scroll-guard] HOLD engaged @ ' + savedY);
+      } else {
+        clearTimeout(ktHoldTimer);
+      }
+      ktHoldTimer = setTimeout(function () {
+        global.scrollTo = ktTrueScrollTo;
+        Element.prototype.scrollIntoView = ktTrueScrollIntoView;
+        global.removeEventListener('scroll', ktPin);
+        ktHoldTimer = null;
+        console.log('[KT scroll-guard] HOLD released');
+      }, 1000);
+    }
+
+    document.addEventListener('shopify:section:load', function (event) {
+      var sid = event.detail && event.detail.sectionId;
+      var isReRender = sid && ktSeenSections.has(sid);
+      console.log('[KT scroll-guard] section:load sid=' + sid + ' isReRender=' + isReRender + ' scrollY=' + (global.pageYOffset || 0));
+      if (sid) ktSeenSections.add(sid);
+      if (!isReRender) return;
+      ktHoldScroll(global.pageYOffset || document.documentElement.scrollTop || 0);
     });
   }
 

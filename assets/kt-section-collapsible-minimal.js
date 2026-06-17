@@ -29,11 +29,9 @@ if (!window.__kitcheroCollapsibleMinimalLoaded) {
       var item = event.target;
       if (!item || !item.matches || !item.matches(ITEM_SELECTOR)) return;
       if (!item.open) item.open = true;
-      try {
-        item.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
-      } catch (err) {
-        item.scrollIntoView();
-      }
+      /* Scroll-into-view handled centrally by global.js (guarded). The
+         local unconditional scroll was removed — it re-jolted the page
+         on every re-select (section re-render after a setting tweak). */
     });
   })();
 }
