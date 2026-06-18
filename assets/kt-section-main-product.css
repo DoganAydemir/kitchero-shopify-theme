@@ -71,7 +71,32 @@
   .kt-pdp__info-sticky {
     position: sticky;
     top: 5rem;
-    padding-bottom: 4rem;
+    /* Accordions moved out of this column to a full-width row below, so
+       it no longer needs a tall bottom pad — that was inflating the
+       layout row and opening a big gap above the detail accordions. */
+    padding-bottom: 0;
+  }
+}
+
+/* Full-width product detail accordions, moved out of the (sticky) info
+   column to a row below the gallery+buybox. Sits inside .page-width so it
+   lines up with the two-column layout above and spans the full content
+   width — the right rail no longer stretches tall and leaves the gallery
+   side empty. */
+.kt-pdp__details-full {
+  margin-top: 1.5rem;
+  /* Cap the reading width (left-aligned under the gallery). Full
+     page-width pushed each accordion's +/− toggle ~1400px away from its
+     left-aligned label, so collapsed rows read as "floating text" with
+     no visible affordance. A compact column keeps label + toggle within
+     one glance and keeps body copy at a readable line length. On mobile
+     the viewport is already narrower than this cap, so it's a no-op. */
+  max-width: 44rem;
+}
+
+@media screen and (min-width: 990px) {
+  .kt-pdp__details-full {
+    margin-top: 2rem;
   }
 }
 

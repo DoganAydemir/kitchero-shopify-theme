@@ -1671,10 +1671,17 @@ html.no-js .kt-header__mobile-view-title {
   outline: none;
 }
 
-/* R232.57 — focus ring scheme-aware. */
-.kt-header__mobile-link:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
-  outline-offset: 2px;
+/* R232.57 — focus ring scheme-aware. Gated to precise pointers
+   (desktop/keyboard) only. On touch, a tap or the nav JS's programmatic
+   focus could fire :focus-visible and leave a stuck "bordered box" on
+   the Home/category links. Suppressing it there (the bare :focus rule
+   above already sets outline:none) keeps mobile clean; keyboard users
+   on pointer:fine still get a clear WCAG 2.4.7 ring. */
+@media (pointer: fine) {
+  .kt-header__mobile-link:focus-visible {
+    outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
+    outline-offset: 2px;
+  }
 }
 
 /* "View all {parent}" link at the top of each sub-panel */
@@ -1790,9 +1797,15 @@ html.no-js .kt-header__mobile-view-title {
 
 /* R232.57 — focus ring scheme-aware. */
 .kt-header__mobile-back:focus-visible {
+  /* No box/ring here. The earlier inset box-shadow painted a
+     "bordered box" that mobile browsers showed whenever the nav JS
+     programmatically focused this button on sub-panel open (iOS fires
+     :focus-visible for that). The keyboard focus indicator is the
+     text underline set in the R-SS8 rule above — a non-box affordance
+     that still satisfies WCAG 2.4.7. */
   outline: none;
-  box-shadow: inset 0 0 0 2px rgb(var(--kt-c-fg, 250 250 249));
-  border-radius: 4px;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 /* Spacer for solid header — matches header height (py-4 + content) */
