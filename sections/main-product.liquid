@@ -1155,19 +1155,41 @@
     </div>
 
     {%- comment -%}
-      Product detail accordions, rendered full-width below the
-      gallery+info layout (pulled out of the sticky info column). This
-      keeps the two-column region balanced — a tall stack of accordions
-      no longer stretches the right rail and leaves the gallery side
-      empty. Blocks keep their merchant-set order and shopify_attributes
-      so the theme editor still selects/reorders them correctly.
+      Product detail tabs — full-width row below the gallery+info layout
+      (pulled out of the sticky info column). Rendered as a horizontal
+      WAI-ARIA tab set (tablist + tabpanels) rather than a stacked
+      accordion: tabs use the full content width naturally, so the label
+      and the active state read at a glance instead of a toggle floating
+      1400px to the right. Progressive enhancement — with JS disabled
+      (`.no-js`) the tab bar hides and every panel shows stacked with its
+      heading, so all content stays accessible. Blocks keep their order +
+      shopify_attributes so the editor still selects/reorders them.
     {%- endcomment -%}
     {%- assign kt_has_accordion = false -%}
     {%- for block in section.blocks -%}
       {%- if block.type == 'accordion' -%}{%- assign kt_has_accordion = true -%}{%- break -%}{%- endif -%}
     {%- endfor -%}
     {%- if kt_has_accordion -%}
-      <div class="kt-pdp__details-full">
+      <div class="kt-pdp__tabs" data-kt-pdp-tabs>
+        <div class="kt-pdp__tabs-nav" role="tablist" aria-label="{{ 'kt.product.details.tabs_label' | t }}">
+          {%- assign kt_ti = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'accordion' -%}
+              <button
+                type="button"
+                role="tab"
+                id="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
+                class="kt-pdp__tab"
+                aria-controls="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
+                aria-selected="{% if kt_ti == 0 %}true{% else %}false{% endif %}"
+                tabindex="{% if kt_ti == 0 %}0{% else %}-1{% endif %}"
+                {{ block.shopify_attributes }}
+              >{{ block.settings.title | escape }}</button>
+              {%- assign kt_ti = kt_ti | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- assign kt_ti = 0 -%}
         {%- for block in section.blocks -%}
           {%- if block.type == 'accordion' -%}
             {%- capture accordion_content -%}
@@ -1177,9 +1199,17 @@
                 {{ block.settings.content }}
               {%- endif -%}
             {%- endcapture -%}
-            <div {{ block.shopify_attributes }}>
-              {%- render 'product-accordion', title: block.settings.title, content: accordion_content, open: block.settings.open -%}
+            <div
+              role="tabpanel"
+              id="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
+              class="kt-pdp__tab-panel"
+              aria-labelledby="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
+              {% if kt_ti != 0 %}hidden{% endif %}
+            >
+              <h3 class="kt-pdp__tab-panel-title">{{ block.settings.title | escape }}</h3>
+              <div class="kt-pdp__tab-panel-content rte">{{ accordion_content }}</div>
             </div>
+            {%- assign kt_ti = kt_ti | plus: 1 -%}
           {%- endif -%}
         {%- endfor -%}
       </div>
@@ -1203,6 +1233,7 @@
 {%- endif -%}
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-section-main-product-tabs.js' | asset_url }}" defer="defer"></script>
 
 {%- comment -%}
   R285 — Recently-viewed tracker. The script is ALSO loaded by

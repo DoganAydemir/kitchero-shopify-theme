@@ -78,26 +78,105 @@
   }
 }
 
-/* Full-width product detail accordions, moved out of the (sticky) info
-   column to a row below the gallery+buybox. Sits inside .page-width so it
-   lines up with the two-column layout above and spans the full content
-   width — the right rail no longer stretches tall and leaves the gallery
-   side empty. */
-.kt-pdp__details-full {
-  margin-top: 1.5rem;
-  /* Cap the reading width (left-aligned under the gallery). Full
-     page-width pushed each accordion's +/− toggle ~1400px away from its
-     left-aligned label, so collapsed rows read as "floating text" with
-     no visible affordance. A compact column keeps label + toggle within
-     one glance and keeps body copy at a readable line length. On mobile
-     the viewport is already narrower than this cap, so it's a no-op. */
-  max-width: 44rem;
+/* Product detail tabs — full-width row below the gallery+buybox. The
+   tab BAR spans the full content width (so the underline + active state
+   read clearly), while panel prose is capped for readable line length.
+   Replaces the stacked accordion, whose far-right toggle read as
+   "floating text" once the row went full-width. */
+.kt-pdp__tabs {
+  margin-top: 2rem;
 }
 
 @media screen and (min-width: 990px) {
-  .kt-pdp__details-full {
-    margin-top: 2rem;
+  .kt-pdp__tabs {
+    margin-top: 3rem;
   }
+}
+
+.kt-pdp__tabs-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  border-bottom: 1px solid var(--kt-stone-200);
+  /* Narrow screens: scroll the tab row instead of wrapping. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.kt-pdp__tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.kt-pdp__tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0 0 0.875rem;
+  font-family: var(--kt-f-body-family);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--kt-stone-500);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.kt-pdp__tab:hover {
+  color: var(--kt-stone-900);
+}
+
+.kt-pdp__tab[aria-selected="true"] {
+  color: var(--kt-stone-900);
+  border-bottom-color: var(--kt-stone-900);
+}
+
+.kt-pdp__tab:focus-visible {
+  outline: 2px solid rgb(var(--kt-c-fg));
+  outline-offset: 2px;
+}
+
+.kt-pdp__tab-panel {
+  padding-top: 1.75rem;
+}
+
+.kt-pdp__tab-panel-content {
+  max-width: 60rem;
+}
+
+/* Panel heading is only used in the no-JS fallback (with JS the tab
+   button is the label). */
+.kt-pdp__tab-panel-title {
+  display: none;
+}
+
+/* No-JS fallback: the tab bar can't switch, so reveal every panel
+   stacked with its heading and hide the non-functional buttons. */
+.no-js .kt-pdp__tabs-nav {
+  display: none;
+}
+
+.no-js .kt-pdp__tab-panel[hidden] {
+  display: block;
+}
+
+.no-js .kt-pdp__tab-panel-title {
+  display: block;
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kt-stone-900);
+}
+
+.no-js .kt-pdp__tab-panel + .kt-pdp__tab-panel {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--kt-stone-200);
 }
 
 /* ── Breadcrumb ─────────────────────────────────────────── */
