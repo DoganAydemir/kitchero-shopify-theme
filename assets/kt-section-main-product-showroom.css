@@ -685,12 +685,16 @@
 }
 
 .kt-showroom__sample-thumb {
-  width: 4.5rem;
-  height: 6rem;
+  /* Portrait thumb on the LEFT of the card. Sharpness comes from the
+     liquid requesting the image WIDER than this box (width-only, no
+     crop) and letting object-fit:cover frame it — so the photo keeps
+     full resolution instead of being upscaled from a tight crop. */
+  width: 6rem;
+  height: 8rem;
+  flex-shrink: 0;
   border-radius: 0.5rem;
   overflow: hidden;
   border: 1px solid var(--kt-stone-200);
-  flex-shrink: 0;
   background-color: var(--kt-stone-100);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }

@@ -465,16 +465,14 @@
                 </ul>
 
               {%- when 'accordion' -%}
-                {%- capture accordion_content -%}
-                  {%- if block.settings.page != blank -%}
-                    {{ block.settings.page.content }}
-                  {%- else -%}
-                    {{ block.settings.content }}
-                  {%- endif -%}
-                {%- endcapture -%}
-                <div {{ block.shopify_attributes }}>
-                  {%- render 'product-accordion', title: block.settings.title, content: accordion_content, open: block.settings.open -%}
-                </div>
+                {%- comment -%}
+                  Accordions are NOT rendered here. They're collected and
+                  rendered in a full-width row BELOW the gallery+info
+                  layout (see `.kt-pdp__details-full` after the layout) so
+                  the two-column area stays balanced regardless of how many
+                  gallery images or how long the buybox is. Nothing output
+                  in the sticky info column for this block type.
+                {%- endcomment -%}
 
               {%- when 'door_sample' -%}
                 {%- assign sample_product = block.settings.sample_product -%}
@@ -1155,6 +1153,37 @@
       </div>
 
     </div>
+
+    {%- comment -%}
+      Product detail accordions, rendered full-width below the
+      gallery+info layout (pulled out of the sticky info column). This
+      keeps the two-column region balanced — a tall stack of accordions
+      no longer stretches the right rail and leaves the gallery side
+      empty. Blocks keep their merchant-set order and shopify_attributes
+      so the theme editor still selects/reorders them correctly.
+    {%- endcomment -%}
+    {%- assign kt_has_accordion = false -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'accordion' -%}{%- assign kt_has_accordion = true -%}{%- break -%}{%- endif -%}
+    {%- endfor -%}
+    {%- if kt_has_accordion -%}
+      <div class="kt-pdp__details-full">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'accordion' -%}
+            {%- capture accordion_content -%}
+              {%- if block.settings.page != blank -%}
+                {{ block.settings.page.content }}
+              {%- else -%}
+                {{ block.settings.content }}
+              {%- endif -%}
+            {%- endcapture -%}
+            <div {{ block.shopify_attributes }}>
+              {%- render 'product-accordion', title: block.settings.title, content: accordion_content, open: block.settings.open -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
   </div>
 </section>
 
