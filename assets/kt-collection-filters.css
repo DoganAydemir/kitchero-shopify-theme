@@ -209,6 +209,15 @@
   -moz-appearance: textfield;
 }
 
+/* Shrink only the PLACEHOLDER ("From" / "To"), not the input itself —
+   the input stays 16px so iOS Safari doesn't zoom on focus (R104), while
+   the resting placeholder reads smaller/lighter as the user wanted. */
+.kt-filter__price-input::placeholder {
+  font-size: 0.8125rem;
+  color: var(--kt-stone-400);
+  opacity: 1;
+}
+
 /* Single focus indicator. The input is wrapped in
    `.kt-filter__price-field` which already carries the 1px stone-300
    border. Adding a 2px outline + 2px offset on the input itself

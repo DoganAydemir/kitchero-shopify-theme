@@ -48,32 +48,9 @@
     (_featured etc.); filter them out so internal curation tags
     don't leak to readers.
   {%- endcomment -%}
-  {%- assign article_primary_tag = blank -%}
-  {%- for tag in article.tags -%}
-    {%- assign tag_first_char = tag | slice: 0 -%}
-    {%- unless tag_first_char == '_' -%}
-      {%- assign article_primary_tag = tag -%}
-      {%- break -%}
-    {%- endunless -%}
-  {%- endfor -%}
-
   {%- capture article_meta -%}
     <div class="kt-article__meta">
-      {%- if article_primary_tag != blank -%}
-        {%- comment -%}
-          R149 ARTICLE-TAGS-LINKS-1 — link the tag to the
-          filtered blog view (`/blogs/<handle>/tagged/<tag>`).
-          `tag | handle` URL-safes the slug; `tag | escape` on
-          the visible text guards against XSS via tag names that
-          may contain reserved chars.
-        {%- endcomment -%}
-        <a class="kt-article__meta-item kt-article__meta-tag" href="{{ blog.url }}/tagged/{{ article_primary_tag | handle }}">
-          {{ article_primary_tag | escape }}
-        </a>
-        {%- if section.settings.show_date -%}
-          <span class="kt-article__meta-rule" aria-hidden="true"></span>
-        {%- endif -%}
-      {%- endif -%}
+      {%- comment -%} Tags live in a dedicated row at the bottom of the post, not here. The meta row is just date + author. {%- endcomment -%}
       {%- if section.settings.show_date -%}
         <time class="kt-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
           {{ article.published_at | date: format: 'abbreviated_date' }}
@@ -91,7 +68,7 @@
         structured-data-missing-author warning doesn't return.
       {%- endcomment -%}
       {%- if section.settings.show_author and article.author != blank -%}
-        {%- if article_primary_tag != blank or section.settings.show_date -%}
+        {%- if section.settings.show_date -%}
           <span class="kt-article__meta-rule" aria-hidden="true"></span>
         {%- endif -%}
         <span class="kt-article__meta-item kt-article__meta-author">
@@ -162,6 +139,28 @@
       <div class="kt-article__content rte">
         {{ article.content }}
       </div>
+
+      {%- comment -%}
+        Tags — every reader-facing tag (underscore-prefixed hidden tags
+        filtered out), each linked to the blog's tag-filtered view. The
+        top meta row shows only the PRIMARY tag as a category label; this
+        row surfaces the rest so nothing the merchant tagged stays hidden.
+      {%- endcomment -%}
+      {%- assign kt_has_tags = false -%}
+      {%- for tag in article.tags -%}
+        {%- assign tfc = tag | slice: 0 -%}
+        {%- unless tfc == '_' -%}{%- assign kt_has_tags = true -%}{%- endunless -%}
+      {%- endfor -%}
+      {%- if kt_has_tags -%}
+        <ul class="kt-article__tags" role="list">
+          {%- for tag in article.tags -%}
+            {%- assign tfc = tag | slice: 0 -%}
+            {%- unless tfc == '_' -%}
+              <li><a class="kt-article__tag" href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag | escape }}</a></li>
+            {%- endunless -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
 
       {%- comment -%}
         App blocks — merchants can drop in review-widget /

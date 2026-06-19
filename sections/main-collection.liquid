@@ -90,7 +90,8 @@
           <{{ heading_tag }} class="kt-collection__title">{{ collection.title | escape }}</{{ heading_tag }}>
           {%- if section.settings.show_collection_description -%}
             {%- if collection.description != blank -%}
-              <p class="kt-collection__desc">{{ collection.description }}</p>
+              {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> made the browser auto-close the styled wrapper, dropping the desc styling — the text escaped as bare sibling <p>. {%- endcomment -%}
+              <div class="kt-collection__desc">{{ collection.description | strip_html }}</div>
             {%- else -%}
               <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
             {%- endif -%}

@@ -23,7 +23,10 @@
      against the page bg consistent regardless of scheme; cards inside
      stay on the active scheme bg (white by default) and read as
      elevated tiles. */
-  background-color: var(--kt-stone-50, #fafaf9);
+  /* Scheme-aware: follows the merchant's chosen color-scheme bg so the
+     section's "Color scheme" setting actually applies. (Was hard-pinned
+     to stone-50, which ignored the scheme entirely.) */
+  background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   /* R232.50 — scheme-aware top rule (was stone-200). */
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
@@ -116,12 +119,12 @@
      and gives a consistent ~3% tier-shift everywhere. Section bg is
      already hardcoded to stone-50 above for the same design-fidelity
      reason. */
-  background-color: #ffffff;
-  /* R-why-choose-cards-noborder — Border removed; the white tile vs.
-     stone-50 section provides enough edge definition on its own, and
-     the thin shadow below adds subtle elevation. Border on top of
-     that read as "bordered + shadowed" double-treatment, fighting
-     the clean Next.js source. */
+  /* Scheme-aware card surface. Both the section and cards now resolve to
+     the scheme bg, so a subtle fg-tinted border (not a bg-colour gap)
+     gives the card its edge — keeps cards visible on ANY scheme (light
+     or dark). This is what makes the Color scheme setting work here. */
+  background-color: rgb(var(--kt-c-bg, 255 255 255));
+  border: 1px solid rgba(var(--kt-c-fg, 28 25 23), 0.1);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.5s ease;
 }

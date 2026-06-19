@@ -332,13 +332,12 @@
 }
 
 .kt-financing-panel--inverted .kt-financing-panel__desc {
-  /* R-financing-panel-desc-muted-v2 — Was hardcoded stone-300
-     (~12:1 visually loud). First step to 0.6 alpha scheme-aware
-     wasn't enough — user reported no visible change. Dropping
-     to 0.5 alpha (~5:1 on dark stone-950) for a clearly muted
-     tier without crossing the AA body bar. Scheme-aware token
-     keeps cream/ivory variants coherent. */
-  color: rgba(var(--kt-c-fg, 214 211 209), 0.5);
+  /* The inverted panel is ALWAYS a dark photo surface, so the desc must
+     be light regardless of the active color scheme. The previous
+     `rgba(var(--kt-c-fg), 0.5)` resolved to the scheme fg — DARK on a
+     light scheme — giving dark-on-dark, unreadable text. Pin to a muted
+     white (matches the inverted title/eyebrow which use --kt-white). */
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ── Features (checklist) ──────────────────────────────── */
@@ -489,6 +488,9 @@
 
 .kt-financing-panel__highlight {
   display: flex;
+  /* Vertically centre the fixed-size icon against the title+desc block
+     (was default stretch → icon sat top-aligned). */
+  align-items: center;
   gap: 1rem;
 }
 
