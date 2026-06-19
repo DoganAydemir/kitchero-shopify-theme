@@ -440,23 +440,34 @@
       {%- endcomment -%}
       {%- if section.settings.show_account_icon -%}
       {%- if shop.customer_accounts_enabled -%}
+        {%- comment -%}
+          The slotted avatars are NON-navigating <span>s, NOT <a href>.
+          The <shopify-account> component intercepts the click to open
+          the in-storefront account sheet (passwordless / Shop / email).
+          A real <a href> here ALSO fired a browser navigation to the
+          login URL, so the sheet opened AND the page left ~2-3s later —
+          the reported double-action bug. Per Shopify's docs only the
+          `signed-out-avatar` slot is themeable; the signed-in avatar is
+          component-controlled (styled via --shopify-account-* CSS vars),
+          but a non-link span in that slot is harmless if ignored.
+        {%- endcomment -%}
         <shopify-account
           menu="customer-account-main-menu"
           class="kt-header__account"
           aria-label="{{ account_label }}"
         >
-          <a href="{{ account_href }}" slot="signed-out-avatar" class="kt-header__icon" aria-label="{{ account_label }}">
+          <span slot="signed-out-avatar" class="kt-header__icon">
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-          </a>
-          <a href="{{ account_href }}" slot="signed-in-avatar" class="kt-header__icon" aria-label="{{ account_label }}">
+          </span>
+          <span slot="signed-in-avatar" class="kt-header__icon">
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-          </a>
+          </span>
         </shopify-account>
       {%- else -%}
         <a href="{{ account_href }}" class="kt-header__icon" aria-label="{{ account_label }}">
