@@ -40,6 +40,7 @@
       var cat = btn.dataset.finishCat || '';
       var color1 = btn.dataset.finishColor1 || '';
       var color2 = btn.dataset.finishColor2 || '';
+      var link = btn.dataset.finishLink || '';
 
       /* Switch desktop images */
       hideAllImages();
@@ -75,6 +76,24 @@
           mobileSwatch[1].style.backgroundColor = color2;
         }
       }
+
+      /* Point the preview cards (desktop overlay + this category's mobile
+         image overlay) at the active finish's product link. An empty
+         link leaves the card non-clickable rather than navigating to
+         nowhere. */
+      var deskLink = section.querySelector('[data-finish-link-target]');
+      var mobileLink = parentCat ? parentCat.querySelector('[data-mobile-finish-link-target]') : null;
+      [deskLink, mobileLink].forEach(function (a) {
+        if (!a) return;
+        if (link) {
+          a.setAttribute('href', link);
+          a.setAttribute('aria-label', name + (cat ? ' — ' + cat : ''));
+          a.style.pointerEvents = '';
+        } else {
+          a.removeAttribute('href');
+          a.style.pointerEvents = 'none';
+        }
+      });
 
       /* Active state on button */
       clearAllFinishActive();

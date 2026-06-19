@@ -146,9 +146,27 @@
 
 /* Description: text-stone-500 max-w-xl text-lg */
 .kt-collection__desc {
-  color: var(--kt-stone-500);
+  /* Matched 1:1 to the shared dotted-header desc
+     (snippets/page-header-dotted → .kt-page-header-dotted__desc) so every
+     dotted header reads identically: scheme-aware muted fg + light weight.
+     Fed `collection.description | strip_html` (plain text) so it renders
+     cleanly and clamps reliably — and clamped to 3 lines with an ellipsis
+     so a long dynamic collection description never blows out the header. */
   max-width: 36rem;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-collection__desc {
+    font-size: 1rem;
+  }
 }
 
 /* Count pill: px-4 py-2 border border-stone-300 text-stone-500 text-xs font-bold tracking-widest uppercase rounded-full
