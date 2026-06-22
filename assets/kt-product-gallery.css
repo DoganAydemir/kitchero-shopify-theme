@@ -68,7 +68,12 @@
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 4px;
-  border: 2px solid var(--kt-stone-200);
+  /* Idle thumbs carry NO visible frame — the light grey border read as a
+     washed-out, ugly outline on every non-selected thumb. A transparent
+     2px border keeps the box size identical to the active state so
+     selecting a thumb never shifts the strip's layout; only the active
+     thumb gets a real (dark) border below. */
+  border: 2px solid transparent;
   background: none;
   padding: 0;
   cursor: pointer;
@@ -83,7 +88,13 @@
   }
 }
 
-.kt-gallery__thumb:hover {
+/* Hover hint for IDLE thumbs only. `:not(--active)` is essential: on
+   touch devices the tapped thumb keeps a sticky `:hover` state after the
+   tap, and `:hover` (specificity 0,2,0) would otherwise outrank
+   `--active` (0,1,0) and repaint the freshly-selected thumb with this
+   grey border instead of the dark active one. Excluding active here keeps
+   the selected thumb dark in every state — tap, hover, or initial load. */
+.kt-gallery__thumb:hover:not(.kt-gallery__thumb--active) {
   border-color: var(--kt-stone-400);
   opacity: 1;
 }
@@ -97,17 +108,6 @@
   border-color: var(--kt-stone-900);
   opacity: 1;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* On mobile the light stone-200 idle border read as washed-out grey
-   against the white gallery, while on desktop the thumb frames look
-   crisp and dark. Darken the idle border on small screens so the mobile
-   gallery matches the desktop's dark-framed look; the active thumb keeps
-   its stone-900 + shadow so it stays clearly distinguishable. */
-@media screen and (max-width: 749px) {
-  .kt-gallery__thumb:not(.kt-gallery__thumb--active) {
-    border-color: var(--kt-stone-700);
-  }
 }
 
 .kt-gallery__thumb-image {
