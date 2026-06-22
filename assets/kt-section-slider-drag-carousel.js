@@ -97,21 +97,28 @@ if (!window.__kitcheroSliderDragLoaded) {
         moved = false;
         startX = e.pageX;
         startScroll = track.scrollLeft;
-        track.classList.add('is-dragging');
-        /* Capture the pointer so a fast horizontal flick that takes
-           the finger off the track DOM still receives pointermove +
-           pointerup events. Without this, drag freezes mid-flick on
-           mobile when the finger crosses the track boundary — the
-           carousel snaps to wherever the lift happened, not where
-           the gesture ended. */
-        try { track.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+        /* Do NOT capture the pointer or flag dragging on pointerdown.
+           Capturing on a plain tap/click can swallow the `click` on a
+           slide's <a> link (browsers may retarget the click to the
+           capturing element), so the link never navigates. We capture
+           only once real movement begins (onPointerMove), leaving clean
+           clicks free to reach the link. */
       }
 
       function onPointerMove(e) {
         if (!isDown) return;
         var dx = e.pageX - startX;
-        if (Math.abs(dx) > DRAG_THRESHOLD) moved = true;
-        track.scrollLeft = startScroll - dx;
+        if (!moved && Math.abs(dx) > DRAG_THRESHOLD) {
+          moved = true;
+          track.classList.add('is-dragging');
+          /* Now that it's a genuine drag, capture so a fast flick that
+             takes the finger off the track still gets move/up events
+             (prevents the carousel freezing mid-flick on mobile). */
+          try { track.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+        }
+        if (moved) {
+          track.scrollLeft = startScroll - dx;
+        }
       }
 
       function onPointerUp(e) {
