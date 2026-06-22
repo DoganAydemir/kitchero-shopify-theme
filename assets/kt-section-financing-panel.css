@@ -537,12 +537,12 @@
   font-size: 0.8125rem;
   font-weight: 300;
   line-height: 1.5;
-  /* R-financing-panel-highlight-desc-muted-v2 — Inverted scheme
-     scheme-aware `--kt-c-fg` at 0.45 alpha (was 0.55). Lower than
-     the panel's intro __desc above so the per-card copy sits
-     visibly behind both the title and the intro paragraph —
-     three-tier hierarchy: title > intro > per-card support. */
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.45);
+  /* This base rule is the INVERTED (dark photo) panel state — mirrors
+     the highlight-title which is `var(--kt-white)` here. It must be a
+     muted WHITE, not `rgba(var(--kt-c-fg), …)`: on a light color scheme
+     `--kt-c-fg` resolves DARK, giving dark-on-dark unreadable copy.
+     Light-panel color is handled by the `:not(--inverted)` rule below. */
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
 }
 
