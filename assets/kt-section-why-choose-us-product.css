@@ -9,24 +9,14 @@
 
 .kt-why-choose-us-product {
   padding: 6rem 0;
-  /* R-why-choose-bg-v2 — Section background pinned to `--kt-stone-50`
-     (#fafaf9), the exact warm-grey the Next.js source uses for this
-     section's tier. Matches `lab(98.27% -.099 .364)` from the design
-     reference. The fg-overlay approach (6% darken on scheme bg) had
-     two issues vs the source:
-       1. It produced a noticeably darker tone than the reference's
-          near-white warm grey — visually too heavy.
-       2. It coupled to the scheme bg, so a merchant changing scheme
-          to a non-light surface drifted the tier-shift away from the
-          intended design.
-     Pinning to `--kt-stone-50` keeps the slim white→stone-50 contrast
-     against the page bg consistent regardless of scheme; cards inside
-     stay on the active scheme bg (white by default) and read as
-     elevated tiles. */
-  /* Scheme-aware: follows the merchant's chosen color-scheme bg so the
-     section's "Color scheme" setting actually applies. (Was hard-pinned
-     to stone-50, which ignored the scheme entirely.) */
-  background-color: rgb(var(--kt-c-bg, 250 250 249));
+  /* Section background = the scheme bg nudged ~4% toward the fg. On a
+     light scheme this lands as a subtle warm-grey (so the white cards
+     read as elevated tiles — the design reference look), while still
+     following the merchant's chosen color scheme (it isn't hard-pinned).
+     `color-mix` keeps it scheme-aware; the stone-50 line is the fallback
+     for the rare browser without color-mix support. */
+  background-color: var(--kt-stone-50, #fafaf9);
+  background-color: color-mix(in srgb, rgb(var(--kt-c-bg, 250 250 249)) 96%, rgb(var(--kt-c-fg, 28 25 23)));
   color: rgb(var(--kt-c-fg, 28 25 23));
   /* R232.50 — scheme-aware top rule (was stone-200). */
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
@@ -101,30 +91,11 @@
   justify-content: center;
   text-align: center;
   padding: 1.5rem;
-  /* R232.52 — Card surface was hardcoded `var(--kt-white)`. R232.50
-     applied a `rgba(--kt-c-fg, 0.06)` "subtle panel" overlay which on
-     a default scheme rendered as ~6% black on cream — visually the
-     card vanished, only the shadow gave a hint of presence. Use
-     `--kt-c-bg-contrast` so we get a real opaque card surface that
-     auto-adapts (lighter than dark schemes, slightly darker than
-     light schemes). Fallback stays close to the original white. */
-  /* R232.72 — `--kt-c-bg-contrast` Shopify 25%-darken calc was too
-     aggressive on light schemes (cream card → medium grey).
-
-     R-why-choose-cards-v3 — Card bg pinned to pure #ffffff. Earlier
-     attempts referenced `--kt-c-bg` which on light schemes resolves
-     to the same stone-50 (#fafaf9) the section uses, so the cards
-     vanished into the section background. Pinning to pure white
-     matches the Next.js source (white cards on stone-50 section)
-     and gives a consistent ~3% tier-shift everywhere. Section bg is
-     already hardcoded to stone-50 above for the same design-fidelity
-     reason. */
-  /* Scheme-aware card surface. Both the section and cards now resolve to
-     the scheme bg, so a subtle fg-tinted border (not a bg-colour gap)
-     gives the card its edge — keeps cards visible on ANY scheme (light
-     or dark). This is what makes the Color scheme setting work here. */
+  /* Cards sit on the pure scheme bg (white on light schemes) — brighter
+     than the ~4%-tinted section above — so the white-on-grey contrast
+     plus the soft shadow read as elevated tiles, matching the design
+     reference. No hard border: the contrast + shadow do the work. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
-  border: 1px solid rgba(var(--kt-c-fg, 28 25 23), 0.1);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.5s ease;
 }
