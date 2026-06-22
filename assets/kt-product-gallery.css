@@ -99,6 +99,17 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* On mobile the light stone-200 idle border read as washed-out grey
+   against the white gallery, while on desktop the thumb frames look
+   crisp and dark. Darken the idle border on small screens so the mobile
+   gallery matches the desktop's dark-framed look; the active thumb keeps
+   its stone-900 + shadow so it stays clearly distinguishable. */
+@media screen and (max-width: 749px) {
+  .kt-gallery__thumb:not(.kt-gallery__thumb--active) {
+    border-color: var(--kt-stone-700);
+  }
+}
+
 .kt-gallery__thumb-image {
   width: 100%;
   height: 100%;

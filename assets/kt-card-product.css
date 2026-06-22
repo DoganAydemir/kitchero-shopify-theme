@@ -899,6 +899,24 @@
   left: 1.5rem;
 }
 
+/* On mobile the category (type) badge — e.g. "KITCHEN CABINETS" — felt
+   oversized and floated too far from the corner, reading like a primary
+   stamp rather than a quiet category tag. On small screens only, shrink
+   the type badge, tuck it tighter into the bottom-left corner, and mute
+   its tone so it stays subordinate to the product imagery. Desktop keeps
+   the larger, fully-legible pill from the base rules. */
+@media screen and (max-width: 749px) {
+  .kt-card-product__badge--type {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    padding: 0.1875rem 0.5rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--kt-stone-600);
+  }
+}
+
 /* Title link inside card — strips default <a> typography so the
    card heading inherits its parent's typography stack. Replaces an
    inline `style="text-decoration: none; color: inherit;"` that had
