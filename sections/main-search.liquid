@@ -294,7 +294,15 @@
         </div>
       {%- else -%}
         <div class="kt-search-page__empty">
-          <p class="kt-search-page__no-results">{{ 'kt.search.no_results' | t: terms: safe_terms }}</p>
+          <p class="kt-search-page__no-results" role="status">
+            <span class="kt-search-page__no-results-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <span class="kt-search-page__no-results-text">{{ 'kt.search.no_results' | t: terms: safe_terms }}</span>
+          </p>
           {%- comment -%}
             Recovery path. A 0-result search shouldn't dead-end the
             customer — give them a guaranteed escape hatch to the
