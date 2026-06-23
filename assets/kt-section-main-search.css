@@ -430,12 +430,64 @@
   padding-top: 1rem;
 }
 
+/* No-results notice — a 0-result search is a gentle "heads up", not an
+   error, so it uses the theme's amber notice palette (soft amber-50
+   surface, amber-900 text) rather than alarming red. Centred pill with a
+   magnifier glyph reads as a clean, modern empty-state callout. */
 .kt-search-page__no-results {
-  font-size: 1.125rem;
-  color: var(--kt-stone-700);
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 2rem 0 0;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--kt-amber-900, #78350f);
+  background-color: var(--kt-amber-50, #fffbeb);
+  border: 1px solid var(--kt-amber-200, #fde68a);
+  border-radius: 0.75rem;
+}
+
+.kt-search-page__no-results-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--kt-amber-500, #f59e0b);
+}
+
+.kt-search-page__no-results-icon svg {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Recovery link under the no-results line. Without an explicit rule it
+   fell back to the browser default blue, which clashed with the theme's
+   neutral editorial palette. Match the dark heading tone with an
+   underlined "text link" treatment, centred under the message. */
+.kt-search-page__browse-all {
   text-align: center;
   margin: 0;
-  padding: 2rem 0 0;
+}
+
+.kt-search-page__browse-all-link {
+  color: var(--kt-stone-900);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease;
+}
+
+.kt-search-page__browse-all-link:hover {
+  color: var(--kt-stone-600);
+}
+
+.kt-search-page__browse-all-link:focus-visible {
+  outline: 2px solid var(--kt-stone-900);
+  outline-offset: 2px;
 }
 
 /* ── Popular queries ──────────────────────────────────── */
