@@ -1,0 +1,10 @@
+# Keep each branch's own .shopifyignore on merge.
+# main and demo intentionally hold DIFFERENT .shopifyignore content
+# (main ignores merchant content, demo ignores code). Without this, every
+# "update from main" into demo produced a predictable merge conflict on
+# this one file. The `merge=ours` driver makes git keep the current
+# branch's version automatically — no more conflict dialog.
+#
+# Requires a one-time per-clone git config (already set in this clone):
+#   git config merge.ours.driver true
+.shopifyignore merge=ours
