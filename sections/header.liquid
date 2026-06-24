@@ -174,7 +174,12 @@
             alt: kt_logo_alt
         }}
       {%- else -%}
-        <span class="kt-header__logo-text">{{ shop.name | escape }}</span>
+        {%- comment -%}
+          No logo image — render a text logo. Merchants who want a
+          text-only brand mark can type custom text in the "Logo text"
+          theme setting; when left blank it falls back to the store name.
+        {%- endcomment -%}
+        <span class="kt-header__logo-text">{{ settings.kt_logo_text | default: shop.name | escape }}</span>
       {%- endif -%}
     </a>
 

@@ -1036,6 +1036,12 @@
   load on every showroom render.
 {%- endcomment -%}
 <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- comment -%}
+  Door-sample "Add to cart" → AJAX add + cart drawer (instead of a full
+  page redirect to /cart). Self-contained; keyed to the sample form's own
+  class so it never touches the main product's variant picker.
+{%- endcomment -%}
+<script src="{{ 'kt-sample-add.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-desc-truncate.js' | asset_url }}" defer="defer"></script>
 {%- if settings.kt_back_in_stock_enabled -%}
   <script src="{{ 'kt-back-in-stock.js' | asset_url }}" defer="defer"></script>
