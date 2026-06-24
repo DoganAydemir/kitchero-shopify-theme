@@ -163,6 +163,21 @@
   overflow: hidden;
 }
 
+/* When a meta row (date · author on blog articles) sits directly above the
+   description/excerpt, give the excerpt breathing room so it doesn't crowd
+   the meta line. Scoped to the adjacency so pages WITHOUT a meta row
+   (collections, generic page headers) keep their existing title→desc
+   rhythm untouched. */
+.kt-page-header-dotted__meta-wrap + .kt-page-header-dotted__desc-wrap {
+  margin-top: 1.25rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-page-header-dotted__meta-wrap + .kt-page-header-dotted__desc-wrap {
+    margin-top: 1.5rem;
+  }
+}
+
 /* Optional inline meta row between title and description. The
    `__meta-wrap` is just a padding holder — the actual content
    styling lives wherever the caller defines its meta markup
