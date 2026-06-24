@@ -58,10 +58,22 @@
 
   <div class="kt-loader__meta kt-loader__meta--tl">
     <span class="kt-loader__meta-dot"></span>
-    <span>{{ 'kt.loader.est' | t | default: 'Est.' }} {{ current_year }}</span>
+    <span>
+      {%- if settings.kt_loader_meta_tl != blank -%}
+        {{ settings.kt_loader_meta_tl | escape }}
+      {%- else -%}
+        {{ 'kt.loader.est' | t | default: 'Est.' }} {{ current_year }}
+      {%- endif -%}
+    </span>
   </div>
   <div class="kt-loader__meta kt-loader__meta--tr">
-    <span>&copy; {{ shop.name | upcase | escape }}</span>
+    <span>
+      {%- if settings.kt_loader_meta_tr != blank -%}
+        {{ settings.kt_loader_meta_tr | escape }}
+      {%- else -%}
+        &copy; {{ shop.name | upcase | escape }}
+      {%- endif -%}
+    </span>
   </div>
 
   <div class="kt-loader__stage">
