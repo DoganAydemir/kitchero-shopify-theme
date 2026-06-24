@@ -1,21 +1,30 @@
 /* 404 Page */
 .kt-404 { padding: 10rem 0 8rem; background: var(--kt-stone-50); min-height: 60vh; min-height: 60svh; display: flex; align-items: center; justify-content: center; }
-.kt-404__inner { text-align: center; max-width: 28rem; margin: 0 auto; }
+.kt-404__inner { text-align: center; max-width: 32rem; margin: 0 auto; }
 .kt-404__code { font-family: var(--kt-f-accent-family); font-size: 8rem; font-weight: 300; color: var(--kt-stone-200); line-height: 1; display: block; margin-bottom: 1rem; }
 @media screen and (min-width: 750px) { .kt-404__code { font-size: 12rem; } }
 .kt-404__title { font-family: var(--kt-f-accent-family); font-size: 1.875rem; color: var(--kt-stone-900); margin: 0 0 1rem; }
 @media screen and (min-width: 750px) { .kt-404__title { font-size: 3rem; } }
 .kt-404__desc { font-size: 1rem; color: var(--kt-stone-500); margin-bottom: 2rem; }
-.kt-404__btn { display: inline-block; }
+/* Equal-width CTAs that never wrap their label. The global `.button`
+   padding (2.4rem) made both labels overflow the narrow column and break
+   onto two lines; here we keep them on a single line (`nowrap`), give the
+   pair equal width (`flex: 1`), and tighten the horizontal padding so both
+   fit comfortably side-by-side within the column. */
+.kt-404__btn {
+  display: inline-flex;
+  flex: 1 1 0;
+  white-space: nowrap;
+  padding: 1rem 1.25rem;
+}
 
-/* Action row — vertical-stacked on mobile, inline gap on desktop.
-   Primary (home) + secondary (browse products) CTAs sit side-by-side
-   when viewport allows. Extends the page beyond the single "home"
-   dead-end a reviewer expects a 404 NOT to be. */
+/* Action row — full-width stacked on mobile (matches the search bar
+   width above), equal side-by-side pair on desktop. Extends the page
+   beyond the single "home" dead-end a reviewer expects a 404 NOT to be. */
 .kt-404__actions {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 0.75rem;
   margin-top: 0.5rem;
 }
