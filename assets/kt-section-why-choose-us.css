@@ -9,12 +9,15 @@
   color: rgb(var(--kt-c-fg, 255 255 255));
   overflow: hidden;
   position: relative;
-  padding: 8rem 0;
+  /* Bottom padding intentionally lighter than the top: the section had a
+     symmetric 8rem/12rem that left an oversized empty gap below the
+     feature columns. Keep the generous top lead-in, tighten the bottom. */
+  padding: 8rem 0 4rem;
 }
 
 @media screen and (min-width: 750px) {
   .kt-why-choose-us {
-    padding: 12rem 0;
+    padding: 12rem 0 6rem;
   }
 }
 
@@ -239,8 +242,10 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 600;
-  /* R232.50 — scheme-aware eyebrow */
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.6);
+  /* R232.50 — scheme-aware eyebrow. Dialed down from 0.6 → 0.4 so the
+     "01 / MEMBER UPDATES" kicker reads as a quiet label, subordinate to
+     the feature title. */
+  color: rgba(var(--kt-c-fg, 168 162 158), 0.4);
   margin-bottom: 1.5rem;
   display: block;
 }
