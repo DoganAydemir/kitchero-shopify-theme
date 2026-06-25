@@ -131,9 +131,20 @@
   function autoOpenIfPosted() {
     var d = getDrawer();
     if (!d) return;
-    if (d.querySelector('[data-appointment-posted-successfully]')) {
-      openDrawer();
-    }
+    if (!d.querySelector('[data-appointment-posted-successfully]')) return;
+
+    /* `form.posted_successfully?` is page-GLOBAL across every
+       {% form 'contact' %} on the page — submitting ANY contact form
+       (e.g. the visualize-studio "Book a studio visit" form) flips it
+       true, so the sentinel alone cannot tell whether THIS drawer's form
+       was the one submitted. Shopify appends the submitted form's `id`
+       as the URL fragment, so the reliable signal is the hash matching
+       this drawer's form id ('appointment-form'). Without this gate the
+       studio-visit submission wrongly auto-opened this drawer, showed a
+       misleading success, and locked body scroll. */
+    if (window.location.hash !== '#appointment-form') return;
+
+    openDrawer();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoOpenIfPosted);
