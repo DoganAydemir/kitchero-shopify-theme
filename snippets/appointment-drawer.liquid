@@ -32,7 +32,7 @@
             (the `role="status"` paragraph below handles that).
           {%- endcomment -%}
           <span data-appointment-posted-successfully hidden></span>
-          <p class="kt-form__success" role="status">
+          <p class="kt-form__success" role="status" data-contact-feedback="appointment-form">
             {{ 'kt.section.appointment.success' | t | default: 'Thanks — we will be in touch shortly.' }}
           </p>
         {%- endif -%}
@@ -46,7 +46,7 @@
             focusFirstFormError`) targets `[data-form-error-summary]`
             first then falls back to `[role="alert"][tabindex="-1"]`.
           {%- endcomment -%}
-          <div class="kt-form__error-summary" data-form-error-summary tabindex="-1">
+          <div class="kt-form__error-summary" data-form-error-summary tabindex="-1" data-contact-feedback="appointment-form">
             <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
             <ul class="kt-form__error-list">
               {%- for field in form.errors -%}

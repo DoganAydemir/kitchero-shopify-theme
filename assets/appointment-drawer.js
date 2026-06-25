@@ -13,6 +13,7 @@
 
   var drawer = null;
   var lastActiveElement = null;
+  var prevBodyOverflow = '';
 
   function getDrawer() {
     if (!drawer) drawer = document.querySelector('.kt-appointment-drawer');
@@ -32,11 +33,15 @@
     lastActiveElement = document.activeElement;
     d.setAttribute('aria-hidden', 'false');
     d.removeAttribute('inert');
-    if (window.Kitchero && Kitchero.scrollLock) {
-      Kitchero.scrollLock.lock('appointment-drawer');
-    } else {
-      document.body.style.overflow = 'hidden';
-    }
+    /* Lightweight background-scroll suppression — same approach as the
+       cart drawer (cart-drawer.js R296). We deliberately do NOT use the
+       heavy Kitchero.scrollLock (position:fixed + negative top): that
+       relayout fights the smooth-scroll (Lenis) instance, so after an
+       auto-open-on-load (post-submit ?contact_posted=true#appointment-form)
+       closing the drawer left the page unscrollable. `overflow:hidden` is
+       paint-only — no reflow, no Lenis desync — and close() restores it. */
+    prevBodyOverflow = document.body.style.overflow || '';
+    document.body.style.overflow = 'hidden';
 
     // Focus first input for keyboard users
     var firstInput = d.querySelector('input, select, textarea, button:not([data-appointment-close])');
@@ -61,11 +66,7 @@
 
     d.setAttribute('aria-hidden', 'true');
     d.setAttribute('inert', '');
-    if (window.Kitchero && Kitchero.scrollLock) {
-      Kitchero.scrollLock.unlock('appointment-drawer');
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = prevBodyOverflow || '';
 
     // Release the focus trap BEFORE restoring focus — otherwise the
     // trap's last active element may block the restoration.
@@ -107,17 +108,12 @@
     closeDrawer();
   });
 
-  /* Safety net: if the drawer (or a containing section) is removed
-     from the page while the drawer is open (theme editor section
-     unload), release our scrollLock owner so the body overflow is
-     not held hostage by a drawer that no longer exists. Using
-     scrollLock.unlock means another drawer still open (cart, mobile
-     nav, etc.) keeps its lock — no stomping. */
+  /* Safety net: if the drawer is open when its containing section is
+     removed (theme editor section unload), restore the body overflow so
+     scrolling isn't left disabled by a drawer that no longer exists. */
   document.addEventListener('shopify:section:unload', function () {
-    if (window.Kitchero && Kitchero.scrollLock) {
-      Kitchero.scrollLock.unlock('appointment-drawer');
-    } else if (document.body.style.overflow === 'hidden' && !isOpen()) {
-      document.body.style.overflow = '';
+    if (isOpen()) {
+      document.body.style.overflow = prevBodyOverflow || '';
     }
   });
 
