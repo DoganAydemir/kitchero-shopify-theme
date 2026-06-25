@@ -386,69 +386,7 @@
                   reject (parity with main-product.liquid R295 fix —
                   see sections/main-product.liquid line 90).
                 {%- endcomment -%}
-                {%- comment -%}
-                  R-thumb-merchant — Door thumbnail resolution is now
-                  TIERED so the theme works out of the box without any
-                  merchant configuration AND still gives power-users
-                  fine-grained control:
-
-                    Tier 1: `product.metafields.custom.door_sample`
-                            (per-product metafield, set in Shopify
-                            Admin → Products → [P] → Metafields).
-                            One-time setup of the metafield definition
-                            (Settings → Custom data → Products → Add
-                            definition) unlocks this on every product.
-                            Best for stores with a dedicated swatch
-                            photo per product.
-
-                    Tier 2: `product.selected_or_first_available_variant
-                             .featured_image` (variant featured image).
-                            Catches the common cabinet store pattern
-                            where each variant ("Door Style: Slab",
-                            "Door Style: Shaker", etc.) ships its own
-                            swatch photo via Shopify's standard variant
-                            image picker — zero metafield setup.
-                            Skipped when the variant image is the same
-                            as the product's master featured image
-                            (otherwise the thumb would just duplicate
-                            the gallery hero, which is the blurry
-                            placeholder problem the merchant flagged).
-
-                    Tier 3: Nothing — slot stays empty.
-                            Cleaner than a duplicate of the gallery
-                            hero or a generic fallback image.
-
-                  Non-image metafield values (PDF spec sheets, CAD
-                  files, etc.) are filtered via the `media_type`
-                  check on the metafield path so a merchant pointing
-                  the metafield at a document doesn't blow up the
-                  image_tag call below.
-                {%- endcomment -%}
-                {%- assign door_sample_image = nil -%}
-                {%- if product.metafields.custom.door_sample.value != blank
-                       and product.metafields.custom.door_sample.value.media_type == 'image' -%}
-                  {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
-                {%- else -%}
-                  {%- assign door_thumb_variant = product.selected_or_first_available_variant -%}
-                  {%- if door_thumb_variant.featured_image != blank
-                         and door_thumb_variant.featured_image != product.featured_image -%}
-                    {%- assign door_sample_image = door_thumb_variant.featured_image -%}
-                  {%- endif -%}
-                {%- endif -%}
-                <div class="kt-showroom__title-row" {{ block.shopify_attributes }}>
-                  <h1 class="kt-showroom__title">{{ product.title | escape }}</h1>
-                  {%- if block.settings.show_door_thumb and door_sample_image != blank -%}
-                    {%- comment -%}
-                      Image bumped from `width: 160` to `width: 240` so
-                      retina (3x) phones get a crisp 80×106 paint
-                      instead of the 2x render that previously softened
-                      detail on iPhone Pro / Plus-class displays.
-                    {%- endcomment -%}
-                    <div class="kt-showroom__door-thumb">
-                      {{ door_sample_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '80, 120, 160, 240', sizes: '80px', width: 80, height: 106, alt: door_sample_image.alt | default: product.title }}
-                    </div>
-                  {%- endif -%}
-                </div>
+                <h1 class="kt-showroom__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
 
               {%- when 'price' -%}
                 <div {{ block.shopify_attributes }}>
@@ -1124,15 +1062,7 @@
       "type": "title",
       "name": "t:sections.main-product-showroom.blocks.title.name",
       "limit": 1,
-      "settings": [
-        {
-          "type": "checkbox",
-          "id": "show_door_thumb",
-          "label": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.label",
-          "info": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.info",
-          "default": true
-        }
-      ]
+      "settings": []
     },
     {
       "type": "price",

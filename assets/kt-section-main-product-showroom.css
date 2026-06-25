@@ -337,16 +337,10 @@
   margin-bottom: 0.75rem;
 }
 
-/* Title + Door Thumbnail row: flex items-start justify-between gap-4 mb-6 */
-.kt-showroom__title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Title: text-3xl lg:text-4xl font-serif tracking-tight */
+/* Title: text-3xl lg:text-4xl font-serif tracking-tight.
+   The bottom margin carries the gap the old title-row wrapper used to
+   provide — the info column is a flex column with no parent gap, so the
+   spacing below the title lives here now. */
 .kt-showroom__title {
   font-family: var(--kt-f-accent-family);
   font-size: calc(var(--kt-f-heading-scale, 1) * (1.875rem));
@@ -354,7 +348,7 @@
   letter-spacing: -0.025em;
   line-height: 1.1;
   color: var(--kt-stone-900);
-  margin: 0;
+  margin: 0 0 1.5rem;
 }
 
 @media screen and (min-width: 990px) {
@@ -362,23 +356,6 @@
     font-size: calc(var(--kt-f-heading-scale, 1) * (2.25rem));
 
   }
-}
-
-/* Door thumbnail (80x106 rounded + bordered stone-200) */
-.kt-showroom__door-thumb {
-  width: 5rem;
-  height: 6.625rem;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 2px solid var(--kt-stone-200);
-  flex-shrink: 0;
-  background-color: var(--kt-stone-100);
-}
-
-.kt-showroom__door-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 /* ============================================================
