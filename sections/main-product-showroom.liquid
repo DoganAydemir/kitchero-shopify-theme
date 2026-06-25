@@ -828,12 +828,15 @@
 
               {%- when 'door_sample' -%}
                 {%- comment -%}
-                  Fall back to the current product if the merchant hasn't
-                  linked a dedicated sample product yet. This keeps the
-                  box visible on every showroom page — which is what the
-                  Next.js source does — instead of silently disappearing.
+                  The sample is a SEPARATE, low-cost product (e.g. a door
+                  swatch) linked via the block's Sample product picker —
+                  NOT the showroom product itself. No fallback to the
+                  current product: a $1,000 cabinet must never become the
+                  "sample" added to cart. When nothing is linked the box
+                  does not render on the storefront (an editor hint shows
+                  in the theme editor instead).
                 {%- endcomment -%}
-                {%- assign sample_product = block.settings.sample_product | default: product -%}
+                {%- assign sample_product = block.settings.sample_product -%}
                 {%- if sample_product != blank -%}
                   {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
                   {%- assign sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
@@ -849,8 +852,8 @@
                     <div class="kt-showroom__sample-body">
                       <div class="kt-showroom__sample-top">
                         <div class="kt-showroom__sample-thumb">
-                          {%- comment -%} Cover priority: the block's Sample cover image setting → sample product's featured image → placeholder. Key-agnostic by design: the merchant can pick a literal image OR connect this setting to ANY product image/file metafield of their own via the editor's dynamic source — the theme never hardcodes a metafield key, so it works on any store regardless of how the merchant named their metafield. {%- endcomment -%}
-                          {%- assign sample_cover = block.settings.sample_image | default: sample_product.featured_image -%}
+                          {%- comment -%} Just the linked sample product's own featured image — no metafield/setting indirection. Placeholder if the product has no image. {%- endcomment -%}
+                          {%- assign sample_cover = sample_product.featured_image -%}
                           {%- if sample_cover != blank -%}
                             {%- comment -%} Width-only request (no crop) so the photo keeps full resolution; CSS object-fit:cover frames it in the left thumb. Requested well wider than the 96×128 box (500px) so the cover crop stays crisp on retina. {%- endcomment -%}
                             {{ sample_cover | image_url: width: 500 | image_tag: loading: 'lazy', width: 96, height: 128, alt: sample_cover.alt | default: sample_product.title }}
@@ -910,6 +913,13 @@
                         {%- endcomment -%}
                       {%- endform -%}
                     </div>
+                  </div>
+                {%- elsif request.design_mode -%}
+                  {%- comment -%} Editor-only prompt so the merchant links a sample product (the box stays hidden on the live storefront until one is chosen). {%- endcomment -%}
+                  <div class="kt-showroom__sample-box kt-showroom__sample-box--empty" {{ block.shopify_attributes }}>
+                    <p class="kt-showroom__sample-empty-hint">
+                      {{ 'kt.section.product_showroom.sample_empty_hint' | t }}
+                    </p>
                   </div>
                 {%- endif -%}
 
@@ -1449,12 +1459,6 @@
           "id": "sample_product",
           "label": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_product.label",
           "info": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_product.info"
-        },
-        {
-          "type": "image_picker",
-          "id": "sample_image",
-          "label": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_image.label",
-          "info": "t:sections.main-product-showroom.blocks.door_sample.settings.sample_image.info"
         },
         {
           "type": "text",
