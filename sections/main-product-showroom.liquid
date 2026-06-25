@@ -386,69 +386,7 @@
                   reject (parity with main-product.liquid R295 fix —
                   see sections/main-product.liquid line 90).
                 {%- endcomment -%}
-                {%- comment -%}
-                  R-thumb-merchant — Door thumbnail resolution is now
-                  TIERED so the theme works out of the box without any
-                  merchant configuration AND still gives power-users
-                  fine-grained control:
-
-                    Tier 1: `product.metafields.custom.door_sample`
-                            (per-product metafield, set in Shopify
-                            Admin → Products → [P] → Metafields).
-                            One-time setup of the metafield definition
-                            (Settings → Custom data → Products → Add
-                            definition) unlocks this on every product.
-                            Best for stores with a dedicated swatch
-                            photo per product.
-
-                    Tier 2: `product.selected_or_first_available_variant
-                             .featured_image` (variant featured image).
-                            Catches the common cabinet store pattern
-                            where each variant ("Door Style: Slab",
-                            "Door Style: Shaker", etc.) ships its own
-                            swatch photo via Shopify's standard variant
-                            image picker — zero metafield setup.
-                            Skipped when the variant image is the same
-                            as the product's master featured image
-                            (otherwise the thumb would just duplicate
-                            the gallery hero, which is the blurry
-                            placeholder problem the merchant flagged).
-
-                    Tier 3: Nothing — slot stays empty.
-                            Cleaner than a duplicate of the gallery
-                            hero or a generic fallback image.
-
-                  Non-image metafield values (PDF spec sheets, CAD
-                  files, etc.) are filtered via the `media_type`
-                  check on the metafield path so a merchant pointing
-                  the metafield at a document doesn't blow up the
-                  image_tag call below.
-                {%- endcomment -%}
-                {%- assign door_sample_image = nil -%}
-                {%- if product.metafields.custom.door_sample.value != blank
-                       and product.metafields.custom.door_sample.value.media_type == 'image' -%}
-                  {%- assign door_sample_image = product.metafields.custom.door_sample.value -%}
-                {%- else -%}
-                  {%- assign door_thumb_variant = product.selected_or_first_available_variant -%}
-                  {%- if door_thumb_variant.featured_image != blank
-                         and door_thumb_variant.featured_image != product.featured_image -%}
-                    {%- assign door_sample_image = door_thumb_variant.featured_image -%}
-                  {%- endif -%}
-                {%- endif -%}
-                <div class="kt-showroom__title-row" {{ block.shopify_attributes }}>
-                  <h1 class="kt-showroom__title">{{ product.title | escape }}</h1>
-                  {%- if block.settings.show_door_thumb and door_sample_image != blank -%}
-                    {%- comment -%}
-                      Image bumped from `width: 160` to `width: 240` so
-                      retina (3x) phones get a crisp 80×106 paint
-                      instead of the 2x render that previously softened
-                      detail on iPhone Pro / Plus-class displays.
-                    {%- endcomment -%}
-                    <div class="kt-showroom__door-thumb">
-                      {{ door_sample_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '80, 120, 160, 240', sizes: '80px', width: 80, height: 106, alt: door_sample_image.alt | default: product.title }}
-                    </div>
-                  {%- endif -%}
-                </div>
+                <h1 class="kt-showroom__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
 
               {%- when 'price' -%}
                 <div {{ block.shopify_attributes }}>
@@ -526,60 +464,60 @@
 
               {%- when 'ctas' -%}
                 {%- comment -%}
-                  R294 — Primary CTA opens the appointment drawer
-                  via `data-consultation-open`. If the merchant
-                  has disabled appointments (theme settings →
-                  Features → Appointment drawer), the drawer JS +
-                  markup are not on the page, so a click on this
-                  button would do nothing visible. Swap the
-                  primary button for the secondary CTA's link (if
-                  one is configured) in that case, otherwise hide
-                  the CTA cluster entirely. Avoids dead buttons
-                  that Theme Store reviewers flag as "non-functional
-                  interactive element".
+                  Primary button → opens the consultation lead form
+                  (data-consultation-open) OR links to a custom URL, per
+                  `primary_cta_action`. Secondary button → custom link,
+                  else falls back to the lead form. Each button shows an
+                  optional, merchant-chosen icon (snippets/kt-icon).
+
+                  A button that would do nothing — the lead-form action
+                  while the appointment drawer is disabled in Theme
+                  settings, with no URL — is suppressed so Theme Store
+                  reviewers never see a dead interactive element.
                 {%- endcomment -%}
-                {%- if settings.kt_appointment_enabled or block.settings.secondary_cta_link != blank -%}
+                {%- liquid
+                  assign primary_is_url = false
+                  if block.settings.primary_cta_action == 'url' and block.settings.primary_cta_link != blank
+                    assign primary_is_url = true
+                  endif
+                  assign show_primary = false
+                  if primary_is_url
+                    assign show_primary = true
+                  elsif block.settings.primary_cta_action == 'lead_form' and settings.kt_appointment_enabled
+                    assign show_primary = true
+                  endif
+                  assign show_secondary = false
+                  if block.settings.secondary_cta_text != blank
+                    if block.settings.secondary_cta_link != blank or settings.kt_appointment_enabled
+                      assign show_secondary = true
+                    endif
+                  endif
+                -%}
+                {%- if show_primary or show_secondary -%}
                 <div class="kt-showroom__ctas" {{ block.shopify_attributes }}>
-                  {%- if settings.kt_appointment_enabled -%}
-                    <button
-                      type="button"
-                      class="kt-showroom__cta kt-showroom__cta--primary"
-                      data-consultation-open
-                    >
-                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      <span>{{ block.settings.primary_cta_text }}</span>
-                    </button>
+                  {%- if show_primary -%}
+                    {%- if primary_is_url -%}
+                      <a href="{{ block.settings.primary_cta_link | escape }}" class="kt-showroom__cta kt-showroom__cta--primary">
+                        {%- if block.settings.primary_show_icon -%}{%- render 'kt-icon', icon: block.settings.primary_icon, width: 16, height: 16, stroke_width: 2 -%}{%- endif -%}
+                        <span>{{ block.settings.primary_cta_text }}</span>
+                      </a>
+                    {%- else -%}
+                      <button type="button" class="kt-showroom__cta kt-showroom__cta--primary" data-consultation-open>
+                        {%- if block.settings.primary_show_icon -%}{%- render 'kt-icon', icon: block.settings.primary_icon, width: 16, height: 16, stroke_width: 2 -%}{%- endif -%}
+                        <span>{{ block.settings.primary_cta_text }}</span>
+                      </button>
+                    {%- endif -%}
                   {%- endif -%}
 
-                  {%- if block.settings.secondary_cta_text != blank -%}
+                  {%- if show_secondary -%}
                     {%- if block.settings.secondary_cta_link != blank -%}
-                      <a
-                        href="{{ block.settings.secondary_cta_link | escape }}"
-                        class="kt-showroom__cta kt-showroom__cta--secondary"
-                      >
-                        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                          <path d="M2 2l7.586 7.586"></path>
-                          <circle cx="11" cy="11" r="2"></circle>
-                        </svg>
+                      <a href="{{ block.settings.secondary_cta_link | escape }}" class="kt-showroom__cta kt-showroom__cta--secondary">
+                        {%- if block.settings.secondary_show_icon -%}{%- render 'kt-icon', icon: block.settings.secondary_icon, width: 16, height: 16, stroke_width: 2 -%}{%- endif -%}
                         <span>{{ block.settings.secondary_cta_text }}</span>
                       </a>
                     {%- elsif settings.kt_appointment_enabled -%}
-                      <button
-                        type="button"
-                        class="kt-showroom__cta kt-showroom__cta--secondary"
-                        data-consultation-open
-                      >
-                        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                          <path d="M2 2l7.586 7.586"></path>
-                          <circle cx="11" cy="11" r="2"></circle>
-                        </svg>
+                      <button type="button" class="kt-showroom__cta kt-showroom__cta--secondary" data-consultation-open>
+                        {%- if block.settings.secondary_show_icon -%}{%- render 'kt-icon', icon: block.settings.secondary_icon, width: 16, height: 16, stroke_width: 2 -%}{%- endif -%}
                         <span>{{ block.settings.secondary_cta_text }}</span>
                       </button>
                     {%- endif -%}
@@ -1124,15 +1062,7 @@
       "type": "title",
       "name": "t:sections.main-product-showroom.blocks.title.name",
       "limit": 1,
-      "settings": [
-        {
-          "type": "checkbox",
-          "id": "show_door_thumb",
-          "label": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.label",
-          "info": "t:sections.main-product-showroom.blocks.title.settings.show_door_thumb.info",
-          "default": true
-        }
-      ]
+      "settings": []
     },
     {
       "type": "price",
@@ -1353,22 +1283,93 @@
       "limit": 1,
       "settings": [
         {
+          "type": "header",
+          "content": "t:sections.main-product-showroom.blocks.ctas.settings.header__primary.content"
+        },
+        {
           "type": "text",
           "id": "primary_cta_text",
           "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_text.label",
-          "default": "Shop now"
+          "default": "Book your free appointment"
+        },
+        {
+          "type": "select",
+          "id": "primary_cta_action",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_action.label",
+          "options": [
+            { "value": "lead_form", "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_action.options__1.label" },
+            { "value": "url", "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_action.options__2.label" }
+          ],
+          "default": "lead_form"
+        },
+        {
+          "type": "url",
+          "id": "primary_cta_link",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_link.label",
+          "info": "t:sections.main-product-showroom.blocks.ctas.settings.primary_cta_link.info",
+          "visible_if": "{{ block.settings.primary_cta_action == 'url' }}"
+        },
+        {
+          "type": "checkbox",
+          "id": "primary_show_icon",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_show_icon.label",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "primary_icon",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.primary_icon.label",
+          "options": [
+            { "value": "calendar", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__1.label" },
+            { "value": "clock", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__2.label" },
+            { "value": "phone", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__3.label" },
+            { "value": "mail", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__4.label" },
+            { "value": "chat", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__5.label" },
+            { "value": "arrow_right", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__6.label" },
+            { "value": "check", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__7.label" },
+            { "value": "sparkle", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__8.label" }
+          ],
+          "default": "calendar",
+          "visible_if": "{{ block.settings.primary_show_icon }}"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product-showroom.blocks.ctas.settings.header__secondary.content"
         },
         {
           "type": "text",
           "id": "secondary_cta_text",
           "label": "t:sections.main-product-showroom.blocks.ctas.settings.secondary_cta_text.label",
-          "default": "Learn more"
+          "default": "Call now"
         },
         {
           "type": "url",
           "id": "secondary_cta_link",
           "label": "t:sections.main-product-showroom.blocks.ctas.settings.secondary_cta_link.label",
           "info": "t:sections.main-product-showroom.blocks.ctas.settings.secondary_cta_link.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "secondary_show_icon",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.secondary_show_icon.label",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "secondary_icon",
+          "label": "t:sections.main-product-showroom.blocks.ctas.settings.secondary_icon.label",
+          "options": [
+            { "value": "calendar", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__1.label" },
+            { "value": "clock", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__2.label" },
+            { "value": "phone", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__3.label" },
+            { "value": "mail", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__4.label" },
+            { "value": "chat", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__5.label" },
+            { "value": "arrow_right", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__6.label" },
+            { "value": "check", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__7.label" },
+            { "value": "sparkle", "label": "t:sections.main-product-showroom.blocks.ctas.settings.icon.options__8.label" }
+          ],
+          "default": "phone",
+          "visible_if": "{{ block.settings.secondary_show_icon }}"
         }
       ]
     },

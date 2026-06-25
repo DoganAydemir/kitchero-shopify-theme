@@ -583,6 +583,15 @@
       <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
+    {%- comment -%}
+      Scopes contact-form success/error feedback to the form that was
+      actually submitted (assets/kt-form-scope.js). Loaded globally: the
+      showroom can show two {% form 'contact' %} blocks (studio form +
+      consultation drawer), and Shopify's page-global posted flag would
+      otherwise surface feedback on both. Keyed off the URL fragment.
+    {%- endcomment -%}
+    <script src="{{ 'kt-form-scope.js' | asset_url }}" defer="defer"></script>
+
     {% sections 'header-group' %}
 
     {%- comment -%}

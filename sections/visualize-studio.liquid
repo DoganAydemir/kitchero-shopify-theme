@@ -124,10 +124,10 @@
           {%- endcomment -%}
           {%- form 'contact', id: 'visualize-studio-form', class: 'kt-visualize-studio__form' -%}
             {%- if form.posted_successfully? -%}
-              <p class="kt-visualize-studio__success" role="status">
+              <p class="kt-visualize-studio__success" role="status" data-contact-feedback="visualize-studio-form">
                 {{ 'kt.contact.form.post_success' | t | default: 'Thanks — we will get back to you soon.' }}
               </p>
-            {%- else -%}
+            {%- endif -%}
             {%- if form.errors -%}
               {%- comment -%}
                 R297 — `data-form-error-summary` + anchor-wrapped
@@ -135,7 +135,7 @@
                 section-id-suffixed per R296 (`VisualizeStudioName-
                 {{section.id}}`); the anchors must mirror those IDs.
               {%- endcomment -%}
-              <div class="kt-form__error-summary" data-form-error-summary tabindex="-1">
+              <div class="kt-form__error-summary" data-form-error-summary tabindex="-1" data-contact-feedback="visualize-studio-form">
                 <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
                 <ul class="kt-form__error-list">
                   {%- for field in form.errors -%}
@@ -247,7 +247,6 @@
             <button type="submit" class="kt-visualize-studio__submit">
               {{ section.settings.submit_text | default: visualize_submit_default }}
             </button>
-            {%- endif -%}{%- comment -%} R151 close form posted_successfully? swap branch {%- endcomment -%}
           {%- endform -%}
         </div>
       </div>
