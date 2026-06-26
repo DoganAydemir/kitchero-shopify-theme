@@ -176,58 +176,11 @@
   }
 }
 
-/* R-wcag-pause — Pause/play toggle, positioned discreetly at the
-   bottom-right of the marquee strip. 44x44 hit area + visible
-   focus-visible ring + sufficient contrast against the section bg.
-   Hidden in reduced-motion (animation already disabled). */
-.kt-brands__pause-toggle {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.75rem;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid rgba(var(--kt-c-fg), 0.45);
-  border-radius: 9999px;
-  background: rgba(var(--kt-c-bg), 0.85);
-  color: rgb(var(--kt-c-fg));
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  z-index: 2;
-}
-.kt-brands__pause-toggle:hover {
-  background: rgb(var(--kt-c-bg));
-  border-color: rgb(var(--kt-c-fg));
-}
-.kt-brands__pause-toggle:focus-visible {
-  outline: 2px solid rgb(var(--kt-c-action));
-  outline-offset: 2px;
-}
-.kt-brands__pause-toggle [hidden] {
-  display: none;
-}
+/* R-user — pause/play toggle removed per user request; the marquee
+   still pauses on hover/focus and is disabled under
+   prefers-reduced-motion (see rules above). Kept position: relative
+   on the host so any future absolutely-positioned child still anchors
+   here. */
 .kt-brands {
   position: relative;
-}
-@media (prefers-reduced-motion: reduce) {
-  .kt-brands__pause-toggle { display: none; }
-}
-
-/* R232.43 — Hide the pause control on mobile. WCAG 2.2.2 only
-   requires a pause affordance for moving content that lasts >5s;
-   on mobile the marquee animation is throttled (animation paused
-   on touch via `:hover` doesn't apply, but the iOS reduce-motion
-   query already covers users who care). The on-screen control was
-   clipping the brand logos on small viewports and the user
-   flagged it as visual clutter ("Brands lerde mobilde pause btn
-   olmasın"). Desktop keeps the toggle for keyboard + SR users who
-   can't rely on hover-to-pause. Touch users on mobile get the
-   prefers-reduced-motion pause via OS settings. */
-@media (max-width: 749px) {
-  .kt-brands__pause-toggle {
-    display: none;
-  }
 }
