@@ -1,0 +1,72 @@
+{%- comment -%}
+  kt-filter-swatch — renders a round colour chip for a Search & Discovery
+  storefront filter value. Resolution order:
+    1. value.swatch.image  — Shopify's native swatch image
+    2. value.swatch.color  — Shopify's native swatch hex (taxonomy-linked
+                             option values, e.g. our shopify.color-pattern)
+    3. name → hex palette  — finishes Shopify ships no swatch for
+                             (bronze, gold, walnut, oak, espresso, …) so
+                             every value still gets a chip
+    4. CSS colour name     — last resort (e.g. "navy", "tomato")
+
+  The chip itself is styled by `.kt-filter__swatch` in
+  assets/kt-collection-filters.css (loaded by every collection/search
+  section), so a bare <span> is all this needs to emit.
+
+  Accepts:
+  - value: a filter_value object (required)
+
+  The CALLER decides WHEN to render this (only for colour filters) — see
+  the `param_name contains 'color' or filter.presentation == 'swatch'`
+  guard at each call site.
+{%- endcomment -%}
+{%- liquid
+  assign kt_sw_image = value.swatch.image
+  assign kt_sw_color = value.swatch.color
+  assign kt_cname = value.label | downcase | strip
+-%}
+{%- if kt_sw_image != blank -%}
+  <span class="kt-filter__swatch" style="background-image: url({{ kt_sw_image | image_url: width: 48 }}); background-size: cover; background-position: center;"></span>
+{%- else -%}
+  {%- liquid
+    if kt_sw_color != blank
+      assign kt_chip = kt_sw_color
+    else
+      case kt_cname
+        when 'black'
+          assign kt_chip = '#1a1a1a'
+        when 'white', 'arctic white'
+          assign kt_chip = '#faf9f6'
+        when 'charcoal'
+          assign kt_chip = '#44403c'
+        when 'beige'
+          assign kt_chip = '#ead8ab'
+        when 'ivory'
+          assign kt_chip = '#f4efe1'
+        when 'brown'
+          assign kt_chip = '#6b4e31'
+        when 'gray', 'grey', 'pebble gray'
+          assign kt_chip = '#a8a29e'
+        when 'silver'
+          assign kt_chip = '#c0c0c0'
+        when 'gold'
+          assign kt_chip = '#c9a227'
+        when 'bronze'
+          assign kt_chip = '#cd7f32'
+        when 'navy', 'navy blue'
+          assign kt_chip = '#1e3a5f'
+        when 'walnut'
+          assign kt_chip = '#5d432c'
+        when 'oak', 'natural oak'
+          assign kt_chip = '#d2b48c'
+        when 'espresso'
+          assign kt_chip = '#3c2415'
+        when 'ice'
+          assign kt_chip = '#e6eef2'
+        else
+          assign kt_chip = kt_cname
+      endcase
+    endif
+  -%}
+  <span class="kt-filter__swatch" style="background-color: {{ kt_chip }};"></span>
+{%- endif -%}
