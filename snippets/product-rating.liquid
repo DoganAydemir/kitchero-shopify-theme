@@ -22,7 +22,7 @@
 {%- else -%}
 {%- liquid
   assign rating_value = product.metafields.reviews.rating.value.rating
-  assign rating_scale_max = product.metafields.reviews.rating.value.scale_max | default: 5
+  assign rating_scale_max = product.metafields.reviews.rating.value.scale_max | default: 5 | round
   assign rating_count = product.metafields.reviews.rating_count.value
 
   unless rating_value
@@ -42,9 +42,18 @@
   {%- elsif remainder >= 0.75 -%}
     {%- assign full_stars = full_stars | plus: 1 -%}
   {%- endif -%}
-  {%- assign empty_stars = rating_scale_max | minus: full_stars -%}
+  {%- assign empty_stars = rating_scale_max | minus: full_stars | round -%}
   {%- if has_half -%}
     {%- assign empty_stars = empty_stars | minus: 1 -%}
+  {%- endif -%}
+  {%- comment -%}
+    Clamp to >= 0. A rating that rounds up to the scale max (e.g. 4.8 → 5
+    full stars) leaves empty_stars at 0; a stray float could push it
+    negative, and `(1..-1)` is an invalid Liquid range. floor/round above
+    keep it integer; this guard keeps it non-negative.
+  {%- endcomment -%}
+  {%- if empty_stars < 0 -%}
+    {%- assign empty_stars = 0 -%}
   {%- endif -%}
 
   {%- comment -%}

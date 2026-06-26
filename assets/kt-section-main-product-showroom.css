@@ -351,6 +351,41 @@
   margin: 0 0 1.5rem;
 }
 
+/* Showroom rating row — brand-orange stars, matching the Default PDP.
+   Scoped to .kt-showroom__rating so the stone-coloured card stars
+   (kt-card-product.css, loaded via the Related / Complementary blocks)
+   are left alone. Pulled up under the title, room before the price. */
+.kt-showroom__rating {
+  margin: -0.75rem 0 1.25rem;
+}
+/* The base .kt-rating flex layout lives in kt-card-product.css, which is
+   NOT loaded on the showroom PDP — without it the (global svg{display:block})
+   star SVGs stack vertically. Re-declare the row layout here so the rating
+   reads horizontally like the Default template. */
+.kt-showroom__rating .kt-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+.kt-showroom__rating .kt-rating__star {
+  flex-shrink: 0;
+  color: #fe9900;
+}
+.kt-showroom__rating .kt-rating__star--empty {
+  color: rgba(254, 153, 0, 0.28);
+}
+.kt-showroom__rating .kt-rating__half-stop {
+  stop-color: rgba(254, 153, 0, 0.28);
+}
+.kt-showroom__rating .kt-rating__value {
+  font-size: 0.8rem;
+  color: var(--kt-stone-600);
+}
+.kt-showroom__rating .kt-rating__count {
+  font-size: 0.8rem;
+  color: var(--kt-stone-500);
+}
+
 @media screen and (min-width: 990px) {
   .kt-showroom__title {
     font-size: calc(var(--kt-f-heading-scale, 1) * (2.25rem));

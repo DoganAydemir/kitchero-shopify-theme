@@ -388,6 +388,19 @@
                 {%- endcomment -%}
                 <h1 class="kt-showroom__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
 
+              {%- when 'rating' -%}
+                {%- comment -%}
+                  Star rating for the showroom PDP. Reads the same data as
+                  the Default template (product.metafields.reviews.rating →
+                  Judge.me / Shopify standard, falling back to
+                  custom.rating) via snippets/product-rating.liquid. The
+                  snippet self-suppresses when no rating exists, so the
+                  wrapper just stays empty on rating-less products.
+                {%- endcomment -%}
+                <div class="kt-showroom__rating" {{ block.shopify_attributes }}>
+                  {%- render 'product-rating', product: product -%}
+                </div>
+
               {%- when 'price' -%}
                 <div {{ block.shopify_attributes }}>
                   {%- render 'product-price-showroom',
@@ -1099,6 +1112,12 @@
       "settings": []
     },
     {
+      "type": "rating",
+      "name": "t:sections.main-product-showroom.blocks.rating.name",
+      "limit": 1,
+      "settings": []
+    },
+    {
       "type": "price",
       "name": "t:sections.main-product-showroom.blocks.price.name",
       "limit": 1,
@@ -1538,6 +1557,9 @@
         },
         {
           "type": "title"
+        },
+        {
+          "type": "rating"
         },
         {
           "type": "price"

@@ -357,11 +357,30 @@
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+  /* Extra breathing room between the product title and the
+     rating / stock row that sits directly beneath it. */
+  margin-top: 0.5rem;
   margin-bottom: 1.25rem;
 }
 
 .kt-pdp__meta .kt-rating {
   margin: 0;
+}
+
+/* PDP rating stars — brand orange. Scoped to .kt-pdp__meta so the
+   stone-coloured card stars (kt-card-product.css, which leaks onto
+   the PDP via the Related products section) stay untouched elsewhere.
+   Full stars use #fe9900; the empty side uses a faded tint so the
+   filled vs unfilled split still reads. The `--empty` rule must follow
+   the base star rule (same specificity, later wins). */
+.kt-pdp__meta .kt-rating__star {
+  color: #fe9900;
+}
+.kt-pdp__meta .kt-rating__star--empty {
+  color: rgba(254, 153, 0, 0.28);
+}
+.kt-pdp__meta .kt-rating__half-stop {
+  stop-color: rgba(254, 153, 0, 0.28);
 }
 
 .kt-pdp__meta-sep {
