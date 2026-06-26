@@ -899,6 +899,16 @@
   }
 
   function updateVariant(container, variantIdInput, variantSelect, atcBtn, atcText) {
+    /* `form` is referenced later (selling_plan `:checked` lookup) but is
+       NOT in scope here — updateVariant is module-scoped, not nested in
+       initProductForm, so it never received the closure's `form`. Left
+       undefined it throws `ReferenceError: form is not defined`, which
+       aborts the change handler (product-form.js:318) before the label,
+       gallery, and price ever update. Derive it from the container the
+       same way initProductForm does so the reference resolves. */
+    var wrapper = container.querySelector('[data-product-form]');
+    var form = wrapper ? wrapper.querySelector('form') : container.querySelector('form');
+
     /* Collect selected options */
     var selectedOptions = [];
     container.querySelectorAll('[data-option-value]:checked').forEach(function (input) {

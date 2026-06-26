@@ -461,6 +461,30 @@
                 <div {{ block.shopify_attributes }}>
                   {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
+                {%- comment -%}
+                  R-showroom-picker-wiring — product-form.js wires the
+                  variant picker (selected-option label, ?variant URL,
+                  gallery sync) ONLY when it finds a [data-product-form]
+                  wrapper containing a <form> + [data-variant-id] inside
+                  the section (initProductForm returns early otherwise).
+                  The showroom intentionally drops the buy_controls block
+                  (R-showroom-no-buy), so that wrapper was missing and the
+                  colour swatches updated nothing — no label change, no
+                  gallery sync. This hidden, button-less {% form 'product' %}
+                  restores the wiring WITHOUT exposing an add-to-cart CTA,
+                  so the lead-gen intent stays intact. visually-hidden +
+                  aria-hidden keep it out of layout and the a11y tree; with
+                  no submit control and no text input it can't be submitted
+                  (no implicit Enter submit). Only emitted when the product
+                  actually has selectable variants.
+                {%- endcomment -%}
+                {%- unless product.has_only_default_variant or product.variants.size == 1 -%}
+                  <div data-product-form class="visually-hidden" aria-hidden="true">
+                    {%- form 'product', product -%}
+                      <input type="hidden" name="id" data-variant-id value="{{ product.selected_or_first_available_variant.id }}">
+                    {%- endform -%}
+                  </div>
+                {%- endunless -%}
 
               {%- when 'ctas' -%}
                 {%- comment -%}
