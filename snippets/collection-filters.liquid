@@ -110,8 +110,9 @@
                           {%- endif -%}
                         </span>
 
-                        {%- if filter.param_name contains 'color' and value.swatch -%}
-                          <span class="kt-filter__swatch" style="background-color: {{ value.swatch.color }};"></span>
+                        {%- assign kt_pn = filter.param_name | downcase -%}
+                        {%- if kt_pn contains 'color' or kt_pn contains 'colour' or filter.presentation == 'swatch' -%}
+                          {%- render 'kt-filter-swatch', value: value -%}
                         {%- endif -%}
 
                         <span class="kt-filter__label{% if value.count == 0 %} kt-filter__label--disabled{% endif %}">{{ value.label | escape }}</span>

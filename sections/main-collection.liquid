@@ -193,6 +193,10 @@
                                   <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 {%- endif -%}
                               </span>
+                              {%- assign kt_pn = filter.param_name | downcase -%}
+                              {%- if kt_pn contains 'color' or kt_pn contains 'colour' or filter.presentation == 'swatch' -%}
+                                {%- render 'kt-filter-swatch', value: value -%}
+                              {%- endif -%}
                               <span class="kt-filter__label">{{ value.label | escape }}</span>
                               <span class="kt-filter__value-count">({{ value.count }})</span>
                             </label>
@@ -659,6 +663,10 @@
                         <span class="kt-filter-drawer__check-box" aria-hidden="true">
                           {% render 'icon-check', width: 12, height: 12 %}
                         </span>
+                        {%- assign kt_pn = filter.param_name | downcase -%}
+                        {%- if kt_pn contains 'color' or kt_pn contains 'colour' or filter.presentation == 'swatch' -%}
+                          {%- render 'kt-filter-swatch', value: value -%}
+                        {%- endif -%}
                         <span class="kt-filter-drawer__check-text">{{ value.label | escape }}</span>
                         <span class="kt-filter-drawer__check-count">({{ value.count }})</span>
                       </label>
