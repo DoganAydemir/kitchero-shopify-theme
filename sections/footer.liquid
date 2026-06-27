@@ -106,7 +106,8 @@
               {%- if block.settings.heading != blank -%}
                 <h2 class="kt-footer__column-title">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
-              {%- form 'customer', id: 'FooterNewsletter-' | append: block.id -%}
+              {%- assign footer_newsletter_id = 'FooterNewsletter-' | append: block.id -%}
+              {%- form 'customer', id: footer_newsletter_id -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
                 {%- comment -%}
                   No `contact[accepts_marketing]=true` hidden field —

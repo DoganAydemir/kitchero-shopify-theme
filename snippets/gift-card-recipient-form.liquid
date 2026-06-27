@@ -111,10 +111,11 @@
         {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="GiftRecipientEmail-{{ uid }}-error"{% endif %}
         value="{{ form.email | escape }}"
       >
+      {%- assign gift_email_error_id = 'GiftRecipientEmail-' | append: uid | append: '-error' -%}
       {%- render 'form-field-error',
         form: form,
         field: 'email',
-        describedby_id: 'GiftRecipientEmail-' | append: uid | append: '-error'
+        describedby_id: gift_email_error_id
       -%}
     </div>
 
@@ -132,10 +133,11 @@
         {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="GiftRecipientName-{{ uid }}-error"{% endif %}
         value="{{ form.name | escape }}"
       >
+      {%- assign gift_name_error_id = 'GiftRecipientName-' | append: uid | append: '-error' -%}
       {%- render 'form-field-error',
         form: form,
         field: 'name',
-        describedby_id: 'GiftRecipientName-' | append: uid | append: '-error'
+        describedby_id: gift_name_error_id
       -%}
     </div>
 
@@ -163,10 +165,11 @@
         {% if form.errors contains 'send_on' %}aria-invalid="true" aria-describedby="GiftRecipientSendOn-{{ uid }}-error"{% endif %}
         value="{{ form.send_on | escape }}"
       >
+      {%- assign gift_sendon_error_id = 'GiftRecipientSendOn-' | append: uid | append: '-error' -%}
       {%- render 'form-field-error',
         form: form,
         field: 'send_on',
-        describedby_id: 'GiftRecipientSendOn-' | append: uid | append: '-error'
+        describedby_id: gift_sendon_error_id
       -%}
     </div>
 
@@ -184,10 +187,11 @@
         disabled
         {% if form.errors contains 'message' %}aria-invalid="true" aria-describedby="GiftRecipientMessage-{{ uid }}-error"{% endif %}
       >{{ form.message | escape }}</textarea>
+      {%- assign gift_message_error_id = 'GiftRecipientMessage-' | append: uid | append: '-error' -%}
       {%- render 'form-field-error',
         form: form,
         field: 'message',
-        describedby_id: 'GiftRecipientMessage-' | append: uid | append: '-error'
+        describedby_id: gift_message_error_id
       -%}
     </div>
 

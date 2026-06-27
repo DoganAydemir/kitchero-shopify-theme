@@ -169,7 +169,8 @@
                 aria-required="true"
                 {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="VisualizeStudioName-{{ section.id }}-error"{% endif %}
               >
-              {%- render 'form-field-error', form: form, field: 'name', describedby_id: 'VisualizeStudioName-' | append: section.id | append: '-error' -%}
+              {%- assign vs_name_error_id = 'VisualizeStudioName-' | append: section.id | append: '-error' -%}
+              {%- render 'form-field-error', form: form, field: 'name', describedby_id: vs_name_error_id -%}
             </div>
 
             <div class="kt-visualize-studio__field">
@@ -190,7 +191,8 @@
                 aria-required="true"
                 {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="VisualizeStudioEmail-{{ section.id }}-error"{% endif %}
               >
-              {%- render 'form-field-error', form: form, field: 'email', describedby_id: 'VisualizeStudioEmail-' | append: section.id | append: '-error' -%}
+              {%- assign vs_email_error_id = 'VisualizeStudioEmail-' | append: section.id | append: '-error' -%}
+              {%- render 'form-field-error', form: form, field: 'email', describedby_id: vs_email_error_id -%}
             </div>
 
             {%- comment -%}

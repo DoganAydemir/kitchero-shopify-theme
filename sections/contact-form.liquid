@@ -227,6 +227,12 @@
               {%- assign contact_id_phone = 'contact-phone-' | append: section.id -%}
               {%- assign contact_id_message = 'contact-message-' | append: section.id -%}
               {%- assign contact_id_trap = 'contact-website-trap-' | append: section.id -%}
+              {%- comment -%} Pre-built error IDs — filters aren't allowed inside {% render %} arguments by the Theme Store submission parser, so build them here and pass the plain variable. {%- endcomment -%}
+              {%- assign contact_id_first_error = contact_id_first | append: '-error' -%}
+              {%- assign contact_id_last_error = contact_id_last | append: '-error' -%}
+              {%- assign contact_id_email_error = contact_id_email | append: '-error' -%}
+              {%- assign contact_id_phone_error = contact_id_phone | append: '-error' -%}
+              {%- assign contact_id_message_error = contact_id_message | append: '-error' -%}
               <div class="kt-contact__form-row">
                 <div class="kt-contact__form-field">
                   <label for="{{ contact_id_first }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.first_name' | t | default: 'First Name' }}</label>
@@ -241,7 +247,7 @@
                     value="{% if form.first_name %}{{ form.first_name | escape }}{% elsif customer %}{{ customer.first_name | escape }}{% endif %}"
                     {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="{{ contact_id_first }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: contact_id_first | append: '-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: contact_id_first_error -%}
                 </div>
                 <div class="kt-contact__form-field">
                   <label for="{{ contact_id_last }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.last_name' | t | default: 'Last Name' }}</label>
@@ -256,7 +262,7 @@
                     value="{% if form.last_name %}{{ form.last_name | escape }}{% elsif customer %}{{ customer.last_name | escape }}{% endif %}"
                     {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="{{ contact_id_last }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: contact_id_last | append: '-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: contact_id_last_error -%}
                 </div>
               </div>
               <div class="kt-contact__form-row">
@@ -277,7 +283,7 @@
                     value="{% if form.email %}{{ form.email | escape }}{% elsif customer %}{{ customer.email | escape }}{% endif %}"
                     {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ contact_id_email }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'email', describedby_id: contact_id_email | append: '-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'email', describedby_id: contact_id_email_error -%}
                 </div>
                 <div class="kt-contact__form-field">
                   <label for="{{ contact_id_phone }}" class="kt-contact__form-label">{{ 'kt.section.contact.phone' | t | default: 'Phone Number' }}</label>
@@ -291,7 +297,7 @@
                     value="{% if form.phone %}{{ form.phone | escape }}{% elsif customer %}{{ customer.phone | escape }}{% endif %}"
                     {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="{{ contact_id_phone }}-error"{% endif %}
                   >
-                  {%- render 'form-field-error', form: form, field: 'phone', describedby_id: contact_id_phone | append: '-error' -%}
+                  {%- render 'form-field-error', form: form, field: 'phone', describedby_id: contact_id_phone_error -%}
                 </div>
               </div>
               <div class="kt-contact__form-field">
@@ -313,7 +319,7 @@
                   maxlength="2000"
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="{{ contact_id_message }}-error"{% endif %}
                 >{% if form.body %}{{ form.body | escape }}{% endif %}</textarea>
-                {%- render 'form-field-error', form: form, field: 'body', describedby_id: contact_id_message | append: '-error' -%}
+                {%- render 'form-field-error', form: form, field: 'body', describedby_id: contact_id_message_error -%}
               </div>
 
               {%- comment -%}

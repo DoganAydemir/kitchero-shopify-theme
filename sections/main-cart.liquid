@@ -43,12 +43,16 @@
 {%- assign cart_heading_default = 'kt.section.main_cart.heading_default' | t -%}
 {%- assign cart_recommendations_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 {% # theme-check-enable UnusedAssign %}
+{%- comment -%} Pre-resolve filtered values — the Theme Store submission parser rejects `|` filters inside {% render %} arguments. {%- endcomment -%}
+{%- assign cart_eyebrow = section.settings.eyebrow | default: cart_eyebrow_default -%}
+{%- assign cart_heading = section.settings.heading | default: cart_heading_default -%}
+{%- assign cart_heading_tag = section.settings.heading_tag | default: 'h1' -%}
 {%- render 'page-header-dotted',
-  eyebrow: section.settings.eyebrow | default: cart_eyebrow_default,
-  title: section.settings.heading | default: cart_heading_default,
+  eyebrow: cart_eyebrow,
+  title: cart_heading,
   description: section.settings.description,
   count_text: cart_count_label,
-  heading_tag: section.settings.heading_tag | default: 'h1'
+  heading_tag: cart_heading_tag
 -%}
 
 <section
