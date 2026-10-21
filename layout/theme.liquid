@@ -40,17 +40,11 @@
       Shopify storefront.
     {%- endcomment -%}
     {%- comment -%}
-      R-viewport-no-zoom — Added `maximum-scale=1, user-scalable=no`
-      so iOS Safari stops auto-zooming when a customer taps a
-      number/text input. The filter-drawer price inputs and the
-      contact form fields are sized below 16px to fit the editorial
-      density, and Safari's default zoom-on-focus broke the layout.
-      Trade-off: accessibility users who pinch-zoom on iOS get
-      blocked. We compensate with min-height 44px touch targets +
-      14-15px body text + WCAG AAA contrast across the theme so
-      the platform's own zoom isn't required for legibility.
+      Pinch-zoom stays enabled (WCAG 1.4.4). iOS Safari focus-zoom is
+      prevented by keeping form controls at 16px or larger on touch
+      devices (see base.css "Touch form controls").
     {%- endcomment -%}
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     {%- comment -%}
       R296 — Cross-origin Referer policy. Sets the page's referrer
       policy so the Referer header sent to third-party domains
@@ -171,7 +165,6 @@
       <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
       <link rel="icon" type="image/png" sizes="192x192" href="{{ settings.kt_favicon | image_url: width: 192, height: 192 }}">
       <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.kt_favicon | image_url: width: 180, height: 180 }}">
-      <link rel="mask-icon" href="{{ settings.kt_favicon | image_url: width: 512, height: 512 }}" color="{{ theme_color }}">
     {%- endif -%}
 
     {%- unless settings.kt_heading_font.system? and settings.kt_body_font.system? -%}

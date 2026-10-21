@@ -13,6 +13,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#fafaf9">
+    {%- if settings.kt_favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.kt_favicon | image_url: width: 180, height: 180 }}">
+    {%- endif -%}
     {%- comment -%}
       noindex the issued-gift-card URL. The canonical URL pattern
       `/gift_cards/<id>/<code>` contains the redeemable gift-card
