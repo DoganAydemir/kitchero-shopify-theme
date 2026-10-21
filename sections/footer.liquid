@@ -126,6 +126,23 @@
                 {%- else -%}
                   <div class="kt-footer__newsletter">
                     <label for="footer-newsletter-email-{{ block.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
+                      {%- comment -%}
+                        R104 — mobile Return key fires submit.
+                      {%- endcomment -%}
+                      {%- comment -%}
+                        R96 — preserve typed email across server-side
+                        validation errors so the customer doesn't
+                        re-type their entire address. form.email is
+                        Shopify's auto-populated previous-input state
+                        when {% form 'customer' %} fails validation.
+                      {%- endcomment -%}
+                      {%- comment -%}
+                        R139 ARIA-DBY-1: only emit aria-describedby when
+                        FooterNewsletter-error actually renders. The
+                        target `<p>` lives inside `{%- if form.errors -%}`;
+                        emitting the attribute unconditionally points at
+                        a missing ID. Pattern matches newsletter-signup.
+                      {%- endcomment -%}
                     <input
                       type="email"
                       autocapitalize="off"
@@ -139,26 +156,9 @@
                       aria-required="true"
                       maxlength="254"
                       inputmode="email"
-                      {%- comment -%}
-                        R104 — mobile Return key fires submit.
-                      {%- endcomment -%}
                       enterkeyhint="send"
                       autocomplete="email"
-                      {%- comment -%}
-                        R96 — preserve typed email across server-side
-                        validation errors so the customer doesn't
-                        re-type their entire address. form.email is
-                        Shopify's auto-populated previous-input state
-                        when {% form 'customer' %} fails validation.
-                      {%- endcomment -%}
                       value="{{ form.email | escape }}"
-                      {%- comment -%}
-                        R139 ARIA-DBY-1: only emit aria-describedby when
-                        FooterNewsletter-error actually renders. The
-                        target `<p>` lives inside `{%- if form.errors -%}`;
-                        emitting the attribute unconditionally points at
-                        a missing ID. Pattern matches newsletter-signup.
-                      {%- endcomment -%}
                       {%- if form.errors -%}
                         aria-invalid="true"
                         aria-describedby="FooterNewsletter-error-{{ block.id }}"
@@ -479,7 +479,6 @@
             {%- endcomment -%}
             {%- if section.settings.show_privacy_choices -%}
               <li>
-                <a
                   {%- comment -%}
                     R20-C: route through the pages object so Markets-
                     enabled stores get the locale-prefixed URL
@@ -490,6 +489,7 @@
                     better than a localized 404 with the JS path
                     not matching the legal-required CCPA URL.
                   {%- endcomment -%}
+                <a
                   href="{{ pages['your-privacy-choices'].url | default: '/pages/your-privacy-choices' }}"
                   class="kt-footer__policy-link"
                   data-privacy-choices

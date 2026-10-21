@@ -278,6 +278,13 @@
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </span>
+                {%- comment -%}
+                  R104 — Return key fires submit on mobile.
+                {%- endcomment -%}
+                {%- comment -%}
+                  R96 — preserve typed email across validation errors
+                  so customer doesn't retype.
+                {%- endcomment -%}
               <input
                 type="email"
                 autocapitalize="off"
@@ -291,15 +298,8 @@
                 aria-required="true"
                 maxlength="254"
                 inputmode="email"
-                {%- comment -%}
-                  R104 — Return key fires submit on mobile.
-                {%- endcomment -%}
                 enterkeyhint="send"
                 autocomplete="email"
-                {%- comment -%}
-                  R96 — preserve typed email across validation errors
-                  so customer doesn't retype.
-                {%- endcomment -%}
                 value="{{ form.email | escape }}"
                 data-popup-email
                 {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ popup_email_err }}"{% endif %}

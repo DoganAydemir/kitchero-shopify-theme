@@ -11,12 +11,6 @@
 {%- assign vertical_padding = section.settings.vertical_padding | default: 128 -%}
 {%- assign quote_blocks = section.blocks | where: 'type', 'quote' -%}
 
-<section
-  class="kt-testimonials-pullquote color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  data-section-id="{{ section.id }}"
-  data-section-type="testimonials-pullquote"
-  data-autoplay-interval="{{ section.settings.autoplay_interval | default: 0 }}"
-  style="--kt-pullquote-padding: {{ vertical_padding }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   {%- comment -%}
     When quote blocks render as a slider, the inner slides carry
     aria-roledescription="slide" — that's only valid inside a
@@ -26,6 +20,12 @@
     semantics correctly. Single-quote variant skips both attrs
     (no slider, no carousel).
   {%- endcomment -%}
+<section
+  class="kt-testimonials-pullquote color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="testimonials-pullquote"
+  data-autoplay-interval="{{ section.settings.autoplay_interval | default: 0 }}"
+  style="--kt-pullquote-padding: {{ vertical_padding }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
   {%- if quote_blocks.size > 1 -%}
     aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
     aria-label="{{ 'kt.a11y.testimonials_carousel' | t | default: 'Testimonials carousel' }}"

@@ -263,16 +263,8 @@
                       {%- endif -%}
 
                       {%- comment -%}
-                        Per-address error-id anchors. Building these up front
-                        (via | append so address.id is resolved at the Liquid
-                        layer) lets each {% render 'form-field-error' %} call
-                        pass a real interpolated string. A literal
-                        'AddressFirstName{{ address.id }}-error' on the render
-                        line would be passed verbatim — Liquid does NOT
-                        interpolate {{ }} inside render-tag string arguments —
-                        which would emit duplicate <p id="...{{ address.id }}..."
-                        errors on every address card and break
-                        aria-describedby linkage.
+                        Per-address error ids are built with append so each
+                        form-field-error render receives a resolved string.
                       {%- endcomment -%}
                       {%- assign err_fname    = 'AddressFirstName' | append: address.id | append: '-error' -%}
                       {%- assign err_lname    = 'AddressLastName' | append: address.id | append: '-error' -%}

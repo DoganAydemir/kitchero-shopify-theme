@@ -46,18 +46,10 @@
     assign hero_autoplay = true
   endif
 -%}
-<section
-  class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %}"
-  data-section-id="{{ section.id }}"
-  data-section-type="hero"
-  data-allows-transparent-header="true"
-  data-autoplay="{{ hero_autoplay }}"
-  data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
   {%- comment -%} R-homepage-audit — `data-show-pagination` attribute + matching
     `show_pagination` setting REMOVED. JS never bound dot markup, so the toggle
     silently no-op'd in the editor (audit gap). Native arrow keys + ARIA
     play/pause toggle remain the keyboard affordances for the slider. {%- endcomment -%}
-  style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};"
   {%- comment -%}
     R93 — every `<section>` landmark needs an accessible name so SR
     landmarks navigation (NVDA Insert+F7, VoiceOver rotor) lists
@@ -73,6 +65,14 @@
     of just "region". Per-slide context is added on each slide
     container further down.
   {%- endcomment -%}
+<section
+  class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="hero"
+  data-allows-transparent-header="true"
+  data-autoplay="{{ hero_autoplay }}"
+  data-autoplay-speed="{{ section.settings.autoplay_speed | default: 8 }}"
+  style="--kt-hero-height-d: {{ hero_height_d }}vh; --kt-hero-height-m: {{ hero_height_m }}vh; --kt-hero-text: {{ hero_text_color }}; --kt-hero-overlay: {{ hero_overlay_color }}; --kt-hero-overlay-op: {{ hero_overlay_opacity }};"
   aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
   aria-label="{{ 'kt.section.hero.region_label' | t | default: 'Hero' }}"
 >
