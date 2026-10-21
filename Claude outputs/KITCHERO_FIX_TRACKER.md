@@ -16,7 +16,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 ## Uygulama sırası (kolaydan zora, bağımlılıklar gözetilerek)
 
 **Paralel yürüyecek, Faz 0 kararları (yönetici onayı bekleyenler):** #18, #65 · E16 (GSAP lisans/sürüm kararı, Seviye 3'te sunulacak) · #19 detay istişaresi · #80 görsel taraması
-**Seviye 1 durumu (21.10):** kod tarafı tamamlandı. Kalan: E4/E5 (doküman güncellemesi, kod bittikten sonra). Demo tarafları Faz 2'de.
+**Seviye 1 durumu (21.10):** kod tarafı tamamlandı; `fix/audit-level-1` branch'inde 6 commit (2b1ca7c…426b39c). Push yapılamadı (bu ortamda GitHub kimlik bilgisi yok) → kullanıcı GitHub Desktop'tan "Publish branch" ile yayınlayacak. Kalan: E4/E5 (doküman güncellemesi, kod bittikten sonra). Demo tarafları Faz 2'de.
 **Seviye 1, default ve tek satırlık düzeltmeler:** E1, #4, #51, #26, #24, #52, #53, #23, #22, #25, #33, #82, #39, #35, #16, #40, #47, #15, #62 (main default'ları), #14, #63 (kod kısmı), E2, E4, E5, E6, E13 (kod kısmı)
 **Seviye 2, küçük mantık değişiklikleri:** #17 (metin + form eklemeleri), #20, #21, #36, #38, #54, #6, #27, #2, #48, #50, #1, #37, #29 (main: `page.financing.json` ref'leri)
 **Seviye 3, orta büyüklükte işler:** #49, #3 + #28, #19, #18 (karar sonrası), #56, #30 (karar sonrası template + settings senkronu)
