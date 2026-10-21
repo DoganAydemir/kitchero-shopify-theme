@@ -58,31 +58,19 @@
               aria-label="{{ collection.title | escape }}"
             >
               <div class="kt-list-collections__media">
-                {%- if collection.image != blank -%}
+                {%- assign card_image = collection.featured_image -%}
+                {%- if card_image != blank -%}
                   {{
-                    collection.image
+                    card_image
                     | image_url: width: 1200
                     | image_tag:
                       class: 'kt-list-collections__image',
                       loading: 'lazy',
                       widths: '480, 720, 960, 1200, 1600',
                       sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
-                      width: collection.image.width,
-                      height: collection.image.height,
-                      alt: collection.title
-                  }}
-                {%- elsif collection.products.first.featured_image != blank -%}
-                  {{
-                    collection.products.first.featured_image
-                    | image_url: width: 1200
-                    | image_tag:
-                      class: 'kt-list-collections__image',
-                      loading: 'lazy',
-                      widths: '480, 720, 960, 1200, 1600',
-                      sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
-                      width: collection.products.first.featured_image.width,
-                      height: collection.products.first.featured_image.height,
-                      alt: collection.title
+                      width: card_image.width,
+                      height: card_image.height,
+                      alt: card_image.alt | default: collection.title
                   }}
                 {%- else -%}
                   {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-list-collections__image' }}

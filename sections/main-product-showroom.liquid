@@ -109,7 +109,7 @@
                   data-gallery-slide="{{ forloop.index0 }}"
                   data-media-id="{{ media.id }}"
                   data-media-type="image"
-                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
                 >
                   {%- assign media_alt = media.alt | default: product.title -%}
                   {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
@@ -123,7 +123,7 @@
                     data-gallery-slide="{{ forloop.index0 }}"
                     data-media-id="{{ media.id }}"
                     data-media-type="image"
-                    aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                    aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
                   >
                     {%- assign media_alt = media.alt | default: product.title -%}
                     {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
@@ -132,13 +132,14 @@
                   {%- assign next_index = forloop.index -%}
                   {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
                     {%- assign next_media = product.media[next_index] -%}
+                    {%- assign next_image_number = next_index | plus: 1 -%}
                     <button
                       type="button"
                       class="kt-showroom__gallery-half"
                       data-gallery-slide="{{ next_index }}"
                       data-media-id="{{ next_media.id }}"
                       data-media-type="image"
-                      aria-label="{{ 'kt.product.media.image_larger' | t: index: next_index | plus: 1 | default: 'View image larger' }}"
+                      aria-label="{{ 'kt.product.media.image_larger' | t: index: next_image_number }}"
                     >
                       {%- assign next_alt = next_media.alt | default: product.title -%}
                       {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
@@ -250,7 +251,7 @@
                   class="kt-showroom__gallery-mobile-slide"
                   data-gallery-slide="{{ forloop.index0 }}"
                   data-media-type="image"
-                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index | default: 'View image larger' }}"
+                  aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
                 >
                   {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
                   <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
@@ -619,34 +620,7 @@
 
               {%- when 'accordion' -%}
                 {%- unless accordions_rendered -%}
-                  <div class="kt-showroom__accordions">
-                    {%- for acc_block in section.blocks -%}
-                      {%- if acc_block.type == 'accordion' -%}
-                        {%- capture acc_content -%}
-                          {%- if acc_block.settings.page != blank -%}
-                            {{ acc_block.settings.page.content }}
-                          {%- elsif acc_block.settings.content != blank -%}
-                            {{ acc_block.settings.content }}
-                          {%- else -%}
-                            {%- comment -%}
-                              product.description can contain RTE markup
-                              (h-tags, lists, links). Wrapping it in a
-                              raw <p> stripped the cascade and squashed
-                              everything to plain inline text — and
-                              produced invalid HTML when the description
-                              itself contained block-level tags. Render
-                              into a <div class="rte"> instead so it
-                              picks up the unified RTE typography used by
-                              main-article + main-page (Theme Store
-                              cross-template RTE consistency rule).
-                            {%- endcomment -%}
-                            <div class="rte">{{ product.description }}</div>
-                          {%- endif -%}
-                        {%- endcapture -%}
-                        {%- render 'product-accordion', title: acc_block.settings.title, content: acc_content, open: acc_block.settings.open, style: 'serif', shopify_attributes: acc_block.shopify_attributes -%}
-                      {%- endif -%}
-                    {%- endfor -%}
-                  </div>
+                  {%- render 'showroom-accordions', section: section, product: product -%}
                   {%- assign accordions_rendered = true -%}
                 {%- endunless -%}
 
@@ -1488,7 +1462,7 @@
           "type": "textarea",
           "id": "text",
           "label": "t:sections.main-product-showroom.blocks.warranty.settings.text.label",
-          "default": "Backed by our 5-year manufacturer warranty"
+          "default": "Describe your warranty or quality guarantee."
         }
       ]
     },

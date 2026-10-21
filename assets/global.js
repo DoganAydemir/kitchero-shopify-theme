@@ -392,13 +392,7 @@
     global.addEventListener('load', ktSeedSections);
     setTimeout(function () {
       ktSeedSections();
-      /* TEMP DIAGNOSTIC [KT scroll-guard] — remove before Theme Store
-         submission. Final seed count after the editor has settled. */
-      console.log('[KT scroll-guard] seeded ' + ktSeenSections.size + ' sections (after settle)');
     }, 1500);
-    /* TEMP DIAGNOSTIC [KT scroll-guard] — remove before Theme Store
-       submission. Confirms the code is loaded + shows the load-time count. */
-    console.log('[KT scroll-guard] loaded; seeded ' + ktSeenSections.size + ' sections at load');
 
     /* Capture the REAL scroll APIs ONCE, before any neutering, so an
        overlapping re-render can never save (and later restore) an
@@ -428,7 +422,6 @@
         global.scrollTo = function () {};
         Element.prototype.scrollIntoView = function () {};
         global.addEventListener('scroll', ktPin, { passive: true });
-        console.log('[KT scroll-guard] HOLD engaged @ ' + savedY);
       } else {
         clearTimeout(ktHoldTimer);
       }
@@ -437,14 +430,12 @@
         Element.prototype.scrollIntoView = ktTrueScrollIntoView;
         global.removeEventListener('scroll', ktPin);
         ktHoldTimer = null;
-        console.log('[KT scroll-guard] HOLD released');
       }, 1000);
     }
 
     document.addEventListener('shopify:section:load', function (event) {
       var sid = event.detail && event.detail.sectionId;
       var isReRender = sid && ktSeenSections.has(sid);
-      console.log('[KT scroll-guard] section:load sid=' + sid + ' isReRender=' + isReRender + ' scrollY=' + (global.pageYOffset || 0));
       if (sid) ktSeenSections.add(sid);
       if (!isReRender) return;
       ktHoldScroll(global.pageYOffset || document.documentElement.scrollTop || 0);

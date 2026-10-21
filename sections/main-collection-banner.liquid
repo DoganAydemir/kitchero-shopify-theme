@@ -37,7 +37,6 @@
   against the double-h1 trap.
 {%- endcomment -%}
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
-{%- assign eyebrow_default = 'kt.section.main_collection.eyebrow_default' | t -%}
 
 <section
   class="kt-collection-banner kt-collection-banner--{{ banner_height }} kt-collection-banner--align-{{ banner_align }} color-{{ banner_scheme }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
@@ -69,9 +68,9 @@
 
   <div class="kt-collection-banner__inner page-width">
     <div class="kt-collection-banner__content">
-      {%- if section.settings.show_eyebrow -%}
+      {%- if section.settings.show_eyebrow and section.settings.eyebrow != blank -%}
         <p class="kt-collection-banner__eyebrow">
-          {{- section.settings.eyebrow | default: eyebrow_default | escape -}}
+          {{- section.settings.eyebrow | escape -}}
         </p>
       {%- endif -%}
 
@@ -133,8 +132,7 @@
     {
       "type": "text",
       "id": "eyebrow",
-      "label": "t:sections.main-collection-banner.settings.eyebrow.label",
-      "default": "The Archives"
+      "label": "t:sections.main-collection-banner.settings.eyebrow.label"
     },
     {
       "type": "checkbox",
@@ -176,8 +174,7 @@
       "type": "richtext",
       "id": "description",
       "label": "t:sections.main-collection-banner.settings.description.label",
-      "info": "t:sections.main-collection-banner.settings.description.info",
-      "default": "<p>A short paragraph that introduces this section to your visitors and supports the heading above.</p>"
+      "info": "t:sections.main-collection-banner.settings.description.info"
     },
     {
       "type": "checkbox",

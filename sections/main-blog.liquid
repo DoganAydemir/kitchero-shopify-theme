@@ -15,13 +15,6 @@
 {%- if section.settings.show_header -%}
   {%- liquid
     assign blog_eyebrow = section.settings.eyebrow
-    if blog_eyebrow == blank
-      # Merchant hasn't set a custom eyebrow — fall back to a
-      # localized default so TR/DE/FR/ES visitors don't see raw
-      # English. Key lives alongside the other kt.section.blog.*
-      # strings.
-      assign blog_eyebrow = 'kt.section.blog.default_eyebrow' | t
-    endif
     assign blog_heading = section.settings.heading
     if blog_heading == blank
       assign blog_heading = blog.title
@@ -193,8 +186,7 @@
     {
       "type": "text",
       "id": "eyebrow",
-      "label": "t:sections.main-blog.settings.eyebrow.label",
-      "default": "The Archives"
+      "label": "t:sections.main-blog.settings.eyebrow.label"
     },
     {
       "type": "text",
@@ -222,8 +214,7 @@
     {
       "type": "textarea",
       "id": "description",
-      "label": "t:sections.main-blog.settings.description.label",
-      "default": "A short paragraph that introduces this section to your visitors and supports the heading above."
+      "label": "t:sections.main-blog.settings.description.label"
     },
     {
       "type": "header",

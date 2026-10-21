@@ -202,25 +202,25 @@
   line-height: 1;
 }
 
-.kt-article-card__cta-label-inner,
-.kt-article-card__cta-label-inner--ghost {
+.kt-article-card__cta-label-inner {
+  position: relative;
   display: block;
   transition: transform 0.3s ease;
 }
 
-.kt-article-card__cta-label-inner--ghost {
+/* Hover roll-up copy is drawn by CSS so the label exists only once in
+   the DOM; the empty alt text keeps it out of the accessible name. */
+.kt-article-card__cta-label-inner::after {
+  content: attr(data-text);
+  content: attr(data-text) / "";
   position: absolute;
-  top: 0;
+  top: 100%;
   left: 0;
-  transform: translateY(100%);
+  white-space: nowrap;
 }
 
 .kt-article-card:hover .kt-article-card__cta-label-inner {
   transform: translateY(-100%);
-}
-
-.kt-article-card:hover .kt-article-card__cta-label-inner--ghost {
-  transform: translateY(0);
 }
 
 .kt-article-card__cta-arrow {
@@ -236,7 +236,6 @@
   .kt-article-card__image,
   .kt-article-card__title,
   .kt-article-card__cta-label-inner,
-  .kt-article-card__cta-label-inner--ghost,
   .kt-article-card__cta-arrow {
     transition: none;
   }

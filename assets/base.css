@@ -1865,3 +1865,17 @@ html:not(.js) .kt-loader {
     min-height: 44px;
   }
 }
+
+/* ============================================================
+   Touch form controls
+   iOS Safari zooms the page when a focused control renders below
+   16px. Pinch-zoom stays enabled in the viewport meta, so touch
+   devices get a 16px floor on text-entry controls instead.
+   ============================================================ */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="hidden"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}

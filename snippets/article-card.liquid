@@ -101,11 +101,9 @@
 
     <span class="kt-article-card__cta">
       <span class="kt-article-card__cta-label">
-        <span class="kt-article-card__cta-label-inner">
-          {{ 'kt.section.blog.read_article' | t | default: 'Read Article' }}
-        </span>
-        <span class="kt-article-card__cta-label-inner--ghost" aria-hidden="true">
-          {{ 'kt.section.blog.read_article' | t | default: 'Read Article' }}
+        {%- assign read_article_label = 'kt.section.blog.read_article' | t -%}
+        <span class="kt-article-card__cta-label-inner" data-text="{{ read_article_label | escape }}">
+          {{- read_article_label -}}
         </span>
       </span>
       <svg class="kt-article-card__cta-arrow" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

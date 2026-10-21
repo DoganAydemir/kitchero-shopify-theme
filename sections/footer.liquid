@@ -430,12 +430,14 @@
         {%- endif -%}
 
         {%- comment -%} Payment Icons (Shopify native) {%- endcomment -%}
-        {%- if section.settings.show_payment_icons -%}
+        {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
           <div class="kt-footer__payment">
-            <span class="visually-hidden">{{ 'kt.general.footer.payment_methods' | t }}</span>
-            <ul class="kt-footer__payment-list list-unstyled" role="list">
+            <ul class="kt-footer__payment-list list-unstyled" role="list" aria-label="{{ 'kt.general.footer.payment_methods' | t | escape }}">
               {%- for type in shop.enabled_payment_types -%}
-                <li>{{ type | payment_type_svg_tag: class: 'kt-footer__payment-icon' }}</li>
+                <li>
+                  {{- type | payment_type_svg_tag: class: 'kt-footer__payment-icon' -}}
+                  <span class="visually-hidden">{{ type | replace: '_', ' ' | capitalize | escape }}</span>
+                </li>
               {%- endfor -%}
             </ul>
           </div>
@@ -563,7 +565,7 @@
       "type": "text",
       "id": "description",
       "label": "t:sections.footer.settings.description.label",
-      "default": "A short paragraph that introduces this section to your visitors and supports the heading above."
+      "default": "Add a short invitation for visitors to get in touch or start their project."
     },
     {
       "type": "text",
