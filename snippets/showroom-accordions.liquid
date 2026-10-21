@@ -1,0 +1,35 @@
+{%- comment -%}
+  Showroom product accordions. Renders every `accordion` block of the
+  section as one group.
+
+  Accepts:
+  - section: {Object} the main-product-showroom section
+  - product: {Object} the current product
+{%- endcomment -%}
+{%- assign showroom_has_description_block = false -%}
+{%- for desc_check in section.blocks -%}
+  {%- if desc_check.type == 'description' -%}{%- assign showroom_has_description_block = true -%}{%- break -%}{%- endif -%}
+{%- endfor -%}
+{%- assign showroom_description_used = showroom_has_description_block -%}
+<div class="kt-showroom__accordions">
+  {%- for acc_block in section.blocks -%}
+    {%- if acc_block.type == 'accordion' -%}
+      {%- assign acc_content = '' -%}
+      {%- if acc_block.settings.page != blank -%}
+        {%- assign acc_content = acc_block.settings.page.content -%}
+      {%- elsif acc_block.settings.content != blank -%}
+        {%- assign acc_content = acc_block.settings.content -%}
+      {%- elsif showroom_description_used == false and product.description != blank -%}
+        {%- capture acc_content -%}<div class="rte">{{ product.description }}</div>{%- endcapture -%}
+        {%- assign showroom_description_used = true -%}
+      {%- endif -%}
+      {%- if acc_content != blank -%}
+        {%- render 'product-accordion', title: acc_block.settings.title, content: acc_content, open: acc_block.settings.open, style: 'serif', shopify_attributes: acc_block.shopify_attributes -%}
+      {%- elsif request.design_mode -%}
+        <div class="kt-showroom__metafield kt-showroom__metafield--placeholder" {{ acc_block.shopify_attributes }}>
+          <p class="kt-showroom__metafield-hint">{{ 'kt.product.accordion.editor_hint' | t }}</p>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+</div>
