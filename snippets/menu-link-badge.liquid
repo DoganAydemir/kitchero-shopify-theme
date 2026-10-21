@@ -23,7 +23,7 @@
   {%- for badge_block in section.blocks -%}
     {%- if badge_block.type == 'menu_link_badge' and badge_block.settings.link_text != blank -%}
       {%- assign target_lower = badge_block.settings.link_text | downcase | strip -%}
-      {%- if target_lower == link_title_lower -%}
+      {%- if target_lower == link_title_lower and badge_block.settings.badge_text != blank -%}
         {%- comment -%}
           Inline `style` attribute carries merchant-picked colors.
           Falls back to red bg / white fg if the picker was cleared.
@@ -34,7 +34,7 @@
           class="kt-header__menu-badge"
           style="background-color: {{ badge_block.settings.badge_bg | default: '#dc2626' }}; color: {{ badge_block.settings.badge_fg | default: '#ffffff' }};"
           {{ badge_block.shopify_attributes }}
-        >{{ badge_block.settings.badge_text | default: 'SALE' | escape }}</span>
+        >{{ badge_block.settings.badge_text | escape }}</span>
         {%- break -%}
       {%- endif -%}
     {%- endif -%}
