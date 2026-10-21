@@ -74,24 +74,15 @@
     <div class="page-width">
       <div class="kt-collection__hero-inner">
         <div>
-          <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
-          {%- comment -%}
-            R146 HEADING-TAG-LOCK-1: collection page MUST have an
-            <h1> for SEO + WCAG 2.4.6. The schema lets merchants
-            pick h1/h2 (for layout flexibility) but a collection
-            page that ships without an h1 is a hard Theme Store
-            reject. Force `h1` regardless of merchant choice when
-            this is the page's primary heading. Schema setting
-            kept as-is for backward compatibility but the value is
-            ignored here — the schema can be tightened to h1-only
-            in a future release without breaking existing settings.
-          {%- endcomment -%}
-          {%- assign heading_tag = 'h1' -%}
-          <{{ heading_tag }} class="kt-collection__title">{{ collection.title | escape }}</{{ heading_tag }}>
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="kt-collection__label">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- comment -%} The collection title is the page's only h1. {%- endcomment -%}
+          <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
           {%- if section.settings.show_collection_description -%}
             {%- if collection.description != blank -%}
               {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> made the browser auto-close the styled wrapper, dropping the desc styling — the text escaped as bare sibling <p>. {%- endcomment -%}
-              <div class="kt-collection__desc">{{ collection.description | strip_html }}</div>
+              <div class="kt-collection__desc rte">{{ collection.description }}</div>
             {%- else -%}
               <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
             {%- endif -%}
@@ -831,25 +822,13 @@
   },
   "settings": [
     {
-      "type": "header",
-      "content": "t:sections.main-collection.settings.header__hero.content"
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.shared.eyebrow.label"
     },
     {
-      "type": "select",
-      "id": "heading_tag",
-      "label": "t:sections.main-collection.settings.heading_tag.label",
-      "info": "t:sections.main-collection.settings.heading_tag.info",
-      "options": [
-        {
-          "value": "h1",
-          "label": "t:sections.main-collection.settings.heading_tag.options__1.label"
-        },
-        {
-          "value": "h2",
-          "label": "t:sections.main-collection.settings.heading_tag.options__2.label"
-        }
-      ],
-      "default": "h1"
+      "type": "header",
+      "content": "t:sections.main-collection.settings.header__hero.content"
     },
     {
       "type": "checkbox",

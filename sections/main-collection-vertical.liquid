@@ -31,12 +31,14 @@
     <div class="page-width">
       <div class="kt-collection__hero-inner">
         <div>
-          <p class="kt-collection__label">{{ 'kt.section.collection.label' | t | default: 'The Archives' }}</p>
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="kt-collection__label">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
           <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
           {%- if section.settings.show_collection_description -%}
             {%- if collection.description != blank -%}
               {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> dropped the desc styling. {%- endcomment -%}
-              <div class="kt-collection__desc">{{ collection.description | strip_html }}</div>
+              <div class="kt-collection__desc rte">{{ collection.description }}</div>
             {%- else -%}
               <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t }}</p>
             {%- endif -%}
@@ -192,6 +194,11 @@
     "templates": ["collection"]
   },
   "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.shared.eyebrow.label"
+    },
     {
       "type": "range",
       "id": "products_per_page",
