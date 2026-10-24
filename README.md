@@ -23,7 +23,7 @@ Kitchero is a premium Shopify theme built for merchants selling high-end kitchen
 - **Star ratings + color swatches** — reads Shopify's native `reviews.rating` metafield or custom fallback
 - **AJAX collection filtering** — Shopify Section Rendering API, no full-page reload
 - **AJAX cart drawer** — variant switching, quantity updates, and add-to-cart without page reload
-- **i18n for 5 languages** — English (default), Turkish, German, French, and Spanish all fully translated (527 storefront keys + 1,720 schema keys per locale, full key parity)
+- **5 languages** — English (default), Turkish, German, French and Spanish, with the same keys in every locale (700 storefront keys + about 2,080 schema keys)
 - **4 color schemes** — Light Stone, Dark, Emerald, Midnight
 - **3-font system** — Inter (headings + body) + Playfair Display (serif accent)
 - **WCAG AA accessible** — keyboard-navigable, screen-reader-friendly, visible focus rings, 4.5:1 color contrast
@@ -180,7 +180,7 @@ This starts a local dev server with hot reload.
 shopify theme check
 ```
 
-Should return **0 errors, 0 warnings**. CI-friendly.
+Returns 0 offenses on the recommended ruleset (also enforced in CI).
 
 ### Package for distribution
 
@@ -216,10 +216,11 @@ The theme's i18n structure supports 5 languages out of the gate:
 | `es` | Spanish | Complete (full key parity, native-speaker QA recommended) |
 
 Storefront strings live in `locales/*.json`; theme editor labels live in
-`locales/*.schema.json`. All five language sets — English (default),
-Turkish, German, French, Spanish — are fully translated and verified
-at full key parity (527 storefront keys + 1,720 schema keys per locale).
-A native-speaker QA pass is recommended before GA marketing pushes.
+`locales/*.schema.json`. All five languages — English (default),
+Turkish, German, French and Spanish — have the same keys (700
+storefront keys and about 2,080 schema keys per locale). Storefront
+translations were reviewed against English in October 2026; a
+native-speaker review is still recommended before marketing launches.
 
 Enable languages in **Settings > Languages**.
 
