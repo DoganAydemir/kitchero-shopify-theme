@@ -7,12 +7,6 @@
    palette colours because those are universal signals.
    ============================================================ */
 
-/* Quantity + ATC row: flex items-stretch gap-3.
-   R232.20 — kept for backwards compat with surfaces that still
-   render the combined qty+ATC row (showroom buy block paths that
-   don't yet use the new qty-row + buy-row split). New PDP /
-   featured-product markup uses `__qty-row` (qty alone) +
-   `__buy-row` (ATC + dynamic-checkout side-by-side). */
 .kt-product-form__row {
   display: flex;
   align-items: stretch;
@@ -20,28 +14,15 @@
   margin-bottom: 1rem;
 }
 
-/* R232.20 — Quantity stepper on its own row (above the buy
-   cluster). The stepper is fixed-width; an optional qty-rule
-   sentence sits next to it on desktop and wraps below on mobile. */
 .kt-product-form__qty-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  /* R-buy-cluster — gap between quantity stepper and the buy-row
-     (ATC + dynamic checkout). 0.75rem was visually cramped (qty
-     and buttons nearly touched); 1.25rem gives the buttons breathing
-     room without breaking the compact info-column layout. */
   margin-bottom: 1.25rem;
 }
 
-/* R232.20 — Buy cluster: ATC + dynamic checkout button. Stacked
-   on mobile (each button full-width), side-by-side from 750px+.
-   R-buy-cluster — gap raised from 0.625rem to 0.875rem so the two
-   buttons feel like a deliberate pair instead of accidentally
-   stuck together (mobile: visible vertical separation; desktop:
-   visible horizontal separation). */
 .kt-product-form__buy-row {
   display: flex;
   flex-direction: column;
@@ -67,11 +48,6 @@
 .kt-product-form__qty {
   display: flex;
   align-items: center;
-  /* R-wcag-contrast (1.4.11) — bumped 0.18 → 0.45 so the quantity-
-     stepper boundary clears the 3:1 non-text contrast minimum on the
-     default light scheme (`rgba(28,25,23,0.45)` ≈ 3.0:1 against
-     stone-50). Input boundaries that aren't visible by ≥3:1 fail
-     axe-core's `region` / `color-contrast-enhanced` rule. */
   border: 1px solid rgba(var(--kt-c-fg), 0.45);
   border-radius: 4px;
   flex-shrink: 0;
@@ -104,18 +80,6 @@
   background-color: rgba(var(--kt-c-fg), 0.08);
 }
 
-/* R-PDP4 H9 — WCAG 2.4.13 (Focus Appearance). The previous inset
-   focus ring (`outline-offset: -2px`) painted INSIDE the stepper's
-   clipping container (`.kt-product-form__qty` has `overflow:hidden`
-   for rounded-corner masking). The visible ring then competed
-   with the button's own background; against the disabled-button
-   muted gradient the contrast dropped below 3:1.
-   Lifting the focus indicator to the WRAPPER via `:focus-within`
-   surrounds the whole stepper with a 2px solid ring outside the
-   clipping context — no clip, predictable ~4-CSS-px-thick visible
-   area on every side, 3:1+ contrast against any scheme background.
-   The button itself drops its outline entirely; the wrapper's
-   ring is the canonical focus signal. */
 .kt-product-form__qty:focus-within {
   outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 2px;
@@ -125,12 +89,6 @@
 }
 
 .kt-product-form__qty-btn:disabled {
-  /* R296 — 0.55 → 0.65 (~5.1:1). The button glyph (+ / -) is
-     text, not a non-text UI control, so WCAG 1.4.3 (4.5:1) applies
-     rather than 1.4.11 (3:1). Disabled-state distinction is
-     preserved via `cursor: not-allowed` and the hover/active
-     suppression — the alpha bump is barely perceptible (0.55 →
-     0.65) but lifts the glyph above the AA text threshold. */
   color: rgb(var(--kt-c-fg-muted));
   cursor: not-allowed;
 }
@@ -139,10 +97,6 @@
   width: 2rem;
   min-width: 2rem;
   text-align: center;
-  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus when
-     the customer reaches this field via Tab key. The CSS sets
-     pointer-events:none so direct taps go to the stepper buttons,
-     but keyboard focus is still legal. */
   font-size: 1rem;
   font-weight: 700;
   color: rgb(var(--kt-c-fg));
@@ -181,14 +135,6 @@
 .kt-product-form__atc {
   flex: 1;
   min-width: 0;
-  /* R232.14 — refined sizing to match the showroom CTA visual
-     language. Previously 2.875rem (46px) + bold 12px uppercase +
-     blocky 4px radius read as a heavy supermarket-style ATC. The
-     showroom variant pairs a softer 11px button with rounded-full
-     pill geometry; aligning the PDP ATC here keeps the two surfaces
-     consistent and the button feels less imposing alongside the
-     thin qty stepper. Min-height stays well above WCAG 2.5.8's
-     44px touch target. */
   padding: 0 1.5rem;
   min-height: 3rem;
   font-family: inherit;
@@ -207,9 +153,6 @@
   border: 1px solid rgb(var(--kt-c-action));
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.1s ease;
-  /* R232.14 — softer shadow consistent with the showroom CTA box
-     shadow (0 10px 15px -3px / 10%). Was a 4/8 mid shadow that
-     felt overbuilt against the now-pill geometry. */
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
@@ -226,22 +169,6 @@
   outline-offset: 2px;
 }
 
-/* Disabled / sold-out — neutral grey, NOT red. The previous
-   red-50 background read as an angry error state ("something
-   went wrong, please try again") whereas the actual semantics
-   are "this variant isn't currently available, pick another".
-   On mobile the pink-pastel ATC button after a tap looked
-   exactly like a stuck error toast even though add-to-cart had
-   succeeded. Neutral stone disable is the conventional pattern
-   (cf. every native HTML form, GitHub, Stripe, Linear).
-
-   R269 — Removed the X-in-circle "sold-out" icon swap rule that
-   used to live here. The icon carried the same semantic as the
-   "Sold out" text label + the gray disabled background, so it
-   was visual redundancy and read as a jarring red-flag glyph on
-   the button. Text label + chrome dim is enough. The companion
-   SVG was deleted from snippets/product-form.liquid in the same
-   R269 commit. */
 .kt-product-form__atc:disabled {
   background-color: var(--kt-stone-100);
   color: var(--kt-stone-500);
@@ -256,10 +183,6 @@
   border-color: var(--kt-stone-200);
 }
 
-/* R232.32 — Shopping-bag icon prefix. Inherits text color via
-   `stroke="currentColor"` (set inline in the SVG markup). Hidden
-   on disabled state so the icon doesn't compete with the
-   "Sold out" label — sold-out is text-only. */
 .kt-product-form__atc-icon {
   flex-shrink: 0;
 }
@@ -268,18 +191,6 @@
   display: none;
 }
 
-/* R-PDP4 M11 — Drop `pointer-events: none` on the loading state.
-   The intent was double-submit prevention, but keyboard activation
-   (Space/Enter on a focused button) is NOT a pointer event and
-   isn't blocked by `pointer-events: none` — meaning the rule
-   provides false confidence while a keyboard user could still
-   trigger a second submit. The actual guard lives in JS:
-   `atcInflight` returns early at the top of the submit handler
-   (assets/product-form.js:323), and `aria-disabled="true"` +
-   `aria-busy="true"` are set on the button during the inflight
-   window for AT users. With those in place the CSS `pointer-events`
-   becomes redundant and harmful — it breaks `:hover` testability
-   for axe-core hover-target assertions in the loading state. */
 .kt-product-form__atc--loading {
   cursor: wait;
   opacity: 0.8;
@@ -289,19 +200,6 @@
   background-color: inherit;
 }
 
-/* R232.34 — Success state. Previously flipped the ATC to an
-   emerald green confirmation, which collided visually with the
-   accent "Buy it now" pill sitting right next to it (two green
-   buttons side-by-side read as one solid block). Keep the
-   button's own dark fill instead and rely on the "Added to cart!"
-   label change + the `--added` class hook for any other dim/dim-
-   out animation a future iteration wants — the cart count blip
-   (badge increment) is the other confirmation channel and that
-   already fires.
-   The `outline` removal (`outline: none`) covers the case where
-   focus-visible was sticking around after a keyboard-driven ATC
-   click — the dark outline ring against the dark filled button
-   showed as the thick ghost ring the user flagged. */
 .kt-product-form__atc--added,
 .kt-product-form__atc--added:hover:not(:disabled) {
   background-color: rgb(var(--kt-c-action));
@@ -318,51 +216,6 @@
 
 /* ── Dynamic Checkout Button (Shopify payment_button) ───── */
 
-/* R232.28 — `margin-bottom: 1rem` removed. It was a leftover from
-   when this block rendered as a standalone tier UNDER the qty+ATC
-   row (R232.20 moved it INTO `__buy-row` as a sibling of ATC).
-   Inside a flex row with `align-items: stretch`, the trailing
-   margin on this sibling shifted the flex-stretch target taller
-   than the actual button height — the BIN button stayed at 48px
-   (clamp ceiling from Shopify's widget) while ATC stretched to
-   match the inflated row height, so the pair looked mismatched.
-   The parent `.kt-product-form__buy-row` already carries
-   `margin-bottom: 1rem` for the cluster-level spacing. */
-
-/* R232.20 — Buy Now button color is merchant-configurable.
-   `--kt-buy-now-bg` / `--kt-buy-now-fg` come from
-   `config/settings_schema.json` via `snippets/kt-css-variables.liquid`,
-   default to emerald-400 (#5fe8b6) which matches the attached
-   reference. Branded accelerated buttons (Shop Pay, Apple Pay,
-   Google Pay) render through a closed shadow DOM that Shopify
-   protects — those keep their official brand colors. We only style
-   the unbranded "Buy it now" fallback via the documented stable
-   class `.shopify-payment-button__button--unbranded`. */
-
-/* R232.23 — Force the dynamic-checkout wrapper AND every Shopify-
-   injected custom-element ancestor of the inner button to stretch
-   to full width + height inside the buy-row flex cluster, so the
-   "Buy it now" button matches the ATC pixel-for-pixel.
-
-   R232.24 — The previous version only set flex on direct children;
-   `<shopify-accelerated-checkout-cart>` and
-   `<shopify-buy-it-now-button>` are unstyled custom elements that
-   default to `display: inline`, so the inner `<button width:100%>`
-   computed its width relative to a content-sized parent (~128px).
-   Explicit `display: block; width: 100%` on every Shopify custom
-   element in the chain forces the cascade through the entire
-   accelerated-checkout widget. The selectors are stable Shopify
-   public-API element names. */
-/* R232.27 — Aggressive width override. Previous attempts with
-   `display: flex; width: 100%` on the custom-element chain didn't
-   propagate because Shopify's accelerated-checkout widget renders
-   into a slot whose host element resolves to its content-width
-   even when CSS asks for block layout. Forcing `display: block !important`
-   + `width: 100% !important` on every wrapper from the outer div
-   down to the button itself makes the entire stack stretch to fill
-   its half of the buy-row. The button's min-height also gets a
-   matching CSS variable (`--shopify-accelerated-checkout-button-block-size`)
-   so its computed height equals the ATC's. */
 .kt-product-form__dynamic-checkout {
   /* Match the ATC height pixel-for-pixel via the Shopify-exposed
      CSS variable (clamped 25-55px by the widget's own stylesheet). */
@@ -380,20 +233,6 @@
   min-width: 0;
 }
 
-/* R232.32 — Optional lightning-bolt icon prefix for the "Buy it now"
-   unbranded button. The icon is injected via `::before` because
-   Shopify renders the button label inline and we cannot wrap an
-   inline `<svg>` into its shadow DOM. The `--with-icon` modifier
-   on the wrapper toggles visibility from a theme setting — merchants
-   who prefer a text-only CTA disable "Show icon on Buy it now". */
-/* R-PDP2 — Sold-out / unavailable variant lock for the dynamic-
-   checkout wrapper. Shopify's `shopify-buy-it-now-button` and
-   `<shopify-payment-button>` custom elements live in shadow DOM and
-   ignore native `disabled`; intercepting at the wrapper layer with
-   `pointer-events: none` + reduced opacity is the canonical pattern.
-   Previously this was an inline style on the wrapper — moved to a
-   CSS class so the project's "no inline styles" convention stays
-   intact and the rule cascades to focus/hover states too. */
 .kt-product-form__dynamic-checkout--disabled {
   pointer-events: none;
   opacity: 0.5;
@@ -441,15 +280,6 @@
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-/* R232.27 — Hover state. Shopify's own accelerated-checkout CSS
-   ships `:hover:not([disabled]) { background-color: #136f99 }` at
-   the same specificity (0,3,0) which wins by cascade order. We
-   ship a higher-specificity rule (chained class ancestor + the
-   same :not pseudo) + `!important` on background-color so the
-   merchant-configured hover color wins. The `--kt-buy-now-hover-bg`
-   variable defaults to a darkened version of the base bg via
-   `color-mix()`, OR the merchant can override it via the
-   "Buy now hover color" theme setting. */
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover:not([disabled]),
 .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded:hover {
   background-color: var(--kt-buy-now-hover-bg, var(--kt-buy-now-bg, #5fe8b6)) !important;
@@ -607,14 +437,6 @@
   border: 1px solid var(--kt-stone-300, #d6d3d1);
   border-radius: 0;
   font-family: inherit;
-  /* iOS Safari auto-zooms `<input>` whose computed font-size is
-     under 16px when the user focuses it. The base.css zoom-prevention
-     override only fires under 750px; an iPad in landscape (or any
-     viewport ≥ 750px) was hitting `0.9375rem = 15px` and triggering
-     the zoom-on-focus → page reflows mid-typing on the gift-card
-     recipient form. 1rem (= 16px when html size:100%) keeps native
-     zoom suppressed at every viewport without needing the global
-     mobile media query to pick this up. */
   font-size: 1rem;
   color: var(--kt-stone-900, #1c1917);
   transition: border-color 0.15s ease;
@@ -699,14 +521,6 @@
   border-color: var(--kt-stone-500, #78716c);
 }
 
-/* Cell-level checked-state styling uses `:has()` (Safari 15.4+,
-   Chrome 105+, Firefox 121+). On older browsers the selector is
-   simply skipped — the radio still shows its native checked dot
-   (browser-provided accent-color) so the user can see which plan
-   is selected. Accepted graceful degradation: <3% of traffic sees
-   the native radio indicator without the wrapper highlight, but
-   no functionality breaks and the checked state is never invisible
-   (the native `:checked` styles the radio regardless). */
 .kt-selling-plan__option:has(.kt-selling-plan__radio:checked) {
   border-color: var(--kt-stone-900, #1c1917);
   background-color: var(--kt-stone-50, #fafaf9);
@@ -932,8 +746,6 @@
   line-height: 1.4;
 }
 
-/* R142 — multi-location card extras */
-
 .kt-pickup__location-head {
   display: flex;
   align-items: center;
@@ -1002,24 +814,6 @@
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   R-PDP4 M2 — Windows High Contrast Mode (forced-colors: active)
-   --------------------------------------------------------------------------
-   In Windows High Contrast the theme's color-scheme tokens collapse to the
-   system palette (Canvas, CanvasText, ButtonFace, ButtonText, Highlight).
-   The product-form's ATC / dynamic-checkout / quantity stepper rely on
-   `rgb(var(--kt-c-action))` etc. — under forced-colors those vars
-   evaluate to `Canvas` and the buttons visually disappear against the
-   same Canvas page background. WCAG 1.4.1 + 1.4.11 explicit fail under
-   HC if the controls aren't kept distinguishable.
-
-   Sibling components (`kt-product-variant-picker.css`, `kt-card-product.css`)
-   already declare `@media (forced-colors: active)` blocks; this is the
-   matching coverage for the buy-row + qty stepper so the whole purchase
-   surface remains usable under HC. We pin to system colors directly
-   (ButtonText / ButtonFace / Highlight) rather than the theme vars so
-   the rules survive any future scheme refactor.
-   ========================================================================== */
 @media (forced-colors: active) {
   .kt-product-form__atc,
   .kt-product-form__dynamic-checkout .shopify-payment-button__button--unbranded {
@@ -1061,13 +855,6 @@
   }
 }
 
-/* R-PDP6 — Reduced-motion guard for ATC + qty stepper transitions.
-   ATC carries `transform 0.1s` for the :active press-down cue and
-   `opacity 0.2s` for loading/disabled fade. Motion-sensitive
-   shoppers (WCAG 2.3.3 Animation from Interactions) get the cues
-   suppressed; color/background state transitions stay so the
-   button still LOOKS interactive — just without the spatial
-   shifts the criterion targets. */
 @media (prefers-reduced-motion: reduce) {
   .kt-product-form__atc {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;

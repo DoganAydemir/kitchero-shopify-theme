@@ -43,20 +43,6 @@
   flex-shrink: 0;
 }
 
-/* ── Modal overlay ──────────────────────────────────────────────
-   Full-viewport fixed overlay.
-
-   R-PDP6 — Specificity refactor. The earlier rule stacked 6×
-   `!important` on the anchor properties to defend against parents
-   that try to clip via `overflow: hidden` or pin via `position:
-   relative`. Wrapping the selector with `:where()` keeps the
-   specificity at 0 while ALSO pinning the rules — modal portals
-   to `<body>` via JS so there are no real parent constraints to
-   fight, the `!important`s were belt-and-braces against an
-   imagined ancestor that doesn't exist in this theme's tree. The
-   z-index also moves to the centralized `--kt-z-popover` design
-   token so the modal's tier relationship is documented in
-   kt-css-variables.liquid alongside drawer/lightbox/loader. */
 :where(.kt-back-in-stock__modal) {
   position: fixed;
   inset: 0;
@@ -141,7 +127,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(var(--kt-c-fg), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
   cursor: pointer;
   border-radius: 999px;
   z-index: 2;
@@ -246,7 +232,7 @@
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-back-in-stock__product-title {
@@ -299,7 +285,7 @@
 }
 
 .kt-back-in-stock__field input::placeholder {
-  color: rgba(var(--kt-c-fg), 0.32);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-back-in-stock__field input:hover {
@@ -407,7 +393,7 @@
   margin: 0;
   font-size: 0.6875rem;
   line-height: 1.55;
-  color: rgba(var(--kt-c-fg), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
   letter-spacing: 0.005em;
 }
 

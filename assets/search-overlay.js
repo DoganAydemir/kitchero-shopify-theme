@@ -1,18 +1,3 @@
-/**
- * Search Overlay — full-screen modal open/close controller.
- *
- * Responsibilities:
- *  - Toggle the overlay via [data-search-open] / [data-search-close]
- *  - Lock body scroll while open
- *  - Auto-focus the search input on open
- *  - Close on Escape and on click outside the dialog (backdrop)
- *  - Focus-trap Tab/Shift-Tab inside the dialog
- *  - Fill the input when a "popular search" pill is clicked
- *  - Restore focus to the trigger element on close
- *
- * Idempotent via a window guard so the file is safe against duplicate
- * <script> injection (same pattern as countdown.js).
- */
 if (!window.__kitcheroSearchOverlayLoaded) {
   window.__kitcheroSearchOverlayLoaded = true;
 
@@ -69,13 +54,12 @@ if (!window.__kitcheroSearchOverlayLoaded) {
         document.body.style.overflow = 'hidden';
       }
 
-      /* Update aria-expanded on any open triggers */
       document.querySelectorAll('[data-search-open]').forEach(function (btn) {
         btn.setAttribute('aria-expanded', 'true');
       });
 
       input = overlay.querySelector('[data-search-input]');
-      /* Autofocus after transition-friendly tick */
+
       setTimeout(function () {
         if (input) input.focus();
       }, 80);
@@ -97,13 +81,11 @@ if (!window.__kitcheroSearchOverlayLoaded) {
         btn.setAttribute('aria-expanded', 'false');
       });
 
-      /* Restore focus to whatever opened the overlay */
       if (lastTrigger && typeof lastTrigger.focus === 'function') {
         lastTrigger.focus();
       }
     }
 
-    /* Delegated click handler — works for dynamically-added triggers too */
     document.addEventListener('click', function (e) {
       var opener = e.target.closest('[data-search-open]');
       if (opener) {
@@ -124,35 +106,23 @@ if (!window.__kitcheroSearchOverlayLoaded) {
         if (input) {
           input.value = term;
           input.focus();
-          /* Move caret to end so keyboard users can extend the query */
+
           var len = input.value.length;
           try { input.setSelectionRange(len, len); } catch (_) {}
         }
         return;
       }
 
-      /* Predictive result link → close overlay before navigation.
-         Without this, the customer clicks a result, the page
-         navigates, but the overlay stays open in the previous
-         page's render — visible briefly on back-nav or whenever
-         page load stalls. Match any `<a>` inside the predictive
-         results container; don't preventDefault so the native
-         navigation still happens. */
       var resultLink = e.target.closest('[data-search-overlay] [data-predictive-search] a, [data-search-overlay] .kt-predictive-search__link');
       if (resultLink && overlay && overlay.getAttribute('aria-hidden') === 'false') {
         closeOverlay();
-        /* Don't return — let the click default bubble so navigation
-           proceeds. The closeOverlay() above releases scroll lock
-           + focus trap before the new page begins loading. */
       }
     });
 
-    /* Keyboard handlers: Escape to close, Tab to trap */
     document.addEventListener('keydown', function (e) {
       if (!overlay || overlay.getAttribute('aria-hidden') !== 'false') return;
 
       if (e.key === 'Escape' || e.code === 'Escape') {
-        // Only handle Escape if this overlay is the top-most stacked modal.
         if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(overlay)) return;
         e.preventDefault();
         closeOverlay();

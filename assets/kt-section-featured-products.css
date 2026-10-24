@@ -69,16 +69,10 @@
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: rgb(var(--kt-c-fg));
-  /* R106 — anywhere wrap so a long custom heading doesn't break layout */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-/* R281 — Was `color: rgb(var(--kt-c-fg-muted))`, near-heading
-   weight in colour on light schemes. Drop to 0.55 to match the
-   muted-description treatment used across the rest of the theme
-   (ecosystem / mid-cta / newsletter-signup / main-collection)
-   and restore the title-vs-description hierarchy. */
 .kt-featured-products__description {
   margin-top: 0.75rem;
   font-size: 0.9375rem;
@@ -86,13 +80,6 @@
   color: rgb(var(--kt-c-fg-muted));
 }
 
-/* R281b — Description wrappers carry the `rte` companion class
-   so base.css `.rte p { color: rgb(var(--kt-c-fg)) }` pins the
-   inner `<p>` to full-strength foreground colour, breaking the
-   wrapper-level mute. Push the muted colour onto the inner
-   richtext elements directly so the rendered paragraph picks
-   up the alpha. Specificity (0,0,2,1) > `.rte p` (0,0,1,1)
-   so we win independent of load order. */
 .kt-featured-products__description p,
 .kt-featured-products__description li,
 .kt-featured-products__description blockquote {

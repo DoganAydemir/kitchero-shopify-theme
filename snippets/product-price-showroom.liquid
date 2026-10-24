@@ -1,21 +1,3 @@
-{%- comment -%}
-  Product Price — Showroom style.
-  Birebir from showroom/[id]/page.tsx pricing block.
-
-  Renders:
-    "Now only" label (only when the variant is on sale)
-    Current price (red only when on sale)
-    "Save $X" badge (red pill, only if on sale)
-    "Was $X" strikethrough (only if on sale)
-    Monthly installment pill (amortized from price, financing_months and
-    financing_apr; hidden when financing_months is 0)
-
-  Accepts:
-  - product: {Object}          Shopify product
-  - financing_months: {Number} number of months for the installment line
-  - financing_apr: {Number}    APR percentage (0 for interest-free)
-  - financing_label: {String}  text to render the monthly pill (optional override)
-{%- endcomment -%}
 
 {%- liquid
   assign variant = product.selected_or_first_available_variant
@@ -42,16 +24,6 @@
 <div class="kt-showroom-price{% if on_sale %} kt-showroom-price--sale{% endif %}" data-product-price data-showroom-price>
   <span class="kt-showroom-price__label" data-showroom-sale-label{% unless on_sale %} hidden{% endunless %}>{{ 'kt.product.price.now_only' | t }}</span>
 
-  {%- comment -%}
-    The `kt-product-price__current/compare/discount` aliases beside the
-    showroom-specific class names are required for atomic price updates
-    on variant + selling-plan change. `assets/product-form.js`'s
-    `renderPriceForVariant()` queries `.kt-product-price__current` /
-    `__compare` / `__discount` to swap the rendered price string; without
-    these aliases the JS silently no-ops on the showroom template and
-    the customer sees a stale price after picking a variant or
-    subscription cadence — Theme Store rejects that as deceptive pricing.
-  {%- endcomment -%}
   <div class="kt-showroom-price__row">
     <span class="kt-showroom-price__current kt-product-price__current">
       {%- if is_free -%}
@@ -61,15 +33,6 @@
       {%- endif -%}
     </span>
     {%- if on_sale -%}
-      {%- comment -%}
-        R89 — Liquid filter-chain fix: `| money` was landing on the t
-        output (a string), not on `savings`/`compare_price`. Customer
-        saw raw cents in the savings/was-price labels. `| default:
-        'Save'/'Was'` after `| money` was also moot — money returns a
-        truthy string, the default never fires. Pre-assign formatted
-        money values; rely on locale keys present in en/tr/de/fr/es
-        for translation.
-      {%- endcomment -%}
       {%- assign savings_money = savings | money -%}
       <span class="kt-showroom-price__save kt-product-price__discount">
         {{ 'kt.product.price.save_html' | t: amount: savings_money }}
@@ -99,12 +62,6 @@
     </span>
   {%- endif -%}
 
-  {%- comment -%}
-    Monthly installment pill. Standard amortization:
-    payment = price * r * (1 + r)^n / ((1 + r)^n - 1), r = APR / 12.
-    With 0% APR the payment is price / n. assets/kt-showroom-price.js
-    recalculates it when the variant changes.
-  {%- endcomment -%}
   {%- if financing_months > 0 and is_free == false -%}
     {%- liquid
       if financing_apr > 0

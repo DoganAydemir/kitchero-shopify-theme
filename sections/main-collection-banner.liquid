@@ -1,49 +1,20 @@
 {{ 'kt-section-main-collection-banner.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Main Collection Banner — full-width hero banner positioned above the
-  collection grid section on collection templates. Modular section so a
-  merchant can reorder, hide, or fully replace the editorial header on a
-  per-collection basis without touching `main-collection`.
-
-  R138 / HG-4 — Concept and Essence both ship a dedicated banner section
-  separate from the collection grid (`main-collection-banner.liquid` in
-  both); Kitchero collapsed banner + grid into a single section, which
-  blocked merchants from reordering the visual hero or swapping it out
-  for, e.g., a video block on a single collection. Splitting them
-  closes the parity gap.
-
-  Image source priority:
-    1. section.settings.image  →  merchant override
-    2. collection.image  →  Shopify-native collection cover image
-    3. SVG placeholder  →  fresh-install fallback
-{%- endcomment -%}
-
 {%- assign banner_pad_top = section.settings.padding_top | default: 0 -%}
 {%- assign banner_pad_bottom = section.settings.padding_bottom | default: 0 -%}
-{%- assign banner_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
+{%- assign banner_scheme = section.settings.color_scheme | default: 'scheme-4' -%}
 {%- assign banner_height = section.settings.height | default: 'medium' -%}
 {%- assign banner_align = section.settings.text_alignment | default: 'center' -%}
 {%- assign banner_overlay = section.settings.overlay_opacity | default: 35 -%}
 {%- assign banner_image = section.settings.image | default: collection.image -%}
-{%- comment -%}
-  R-heading-hierarchy: `main-collection` (the grid section below this banner)
-  already forces a hardcoded `<h1>` for the collection title — see the comment
-  block at line ~73 in main-collection.liquid. Defaulting this optional editorial
-  banner to `<h1>` produced a double-h1 on /collections/* the moment a merchant
-  added the banner section. Default to `<h2>` so the banner sits one level
-  below the page's primary heading. The schema still exposes h1 as an option
-  for merchants who hide the collection grid hero, but the info note warns
-  against the double-h1 trap.
-{%- endcomment -%}
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
 <section
-  class="kt-collection-banner kt-collection-banner--{{ banner_height }} kt-collection-banner--align-{{ banner_align }} color-{{ banner_scheme }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-collection-banner kt-collection-banner--{{ banner_height }} kt-collection-banner--align-{{ banner_align }} color-{{ banner_scheme }}"
   data-section-id="{{ section.id }}"
   data-section-type="main-collection-banner"
   data-allows-transparent-header="true"
-  style="--kt-cb-pad-top: {{ banner_pad_top }}px; --kt-cb-pad-bottom: {{ banner_pad_bottom }}px; --kt-cb-overlay: {{ banner_overlay | divided_by: 100.0 }};{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-cb-pad-top: {{ banner_pad_top }}px; --kt-cb-pad-bottom: {{ banner_pad_bottom }}px; --kt-cb-overlay: {{ banner_overlay | divided_by: 100.0 }};"
 >
   <div class="kt-collection-banner__media" aria-hidden="true">
     {%- if banner_image != blank -%}
@@ -272,26 +243,6 @@
       "default": 0
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -299,7 +250,7 @@
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:sections.shared.color_scheme.label",
-      "default": "scheme-1"
+      "default": "scheme-4"
     }
   ],
   "presets": [

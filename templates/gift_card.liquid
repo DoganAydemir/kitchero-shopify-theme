@@ -32,12 +32,6 @@
     {%- endcomment -%}
     <meta name="robots" content="noindex, nofollow">
     <title>{{ 'kt.giftcard.issued.title' | t }} · {{ shop.name | escape }}</title>
-    {%- comment -%}
-      R95 — Lighthouse SEO flags missing meta description even on
-      noindexed pages. Render shop.name as the description so the
-      audit passes; the page is `noindex,nofollow` so SEO impact
-      is zero, this is purely Lighthouse-score hygiene.
-    {%- endcomment -%}
     <meta name="description" content="{{ shop.name | escape }}">
     <link rel="canonical" href="{{ canonical_url }}">
     {{ content_for_header }}
@@ -95,21 +89,6 @@
         <div class="kt-gift-card__card">
           <div class="kt-gift-card__card-media">
             {%- if gift_card.image -%}
-              {%- comment -%}
-                R178 GIFT-IMG-TAG-1: switch from hand-rolled `<img>`
-                to Shopify's `image_tag` filter. CLAUDE.md hard rule:
-                "All <img> tags must use Shopify's image_tag filter
-                with explicit width and height". The hand-rolled
-                form here predated R140's alt fix and was missed
-                during the codebase-wide audit. `image_tag` emits
-                width / height / srcset / sizes / loading / alt /
-                class as a single filter call.
-
-                R140 GIFT-IMG-1 alt rationale preserved: the gift
-                card design IS the visual identity of the page (not
-                decorative); the locale key interpolates the shop
-                name so AT users hear "Acme gift card design".
-              {%- endcomment -%}
               {%- assign giftcard_image_alt = 'kt.giftcard.issued.image_alt' | t: shop_name: shop.name -%}
               {{
                 gift_card.image
@@ -152,17 +131,6 @@
       </section>
 
       <section class="kt-gift-card__meta">
-        {%- comment -%}
-          R138 GIFT-1: visible balance line OUTSIDE the artwork overlay.
-          Previously the balance was painted only inside the card image
-          (line 117), so customers with images blocked, low-vision users
-          relying on screen readers, and reviewers running the page with
-          image-loading disabled saw no balance figure at all. The
-          numeric value MUST be reachable via plain text — emit it as a
-          definition list so SR users hear "Balance: $50". Hidden when
-          gift card is fully spent (balance == 0) since the artwork
-          already shows the empty state.
-        {%- endcomment -%}
         {%- if gift_card.balance > 0 -%}
           <dl class="kt-gift-card__balance-row">
             <dt class="kt-gift-card__balance-label">

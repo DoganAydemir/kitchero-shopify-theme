@@ -1,11 +1,3 @@
-/* ==========================================================================
-   Main Collection Banner (R138 / HG-4)
-   --------------------------------------------------------------------------
-   Full-width editorial banner above the collection grid. Hosts a hero
-   image (merchant override or `collection.image` fallback), an overlay
-   for legibility, and a centered/left/right-aligned content block with
-   eyebrow + heading + description + count.
-   ========================================================================== */
 
 .kt-collection-banner {
   position: relative;
@@ -16,14 +8,9 @@
      min-height so the heading + image stay proportionate. */
   padding-top: var(--kt-cb-pad-top, 0px);
   padding-bottom: var(--kt-cb-pad-bottom, 0px);
-  /* Default banner palette is dark on white, but keep both values
-     scheme-aware so a merchant flipping the section's color_scheme
-     to a light-on-dark variant gets the inverse without bypassing
-     the design tokens. Falls back to brand stone-900 / white when
-     the scheme variables aren't yet wired (e.g. early-paint or a
-     fresh-install merchant who hasn't picked a scheme yet). */
-  background-color: var(--kt-color-background, var(--kt-stone-900, #1c1917));
-  color: var(--kt-color-foreground, var(--kt-white, #ffffff));
+  /* Colors follow the section's color scheme (default: scheme-4, dark). */
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-collection-banner--small {
@@ -128,14 +115,6 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.7;
-  /* R281c — was opacity: 0.9 which left the description nearly as
-     bright as the heading. Drop to 0.7 so it reads as a clear
-     secondary tier under the serif title, matching the muted-
-     description treatment used across the rest of the theme
-     (featured-collection / rich-text / image-with-text). Keeping
-     `opacity` (not `color`) preserves the banner-fg inheritance
-     from `.kt-collection-banner` so light-on-dark scheme flips
-     stay consistent. */
   opacity: 0.7;
   max-width: 560px;
 }

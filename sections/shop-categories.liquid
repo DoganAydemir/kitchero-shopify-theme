@@ -3,8 +3,8 @@
 {%- assign shop_categories_heading_default = 'kt.section.shop_categories.heading_default' | t -%}
 {%- assign shop_categories_subtitle_default = 'kt.section.shop_categories.subtitle_default' | t -%}
 
-<section class="kt-shop-categories color-{{ section.settings.color_scheme | default: 'scheme-2' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}" data-section-type="shop-categories">
+<section class="kt-shop-categories color-{{ section.settings.color_scheme | default: 'scheme-2' }}"
+  style="" data-section-id="{{ section.id }}" data-section-type="shop-categories">
   <div class="page-width">
     <div class="kt-shop-categories__header">
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
@@ -18,14 +18,6 @@
     </div>
   </div>
 
-  {%- comment -%}
-    R182 PLACEHOLDER-ROTATE-1: rotate Shopify's `collection-1`/`-2`/
-    `-3` placeholder set across the visible category cards so a
-    fresh-install demo storefront doesn't render three identical
-    placeholder images side-by-side. `forloop.index0` modulo 3
-    cycles through the trio; once the merchant configures real
-    images this code path goes inactive.
-  {%- endcomment -%}
   {%- assign shop_cat_placeholders = 'collection-1,collection-2,collection-3' | split: ',' -%}
   <div class="kt-shop-categories__scroll">
     {%- for block in section.blocks -%}
@@ -37,7 +29,16 @@
         >
           <div class="kt-shop-categories__card-image-wrap">
             {%- if block.settings.image != blank -%}
-              {%- assign category_image_alt = block.settings.image.alt | default: block.settings.title | strip_html -%}
+              {%- liquid
+                comment
+                  The card title is visible next to the image, so the image only gets alt text when it adds something.
+                endcomment
+                assign category_image_alt = block.settings.image.alt | strip_html | strip
+                assign category_title_plain = block.settings.title | strip_html | strip
+                if category_image_alt == category_title_plain
+                  assign category_image_alt = ''
+                endif
+              -%}
               {{
                 block.settings.image
                 | image_url: width: 1200
@@ -121,26 +122,6 @@
       "default": "Discover your perfect aesthetic"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -177,7 +158,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

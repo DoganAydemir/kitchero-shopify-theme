@@ -1,0 +1,48 @@
+{%- comment -%}
+  Rating and stock row block for main-product.
+  Accepts: block, product, current_variant
+{%- endcomment -%}
+{%- assign meta_has_rating = false -%}
+{%- if block.settings.show_rating -%}
+  {%- capture meta_rating_html -%}
+    {%- render 'product-rating', product: product -%}
+  {%- endcapture -%}
+  {%- assign meta_rating_html = meta_rating_html | strip -%}
+  {%- if meta_rating_html != blank -%}
+    {%- assign meta_has_rating = true -%}
+  {%- endif -%}
+{%- endif -%}
+<div class="kt-pdp__meta" {{ block.shopify_attributes }}>
+  {%- if meta_has_rating -%}
+    {{ meta_rating_html }}
+  {%- endif -%}
+  {%- assign show_stock_block = block.settings.show_stock -%}
+  {%- if product.gift_card? -%}
+    {%- assign show_stock_block = false -%}
+  {%- endif -%}
+  {%- if meta_has_rating and show_stock_block -%}
+    <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
+  {%- endif -%}
+  {%- if show_stock_block -%}
+    {%- assign show_low_stock = false -%}
+    {%- if settings.kt_show_low_stock and current_variant.available and current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= settings.kt_low_stock_threshold -%}
+      {%- assign show_low_stock = true -%}
+    {%- endif -%}
+    <span class="kt-pdp__stock kt-pdp__stock--low" role="status" data-low-stock {% unless show_low_stock %}hidden{% endunless %}>
+      {%- if show_low_stock -%}
+        {{ 'kt.product.low_stock_html' | t: count: current_variant.inventory_quantity | default: 'Only a few left' }}
+      {%- endif -%}
+    </span>
+    {%- assign initial_show_in = false -%}
+    {%- assign initial_show_out = false -%}
+    {%- unless show_low_stock -%}
+      {%- if current_variant.available -%}
+        {%- assign initial_show_in = true -%}
+      {%- else -%}
+        {%- assign initial_show_out = true -%}
+      {%- endif -%}
+    {%- endunless -%}
+    <span class="kt-pdp__stock kt-pdp__stock--in" data-stock-status="in"{% unless initial_show_in %} hidden{% endunless %}>{{ 'kt.product.in_stock' | t | default: 'In Stock' }}</span>
+    <span class="kt-pdp__stock kt-pdp__stock--out" data-stock-status="out"{% unless initial_show_out %} hidden{% endunless %}>{{ 'kt.product.sold_out' | t }}</span>
+  {%- endif -%}
+</div>

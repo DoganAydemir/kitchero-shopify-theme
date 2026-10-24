@@ -84,22 +84,6 @@
       </div>
     </div>
 
-    {%- comment -%}
-      Shipment tracking links. Shopify's documented Liquid surface does
-      NOT expose `order.fulfillments` directly; the documented pattern
-      is to iterate `order.line_items` and read
-      each line's `line_item.fulfillment`. We collect unique fulfillment
-      IDs in a first pass so repeated fulfillments (multi-line shipments)
-      render only one tracking entry, then iterate line items a second
-      time emitting one tracking row per fulfillment. Without this block
-      the customer has no way to track their package from the order page
-      — they have to dig into the shipping-confirmation email.
-
-      R301 — Migrated off undocumented `order.fulfillments`. Same surface,
-      same tracking output, using the property Theme Store reviewers
-      expect (line_item.fulfillment, per Shopify's official line_item
-      object reference).
-    {%- endcomment -%}
     {%- assign fulfillment_ids_seen = '' -%}
     {%- assign fulfillment_count = 0 -%}
     {%- for line_item in order.line_items -%}
@@ -144,16 +128,6 @@
                   {%- if fulfillment.tracking_company != blank -%}
                     <span class="kt-order__tracking-carrier">{{ fulfillment.tracking_company | escape }}</span>
                   {%- endif -%}
-                  {%- comment -%}
-                    R148 TRACKING-URLS-1: iterate `tracking_urls` (plural)
-                    instead of `tracking_url` (singular). Carriers like UPS
-                    that split a single fulfillment into multiple packages
-                    return multiple URLs — singular returned only the first
-                    package's link, hiding the rest from customers. Now
-                    emits one tracking link per package. Defence-in-depth
-                    escape on `tracking_company` (merchant- and carrier-
-                    set string) to match the rest of the order page.
-                  {%- endcomment -%}
                   {%- if fulfillment.tracking_urls != blank and fulfillment.tracking_urls.size > 0 -%}
                     {%- for tracking_url in fulfillment.tracking_urls -%}
                       <a href="{{ tracking_url | escape }}" class="kt-order__tracking-link" target="_blank" rel="noopener noreferrer">
@@ -177,32 +151,8 @@
 
     <div class="kt-order__layout">
       {%- comment -%} Line items {%- endcomment -%}
-      {%- comment -%}
-        R110 — semantic list, not bolted-on `role="table"`. The
-        visual rendering is a card list (image + stacked product/
-        variant/sku/qty/price), not a tabular grid with column
-        headers. Native `<ul role="list">` matches the visual and
-        passes WCAG 1.3.1 (Info and Relationships) without
-        requiring the missing role="rowgroup"/role="columnheader"/
-        role="cell" markup that the previous div-with-role table
-        was missing.
-      {%- endcomment -%}
       <ul class="kt-order__items" role="list" aria-label="{{ 'kt.customer.order.product' | t }}">
         {%- for line_item in order.line_items -%}
-          {%- comment -%}
-            R140 (R38 audit) — partial refund visualization. When a
-            customer refunds 1 of 3 ordered items, Shopify reports
-            only the aggregate "Refunded -$X" in `order.refunds`,
-            and the line item loop renders every line identically.
-            Customer can't tell WHICH item was refunded — a known
-            Theme Store rejection signal for the customer-account
-            critical path. `line_item.refunded_quantity` returns
-            the qty refunded from this line; full-refund gets the
-            `--refunded` modifier (strike-through + dim) and any
-            non-zero refund renders the per-line pill alongside
-            the fulfillment pill so partial cases (3 ordered, 1
-            refunded) are unambiguous.
-          {%- endcomment -%}
           <li class="kt-order__item{% if line_item.refunded_quantity > 0 and line_item.refunded_quantity == line_item.quantity %} kt-order__item--refunded{% endif %}">
             {%- if line_item.image -%}
               {%- assign image_alt_text = line_item.image.alt | default: line_item.title | strip_html -%}
@@ -234,13 +184,6 @@
                   {{ line_item.product.title | default: line_item.title | escape }}
                 {%- endif -%}
               </p>
-              {%- comment -%}
-                R95 — guard against deleted variant. After a variant is
-                removed in admin, line_item.variant returns nil for
-                historical orders; without the != blank check we
-                rendered an empty `<p></p>` (Lighthouse a11y warning,
-                visual gap on order receipt).
-              {%- endcomment -%}
               {%- if line_item.variant != blank and line_item.variant.title != blank and line_item.product.has_only_default_variant == false -%}
                 <p class="kt-order__item-variant">{{ line_item.variant.title | escape }}</p>
               {%- endif -%}
@@ -255,12 +198,6 @@
                 Store Section 7 customer-page requirements.
               {%- endcomment -%}
               {%- if line_item.variant.unit_price_measurement -%}
-                {%- comment -%}
-                  R86 UNP-03 — Shopify's `unit_price_with_measurement`
-                  filter replaces the manual money/reference-unit
-                  concatenation. Handles locale spacing + plural
-                  rules natively.
-                {%- endcomment -%}
                 <p class="kt-order__item-unit-price">
                   {{- line_item.variant.unit_price | unit_price_with_measurement: line_item.variant.unit_price_measurement -}}
                 </p>
@@ -276,11 +213,6 @@
                 {%- endcomment -%}
                 {%- assign order_charge = line_item.selling_plan_allocation.checkout_charge -%}
                 {%- if order_charge and order_charge.value > 0 and order_charge.value != line_item.final_line_price -%}
-                  {%- comment -%}
-                    R86 SUB-05 fix — pre-format before t-interpolation
-                    so `| money` applies to the variable, not the
-                    t output. Same root cause as cart-drawer / main-cart.
-                  {%- endcomment -%}
                   {%- assign order_charge_money = order_charge.value | money -%}
                   <p class="kt-order__item-charge">
                     {{ 'kt.cart.checkout_charge' | t: amount: order_charge_money }}
@@ -288,23 +220,6 @@
                 {%- endif -%}
               {%- endif -%}
 
-              {%- comment -%}
-                Line item properties — customer-supplied customization
-                fields captured at cart time (engraving copy, gift
-                message, custom configuration JSON, etc.). The cart
-                page and cart drawer both display these so the
-                customer can verify their input before checkout, but
-                the order receipt was missing them — meaning a
-                customer who ordered a personalized engraving had no
-                way to confirm the engraving copy from their order
-                history. Theme Store reviewers test this surface as
-                part of the customer-account critical path.
-
-                `_`-prefixed property keys are private (used by apps
-                to attach metadata) and should be skipped. File
-                upload properties expose `last` as the relative URL,
-                not a string — render as a download link.
-              {%- endcomment -%}
               {%- assign visible_properties = false -%}
               {%- for property in line_item.properties -%}
                 {%- assign property_first_char = property.first | slice: 0 -%}
@@ -318,21 +233,6 @@
                   {%- for property in line_item.properties -%}
                     {%- assign first_char = property.first | slice: 0 -%}
                     {%- if property.last == blank or first_char == '_' -%}{% continue %}{%- endif -%}
-                    {%- comment -%}
-                      Line item properties are user-supplied at /cart/add
-                      time (e.g. custom engraving text, gift message,
-                      uploaded file name). Even on the order page, where
-                      Shopify's customer account renders for the buyer
-                      themselves, an injected <script> in a property
-                      label/value would execute in the customer-account
-                      origin. main-cart.liquid:166-170 already escapes
-                      both ends of the pair; this template was the
-                      regression. Both `property.first` and
-                      `property.last` need `| escape`. The /uploads/
-                      filename branch already escapes via the
-                      `| split: '/' | last` chain, but extending it to
-                      `| escape` is defence-in-depth.
-                    {%- endcomment -%}
                     <li class="kt-order__item-property">
                       <span class="kt-order__item-property-name">{{ property.first | escape }}:</span>
                       {%- if property.last contains '/uploads/' -%}
@@ -367,14 +267,6 @@
                 </p>
               {%- endif -%}
 
-              {%- comment -%}
-                R140 (R38 audit) — per-line refund pill. Rendered
-                in addition to the fulfillment pill above so a
-                partially fulfilled + partially refunded line
-                shows both states. `refunded_quantity` is set by
-                Shopify when a merchant issues a refund through
-                admin; full vs partial determines the wording.
-              {%- endcomment -%}
               {%- if line_item.refunded_quantity > 0 -%}
                 <p class="kt-order__item-fulfillment kt-order__item-fulfillment--refunded">
                   {%- if line_item.refunded_quantity == line_item.quantity -%}
@@ -387,27 +279,6 @@
             </div>
 
             <div class="kt-order__item-price">
-              {%- comment -%}
-                R110 — money_with_currency in customer-facing
-                order receipts. Shopify renders historical orders
-                in their original presentment currency; bare
-                `money` filter strips the ISO code, so a EUR-
-                shop customer viewing a USD receipt sees `$50.00`
-                with no currency hint. Markets multi-currency
-                Theme Store requirement.
-
-                R302 — Strike-through original_line_price + line-
-                level discount breakdown. When a per-line discount
-                applied at order time (auto-promo, "Buy 2 Get 1
-                Free", a code that targeted this line specifically),
-                the order receipt previously rendered ONLY the
-                discounted final price with no breakdown — the
-                customer had no way to verify which discount hit
-                which line. Theme Store rejects order pages that
-                hide line-level savings; mirroring the cart-page
-                treatment closes the parity gap so the receipt is
-                a faithful record of what the customer paid.
-              {%- endcomment -%}
               {%- if line_item.original_line_price > line_item.final_line_price -%}
                 <s class="kt-order__item-price-original">
                   <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
@@ -429,22 +300,6 @@
       </ul>
 
       {%- comment -%} Totals {%- endcomment -%}
-      {%- comment -%}
-        R110 — money_with_currency on every totals row.
-        Multi-currency Markets requirement (same rationale as
-        line-item price filter swap above).
-      {%- endcomment -%}
-      {%- comment -%}
-        R110 — `<dl>` (description list) is the HTML5 semantic
-        for key/value pair groups. Order totals — Subtotal: $X,
-        Tax: $Y, Total: $Z — are textbook key-value pairs. Native
-        AT announces "term: Subtotal, definition: $50.00" instead
-        of two unconnected spans. Each row wraps `<dt>` + `<dd>`
-        in a `<div>` to preserve the existing flex layout (the
-        spec allows `<div>` directly inside `<dl>` for
-        presentational grouping per html.spec.whatwg.org/multipage/
-        grouping-content.html#the-dl-element).
-      {%- endcomment -%}
       <aside class="kt-order__totals" aria-label="{{ 'kt.customer.order.total' | t }}">
         <dl class="kt-order__totals-list">
         <div class="kt-order__totals-row">
@@ -465,14 +320,6 @@
         {%- if order.cart_level_discount_applications.size > 0 -%}
           {%- for discount in order.cart_level_discount_applications -%}
             <div class="kt-order__totals-row kt-order__totals-row--discount">
-              {%- comment -%}
-                R150 ORDER-DISCOUNT-ESCAPE-1: discount.title is
-                merchant-set OR Shopify-Functions app-supplied. App
-                discount titles can carry user-controlled chars in
-                niche custom-discount setups. Defence-in-depth `|
-                escape` matches the rest of the order page (line
-                items, properties, attributes all escape).
-              {%- endcomment -%}
               <dt>{{ 'kt.customer.order.discount' | t }} ({{ discount.title | escape }})</dt>
               <dd>-{{ discount.total_allocated_amount | money_with_currency }}</dd>
             </div>
@@ -538,17 +385,6 @@
         {%- endif -%}
         </dl>
 
-        {%- comment -%}
-          R88 — "Manage subscription" CTA per Shopify subscription
-          UX guideline + Theme Store rule SUB-06 / Combo 7. When an
-          order contains any line with a selling_plan_allocation,
-          surface a path to subscription management. Shopify's
-          Subscriptions app exposes management at /a/subscriptions/...
-          but the link target depends on the merchant's app; safest
-          target is shop.subscription_policy.url (always available
-          when policy is configured) with /account fallback (where
-          most subscription apps inject their UI).
-        {%- endcomment -%}
         {%- assign has_selling_plan = false -%}
         {%- for line_item in order.line_items -%}
           {%- if line_item.selling_plan_allocation -%}
@@ -557,16 +393,6 @@
           {%- endif -%}
         {%- endfor -%}
         {%- if has_selling_plan -%}
-          {%- comment -%}
-            R91 — link to /account where most subscription apps inject
-            their management UI. Previous fallback to
-            shop.subscription_policy.url was wrong: that URL resolves
-            to the merchant's read-only legalese page (subscription
-            policy), NOT a management surface. Customers clicking
-            "Manage subscription" expect to cancel/swap, not read
-            terms. /account is the correct primary target — the
-            shopify-subscriptions app injects its UI there.
-          {%- endcomment -%}
           <a href="{{ routes.account_url }}" class="kt-order__manage-subscription">
             {{- 'kt.customer.order.manage_subscription' | t | default: 'Manage subscription' -}}
           </a>
@@ -574,17 +400,6 @@
       </aside>
     </div>
 
-    {%- comment -%}
-      Addresses.
-      R150 ORDER-BILLING-DUP-1: when billing == shipping (the
-      common case), don't render two duplicate cards — collapse
-      to a single card with "(same as shipping)" subtitle on the
-      billing slot. Comparison via the `format_address` filter
-      output is cheap (Shopify stringifies once); avoids visible
-      duplication that reviewers flag as unpolished UX. Falls back
-      to two distinct cards when addresses differ OR shipping is
-      blank (digital-only orders) so no info is lost.
-    {%- endcomment -%}
     {%- assign order_shipping_str = order.shipping_address | format_address -%}
     {%- assign order_billing_str = order.billing_address | format_address -%}
     <div class="kt-order__addresses">

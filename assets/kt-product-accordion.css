@@ -1,8 +1,3 @@
-/* Product Accordion — birebir from source AccordionItem.
-   Uses details/summary for no-JS, animated with CSS grid.
-   Colours are scheme-aware via rgba(--kt-c-fg) channels so the
-   accordion adapts to dark / cream / editorial schemes without
-   per-scheme overrides. */
 
 .kt-accordion {
   /* Soft divider — lower-alpha than a hard `--kt-stone-200` line
@@ -11,12 +6,6 @@
   border-top: 1px solid rgba(var(--kt-c-fg), 0.1);
 }
 
-/* R-accordion-edge-no-border — Remove the top border on the FIRST
-   accordion and the bottom border on the LAST one. The edge rules
-   added an unnecessary frame outside the accordion stack which read
-   as box-chrome competing with the rest of the PDP info column.
-   Inner dividers between accordions stay (border-top on every item
-   except the first), so the visual rhythm between items is intact. */
 .kt-accordion:first-of-type {
   border-top: 0;
 }
@@ -114,21 +103,6 @@
 .kt-accordion__content {
   overflow: hidden;
   padding-bottom: 0;
-  /* Apply muted typography to the container itself so non-<p>
-     children (div, span, raw text in richtext) inherit cleanly,
-     AND duplicate on the <p> rule below so DevTools clearly
-     shows the active color on each paragraph without strikethrough
-     confusion. The previous `color: inherit` pattern made DevTools
-     display the parent rule with strikethrough, which read as
-     "not applied" even though it was (inherit). Direct values
-     read unambiguously in both the cascade and the visual.
-
-     R-accordion-content — Body text downsized 15px → 14px and
-     further muted via 80% alpha on the muted token. PDP accordion
-     content is secondary information (specs, shipping detail) —
-     should read calmer than the primary description/feature copy.
-     Alpha mute stays above the WCAG 4.5:1 contrast bar on the
-     default light scheme; verified against stone-50 background. */
   color: rgba(var(--kt-c-fg-muted), 0.85);
   line-height: 1.7;
   font-size: 0.875rem;

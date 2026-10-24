@@ -5,17 +5,6 @@
     <h1 class="kt-customer__title">{{ 'kt.customer.register.title' | t }}</h1>
 
     {%- form 'create_customer', id: 'CreateCustomerForm' -%}
-      {%- comment -%}
-        Email-verification success state. When the merchant has
-        "customer accounts → email verification" enabled (Shopify's
-        default for new stores as of 2024), create_customer returns
-        form.posted_successfully? == true without logging the
-        customer in — Shopify sends a confirmation email. Without
-        this branch the register form just re-rendered with the
-        customer's typed values still in the inputs, looking like
-        the submit failed silently. Theme Store reviewers test
-        account creation end-to-end and flag this as a broken flow.
-      {%- endcomment -%}
       {%- if form.posted_successfully? -%}
         <div class="kt-customer__success" role="status" tabindex="-1" data-form-error-summary>
           <h2 class="kt-customer__success-title">
@@ -63,13 +52,6 @@
       {%- endif -%}
 
       <div class="kt-customer__form">
-        {%- comment -%}
-          All non-password inputs bind `value="{{ form.X | escape }}"`
-          so a server-side validation failure preserves the user's
-          typed data. Shopify redirects back with `form.*` populated
-          on failure; without these bindings the user retypes every
-          field. Passwords stay empty for security.
-        {%- endcomment -%}
         <div class="kt-customer__row">
           <div class="kt-customer__field">
             <label for="register-first-name" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.register.first_name' | t }}</label>
@@ -82,9 +64,6 @@
               value="{{ form.first_name | escape }}"
               required
               aria-required="true"
-              {%- comment -%}
-                R104 — Return advances to next field on mobile.
-              {%- endcomment -%}
               enterkeyhint="next"
               autocomplete="given-name"
               {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="register-first-name-error"{% endif %}
@@ -102,9 +81,6 @@
               value="{{ form.last_name | escape }}"
               required
               aria-required="true"
-              {%- comment -%}
-                R104 — Return advances to next field on mobile.
-              {%- endcomment -%}
               enterkeyhint="next"
               autocomplete="family-name"
               {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="register-last-name-error"{% endif %}
@@ -127,9 +103,6 @@
             required
             aria-required="true"
             inputmode="email"
-            {%- comment -%}
-              R104 — Return advances to password on mobile.
-            {%- endcomment -%}
             enterkeyhint="next"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="register-email-error"{% endif %}
@@ -157,21 +130,8 @@
             placeholder="{{ 'kt.customer.register.password' | t }}"
             required
             aria-required="true"
-            {%- comment -%}
-              R104 — Return fires Create account on mobile.
-            {%- endcomment -%}
             enterkeyhint="go"
             autocomplete="new-password"
-            {%- comment -%}
-              R297 — `aria-describedby` can take a space-separated
-              list of IDs. Combine the password hint with the error
-              ID on validation failure so SR users hear BOTH (e.g.
-              "At least 5 characters. Password is too short."). The
-              earlier markup conditionally OVERWROTE the hint
-              reference with the error ID, hiding the hint as soon
-              as an error appeared — the worst possible moment to
-              hide it.
-            {%- endcomment -%}
             aria-describedby="register-password-hint{% if form.errors contains 'password' %} register-password-error{% endif %}"
             {% if form.errors contains 'password' %}aria-invalid="true"{% endif %}
           >
@@ -224,13 +184,6 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%}
-          R296 — Honeypot for fake-account-creation bots. Without this,
-          spammers can mass-register and flood the merchant's Shopify
-          customer database. Pattern matches `sections/contact-form.liquid`
-          and `sections/main-login.liquid` — backend / Shopify admin app
-          flags any submission with a non-empty `customer[website]`.
-        {%- endcomment -%}
         <p class="kt-form__honeypot" aria-hidden="true" inert>
           <label for="register-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
           <input type="text" id="register-website-trap-{{ section.id }}" name="customer[website]" tabindex="-1" autocomplete="off" aria-hidden="true">

@@ -7,13 +7,13 @@
 -%}
 
 <section
-  class="kt-gallery-marquee color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-gallery-marquee color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="gallery-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
   data-marquee-pause-host
   data-marquee-pause-modifier="kt-gallery-marquee--paused"
-  style="--kt-marquee-duration: {{ duration }}s;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-marquee-duration: {{ duration }}s;"
 >
   {%- comment -%} Heading block {%- endcomment -%}
   {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
@@ -175,30 +175,6 @@
     </div>
   </div>
 
-  {%- comment -%}
-    R232.69 — Visible pause toggle REMOVED per user request. WCAG
-    2.2.2 mitigation still in place via three other paths:
-      1. `:hover` + `:focus-within` pause the animation on desktop
-         (kt-section-gallery-marquee.css `--paused` rule).
-      2. `prefers-reduced-motion: reduce` media query disables the
-         animation entirely (animation-name: none).
-      3. The host carries `data-marquee-pause-host` so future global
-         pause controls (e.g. a single "Pause animations" toggle in
-         the footer for the whole theme) can re-enable a control
-         without re-emitting it per-section.
-  {%- endcomment -%}
-
-{%- comment -%}
-    R298 — Inline @app render block REMOVED. The previous inline loop
-    rendered every `block.type != 'image'` block — which means @app
-    blocks — wrapped in `block.shopify_attributes`. The same blocks
-    were then rendered AGAIN by the `{% render 'section-app-blocks' %}`
-    snippet below, producing two DOM nodes per @app block with
-    duplicate `data-shopify-editor-block-handle` attributes. Editor
-    block-select flickered between the two targets and the live
-    storefront double-rendered the merchant's app content. The
-    snippet is the canonical render path; the inline loop is gone.
-  {%- endcomment -%}
 </section>
 
 {%- comment -%} Render @app blocks merchant added (schema declares "@app"). {%- endcomment -%}
@@ -267,26 +243,6 @@
       "default": true
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -349,7 +305,10 @@
   ],
   "max_blocks": 20,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

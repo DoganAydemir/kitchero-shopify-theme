@@ -31,10 +31,9 @@
 -%}
 
 <section
-  class="kt-video-split kt-video-split--video-{{ video_position }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-video-split kt-video-split--video-{{ video_position }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="video-split-modal"
-  {% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}style="--kt-section-bg-custom: {{ section.settings.bg_color_custom }};"{% endif %}
 >
   <div class="page-width">
     <div class="kt-video-split__inner">
@@ -92,14 +91,6 @@
             }}
           {%- endif -%}
         {%- elsif section.settings.loop_poster != blank -%}
-          {%- comment -%}
-            Alt text resolution: prefer the image asset's own alt
-            (set by the merchant in Shopify Files) → fall back to
-            the section heading (relevant section context) → final
-            fallback to the shop name so we never ship an empty
-            alt on a meaningful visual. Theme Store reviewers
-            flag empty alts on non-decorative content.
-          {%- endcomment -%}
           {%- assign loop_poster_alt = section.settings.loop_poster.alt | default: section.settings.heading | default: shop.name -%}
           {{
             section.settings.loop_poster
@@ -264,29 +255,21 @@
       ]
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
+      "type": "header",
+      "content": "t:sections.shared.color_scheme.header"
     },
     {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-1"
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

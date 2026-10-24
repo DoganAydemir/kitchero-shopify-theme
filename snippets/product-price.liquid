@@ -1,11 +1,3 @@
-{%- comment -%}
-  Product Price — renders price with compare-at and discount badge.
-  Birebir from product/[id]/page.tsx price section.
-
-  Accepts:
-  - product: {Object} Shopify product
-  - variant: {Object} Shopify variant (optional, defaults to selected_or_first_available)
-{%- endcomment -%}
 
 {%- liquid
   unless variant
@@ -25,14 +17,6 @@
   assign on_sale = false
   if compare_price > current_price and is_free == false
     assign on_sale = true
-    # R-PDP3 — Round to whole percent so "−16.6666%" or "−25.5%"
-    # never leak. Liquid's `divided_by` runs integer division on
-    # integer-typed inputs but float when one operand is decimal;
-    # `| round: 0` normalizes the output for the badge regardless
-    # of input type. JS price refresh path (assets/product-form.js)
-    # already uses Math.round on the same calculation — this keeps
-    # the server + JS render in parity so the badge doesn't shift
-    # by one digit when a variant change repaints.
     assign discount_pct = compare_price | minus: current_price | times: 100 | divided_by: compare_price | round: 0
   endif
 -%}

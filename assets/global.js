@@ -1,29 +1,5 @@
-/**
- * Kitchero Theme — Global runtime helpers.
- *
- * Exposes a single `window.Kitchero` namespace that bundles the handful of
- * browser-level utilities shared across the theme:
- *
- *   Kitchero.focusTrap        keyboard focus containment for drawers/modals
- *   Kitchero.bus              minimal event bus with `.on` / `.off` / `.emit`
- *   Kitchero.escapeCloseDetails  keydown handler that closes an open <details> on Esc
- *
- * Architecture:
- *   - Focus trap: per-container WeakMap for cleanup so multiple traps
- *     can coexist and be torn down independently.
- *   - Event bus: Map<eventName, Set<listener>> for O(1) unsubscribe
- *     without rebuilding the listener collection on each removal.
- *   - escapeCloseDetails: document-level keydown that closes the
- *     nearest open <details> on Escape, so dropdowns/disclosures
- *     don't require per-component Escape wiring.
- */
-
 (function (global) {
   'use strict';
-
-  /* ------------------------------------------------------------------ */
-  /* Focus trap                                                         */
-  /* ------------------------------------------------------------------ */
 
   var FOCUSABLE_SELECTOR = [
     'a[href]:not([tabindex="-1"])',
@@ -42,19 +18,8 @@
     return Array.prototype.slice.call(root.querySelectorAll(FOCUSABLE_SELECTOR));
   }
 
-  // Per-container state so multiple traps can coexist and be torn
-  // down independently — each container keeps its own keydown and
-  // focusin handlers; teardown only removes its own listeners.
   var activeTraps = new WeakMap();
 
-  // Stack of currently-open trap containers, ordered oldest-first.
-  // Only the top container's `focusin` listener is attached at any
-  // moment — without this, two stacked modals (e.g. cart drawer +
-  // appointment drawer) trigger BOTH focusin listeners on every Tab
-  // press, causing focus to oscillate between the two trapped
-  // panels indefinitely. Push on enable, pop on disable, and rebind
-  // the new top's focusin so the stack always has exactly one
-  // active focus enforcer.
   var trapStack = [];
 
   function setActiveFocusin(container) {
@@ -77,10 +42,9 @@
 
   function enableFocusTrap(container, focusTarget) {
     if (!container) return;
-    // Re-entrant call on the same container: tear down the previous trap first.
+
     if (activeTraps.has(container)) disableFocusTrap(container);
-    // Suspend the previous top's focusin while we push the new top —
-    // only one focus enforcer should be active at a time.
+
     var previousTop = trapStack[trapStack.length - 1];
     if (previousTop) clearActiveFocusin(previousTop);
 
@@ -106,7 +70,6 @@
       }
     };
 
-    // Keep focus inside the container if something outside steals it.
     state.onFocusIn = function (event) {
       if (container.contains(event.target)) return;
       var list = listFocusable(container);
@@ -121,7 +84,6 @@
 
     var initial = focusTarget || listFocusable(container)[0] || container;
     if (initial && typeof initial.focus === 'function') {
-      // Ensure the container itself is focusable as a fallback.
       if (initial === container && !container.hasAttribute('tabindex')) {
         container.setAttribute('tabindex', '-1');
       }
@@ -130,12 +92,7 @@
   }
 
   function disableFocusTrap(container) {
-    // Called without an argument → tear down every active trap.
     if (!container) {
-      // WeakMap is not iterable; consumers that want a blanket teardown
-      // should keep their own container refs. This branch is a no-op by
-      // design — callers that opened a trap own the container reference
-      // and must pass it to disable. A missing arg means "no-op".
       return;
     }
     var state = activeTraps.get(container);
@@ -146,35 +103,18 @@
       state.focusInBound = false;
     }
     activeTraps.delete(container);
-    // Pop from the stack and re-bind the new top's focusin so the
-    // outer modal regains focus enforcement after the inner one
-    // closes.
+
     var idx = trapStack.indexOf(container);
     if (idx > -1) trapStack.splice(idx, 1);
     var newTop = trapStack[trapStack.length - 1];
     if (newTop) setActiveFocusin(newTop);
   }
 
-  // Used by every modal's ESC handler so a single Escape press only
-  // closes the inner-most stacked modal, not every open one.
-  // Returns true ONLY when there's a deeper modal stacked above the
-  // caller — empty stack OR caller IS the top both fall through, so
-  // modals that never registered a focus trap keep their existing
-  // ESC behaviour. Without this gate, `cart drawer + appointment
-  // drawer` both close on a single Escape (they each register their
-  // own document-level keydown listener and both fire). WCAG 2.1.2
-  // + 2.4.3 expectation: ESC closes the focused dialog, not all.
   function shouldSuppressEscape(container) {
     if (trapStack.length === 0) return false;
     return trapStack[trapStack.length - 1] !== container;
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Event bus                                                          */
-  /* ------------------------------------------------------------------ */
-
-  // Map<eventName, Set<listener>> — Set gives O(1) unsubscribe without
-  // rebuilding the listener collection on every removal.
   var channels = new Map();
 
   function on(name, listener) {
@@ -204,10 +144,6 @@
     });
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Misc helpers                                                       */
-  /* ------------------------------------------------------------------ */
-
   function escapeCloseDetails(event) {
     if (event.key !== 'Escape') return;
     var open = event.target.closest && event.target.closest('details[open]');
@@ -217,38 +153,17 @@
     if (summary) summary.focus();
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Global SR announcer — writes to the persistent #ktAnnouncer(Alert) */
-  /* regions in layout/theme.liquid. Call as                            */
-  /*   Kitchero.announce('Added to cart')                               */
-  /*   Kitchero.announce('Out of stock', 'assertive')                   */
-  /* "polite" (default) waits for a break in SR speech; "assertive"     */
-  /* interrupts. Don't pick "assertive" lightly — it's for destructive  */
-  /* or blocking messages only.                                         */
-  /*                                                                    */
-  /* Why reset textContent to '' first: SRs are finicky about announcing*/
-  /* when the textContent goes from `A` to `A` (same string, real       */
-  /* cause). Clearing to '' then setting the new value on the next      */
-  /* frame forces the read.                                             */
-  /* ------------------------------------------------------------------ */
-
   function announce(message, urgency) {
     if (!message) return;
     var id = urgency === 'assertive' ? 'ktAnnouncerAlert' : 'ktAnnouncer';
     var node = document.getElementById(id);
     if (!node) return;
     node.textContent = '';
-    /* rAF + short timeout to give the SR time to observe the reset
-       before we push the new value. Some SRs debounce rapid textContent
-       swaps and miss the announcement otherwise. */
+
     requestAnimationFrame(function () {
       setTimeout(function () { node.textContent = message; }, 50);
     });
   }
-
-  /* ------------------------------------------------------------------ */
-  /* Theme-editor bridge: rebroadcast shopify:* events through our bus. */
-  /* ------------------------------------------------------------------ */
 
   var editorEvents = [
     ['shopify:section:load',     'section:load',     'sectionId'],
@@ -270,208 +185,11 @@
     });
   });
 
-  /* ------------------------------------------------------------------ */
-  /* Editor block-select pulse (design mode only).                      */
-  /*                                                                    */
-  /* When a merchant clicks a block in the theme-editor sidebar, scroll */
-  /* the corresponding DOM node into view (if it isn't fully visible)   */
-  /* and paint a 1.2s outline pulse so the block is easy to spot in the */
-  /* preview pane. Section-specific block:select handlers (carousel     */
-  /* slide-to-active, accordion expand, hotspot popup) still run on the */
-  /* same event — this is purely a baseline visual aid that complements */
-  /* them, not a replacement.                                           */
-  /*                                                                    */
-  /* Premium Theme-Store reviewers click multiple blocks during review  */
-  /* and expect "the right thing happens" feedback; without this, blocks*/
-  /* deep inside a long section land off-screen and the merchant has    */
-  /* no idea which block they just selected.                            */
-  /* ------------------------------------------------------------------ */
-
-  if (global.Shopify && global.Shopify.designMode) {
-    var blockPulseClass = 'kt-editor-block-selected';
-    var blockPulseDuration = 1200;
-
-    document.addEventListener('shopify:block:select', function (event) {
-      var block = event.target;
-      if (!block || !block.classList) return;
-
-      /* Scroll into view only if not already MOSTLY visible. The prior
-         `fullyVisible` test (top >= 0 && bottom <= viewport) was too
-         strict: a block taller than the viewport — or one whose edge
-         sits a hair off-screen — is NEVER "fully" visible, so every
-         setting tweak (which re-renders the section and makes the
-         editor re-fire `shopify:block:select` for the still-selected
-         block) re-ran this scroll and the page kept jumping down. A
-         50%-visible threshold (matching kt-editor-block-affordance)
-         leaves an on-screen block alone, so re-selecting it never
-         jolts the page. This is THE theme-wide editor-scroll guard. */
-      var rect = block.getBoundingClientRect();
-      var viewportH = window.innerHeight || document.documentElement.clientHeight;
-      var visH = Math.min(rect.bottom, viewportH) - Math.max(rect.top, 0);
-      var mostlyVisible = visH > 0 && visH >= Math.min(rect.height * 0.5, 240);
-      if (!mostlyVisible && typeof block.scrollIntoView === 'function') {
-        try {
-          /* R107 — Safari 15-17 (WebKit bug 218927) ignores the
-             CSS-imposed `scroll-behavior: auto` from the
-             prefers-reduced-motion media query when a JS call
-             passes `behavior: 'smooth'` explicitly. WCAG 2.3.3
-             requires we honor the user's motion preference, so
-             gate the smooth pass on a runtime matchMedia check.
-             Same pattern applied to the other 4 scrollIntoView
-             call sites (collapsible-accordion, testimonials,
-             testimonials-marquee, product-gallery). */
-          var prm = window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          block.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center' });
-        } catch (_) { block.scrollIntoView(); }
-      }
-
-      block.classList.add(blockPulseClass);
-      if (block.__ktBlockPulseTimer) clearTimeout(block.__ktBlockPulseTimer);
-      block.__ktBlockPulseTimer = setTimeout(function () {
-        block.classList.remove(blockPulseClass);
-        block.__ktBlockPulseTimer = null;
-      }, blockPulseDuration);
-    });
-
-    document.addEventListener('shopify:block:deselect', function (event) {
-      var block = event.target;
-      if (!block || !block.classList) return;
-      block.classList.remove(blockPulseClass);
-      if (block.__ktBlockPulseTimer) {
-        clearTimeout(block.__ktBlockPulseTimer);
-        block.__ktBlockPulseTimer = null;
-      }
-    });
-
-    /* ------------------------------------------------------------------ */
-    /* Editor scroll-stability guard (THEME-WIDE).                        */
-    /*                                                                    */
-    /* Symptom merchants hit: change a section's settings in the editor   */
-    /* and the page immediately jumps — most often all the way to the     */
-    /* bottom. Cause: the settings change re-renders the section          */
-    /* (shopify:section:load) and the editor (or a section's own re-init: */
-    /* ScrollTrigger.refresh, a stale scrollIntoView, a focus(), a height */
-    /* shift) auto-scrolls before the new DOM is measured, landing at the */
-    /* wrong place. Per-section guards raced this with a single rAF and    */
-    /* kept missing the late / smooth scroll.                             */
-    /*                                                                    */
-    /* This is the single, theme-wide guard: snapshot the scroll position */
-    /* on every RE-RENDER and snap it back if it drifts hard over the     */
-    /* next ~0.5s. It deliberately does NOT touch the FIRST load of a      */
-    /* section or a freshly ADDED section — those should scroll into view */
-    /* — by only guarding section ids it has already seen. design_mode    */
-    /* only; the live storefront never runs any of this.                  */
-    /* ------------------------------------------------------------------ */
-    var ktSeenSections = new Set();
-    /* Seed with the sections already server-rendered into the editor on
-       load. shopify:section:load does NOT fire for those on the initial
-       load — it only fires on add / re-render — so without this seed the
-       FIRST settings change on a section looks like a brand-new add (its
-       id is "unseen") and slips past the guard, letting that very first
-       tweak jump the page. (This was the bug: the guard only kicked in
-       from the SECOND change onward.) `shopify-section-<id>` is the
-       canonical wrapper id; the suffix equals event.detail.sectionId.
-
-       Re-seed at several safe points (now, DOMContentLoaded, load, and a
-       1.5s backstop) because in the EDITOR iframe the server-rendered
-       sections are NOT always in the DOM yet when this deferred script
-       first runs — a single load-time seed returned 0 in testing. Adding
-       to a Set is idempotent, and every one of these fires well before a
-       human makes an edit, so the first settings change is guarded too. */
-    function ktSeedSections() {
-      var nodes = document.querySelectorAll('[id^="shopify-section-"]');
-      for (var i = 0; i < nodes.length; i += 1) {
-        ktSeenSections.add(nodes[i].id.replace(/^shopify-section-/, ''));
-      }
-    }
-    ktSeedSections();
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', ktSeedSections);
-    }
-    global.addEventListener('load', ktSeedSections);
-    setTimeout(function () {
-      ktSeedSections();
-    }, 1500);
-
-    /* Capture the REAL scroll APIs ONCE, before any neutering, so an
-       overlapping re-render can never save (and later restore) an
-       already-neutered no-op and break scrolling permanently. */
-    var ktTrueScrollTo = global.scrollTo;
-    var ktTrueScrollIntoView = Element.prototype.scrollIntoView;
-    var ktHoldTimer = null;
-    var ktPinY = 0;
-    function ktPin() {
-      /* Synchronous hard-pin on every scroll event: wins the frame even
-         against a direct scrollTop write, and self-stops once drift is 0
-         (setting scrollTop fires another scroll event whose drift is 0). */
-      if ((global.pageYOffset || document.documentElement.scrollTop || 0) !== ktPinY) {
-        document.documentElement.scrollTop = ktPinY;
-        if (document.body) { document.body.scrollTop = ktPinY; }
-      }
-    }
-    function ktHoldScroll(savedY) {
-      ktPinY = savedY;
-      if (!ktHoldTimer) {
-        /* Engage. Fighting the editor's smooth auto-scroll with scrollTo
-           only ESCALATED (logged drift grew 208 -> 1959px) because the
-           animation keeps advancing toward its target. So instead we stop
-           it at the source: neuter the scroll APIs it calls (scrollTo /
-           scrollIntoView) AND pin scrollTop directly. design_mode only —
-           the live storefront never touches these globals. */
-        global.scrollTo = function () {};
-        Element.prototype.scrollIntoView = function () {};
-        global.addEventListener('scroll', ktPin, { passive: true });
-      } else {
-        clearTimeout(ktHoldTimer);
-      }
-      ktHoldTimer = setTimeout(function () {
-        global.scrollTo = ktTrueScrollTo;
-        Element.prototype.scrollIntoView = ktTrueScrollIntoView;
-        global.removeEventListener('scroll', ktPin);
-        ktHoldTimer = null;
-      }, 1000);
-    }
-
-    document.addEventListener('shopify:section:load', function (event) {
-      var sid = event.detail && event.detail.sectionId;
-      var isReRender = sid && ktSeenSections.has(sid);
-      if (sid) ktSeenSections.add(sid);
-      if (!isReRender) return;
-      ktHoldScroll(global.pageYOffset || document.documentElement.scrollTop || 0);
-    });
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* Scroll lock — stacked body overflow:hidden across multiple owners. */
-  /*                                                                    */
-  /* 14 components (cart drawer, filter drawer, mobile nav, search      */
-  /* overlay, video modal, lightbox, newsletter popup, appointment      */
-  /* drawer, product gallery zoom, customer forms, etc.) each set       */
-  /* body.style.overflow = 'hidden' on open and '' on close. When two   */
-  /* overlay each other — e.g. cart drawer is open, user clicks a link  */
-  /* that opens the appointment drawer, then closes the appointment     */
-  /* drawer — the close path would restore overflow = '' even though    */
-  /* the cart drawer is still visible. Page silently scrolls behind the */
-  /* open drawer until the next component re-locks it.                  */
-  /*                                                                    */
-  /* Central Set<ownerId> pattern: each caller passes a unique id.      */
-  /* Body lock applied while the Set is non-empty, released when it     */
-  /* drains. Lock/unlock are idempotent per id (double-lock no-op;      */
-  /* unlock of unknown id no-op). Stores the original overflow value    */
-  /* so merchants who set `body { overflow: auto }` via custom CSS get  */
-  /* that value restored, not a hardcoded ''.                           */
-  /* ------------------------------------------------------------------ */
 
   var scrollLockOwners = new Set();
   var scrollLockOriginalOverflow = null;
   var scrollLockSavedY = 0;
-  /* iOS Safari ignores `body { overflow: hidden }` when the user drags
-   * inside a position:fixed drawer — the page behind scrolls through,
-   * then on close the user ends up at a random scroll position. The
-   * position:fixed-body trick freezes the viewport; on unlock we
-   * restore the saved scroll position. Other browsers don't need this
-   * but it's harmless there (overflow:hidden already stopped them). */
+
   function scrollLock(id) {
     if (!id || scrollLockOwners.has(id)) return;
     if (scrollLockOwners.size === 0) {
@@ -498,9 +216,7 @@
       document.body.style.right = '';
       document.body.style.width = '';
       scrollLockOriginalOverflow = null;
-      /* Restore previous scroll position in one frame — avoids the
-       * "jump to top then snap back" flash iOS does if we scrollTo
-       * synchronously before the position:fixed styles detach. */
+
       window.scrollTo(0, scrollLockSavedY);
       scrollLockSavedY = 0;
     }
@@ -517,32 +233,6 @@
     scrollLockOriginalOverflow = null;
     scrollLockSavedY = 0;
   }
-
-  /* ------------------------------------------------------------------ */
-  /* Money formatting — mirrors Liquid `| money` output                  */
-  /*                                                                    */
-  /* R-money-parity — Replaces the previous `Intl.NumberFormat` based   */
-  /* JS formatter that produced CLDR output diverging from the         */
-  /* merchant's admin-configured `shop.money_format`. Theme Store      */
-  /* reviewers test variant-click price parity between PDP (post-JS    */
-  /* update) and cart (Liquid render); divergent strings are flagged   */
-  /* as "deceptive pricing".                                            */
-  /*                                                                    */
-  /* Format string placeholders supported (Shopify's documented set):  */
-  /*   amount                                  — 1,234.56               */
-  /*   amount_no_decimals                      — 1,235                  */
-  /*   amount_with_comma_separator             — 1.234,56               */
-  /*   amount_no_decimals_with_comma_separator — 1.235                  */
-  /*   amount_with_space_separator             — 1 234,56               */
-  /*   amount_no_decimals_with_space_separator — 1 235                  */
-  /*   amount_with_apostrophe_separator        — 1'234.56               */
-  /*                                                                    */
-  /* The format string itself carries the currency symbol / suffix     */
-  /* (e.g. "${{amount}}", "{{amount}} TL", "€{{amount_with_comma_..."). */
-  /* The merchant configures these in Shopify admin → Settings →       */
-  /* General → Currency formatting; the layout exposes them as         */
-  /* `Kitchero.moneyFormat` and `Kitchero.moneyWithCurrencyFormat`.    */
-  /* ------------------------------------------------------------------ */
 
   function formatMoneyAmount(centsValue, placeholder) {
     var cents = parseInt(centsValue, 10);
@@ -565,7 +255,7 @@
     var parts = fixed.split('.');
     var intPart = parts[0];
     var decPart = parts[1];
-    /* Group thousands using a stable regex (matches `123456789` → `123,456,789`). */
+
     intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSep);
     return decPart ? (intPart + decimalSep + decPart) : intPart;
   }
@@ -576,10 +266,6 @@
       return formatMoneyAmount(cents, placeholder);
     });
   }
-
-  /* ------------------------------------------------------------------ */
-  /* Public surface                                                     */
-  /* ------------------------------------------------------------------ */
 
   global.Kitchero = global.Kitchero || {};
   global.Kitchero.focusTrap = {
@@ -597,236 +283,4 @@
     unlock: scrollUnlock,
     reset: scrollLockReset
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Form-error auto-focus. When a server-rendered form comes back with */
-  /* validation errors, Shopify does a full-page re-render (not AJAX),  */
-  /* so focus resets to document.body. The error summary snippet marks  */
-  /* itself up with role="alert" + tabindex="-1"; flip that focus to    */
-  /* the summary on load so keyboard/SR users get the error context     */
-  /* without having to scroll-hunt.                                     */
-  /* ------------------------------------------------------------------ */
-
-  function focusFirstFormError() {
-    var summary = document.querySelector('[data-form-error-summary][tabindex="-1"]')
-      || document.querySelector('[role="alert"][tabindex="-1"]');
-    if (summary && typeof summary.focus === 'function') {
-      /* rAF so the browser has laid out the element before we move
-         focus — some SRs swallow focus moves that happen before first
-         paint. */
-      requestAnimationFrame(function () {
-        try { summary.focus({ preventScroll: false }); } catch (e) { /* ignore */ }
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', focusFirstFormError);
-  } else {
-    focusFirstFormError();
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* Global error sink                                                  */
-  /*                                                                    */
-  /* Catches unhandled promise rejections and uncaught runtime errors   */
-  /* before they escape to the user-visible browser error indicator     */
-  /* (Safari's "error loading page" banner, Firefox devtools count).    */
-  /* Logs once with a Kitchero prefix so developers can correlate but   */
-  /* suppresses the default verbose stack that can leak request bodies  */
-  /* or internal hostnames on some builds. Explicitly a LAST-RESORT     */
-  /* catcher — every fetch/promise in the theme should still handle     */
-  /* its own failures; this is the seatbelt for future regressions.    */
-  /* ------------------------------------------------------------------ */
-
-  global.addEventListener('unhandledrejection', function (event) {
-    try {
-      var reason = event && event.reason;
-      /* Swallow common expected cases: AbortError (predictive search +
-         collection filter cancellation), and fetch failures that the
-         section JS already caught but rethrew. */
-      if (reason && (reason.name === 'AbortError' || reason.name === 'TypeError' && /Failed to fetch/.test(reason.message || ''))) {
-        event.preventDefault();
-        return;
-      }
-      /* Log once, no stack — keeps DevTools count down for merchants
-         running analytics dashboards that bucket errors. */
-      if (global.console && console.warn) {
-        console.warn('[Kitchero] unhandled promise rejection:', reason && (reason.message || reason));
-      }
-      event.preventDefault();
-    } catch (e) { /* handler itself must not throw */ }
-  });
-
-  /* ------------------------------------------------------------------ */
-  /* Viewport reflow bus                                                */
-  /*                                                                    */
-  /* Phone rotation and visualViewport resize (keyboard open/close, iOS */
-  /* address-bar collapse) change the geometry that ScrollTrigger pins  */
-  /* and carousel widths were measured against. Without re-measurement  */
-  /* pinned sections shift off-layout and scroll progress stays stale   */
-  /* at whatever the old viewport was. Debounce to 150ms so a rapid     */
-  /* sequence of resize events (iOS bounce-scroll triggers many)        */
-  /* collapses into one refresh. Sections can also listen to the        */
-  /* `kitchero:viewport-reflow` event if they maintain their own        */
-  /* dimensions (drag carousel track width, shop-categories snap        */
-  /* pitch, etc.).                                                      */
-  /* ------------------------------------------------------------------ */
-
-  var reflowTimer = null;
-  function triggerReflow() {
-    if (reflowTimer) clearTimeout(reflowTimer);
-    reflowTimer = setTimeout(function () {
-      reflowTimer = null;
-      if (Kitchero.safeScrollTriggerRefresh) {
-        Kitchero.safeScrollTriggerRefresh();
-      } else if (global.ScrollTrigger && typeof global.ScrollTrigger.refresh === 'function') {
-        try { global.ScrollTrigger.refresh(); } catch (_) {}
-      }
-      document.dispatchEvent(new CustomEvent('kitchero:viewport-reflow'));
-    }, 150);
-  }
-
-  global.addEventListener('orientationchange', triggerReflow);
-  if (global.visualViewport) {
-    global.visualViewport.addEventListener('resize', triggerReflow);
-  } else {
-    global.addEventListener('resize', triggerReflow);
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* Scroll-safe ScrollTrigger.refresh for theme editor                 */
-  /*                                                                    */
-  /* Inside Shopify's design_mode, every section re-render fires        */
-  /* shopify:section:load. If a section JS calls ScrollTrigger.refresh  */
-  /* immediately, GSAP recalculates all pin/trigger start positions     */
-  /* and the viewport jumps — the merchant sees the page scroll down    */
-  /* after uploading an image or toggling a setting. This wrapper       */
-  /* saves scrollY, runs the refresh, then restores the position.       */
-  /* On the live storefront (no designMode) it's a plain pass-through. */
-  /* ------------------------------------------------------------------ */
-
-  Kitchero.safeScrollTriggerRefresh = function () {
-    if (typeof ScrollTrigger === 'undefined' || typeof ScrollTrigger.refresh !== 'function') return;
-    if (!(global.Shopify && global.Shopify.designMode)) {
-      try { ScrollTrigger.refresh(); } catch (_) {}
-      return;
-    }
-    var savedY = global.pageYOffset || document.documentElement.scrollTop || 0;
-    try { ScrollTrigger.refresh(); } catch (_) {}
-    requestAnimationFrame(function () {
-      if (Math.abs((global.pageYOffset || 0) - savedY) > 2) {
-        global.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
-      }
-    });
-  };
-
-  /* ------------------------------------------------------------------ */
-  /* R138 FORM-DBL-1 — global double-submit guard                       */
-  /*                                                                    */
-  /* Native HTML forms (newsletter, login, register, contact, password) */
-  /* POST and navigate. On a slow connection the browser keeps the      */
-  /* "Submit" button live for the duration of the round-trip, so a      */
-  /* visitor who clicks twice (or more) sends 2-3 POSTs before the      */
-  /* navigation kicks in. Outcomes:                                     */
-  /*   - Shopify customer-create rate limiter trips → success path      */
-  /*     silently fails on subsequent clicks.                           */
-  /*   - Two contact submissions land in the merchant inbox.            */
-  /*   - Newsletter dupe signup 422s on the second click.               */
-  /*                                                                    */
-  /* This guard scopes itself to forms that POST to known Shopify       */
-  /* endpoints (cart, account, contact, password) plus any form that    */
-  /* opts in via `data-double-submit-guard`. On submit it disables the  */
-  /* submit button + sets aria-busy on the form. Forms that handle      */
-  /* their own lifecycle (product-form.js ATC, customer-forms.js login) */
-  /* opt out by carrying `data-skip-double-submit-guard`.               */
-  /* On bfcache restore the pageshow listener re-enables so back/       */
-  /* forward navigations don't leave permanently-disabled buttons.      */
-  /* ------------------------------------------------------------------ */
-
-  var GUARD_ENDPOINTS_RE = /(\/contact$|\/contact\?|\/cart(\?|$|\/add|\/update|\/clear)|\/account\/(login|recover|register)|\/password$|\/password\?)/;
-
-  function shouldGuardForm(form) {
-    if (!form || form.tagName !== 'FORM') return false;
-    if (form.hasAttribute('data-skip-double-submit-guard')) return false;
-    if (form.hasAttribute('data-double-submit-guard')) return true;
-    var action = form.getAttribute('action') || '';
-    return GUARD_ENDPOINTS_RE.test(action);
-  }
-
-  document.addEventListener('submit', function (event) {
-    var form = event.target;
-    if (!shouldGuardForm(form)) return;
-    if (form._kitcheroSubmitting) {
-      /* Already submitting — block the duplicate. preventDefault()
-         on the second submit so the browser doesn't fire another
-         POST. The original submission continues uninterrupted. */
-      event.preventDefault();
-      return;
-    }
-    form._kitcheroSubmitting = true;
-
-    /* Defer the visual-disable decision until after bubble phase,
-       so JS-intercepted forms (product-form.js ATC, customer-forms.js
-       login, etc.) that call preventDefault() in their own submit
-       handler don't get their button stuck in `disabled` state.
-       Microtask runs synchronously after the current task's bubble
-       handlers but before any async fetch resolves. */
-    Promise.resolve().then(function () {
-      if (event.defaultPrevented) {
-        /* JS-intercepted form. The handling code manages its own
-           button state (loading class, aria-busy) and will resolve
-           via fetch — there is no navigation. Clear the guard flag
-           after a generous window so a customer who hits a slow
-           network can retry once the JS handler reports failure. */
-        setTimeout(function () {
-          form._kitcheroSubmitting = false;
-        }, 8000);
-        return;
-      }
-      /* Native navigation — disable the submit button visually so
-         the customer doesn't click it again before the browser
-         leaves the page. CSS :disabled handles the styled state.
-         Keep button label intact for SR announcement. */
-      form.setAttribute('aria-busy', 'true');
-      var submitButtons = form.querySelectorAll(
-        'button[type="submit"], input[type="submit"]'
-      );
-      submitButtons.forEach(function (btn) {
-        btn.disabled = true;
-        btn.setAttribute('aria-busy', 'true');
-      });
-    });
-  }, true /* capture phase, runs before form-specific submit handlers */);
-
-  /* On bfcache restore (back/forward), the form is rehydrated with
-     stale disabled buttons. Reset state so visitors can resubmit. */
-  global.addEventListener('pageshow', function (event) {
-    if (!event.persisted) return;
-    document.querySelectorAll('form[aria-busy="true"]').forEach(function (form) {
-      form._kitcheroSubmitting = false;
-      form.removeAttribute('aria-busy');
-      form.querySelectorAll(
-        'button[type="submit"][disabled][aria-busy="true"], input[type="submit"][disabled][aria-busy="true"]'
-      ).forEach(function (btn) {
-        btn.disabled = false;
-        btn.removeAttribute('aria-busy');
-      });
-    });
-  });
 })(window);
-
-/* "Your privacy choices" footer link. Opens Shopify's customer privacy
-   preferences when the store uses Shopify's privacy banner. When the
-   theme cookie banner handles the click (cookie-banner.js) or neither is
-   available, the link keeps its normal href. */
-document.addEventListener('click', function (event) {
-  if (event.defaultPrevented) return;
-  var trigger = event.target && event.target.closest ? event.target.closest('[data-privacy-choices]') : null;
-  if (!trigger) return;
-  var banner = window.privacyBanner;
-  if (banner && typeof banner.showPreferences === 'function') {
-    event.preventDefault();
-    banner.showPreferences();
-  }
-});

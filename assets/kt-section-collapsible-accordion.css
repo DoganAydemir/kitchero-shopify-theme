@@ -7,7 +7,6 @@
  */
 
 .kt-collapsible-accordion {
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white/stone-900; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0;
@@ -31,8 +30,6 @@
   }
 }
 
-/* R232.50 — scheme-aware inner colors throughout (eyebrow, heading,
-   borders, summary title, toggle, content). */
 /* Header (eyebrow + heading) */
 .kt-collapsible-accordion__header {
   margin-bottom: 4rem;
@@ -48,7 +45,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-collapsible-accordion__heading {
@@ -85,33 +82,13 @@
 }
 
 .kt-collapsible-accordion__item[open] {
-  /* R-faq-cleanup — Open state used a 4% fg tint to "lift" the
-     active item; user feedback flagged the resulting grey card
-     as too heavy against the source design, which keeps every
-     item on the section bg with only a divider line between.
-     Tint removed; the chevron rotation + divider rule provide
-     enough open-vs-collapsed cue on their own. */
   background-color: transparent;
 }
 
-/* R-faq-spacing — Compact the open-state summary's bottom padding so
-   the question→answer pair reads as a tightly coupled Q-and-A unit
-   rather than two separate blocks. Top padding stays at 1.5rem so the
-   summary still has a clean top edge against the divider above; bottom
-   trims to 0.5rem and the content panel below (padding-top 0) sits
-   immediately under the question. Closed-state items keep the original
-   1.5rem all-around padding so the collapsed list stays roomy. */
 .kt-collapsible-accordion__item[open] .kt-collapsible-accordion__summary {
   padding-bottom: 0.5rem;
 }
 
-/* Summary — hide default marker
-   R-SS5 — Horizontal padding so the summary text + chevron sit
-   inside the open-state tinted card with breathing room. Without
-   it the question text + toggle icon both kissed the left/right
-   edges, and the open content panel below inherited the same
-   zero-padding look — the merchant flagged this as "content
-   padding eksik" on mobile. */
 .kt-collapsible-accordion__summary {
   display: flex;
   align-items: center;
@@ -169,19 +146,10 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-collapsible-accordion__title {
-  /* R-faq-cleanup — Switched from heading serif (Georgia) at
-     24/30px down to body sans-serif at 17/19px with weight 700.
-     The reference Next.js source treats the question line as
-     bold body copy, not an editorial heading — pairing serif
-     titles with a muted body answer made the question read as
-     a sub-section header and broke the FAQ "scannable list"
-     hierarchy. Sans + bold keeps every question recognisable
-     at a glance and matches the body family used elsewhere
-     for actionable text. */
   font-family: inherit;
   font-size: 1.0625rem;
   font-weight: 700;
@@ -198,7 +166,7 @@
 }
 
 .kt-collapsible-accordion__summary:hover .kt-collapsible-accordion__title {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* Toggle circle */
@@ -281,20 +249,7 @@
   opacity: 1;
 }
 
-/* R-SS5 — Content panel needs horizontal padding on mobile so the
-   answer copy doesn't run flush against the card edges (the panel
-   sits inside the same `[open]` tinted item box as the summary
-   above). Mobile uses a uniform 1rem horizontal padding matching
-   the summary; desktop keeps the 2.25rem left indent that aligns
-   the answer with the numbered-question text. */
 .kt-collapsible-accordion__content {
-  /* R-faq-spacing — Removed top padding entirely (was 1rem). Combined
-     with the summary's own 1.5rem vertical padding, the gap between
-     question baseline and answer top was ~40px — too far apart, the
-     pair stopped reading as a Q-and-A unit. Now the summary's bottom
-     padding owns the entire spacing budget; content sits flush
-     underneath with only the bottom padding (1.5rem) for breathing
-     room before the divider line below. */
   padding: 0 1rem 1.5rem 1rem;
   /* Matches the muted body-copy treatment used elsewhere (image-
      with-text alternating, etc.) — stone-500 base with an opacity
@@ -302,7 +257,7 @@
      subordinate body text under the bold serif question. Without
      the opacity step the stone-500 ink looked indistinguishable
      from the question title on warm backdrops. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   opacity: 0.85;
   font-size: 0.875rem;
   font-weight: 300;

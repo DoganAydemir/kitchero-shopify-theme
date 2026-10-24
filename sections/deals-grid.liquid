@@ -1,18 +1,8 @@
 {{ 'kt-section-deals-grid.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Deals Grid — birebir from Next.js /deals page. Dotted header +
-  premium package cards (tier badge, popular flag, price + includes
-  overlay, strikethrough original, "Free Design" accent, fill-on-
-  hover CTA) + bottom "Need a custom quote?" dual-CTA strip.
-
-  Cards link to collections, NOT product detail (per the project
-  roadmap — deal cards surface a curated collection, not a single SKU).
-{%- endcomment -%}
-
 {%- assign deals_cta_default = 'kt.section.deals_grid.cta_default' | t -%}
-<section class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}">
+<section class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style="" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-deals__grid">
       {%- for block in section.blocks -%}
@@ -21,6 +11,16 @@
           {%- assign tier_text = block.settings.tier -%}
           {%- assign card_link = block.settings.link | default: routes.collections_url -%}
           {%- assign badge_bg = block.settings.badge_color | default: '#10b981' -%}
+          {%- liquid
+            comment
+              Text color follows the badge background so any picked color stays readable.
+            endcomment
+            assign badge_brightness = badge_bg | color_brightness
+            assign badge_fg = '#ffffff'
+            if badge_brightness > 125
+              assign badge_fg = '#1c1917'
+            endif
+          -%}
 
           <a href="{{ card_link | escape }}" class="kt-deals__card" {{ block.shopify_attributes }}>
 
@@ -60,7 +60,7 @@
               {%- if tier_text != blank -%}
                 <span
                   class="kt-deals__card-tier"
-                  style="background-color: {{ badge_bg }};"
+                  style="background-color: {{ badge_bg }}; color: {{ badge_fg }};"
                 >
                   {{- tier_text -}}
                 </span>
@@ -155,13 +155,6 @@
     <div class="page-width">
       <div class="kt-deals-cta__inner">
         {%- if section.settings.bottom_heading != blank -%}
-          {%- comment -%}
-            R16-E: heading_tag is merchant-configurable so this section
-            doesn't accidentally become the page's H1 when it lands on
-            a template that lacks an explicit top-level heading
-            (custom /pages/deals layouts, builder homepages). Schema
-            default `h2` keeps the visual hierarchy stable.
-          {%- endcomment -%}
           {%- assign deals_cta_tag = section.settings.bottom_heading_tag | default: 'h2' -%}
           <{{ deals_cta_tag }} class="kt-deals-cta__title">{{ section.settings.bottom_heading }}</{{ deals_cta_tag }}>
         {%- endif -%}
@@ -223,9 +216,18 @@
       "label": "t:sections.deals-grid.settings.bottom_heading_tag.label",
       "info": "t:sections.deals-grid.settings.bottom_heading_tag.info",
       "options": [
-        { "value": "h1", "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h1.label" },
-        { "value": "h2", "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h2.label" },
-        { "value": "h3", "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h3.label" }
+        {
+          "value": "h1",
+          "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.deals-grid.settings.bottom_heading_tag.options__h3.label"
+        }
       ],
       "default": "h2",
       "visible_if": "{{ section.settings.show_bottom_cta }}"
@@ -264,35 +266,6 @@
       "visible_if": "{{ section.settings.show_bottom_cta }}"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -406,7 +379,10 @@
   ],
   "max_blocks": 12,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

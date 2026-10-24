@@ -23,10 +23,10 @@
 -%}
 
 <section
-  class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-multicolumn color-{{ section.settings.color_scheme | default: 'scheme-1' }} kt-multicolumn--align-{{ content_alignment }} kt-multicolumn--shape-{{ image_shape }}"
   data-section-id="{{ section.id }}"
   data-section-type="multicolumn"
-  style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-mc-cols-desktop: {{ columns_desktop }}; --kt-mc-cols-mobile: {{ columns_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
   {% if section.settings.heading != blank %}aria-labelledby="MulticolumnHeading-{{ section.id }}"{% endif %}
 >
   <div class="page-width">
@@ -81,17 +81,6 @@
                         alt: image_alt_text }}
                   </div>
                 {%- elsif block.settings.icon_image != blank -%}
-                  {%- comment -%}
-                    R283c — Custom icon upload takes priority over
-                    the preset select. Merchant uploads any SVG /
-                    PNG / JPG; we render it as a constrained-size
-                    image inside the icon slot. Shopify natively
-                    accepts SVG uploads (sanitised) so brand-mark
-                    glyphs go through without any extra plumbing.
-                    Sized small (max 96px source, rendered ~3.5-
-                    4rem via CSS) since the slot is an icon, not
-                    a hero.
-                  {%- endcomment -%}
                   <div class="kt-multicolumn__icon kt-multicolumn__icon--image" aria-hidden="true">
                     {{ block.settings.icon_image | image_url: width: 192 | image_tag:
                         loading: 'lazy',
@@ -103,21 +92,6 @@
                         alt: '' }}
                   </div>
                 {%- elsif block.settings.icon != blank and block.settings.icon != 'none' -%}
-                  {%- comment -%}
-                    R283c — Preset icon library. Mirrors the
-                    pattern in why-choose-us-product.liquid (line-
-                    icon SVG case statement keyed on a `select`
-                    block setting). Twelve options cover the
-                    common "Why us / Benefits" copy for kitchen /
-                    cabinet brands: trust signals (shield, award),
-                    delivery (truck, clock), craft (ruler, zap),
-                    emotional (heart, gift, leaf), and three
-                    decorative (star, sparkle, check). Stroke
-                    width 1.5 matches the established theme line-
-                    icon weight. `currentColor` lets the icon
-                    inherit the column's text colour so it
-                    re-tints under scheme swaps.
-                  {%- endcomment -%}
                   <div class="kt-multicolumn__icon" aria-hidden="true">
                     {%- case block.settings.icon -%}
                       {%- when 'star' -%}
@@ -185,43 +159,6 @@
                       {{ block.settings.text }}
                     </div>
                   {%- endif -%}
-                  {%- comment -%}
-                    R284 — CTA rendering policy.
-
-                    Previous (R162) approach: only render the link
-                    when BOTH label AND url were supplied; missing
-                    url surfaced an editor-only hint paragraph
-                    ("Add a link URL to enable this CTA.") in
-                    place of the styled link. Reporter pointed
-                    out the hint clutters every empty-URL column
-                    and breaks the visual rhythm — they prefer to
-                    see the actual link element so they can
-                    evaluate spacing / alignment / centring in the
-                    editor.
-
-                    New behaviour: render the styled link as soon
-                    as the merchant supplies a `link_label`. When
-                    `link_url` is blank, fall back to `href="#"` —
-                    user explicitly opted in ("ya # olur ya da
-                    boş bırakırsın"). On the live storefront an
-                    empty-URL column with the # fallback scrolls
-                    to top; merchant is expected to fill the URL
-                    before publishing. Theme Store reviewers do
-                    occasionally flag `href="#"` placeholders,
-                    but the merchant-facing trade-off (clear
-                    visual feedback in the editor) is acceptable
-                    per direct request.
-                  {%- endcomment -%}
-                  {%- comment -%}
-                    R296 — Empty-link guard. Only render the `<a>`
-                    when BOTH label AND url are configured. The prior
-                    fallback to `href="#"` produced a dead anchor that
-                    SR users heard as "<label>, link" and clicked into
-                    a top-of-page no-op — a WCAG 2.4.4 fail that Theme
-                    Store reviewers consistently flag. In the editor
-                    we still show a hint so the merchant knows the
-                    label is missing a destination.
-                  {%- endcomment -%}
                   {%- if block.settings.link_label != blank and block.settings.link_url != blank -%}
                     <a
                       href="{{ block.settings.link_url | escape }}"
@@ -256,7 +193,10 @@
   "class": "section",
   "max_blocks": 6,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "settings": [
     {
@@ -413,41 +353,6 @@
       "label": "t:sections.multicolumn.settings.padding_bottom.label",
       "default": 64
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        {
-          "value": "stone_100",
-          "label": "t:sections.shared.bg_color.options__stone_100.label"
-        },
-        {
-          "value": "custom",
-          "label": "t:sections.shared.bg_color.options__custom.label"
-        }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

@@ -38,11 +38,6 @@
 
 .kt-variant-picker__swatches {
   display: flex;
-  /* R129 — wrap when swatch count exceeds container width. Real
-     merchant catalogues with 30-50 colour variants used to overflow
-     past the PDP column on mobile (each swatch hit-area is 44×44,
-     so 30 swatches = ~1.4k px wide). With wrap + row-gap the picker
-     stacks cleanly. */
   flex-wrap: wrap;
   row-gap: 0.5rem;
   gap: 0.5rem;
@@ -63,34 +58,11 @@
 
 .kt-variant-picker__swatch {
   display: block;
-  /* R296 — PDP swatch dimensions + shape now driven by the theme
-     settings (`Swatch size` range + `Swatch shape` select) just like
-     the collection card swatches. Previously the PDP swatch was
-     hardcoded `2.5rem` / `border-radius: 50%`, so toggling the
-     theme-settings shape from Circle → Square → Rounded only
-     affected collection cards and PDP stayed round. `--kt-swatch-size`
-     is emitted in px from snippets/kt-css-variables.liquid; the
-     `* 2` scale gives the PDP swatch a heftier touch target than
-     the small (18 px default) card swatch, matching the previous
-     hardcoded 40 px visual at the default setting (18 × 2 = 36 ≈
-     2.25 rem; close enough to the old 2.5 rem that merchants on a
-     fresh install won't see a layout shift). */
   width: calc(var(--kt-swatch-size, 18px) * 2);
   height: calc(var(--kt-swatch-size, 18px) * 2);
   border-radius: var(--kt-swatch-shape, 50%);
   border: 2px solid rgba(var(--kt-c-fg), 0.12);
-  /* R-PDP6 — Explicit transition prop list (not `all`) so
-     prefers-reduced-motion can opt out of transform/scale changes
-     specifically without flattening color hover feedback. `all`
-     was sweeping `transform` for the hover scale, which is exactly
-     what motion-sensitive shoppers want suppressed. */
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
-  /* R22-A: preserve the actual variant color in Windows High
-     Contrast / forced-colors mode. Without this, the system
-     overrides every background to Canvas — the customer can't
-     see what color they're picking. WCAG 1.4.1 (Use of Color)
-     requires that color-conveying UI remains comprehensible;
-     swatches are the canonical example. */
   forced-color-adjust: none;
 }
 
@@ -99,37 +71,12 @@
 }
 
 .kt-variant-picker__swatch-input:checked + .kt-variant-picker__swatch {
-  /* R-swatch-premium — Premium "spacer ring" selection style.
-     Hide the chip's own 2px border so the variant colour reaches
-     the visible edge, then paint two concentric OUTSET shadows
-     around the chip:
-       • 2px scheme-bg ring → the "breathing gap" between colour
-         and outer ring (white on light schemes, dark on dark
-         schemes — adapts automatically so it always reads as a
-         neutral spacer against the page surface).
-       • 2px scheme-fg ring → the actual selection indicator,
-         pushed out by the spacer so it doesn't kiss the colour
-         and stays unmistakable on every hue.
-     Layout-stable: the chip itself keeps its original dimensions
-     (only outset shadows extend beyond), and the parent label's
-     existing 2px padding plus the natural gap between swatches
-     leaves room for the 4px outer halo without bumping adjacent
-     chips. Same canonical pattern Apple / Stripe / modern Shopify
-     themes use for selected swatches. */
   border-color: transparent;
   box-shadow:
     0 0 0 2px rgb(var(--kt-c-bg, 255 255 255)),
     0 0 0 4px rgb(var(--kt-c-fg, 28 25 23));
 }
 
-/* R298 — Keyboard focus ring on swatches. The radio input is
-   visually-hidden (so its native ring never shows), so we must
-   paint the focus state on the adjacent `__swatch` span via the
-   `:focus-visible + sibling` combinator. Without this, a Tab user
-   inside the picker got ZERO visual feedback — WCAG 2.4.7 fail.
-   The offset ring is distinct from the selected-state inset shadow
-   so a focused-but-not-selected swatch is identifiable from a
-   selected one. */
 .kt-variant-picker__swatch-input:focus-visible + .kt-variant-picker__swatch {
   outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 3px;
@@ -163,17 +110,8 @@
   letter-spacing: 0.05em;
   color: rgb(var(--kt-c-fg-muted));
   border-radius: 4px;
-  /* R-PDP6 — Explicit transition prop list (not `all`) so
-     prefers-reduced-motion can opt out of transform/scale changes
-     specifically without flattening color hover feedback. `all`
-     was sweeping `transform` for the hover scale, which is exactly
-     what motion-sensitive shoppers want suppressed. */
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
   text-align: center;
-  /* R87 — long color names ("Burnt Sienna Tuscany Sunset") used to
-     overflow the grid track at 12px font + repeat(3, 1fr) on
-     iPhone SE (<375px). Mid-word break + min-width:0 lets the
-     button shrink and the label wrap inside. */
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -190,9 +128,6 @@
   color: rgb(var(--kt-c-bg));
 }
 
-/* R298 — Keyboard focus ring on option pills. Same rationale as
-   the swatch focus rule above — the radio input is visually-hidden,
-   so the focus state must be painted on the adjacent `__btn` span. */
 .kt-variant-picker__btn-input:focus-visible + .kt-variant-picker__btn {
   outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 3px;
@@ -295,11 +230,6 @@
   outline-offset: 3px;
 }
 
-/* R-PDP6 — Reduced-motion guard. Variant picker swatch hover
-   stretches transform: scale, which is exactly the kind of
-   subtle animation `prefers-reduced-motion: reduce` users want
-   suppressed (vestibular sensitivity triggers). Color/border
-   hover feedback stays — those convey state, not motion. */
 @media (prefers-reduced-motion: reduce) {
   .kt-variant-picker__swatch,
   .kt-variant-picker__option-chip {

@@ -1,16 +1,6 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
-    {%- comment -%}
-      R146 HEAD-CHARSET-1: charset MUST be in the first 1024 bytes
-      AND ideally the first <head> child. Some browsers begin
-      tentative parsing under a default encoding before the charset
-      is seen — Theme Store reviewers running W3C validators flag
-      this. The no-js→js swap script previously ran BEFORE charset;
-      moved AFTER so encoding declaration is reached first. The
-      script is still parser-blocking by design (the FOUC rationale
-      below applies regardless of placement order).
-    {%- endcomment -%}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     {%- comment -%}
@@ -45,18 +35,6 @@
       devices (see base.css "Touch form controls").
     {%- endcomment -%}
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    {%- comment -%}
-      R296 — Cross-origin Referer policy. Sets the page's referrer
-      policy so the Referer header sent to third-party domains
-      (analytics, fonts CDN, app embeds) is the ORIGIN only, never
-      the full URL path. Without this, discount-code URLs
-      (`/discount/<CODE>?redirect=/cart`) leak the code to any
-      third-party request fired while Shopify is mid-redirect.
-      `strict-origin-when-cross-origin` is the modern default but
-      explicitly declaring it ensures predictable behaviour across
-      browsers + protects against older defaults like `no-referrer-
-      when-downgrade`.
-    {%- endcomment -%}
     <meta name="referrer" content="strict-origin-when-cross-origin">
     {%- comment -%}
       theme-color — pulls the default color-scheme's surface colour so
@@ -72,26 +50,6 @@
       endif
     -%}
     <meta name="theme-color" content="{{ theme_color }}">
-    {%- comment -%}
-      R138 SEO-1: faceted collection canonical correction. On a URL
-      like `/collections/all?filter.v.option.color=red`, Shopify's
-      raw `canonical_url` resolves to that filtered URL — emitting it
-      as the canonical fragments link equity across every filter
-      permutation (each filter combination claims to be its own
-      canonical page). The companion `noindex,follow` (snippets/
-      meta-tags.liquid:155-156) prevents the filter pages from being
-      indexed, but Google still sees competing canonical declarations
-      and may choose the filtered URL over the parent collection in
-      search results. Branch: when a collection URL carries `filter.`
-      OR `sort_by=` query params, point the canonical at the
-      un-filtered/un-sorted collection so every permutation
-      consolidates to the parent. Same pattern when /search carries
-      `q=` — point canonical at /search. Sort permutations
-      (`?sort_by=price-ascending`, `?sort_by=created-descending`, …)
-      otherwise multiply the URL space the same way filters do and
-      dilute the parent collection's link equity, so they collapse
-      to the same parent canonical.
-    {%- endcomment -%}
     {%- if request.path contains '/collections/' and collection and request.query_string contains 'filter.' -%}
       <link rel="canonical" href="{{ request.origin }}{{ collection.url }}">
     {%- elsif request.path contains '/collections/' and collection and request.query_string contains 'sort_by=' -%}
@@ -123,19 +81,6 @@
           {%- assign primary_root = locale.root_url -%}
         {%- endif -%}
       {%- endfor -%}
-      {%- comment -%}
-        R-PDP6 — Guard `request.locale.root_url` against blank. On the
-        primary locale Shopify returns the path without a prefix; in
-        some edge configurations (single-locale-but-Markets-enabled
-        store, brand-new dev store, fresh theme preview) the value
-        comes through blank instead of `/`. Liquid `replace_first`
-        with an EMPTY needle replaces nothing (target locale's
-        root_url never gets injected), so the hreflang for every
-        non-primary locale silently points back at the primary URL.
-        Defaulting to `/` keeps the replace path stable so each
-        locale gets its correct prefix even when the source root
-        is reported blank.
-      {%- endcomment -%}
       {%- assign current_root = request.locale.root_url | default: '/' -%}
       {%- for locale in shop.published_locales -%}
         <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: current_root, locale.root_url }}">
@@ -207,66 +152,18 @@
       crawlers that the description ends gracefully rather than
       being cropped at an arbitrary token.
     {%- endcomment -%}
-    {%- comment -%}
-      R109 — filter chain order matters. Previously
-      `| escape | truncate: 160` ran escape FIRST, expanding `&`
-      to `&amp;` (5 chars), `<` to `&lt;` (4 chars), etc., THEN
-      truncate counted the *escaped* length. If a description
-      contained `&` characters near the 160-char boundary,
-      truncate could slice through the middle of `&amp;`,
-      emitting fragments like `&am…` — invalid HTML entity
-      inside a meta attribute. Truncating FIRST counts visible
-      characters (the spec-correct semantics for "≤160 chars"
-      meta description), then escape converts any boundary `&`
-      into a complete `&amp;`.
-    {%- endcomment -%}
     <meta name="description" content="{{ page_description | default: shop.description | default: shop.name | truncate: 160, '…' | escape }}">
 
-    {%- comment -%}
-      `content_for_header` MUST appear immediately after the title +
-      meta-description and BEFORE any theme scripts/stylesheets.
-      Shopify docs require this ordering because the injected markup
-      carries:
-        • analytics + checkout beacons (must run as early as possible),
-        • app-installed preload hints (LCP image, critical CSS),
-        • hreflang alternates, og/twitter tags, shop extensions.
-      Earlier versions of this layout placed the content_for_header
-      directive AFTER the global.js + motion vendor scripts, which
-      delayed the preload scanner's ability to prioritise hinted
-      resources and pushed LCP by 100-300ms on mobile. Moved up per
-      Shopify's documented layout spec and the R12 performance
-      audit.
-
-      Note: do NOT write literal double-brace or percent-brace
-      Liquid markers inside this comment (or any comment). Liquid's
-      comment tag does not sandbox embedded output or tag delimiters
-      — a stray pair breaks the outer comment's close-match and the
-      runtime reports "'comment' tag was never closed" at the parent
-      open.
-    {%- endcomment -%}
     {{ content_for_header }}
 
     {% render 'meta-tags' %}
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'kt-page-behavior.js' | asset_url }}" defer="defer"></script>
 
-    {%- comment -%}
-      Theme-editor block affordance — universal `shopify:block:select`
-      fallback that scrolls the rendered block into view and applies a
-      dashed outline so merchants get visible feedback for every block
-      type, not just slider slides / accordion items that already have
-      dedicated handlers (hero, sliders, collapsibles, testimonials).
-      The script self-aborts on the live storefront via a
-      `Shopify.designMode` check, so the bytes are downloaded once and
-      then short-circuit — zero runtime cost for shoppers. Gating the
-      <script> tag itself on `request.design_mode` would skip the
-      download entirely, but Shopify still injects the editor preview
-      with `request.design_mode` truthy on every preview page; the
-      runtime guard handles the rare case where the editor flag and
-      the loaded payload diverge (e.g. a hot reload during a settings
-      change).
-    {%- endcomment -%}
-    <script src="{{ 'kt-editor-block-affordance.js' | asset_url }}" defer="defer"></script>
+    {%- if request.design_mode -%}
+      <script src="{{ 'kt-editor-block-affordance.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
 
     {%- comment -%}
       Motion bundle is ~100 KB unminified (GSAP + ScrollTrigger + Lenis +
@@ -278,45 +175,6 @@
       also covers custom JSON templates the merchant adds later, where
       `template.name` may be a sub-template string like `page.custom`.
     {%- endcomment -%}
-    {%- comment -%}
-      Motion-vendor trio (GSAP + ScrollTrigger + Lenis + smooth-scroll
-      glue) parses and compiles ~325 KB on the main thread. Lighthouse
-      consistently flags "Reduce unused JavaScript" on conversion-funnel
-      templates that don't run any scroll animation: cart, customers/*,
-      policies, password, gift card, 404, captcha. A defer'd script
-      doesn't block first paint but it still uses parse + compile +
-      cache + bandwidth — Theme Store reviewers running Lighthouse on
-      cart.json (a critical conversion path) see the 325 KB hint and
-      flag it.
-
-      We tried two approaches before:
-
-        1. Aggressive whitelist (only `index, product, collection,
-           list-collections`) — silently broke smooth-scroll and
-           dotted-header parallax on `blog, article, page, search,
-           404, customers/*`. The user reported regression in
-           production; Kitchero's signature scroll feel and the
-           parallax dot pattern on journal articles are part of the
-           visual identity.
-
-        2. No gate (load everywhere when the setting is on) — fixed
-           the regression at the cost of shipping the trio to
-           templates that genuinely never scroll-animate.
-
-      Round 13 audit approach: NARROW BLOCKLIST. Skip only the
-      templates that have zero merchant-facing animation AND are
-      conversion-critical for performance scoring. Long-form content
-      (page, blog, article, search) keeps the trio so Lenis +
-      parallax stay alive — that was the regression set the user
-      reported. Cart / customer / 404 / captcha / gift_card / password
-      / policies don't render hero, scroll-pin, or parallax sections,
-      so they get the perf win with zero visual impact.
-
-      Theme-check `AssetSizeJavaScript` warnings are silenced because
-      these are vendor libraries the user explicitly gated under the
-      `kt_motion_reveal` toggle; merchants who care about the perf
-      ceiling can disable the toggle outright.
-    {%- endcomment -%}
     {%- liquid
       assign load_motion = settings.kt_motion_reveal
       if request.page_type == 'cart' or request.page_type == 'gift_card' or request.page_type == 'password' or request.page_type == '404' or request.page_type == 'captcha' or request.page_type == 'policy'
@@ -326,32 +184,55 @@
         assign load_motion = false
       endif
     -%}
-    {%- if load_motion -%}
-      {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
-      <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'vendor-lenis.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'smooth-scroll.js' | asset_url }}" defer="defer"></script>
-      {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
-    {%- endif -%}
+    {%- comment -%}
+      Scroll animation libraries load only on screens 750px and wider
+      when the visitor hasn't asked for reduced motion. Section scripts
+      wait for `kt:motion-ready` through window.ktWhenMotion; on phones
+      and with reduced motion they run right away without animation.
+    {%- endcomment -%}
+    <script>
+      (function () {
+        var mq = window.matchMedia;
+        var wanted = {{ load_motion | json }} && !!mq && mq('(min-width: 750px)').matches && !mq('(prefers-reduced-motion: reduce)').matches;
+        var done = false;
+        window.ktMotionPending = wanted;
+        function ready() {
+          if (done) return;
+          done = true;
+          window.ktMotionPending = false;
+          document.dispatchEvent(new CustomEvent('kt:motion-ready'));
+        }
+        window.ktWhenMotion = function (cb) {
+          if (window.ktMotionPending) {
+            document.addEventListener('kt:motion-ready', function () { cb(); }, { once: true });
+          } else {
+            cb();
+          }
+        };
+        if (!wanted) return;
+        var urls = [
+          {{ 'vendor-gsap.js' | asset_url | json }},
+          {{ 'vendor-scrolltrigger.js' | asset_url | json }},
+          {{ 'vendor-lenis.js' | asset_url | json }},
+          {{ 'smooth-scroll.js' | asset_url | json }}
+        ];
+        var left = urls.length;
+        urls.forEach(function (url) {
+          var script = document.createElement('script');
+          script.src = url;
+          script.async = false;
+          script.onload = script.onerror = function () {
+            left -= 1;
+            if (left === 0) ready();
+          };
+          document.head.appendChild(script);
+        });
+        setTimeout(ready, 8000);
+      })();
+    </script>
 
     {%- render 'kt-css-variables' -%}
 
-    {%- comment -%}
-      R101 — font preloads emitted BEFORE the parser-blocking
-      base.css <link>. The preload scanner picks up these directives
-      while the main parser is still fetching/parsing base.css, so
-      the WOFF2 transfers happen in parallel with stylesheet
-      download instead of being discovered late by @font-face rules.
-      Saves ~50-150ms FCP on cold-cache mobile renders. Cite:
-      web.dev/articles/preload-critical-assets.
-
-      Theme Store performance rule (PRF-3) caps resource hints at 2
-      per template. We spend both on body-regular + heading-regular
-      because those are the LCP-critical faces. Bold body, accent,
-      and localization-form CSS load lazily via the @font-face
-      `font-display: swap` chain in kt-css-variables.liquid.
-    {%- endcomment -%}
     {%- unless settings.kt_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
       <link rel="preload" as="font" href="{{ settings.kt_body_font | font_url }}" type="font/woff2" crossorigin>
@@ -391,28 +272,6 @@
       {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
 
-    {%- comment -%}
-      R142 PERF-CSS-1: search overlay CSS was previously loaded
-      unconditionally — render-blocking on every page even when the
-      merchant has the search overlay disabled. Lighthouse's
-      "Eliminate render-blocking resources" diagnostic flagged
-      ~150-300ms savings on cold-cache mobile. The surface is
-      hidden until JS opens it, so we gate the head load behind
-      the merchant setting. Default is TRUE so existing stores
-      upgrading don't lose styling silently. Merchants who don't
-      use the search overlay can disable for the speed gain. CSS
-      comment above explains the head-load decision (vs
-      onload-swap) — same rationale applies here.
-
-      R294: The appointment-drawer gate is BACK (R267 lifted it
-      temporarily because the CSS was gated but the markup + JS
-      kept rendering, so the drawer broke when disabled). Now we
-      gate CSS + markup + JS together (the markup gate lives in
-      the `<body>` block, the JS gate sits next to it). When the
-      merchant disables appointments, none of the three load —
-      no broken modal can fire because nothing is on the page.
-      Cost when enabled: ~3KB gzipped CSS. Cost when disabled: 0.
-    {%- endcomment -%}
     {%- if settings.kt_search_overlay_enabled == nil or settings.kt_search_overlay_enabled -%}
       {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
@@ -420,37 +279,7 @@
       {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
 
-    {%- comment -%}
-      R216 — header CSS lifted from `sections/header.liquid` (body)
-      into the <head>. The header is the FIRST visible element on
-      every page (sticky top OR fixed-overlay), and in transparent
-      mode it relies on `position: fixed` to remove itself from
-      flow so the hero can bleed up behind it. When the stylesheet
-      lives in the body, there's a one-frame window during HTML
-      streaming where:
-        • <header> is in the DOM
-        • The body-located <link> for kt-section-header.css has
-          NOT been parsed yet
-        • The header element falls back to default `display: block`
-          inside flow, pushing the hero down
-        • The body background (white) paints in the area where the
-          transparent header should be revealing the hero
-      Moving the stylesheet to <head> makes the header CSS apply
-      AT FIRST PAINT, eliminating that flash. ~25KB cost on every
-      page, but it's the most critical first-paint stylesheet (logo
-      + nav are above the fold on 100% of routes), so this is the
-      right trade-off.
-    {%- endcomment -%}
     {{ 'kt-section-header.css' | asset_url | stylesheet_tag }}
-
-    {%- comment -%}
-      Resource hints — Shopify Theme Store performance rule (PRF-3):
-      "You can add up to two resource hints to your code per template."
-      Body regular + heading regular are emitted higher up (above
-      base.css stylesheet_tag) so the preload scanner can fire them
-      in parallel with stylesheet download — see the R101 comment
-      block above. Total hints stays at 2 per template.
-    {%- endcomment -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
@@ -556,21 +385,6 @@
     {% section 'cart-drawer' %}
     {%- render 'search-overlay' -%}
     <script src="{{ 'search-overlay.js' | asset_url }}" defer="defer"></script>
-    {%- comment -%}
-      R294 — Re-introduce the appointment-drawer gate that was
-      removed in R267. The earlier removal was the right call AT
-      THAT TIME because the drawer was gated on CSS-only — the
-      markup + JS still rendered, so when the toggle was OFF the
-      drawer fired with default browser styles (broken modal,
-      half-open at top reported on iOS Safari).
-
-      The fix this time is to gate ALL THREE: markup render +
-      JS load + CSS load (CSS handled in the `<head>` block above).
-      When the merchant disables appointments, NOTHING ships to
-      the page — no CSS, no DOM, no JS handlers — and the trigger
-      buttons in `main-product-showroom.liquid` are also gated
-      below so a click can't land on an absent drawer.
-    {%- endcomment -%}
     {%- if settings.kt_appointment_enabled -%}
       {%- render 'appointment-drawer' -%}
       <script src="{{ 'appointment-drawer.js' | asset_url }}" defer="defer"></script>
@@ -615,23 +429,6 @@
 
     {% sections 'footer-group' %}
 
-    {%- comment -%}
-      Overlay-group — globally-rendered surfaces that float above the
-      main page flow: cookie consent banner (GDPR / CPRA / LGPD), the
-      newsletter capture popup, and any future age-verifier / promo
-      modals. Section group lets the merchant reorder/disable members
-      from the theme editor without us hard-coding `{% section %}`
-      calls per overlay.
-
-      Why this exists: cookie-banner.liquid and newsletter-popup.liquid
-      need to render globally on every page, not just where a merchant
-      manually added them through the editor. Theme Store reviewers landing
-      on a fresh install would never see a consent UI — even with
-      `enabled_on.groups = ["footer"]`, footer-group is auto-generated
-      and may not include the cookie banner. Promoting both surfaces
-      into a dedicated overlay group guarantees they render on every
-      page from install, while still letting merchants configure them.
-    {%- endcomment -%}
     {% sections 'overlay-group' %}
 
     {%- comment -%} Structured Data (JSON-LD) {%- endcomment -%}
@@ -719,27 +516,9 @@
           types:               {{ search_types | json }},
           resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
           noResults:           {{ 'kt.search.no_results_announcement' | t | json }},
-          {%- comment -%}
-            R-search-audit — Visible error / offline / rate-limit
-            strings consumed by predictive-search.js renderError().
-            Each falls back to a translation key with sensible
-            English default so a fresh install on any locale shows
-            meaningful copy.
-          {%- endcomment -%}
           offline:             {{ 'kt.search.offline' | t | json }},
           rateLimited:         {{ 'kt.search.rate_limited' | t | json }},
           genericError:        {{ 'kt.search.generic_error' | t | json }},
-          {%- comment -%}
-            R-locale-jsfallback — Predictive-search group headers +
-            "View all" CTA. Without these keys, `assets/predictive-
-            search.js` fell back to hardcoded English strings
-            (`|| 'Products'` / `|| 'Collections'` / `|| 'Journal'` /
-            `|| 'Pages'` / `|| 'View all results'`), so customers on
-            non-EN markets saw English group titles inside the search
-            overlay — multi-language regression. Each key resolves to
-            an existing `kt.search.*` locale entry now wired across
-            all 5 locales.
-          {%- endcomment -%}
           groupProducts:       {{ 'kt.search.scope_products'    | t | json }},
           groupCollections:    {{ 'kt.search.scope_collections' | t | json }},
           groupArticles:       {{ 'kt.search.scope_articles'    | t | json }},
@@ -751,20 +530,6 @@
           quantityError:   {{ 'kt.cart.cart_quantity_error_html' | t: quantity: '[quantity]' | json }},
           updatedSubtotal: {{ 'kt.cart.updated_subtotal' | t: subtotal: '[subtotal]' | json }},
         },
-        {%- comment -%}
-          R-money-parity — Expose merchant-configured `shop.money_format`
-          and `shop.money_with_currency_format` to JS so client-side
-          variant price re-renders mirror Liquid `| money` output
-          EXACTLY. Previously the JS layer used `Intl.NumberFormat`
-          (CLDR locale formatting) which diverges from
-          `shop.money_format` on every store that customized the
-          admin Settings → General → Currency format (universal on
-          TR/EU/non-USD markets). Theme Store reviewers test variant-
-          click price parity between PDP (post-JS update) and cart
-          (Liquid render); divergent strings are "deceptive pricing"
-          → reject. `Kitchero.formatMoney(cents)` in global.js parses
-          these format strings to produce identical output.
-        {%- endcomment -%}
         moneyFormat:             {{ shop.money_format | json }},
         moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
         variantStrings: {
@@ -772,38 +537,11 @@
           addSubscription: {{ 'kt.product.add_subscription_to_cart' | t | json }},
           addedToCart:    {{ 'kt.product.added_to_cart' | t | json }},
           addToCartError: {{ 'kt.product.add_to_cart_error' | t | json }},
-          {%- comment -%}
-            R-PDP4 — Offline + timeout strings surfaced for the ATC
-            submit handler. Both are user-facing recovery cues for
-            network-degraded states the customer can act on (toggle
-            airplane mode, switch wifi, retry). Theme Store reviewers
-            test offline + slow-3G scenarios on every paid submission
-            and expect graceful messaging, not the raw browser
-            "Failed to fetch" leak.
-          {%- endcomment -%}
           offlineError:   {{ 'kt.product.offline_error' | t | json }},
           timeoutError:   {{ 'kt.product.timeout_error' | t | json }},
           soldOut:        {{ 'kt.product.sold_out' | t | json }},
           unavailable:    {{ 'kt.product.unavailable' | t | json }},
           subscriptionUnavailable: {{ 'kt.product.subscription_unavailable' | t | json }},
-          {%- comment -%}
-            R298 — Low-stock template + threshold exposed for atomic
-            variant-change updates in `assets/product-form.js`. The
-            template carries a `[count]` placeholder that JS
-            replaces with the matched variant's inventory_quantity.
-
-            R-PDP5 — Both one + other plural forms exposed so the JS
-            variant-change handler can pick the right grammatical
-            form. Passing `count: 1` and `count: 2` to the same key
-            lets Shopify's pluralization selector resolve the
-            language-specific branch (one/other in EN/DE/FR/ES; TR
-            has no plural distinction but still benefits from the
-            paired emit so future locales drop in cleanly). Without
-            this the JS always used the "other" string — ES rendered
-            "Solo quedan 1" instead of "Solo queda 1" on a 1-stock
-            variant (verb-conjugation grammar error visible to every
-            Spanish-speaking shopper).
-          {%- endcomment -%}
           lowStockHtml:    {{ 'kt.product.low_stock_html' | t: count: '[count]' | json }},
           lowStockOneHtml: {{ 'kt.product.low_stock_html' | t: count: 1 | replace: '1', '[count]' | json }},
           {%- comment -%}
@@ -815,12 +553,6 @@
           {%- endcomment -%}
           volumeQtyHtml:  {{ 'kt.product.volume_qty_html' | t: qty: '[qty]' | json }},
         },
-        {%- comment -%}
-          R298 — Theme-settings-driven low-stock threshold so
-          variant-change handler can decide whether to show the
-          "Only N left" badge for the new variant without a server
-          round-trip. Default 0 means "feature disabled".
-        {%- endcomment -%}
         lowStockThreshold: {% if settings.kt_show_low_stock %}{{ settings.kt_low_stock_threshold | default: 0 }}{% else %}0{% endif %},
         a11yStrings: {
           imageAvailable: {{ 'kt.product.media.image_available' | t: index: '[index]' | json }},
@@ -830,11 +562,80 @@
     </script>
 
     {%- if settings.kt_cart_type == 'drawer' -%}
-      <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+      {%- comment -%}
+        The cart drawer script loads after the page is idle or on the first
+        interaction. window.ktLoadCartDrawer(callback) runs the callback once
+        the drawer is ready; a cart icon click before that waits for it.
+      {%- endcomment -%}
+      <script>
+        (function () {
+          var state = 0;
+          var queue = [];
+          function flush() {
+            customElements.whenDefined('cart-drawer').then(function () {
+              var callbacks = queue;
+              queue = [];
+              callbacks.forEach(function (callback) { callback(); });
+            });
+          }
+          function load(callback) {
+            if (typeof callback === 'function') queue.push(callback);
+            if (state === 2) { flush(); return; }
+            if (state === 1) return;
+            state = 1;
+            var script = document.createElement('script');
+            script.src = {{ 'cart-drawer.js' | asset_url | json }};
+            script.onload = function () { state = 2; flush(); };
+            document.head.appendChild(script);
+          }
+          window.ktLoadCartDrawer = load;
+          document.addEventListener('click', function (event) {
+            if (state === 2 && customElements.get('cart-drawer')) return;
+            var icon = event.target.closest && event.target.closest('.kt-header__cart-icon');
+            if (!icon || !document.querySelector('cart-drawer')) return;
+            event.preventDefault();
+            load(function () {
+              var drawer = document.querySelector('cart-drawer');
+              if (drawer && typeof drawer.open === 'function') drawer.open();
+            });
+          }, true);
+          ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+            document.addEventListener(type, function () { load(); }, { once: true, passive: true });
+          });
+          window.addEventListener('load', function () {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(function () { load(); }, { timeout: 3000 });
+            } else {
+              setTimeout(load, 2000);
+            }
+          });
+        })();
+      </script>
     {%- endif -%}
 
     {%- if settings.kt_search_predictive -%}
-      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+      {%- comment -%} Predictive search loads when a shopper first opens or focuses search. {%- endcomment -%}
+      <script>
+        (function () {
+          var loaded = false;
+          function load(event) {
+            var target = event.target;
+            if (loaded || !target || !target.closest || !target.closest('[data-search-input], [data-search-open]')) return;
+            loaded = true;
+            var script = document.createElement('script');
+            script.src = {{ 'predictive-search.js' | asset_url | json }};
+            script.onload = function () {
+              document.querySelectorAll('[data-search-input]').forEach(function (input) {
+                if (input.value) input.dispatchEvent(new Event('input', { bubbles: true }));
+              });
+            };
+            document.head.appendChild(script);
+          }
+          ['pointerdown', 'focusin', 'keydown'].forEach(function (type) {
+            document.addEventListener(type, load, true);
+          });
+        })();
+      </script>
     {%- endif -%}
   </body>
 </html>

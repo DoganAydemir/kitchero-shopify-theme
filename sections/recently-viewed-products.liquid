@@ -2,36 +2,6 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  Recently Viewed Products — customer browsing-history rail.
-
-  Standard commercial-theme pattern (2/3 reference theme intake:
-  Concept + Essence). Reviewer-tested expectation on home page,
-  account dashboard, or as PDP cross-sell. Helps shoppers return
-  to products they considered earlier.
-
-  Architecture (no server-side rendering of customer history —
-  Shopify Liquid can't read browser localStorage):
-
-    1. JS hook on PDP saves current product handle to localStorage
-       `kt_viewed` array (FIFO, last 12). See assets/recently-
-       viewed.js.
-    2. Section emits empty grid container + skeleton placeholders.
-    3. Client JS reads localStorage on page render, fetches each
-       handle via `/products/{handle}.js` (Shopify storefront
-       AJAX API), renders compact cards client-side.
-    4. Filter: skip current product on PDP (don't recommend the
-       page customer is on).
-    5. Empty state: localStorage empty OR all handles 404 → JS
-       hides the section entirely so the home page doesn't show
-       a hollow "Recently viewed" band.
-
-  Privacy: localStorage is first-party browser storage — no cookie,
-  no server transmission. GDPR-compliant by default (functional
-  storage, not behavioral tracking). The customer's viewed
-  history never leaves their device.
-{%- endcomment -%}
-
 {%- liquid
   assign cols_desktop = section.settings.columns_desktop | default: 4
   assign cols_mobile = section.settings.columns_mobile | default: 2
@@ -42,13 +12,13 @@
 -%}
 
 <section
-  class="kt-recently-viewed color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-recently-viewed color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="recently-viewed-products"
   data-recently-viewed
   data-max-products="{{ products_count }}"
   data-current-product-id="{% if product %}{{ product.id }}{% endif %}"
-  style="--kt-rv-cols-desktop: {{ cols_desktop }}; --kt-rv-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-rv-cols-desktop: {{ cols_desktop }}; --kt-rv-cols-mobile: {{ cols_mobile }}; --kt-section-padding-top: {{ section.settings.padding_top }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom }}px;"
   aria-labelledby="{{ heading_id }}"
   hidden
 >
@@ -188,41 +158,6 @@
       "label": "t:sections.recently-viewed.settings.padding_bottom.label",
       "default": 64
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        {
-          "value": "stone_100",
-          "label": "t:sections.shared.bg_color.options__stone_100.label"
-        },
-        {
-          "value": "custom",
-          "label": "t:sections.shared.bg_color.options__custom.label"
-        }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

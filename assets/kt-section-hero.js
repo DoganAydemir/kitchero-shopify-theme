@@ -1,7 +1,3 @@
-/**
- * Kitchero Hero — Carousel with text entrance animations
- * Matches Hero.tsx: staggered slide-up text, opacity fade on images.
- */
 (function () {
   'use strict';
 
@@ -26,11 +22,7 @@
     if (this.total > 0) {
       this.bindEvents();
       this.animateText(0);
-      /* R87 — pause autoplay in theme editor (Shopify.designMode)
-         so the merchant editing slide N doesn't get yanked to slide
-         N+1 every autoplaySpeed seconds. block:select still drives
-         slide navigation via the existing handler. Real storefront
-         path keeps autoplay. */
+
       var inEditor = window.Shopify && window.Shopify.designMode;
       if (this.total > 1 && !this.prefersReducedMotion && this.autoplaySpeed > 0 && !inEditor) this.startAutoplay();
       this.initGSAP();
@@ -38,7 +30,6 @@
   }
 
   KitcheroHero.prototype.animateText = function (index) {
-    /* Reset all text panels */
     this.texts.forEach(function (panel) {
       var anims = panel.querySelectorAll('[data-hero-anim]');
       anims.forEach(function (el) {
@@ -47,7 +38,6 @@
       });
     });
 
-    /* Animate active panel's elements with staggered delays */
     var activePanel = this.texts[index];
     if (!activePanel) return;
 
@@ -63,7 +53,13 @@
 
   KitcheroHero.prototype.initGSAP = function () {
     if (this.prefersReducedMotion) return;
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      if (window.ktMotionPending) {
+        var self = this;
+        document.addEventListener('kt:motion-ready', function () { self.initGSAP(); }, { once: true });
+      }
+      return;
+    }
     gsap.registerPlugin(ScrollTrigger);
     var section = this.section;
 
@@ -98,11 +94,6 @@
       });
     }
 
-    /* WCAG 2.2.2 Pause, Stop, Hide — any content that auto-updates
-       needs a way to pause. Pointer hover and keyboard focus both
-       pause autoplay; leaving the section resumes. Previously the
-       slideshow advanced every N seconds regardless, which made
-       Tab-ing through a slide's link a game of whack-a-mole. */
     this._pauseAutoplay = function () {
       if (self.timer) {
         clearInterval(self.timer);
@@ -110,18 +101,12 @@
       }
     };
     this._resumeAutoplay = function () {
-      /* Only resume if a resume is still desirable: >1 slide, not
-         reduced-motion, merchant set autoplay, AND user hasn't
-         explicitly paused via the play toggle. Mirrors resetAutoplay's
-         guards. */
       if (self.userPaused) return;
       if (self.total > 1 && !self.prefersReducedMotion && self.autoplaySpeed > 0 && !self.timer) {
         self.startAutoplay();
       }
     };
 
-    /* Pause/play toggle — WCAG 2.2.2. User-controlled, persists.
-       aria-pressed="true" = autoplay running, "false" = paused. */
     if (this.playToggle) {
       this.playToggle.addEventListener('click', function () {
         self.userPaused = !self.userPaused;
@@ -138,15 +123,6 @@
     this.section.addEventListener('focusin', this._pauseAutoplay);
     this.section.addEventListener('focusout', this._resumeAutoplay);
 
-    /* Touch swipe on mobile — without this, users on phones can
-       only navigate via the prev/next pill buttons (small touch
-       target, off the natural reading flow). 50px horizontal
-       threshold matches Shopify's reference implementations and
-       feels intentional vs. accidental. Vertical-bias guard
-       prevents the swipe from hijacking page scroll: if dY > dX
-       the gesture is treated as a scroll, not a swipe. Pause
-       autoplay during touch so a user mid-read isn't yanked to
-       the next slide while their finger is on the screen. */
     var touchStartX = 0, touchStartY = 0, touchMoved = false;
     var SWIPE_THRESHOLD = 50;
     this.section.addEventListener('touchstart', function (e) {
@@ -177,8 +153,7 @@
         self._resumeAutoplay();
       }
     }, { passive: true });
-    /* R21-C: touchcancel resets swipe state + resumes autoplay when
-       iOS / Android system gestures interrupt the touch sequence. */
+
     this.section.addEventListener('touchcancel', function () {
       touchMoved = false;
       self._resumeAutoplay();
@@ -190,14 +165,7 @@
 
     this.slides[this.current].classList.remove('kt-hero__slide--active');
     this.texts[this.current].classList.add('hidden');
-    // R295 — Swap the heading's `aria-hidden` on rotation so the
-    // active slide's <p role="heading"> announces to screen readers
-    // and the inactive slides skip the accessibility tree. The
-    // first slide carries a real <h1> with no role attribute and is
-    // never marked aria-hidden; non-first slides carry
-    // `<p role="heading" aria-level="2" aria-hidden="true">`. Only
-    // toggle the attribute on the role=heading elements (skip if
-    // the active slide's heading is the literal <h1>).
+
     var prevHeading = this.texts[this.current].querySelector('[role="heading"]');
     if (prevHeading) prevHeading.setAttribute('aria-hidden', 'true');
 
@@ -227,9 +195,7 @@
   KitcheroHero.prototype.destroy = function () {
     clearInterval(this.timer);
     if (this.gsapCtx) this.gsapCtx.revert();
-    /* Release the WCAG pause-on-hover/focus listeners so a later
-       editor re-mount of this section doesn't stack duplicate
-       handlers — each instance binds its own closure. */
+
     if (this._pauseAutoplay && this.section) {
       this.section.removeEventListener('mouseenter', this._pauseAutoplay);
       this.section.removeEventListener('focusin', this._pauseAutoplay);

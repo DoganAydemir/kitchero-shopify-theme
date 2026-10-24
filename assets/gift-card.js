@@ -1,26 +1,3 @@
-/**
- * Gift card template client logic.
- *
- * Three responsibilities:
- *   1. Copy-to-clipboard — click on [data-gift-card-copy] copies the gift
- *      card code to the clipboard (Clipboard API, with execCommand fallback)
- *      and briefly swaps the button label to the localized success string.
- *   2. QR code rendering — draws a scannable QR code encoding
- *      `gift_card.qr_identifier` into the [data-gift-card-qr] container,
- *      using Shopify's first-party vendor/qrcode.js bundle loaded in the
- *      template. The container's data-identifier + data-alt-text attributes
- *      carry the Liquid-rendered values.
- *   3. Print button — click on [data-gift-card-print] invokes window.print()
- *      so customers can print the gift card. The template CSS already has
- *      a @media print block that hides the action buttons and keeps the
- *      card artwork + code + QR visible.
- *
- * All three behaviours are wired in a single IIFE so the script can be
- * deferred and still pick up everything after DOMContentLoaded. The QR
- * library is loaded with `defer` alongside this file, so we retry once on
- * a requestAnimationFrame tick if `window.QRCode` isn't ready yet (rare
- * race between two deferred scripts on very slow connections).
- */
 (function () {
   'use strict';
 
@@ -53,8 +30,6 @@
           button.classList.remove('kt-gift-card__copy--success');
         }, 1800);
       } catch (e) {
-        /* Clipboard blocked (no-permission iframe, insecure context) —
-           the browser's native select + Ctrl+C still works as fallback. */
       }
     });
   }
@@ -79,10 +54,6 @@
     if (!identifier) return;
 
     if (typeof window.QRCode !== 'function') {
-      /* QR vendor script still loading — try again on the next frame. The
-         deferred vendor script should be ready within 1–2 frames. After a
-         short retry budget we give up silently; the gift card still works
-         without the QR (customer can type the code). */
       if (host.__giftCardQrRetries === undefined) host.__giftCardQrRetries = 0;
       if (host.__giftCardQrRetries < 30) {
         host.__giftCardQrRetries += 1;
@@ -92,7 +63,6 @@
     }
 
     try {
-      /* eslint-disable no-new */
       new window.QRCode(host, {
         text: identifier,
         width: 160,
@@ -101,8 +71,6 @@
       });
       host.__giftCardQrRendered = true;
     } catch (e) {
-      /* If the vendor lib throws (rare: invalid identifier, OOM), leave
-         the container empty. The code + copy button stay usable. */
     }
   }
 

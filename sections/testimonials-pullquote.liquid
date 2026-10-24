@@ -21,11 +21,11 @@
     (no slider, no carousel).
   {%- endcomment -%}
 <section
-  class="kt-testimonials-pullquote color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-testimonials-pullquote color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if quote_blocks.size > 1 %} kt-testimonials-pullquote--slider{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-pullquote"
   data-autoplay-interval="{{ section.settings.autoplay_interval | default: 0 }}"
-  style="--kt-pullquote-padding: {{ vertical_padding }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-pullquote-padding: {{ vertical_padding }}px;"
   {%- if quote_blocks.size > 1 -%}
     aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
     aria-label="{{ 'kt.a11y.testimonials_carousel' | t | default: 'Testimonials carousel' }}"
@@ -113,17 +113,6 @@
             {% render 'icon-chevron-right' %}
           </button>
 
-          {%- comment -%}
-            R232.74 — WCAG 2.2.2 pause control now CONDITIONAL on
-            autoplay actually being enabled. Default is
-            `autoplay_interval = 0` (autoplay OFF), so the pause
-            button doesn't render on fresh installs — there's no
-            auto-motion to pause. When a merchant turns autoplay on
-            via the section setting, this conditional re-emits the
-            button automatically and WCAG 2.2.2 compliance is
-            restored. Matches the hero / slider-cinematic-hero /
-            slider-editorial-split pattern.
-          {%- endcomment -%}
           {%- if section.settings.autoplay_interval > 0 -%}
             <button
               type="button"
@@ -245,26 +234,6 @@
       "default": 128
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -303,7 +272,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

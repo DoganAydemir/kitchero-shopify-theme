@@ -50,19 +50,6 @@
 
       {%- comment -%} Main content: orders list {%- endcomment -%}
       <div class="kt-account__content">
-        {%- comment -%}
-          R148 DASHBOARD-ADDR-1: surface the default address card on
-          the dashboard. Skeleton / Theme Store reference dashboards
-          show this as the second-most-prominent surface (after
-          orders). Reviewer scripts test:
-            - new customer with default address only: expect card
-            - existing customer: expect address visible without
-              navigating to /account/addresses
-            - no default address yet: expect "Add address" CTA
-          Pattern matches Shopify's official guidance: format_address
-          handles locale-aware ordering (e.g. JP postal-first), and
-          the card links to /account/addresses for full management.
-        {%- endcomment -%}
         <section class="kt-account__default-address" aria-labelledby="AccountDefaultAddressTitle">
           <h2 id="AccountDefaultAddressTitle" class="kt-account__section-title">
             {{ 'kt.customer.account.default_address' | t | default: 'Default address' }}
@@ -121,18 +108,6 @@
                         </time>
                       </td>
                       <td data-label="{{ 'kt.customer.orders.payment_status' | t }}">
-                        {%- comment -%}
-                          R143 ACCOUNT-STATUS-1: legacy / archived
-                          orders can have a nil `financial_status`
-                          (rare but possible — Shopify's pre-2014
-                          orders + archived edge cases). Bare nil
-                          interpolation would emit
-                          `class="kt-account__pill kt-account__pill--"`
-                          — a dangling modifier that the BEM CSS
-                          can't style and reviewers flag as broken
-                          markup. `default: 'unknown'` parity with
-                          fulfillment_status path on line 95.
-                        {%- endcomment -%}
                         <span class="kt-account__pill kt-account__pill--{{ order.financial_status | default: 'unknown' }}">
                           {{ order.financial_status_label }}
                         </span>

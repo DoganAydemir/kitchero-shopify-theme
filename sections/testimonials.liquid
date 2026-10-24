@@ -2,28 +2,13 @@
 
 {%- assign testimonials_heading_line1_default = 'kt.section.testimonials.heading_line1_default' | t -%}
 {%- assign testimonials_heading_line2_default = 'kt.section.testimonials.heading_line2_default' | t -%}
-{%- comment -%}
-  R289 — The "Ready to begin?" / Parallax-text CTA that used to
-  live here as an opt-in sub-section (gated on `show_cta_block`)
-  has been split into its own standalone section,
-  `sections/parallax-cta.liquid`. Merchants who want the
-  testimonials surface and the CTA together now add both
-  sections via the Theme Editor — the CTA is no longer locked
-  to the testimonials surface and can be dropped on any page.
-  The `cta_*` setting keys remain in saved settings_data.json
-  for backward compatibility but are no longer read by this
-  section. The `show_cta_block` setting is also retained for
-  the same reason (Shopify keeps merchant-saved values even
-  when the schema drops the entry, so removing it from the
-  schema is harmless).
-{%- endcomment -%}
 
 {%- comment -%} Testimonials section {%- endcomment -%}
 <section
-  class="kt-testimonials color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-testimonials color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style=""
 >
   {%- comment -%} Layer 1: Dimmed background base {%- endcomment -%}
   <div
@@ -34,18 +19,6 @@
     aria-hidden="true"
   >
     {%- if section.settings.background_image == blank -%}
-      {%- comment -%}
-        R209 — back to `'lifestyle-1'` (kitchen scene line-art).
-        R207 had switched to `'image'` (generic Shopify mountain-
-        frame); R208 wrapped that in a light grey panel — both
-        broke the section's dark cinematic mood. Now the
-        kitchen-scene svg renders inside the bg-base layer at
-        full white fill, and the parent's existing 0.1/0.2 dim
-        cascade does its job exactly as it would with a real
-        merchant photo: faintly visible by default, slightly
-        brighter on hover. Spotlight reveal handled by the
-        sibling layer below.
-      {%- endcomment -%}
       {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
     {%- endif -%}
   </div>
@@ -57,21 +30,6 @@
     name together with `style=` on the next line. Without the `=""`, the
     rendered HTML becomes `data-testimonials-spotlightstyle="..."` which
     silently breaks both the selector and the inline background image.
-  {%- endcomment -%}
-  {%- comment -%}
-    R210 — spotlight layer in placeholder state is just a flat
-    white wash. R209 tried rendering the lifestyle-1 svg as an
-    inline child here, but `mask-image` reliably clips an
-    element's CSS background (color or image) — propagation to
-    inline-svg children is browser-inconsistent, and Chrome on
-    the user's setup wasn't masking the svg. Net effect: no
-    visible spotlight reveal.
-
-    Switched to a flat `background-color` instead; the JS-driven
-    radial-gradient mask clips it cleanly into the feathered
-    mouse-follow circle. The CSS rule lives on the
-    `--placeholder` modifier so the merchant-image branch
-    (which uses background-image url) is untouched.
   {%- endcomment -%}
   <div
     class="kt-testimonials__spotlight{% if section.settings.background_image == blank %} kt-testimonials__spotlight--placeholder{% endif %}"
@@ -107,17 +65,6 @@
         </p>
       {%- endif -%}
       {%- for block in section.blocks -%}
-        {%- comment -%}
-          R167 DEMO-PLACEHOLDER-COPY-1: skip blocks where the
-          merchant hasn't supplied a quote yet. Prior behaviour
-          rendered an empty `&ldquo;&rdquo;` blockquote — visible
-          to Theme Store reviewers as a "broken" demo card on the
-          storefront preview. With the schema defaults stripped of
-          instruction-style placeholder copy ("Add your customer's
-          testimonial here…"), an unconfigured block now has an
-          empty quote field and we cleanly elide it instead of
-          shipping an empty-quote card.
-        {%- endcomment -%}
         {%- if block.type == 'testimonial' and block.settings.quote != blank -%}
           <div class="kt-testimonials__card" {{ block.shopify_attributes }}>
             <div class="kt-testimonials__quote-icon" aria-hidden="true">
@@ -142,18 +89,6 @@
                   {%- assign image_alt_text = block.settings.name | default: '' | strip_html -%}
                   {{ block.settings.avatar | image_url: width: 96 | image_tag: class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: image_alt_text }}
                 {%- elsif block.settings.name != blank -%}
-                  {%- comment -%}
-                    Avatar is optional; when the merchant gave us a
-                    name but no image we render an inline user
-                    silhouette so the card composition stays
-                    balanced. R207 swapped Shopify's lifestyle-1
-                    placeholder out — squashing a kitchen scene
-                    SVG into a 48px circle read as visual noise
-                    rather than "no avatar yet". A simple
-                    head-and-shoulders glyph (lucide User pattern)
-                    centred inside the same circular slot makes
-                    the missing-photo state unambiguous.
-                  {%- endcomment -%}
                   <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
@@ -248,26 +183,6 @@
       "id": "background_image",
       "label": "t:sections.testimonials.settings.background_image.label"
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

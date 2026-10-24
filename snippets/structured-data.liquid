@@ -36,28 +36,10 @@
 
   {%- assign brand_logo = settings.kt_logo | default: shop.brand.logo -%}
 
-  {%- comment -%}
-    Organization — enriched with contactPoint + PostalAddress when
-    the merchant has populated shop.email / shop.phone / shop.address
-    in admin → Settings → General. Google's Knowledge Panel + rich
-    results reward the additional fields; reviewers running the
-    Rich Results Test flagged "add recommended fields" on the minimal
-    version. Everything is gated: absent admin fields → no emission,
-    no half-populated contactPoint that Google would flag as broken.
-  {%- endcomment -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      {%- comment -%}
-        R18-H: a stable `@id` lets Google merge this Organization
-        node with the WebSite + Product/Article publisher references
-        across the rest of the JSON-LD graph. Without it, Google
-        treats each emission as a separate Organization (weaker
-        Knowledge Panel coverage). Anchor on request.origin + a
-        fragment so the same `@id` resolves across every page in
-        the theme.
-      {%- endcomment -%}
       "@id": {{ request.origin | append: '#organization' | json }},
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
@@ -152,13 +134,6 @@
         schema.org. Single-locale stores still benefit (clears the
         "missing field" recommendation in Rich Results Test).
       {%- endcomment -%}
-      {%- comment -%}
-        R18-H: hard-fallback to 'en' so single-locale stores that
-        haven't enabled localization (request.locale.iso_code is
-        sometimes nil in dev / unconfigured environments) still emit
-        a valid value rather than `null`, which Rich Results Test
-        flags as a schema warning.
-      {%- endcomment -%}
       "inLanguage": {{ request.locale.iso_code | default: 'en' | json }},
       "potentialAction": {
         "@type": "SearchAction",
@@ -172,25 +147,6 @@
   </script>
 {%- endif -%}
 
-{%- comment -%}
-  BreadcrumbList — only emit on templates where we have at least
-  two ListItems (the home rung + a real second/third rung). Schema.org
-  requires `itemListElement` to contain at least 2 items, and Google's
-  Rich Results Test rejects single-item BreadcrumbList outright with
-  "Either 'item' or 'name' is missing" / "List must have 2+ items".
-
-  Previously this block emitted on every non-homepage template — so
-  404, /search, /cart, customers/*, gift_card, policies, and list-
-  collections each shipped a single-item BreadcrumbList that fails
-  validation. Reviewers running the Rich Results Test against any of
-  these URLs see "BreadcrumbList: List must have 2+ items" → ground
-  for Theme Store rejection on the SEO criterion.
-
-  Allow-list approach (safer than deny-list — new page_types Shopify
-  introduces won't accidentally start emitting an invalid breadcrumb):
-  emit only on product, collection, article, page, blog templates,
-  where the inner branches below add at least one more rung.
-{%- endcomment -%}
 {%- assign breadcrumb_emit = false -%}
 {%- if request.page_type == 'product'
     or request.page_type == 'collection'
@@ -237,13 +193,6 @@
             "name": {{ breadcrumb_collection_title | json }},
             "item": {{ request.origin | append: breadcrumb_collection_url | json }}
           }
-          {%- comment -%}
-            Last-crumb `item` URL — Google's Rich Results Test flags
-            "Recommended field: item" when the final ListItem omits
-            it. Spec permits omission but every Theme Store reviewer
-            who runs the validator will see the warning. `canonical_url`
-            is always present and correct for the current page.
-          {%- endcomment -%}
           ,{
             "@type": "ListItem",
             "position": 3,
@@ -327,37 +276,6 @@
   </script>
 {%- endif -%}
 
-{%- comment -%}
-  R-collection-audit — CollectionPage + ItemList JSON-LD.
-
-  Per Google's Schema.org guidance for product listing pages
-  (collection / category pages in e-commerce), emit a
-  `CollectionPage` whose `mainEntity` is an `ItemList` of
-  `ListItem` → `Product` entries. This is what Google Search
-  expects to index collection pages with structured product
-  data — without it, the page can't surface as a "Product Grid"
-  rich result, only a generic web result.
-
-  Per-card Product JSON-LD (one <script> block per card) is a
-  legacy pattern that Google explicitly cautions against on
-  category pages — they want ONE consolidated ItemList per page,
-  not N+1 product blocks. This snippet emits a single ItemList
-  including up to 60 products from `paginate.products | default:
-  collection.products`, covering the first page of pagination
-  (later pages emit their own ItemList with `position` offset
-  by the current page).
-
-  Gated on `request.page_type == 'collection'` AND a non-empty
-  collection so an empty collection doesn't emit a malformed
-  ItemList. The Product entries include name + url + image +
-  offers (price, currency, availability) — the minimum field
-  set Google's rich result validators require.
-
-  Currency uses `cart.currency.iso_code` so the schema respects
-  the active Shopify Market (multi-currency stores). Image uses
-  the largest available featured-media URL to give crawlers the
-  highest-quality reference.
-{%- endcomment -%}
 {%- if request.page_type == 'collection' and collection.products.size > 0 -%}
   {%- assign collection_page_size = paginate.page_size | default: 24 -%}
   {%- assign collection_current_page = paginate.current_page | default: 1 -%}
@@ -413,14 +331,6 @@
                     "price": {{ product.price | divided_by: 100.0 | round: 2 | json }},
                   {%- endif -%}
                   "availability": "{% if product.available or product.gift_card? %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
-                  {%- comment -%}
-                    R18-H: itemCondition is a Google Shopping-recommended
-                    field on Offer; without it Merchant Center may warn
-                    "missing condition". Defaulting to NewCondition is
-                    safe for a fresh-cabinet-store theme — refurbished
-                    or used goods stores can override the schema later
-                    via metafield (out of scope for the default emission).
-                  {%- endcomment -%}
                   "itemCondition": "https://schema.org/NewCondition",
                   "url": {{ request.origin | append: product.url | json }}
                 }

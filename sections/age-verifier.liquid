@@ -1,27 +1,3 @@
-{%- comment -%}
-  Age Verifier — first-visit modal for age-restricted storefronts
-  (alcohol, tobacco, CBD, vaping, firearms, adult content). Blocks
-  the storefront with a Yes/No prompt until the customer confirms
-  they meet the minimum age. Decline redirects to a merchant-set
-  URL (typically a parent-friendly page) so customers can't simply
-  dismiss the modal and continue browsing.
-
-  Persistence: the customer's decision is stored in localStorage
-  under `kt-age-verified` with an expiry timestamp. We do NOT rely
-  on cookies because age verification is a privacy-light decision
-  and localStorage is GDPR/CCPA-easier (no cookie banner
-  entanglement). The expiry honors `kt_age_session_days` — typical
-  default is 30 days.
-
-  Theme Store reviewers paste this on a vaping or alcohol demo
-  store and check:
-  - Does the modal block the page before any product is shown?
-  - Can a keyboard user navigate the buttons?
-  - Does ESC dismiss the modal? (NO — age verification is
-    mandatory; ESC must not bypass.)
-  - Does decline take the customer somewhere safe?
-  - Does the accept state persist across reloads?
-{%- endcomment -%}
 
 {%- if section.settings.enabled -%}
   {{ 'kt-section-age-verifier.css' | asset_url | stylesheet_tag }}

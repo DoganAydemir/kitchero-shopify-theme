@@ -63,18 +63,6 @@
           Skipped for plans without an adjustment so the picker
           stays compact for one-time-only or full-price plans.
         {%- endcomment -%}
-        {%- comment -%}
-          R88 — fix two filter-chain bugs in the savings label:
-          (1) `| default: 'Save'` lands on the t output, not on a
-              missing key — `t` returns the key string itself when
-              missing, so default never fires.
-          (2) `| money` lands on the t output too, leaking raw cents
-              for fixed-amount discounts (same R86 SUB-05 class bug).
-          Pre-format the money value before t-interpolation; locale
-          keys `kt.product.selling_plan.save_percent` and
-          `kt.product.selling_plan.save_amount` are now defined in
-          locales/*.json so the missing-key fallback is unnecessary.
-        {%- endcomment -%}
         {%- assign plan_savings_label = '' -%}
         {%- if plan.price_adjustments.size > 0 -%}
           {%- assign first_adj = plan.price_adjustments | first -%}
@@ -96,14 +84,6 @@
           >
           <span class="kt-selling-plan__option-body">
             <span class="kt-selling-plan__option-name">
-              {%- comment -%}
-                R129 — escape merchant-set selling-plan group/plan
-                names. Same stored-XSS defence-in-depth class as the
-                plan.description escape at line 114 (R88) — Admin →
-                Subscriptions lets the merchant freely type group
-                and plan names; without escape, an HTML/JS payload
-                lands in the variant picker DOM verbatim.
-              {%- endcomment -%}
               {%- if group.name != blank and group.name != plan.name -%}
                 {{ group.name | escape }} — {{ plan.name | escape }}
               {%- else -%}
@@ -114,12 +94,6 @@
               <span class="kt-selling-plan__option-savings">{{ plan_savings_label }}</span>
             {%- endif -%}
             {%- if plan.description != blank -%}
-              {%- comment -%}
-                R88 — escape merchant-set plan description to close
-                stored-XSS via Admin → Subscriptions → plan description
-                field. Same defence-in-depth class as R79 line item
-                title escapes.
-              {%- endcomment -%}
               <span class="kt-selling-plan__option-desc">{{ plan.description | escape }}</span>
             {%- endif -%}
           </span>
@@ -134,14 +108,6 @@
       policy in admin (Settings → Policies → Subscription policy).
     {%- endcomment -%}
     {%- if shop.subscription_policy and shop.subscription_policy.body != blank -%}
-      {%- comment -%}
-        R154 SUBSCRIPTION-POLICY-T-1: locale key `kt.product
-        .selling_plan.policy_link` instead of raw English literal.
-        Falls back through 3 sources: merchant-configured policy
-        title (rare), shop.subscription_policy.title default
-        ("Subscription policy" — Shopify default), or our own
-        translated key. Final escape on output for HTML safety.
-      {%- endcomment -%}
       <a href="{{ shop.subscription_policy.url }}" class="kt-selling-plan__policy-link">
         {{- shop.subscription_policy.title | default: selling_plan_policy_link_default | escape -}}
       </a>

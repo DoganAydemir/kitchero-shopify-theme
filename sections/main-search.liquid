@@ -23,16 +23,6 @@
 {{ 'kt-collection-filters.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  comment
-    R296 — `search_type` is now driven by the merchant's "Include in
-    results" theme settings (Theme settings → Search behavior). The
-    earlier hardcoded `'product,article,page'` ignored those toggles,
-    so disabling Pages / Articles / Collections in theme settings
-    had no effect on the full-page /search results. The default
-    string is rebuilt here from the four `kt_search_inc_*` toggles
-    so the form submission and the resulting Shopify scope follow
-    what the merchant configured.
-  endcomment
   assign search_type = ''
   if settings.kt_search_inc_products
     assign search_type = search_type | append: 'product,'
@@ -51,13 +41,6 @@
     assign search_type = 'product'
   endif
 
-  comment
-    `active_scope` powers the scope tab strip (All / Products /
-    Articles / Pages). When the user narrows from the tabs to a
-    single type Shopify echoes that in `search.types`; we then
-    override `search_type` for the next form submission so the
-    selected scope sticks.
-  endcomment
   assign active_scope = 'all'
   if search.performed and search.types.size == 1
     assign only_type = search.types | first
@@ -75,15 +58,6 @@
 -%}
 
 <section class="kt-search-page" data-section-id="{{ section.id }}" data-section-type="main-search">
-  {%- comment -%}
-    R106 — XSS hardening. Shopify's `t` filter does NOT
-    auto-escape interpolated arguments. A search URL of
-    `/search?q=<img src=x onerror=alert(1)>` would otherwise
-    inject markup into the H1, the result-count line, and the
-    no-results message. Pre-escaping search.terms ONCE makes
-    every downstream `t: terms: safe_terms` call safe.
-    Same R96 SUB-05 class as predictive-search.liquid:187.
-  {%- endcomment -%}
   {%- assign safe_terms = search.terms | escape -%}
   <div class="page-width">
     <header class="kt-search-page__header">
@@ -122,14 +96,6 @@
         the dedicated search page. ARIA combobox attrs mirror the
         overlay: #search-page-results below is the listbox target.
       {%- endcomment -%}
-      {%- comment -%}
-        R297 — `spellcheck="false"` matches the overlay search input
-        (`snippets/search-overlay.liquid:46`). Without it, browsers
-        paint red squiggle underlines on product/brand names like
-        "Kitchero" or "Lumina" that look broken to customers.
-        `autocapitalize="off"` prevents iOS from auto-capitalising
-        the first letter, which can hurt exact-match lookups.
-      {%- endcomment -%}
       <input
         type="search"
         id="search-page-input"
@@ -154,14 +120,6 @@
       <input type="hidden" name="options[prefix]" value="last">
       <button type="submit" class="kt-search-page__submit">{{ 'kt.search.search' | t }}</button>
     </form>
-    {%- comment -%}
-      R298 — `role="listbox"` REMOVED from this wrapper. WAI-ARIA forbids
-      nested listboxes, and predictive-search.js injects per-group <ul>
-      elements that each carry `role="listbox"` (matching the documented
-      pattern in `sections/predictive-search.liquid:103-106`). The wrapper
-      stays as a labelable container that the combobox input controls,
-      with a polite live region for SR result-count announcements.
-    {%- endcomment -%}
     <div
       class="kt-search-page__predictive-results"
       id="search-page-results"
@@ -323,14 +281,6 @@
       {%- render 'search-popular-queries', section: section -%}
     {%- endif -%}
 
-    {%- comment -%}
-      R16-J: Theme Store requires the search template to host app
-      blocks — review apps, wishlist apps, and merchandising apps
-      frequently target this surface to upsell relevant collections
-      from no-results / popular-queries states. Renders below the
-      results region so apps don't fight the primary content for
-      visual hierarchy.
-    {%- endcomment -%}
     {%- render 'section-app-blocks' -%}
   </div>
 </section>

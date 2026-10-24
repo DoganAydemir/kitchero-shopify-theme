@@ -2,49 +2,6 @@
    This file provides foundational layout, typography, and utility classes. */
 
 /* ============================================================
-   R183 PALETTE-TOKENS-1: Brand palette CSS variables.
-
-   The theme renders against a Tailwind-derived neutrals/accents
-   palette (stone scale + emerald). Sections, snippets and
-   layout reference these via `var(--kt-stone-900)`,
-   `var(--kt-white)`, `var(--kt-emerald-400)` etc. — 1500+
-   call-sites across the asset bundle.
-
-   Earlier base.css carried only a comment claiming the tokens
-   were emitted from `theme.liquid :root via settings_schema`,
-   but no `:root { --kt-white: ... }` block actually existed in
-   either layout/theme.liquid or anywhere in assets/. With the
-   tokens undefined, every rule like
-   `background-color: var(--kt-white)` resolved to the CSS
-   `unset` initial value (transparent for color properties),
-   which is why a fresh-install storefront audit reported
-   "mega menu renders as plain grey boxes" — the white panel
-   background was never actually being painted, the rules were
-   silently failing.
-
-   Defining the palette here, on `:root`, fixes every undefined-
-   token site in one place. Values match the Tailwind stone +
-   white/black + emerald scale that the Next.js source theme
-   was built against, so no visual drift from the design system.
-
-   Theme settings can still override individual scheme tokens
-   via the `color_scheme_group` setting (which emits its own
-   `:root { --kt-c-* }` declarations from Shopify's runtime —
-   `--kt-c-fg`, `--kt-c-bg`, etc.). Those are layered ABOVE
-   this palette: scheme tokens reference palette tokens.
-   ============================================================ */
-/* R-token-shadow — palette declarations consolidated into
-   `snippets/kt-css-variables.liquid` so there is a single source of
-   truth. The earlier duplicate `:root { --kt-stone-* }` block here
-   shadowed the snippet's values with diverging hex literals (warm
-   Tailwind stones in the snippet, cool grey here), producing a
-   first-paint color flash and a reviewer-grep flag for duplicate
-   `:root` declarations of the same property with different values.
-   The snippet now carries the canonical R290 cool-grey ramp + the
-   Tailwind endpoints / emerald accents; no second declaration site
-   is needed. */
-
-/* ============================================================
    Reset & Box Model
    ============================================================ */
 
@@ -107,22 +64,10 @@ button,
 [role="button"],
 select,
 summary {
-  /* R112 — `cursor: pointer` here used to carry `!important` which
-     blocked component-level `cursor: not-allowed` on disabled
-     buttons and `cursor: default` on styled non-link anchors. The
-     UA default for these elements is already `pointer` (or
-     auto-resolved to it via :hover); the bare declaration suffices
-     and merchants regain override capability via Custom CSS. */
   cursor: pointer;
-  /* Kill iOS Safari's default grey tap flash on every interactive
-     surface — the UA default looks unpolished on a premium theme and
-     Theme Store reviewers mention it on mobile QA. Component-level
-     :active / :focus-visible styles remain the intentional feedback. */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* R112 — explicit override for `:disabled` so the cursor declaration
-   above doesn't fight the disabled state semantically. */
 button:disabled,
 [role="button"][aria-disabled="true"] {
   cursor: not-allowed;
@@ -190,25 +135,6 @@ summary,
   display: block;
 }
 
-/* R269 — Cinematic slider critical render-state. The per-section
-   stylesheet `kt-section-slider-cinematic-hero.css` is loaded
-   INSIDE the section liquid (not the document <head>), so there
-   is a brief HTML-streaming window where the section markup
-   parses + paints BEFORE the section CSS arrives. During that
-   window the `.kt-slider-cinematic__text` blocks would render at
-   their natural position with full opacity, then the section CSS
-   would load, the animation start state (opacity:0,
-   translateY) would apply, and the entry keyframe would replay —
-   producing the "kelime önce üstten kesik geliyor ekrana, sonra
-   yarım saniye sonra efektle yukarı çıkıyor" flash the reporter
-   saw on first paint.
-
-   Duplicating the start state here in base.css (which IS in
-   <head>) ensures the slider text is invisible from the very
-   first paint frame. The section CSS still owns the animation
-   keyframes + the `--active` reveal rule; this critical entry
-   only ANCHORS the initial state so there is no FOUC. Mirrors
-   the cart-drawer / appointment-drawer treatment above. */
 .kt-slider-cinematic__text {
   opacity: 0;
 }
@@ -218,30 +144,6 @@ summary,
    ============================================================ */
 
 .page-width {
-  /* R292 — Was hardcoded `max-width: 1536px`. The merchant's
-     "Page width" theme setting (`kt_page_width`) was rendered to
-     `--kt-page-max` in kt-css-variables.liquid but never read
-     anywhere except a single section, so changing the slider
-     produced no visible effect on 99% of the storefront. Wire
-     the canonical `.page-width` utility through the custom
-     property so the slider drives every section that uses this
-     utility for its container width.
-
-     R292b — Fallback in `px` to match the custom property unit
-     (kt-css-variables.liquid emits `--kt-page-max: Npx`). Earlier
-     iteration used `96rem` fallback with a broken `divided_by: 10`
-     conversion that turned the merchant's `1400` (px intent) into
-     `140rem` ≈ 2240px — content rendered edge-to-edge regardless
-     of the slider value. Fixed in the snippet to use `px`
-     directly.
-
-     R292c — Schema default bumped from 1400 → 1500 because the
-     previous hardcoded value before the R292 wiring was 1536px,
-     so the merchant's perceived "original" container width was
-     never 1400 — they were always seeing 1536. The closest
-     step-aligned value to that look is 1500 (with step 50). A
-     merchant who's customised the slider can drag back to
-     1500px to restore the original visual. */
   max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding: 0 1.5rem;
@@ -298,14 +200,6 @@ h6, .h6 { font-size: calc(var(--kt-f-heading-scale) * 1.4rem); }
   h3, .h3 { font-size: calc(var(--kt-f-heading-scale) * 2.4rem); }
 }
 
-/* R112 — was a tag-only `a { color: ... }` rule that styled EVERY
-   anchor on the page including merchant-authored content inside
-   richtext blocks, app-block fragments, and arbitrary section
-   settings. `:where(body) a:not([class])` matches the same
-   "unstyled anchor" surface (zero specificity contribution from
-   :where + :not), but downstream rules with any class selector
-   beat it without `!important`. text-underline-offset stays as a
-   typographic default. */
 :where(body) a:not([class]) {
   color: rgb(var(--kt-c-link));
 }
@@ -322,18 +216,6 @@ a {
    Buttons
    ============================================================ */
 
-/* Generic .button class only — DO NOT add `button[type="submit"]`
-   as a sibling selector. That blanket selector previously hijacked
-   every <button type="submit"> in the theme (Add to Cart, Add Sample
-   to Cart, Search submit, Newsletter signup, etc.) with this rule's
-   1.4rem font-size + 1.2rem 2.4rem padding — overpowering the
-   component-level CSS each of those forms ships (`.kt-product-form__atc`,
-   `.kt-showroom__sample-btn`, `.kt-search-page__submit`, ...) because
-   the bare `button[type="submit"]` selector has higher specificity
-   than a single component class. The user reported "ADD TO CART" and
-   "ADD SAMPLE TO CART" both rendering huge despite component CSS
-   declaring 0.75rem font + tighter padding — root cause was here.
-   Components opt INTO this look by adding `class="button"`. */
 .button {
   display: inline-flex;
   align-items: center;
@@ -350,12 +232,6 @@ a {
   border-radius: var(--kt-btn-radius);
   background-color: rgb(var(--kt-c-action));
   color: rgb(var(--kt-c-action-text));
-  /* R295 — Button shadow from theme settings (Buttons → Shadow).
-     Previously the schema exposed `--kt-btn-shadow-x/y/blur/op`
-     sliders but no CSS consumer existed; merchants dragging those
-     sliders saw zero change. Now wired with the scheme's
-     shadow_color so the button drop-shadow follows the rest of
-     the theme palette. Defaults yield no shadow (opacity 0). */
   box-shadow: var(--kt-btn-shadow-x, 0px) var(--kt-btn-shadow-y, 0px) var(--kt-btn-shadow-blur, 0px) rgba(var(--kt-c-shadow, 28, 25, 23), var(--kt-btn-shadow-op, 0));
   transition: opacity 0.2s ease, box-shadow 0.2s ease;
 }
@@ -401,18 +277,6 @@ a {
    Forms
    ============================================================ */
 
-/* R268 — Global form field shell. Used by the appointment drawer,
-   the footer newsletter, and any future form that doesn't ship its
-   own input class.
-   R295 — Border alpha now reads from `--kt-input-border-op` (was
-   hardcoded `0.18`). The original R268 lock was a response to the
-   prior schema default of 55% painting an unpolished heavy
-   hairline. The schema default is now 20% (≈0.20), which matches
-   the designer's chosen 0.18 within a hair, so the merchant slider
-   can be honored without breaking the editorial look. Merchants
-   who want a heavier or near-invisible border now actually get
-   what they drag — and the slider in theme settings stops being
-   an orphan that does nothing. */
 .field__input,
 .field__textarea {
   width: 100%;
@@ -487,9 +351,6 @@ a {
   position: fixed !important;
   top: 1rem;
   left: 1rem;
-  /* R113 — skip-link sits at loader tier so it paints above any
-     active drawer/lightbox/popover. WCAG 2.4.1 (Bypass Blocks)
-     is meaningless if the link is hidden behind another layer. */
   z-index: var(--kt-z-loader);
   width: auto !important;
   height: auto !important;
@@ -512,13 +373,6 @@ a {
   outline-offset: 2px;
 }
 
-/* R88 — Safari 14 / iOS 14 fallback. The `:focus-visible` selector
-   was unsupported pre-Safari 15.4; on those browsers the rule above
-   is dropped entirely, leaving keyboard users with NO focus
-   indicator on any element (a hard WCAG 2.4.7 fail). The bare
-   `:focus` rule below paints a visible ring on focused elements on
-   older Safari only — modern browsers (which understand
-   :focus-visible) hit the @supports negative path and skip this. */
 @supports not selector(:focus-visible) {
   a:focus,
   button:focus,
@@ -532,22 +386,6 @@ a {
   }
 }
 
-/* R91 — Windows High-Contrast / Forced Colors mode (WCAG 1.4.11).
-   When users enable Windows accessibility "Use high contrast" or
-   browser forced-colors, custom colors are replaced with system
-   palette tokens (Canvas, CanvasText, LinkText, ButtonFace, etc.)
-   and background-image SVG icons are stripped. Without explicit
-   handling: dropdown chevrons + custom-styled buttons + state
-   indicators become invisible.
-
-   Strategy:
-   - Buttons & form controls keep system border so they remain
-     visible as interactive elements.
-   - Decorative-only icons stay decorative (forced-color-adjust: auto).
-   - Active state uses Highlight token instead of brand color.
-   - SVG-via-background-image chevrons get a Unicode fallback
-     announced via ::after content (overridden per-component where
-     a real <svg> sibling exists). */
 @media (forced-colors: active) {
   button,
   .button,
@@ -720,13 +558,6 @@ select:-webkit-autofill {
   height: auto;
 }
 
-/* Embedded media inside Rich-Text content (article body, page CMS,
-   etc.). Shopify's RTE editor outputs raw <iframe> for YouTube /
-   Vimeo embeds without explicit dimensions — without these rules the
-   iframe takes its native default size (~300×150) which collapses on
-   mobile and over-extends on desktop, breaking the article rhythm.
-   16:9 aspect-ratio is the dominant video format; reviewers test
-   articles with embedded YouTube and expect responsive behaviour. */
 .rte iframe {
   display: block;
   width: 100%;
@@ -782,7 +613,7 @@ select:-webkit-autofill {
   line-height: 1.65;
 }
 .rte li::marker {
-  color: rgba(var(--kt-c-fg, 28 25 23), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .rte blockquote {
@@ -885,11 +716,6 @@ select:-webkit-autofill {
   float: none;
 }
 
-/* Print rules for article / page bodies. Reviewers do test "print
-   this article" — without these the layout's tokens leak into the
-   print sheet (light-gray text on light-gray bg = unreadable),
-   share/comment widgets clutter the printout, and orphan headings
-   land at the bottom of the page. */
 @media print {
   .rte {
     color: #000;
@@ -936,18 +762,6 @@ select:-webkit-autofill {
    clickable cell is at least 44×44 CSS px, and the current-page
    indicator matches the same box so adjacent hit areas align.
    ============================================================ */
-
-/* R-SS6 — Premium pagination redesign.
-   Earlier CSS targeted the old `.kt-pagination__item` /
-   `.kt-pagination__current` classes that the snippet stopped
-   emitting (it now uses `__cell`, `__link--current`,
-   `__link--step`). The mismatch left the rendered control
-   without any of its intended styling — bare anchors with
-   browser defaults, which the merchant flagged as "çok basit
-   görünüyor". New rule set matches the live snippet markup and
-   gives the rail an editorial finish: pill prev/next steppers,
-   numbered links with hover lift, a filled current-page chip
-   that contrasts the surface. Touch-target compliant (44×44). */
 
 .kt-pagination {
   display: flex;
@@ -1109,34 +923,16 @@ select:-webkit-autofill {
   body {
     background: white;
     color: black;
-    /* R298 — `print-color-adjust: exact` was applied globally to body
-       which forced backgrounds, dotted decorations, scheme gradients,
-       and section overlays to print on every receipt/article/policy
-       printout — burning toner on decoration the customer didn't ask
-       for. Default `economy` lets the browser drop backgrounds (the
-       intended ink-saver behaviour). The gift-card template re-enables
-       `exact` inside its own print block where the card artwork IS
-       the value. */
     print-color-adjust: economy;
     -webkit-print-color-adjust: economy;
   }
 
-  /* R298 — Force descendant text + backgrounds to black-on-white so
-     dark-scheme storefronts don't print white text on dark backgrounds
-     (which becomes unreadable when the browser strips backgrounds via
-     `print-color-adjust: economy`). */
   *, *::before, *::after {
     color: #000 !important;
     background-color: transparent !important;
     box-shadow: none !important;
   }
 
-  /* Hide page chrome — site shell + drawers + overlays.
-     R137 PRINT-1: cookie banner is fixed-positioned and would print
-     across every page footer if not suppressed. The cookie banner has
-     its own CSS file (kt-section-cookie-banner.css) without a print
-     block, so we hide it from this central list. Also adds toast +
-     consent overlay defensive entries. */
   .kt-header,
   .kt-section-footer,
   .kt-footer,
@@ -1171,12 +967,6 @@ select:-webkit-autofill {
     position: static !important;
   }
 
-  /* R295 — Print-only: strip the keyboard focus ring from PAINT,
-     but keep the rule constrained to `:focus` (not `:focus-visible`)
-     so axe-core/Lighthouse don't flag a global focus-suppression on
-     print stylesheets. Drops the `!important` — the cascade priority
-     already favours `@media print` over the global rule because the
-     screen rule's media context is `screen`, not `print`. */
   *:focus {
     outline: none;
   }
@@ -1273,11 +1063,6 @@ select:-webkit-autofill {
   padding: 1rem 0;
 }
 
-/* R-breadcrumbs-mobile-tight — User flagged "mobilde breadcrumb
-   üst kısmında çok boşluk var". On phones the 1rem vertical
-   padding combined with the page-header padding stacked into a
-   ~3rem gap between the announcement bar and the breadcrumb,
-   reading as broken whitespace. Trim to 0.375rem top on mobile. */
 @media (max-width: 749px) {
   .kt-breadcrumbs {
     padding: 0.375rem 0 0.625rem;
@@ -1302,38 +1087,14 @@ select:-webkit-autofill {
    shows through unchanged when the trail is rendered inside
    that section. */
 .kt-breadcrumbs-wrap {
-  /* R232.5 — horizontal padding moved onto `.kt-breadcrumbs__list`
-     itself so the breadcrumb's inner-text edge aligns exactly with
-     `.page-width`'s inner-text edge. The wrap stays a full-width
-     band (transparent) for any future background-stripe styling. */
   background-color: transparent;
   padding: 1.25rem 0;
 }
-
-/* R216 — Breadcrumb-aware section top-padding rule removed.
-   Previously the breadcrumb sat ABOVE the first section on non-
-   page templates, so we shrank that section's top padding to
-   keep the visual rhythm tight. With the unified layout
-   (breadcrumb ALWAYS reorders to slot 2, below the first
-   section, on every template) the first section is back at the
-   top under the header and needs its full original top padding
-   to compensate for the fixed header. No override needed. */
 
 .kt-breadcrumbs__list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  /* R232.5 — Left-aligned trail clamped to the SAME page column
-     `.page-width` uses. Previously `max-width: 1536px` hardcoded +
-     `padding: 0` on the list inside a wrap that carried `1.5rem`
-     mobile / `2rem` desktop side-padding produced a left edge that
-     drifted 18-32px outside the page content column at wide
-     viewports (because the merchant-controlled `--kt-page-max`
-     setting is 1500px, not 1536px) — the breadcrumb appeared to
-     hang off the side of the heading above it. Switching to the
-     same `--kt-page-max` token + 1.5rem horizontal padding (the
-     `.page-width` formula) makes the trail's first letter sit
-     directly under the first letter of the heading. */
   justify-content: flex-start;
   max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
@@ -1349,8 +1110,6 @@ select:-webkit-autofill {
      the sibling .kt-breadcrumbs__link color (line 949) so the
      trail reads as a uniform low-emphasis row. */
   color: var(--kt-stone-600, #57534e);
-  /* R87 — long article/product titles in the breadcrumb tail must
-     wrap rather than blow out the row width on mobile. */
   flex-wrap: wrap;
 }
 
@@ -1358,20 +1117,11 @@ select:-webkit-autofill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  /* R87 — min-width:0 lets the flex item shrink below its content
-     so the long-current-label child can wrap. Without it, an
-     unbroken article title (130 chars + em-dash compound) pushes
-     the row past viewport edge on mobile. */
   min-width: 0;
 }
 
 .kt-breadcrumbs__item + .kt-breadcrumbs__item::before {
   content: '/';
-  /* CLR-1 (R86) — previous stone-600 literal worked on light bg
-     but in a merchant dark scheme it's mid-grey on dark = invisible.
-     Route through rgba(var(--kt-c-fg), 0.7) so the separator stays
-     low-emphasis in BOTH schemes. 0.7 alpha on either bg produces
-     ~5.5-7:1 contrast, comfortably above 4.5:1 minimum. */
   color: rgb(var(--kt-c-fg-muted));
   font-weight: 300;
 }
@@ -1399,9 +1149,6 @@ select:-webkit-autofill {
 .kt-breadcrumbs__current {
   color: rgb(var(--kt-c-fg));
   font-weight: 500;
-  /* R87 — long article titles (130 chars+) or product names with
-     unbroken tokens (SKUs, German compound words) must wrap mid-
-     word rather than overflow the breadcrumb row on mobile. */
   overflow-wrap: anywhere;
   min-width: 0;
   max-width: 100%;
@@ -1425,49 +1172,12 @@ select:-webkit-autofill {
    cart-drawer auto-open, etc.).
    ============================================================ */
 
-/* R232.22 — `.kt-header` REMOVED from the design-mode static
-   override. The merchant explicitly wants the transparent /
-   sticky header to behave the same in the editor as on the live
-   storefront (WYSIWYG); the R298 static-positioning override was
-   well-intentioned (section selection rings are easier to click
-   without an overlay), but it produced a white background strip
-   in the editor whenever a hero / banner-cover lived below the
-   header — the slideshow couldn't bleed up behind the
-   transparent header because the header was forced back into
-   flow.
-   PDP sticky info column and `[data-editor-unsticky]` opt-in
-   hook remain neutralised because those are genuinely awkward
-   for editor section selection. */
 html.shopify-design-mode .kt-pdp__info-sticky,
 html.shopify-design-mode [data-editor-unsticky] {
   position: static !important;
   top: auto !important;
 }
 
-
-/* ============================================================
-   Long-content overflow guard — Theme Store "Breaking Review"
-
-   Stage 3 of the Theme Store review process specifically tests
-   themes against 30+ character single-word strings (long product
-   titles, breadcrumb labels, customer-supplied account names,
-   richtext from merchant pages, foreign-language compound words
-   like German "Kraftfahrzeughaftpflichtversicherung"). If the
-   layout breaks horizontally — text overflows its container,
-   pushes the grid sideways, hides the action button, etc. — the
-   theme is rejected as "fails edge-case testing".
-
-   Applying overflow-wrap: break-word at the document level is
-   the recommended global guard. It triggers ONLY when the word
-   would otherwise overflow — normal text reflows untouched.
-   `break-word` (not `anywhere`) keeps short words intact and only
-   breaks the un-wrappable monster, which is what reviewers test.
-
-   Hyphens: auto adds soft hyphens to long words where the locale
-   provides a dictionary (de/fr/es). Browsers fall back gracefully
-   on locales without a hyphenation dictionary (en uses very few
-   automatic hyphens, which is fine).
-   ============================================================ */
 :where(body) {
   overflow-wrap: break-word;
 }
@@ -1482,27 +1192,9 @@ html.shopify-design-mode [data-editor-unsticky] {
        .kt-cart-page__item-title,
        .kt-cart-drawer__item-title,
        .rte) {
-  /* R269 — Was `overflow-wrap: break-word`. Reporter saw
-     "PRECISION MANUFACTURING" wrapping as "PRECISION
-     MANUFACTURIN" + "G" on the cinematic hero at 390px viewport
-     — the second word didn't fit on the second line either, so
-     break-word kicked in and split the word mid-character. For
-     an editorial display typeface this looks broken (the user
-     called it "patlak").
-
-     Switch to `overflow-wrap: normal`: editorial headings keep
-     every word intact and wrap whole-word to the next line. If
-     a heading still doesn't fit, the line stays whole and may
-     overflow its container — at which point the merchant should
-     shorten the copy. We prefer that failure mode to the
-     mid-word split. The document-level `body { overflow-wrap:
-     break-word }` rule above is the safety net for truly
-     monster compound words elsewhere (legalese, German nouns)
-     where overflow would break the layout. */
   overflow-wrap: normal;
   word-break: keep-all;
 }
-
 
 /* ============================================================
    Global suppression of WebKit/Blink native search-cancel button.
@@ -1538,20 +1230,6 @@ input[type="search"]::-webkit-search-decoration {
   display: none;
 }
 
-/* ============================================================
-   No-JS hide for the intro loader.
-   --------------------------------------------------------------
-   When JavaScript is disabled, the early bootstrap in theme.liquid
-   that sets `document.documentElement.className = 'js'` never runs,
-   so `html` keeps no class. The loader has no animation engine
-   without JS — it would paint a static splash and never dismiss,
-   trapping the visitor. Hide it on `html:not(.js)` so the page
-   content is reachable for no-JS / scraper / crawler visits.
-
-   Replaces a previous inline <noscript><style> hack in
-   snippets/kt-loader.liquid — the rule is brand-neutral and
-   universally applicable, so it lives globally.
-   ============================================================ */
 html:not(.js) .kt-loader {
   display: none !important;
 }
@@ -1584,64 +1262,6 @@ html:not(.js) .kt-loader {
     animation: none;
     outline-color: rgba(16, 185, 129, 0.85);
   }
-}
-
-/* ============================================================
-   Per-section background override modifiers
-   ============================================================
-   Plain-background section schemas ship an optional `bg_color`
-   select setting (Auto / White / Stone-50 / Stone-100). When the
-   merchant picks one, the section's root element gets the
-   matching `kt-section-bg--*` modifier appended to its class
-   list, and these rules force-paint the surface regardless of
-   whatever ships in the section's own CSS.
-
-   Default `auto` does NOT add the modifier — the section falls
-   back to its own original background (transparent, stone-50,
-   white, image, etc.), so existing storefronts don't change
-   appearance unless the merchant actively picks an override.
-
-   Banner / hero / image-driven sections deliberately omit this
-   setting from their schema (full-bleed imagery means a colour
-   override would be invisible or wrong), so the modifier never
-   gets added there even if the class accidentally landed.
-
-   `!important` is the trade-off — section CSS routinely declares
-   `background-color: stone-50` (or transparent) on the root, and
-   without the bump the override would lose to its own per-section
-   selector. Scoped to the explicit modifier classes only, so this
-   is a controlled override surface, not a sweeping one.
-
-   R290 — Added stone-100 as a third visible option. The merchant
-   wanted a "one notch darker" grey for surfaces that benefit
-   from a slightly stronger separation from the neighbouring
-   sections without going all the way to a dark scheme. Stone-100
-   sits between stone-50 ("light grey") and the dark scheme
-   tokens, giving merchants a useful mid-grey on light themes.
-*/
-.kt-section-bg--white {
-  background-color: var(--kt-white) !important;
-}
-
-.kt-section-bg--stone-50 {
-  background-color: var(--kt-stone-50) !important;
-}
-
-.kt-section-bg--stone-100 {
-  background-color: var(--kt-stone-100) !important;
-}
-
-/* R232.38 — Custom background option. Each section that exposes
-   the bg_color setting now also exposes a paired `bg_color_custom`
-   color picker; when the merchant selects "Custom color" the Liquid
-   wrapper emits `style="--kt-section-bg-custom: <hex>;"` on the
-   section root. Class rule reads the variable so the bg flips
-   without any per-section CSS. Falls back to transparent if the
-   variable is unset (shouldn't happen in practice — Liquid only
-   emits the style when both the dropdown value AND the color
-   picker are populated). */
-[style*="--kt-section-bg-custom"] {
-  background-color: var(--kt-section-bg-custom, transparent) !important;
 }
 
 /* ============================================================
@@ -1722,40 +1342,6 @@ html:not(.js) .kt-loader {
   border-radius: 0;
 }
 
-/* ============================================================
-   R-mobile-btn-padding — Theme-wide CTA mobile padding normalize.
-   17 section-scoped CTA classes ship desktop padding ≥1rem
-   vertical / ≥2rem horizontal — visually balanced on desktop
-   but too chunky on mobile (480px viewport, button stretches
-   ≥56px tall against tight content). Aggregate override under
-   one media query so every CTA reads the same tighter mobile
-   metric. Vertical 0.75rem (12px) + horizontal 1.5rem (24px)
-   = ~44px outer height with min-height floor, matching WCAG
-   2.5.5 touch target. Desktop ≥750px untouched — each section's
-   own rule still owns the larger desktop padding for visual
-   balance against the bigger surrounding type/spacing.
-
-   Buttons already at ≤0.875rem vertical (appointment-drawer,
-   back-in-stock, pdp-sticky, banner-minimal, cookie-banner,
-   mid-cta, rich-text, slider-editorial, visualize-studio,
-   variant-picker, customer-account-addresses, main-search,
-   iwt-parallax) are EXCLUDED — they're already mobile-correct.
-   ============================================================ */
-/* ============================================================
-   R-shopify-policy-style — Style Shopify's built-in policy
-   container (`/policies/privacy-policy`, refund, shipping,
-   TOS, subscription). Shopify renders a fixed markup pair
-   inside MainContent that the theme template can't replace:
-     <div class="shopify-policy__container">
-       <div class="shopify-policy__title"><h1>…</h1></div>
-       <div class="shopify-policy__body">…raw policy HTML…</div>
-     </div>
-   Default policy stylesheet ships only `max-width: 65ch` +
-   20px horizontal padding — no vertical breathing room, no
-   editorial typography. Theming the container directly here
-   layers on the same prose chrome used elsewhere on the
-   theme (serif heading, padding tokens, muted body color).
-   ============================================================ */
 .shopify-policy__container {
   /* Top + bottom breathing room — matches main-page section
      padding so policy pages read at the same vertical density

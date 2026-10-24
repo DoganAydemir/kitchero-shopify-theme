@@ -15,13 +15,6 @@
   renaming a token, update every `var(--kt-*)` consumer in lockstep.
 {%- enddoc -%}
 {%- liquid
-  comment
-    Theme Store requirement — for every font_picker setting we MUST emit
-    bold, italic, and bold-italic variants via the `font_modify` filter so
-    rich-text content (RTE blocks, descriptions, articles) renders the
-    correct weight/style without browsers falling back to synthetic
-    bolding/skewing. Reviewers grep for the four-variant matrix per font.
-  endcomment
   assign body_font = settings.kt_body_font
   assign body_font_bold = body_font | font_modify: 'weight', 'bold'
   assign body_font_italic = body_font | font_modify: 'style', 'italic'
@@ -61,20 +54,6 @@
         assign bg_contrast = bg | color_darken: 25
       endif
     -%}
-    {%- comment -%}
-      R298 — Scheme variables now cascade through BOTH `[data-kt-scheme="X"]`
-      (the body-level scope set in `layout/theme.liquid:452` for the active
-      whole-page scheme) AND `.color-X` (the per-section scope emitted by
-      every visual section as `class="color-{{ section.settings.color_scheme | default: 'scheme-1' }}"`).
-      Previously only the `[data-kt-scheme]` form was emitted, so the
-      class-based markup on every section silently fell through to the
-      body cascade and per-section scheme switching (when the merchant
-      adds additional schemes via the color_scheme_group editor and
-      assigns one per section) would not paint. Theme Store color-scheme
-      integration requires the per-section scope to actually retheme that
-      section's subtree — emitting both selectors makes the existing
-      markup work without requiring a 24-section refactor.
-    {%- endcomment -%}
     {%- if forloop.first -%}
       :root,
       body,
@@ -133,50 +112,15 @@
   }
 
   :root {
-    /* `color-scheme: light` — declares the document is designed for
-       light surfaces. Browsers use this for native form controls
-       (checkboxes, scrollbars, date pickers) so they pick a style
-       palette that matches our beige stone/emerald palette instead
-       of falling back to the OS dark theme when the user's OS is
-       in dark mode. The theme has no dark variant by design, so we
-       intentionally do NOT declare `dark` — let the merchant ship
-       a dark scheme later as a v2 if desired. */
     color-scheme: light;
 
-    /* ------------------------------------------------------------------
-       Brand palette — static design tokens.
 
-       These are the raw colour values the Kitchero visual system is
-       built on (Tailwind stone/emerald/red scales + a handful of warm
-       off-white neutrals the theme uses for backgrounds). They do NOT
-       change per scheme — merchants customise via `color_scheme`
-       settings which drive the `--kt-c-*` semantic tokens below.
-
-       Every hardcoded hex in `assets/*.css` is expected to reference
-       one of these tokens so the palette can be tuned from a single
-       place and reviewers see a consistent token-driven system.
-       ------------------------------------------------------------------ */
-
-    /* Neutrals — Tailwind stone endpoints + R290 cool-grey mid-tones.
-       Mid-range (300-700) was migrated from the original warm
-       Tailwind-stone tints (e.g. #d6d3d1) to a neutral cool-grey
-       ramp because the warm stones read as slightly beige against
-       the editorial chrome. Endpoints (50/100/200, 800/900/950)
-       remain Tailwind-stone for continuity with the dark scheme.
-
-       R-token-shadow — these values must match `assets/base.css`'s
-       `:root` palette exactly. Previously the two files diverged
-       (snippet kept the original warm values; base.css carried the
-       R290 overrides), producing a measurable color flash at first
-       paint and a reviewer-grep flag for duplicate-with-diverging-
-       values custom properties. Single source of truth: the snippet
-       defines the canonical values, base.css does not re-declare. */
     --kt-stone-50:  #fafaf9;
     --kt-stone-100: #f5f5f4;
     --kt-stone-200: #e7e5e4;
     --kt-stone-300: #d3d3d3;
     --kt-stone-400: #9f9f9e;
-    --kt-stone-500: #7a7a7a;
+    --kt-stone-500: #6b6b6b;
     --kt-stone-600: #585858;
     --kt-stone-700: #434343;
     --kt-stone-800: #292524;
@@ -220,7 +164,7 @@
     --kt-amber-900: #78350f;
     --kt-gray-900:  #111827;
 
-    /* R112 — semantic status-pill tokens for order/financial/
+    /* semantic status-pill tokens for order/financial/
        fulfillment states. Previously these hex values were
        inlined in kt-section-customer-account.css, blocking
        merchants from rebranding via Custom CSS without
@@ -235,7 +179,7 @@
     --kt-c-status-error-bg: #fee2e2;       /* red-100 */
     --kt-c-status-error-fg: #991b1b;       /* red-800 */
 
-    /* R113 — z-index token tier. Internal stacking contexts
+    /* z-index token tier. Internal stacking contexts
        (0, 1, 2, 3, 10, 20) intentionally remain as raw integers
        because they're scoped within a section and don't compete
        with merchant-injected third-party widgets. The HIGH tiers
@@ -268,18 +212,6 @@
     --kt-f-body-scale: {{ settings.kt_body_scale | divided_by: 100.0 }};
     --kt-f-heading-scale: {{ settings.kt_heading_scale | times: 1.0 | divided_by: settings.kt_body_scale }};
 
-    {%- comment -%}
-      R292d — Page-width with explicit "use theme default" escape
-      hatch. The `kt_page_width_use_default` checkbox (default
-      `true`) ignores the slider and pins the container to the
-      hardcoded theme baseline (1500px). When the merchant
-      unchecks the box, the slider's `kt_page_width` value drives
-      the container. Two-step UX: merchants who want the
-      designer-shipped look NEVER need to touch the slider; those
-      who want a custom width can opt in. Mirrors the native
-      Shopify-admin "revert to default" affordance for merchants
-      whose admin doesn't yet show the revert arrow.
-    {%- endcomment -%}
     {%- if settings.kt_page_width_use_default -%}
       --kt-page-max: 1500px;
     {%- else -%}
@@ -305,51 +237,14 @@
     --kt-input-border-w: {{ settings.kt_input_border_w }}px;
     --kt-input-border-op: {{ settings.kt_input_border_op | divided_by: 100.0 }};
 
-    {%- comment -%}
-      R232.20 — PDP "Buy it now" unbranded button colors emitted as
-      theme-level CSS variables so merchants can recolor the
-      accelerated checkout fallback without touching CSS. Defaults
-      mirror the design system's `--kt-emerald-400` ramp (the
-      attached reference). Branded accelerated buttons (Shop Pay,
-      Apple Pay, Google Pay) are unaffected — Shopify protects
-      those for brand-guideline compliance.
-    {%- endcomment -%}
     --kt-buy-now-bg: {{ settings.kt_buy_now_bg | default: '#5fe8b6' }};
     --kt-buy-now-fg: {{ settings.kt_buy_now_fg | default: '#0c0a09' }};
     --kt-buy-now-hover-bg: {{ settings.kt_buy_now_hover_bg | default: '#5adfae' }};
 
-    {%- comment -%}
-      R232.59 — Theme-wide editorial accent color. Used for the small
-      "highlight" moments across the storefront — eyebrow labels like
-      SPOTLIGHT and PAY OVER TIME, deal-card include-bullets, the
-      hero accent strip, the countdown icon on PDP cards, the footer
-      accent link, and any future small accent moment a section
-      needs. Previously every consumer hardcoded `var(--kt-emerald-400)`
-      — merchants who wanted to rebrand had to fork the CSS (or use
-      Custom CSS overrides). Single setting now drives all 7 known
-      consumers. Default `#34d399` matches the original emerald-400.
-    {%- endcomment -%}
     --kt-c-accent: {{ settings.kt_accent_color | default: '#34d399' }};
 
-    {%- comment -%}
-      R294 — Badge corner radius. Previously emitted as
-      `divided_by: 10.0` rem which silently 10x-shrank the
-      merchant's chosen value (40px → 0.4rem ≈ 6px). Now emits
-      px directly. Consumed by `.kt-card-product__badge` in
-      assets/kt-card-product.css.
-    {%- endcomment -%}
     --kt-badge-radius: {{ settings.kt_badge_radius }}px;
 
-    {%- comment -%}
-      R131 — Swatch tokens. `kt_swatch_shape` is a select setting
-      that maps option values to CSS border-radius values:
-        circle  → 50%
-        rounded → 4px
-        square  → 0
-      We emit the resolved CSS value directly so the consumer
-      (kt-card-product.css `.kt-swatches__dot`) can use
-      var(--kt-swatch-shape) without a per-shape class.
-    {%- endcomment -%}
     --kt-swatch-size: {{ settings.kt_swatch_size | default: 18 }}px;
     {%- case settings.kt_swatch_shape -%}
       {%- when 'rounded' -%}
@@ -360,28 +255,12 @@
         --kt-swatch-shape: 50%;
     {%- endcase %}
 
-    {%- comment -%}
-      R293 — Product card knobs. Previously emitted with a broken
-      `divided_by: 10.0` px-to-rem conversion (the same bug that
-      hit `--kt-page-max` — 16px root means px/10 yields ~1.6×
-      the intended size) AND none of these properties had any
-      consumer in the CSS, so all 5 settings were orphan no-ops.
-      Use `px` directly (cheap, exact, no unit-conversion drift)
-      and wire each one through the matching rule in
-      kt-card-product.css below the R293 marker.
-    {%- endcomment -%}
     --kt-pcard-img-pad: {{ settings.kt_pcard_img_pad }}px;
     --kt-pcard-radius: {{ settings.kt_pcard_radius }}px;
     --kt-pcard-text-align: {{ settings.kt_pcard_text_align }};
     --kt-pcard-border-w: {{ settings.kt_pcard_border_w }}px;
     --kt-pcard-border-op: {{ settings.kt_pcard_border_op | divided_by: 100.0 }};
 
-    {%- comment -%}
-      R294 — Collection cards. Like pcard, the px→rem math was
-      broken via `divided_by: 10.0` (yields 1/10 of the intended
-      visual). Now emits px directly so 16 in the slider = 16 in
-      the resulting CSS.
-    {%- endcomment -%}
     --kt-ccard-img-pad: {{ settings.kt_ccard_img_pad }}px;
     --kt-ccard-radius: {{ settings.kt_ccard_radius }}px;
 

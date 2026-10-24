@@ -1,21 +1,5 @@
 {{ 'kt-section-main-article.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Main Article — individual journal entry template. Birebir from
-  Next.js /blog/[slug] page:
-
-    1. Hero header — centered meta row (category + rule + date),
-       editorial 5xl-7xl serif H1, lead excerpt
-    2. Full-bleed featured image (60vh mobile, 80vh desktop)
-    3. Rich-text article body (rte) — Shopify article.content with
-       editorial typography (serif h2/h3, large body)
-    4. Share row (Facebook + X)
-    5. Comments — list of approved comments, nested-reply-capable
-       visual structure, {% form 'new_comment' %} with floating
-       labels and a black submit button
-    6. Back-to-blog link
-{%- endcomment -%}
-
 <article class="kt-article" data-section-id="{{ section.id }}" data-section-type="main-article">
   {%- comment -%}
     Visible breadcrumb that mirrors the BreadcrumbList JSON-LD from
@@ -99,22 +83,6 @@
   {%- endcomment -%}
   <div class="kt-article__hero-image">
     {%- if article.image -%}
-      {%- comment -%}
-        Article hero is the article's LCP element — full-bleed above
-        the fold on every template variant. `loading: eager` +
-        `fetchpriority: high` ensure immediate fetch as soon as the
-        HTML parser reaches the <img> tag.
-
-        R144 — `preload: true` was previously emitted here to inject
-        a `<link rel="preload">` via content_for_header. Combined with
-        the two font preloads in layout/theme.liquid that pushed the
-        article template to 3 preloads, exceeding PRF-3's "max two
-        resource hints per template" cap (Theme Store performance
-        rule). The font preloads stay (render-blocking @font-face);
-        image discovery via fetchpriority is sufficient for LCP —
-        Lighthouse's "Preload LCP image" hint goes amber but the
-        metric itself stays well within budget.
-      {%- endcomment -%}
       {%- assign image_alt_text = article.image.alt | default: article.title -%}
       {{
         article.image
@@ -334,15 +302,6 @@
                 </div>
               {%- endif -%}
               {%- if form.posted_successfully? -%}
-                {%- comment -%}
-                  Moderated blogs queue every submitted comment until
-                  the merchant approves it from admin. Showing the same
-                  "posted successfully" copy in both cases misleads the
-                  customer into thinking their comment is already live —
-                  Theme Store reviewers explicitly flag this. Branch the
-                  message so the moderated state surfaces a distinct
-                  "awaiting moderation" notice.
-                {%- endcomment -%}
                 {%- if blog.moderated? -%}
                   <div class="kt-article__comment-form-success" role="status">
                     {{ 'kt.blog.article.success_pending' | t | default: 'Thanks! Your comment is awaiting moderation and will appear once approved.' }}
@@ -354,14 +313,6 @@
                 {%- endif -%}
               {%- endif -%}
 
-              {%- comment -%}
-                All inputs preserve the typed values via `value=` /
-                textarea inner-text. Shopify re-renders the article
-                page with form.* populated on validation failure;
-                without these bindings the customer retypes their
-                comment, which violates the progressive-enhancement
-                rule Theme Store reviewers test against.
-              {%- endcomment -%}
               <div class="kt-article__comment-form-grid">
                 <div class="kt-article__comment-field">
                   <input
@@ -433,21 +384,6 @@
                 {{ 'kt.blog.article.post_comment' | t | default: 'Post Comment' }}
               </button>
 
-              {%- comment -%}
-                Shopify's reCAPTCHA disclaimer.
-                The platform protects every comment form with reCAPTCHA
-                automatically. When a theme renders the localized
-                disclaimer string it suppresses the visible badge in
-                the bottom-right corner. Without this string Shopify
-                falls back to the default reCAPTCHA badge, which sits
-                on every article page and clashes with editorial
-                designs — a recurring Theme Store reviewer flag.
-
-                The translation key lives in Shopify's platform-level
-                locales (not in this theme's `locales/*.schema.json`),
-                so the TranslationKeyExists check is intentionally
-                muted across this single output.
-              {%- endcomment -%}
               <p class="kt-article__comment-recaptcha-note rte">
                 {% # theme-check-disable TranslationKeyExists %}
                 {{- 'shopify.online_store.spam_detection.disclaimer_html' | t -}}

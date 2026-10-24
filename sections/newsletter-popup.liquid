@@ -1,12 +1,3 @@
-{%- comment -%}
-  Newsletter Popup — full-screen modal that auto-opens after a delay.
-  Ported from src/app/newsletter/page.tsx.
-
-  Uses Shopify's {% form 'customer' %} form with the "newsletter" tag so
-  submissions land in the merchant's Customers list. After a successful
-  submit Shopify re-renders the page with form.posted_successfully? == true;
-  we swap the modal into the success state and the JS auto-keeps it open.
-{%- endcomment -%}
 
 {%- comment -%}
   Pull the stylesheet in only when the merchant has toggled the popup
@@ -114,13 +105,6 @@
           <input type="hidden" name="contact[tags]" value="newsletter">
 
           {%- if form.posted_successfully? -%}
-            {%- comment -%}
-              R298 — `role="status"` so screen readers hear the success
-              announcement when the popup reopens with the success
-              state. `newsletter-signup.liquid` already does this; the
-              popup variant was silent to AT users — visible
-              celebration with no SR feedback.
-            {%- endcomment -%}
             <div
               class="kt-newsletter-popup__success"
               data-popup-success
@@ -137,20 +121,6 @@
                 </svg>
               </div>
               <h2 class="kt-newsletter-popup__success-title" id="NewsletterPopupHeading-{{ section.id }}">
-                {%- comment -%}
-                  Schema declares `success_heading` as a merchant-editable
-                  text setting. Previously this output rendered only the
-                  translation key, which meant the editor toggle had zero
-                  effect on the popup — exactly the "schema setting
-                  declared but no runtime effect" pattern that Theme
-                  Store reviewers flag as a broken feature. Now we
-                  prefer the merchant override and fall back to the
-                  translated default when the setting is empty (fresh
-                  install). `| t` is NOT chained to the merchant value
-                  — that would treat the merchant's literal text as a
-                  translation key and emit "translation missing: ..."
-                  for any non-key string.
-                {%- endcomment -%}
                 {%- if section.settings.success_heading != blank -%}
                   {{ section.settings.success_heading }}
                 {%- else -%}
@@ -224,9 +194,9 @@
 
             <h2 class="kt-newsletter-popup__heading" id="NewsletterPopupHeading-{{ section.id }}">
               {{ section.settings.heading_part1 | default: heading_part1_default }}
-              {%- if section.settings.heading_italic_word != blank -%}
+              {% if section.settings.heading_italic_word != blank %}
                 <span class="kt-newsletter-popup__heading-italic">{{ section.settings.heading_italic_word }}</span>
-              {%- endif -%}
+              {% endif %}
               {{ section.settings.heading_part2 | default: heading_part2_default }}
             </h2>
 
@@ -237,19 +207,6 @@
             {%- endif -%}
 
             {%- if form.errors -%}
-              {%- comment -%}
-                R151 NEWSLETTER-POPUP-1: error summary now uses the
-                `data-form-error-summary` + `tabindex="-1"` pattern
-                consistent with main-login / main-register / address
-                forms. global.js focusFirstFormError() finds this on
-                submit and moves keyboard/SR focus to it. role="alert"
-                is scoped to the inner UL only (per R145
-                ADDRESSES-ALERT-ROLE-1 fix) so NVDA/JAWS don't
-                announce the heading + every list item as one
-                run-on string. Replaces the previous bare
-                `default_errors` blob which had no focus management
-                and no inline anchor links.
-              {%- endcomment -%}
               <div class="kt-newsletter-popup__errors" tabindex="-1" data-form-error-summary>
                 <h3 class="kt-newsletter-popup__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h3>
                 <ul class="kt-newsletter-popup__errors-list" role="alert">
@@ -279,13 +236,6 @@
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </span>
-                {%- comment -%}
-                  R104 — Return key fires submit on mobile.
-                {%- endcomment -%}
-                {%- comment -%}
-                  R96 — preserve typed email across validation errors
-                  so customer doesn't retype.
-                {%- endcomment -%}
               <input
                 type="email"
                 autocapitalize="off"
@@ -317,12 +267,6 @@
               <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
 
-            {%- comment -%}
-              R122 — GDPR consent gate. Same R96/R122-B3 rationale as
-              newsletter-signup section. Default-OFF for non-EU
-              merchants; merchants in EU/UK/Brazil enable + provide
-              localized text with privacy-policy link.
-            {%- endcomment -%}
             {%- if section.settings.show_consent_checkbox -%}
               {%- comment -%}
                 Wrapper is a <div>, NOT a <p>. `consent_label` is a
@@ -356,26 +300,6 @@
               {% render 'icon-arrow-right', width: 14, height: 14, stroke_width: 1.5 %}
             </button>
 
-            {%- comment -%}
-              Privacy disclosure adjacent to the email field. Theme
-              Store reviewers explicitly look for a clickable link to
-              shop.privacy_policy here — the previous static text
-              mentioned "Privacy Policy" but never linked. When the
-              merchant has set up a privacy policy in Shopify admin,
-              the policy title becomes a real anchor; otherwise the
-              static disclosure renders alone (no broken link).
-
-              We deliberately do NOT pre-flag `contact[accepts_marketing]=true`
-              via a hidden field. GDPR Article 7 + ePrivacy Directive
-              require explicit, granular, informed opt-in — a server-
-              forced flag bypasses that and is a Theme Store reject
-              signal. Instead the visible disclosure below + the
-              merchant's Shopify-native double-opt-in confirmation
-              email together produce the legally-valid consent
-              record. accepts_marketing is set by the merchant's
-              double-opt-in setting in Shopify admin, not by a
-              client-side hidden field.
-            {%- endcomment -%}
             <p class="kt-newsletter-popup__privacy">
               {{ section.settings.privacy_note | default: privacy_note_default }}
               {%- if shop.privacy_policy != blank %}

@@ -1,17 +1,3 @@
-/**
- * Collapsible Content — Style 02 Full-Width Visual Reveal
- *
- * Single-open accordion synced with a cross-fading image stack.
- * - Clicking an item promotes it (adds .is-active) and promotes the
- *   matching image (same data-index). Others are deactivated.
- * - Panel height animates via inline max-height (cubic-bezier out).
- * - First item/image is rendered .is-active by Liquid, JS measures
- *   the panel's natural height so the content is visible on mount.
- * - prefers-reduced-motion: skips height transition, instant swap.
- *
- * Idempotent guard prevents double-binding; per-section init handles
- * shopify:section:load so the theme editor stays responsive.
- */
 if (!window.__kitcheroCollapsibleVisualLoaded) {
   window.__kitcheroCollapsibleVisualLoaded = true;
 
@@ -44,17 +30,16 @@ if (!window.__kitcheroCollapsibleVisualLoaded) {
 
         var onEnd = function (e) {
           if (e.propertyName !== 'max-height') return;
-          /* Clear inline max-height so content can reflow (e.g. image load, resize). */
+
           panel.style.maxHeight = 'none';
           panel.removeEventListener('transitionend', onEnd);
         };
         panel.addEventListener('transitionend', onEnd);
       } else {
-        /* Need a concrete value before we can transition to 0. */
         if (panel.style.maxHeight === 'none' || panel.style.maxHeight === '') {
           panel.style.maxHeight = panel.scrollHeight + 'px';
-          // eslint-disable-next-line no-unused-expressions
-          panel.offsetHeight; /* force reflow */
+
+          panel.offsetHeight;
         }
         requestAnimationFrame(function () {
           panel.style.maxHeight = '0px';
@@ -104,7 +89,6 @@ if (!window.__kitcheroCollapsibleVisualLoaded) {
       var items = section.querySelectorAll(ITEM_SELECTOR);
       if (!items.length) return;
 
-      /* Sync panel height for whichever item is rendered .is-active. */
       items.forEach(function (item) {
         var panel = item.querySelector(PANEL_SELECTOR);
         if (item.classList.contains('is-active') && panel) {
@@ -115,14 +99,10 @@ if (!window.__kitcheroCollapsibleVisualLoaded) {
         item.addEventListener('click', function () {
           var index = parseInt(item.getAttribute('data-index'), 10);
           if (isNaN(index)) return;
-          /* Clicking the already-active item is a no-op (keeps
-             visual stable; matches the Next.js source behavior). */
+
           if (item.classList.contains('is-active')) return;
           activate(section, index);
         });
-
-        /* Keyboard activation: native <button> already handles Enter/
-           Space, nothing extra needed. */
       });
     }
 
@@ -137,7 +117,6 @@ if (!window.__kitcheroCollapsibleVisualLoaded) {
       initAll();
     }
 
-    /* Shopify theme editor: per-section load/unload. */
     document.addEventListener('shopify:section:load', function (event) {
       if (!event || !event.detail) return;
       var sectionId = event.detail.sectionId;
@@ -159,7 +138,6 @@ if (!window.__kitcheroCollapsibleVisualLoaded) {
       });
     });
 
-    /* When a merchant selects a block in the editor, surface it. */
     document.addEventListener('shopify:block:select', function (event) {
       if (!event || !event.target) return;
       var item = event.target.matches && event.target.matches(ITEM_SELECTOR)

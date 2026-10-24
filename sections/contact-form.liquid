@@ -1,19 +1,5 @@
 {{ 'kt-section-contact-form.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Contact Form Section — showrooms grid + inquiry form.
-  Birebir from contact/page.tsx.
-  Uses {% form 'contact' %} for Shopify form submission.
-{%- endcomment -%}
-
-{%- comment -%}
-  R145 REGION-NAME-1: every <section> landmark must have an
-  accessible name. axe-core's `region` rule flags unnamed sections.
-  Use aria-label with the merchant's heading setting (or a stable
-  locale fallback so a fresh install still has a name). The contact
-  page can have multiple sub-regions (showrooms / contact form);
-  the section-level label scopes the whole region.
-{%- endcomment -%}
 {%- assign contact_region_label = 'kt.contact.region_label' | t -%}
 {%- assign contact_showrooms_label_default = 'kt.section.contact.showrooms_label_default' | t -%}
 {%- assign contact_showrooms_heading_default = 'kt.section.contact.showrooms_heading_default' | t -%}
@@ -31,8 +17,8 @@
     setting; until then the dead reference is removed.
   {%- endcomment -%}
 <section
-  class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   aria-label="{{ contact_region_label }}"
 >
@@ -42,12 +28,6 @@
       <div class="page-width">
         <div class="kt-contact__showrooms-header">
           <span class="kt-contact__label">{{ section.settings.showrooms_label | default: contact_showrooms_label_default }}</span>
-          {%- comment -%}
-            R16-E: heading_tag is merchant-editable. On a /pages/contact
-            layout the page.title is the H1 — this block then renders
-            H2. On builder/custom layouts that omit page title, the
-            merchant can promote this to H1 from the editor.
-          {%- endcomment -%}
           {%- assign showrooms_heading_tag = section.settings.showrooms_heading_tag | default: 'h2' -%}
           <{{ showrooms_heading_tag }} class="kt-contact__showrooms-title">{{ section.settings.showrooms_heading | default: contact_showrooms_heading_default }}</{{ showrooms_heading_tag }}>
         </div>
@@ -118,14 +98,6 @@
           <{{ form_heading_tag }} class="kt-contact__form-heading">{{ section.settings.form_heading_line1 | default: contact_form_heading_line1_default }}<br>{{ section.settings.form_heading_line2 | default: contact_form_heading_line2_default }}</{{ form_heading_tag }}>
           <p class="kt-contact__form-desc">{{ section.settings.form_description | default: contact_form_description_default }}</p>
 
-          {%- comment -%}
-            R-contact-follow-gate — Only render the "Follow us" cluster
-            when at least one social URL is set in theme settings. The
-            block previously emitted the label + an empty social-icons
-            render whenever the merchant hadn't connected any
-            account, producing the orphan "FOLLOW US" caption the
-            user flagged on the contact page.
-          {%- endcomment -%}
           {%- if settings.kt_social_facebook != blank or settings.kt_social_instagram != blank or settings.kt_social_youtube != blank or settings.kt_social_tiktok != blank or settings.kt_social_twitter != blank or settings.kt_social_pinterest != blank or settings.kt_social_linkedin != blank -%}
             <div class="kt-contact__form-social">
               <span class="kt-contact__label">{{ 'kt.section.contact.follow_us' | t | default: 'Follow Us' }}</span>
@@ -135,18 +107,6 @@
         </div>
 
         <div class="kt-contact__form-wrap">
-          {%- comment -%}
-            R298 — Form id suffixed with `section.id` so two contact-form
-            sections on the same template (above-fold short + below-fold
-            long, etc.) emit unique `<form id="...">` attributes instead
-            of two `id="ContactForm"` elements (axe-core `duplicate-id-active`
-            / WCAG 4.1.1 violation). Internal field IDs already scope via
-            section.id; aligning the wrapping form id closes the loop.
-          {%- endcomment -%}
-          {%- comment -%}
-            R232.35 — pre-compute the form id (same Liquid parser bug
-            the product-form + newsletter-signup hit).
-          {%- endcomment -%}
           {%- assign contact_form_id = 'ContactForm-' | append: section.id -%}
           {%- form 'contact', id: contact_form_id -%}
             {%- if form.posted_successfully? -%}
@@ -166,15 +126,6 @@
                   any submit-with-errors so keyboard users land on the
                   error list instead of being stranded on document.body
                   (WCAG 2.4.3 Focus Order + 3.3.1 Error Identification).
-                {%- endcomment -%}
-                {%- comment -%}
-                  R151 CONTACT-A11Y-1: scope role="alert" to the
-                  inner <ul> + wrap each error in an anchor link to
-                  the field. Pattern matches main-login / main-
-                  register / addresses (R145 ADDRESSES-ALERT-ROLE-1
-                  fix). Customer can click any error to jump to the
-                  broken field — WCAG 3.3.1 / 2.4.1 affordance.
-                  Anchor target depends on which field errored.
                 {%- endcomment -%}
                 {%- capture contact_id_first %}contact-first-name-{{ section.id }}{% endcapture -%}
                 {%- capture contact_id_last %}contact-last-name-{{ section.id }}{% endcapture -%}
@@ -302,13 +253,6 @@
               </div>
               <div class="kt-contact__form-field">
                 <label for="{{ contact_id_message }}" class="kt-contact__form-label kt-form__label--required">{{ 'kt.section.contact.message' | t | default: 'How can we assist you?' }}</label>
-                {%- comment -%}
-                  R297 — `maxlength="2000"` defends against multi-MB
-                  spam-bot submissions without restricting legitimate
-                  customers (a long question fits comfortably in 2000
-                  chars). Same cap used on cart note + appointment
-                  message for consistency.
-                {%- endcomment -%}
                 <textarea
                   id="{{ contact_id_message }}"
                   name="contact[body]"
@@ -333,18 +277,6 @@
                 <label for="{{ contact_id_trap }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
                 <input type="text" id="{{ contact_id_trap }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
               </p>
-              {%- comment -%}
-                R342 LEGAL-PRIVACY-CONTACT: Contact forms collect
-                personally identifiable information (name, email,
-                phone, message body). GDPR Art. 13 + ePrivacy +
-                CCPA require a clear privacy disclosure surfaced
-                AT the point of collection — not buried in the
-                footer. The disclosure links to shop.privacy_policy
-                so customers can review how their data is processed
-                before submission. Gated on shop.privacy_policy
-                != blank so stores without a published policy don't
-                ship a dangling link.
-              {%- endcomment -%}
               {%- if shop.privacy_policy != blank -%}
                 <p class="kt-contact__form-privacy">
                   {{ 'kt.section.contact.privacy_note_html' | t: link: shop.privacy_policy.url }}
@@ -389,9 +321,18 @@
       "label": "t:sections.contact-form.settings.showrooms_heading_tag.label",
       "info": "t:sections.contact-form.settings.showrooms_heading_tag.info",
       "options": [
-        { "value": "h1", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h1.label" },
-        { "value": "h2", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h2.label" },
-        { "value": "h3", "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h3.label" }
+        {
+          "value": "h1",
+          "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.contact-form.settings.showrooms_heading_tag.options__h3.label"
+        }
       ],
       "default": "h2"
     },
@@ -423,9 +364,18 @@
       "label": "t:sections.contact-form.settings.form_heading_tag.label",
       "info": "t:sections.contact-form.settings.form_heading_tag.info",
       "options": [
-        { "value": "h1", "label": "t:sections.contact-form.settings.form_heading_tag.options__h1.label" },
-        { "value": "h2", "label": "t:sections.contact-form.settings.form_heading_tag.options__h2.label" },
-        { "value": "h3", "label": "t:sections.contact-form.settings.form_heading_tag.options__h3.label" }
+        {
+          "value": "h1",
+          "label": "t:sections.contact-form.settings.form_heading_tag.options__h1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.contact-form.settings.form_heading_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.contact-form.settings.form_heading_tag.options__h3.label"
+        }
       ],
       "default": "h2"
     },
@@ -436,35 +386,6 @@
       "default": "Tell us what you're looking for and include any measurements, timelines, or questions you have."
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -516,7 +437,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

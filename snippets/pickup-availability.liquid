@@ -52,21 +52,6 @@
     </div>
 
     {%- if pickup_count > 1 -%}
-      {%- comment -%}
-        More than one location has pickup enabled. Expose a disclosure
-        so customers on multi-location stores can see the full list
-        without the snippet dominating the PDP layout. The <details>
-        element is keyboard-accessible by default and works without JS.
-
-        R142 — each location card now carries a "Get directions" link
-        that opens a Google Maps query keyed off the formatted address
-        + location name (fragments avoid the geocoding-API key
-        requirement and degrade gracefully on stores with sparse
-        address data). A stock indicator pill reads `availability.available`
-        for a 3-state hint (in stock / sold out / unavailable for
-        pickup). Both surfaces fall back silently when the underlying
-        data isn't present so we never render a broken row.
-      {%- endcomment -%}
       <details class="kt-pickup__details">
         <summary class="kt-pickup__more">
           {{ 'kt.product.pickup.view_all' | t: count: pickup_count | default: 'View store availability' }}

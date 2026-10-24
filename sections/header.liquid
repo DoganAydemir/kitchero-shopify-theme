@@ -1,14 +1,3 @@
-{%- comment -%}
-  R216 — `kt-section-header.css` is now <head>-loaded from
-  layout/theme.liquid so the rule set (especially
-  `.kt-header--transparent { position: fixed }`) applies at first
-  paint, before the parser reaches this section. Loading it here in
-  the body left a one-frame FOUC where the header briefly fell back
-  to default `<header>` flow positioning and the body bg (white)
-  painted in the area where the transparent header should have
-  revealed the hero behind it. Body-side <link> removed to avoid a
-  duplicate stylesheet request.
-{%- endcomment -%}
 
 {%- liquid
   comment
@@ -56,28 +45,7 @@
   can render behind it. In both modes the spacer is superfluous.
 {%- endcomment -%}
 
-{%- comment -%}
-  R232 — `header_style` select restores merchant control over the
-  transparent vs. solid header without sacrificing the auto-detect
-  default that R216 introduced. Three modes:
-    - "auto" (default): existing `:has()` CSS auto-detection — header
-      goes transparent on pages whose first section is a hero/banner
-      that carries `data-allows-transparent-header="true"`, solid
-      everywhere else. Backwards-compatible with existing stores.
-    - "transparent": always render transparent (force-overlay the
-      first section). Useful when the page leads with a custom hero
-      app section that doesn't carry the auto-detect attribute.
-    - "solid": always render solid even on pages that lead with a
-      hero. Useful when the merchant prefers a more conservative
-      navigation pattern.
-  Emitted as `data-header-style` for CSS + JS to honour the choice.
-{%- endcomment -%}
 {%- assign header_style = section.settings.header_style | default: 'auto' -%}
-{%- comment -%}
-  R-header-audit — Layout / spacing settings emit on the root so
-  CSS can pick them up via attribute selectors (`[data-logo-position]`,
-  `[data-nav-alignment]`) and CSS custom properties (padding).
-{%- endcomment -%}
 {%- assign header_logo_position = section.settings.logo_position | default: 'left' -%}
 {%- assign header_nav_alignment = section.settings.desktop_nav_alignment | default: 'center' -%}
 {%- assign header_pad_top = section.settings.padding_top | default: 16 -%}
@@ -85,10 +53,10 @@
 {%- capture header_style_attr -%}
   --kt-header-padding-top: {{ header_pad_top }}px;
   --kt-header-padding-bottom: {{ header_pad_bot }}px;
-  {%- if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank -%}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{%- endif -%}
+  
 {%- endcapture -%}
 <header
-  class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
   data-header-style="{{ header_style }}"
@@ -98,39 +66,9 @@
 >
   <div class="kt-header__inner">
     {%- comment -%} Logo {%- endcomment -%}
-    {%- comment -%}
-      R291 — Mobile + desktop logo widths are now independent
-      merchant settings. Pre-resolve both into Liquid vars + a
-      pre-built `sizes` string so the `image_tag` filter call
-      below stays single-arg-per-line (Liquid parser otherwise
-      treats trailing commas inside filter chains as additional
-      `divided_by` / `append` arguments — silent runtime
-      failure).
-
-      The HTML `width` attribute is locked to the desktop value
-      because the browser uses it for aspect-ratio reservation
-      / CLS prevention before the image loads. The visual
-      rendered width is controlled by the inline custom
-      properties on the `.kt-header__logo` wrapper:
-        --kt-logo-w-d : desktop intrinsic width
-        --kt-logo-w-m : mobile intrinsic width
-      The CSS rule in kt-section-header.css picks the matching
-      one via a `min-width: 750px` media query.
-    {%- endcomment -%}
     {%- liquid
       assign kt_logo_w_d = settings.kt_logo_width | default: 120
       assign kt_logo_w_m = settings.kt_logo_width_mobile | default: 100
-      # R-liquid-safe — guard `aspect_ratio` against nil on a fresh
-      # install where the merchant hasn't uploaded a logo yet. Without
-      # `| default: 1` the `divided_by` filter receives nil (coerced to
-      # 0) and Shopify's runtime renders a visible
-      # `Liquid error: divided by 0` string on every page (the
-      # header is on every template). Production-mode Liquid errors
-      # surface inline as text — a guaranteed Theme Store rejection
-      # ("default-install must be visually clean"). 1 is a safe stand-
-      # in since the height value is only used by a wordmark-fallback
-      # path the logo branch never reaches when settings.kt_logo is
-      # blank.
       assign kt_logo_aspect = settings.kt_logo.aspect_ratio | default: 1
       assign kt_logo_height = kt_logo_w_d | divided_by: kt_logo_aspect
       assign kt_logo_sizes = '(max-width: 749px) ' | append: kt_logo_w_m | append: 'px, ' | append: kt_logo_w_d | append: 'px'
@@ -212,17 +150,6 @@
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
-                  {%- comment -%}
-                    ARIA 1.2 disclosure pattern: aria-expanded must be
-                    paired with aria-controls pointing to the controlled
-                    region's id, and aria-haspopup describes the type
-                    of popup. Without them the SR announces a state
-                    ("collapsed/expanded") with no referent — the user
-                    hears the trigger flip but doesn't know what
-                    appeared. Pairs the trigger with the
-                    .kt-header__mega-menu element below via a generated
-                    id derived from the menu link handle.
-                  {%- endcomment -%}
                   aria-haspopup="true"
                   aria-controls="kt-header-mega-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
@@ -251,19 +178,6 @@
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
-                        {%- comment -%}
-                          R-heading-order — Was <h3>; the header sits
-                          above <main> in DOM order so any heading
-                          here renders BEFORE the page's <h1>. axe-core's
-                          `heading-order` rule + WCAG 1.3.1/2.4.6 flag
-                          documents whose first heading is an h3. Mega-
-                          menu column labels are navigation affordances,
-                          not content headings — using <span> with the
-                          same visual styling avoids the document outline
-                          violation without changing presentation. The
-                          parent <nav aria-label> already provides the
-                          landmark.
-                        {%- endcomment -%}
                         <a href="{{ child_link.url }}" class="kt-header__mega-column-title">{{ child_link.title | escape }}</a>
                         {%- if child_link.links.size > 0 -%}
                           <ul class="kt-header__mega-list list-unstyled" role="list">
@@ -504,17 +418,6 @@
         block to desktop only (≥ 990px); mobile users still get
         the in-drawer selector at the bottom of the mobile-nav.
       {%- endcomment -%}
-      {%- comment -%}
-        R137 SCHEMA-1: gate the country/language selector on the new
-        merchant-toggleable settings (kt_show_country_selector,
-        kt_show_locale_selector). Theme Store paid-tier baseline expects
-        per-theme switches so merchants can hide one or both selectors
-        without editing code (e.g. mono-locale stores that publish
-        multiple shipping countries don't need a language selector).
-        Setting defaults are TRUE so existing stores upgrading to R137
-        see no behavioural change — selectors keep showing when the
-        store is multi-locale / multi-country.
-      {%- endcomment -%}
       {%- assign show_locale_select = false -%}
       {%- if settings.kt_show_locale_selector and localization.available_languages.size > 1 -%}
         {%- assign show_locale_select = true -%}
@@ -540,14 +443,6 @@
           <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
             {%- if show_locale_select -%}
               {%- form 'localization', id: 'HeaderLanguageForm', class: 'kt-header__locale-form' -%}
-                {%- comment -%}
-                  R122 — `return_to` so Shopify lands the customer
-                  back on the same URL after the locale switch.
-                  Without it, every language change redirects to the
-                  homepage — a Theme Store reject UX defect.
-                  Shopify Help Center "Add a country/region selector"
-                  documents this as the spec field.
-                {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
                 <select name="language_code" id="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-select">
@@ -557,15 +452,6 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                {%- comment -%}
-                  R232.12 — Submit button removed for JS users.
-                  `assets/localization-form.js` listens for `change`
-                  on this select and auto-submits the form (Shopify-
-                  documented pattern). WCAG F36-safe because native
-                  `change` fires on commit, not on each arrow-key
-                  preview. No-JS shoppers get the noscript submit
-                  button below.
-                {%- endcomment -%}
                 <noscript>
                   <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                 </noscript>
@@ -574,7 +460,6 @@
 
             {%- if show_country_select -%}
               {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
-                {%- comment -%} R122 — return_to lands customer back on the same URL after country switch. {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
                 <select name="country_code" id="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-select">
@@ -584,10 +469,6 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                {%- comment -%}
-                  R232.12 — see language form above for the auto-
-                  submit rationale. Same pattern here.
-                {%- endcomment -%}
                 <noscript>
                   <button type="submit" class="kt-header__locale-form-submit">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                 </noscript>
@@ -607,22 +488,6 @@
         cart 5" would fail to match. Translation key interpolates
         count — zero-count plural handled via pluralize.
       {%- endcomment -%}
-      {%- comment -%}
-        R301 — aria-haspopup="dialog" + aria-controls so AT users hear
-        "Cart 3, has popup, dialog" instead of just "link". The link
-        opens the cart-drawer modal when JS is active (cart-drawer.js
-        intercepts the click) — no-JS users still get the /cart page
-        thanks to the real href. Pairs with the cart-drawer.liquid
-        snippet rendering `id="cart-drawer"` on the dialog root.
-      {%- endcomment -%}
-      {%- comment -%}
-        Cart icon visibility — gated on `show_cart_icon`. Most stores
-        will leave this ON; the toggle exists for catalog-only / lead-
-        gen storefronts (showroom themes, B2B sites with offline
-        orders) where cart access from header would mislead the
-        shopper. Reviewers expect this control to exist even if it's
-        rarely flipped.
-      {%- endcomment -%}
       {%- if section.settings.show_cart_icon -%}
       <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}" aria-haspopup="dialog" aria-controls="cart-drawer" aria-expanded="false">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -637,14 +502,6 @@
           initial add-to-cart announcement on an empty cart: SRs need
           the live region to pre-exist to notice its textContent
           changing. Hidden visually + from SR when count is 0.
-        {%- endcomment -%}
-        {%- comment -%}
-          R298 — `aria-live` REMOVED. The badge previously competed
-          with `Kitchero.announce()` on every cart-add: SR users
-          heard "Added to cart" (from the announcer) AND "2" (from
-          this badge), back-to-back. The central announcer is the
-          source of truth for cart updates — the badge is a visual
-          counter, not an announcement region.
         {%- endcomment -%}
         <span
           class="kt-header__cart-count"
@@ -679,13 +536,6 @@
     </div>
   </div>
 
-  {%- comment -%}
-    App block slot (required for Theme Store).
-    R87 — every @app render needs a wrapping element with
-    `block.shopify_attributes` so the editor can highlight the
-    block when the merchant clicks it in the sidebar. Without it,
-    the "select block" affordance silently does nothing.
-  {%- endcomment -%}
   {%- assign header_app_blocks = section.blocks | where: 'type', '@app' -%}
   {%- if header_app_blocks.size > 0 -%}
     <div class="kt-header__app-blocks">
@@ -708,32 +558,6 @@
   Keeping it as a sibling of <header> keeps the viewport as the
   containing block, so `inset: 0` reaches the full 100vh.
 {%- endcomment -%}
-{%- comment -%}
-  The `inert` attribute is NOT emitted in markup — it's added by
-  assets/kt-section-header-mobile-nav.js on init so JS-disabled
-  users get an interactive panel. Without the JS add, visitors with
-  scripting off (reviewer's Theme-Store "JS-off" smoke test, or real
-  users on locked-down networks) could still reach the nav via the
-  CSS-only `html.no-js` unflush treatment below.
-
-  Same applies to `aria-modal` and the `role="dialog"` — they imply a
-  JS-controlled modal which doesn't exist in the JS-off fallback, so
-  they're also script-attached.
-{%- endcomment -%}
-{%- comment -%}
-  R-SS1 — mobile panel is rendered OUTSIDE the <header> element (see
-  the comment block above for why), so it doesn't inherit the
-  `color-{scheme}` class from `<header>`. Without an explicit scheme
-  applied here, `--kt-c-bg` / `--kt-c-fg` fall back to whatever scheme
-  the <body> resolves to (usually scheme-1 = light surface), so the
-  drawer renders white-on-black or vice versa depending on the body
-  scheme rather than the merchant's intent. The dedicated
-  `mobile_menu_color_scheme` setting decouples the drawer chrome from
-  the header chrome so merchants can keep a light header + dark
-  drawer (or vice versa). Default is scheme-7 (stone-900) so a fresh
-  install reads as a cinematic dark drawer — matches the original
-  ported Next.js design.
-{%- endcomment -%}
 {%- assign mobile_menu_scheme = section.settings.mobile_menu_color_scheme | default: 'scheme-7' -%}
 <div
   id="kt-mobile-panel-{{ section.id }}"
@@ -753,17 +577,6 @@
     </button>
   </div>
 
-  {%- comment -%}
-    Mobile menu — multi-panel slide navigation, ported birebir from
-    Navbar.tsx. Each menu level is its own full-viewport panel. The
-    main panel lists top-level items; tapping a parent slides in the
-    corresponding sub-panel from the right. Sub-panels have a "Back"
-    button that reverses the slide.
-
-    Panel identity: `main` for the top level, `p-{i}` for the i-th
-    top-level item's sub-panel, `p-{i}-{j}` for the j-th child's
-    sub-sub-panel. Up to 3 levels deep (Shopify's menu max).
-  {%- endcomment -%}
   <div class="kt-header__mobile-slider" data-mobile-slider>
     {%- if section.settings.main_menu != blank -%}
       {%- comment -%} ============ LEVEL 1: Main panel ============ {%- endcomment -%}
@@ -816,19 +629,6 @@
             </a>
           {%- endif -%}
 
-          {%- comment -%}
-            R-SS4 — Mobile-drawer locale/country selectors REMOVED.
-            Merchants explicitly requested locale switching to live in
-            the footer only on mobile. The previous in-drawer
-            selectors took up valuable above-the-fold real estate and
-            pushed the primary navigation (CTA, links) below the menu
-            scroll line. Footer-only locale switching is not a Theme
-            Store rejection criterion — Shopify only requires the
-            selector to be somewhere in the storefront chrome, and
-            the footer satisfies that. Markup deliberately removed
-            rather than gated on a setting because reintroducing it
-            would re-create the crowded layout the merchant flagged.
-          {%- endcomment -%}
         </div>
       </div>
 
@@ -958,7 +758,9 @@
   "name": "t:sections.header.name",
   "class": "section-header",
   "enabled_on": {
-    "groups": ["header"]
+    "groups": [
+      "header"
+    ]
   },
   "settings": [
     {
@@ -971,9 +773,18 @@
       "label": "t:sections.header.settings.header_style.label",
       "info": "t:sections.header.settings.header_style.info",
       "options": [
-        { "value": "auto", "label": "t:sections.header.settings.header_style.options__auto.label" },
-        { "value": "transparent", "label": "t:sections.header.settings.header_style.options__transparent.label" },
-        { "value": "solid", "label": "t:sections.header.settings.header_style.options__solid.label" }
+        {
+          "value": "auto",
+          "label": "t:sections.header.settings.header_style.options__auto.label"
+        },
+        {
+          "value": "transparent",
+          "label": "t:sections.header.settings.header_style.options__transparent.label"
+        },
+        {
+          "value": "solid",
+          "label": "t:sections.header.settings.header_style.options__solid.label"
+        }
       ],
       "default": "auto"
     },
@@ -1012,8 +823,14 @@
       "id": "logo_position",
       "label": "t:sections.header.settings.logo_position.label",
       "options": [
-        { "value": "left", "label": "t:sections.header.settings.logo_position.options__left.label" },
-        { "value": "center", "label": "t:sections.header.settings.logo_position.options__center.label" }
+        {
+          "value": "left",
+          "label": "t:sections.header.settings.logo_position.options__left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.logo_position.options__center.label"
+        }
       ],
       "default": "left"
     },
@@ -1023,8 +840,14 @@
       "label": "t:sections.header.settings.desktop_nav_alignment.label",
       "info": "t:sections.header.settings.desktop_nav_alignment.info",
       "options": [
-        { "value": "center", "label": "t:sections.header.settings.desktop_nav_alignment.options__center.label" },
-        { "value": "right", "label": "t:sections.header.settings.desktop_nav_alignment.options__right.label" }
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.desktop_nav_alignment.options__center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.header.settings.desktop_nav_alignment.options__right.label"
+        }
       ],
       "default": "center"
     },
@@ -1071,26 +894,6 @@
       "info": "t:sections.header.settings.show_cart_icon.info",
       "default": true
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

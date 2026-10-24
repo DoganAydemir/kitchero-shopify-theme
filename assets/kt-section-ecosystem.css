@@ -1,31 +1,10 @@
-/* Ecosystem — Birebir from Ecosystem.tsx
-   Every Tailwind class mapped line by line. */
 
-/* section: py-32 bg-stone-900 text-stone-50 relative overflow-hidden.
-   R144: padding now driven by merchant `padding_top` / `padding_bottom`
-   range settings (default 60px) via inline custom properties from the
-   section template. Falls back to the original 8rem (128px) baseline
-   when CSS vars are missing (e.g. legacy section.json without the
-   new settings). */
-/* R232.49 — scheme-aware bg + text. Was hardcoded
-   var(--kt-stone-900) bg + var(--kt-stone-50) fg; falls back to
-   28 25 23 / 250 250 249 so default look unchanged when scheme
-   variables aren't loaded. NOTE: the inner overlay gradients and
-   placeholder fills are still hardcoded dark by design (R210 grid
-   fade, image overlay, etc) — merchants who want this section to
-   stay dark should pick scheme-4 explicitly. */
 .kt-ecosystem {
   padding-top: var(--kt-eco-pad-top, 8rem);
   padding-bottom: var(--kt-eco-pad-bottom, 8rem);
   background-color: rgb(var(--kt-c-bg, 28 25 23));
   color: rgb(var(--kt-c-fg, 250 250 249));
   position: relative;
-  /* R-sticky-ancestor — was `overflow: hidden`, but that ancestor
-     killed the JS-off progressive-enhancement sticky pin on
-     `html:not(.js) .kt-ecosystem__image-col` (line 232-235). CLAUDE.md
-     mandates JS-disabled functionality; `overflow: clip` preserves
-     the decorative grid-pattern + grid-fade clipping without
-     becoming a sticky-breaking containing block. */
   overflow: clip;
 }
 
@@ -45,10 +24,6 @@
   height: 100%;
 }
 
-/* R232.51 — Scheme-aware top/bottom fade. Was hardcoded stone-900,
-   which painted a dark band over light schemes. Using `--kt-c-bg`
-   makes the fade blend INTO the current scheme background, so the
-   grid pattern fades to the section surface (whatever it is). */
 .kt-ecosystem__grid-fade {
   position: absolute;
   inset: 0;
@@ -100,10 +75,6 @@
   padding-bottom: 2.5rem;
 }
 
-/* R232.50 — scheme-aware text/buttons only. Grid-pattern, grid-fade,
-   and image-overlay gradients stay intentionally dark (this section
-   ships dark by default; merchants can pick a scheme to repaint
-   the text but the decorative dark gradients stay). */
 /* h2: text-5xl md:text-8xl font-semibold tracking-tighter uppercase mb-6 leading-none */
 .kt-ecosystem__title {
   font-size: calc(var(--kt-f-heading-scale, 1) * (3rem));
@@ -113,7 +84,6 @@
   text-transform: uppercase;
   margin-bottom: 1.5rem;
   line-height: 1;
-  /* R232.50 — scheme-aware (was white). */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
@@ -132,8 +102,7 @@
 /* subtitle: text-xl text-stone-400 max-w-md hidden md:block */
 .kt-ecosystem__subtitle {
   font-size: 1.125rem;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   max-width: 28rem;
   display: none;
 }
@@ -158,34 +127,18 @@
 .kt-ecosystem__feature-title {
   font-size: 2.25rem;
   font-weight: 500;
-  /* R232.67 — Full-strength scheme fg for title; the desc below
-     drops to 0.5 opacity for a clearer hierarchy step (user
-     feedback: "title altındaki desc'lerin opacity'si daha kısık
-     olmalı"). Hover already lands here, so the hover rule is now a
-     no-op but kept for the transition curve consistency. */
   color: rgb(var(--kt-c-fg, 250 250 249));
   margin-bottom: 1rem;
   transition: color 0.2s ease;
 }
 
 .kt-ecosystem__feature:hover .kt-ecosystem__feature-title {
-  /* R232.50 — scheme-aware hover to full fg. */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
-/* desc — R269: was `font-size: 1.25rem` (20px) on every breakpoint
-   which read as competing with the feature title in the visual
-   hierarchy ("desc çok büyük, görsel hiyerarşi anlamında rahatsız
-   ediyor"). Drop to 0.9375rem mobile (15px) and 1.0625rem desktop
-   (17px) so the description sits clearly under the title without
-   pulling focus from it. */
 .kt-ecosystem__feature-desc {
   font-size: 0.9375rem;
-  /* R232.67 — Dropped 0.6 → 0.45 for clearer hierarchy step against
-     the full-strength title above. Title is rgb(--kt-c-fg) (100%);
-     desc at 0.45 reads as "supporting whisper" rather than competing
-     with the title for visual weight. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.45);
+  color: rgb(var(--kt-c-fg-muted));
   line-height: 1.55;
   max-width: 24rem;
 }
@@ -214,7 +167,6 @@
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  /* R232.50 — scheme-aware CTA label + rule. */
   color: rgb(var(--kt-c-fg, 255 255 255));
   text-decoration: none;
   letter-spacing: 0.01em;
@@ -227,7 +179,6 @@
 }
 
 .kt-ecosystem__cta:hover {
-  /* R232.50 — scheme-aware hover rule. */
   border-color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
@@ -252,20 +203,6 @@
     justify-content: center;
     align-items: center;
     align-self: flex-start;
-    /* R232.70 — Native CSS `position: sticky` for the pin. GSAP
-       ScrollTrigger `pin:` was previously responsible for keeping
-       the image-col anchored, but with two stacked ecosystem sections
-       on the same page the GSAP pins from the two instances were
-       fighting each other — the first section's pin would hold its
-       column briefly then "snap" to the bottom of the section as the
-       pin released, then the second section's pin would engage with
-       a visible jump (user feedback: "biraz scroll'da kayarken
-       birden bire ilgili section'un en altına girdi/saklandı"). CSS
-       sticky has no per-instance state to coordinate — each section
-       independently sticks within its own scroll container, browser
-       handles the rest natively. GSAP keeps the parallax-scale +
-       feature-fade animations, which work fine across multiple
-       instances. */
     position: sticky;
     top: 0;
   }
@@ -306,17 +243,6 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* R232.68 — Solid `--kt-stone-100` bg + border REMOVED. The grey
-     panel + grey border treatment was overlaying Shopify's
-     collection-3 placeholder illustration with a SOLID grey
-     rectangle — the user only ever saw the flat panel, never the
-     actual Shopify graphic (user feedback: "bg color renk girilmiş.
-     placeholder fotonun görünmeme sebebi buymuş"). Letting the
-     placeholder's own SVG art render against the section's scheme
-     surface (defaults scheme-7 stone-900) gives the recognisable
-     Shopify lifestyle/collection placeholder back. The base.css
-     `.placeholder-svg` rule still emits a subtle 4% fg tint at the
-     theme level, which is enough ambient bg. */
   color: rgb(var(--kt-c-fg, 168 162 158));
 }
 

@@ -6,39 +6,15 @@
 {%- assign newsletter_signup_consent_label_default = 'kt.section.newsletter.consent_label_default' | t -%}
 {%- assign newsletter_signup_note_default = 'kt.section.newsletter_signup.note_default' | t -%}
 
-<section class="kt-newsletter-page color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}" data-section-id="{{ section.id }}">
+<section class="kt-newsletter-page color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style="" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-newsletter-page__inner">
       <span class="kt-newsletter-page__label">{{ section.settings.label | default: newsletter_signup_label_default }}</span>
-      {%- comment -%}
-        R105 — fallback aligned with schema default (h2). Schema's
-        `heading_tag` setting defaults to "h2" but the liquid
-        fallback was "h1" — if a merchant programmatically cleared
-        the value, the page would emit a duplicate h1 (next to
-        page-header-dotted's h1) and break heading hierarchy.
-      {%- endcomment -%}
       {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
       <{{ heading_tag }} class="kt-newsletter-page__title">{{ section.settings.heading | default: newsletter_signup_heading_default }}</{{ heading_tag }}>
       <p class="kt-newsletter-page__desc">{{ section.settings.description | default: newsletter_signup_description_default }}</p>
 
-      {%- comment -%}
-        R298 — Every static ID below (form id, email input, honeypot,
-        consent checkbox, error region) is now suffixed with
-        `-{{ section.id }}` so two newsletter-signup sections on the
-        same template emit unique IDs instead of duplicates. WCAG 4.1.1
-        / axe-core `duplicate-id-active` violation otherwise. Matching
-        `<label for>`, `aria-describedby`, and error anchor `href="#..."`
-        targets are updated in lockstep.
-      {%- endcomment -%}
-      {%- comment -%}
-        R232.35 — same inline-filter parser bug the product-form
-        snippet hit. Pre-compute the id with `assign` so the comma
-        in the form tag's kwarg list isn't misread as a positional
-        arg separator (Shopify Liquid was parsing the entire
-        concatenated string as the form-type literal and raising
-        "Invalid form type").
-      {%- endcomment -%}
       {%- assign newsletter_form_id = 'NewsletterPageForm-' | append: section.id -%}
       {%- form 'customer', id: newsletter_form_id, class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
@@ -73,27 +49,6 @@
             {%- endcomment -%}
             <div class="kt-newsletter-page__form-row">
             <label for="newsletter-page-email-{{ section.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
-              {%- comment -%}
-                R104 — `enterkeyhint="send"` swaps the iOS/Android Return
-                key glyph to a "Send" affordance, so the customer doesn't
-                have to dismiss the keyboard and reach for the Subscribe
-                button. Single-field newsletter submits straight from the
-                keyboard.
-              {%- endcomment -%}
-              {%- comment -%}
-                R96 — preserve typed email across validation errors.
-              {%- endcomment -%}
-              {%- comment -%}
-                R139 ARIA-DBY-1: only emit aria-describedby when the
-                referenced error region actually renders. The
-                `<p id="NewsletterPageForm-error">` only exists inside
-                `{%- if form.errors -%}`; emitting the attribute
-                unconditionally pointed at a missing ID and NVDA logged
-                a "described element not found" warning while AXE
-                flagged it as a 4.1.2 issue. Conditional emission keeps
-                the binding sound while still describing the field
-                whenever errors render.
-              {%- endcomment -%}
             <input
               type="email"
               autocapitalize="off"
@@ -133,23 +88,6 @@
               {{ 'kt.newsletter.button_label' | t | default: 'Subscribe' }}
             </button>
             </div>
-            {%- comment -%}
-              R122 — Explicit GDPR/UK GDPR/CCPA consent checkbox.
-              Initially UNCHECKED + HTML5 `required` so submission
-              is gated on affirmative customer opt-in (per GDPR
-              Art. 7 — consent must be freely given, specific,
-              informed, unambiguous). Merchants outside EU/UK who
-              don't need this can disable via the section setting.
-              We deliberately do NOT submit `contact[accepts_marketing]`
-              — Shopify's native double-opt-in confirmation email
-              is what produces the legally-valid consent record;
-              this checkbox is purely the front-of-form gate.
-              See R96 comment block for the pre-existing rationale.
-
-              Sibling of __form-row (not inside it) so the consent
-              copy gets the FULL form width as a single line of text
-              instead of being squeezed into a flex column.
-            {%- endcomment -%}
             {%- if section.settings.show_consent_checkbox -%}
               {%- comment -%}
                 Wrapper is a <div>, NOT a <p>. The richtext consent
@@ -192,15 +130,6 @@
           </div>
 
           {%- if form.errors -%}
-            {%- comment -%}
-              R297 — Structured error summary with anchor-jumps to the
-              offending field. The previous flat `·`-separated paragraph
-              forced keyboard users to scroll-hunt for the bad field.
-              Adding `data-form-error-summary` + `tabindex="-1"` lets the
-              global form-error-focus helper (assets/global.js:444)
-              programmatically focus this region on submit failure so SR
-              users hear the error list immediately.
-            {%- endcomment -%}
             <div
               class="kt-newsletter-page__error"
               id="NewsletterPageForm-error-{{ section.id }}"
@@ -303,35 +232,6 @@
       "default": "<p>I agree to receive marketing emails. I can unsubscribe at any time.</p>"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -343,7 +243,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

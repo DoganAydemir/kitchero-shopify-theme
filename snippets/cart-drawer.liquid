@@ -1,9 +1,3 @@
-{%- comment -%}
-  Cart Drawer — slide-in from right. Birebir from CartDrawer.tsx.
-  Refresh handled by product-form.js (fetch-and-swap) and cart-drawer.js
-  (quantity updates via AJAX + HTML re-render). Works without JS: the
-  cart icon falls back to /cart.
-{%- endcomment -%}
 
 {%- assign cart_drawer_recommendations_default = 'kt.section.recommendations.heading_default' | t -%}
 
@@ -23,17 +17,6 @@
         {% render 'icon-close', width: 20, height: 20, stroke_width: 1.5 %}
       </button>
     </div>
-    {%- comment -%}
-      R94 — SR-only polite live region for cart-mutation announcements.
-      Item count is announced via the cart-icon badge's aria-live="polite"
-      (header.liquid:441), but item-level events (add/remove with title)
-      R298 — Drawer-local announcer REMOVED. `cart-drawer.js` writes
-      via `Kitchero.announce()` (the global `#ktAnnouncer` region in
-      layout/theme.liquid) for all cart-update messages. The drawer-
-      local element was dead code (no JS reference) and adding a
-      second polite live region risked race-double-announcement if
-      future code accidentally targeted it.
-    {%- endcomment -%}
 
     {%- comment -%}
       Cart Items.
@@ -43,16 +26,6 @@
       scroll and the qty list scrolls jankily / not at all on iOS.
       Filter drawer body uses the same attribute (kt-collection-filters
       .css pattern, see main-collection-drawer.liquid:84).
-    {%- endcomment -%}
-    {%- comment -%}
-      R93 — wrapper carries role="list" + each item carries
-      role="listitem" so SR users hear "list, X items" instead of
-      "group" or "no list announced". Native <ul><li> would also
-      work but require CSS rewrite (current rules target the
-      `.kt-cart-drawer__body` + `.kt-cart-drawer__item` div
-      classes); ARIA roles preserve the visual styling without
-      losing list semantics. Pattern matches WAI-ARIA Authoring
-      Practices for stylistically-suppressed lists.
     {%- endcomment -%}
     <div
       class="kt-cart-drawer__body"
@@ -133,20 +106,6 @@
                   {%- endcomment -%}
                   <span class="kt-cart-drawer__item-price">
                     {%- if item.final_line_price > 0 -%}
-                      {%- comment -%}
-                        Strikethrough original_line_price when a discount
-                        has trimmed the line (auto-applied promo, line
-                        discount, "Buy 2 Get 1 Free", etc.). Without the
-                        struck-through original alongside the final, the
-                        customer sees only the discounted total and the
-                        SAVING is invisible — main-cart.liquid renders
-                        the same `<s>` pair, so this closes the drawer
-                        parity gap reviewers cite when applying a code,
-                        opening the drawer, and expecting to see the
-                        old price crossed out.
-                        Wrapped in <s> for screen readers — text-decoration
-                        alone doesn't convey "no longer valid" semantics.
-                      {%- endcomment -%}
                       {%- if item.original_line_price > item.final_line_price -%}
                         <s class="kt-cart-drawer__item-price-original">
                           <span class="visually-hidden">{{ 'kt.product.regular_price' | t }}&nbsp;</span>
@@ -166,31 +125,10 @@
                     line total.
                   {%- endcomment -%}
                   {%- if item.variant.unit_price_measurement -%}
-                    {%- comment -%}
-                      R86 UNP-03 — use Shopify's
-                      `unit_price_with_measurement` filter instead of
-                      manual `unit_price | money` + reference_value/
-                      reference_unit concatenation. The native filter
-                      handles plural rules, locale-aware separator
-                      spacing, and reference_value != 1 logic in one
-                      call. Per Shopify docs: "use the
-                      unit_price_with_measurement filter to display
-                      the unit price."
-                    {%- endcomment -%}
                     <span class="kt-cart-drawer__item-unit-measure">
                       {{ item.variant.unit_price | unit_price_with_measurement: item.variant.unit_price_measurement }}
                     </span>
                   {%- endif -%}
-                  {%- comment -%}
-                    Line-level discount allocations — mirrors /cart page
-                    treatment. When a discount applies to this specific
-                    line (e.g. "Buy 2 Get 1 Free", "Spring Sale 20%"),
-                    the customer sees the discount name + amount under
-                    the price. Without this, drawer shows the discounted
-                    price but the SAVING is invisible — reviewer test
-                    case: apply a code, open drawer, expect to see "−$X
-                    Spring Sale" line.
-                  {%- endcomment -%}
                   {%- if item.line_level_discount_allocations.size > 0 -%}
                     <ul class="kt-cart-drawer__item-discounts" role="list">
                       {%- for discount in item.line_level_discount_allocations -%}
@@ -201,28 +139,6 @@
                 </div>
               </div>
 
-              {%- comment -%}
-                Row 2: variant / selling-plan / bundle components / properties.
-                R143 CART-DELETED-PROD-1: gate on `item.product` first.
-                When a cart-resident product is deleted from admin
-                (rare but possible during checkout), `item.product`
-                resolves nil and `has_only_default_variant` becomes
-                nil → the unless branch runs unexpectedly and renders
-                an empty <p> with a stray <br>. Explicit `if
-                item.product and ...has_only_default_variant == false`
-                skips the block when product is gone OR when product
-                only has Default Title variant.
-              {%- endcomment -%}
-              {%- comment -%}
-                R298 — Variant option lines now emit `Name: Value` to match
-                the cart page (`sections/main-cart.liquid:166-170`).
-                Previously the drawer rendered bare values only ("Red",
-                "Small") while the page rendered fully-labelled options
-                ("Color: Red", "Size: Small") for the same line item.
-                Theme Store rejects parity gaps between cart drawer and
-                cart page; aligning the markup fixes the disparity and
-                also gives screen readers the option name context.
-              {%- endcomment -%}
               {%- if item.product and item.product.has_only_default_variant == false -%}
                 <ul class="kt-cart-drawer__item-variant" role="list">
                   {%- for option in item.options_with_values -%}
@@ -252,15 +168,6 @@
                 {%- endcomment -%}
                 {%- assign charge = item.selling_plan_allocation.checkout_charge -%}
                 {%- if charge and charge.value > 0 and charge.value != item.final_line_price -%}
-                  {%- comment -%}
-                    R86 SUB-05 fix: pre-format the money value
-                    BEFORE passing into `t: amount: ...`. The
-                    previous chain `t: amount: charge.value |
-                    money` was parsed as `(t output) | money`,
-                    leaking raw cents into the rendered string.
-                    Pre-assigning the formatted amount keeps the
-                    `| money` filter applied to the variable.
-                  {%- endcomment -%}
                   {%- assign charge_money = charge.value | money -%}
                   <p class="kt-cart-drawer__item-charge">
                     {{ 'kt.cart.checkout_charge' | t: amount: charge_money }}
@@ -298,16 +205,6 @@
                       <li>
                         <span>{{ property.first | escape }}:</span>
                         {%- if property.last contains '/uploads/' -%}
-                          {%- comment -%}
-                            The visible filename text after split is still
-                            user-controlled (file uploads at /cart/add).
-                            R75 caught this on main-order.liquid; R76
-                            verifies the cart-side renders. A crafted
-                            upload like `/uploads/<svg onload=...>.png`
-                            survives the path split untouched and renders
-                            raw inside the drawer DOM. `| escape` on the
-                            visible text closes that XSS path.
-                          {%- endcomment -%}
                           <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last | escape }}</a>
                         {%- else -%}
                           {{ property.last | escape }}
@@ -377,12 +274,6 @@
               {%- endcomment -%}
               {%- assign drawer_can_update = item.instructions.can_update_quantity | default: true -%}
               {%- assign drawer_can_remove = item.instructions.can_remove | default: true -%}
-              {%- comment -%}
-                R296 — `item.product.title` can legally contain `"` and
-                `<` from the merchant admin. Without `| escape` those
-                bytes break the aria-label attribute / inject markup.
-                Pre-escape once and reuse across the row's buttons.
-              {%- endcomment -%}
               {%- assign safe_item_title = item.product.title | escape -%}
               <div class="kt-cart-drawer__item-footer">
                 {%- if drawer_can_update -%}
@@ -462,55 +353,11 @@
       {%- endif -%}
     </div>
 
-    {%- comment -%}
-      R165 AB-002 — Theme Store rule "@app blocks must not be used
-      in statically rendered sections." cart-drawer is rendered via
-      `{% section 'cart-drawer' %}` in layout/theme.liquid (static
-      render so the drawer is mounted on every page), and AB-002
-      forbids @app blocks under that render path. Removed both the
-      schema declaration AND this render branch. Cart upsell apps
-      that need a drawer slot can still use Shopify's main cart-
-      page app-block surface (sections/main-cart.liquid retains
-      its @app slot — that section is JSON-template-rendered, which
-      AB-002 permits). Dead code preserved as a comment block for
-      auditability so a future maintainer doesn't re-add the slot
-      without re-reading the rule.
-    {%- endcomment -%}
-
-    {%- comment -%}
-      R122 — Cart drawer recommendations / upsell. Reads the
-      curated complementary products of the cart's most-recent
-      item (cart.items[0] is the most-recently-added per Shopify
-      conventions). Synchronous server-render — no async fetch
-      needed because the metafield is loaded with the cart payload.
-
-      Uses Shopify Search & Discovery's curated complementary
-      products metafield (same source as PDP complementary_products
-      block in R121). When the metafield is empty OR the merchant
-      hasn't installed the Search & Discovery app, the
-      recommendations section emits NOTHING — no broken band, no
-      fallback to deceptive "Customers also bought".
-
-      Empty-state: zero recommendations + design_mode would also
-      emit nothing (cart drawer's editor preview is rare; the
-      merchant tests this on a populated dev store anyway).
-
-      Settings come from `section.settings` (passed through to this
-      snippet via section: arg in sections/cart-drawer.liquid:26).
-    {%- endcomment -%}
     {%- if cart.item_count > 0 and section.settings.show_recommendations -%}
       {%- assign cart_anchor_product = cart.items[0].product -%}
       {%- assign cart_recs = cart_anchor_product.metafields.shopify--discovery--product_recommendation.related_products.value -%}
       {%- if cart_recs and cart_recs.size > 0 -%}
         <div class="kt-cart-drawer__recommendations" data-cart-recommendations>
-          {%- comment -%}
-            R295 — Drawer recommendations heading is the only heading
-            INSIDE the cart drawer; the drawer floats above arbitrary
-            pages so an <h3> would skip from the page's <h1>/<h2> to
-            <h3> in the document outline (WCAG 2.4.6 fail). The
-            drawer is a top-level region — <h2> mirrors the conventions
-            of dialogs/landmarks in major a11y references.
-          {%- endcomment -%}
           <h2 class="kt-cart-drawer__recommendations-heading">
             {{- section.settings.recommendations_heading | default: cart_drawer_recommendations_default | escape -}}
           </h2>
@@ -564,52 +411,13 @@
       {%- endif -%}
     {%- endif -%}
 
-    {%- comment -%}
-      R165 AB-002 — `@app` blocks intentionally NOT supported in
-      this drawer. cart-drawer is rendered statically via
-      `{% section 'cart-drawer' %}` from `layout/theme.liquid` and
-      Shopify's "Sections" architecture doc states "Sections that
-      are included in JSON templates or section groups can support
-      app blocks" — static-rendered sections cannot. Cart-upsell
-      apps that need a slot use `main-cart.liquid` (JSON-template
-      rendered, retains its `@app` block declaration).
-    {%- endcomment -%}
-
     {%- comment -%} Footer {%- endcomment -%}
     {%- if cart.item_count > 0 -%}
       <div class="kt-cart-drawer__footer">
-        {%- comment -%}
-          R298 — Free-shipping bar gated on the drawer section's
-          `show_free_shipping_bar` toggle so cart page + drawer have
-          identical merchant-editable visibility (parity with
-          `sections/main-cart.liquid:493`). The bar still self-hides
-          when `settings.kt_free_shipping_threshold == 0`, so this is
-          an additive merchant override on top of the threshold gate.
-        {%- endcomment -%}
         {%- if section.settings.show_free_shipping_bar -%}
           {%- render 'free-shipping-bar' -%}
         {%- endif -%}
 
-        {%- comment -%}
-          R298 — Gift wrap opt-in. Previously the cart drawer skipped
-          rendering the gift-wrapping snippet entirely; drawer-mode
-          customers (drawer's checkout button POSTs straight to
-          `/checkouts/...`) could never opt in to gift wrap, while
-          cart-page customers could.
-
-          R-cart-giftwrap-form — The gift-wrap snippet renders
-          `<input name="attributes[Gift wrapping]">` which only
-          persists when submitted as part of `{% form 'cart' %}`.
-          Originally rendered HERE (outside the cart form at line
-          791), the input was orphan markup: toggling did literally
-          nothing because no form ever sent it. Customers ticked
-          the box, completed checkout, and the order had no gift
-          wrap attribute — silent feature failure. Now wired in via
-          HTML5 `form="CartDrawerCheckoutForm"` so the visual
-          position stays the same (above subtotal) but the input
-          submits with the cart form below. The cart form below
-          declares the matching `id`.
-        {%- endcomment -%}
         {%- if section.settings.show_gift_wrapping_message -%}
           {%- render 'gift-wrapping',
               section: section,
@@ -637,26 +445,7 @@
           </ul>
         {%- endif -%}
 
-        {%- comment -%}
-          Discount code entry — drawer parity with /cart page. Without
-          this, a customer pasting a promo from a marketing email has
-          to navigate away from the drawer to /cart to redeem it,
-          which Theme Store reviewers cite as a known parity gap on
-          modern themes. Same `/discount/<code>` server-side endpoint
-          used by main-cart.liquid; works without JS via plain GET
-          form + `redirect` hidden input. Gated on the same
-          `kt_cart_show_discount` setting so merchants who hide
-          discount entry on /cart also get it hidden in the drawer.
-        {%- endcomment -%}
         {%- if settings.kt_cart_show_discount -%}
-          {%- comment -%}
-            R301 — Switch from undocumented `cart.discount_codes` to the
-            officially documented `cart.cart_level_discount_applications`
-            filtered by `type == "discount_code"`. Same chip list and
-            form-action pre-fill, but using the property Theme Store
-            reviewers expect (the `discount_codes` property is absent
-            from Shopify's current Liquid object reference).
-          {%- endcomment -%}
           {%- assign drawer_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
           <form
             action="{{ routes.root_url }}discount/{% if drawer_applied_codes.size > 0 %}{{ drawer_applied_codes.first.title | url_encode }}{% endif %}"
@@ -686,11 +475,6 @@
             {%- if drawer_applied_codes.size > 0 -%}
               <ul class="kt-cart-drawer__discount-applied" role="list">
                 {%- for applied_discount in drawer_applied_codes -%}
-                  {%- comment -%}
-                    R296 — Discount code is merchant-controlled but Theme
-                    Store rejects any unescaped string in HTML attributes.
-                    Pre-escape once for both display and aria-label.
-                  {%- endcomment -%}
                   {%- assign safe_discount_code = applied_discount.title | escape -%}
                   <li class="kt-cart-drawer__discount-chip">
                     <span>{{ safe_discount_code }}</span>
@@ -717,42 +501,9 @@
 
         <div class="kt-cart-drawer__subtotal">
           <span class="kt-cart-drawer__subtotal-label">{{ 'kt.cart.subtotal' | t | default: 'Subtotal' }}</span>
-          {%- comment -%}
-            R298 — Subtotal value aligned with cart page semantics.
-            Previously the drawer emitted `cart.total_price` (post-
-            discount, post-everything) under a "Subtotal" label while
-            the page emitted `cart.items_subtotal_price` (pre-discount
-            line-item sum) under the same label. Customers saw two
-            different numbers for the same labelled field depending on
-            which surface they were looking at — Theme Store flags
-            inconsistent / deceptive cart values as a parity failure.
-            Now both surfaces use `items_subtotal_price | money` for
-            "Subtotal"; discount lines render above the tax note and
-            the Total row beneath surfaces the post-discount sum so
-            the customer sees the same final figure on both surfaces.
-
-            data-cart-subtotal — INS-05: Shopify's
-            <shopify-payment-terms> custom element observes this
-            attribute to refresh installment quotes after cart
-            mutations. Same hook as main-cart.liquid summary row.
-          {%- endcomment -%}
           <span class="kt-cart-drawer__subtotal-value" data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
         </div>
 
-        {%- comment -%}
-          R-cart-parity — Total row mirrors main-cart.liquid:637-648.
-          Previously the drawer stopped at Subtotal (pre-discount line-
-          item sum), so a customer with any cart-level discount saw a
-          different bottom-line on the drawer than they did on the cart
-          page (drawer: Subtotal $100 / Spring −$10; page: Subtotal $100
-          / Spring −$10 / Total $90). Theme Store reviewers test this
-          exact case and flag the divergent number as a parity failure.
-          Render even when discounts aren't applied (total == subtotal)
-          so the surface stays consistent; `money_with_currency` matches
-          the cart-page Total format for multi-currency disambiguation.
-          Gated on cart.item_count > 0 so the empty-state surface isn't
-          polluted with a "Total: $0.00" row.
-        {%- endcomment -%}
         {%- if cart.item_count > 0 -%}
           <div class="kt-cart-drawer__total">
             <span class="kt-cart-drawer__total-label">{{ 'kt.cart.total' | t | default: 'Total' }}</span>
@@ -761,21 +512,6 @@
         {%- endif -%}
 
         <p class="kt-cart-drawer__taxes">
-          {%- comment -%}
-            Four-way branch: tax-exempt customer (B2B / nonprofit),
-            digital-only cart (no shipping), tax-inclusive (EU-style),
-            or default "calculated at checkout".
-
-            R150 TAX-EXEMPT-COPY-1: customer.tax_exempt? takes
-            precedence — for B2B / nonprofit customers Shopify zeros
-            the tax at checkout but the default "Taxes calculated at
-            checkout" copy is misleading because no tax is calculable.
-            Surface a "Tax-exempt account" note instead. Matches the
-            B2B-focused reviewer rubric (R148 audit).
-
-            Matches main-cart.liquid copy logic exactly so page and
-            drawer can't contradict each other.
-          {%- endcomment -%}
           {%- if customer.tax_exempt? -%}
             {{ 'kt.cart.taxes_note_exempt' | t | default: 'Tax-exempt account. Shipping calculated at checkout.' }}
           {%- elsif cart.requires_shipping == false -%}
@@ -850,15 +586,6 @@
             </details>
           {%- endif -%}
 
-          {%- comment -%}
-            R-cart-audit — Optional terms consent checkbox.
-            Setting lives on `main-cart` schema (per Shopify pattern
-            of one source of truth for cart options) but the drawer
-            reads `settings.kt_cart_show_terms` via theme-level
-            settings_schema so BOTH surfaces honour the same toggle
-            without per-section duplication. JS in cart-drawer.js
-            wires the disabled state on the checkout button.
-          {%- endcomment -%}
           {%- if settings.kt_cart_show_terms -%}
             {%- assign cart_terms_default = 'kt.cart.terms.default_html' | t -%}
             <div class="kt-cart-drawer__terms">
@@ -908,18 +635,6 @@
       </div>
     {%- endif -%}
 
-    {%- comment -%}
-      App block slot — Theme Store mandatory requirement: the cart
-      drawer must support `{"type": "@app"}` blocks so merchants can
-      drop in cart upsell apps (ReConvert, Bold Upsell, Releasit,
-      etc.), subscription messaging (ReCharge), back-in-stock pickers,
-      loyalty-points displays, and other cart-surface apps without
-      editing theme code. Rendered AFTER the cart body + footer so
-      app content lands below the checkout CTA, where reviewers
-      expect it. Each block wraps its own `block.shopify_attributes`
-      so the theme editor can target it for selection. Empty when
-      no apps are installed — invisible.
-    {%- endcomment -%}
     {%- if section.blocks.size > 0 -%}
       <div class="kt-cart-drawer__apps">
         {%- for block in section.blocks -%}

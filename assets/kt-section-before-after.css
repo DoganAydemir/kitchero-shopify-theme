@@ -2,13 +2,8 @@
 
 .kt-before-after {
   padding: 6rem 0;
-  /* R232.47 — Scheme-aware bg + text. Was hardcoded `var(--kt-stone-900)`
-     (dark surface) so the merchant's color_scheme choice was
-     ignored. Default fallback (stone-900 = 28 25 23) keeps the
-     original dark editorial treatment when no scheme is active. */
   background-color: rgb(var(--kt-c-bg, 28 25 23));
   color: rgb(var(--kt-c-fg, 250 250 249));
-  /* R232.50 — scheme-aware hairline border */
   border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.18);
 }
 
@@ -18,28 +13,18 @@
 }
 
 .kt-before-after__title {
-  /* R214 FLUID-TYPO: was stepped 3rem mobile / 4.375rem ≥750px
-     (R213 sweep skipped this one by mistake). Migrated to clamp()
-     so iPad portrait (~768px) lands around 3.6rem instead of
-     jumping straight to the 4.375rem desktop ceiling — "SEE THE
-     DIFFERENCE" was reading as oversized title-band on iPad
-     portrait. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(3rem, 4vw + 1rem, 4.375rem)));
 
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware heading (default scheme is dark → white) */
   color: rgb(var(--kt-c-fg, 255 255 255));
   margin-bottom: 0.5rem;
 }
 
 .kt-before-after__subtitle {
   font-size: 1.125rem;
-  /* R232.50 — scheme-aware muted body (was stone-400 for WCAG AA
-     on the dark surface — opacity-graded fg keeps the same read
-     on any scheme bg). */
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   font-weight: 300;
 }
 
@@ -74,22 +59,7 @@
   object-fit: cover;
 }
 
-/* R182 PLACEHOLDER-CONTRAST-1: when the merchant hasn't uploaded
-   a before/after image yet, the snippet falls back to Shopify's
-   `lifestyle-1` / `lifestyle-2` placeholder SVG. Those SVGs paint
-   with a transparent background and a low-contrast outline — fine
-   on the surrounding stone-50 storefront, but invisible against
-   this section's stone-900 backdrop, which made the slider look
-   completely empty (just two centred labels and a divider). Give
-   the placeholder layer its own light fill so the BEFORE/AFTER
-   composition reads on a fresh-install demo. Once a real image
-   is uploaded the `.placeholder-svg` class is gone and these
-   rules no longer match. */
 .kt-before-after__image.placeholder-svg {
-  /* R232.68 — Solid stone-100 bg REMOVED. The grey panel was
-     overlaying Shopify's lifestyle placeholder SVG, hiding the
-     actual graphic. Keep the `color` (drives the SVG fill via
-     currentColor) but let the placeholder's own art render through. */
   color: rgb(var(--kt-c-fg, 168 162 158));
 }
 

@@ -1,20 +1,3 @@
-/* ============================================================
-   Main Product PDP — /products/:handle
-
-   Scheme-aware: page surface, title, breadcrumbs, trust badges,
-   accordions, concierge box, and the door-sample block pull from
-   `--kt-c-*` so they flip with the active scheme.
-
-   The premium countdown block stays intentionally dark (stone-950
-   + red accents) regardless of scheme — it is a brand-signature
-   "luxury promo strip" that needs to read the same whether the
-   surrounding scheme is Ink or Paper. Emerald and red stay fixed
-   as universal stock/discount signals.
-
-   Source note: Next.js uses `pt-20 md:pt-32` because its navbar
-   is `position: fixed`. Our Shopify header is in-flow on PDPs so
-   we only need the visual gap — header height adds the rest.
-   ============================================================ */
 
 .kt-pdp {
   background-color: rgb(var(--kt-c-bg));
@@ -225,7 +208,7 @@
 
 .kt-pdp__breadcrumb-list li:not(:first-child)::before {
   content: '/';
-  color: rgba(var(--kt-c-fg), 0.3);
+  color: rgb(var(--kt-c-fg-muted));
   speak: none;
 }
 
@@ -253,10 +236,6 @@
   line-height: 1.1;
   color: rgb(var(--kt-c-fg));
   margin-bottom: 0.75rem;
-  /* R87 — 110-char product titles or German compound words
-     overflow the right-column flex parent without min-width:0 +
-     overflow-wrap. Hyphens auto provides graceful break for
-     long marketing copy. */
   min-width: 0;
   overflow-wrap: anywhere;
   hyphens: auto;
@@ -284,7 +263,7 @@
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   font-variant-numeric: tabular-nums;
 }
 
@@ -384,7 +363,7 @@
 }
 
 .kt-pdp__meta-sep {
-  color: rgba(var(--kt-c-fg), 0.3);
+  color: rgb(var(--kt-c-fg-muted));
   font-size: 0.875rem;
   line-height: 1;
 }
@@ -395,26 +374,17 @@
 }
 
 .kt-pdp__stock--in {
-  color: var(--kt-emerald-600);
+  color: var(--kt-emerald-700, #047857);
 }
 
 .kt-pdp__stock--out {
   color: var(--kt-red-600);
 }
 
-/* R122 — Low-stock indicator. Amber to differentiate from green
-   (in-stock) and red (sold-out) so customers see it as urgency
-   signal, not error. Only fires when real Shopify inventory is
-   below merchant-set threshold — not a deceptive fake counter. */
 .kt-pdp__stock--low {
-  color: var(--kt-amber-500);
+  color: var(--kt-amber-700, #b45309);
   font-weight: 600;
 }
-
-/* ============================================================
-   Premium Countdown Block — INTENTIONALLY dark-chrome regardless
-   of scheme. Birebir from Next.js PDP source.
-   ============================================================ */
 
 .kt-pdp__countdown-block {
   position: relative;
@@ -577,12 +547,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* R281b — Short-desc wrapper carries the `rte` companion class so
-   `.rte p { color: rgb(var(--kt-c-fg)) }` pins inner `<p>` to
-   full-strength foreground, breaking the wrapper-level mute that
-   should sit clearly under the PDP title. Push the muted alpha
-   onto the richtext children directly. Specificity (0,0,2,1) >
-   `.rte p` (0,0,1,1). */
 .kt-pdp__short-desc p,
 .kt-pdp__short-desc li,
 .kt-pdp__short-desc blockquote {
@@ -592,10 +556,6 @@
 /* ── Trust badges ──────────────────────────────────────── */
 
 .kt-pdp__trust-badges {
-  /* R-PDP6 — `<ul>` semantics now wrap each badge; strip browser
-     list defaults so the grid layout stays identical to the old
-     `<div>` markup. `list-style: none` + zero padding/margin keeps
-     the visual surface byte-for-byte. */
   list-style: none;
   padding: 0;
   display: grid;
@@ -707,13 +667,6 @@
 
 .kt-pdp__door-sample-btn {
   width: 100%;
-  /* R296 — Was 0.75rem + 11px font ≈ 33px tall, failing WCAG 2.5.5
-     (44px touch target) for the PDP's primary "Order door sample"
-     CTA. Bumped padding to 0.9375rem and pin min-height so any
-     merchant font-scale change still clears the floor.
-     `display: inline-flex; align-items: center; justify-content:
-     center` keeps the all-caps text vertically centered after the
-     padding bump. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -758,10 +711,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  /* R296 — Was 11px font + 3px pad ≈ 18px tall, failing WCAG 2.5.5.
-     Pin min-height 44px and add block padding so the underline
-     visual stays close to the text but the tap-zone covers the
-     full 44px touch target. */
   min-height: 44px;
   padding: 0.5rem 0;
   font-size: 0.6875rem;
@@ -773,7 +722,6 @@
   text-decoration: none;
 }
 .kt-pdp__concierge-cta svg { width: 14px; height: 14px; }
-
 
 /* ============================================================
    PDP info-column entrance animation hidden state
@@ -812,8 +760,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   opacity: 1;
   transform: none;
 }
-
-/* ── R120 — Payment icons block ───────────────────────────────────── */
 
 .kt-pdp__payment-icons {
   margin-top: 0.5rem;
@@ -869,8 +815,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   color: rgb(var(--kt-c-fg-muted));
   font-style: italic;
 }
-
-/* ── R121 — Complementary products block ─────────────────────────── */
 
 .kt-pdp__complementary {
   margin-top: 1.5rem;
@@ -971,7 +915,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* R106 — anywhere wrap so unbroken-token titles still fit. */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -991,8 +934,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   height: var(--kt-spacer-h, 1rem);
   width: 100%;
 }
-
-/* ── R156 PDP-METAFIELD-BLOCK-1: custom metafield block ─────────── */
 
 .kt-pdp__metafield {
   margin: 1rem 0;
@@ -1045,13 +986,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   color: rgb(var(--kt-c-fg-muted));
   font-style: italic;
 }
-
-/* ============================================================
-   R-pdp-completeness — Specifications block
-   Multi-row label:value table for product specs (length, material,
-   etc.). Renders as a dl/dt/dd inline grid that adapts to either
-   one or two columns depending on viewport width.
-   ============================================================ */
 
 .kt-pdp__specs {
   margin: 1.5rem 0;
@@ -1164,7 +1098,7 @@ html.no-js [data-kt-pdp-anim-group] > * {
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-pdp__details-value {
@@ -1283,13 +1217,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
     font-size: 0.875rem;
   }
 }
-
-/* ============================================================
-   R-pdp-completeness — Tags block
-   Pill chips listing the product's tags. Sits as a horizontal
-   flex row that wraps; chips are small and muted so they
-   complement (not compete with) the product title.
-   ============================================================ */
 
 .kt-pdp__tags {
   list-style: none;

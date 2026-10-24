@@ -1,14 +1,3 @@
-/**
- * Page Header — Dotted
- *
- * Shared controller for the `[data-dotted-header]` component:
- *   - Staggered text reveal (eyebrow → title → description → count)
- *   - Scroll-linked parallax on layer 2 (dots) and layer 4 (markers)
- *   - Uses GSAP + ScrollTrigger when available, falls back to a plain
- *     scroll listener for parallax and CSS-only fade-in for reveal
- *   - Honors prefers-reduced-motion
- *   - Idempotent load-guard safe against duplicate <script> injection
- */
 if (!window.__kitcheroDottedHeaderLoaded) {
   window.__kitcheroDottedHeaderLoaded = true;
 
@@ -33,8 +22,6 @@ if (!window.__kitcheroDottedHeaderLoaded) {
     }
 
     function revealViaCss(header) {
-      /* CSS-only fallback: just snap everything to visible with a short
-         transition. Values mirror the GSAP fromTo endpoints. */
       header.querySelectorAll('[data-dotted-anim]').forEach(function (el) {
         el.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
         el.style.transform = 'translateY(0)';
@@ -43,13 +30,11 @@ if (!window.__kitcheroDottedHeaderLoaded) {
     }
 
     function initReveal(header) {
-      /* Start targets off-screen-ish so GSAP/CSS can animate them in */
       header.querySelectorAll('[data-dotted-anim]').forEach(function (el) {
         el.style.willChange = 'transform, opacity';
       });
 
       if (prefersReducedMotion) {
-        /* Nothing to do — CSS already shows the content */
         return;
       }
 
@@ -62,13 +47,6 @@ if (!window.__kitcheroDottedHeaderLoaded) {
       if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return false;
       gsap.registerPlugin(ScrollTrigger);
 
-      /* Wrap the GSAP tweens + ScrollTriggers in a gsap.context scoped
-       * to this header element. On section unload we call ctx.revert()
-       * which kills every tween and ScrollTrigger the context created,
-       * so detached DOM references don't linger — previously the
-       * ScrollTriggers survived section removal in the theme editor
-       * and accumulated "referencing detached element" warnings while
-       * degrading scroll perf over repeated section re-renders. */
       var ctx = gsap.context(function () {
         var dots = header.querySelector('[data-parallax-dots]');
         if (dots) {
@@ -99,17 +77,12 @@ if (!window.__kitcheroDottedHeaderLoaded) {
         }
       }, header);
 
-      /* Push the ctx.revert() into the shared `instances` cleanup list
-       * so the same section-unload handler at the bottom of the file
-       * collects GSAP pinned work alongside the RAF fallback listeners. */
       instances.push({ header: header, cleanup: function () { ctx.revert(); } });
 
       return true;
     }
 
     function bindParallaxViaScroll(header) {
-      /* Fallback: plain requestAnimationFrame listener. Cheaper than GSAP
-         if the vendor bundle isn't loaded yet. */
       var dots = header.querySelector('[data-parallax-dots]');
       var markers = header.querySelector('[data-parallax-markers]');
       if (!dots && !markers) return;
@@ -120,8 +93,7 @@ if (!window.__kitcheroDottedHeaderLoaded) {
         rafPending = false;
         var rect = header.getBoundingClientRect();
         var h = rect.height || 1;
-        /* progress 0 when top aligns with viewport top, 1 when bottom
-           aligns with top. Clamp to keep transforms bounded. */
+
         var raw = -rect.top / h;
         var progress = Math.max(0, Math.min(1, raw));
 
@@ -167,13 +139,11 @@ if (!window.__kitcheroDottedHeaderLoaded) {
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initAll);
+      document.addEventListener('DOMContentLoaded', function () { (window.ktWhenMotion || function (cb) { cb(); })(initAll); });
     } else {
-      initAll();
+      (window.ktWhenMotion || function (cb) { cb(); })(initAll);
     }
 
-    /* Theme editor re-render: the snippet can be inside any section that
-       changes. Re-scan on every section load. */
     document.addEventListener('shopify:section:load', function (e) {
       var root = document.querySelector('[data-section-id="' + e.detail.sectionId + '"]');
       if (!root) return;
@@ -184,8 +154,6 @@ if (!window.__kitcheroDottedHeaderLoaded) {
     });
 
     document.addEventListener('shopify:section:unload', function (e) {
-      /* Clean up scroll-listener instances that belonged to the unloaded
-         section. Safe if GSAP is in use too — there's just nothing to remove. */
       var root = document.querySelector('[data-section-id="' + e.detail.sectionId + '"]');
       instances = instances.filter(function (inst) {
         if (root && root.contains(inst.header)) {

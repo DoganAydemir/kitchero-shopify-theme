@@ -1,56 +1,3 @@
-{%- comment -%}
-  Back-in-Stock Notification — modal + form.
-
-  Rendered next to the disabled add-to-cart button on the PDP /
-  featured product when the selected variant is unavailable. Lets
-  the customer drop their email so the merchant can notify them
-  when the variant is restocked.
-
-  Backend: Shopify's native `{% form 'contact' %}` block. The form
-  POSTs to the customer-contact endpoint, which surfaces the
-  submission in Admin → Settings → Notifications → Customer
-  contact AND triggers Shopify's "New customer contact submission"
-  email to the store owner. Merchants can pipe this into Klaviyo /
-  Mailchimp via Shopify Flow without any theme-side integration.
-
-  Hidden message field auto-fills product title + currently-selected
-  option values + product URL so the merchant sees exactly WHICH
-  variant the customer is waiting on. Without this context the
-  notification reduces to "someone wanted a thing" — useless for
-  restock prioritisation.
-
-  Accepts:
-  - product       (required) Product object
-  - variant       (optional) Selected variant; defaults to selected_or_first_available
-  - section_id    (required) Section identifier for unique IDs
-  - heading       (optional) Modal heading override
-  - description   (optional) Richtext copy shown above the form
-  - show_name     (optional, bool) Render the optional name field
-  - show_phone    (optional, bool) Render the optional phone field
-  - render_mode   (optional) 'trigger' | 'modal' | 'both' (default 'trigger').
-                  When the caller is INSIDE another <form> (e.g. the
-                  product-form's <form action="/cart/add">), the modal's
-                  inner `{% form 'contact' %}` becomes invalid nested
-                  markup — HTML5 parsers ignore the inner <form> tag and
-                  re-parent the email input + submit button onto the
-                  OUTER form. The Notify-me button then silently posts
-                  to /cart/add instead of /contact and the customer
-                  sees "nothing happens". Use render_mode: 'trigger'
-                  inside the form (just the button) and render_mode:
-                  'modal' AFTER the form's {% endform %} (just the
-                  modal). The JS pairs them via [data-modal-target=ID].
-
-                  R-PDP2 — Default flipped from 'both' to 'trigger' so
-                  the duplicate-ID exposure (button + modal sharing the
-                  same `trigger_id` / `modal_id` / `form_id` / `title_id`
-                  when both render at once) can't sneak into a future
-                  caller that forgets to specify the mode. WCAG 4.1.1
-                  (Parsing) explicitly forbids duplicate id attributes;
-                  Theme Store reviewers flag this on automated scans.
-                  Callers that legitimately need both pieces (no outer
-                  form, single render site) still opt in by passing
-                  'both' explicitly.
-{%- endcomment -%}
 
 {%- liquid
   unless variant
@@ -271,13 +218,6 @@
         {{ 'kt.product.back_in_stock.submit' | t | default: 'Send request' }}
       </button>
 
-      {%- comment -%}
-        Shopify's spam-detection disclaimer is required when the
-        form posts to the contact endpoint with reCAPTCHA active.
-        Without it the small reCAPTCHA widget paints in the
-        bottom-right corner of every page that renders this form,
-        which Theme Store reviewers flag as visual noise.
-      {%- endcomment -%}
       {% comment %}theme-check-disable TranslationKeyExists{% endcomment %}
       {%- comment -%}
         Wrapper is intentionally a <div> rather than <p>. Shopify's

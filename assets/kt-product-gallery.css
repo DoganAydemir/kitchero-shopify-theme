@@ -1,7 +1,3 @@
-/* Product Media Gallery — birebir from source PDP gallery
-   Desktop: vertical thumbs left + main image right
-   Mobile: main image top + horizontal thumbs below
-   Fullscreen lightbox with prev/next + zoom */
 
 .kt-gallery {
   display: flex;
@@ -139,17 +135,6 @@
   cursor: zoom-in;
 }
 
-/* R-SS5 — Loader during thumbnail-driven image swap.
-   product-gallery.js adds `.kt-gallery__main--loading` to this
-   container when the user taps a thumbnail whose image hasn't
-   finished loading yet, and removes it when `load` (or `error`)
-   fires. The spinner is a CSS-only ::after element, centred via
-   the position: absolute + 50% / translate trick, so no extra
-   markup is needed. Sits at z-index 5 above the slide stack but
-   below the lightbox so opening the lightbox while loading
-   doesn't trap the spinner in front. The keyframes animate
-   independently of the JS so reduced-motion users still see
-   that something is happening without the rotation. */
 .kt-gallery__main--loading::before {
   content: "";
   position: absolute;
@@ -211,12 +196,6 @@
   inset: 0;
 }
 
-/* R94 — image slides are now native `<button>` elements (R94 fix
-   for the WCAG-flagged div+role=button code-smell). Native button
-   ships with user-agent chrome (background, border, padding, font,
-   cursor) that the slide CSS doesn't account for. Reset only the
-   image-variant button so non-image slide divs (video, model,
-   external_video) keep their default block-element behaviour. */
 button.kt-gallery__slide--image {
   appearance: none;
   -webkit-appearance: none;
@@ -258,8 +237,6 @@ button.kt-gallery__slide--image {
   display: none;
   position: fixed;
   inset: 0;
-  /* R113 — lightbox tier; close + nav buttons sit +10 above so
-     they paint over the lightbox content. */
   z-index: var(--kt-z-lightbox);
   background-color: rgba(0, 0, 0, 0.95);
   align-items: center;
@@ -373,11 +350,6 @@ button.kt-gallery__slide--image {
   .kt-lightbox__nav--next { right: 2rem; }
 }
 
-/* R19-E: lightbox slide counter. Top-centered pill behind the
-   close button. Position fixed inside the modal so it survives
-   the zoomed-image translate. Uses translucent background so it
-   reads against any product photo behind. Hidden in print —
-   counters belong on screen, not paper. */
 .kt-lightbox__counter {
   position: absolute;
   top: 1rem;
@@ -411,12 +383,6 @@ button.kt-gallery__slide--image {
   cursor: zoom-in;
 }
 
-/* When zoomed the viewport turns into a scrollable block so the
-   oversized image can overflow. On touch devices the user drags
-   with their finger (native overflow scroll). On fine-pointer
-   devices (mouse / trackpad) we disable overflow in JS and pan
-   the image via transform based on cursor position — a more
-   natural "magnifier" UX. */
 .kt-lightbox__viewport--zoomed {
   cursor: zoom-out;
   overflow: auto;
@@ -445,8 +411,6 @@ button.kt-gallery__slide--image {
   opacity: 1;
 }
 
-/* Elegant spinner — w-12 h-12 border-2 border-stone-600 border-t-white rounded-full animate-spin
-   (birebir from product/[id]/page.tsx) */
 .kt-lightbox__spinner {
   position: absolute;
   top: 50%;
@@ -479,10 +443,6 @@ button.kt-gallery__slide--image {
   }
 }
 
-/* Zoomed image — override max-width/max-height + object-fit so the
-   image can exceed the viewport. Uses width-based scaling (200% mobile,
-   300% tablet, 400% small mobile) so it matches the Next.js source's
-   w-[400vw] md:w-[300vw] lg:w-[200vw] behavior. */
 .kt-lightbox__viewport--zoomed .kt-lightbox__image {
   max-width: none !important;
   max-height: none !important;

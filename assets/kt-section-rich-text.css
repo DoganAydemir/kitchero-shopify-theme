@@ -64,7 +64,6 @@
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: rgb(var(--kt-c-fg));
-  /* R106 — anywhere wrap so a long custom heading doesn't break layout */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -82,12 +81,6 @@
 
 /* ── Block: text (richtext) ──────────────────────────────────────── */
 
-/* R286 — Was `color: rgba(var(--kt-c-fg), 0.85)`, near-heading
-   strength on light schemes. Reporter said the description read
-   as too dark next to the serif heading, breaking the hierarchy.
-   Drop to 0.6 to land around the muted-body treatment used
-   elsewhere (ecosystem feature-desc, multicolumn column-text,
-   featured-* descriptions after R281b). */
 .kt-rich-text__text {
   font-size: 1rem;
   line-height: 1.6;
@@ -98,14 +91,6 @@
 .kt-rich-text__text > *:first-child { margin-top: 0; }
 .kt-rich-text__text > *:last-child { margin-bottom: 0; }
 
-/* R286 — Text wrapper carries the `rte` companion class so
-   base.css `.rte p { color: rgb(var(--kt-c-fg)) }` pins the
-   inner `<p>` to full-strength fg, breaking the wrapper-level
-   mute. Push the muted alpha onto the richtext children
-   directly. Specificity (0,0,2,1) > `.rte p` (0,0,1,1). Same
-   pattern shipped for featured-collection / featured-products
-   / featured-product / multicolumn / main-product short-desc
-   / password message (all R281b). */
 .kt-rich-text__text p,
 .kt-rich-text__text li,
 .kt-rich-text__text blockquote {
@@ -140,16 +125,6 @@
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
-  /* R-rich-text-btn-pill — Was `var(--kt-btn-radius, 4px)` —
-     `--kt-btn-radius` defaults to 0 in settings_schema, so the
-     buttons rendered as sharp rectangles while the rest of the
-     theme (banner-hero, banner-minimal, banner-split, brands,
-     deals-grid, cookie-banner, customer-account, financing-cta,
-     financing-cta__btn) all hardcode pill 9999px. Switched to
-     match — Kitchero brand convention is pill buttons. The
-     global token is retained on its own pages where merchants
-     can dial it in, but the rich-text block sits inside the
-     in-section CTA pattern and should always be a pill. */
   border-radius: 9999px;
   transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
@@ -169,7 +144,6 @@
 .kt-rich-text__button--secondary {
   background-color: transparent;
   color: rgb(var(--kt-c-fg));
-  /* R105 — WCAG 1.4.11. 0.45 alpha ≥3:1 against scheme bg. */
   border: 1px solid rgba(var(--kt-c-fg), 0.45);
 }
 

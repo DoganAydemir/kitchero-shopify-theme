@@ -1,18 +1,5 @@
-/* ============================================================
-   Deals Grid — full-page deals template (/pages/deals, etc.)
-   Birebir from Next.js /deals page. Premium package cards with
-   tier badge, popular flag, price + includes overlay on the
-   image, strikethrough original price in the body, accent line,
-   and a fill-on-hover CTA.
-
-   Section background stone-50 to separate the cards. The dotted
-   page header is rendered via the shared page-header-dotted
-   snippet, so this file only styles the grid + bottom CTA.
-   ============================================================ */
 
 .kt-deals {
-  /* R232.49 — scheme-aware bg + text. Was transparent; scheme variables paint
-     the merchant's chosen bg, fallback white preserves a sensible default. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 5rem 0;
@@ -39,7 +26,6 @@
 
 /* ── Card ───────────────────────────────────────────────── */
 
-/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-deals__card {
   display: flex;
   flex-direction: column;
@@ -53,11 +39,6 @@
   position: relative;
 }
 
-/* Hover effects gated on `hover: hover` so iOS taps don't leave the
-   card painted in a sticky hover state until the user taps something
-   else. Same rationale as `.kt-card-product` (see kt-card-product.css
-   header comment) — Theme Store reviewers flag iOS sticky-hover as a
-   visibly broken state on mobile. */
 @media (hover: hover) and (pointer: fine) {
   .kt-deals__card:hover {
     border-color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
@@ -291,7 +272,7 @@
 
 .kt-deals__card-original-price {
   font-size: 0.875rem;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   text-decoration-line: line-through;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
@@ -315,7 +296,7 @@
 
 .kt-deals__card-desc {
   font-size: 0.875rem;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   line-height: 1.55;
   margin: 0;
 }
@@ -404,7 +385,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0 auto 2.5rem auto;
   max-width: 32rem;
 }

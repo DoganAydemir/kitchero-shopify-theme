@@ -1,11 +1,3 @@
-{%- comment -%}
-  Financing Calculator — interactive "pay monthly" calculator ported from
-  the Next.js financing page. A large centered card on a stone-50 bg.
-  Contains: loan-amount input with a huge serif $ prefix, a 3-column grid
-  of term buttons (each showing the computed monthly payment, APR, and
-  the "MONTHS" label), a primary CTA, and a trust line. All math runs
-  client-side in plain JS. Term blocks are merchant-editable.
-{%- endcomment -%}
 
 {{ 'kt-section-financing-calculator.css' | asset_url | stylesheet_tag }}
 
@@ -15,8 +7,8 @@
 {%- assign financing_disclaimer_default = 'kt.section.financing-calculator.disclaimer_default' | t -%}
 
 <section
-  class="kt-financing-calculator color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-financing-calculator color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="financing-calculator"
   data-default-amount="{{ section.settings.default_amount | default: 8000 }}"
@@ -71,20 +63,6 @@
           </div>
 
           {%- if section.blocks.size > 0 -%}
-            {%- comment -%}
-              R298 — `role="group"` (was `role="radiogroup"`). ARIA spec
-              requires `radiogroup` parents to contain `role="radio"`
-              children; we render toggle `<button aria-pressed>` instead,
-              which is a `button` ARIA pattern, not `radio`. axe-core
-              flags the mismatch as `aria-required-children` (serious
-              severity). Switching to `role="group"` keeps the labelled
-              grouping for screen readers while letting each child
-              continue as a toggle button — semantically these ARE
-              mutually-exclusive options, but reimplementing as native
-              radios would change keyboard semantics (arrow keys vs.
-              Tab) and break the existing JS handlers; `role="group"`
-              is the conservative ARIA-valid fix.
-            {%- endcomment -%}
             <div
               class="kt-financing-calculator__terms"
               role="group"
@@ -102,7 +80,6 @@
                     data-calc-term
                     data-months="{{ block.settings.months }}"
                     data-apr="{{ block.settings.apr }}"
-                    data-accent="{{ block.settings.accent_color | default: 'neutral' }}"
                     aria-pressed="{% if is_default %}true{% else %}false{% endif %}"
                     {{ block.shopify_attributes }}
                   >
@@ -110,25 +87,11 @@
                       {{- block.settings.months }} {{ section.settings.months_label | default: financing_months_label_default -}}
                     </span>
                     <span class="kt-financing-calculator__term-price">
-                      {%- comment -%}
-                        R108 — `<output>` is the HTML5 element for
-                        "the result of a calculation"
-                        (html.spec.whatwg.org/multipage/form-elements.html#the-output-element).
-                        Each term button shows the JS-computed
-                        monthly payment for that term. SR users on
-                        modern AT (NVDA, JAWS, VoiceOver) hear
-                        "output" rather than the generic "text" they
-                        would for a `<span>`. We don't add aria-live
-                        because the customer types in the amount
-                        input rapidly; announcing every keystroke
-                        would be noise — the user navigates to each
-                        term to read it.
-                      {%- endcomment -%}
                       <output class="kt-financing-calculator__term-amount" data-calc-price for="FinancingCalcAmount-{{ section.id }}">0</output>
                       <span class="kt-financing-calculator__term-per">{{ 'kt.product.price.per_month_short' | t }}</span>
                     </span>
                     <span
-                      class="kt-financing-calculator__term-apr kt-financing-calculator__term-apr--{{ block.settings.accent_color | default: 'neutral' }}"
+                      class="kt-financing-calculator__term-apr{% if block.settings.highlight_apr %} kt-financing-calculator__term-apr--highlight{% endif %}"
                     >
                       {%- comment -%}
                         When the merchant fills `apr_label`, display it verbatim
@@ -161,17 +124,6 @@
             </div>
           {%- endif -%}
 
-          {%- comment -%}
-            R159 FINANCING-DISCLAIMER-1: Theme Store reviewers
-            flag financing UI without an explicit "estimate, not
-            an offer" disclaimer because the values are merchant-
-            configured (anyone could enter a fictitious low APR
-            to look attractive). Always-on disclaimer below the
-            calculator clarifies that this is a payment-estimate
-            tool, not a credit pre-approval. Merchant-overridable
-            via section setting; falls back to a localized default.
-            ChatGPT cross-audit Orta Risk #4.
-          {%- endcomment -%}
           <p class="kt-financing-calculator__disclaimer">
             {{ section.settings.disclaimer | default: financing_disclaimer_default }}
           </p>
@@ -296,35 +248,6 @@
       "default": "<p>Disclaimer</p>"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -361,20 +284,10 @@
           "default": "Label"
         },
         {
-          "type": "select",
-          "id": "accent_color",
-          "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.label",
-          "options": [
-            {
-              "value": "emerald",
-              "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.options__emerald.label"
-            },
-            {
-              "value": "neutral",
-              "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.options__neutral.label"
-            }
-          ],
-          "default": "emerald"
+          "type": "checkbox",
+          "id": "highlight_apr",
+          "label": "t:sections.financing-calculator.blocks.term.settings.highlight_apr.label",
+          "default": false
         }
       ]
     }
@@ -389,7 +302,7 @@
           "settings": {
             "months": 12,
             "apr": 0,
-            "accent_color": "emerald"
+            "highlight_apr": true
           }
         },
         {
@@ -397,7 +310,7 @@
           "settings": {
             "months": 24,
             "apr": 0,
-            "accent_color": "neutral"
+            "highlight_apr": false
           }
         },
         {
@@ -405,7 +318,7 @@
           "settings": {
             "months": 36,
             "apr": 0,
-            "accent_color": "neutral"
+            "highlight_apr": false
           }
         }
       ]

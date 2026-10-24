@@ -1,25 +1,3 @@
-/**
- * Gallery — Stack Carousel (Style 02)
- *
- * Manages activeIndex per section. Each card gets one of:
- *   - is-active    (activeIndex)
- *   - is-prev      (activeIndex - 1, wrapped)
- *   - is-next      (activeIndex + 1, wrapped)
- *   - is-hidden-left  / is-hidden-right  (everything else; side chosen by
- *     shortest path so cards exit toward the correct edge)
- *
- * Controls:
- *   - Arrow buttons (prev / next)
- *   - Numbered index list (click to jump)
- *   - Clicking a prev/next card pulls it to center
- *
- * Autoplay is optional (per-section setting). It pauses on hover, focus-in,
- * tab visibility change, and reduced-motion.
- *
- * The outer `if (!window.__kitcheroGalleryStackLoaded)` guard prevents
- * double-binding if the same script ends up on the page twice (Section
- * Rendering API, editor rehydration).
- */
 if (!window.__kitcheroGalleryStackLoaded) {
   window.__kitcheroGalleryStackLoaded = true;
 
@@ -27,7 +5,7 @@ if (!window.__kitcheroGalleryStackLoaded) {
     'use strict';
 
     var SELECTOR = '[data-section-type="gallery-stack"]';
-    var instances = new Map(); /* sectionId -> instance */
+    var instances = new Map();
 
     var reducedMotion =
       typeof window.matchMedia === 'function' &&
@@ -38,13 +16,11 @@ if (!window.__kitcheroGalleryStackLoaded) {
     }
 
     function getCardSide(cardIndex, activeIndex, total) {
-      /* Returns 'prev', 'next', 'active', 'hidden-left', or 'hidden-right'
-       * based on the shortest signed distance around the ring. */
       if (cardIndex === activeIndex) return 'active';
 
       var diff = cardIndex - activeIndex;
       var half = total / 2;
-      /* Wrap into [-half, half] */
+
       if (diff > half) diff -= total;
       else if (diff < -half) diff += total;
 
@@ -137,7 +113,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
       var sectionId = section.dataset.sectionId;
       if (!sectionId) return null;
 
-      /* If this section is already bound, tear it down first. */
       if (instances.has(sectionId)) {
         teardown(sectionId);
       }
@@ -181,7 +156,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         instance.listeners.push({ el: el, event: event, handler: handler, options: options });
       }
 
-      /* Pause/play toggle — WCAG 2.2.2. */
       on(instance.playToggle, 'click', function () {
         instance.userPaused = !instance.userPaused;
         if (instance.userPaused) {
@@ -192,7 +166,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         instance.playToggle.setAttribute('aria-pressed', instance.userPaused ? 'false' : 'true');
       });
 
-      /* Arrow buttons */
       on(instance.prevBtn, 'click', function () {
         goTo(instance, instance.activeIndex - 1);
         startAutoplay(instance);
@@ -202,7 +175,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         startAutoplay(instance);
       });
 
-      /* Index buttons */
       instance.indexButtons.forEach(function (btn) {
         on(btn, 'click', function () {
           var idx = parseInt(btn.dataset.index, 10);
@@ -212,7 +184,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         });
       });
 
-      /* Click-to-activate on cards (only if they're prev/next) */
       cards.forEach(function (card) {
         on(card, 'click', function () {
           var idx = parseInt(card.dataset.cardIndex, 10);
@@ -235,14 +206,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         });
       });
 
-      /* R-touch-swipe — Touch swipe + autoplay pause on mobile.
-         The stack carousel visually looks swipeable (active card
-         centered, prev/next peeking) and Theme Store reviewers test
-         this on iPhone — a clearly-swipeable-looking carousel that
-         ignores swipe is a documented rejection. Threshold 50px
-         matches other carousel sections (hero, cinematic-hero).
-         Vertical-dominant swipes are ignored so the user can still
-         scroll the page over the stack. */
       var touchStartX = 0;
       var touchStartY = 0;
       var touchActive = false;
@@ -265,8 +228,7 @@ if (!window.__kitcheroGalleryStackLoaded) {
         var dy = changed.clientY - touchStartY;
         var absDx = Math.abs(dx);
         var absDy = Math.abs(dy);
-        /* Only treat as swipe if horizontal-dominant AND past
-           threshold; otherwise the user was scrolling vertically. */
+
         if (absDx > 50 && absDx > absDy) {
           if (dx < 0) {
             goTo(instance, instance.activeIndex + 1);
@@ -274,8 +236,7 @@ if (!window.__kitcheroGalleryStackLoaded) {
             goTo(instance, instance.activeIndex - 1);
           }
         }
-        /* Resume autoplay after a brief grace period so the user's
-           gesture isn't immediately overridden. */
+
         setTimeout(function () { startAutoplay(instance); }, 800);
       }, { passive: true });
       on(section, 'touchcancel', function () {
@@ -283,7 +244,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         startAutoplay(instance);
       }, { passive: true });
 
-      /* Pause autoplay on hover / focus */
       on(section, 'mouseenter', function () {
         stopAutoplay(instance);
       });
@@ -299,7 +259,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
         }
       });
 
-      /* Pause when tab is hidden */
       instance.visibilityHandler = function () {
         if (document.hidden) {
           stopAutoplay(instance);
@@ -348,7 +307,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
       initAll();
     }
 
-    /* Theme editor: rebind only the reloaded section */
     document.addEventListener('shopify:section:load', function (event) {
       var target = event.target;
       if (!target) return;
@@ -375,9 +333,6 @@ if (!window.__kitcheroGalleryStackLoaded) {
       if (instance) startAutoplay(instance);
     });
 
-    /* Theme editor: when the merchant selects an image block in the
-       sidebar, pull that card to center. event.target is the block
-       element (the <button data-stack-card data-card-index>). */
     document.addEventListener('shopify:block:select', function (event) {
       var sectionId = event.detail && event.detail.sectionId;
       var instance = sectionId && instances.get(sectionId);

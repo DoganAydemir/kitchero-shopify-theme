@@ -1,33 +1,5 @@
 {{ 'kt-section-visualize-studio.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Visualize Studio — "Lumina Visual Studio" pro upgrade block.
-  Birebir from showroom/[id]/page.tsx bottom CTA section.
-  Immersive dark background + text on left, glassmorphic contact form on right.
-
-  Uses Shopify {% form 'contact' %} for no-JS submission fallback.
-
-  DESIGN INTENT — no section-level color_scheme setting:
-  Immersive dark cinematic section with full-bleed background image +
-  80% dark overlay + glassmorphic translucent form panel. Color
-  schemes can't penetrate the overlay (any scheme bg gets covered by
-  the fixed rgba(28,25,23,0.8) layer), and the amber accent + white
-  typography are integral to the "Lumina Visual Studio" pro upgrade
-  brand identity. Theme-level color customization remains available
-  via the global color_scheme_group (kt_schemes) in settings_schema.
-{%- endcomment -%}
-
-{%- comment -%}
-  R-SS6 — accent color from merchant setting. The previous amber-500
-  decoration was a holdover from the Next.js source palette and
-  clashed with merchants who picked a different primary color in
-  theme settings. The new `accent_color` setting (defaults to the
-  theme primary set in settings_schema) lets every visualize-studio
-  instance match the rest of the storefront's accent treatment.
-  Token name uses the theme primary token (--kt-c-primary) when the
-  merchant leaves the setting blank, with a final hardcoded white
-  fallback so the eyebrow + rule always have some visible color.
-{%- endcomment -%}
 {%- liquid
   capture visualize_inline_vars
     if section.settings.accent_color != blank
@@ -77,15 +49,6 @@
           {%- endif -%}
         </div>
 
-        {%- comment -%}
-          R115 — default flipped to h2 (matches schema default
-          flip below). h3 was the previous default but if a
-          merchant reordered the home page so this section is
-          the first one after main-product or any h1 surface,
-          h1 → h3 was an invalid heading-skip per WCAG 1.3.1.
-          h2 is the safe default for stackable sections; merchants
-          who genuinely want h3 can still pick it.
-        {%- endcomment -%}
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         {%- if section.settings.heading_line1 != blank or section.settings.heading_line2 != blank -%}
           <{{ heading_tag }} class="kt-visualize-studio__heading">
@@ -111,17 +74,6 @@
             <p class="kt-visualize-studio__form-subheading">{{ section.settings.form_subheading | escape }}</p>
           {%- endif -%}
 
-          {%- comment -%}
-            R151 VISUALIZE-STUDIO-SWAP-1: when form posts
-            successfully, swap the form for the success message
-            instead of rendering both. Pattern matches
-            newsletter-signup / footer newsletter / main-register
-            which all use `{%- if posted -%}…{%- else -%}…{%- endif -%}`
-            so the customer doesn't see a "Thanks" message ABOVE
-            an unfilled form (looks like submission failed).
-            R148 audit caught this. Single-form-instance success
-            UX is the codebase convention.
-          {%- endcomment -%}
           {%- form 'contact', id: 'visualize-studio-form', class: 'kt-visualize-studio__form' -%}
             {%- if form.posted_successfully? -%}
               <p class="kt-visualize-studio__success" role="status" data-contact-feedback="visualize-studio-form">
@@ -129,12 +81,6 @@
               </p>
             {%- endif -%}
             {%- if form.errors -%}
-              {%- comment -%}
-                R297 — `data-form-error-summary` + anchor-wrapped
-                field errors. Both visible inputs (Name, Email) are
-                section-id-suffixed per R296 (`VisualizeStudioName-
-                {{section.id}}`); the anchors must mirror those IDs.
-              {%- endcomment -%}
               <div class="kt-form__error-summary" data-form-error-summary tabindex="-1" data-contact-feedback="visualize-studio-form">
                 <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
                 <ul class="kt-form__error-list">
@@ -195,13 +141,6 @@
               {%- render 'form-field-error', form: form, field: 'email', describedby_id: vs_email_error_id -%}
             </div>
 
-            {%- comment -%}
-              Honeypot — see base.css `.kt-form__honeypot` for positioning.
-              Backend should reject any submission with a non-empty
-              `contact[website]`. R296: ID suffixed with `section.id` so
-              two instances of the section on the same template don't
-              produce duplicate IDs (WCAG 4.1.1 fail).
-            {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true" inert>
               <label for="VisualizeStudioWebsiteTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
               <input type="text" id="VisualizeStudioWebsiteTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -232,13 +171,6 @@
               value="{{ visualize_body_message | strip | escape }}"
             >
 
-            {%- comment -%}
-              R342 LEGAL-PRIVACY-VISUALIZE: PII collection (name +
-              email) triggers GDPR Art. 13 disclosure-at-collection.
-              Privacy policy link gated on shop.privacy_policy so
-              brand-new stores without a published policy don't
-              render a broken link.
-            {%- endcomment -%}
             {%- if shop.privacy_policy != blank -%}
               <p class="kt-visualize-studio__privacy">
                 {{ 'kt.section.contact.privacy_note_html' | t: link: shop.privacy_policy.url }}

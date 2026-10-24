@@ -1,18 +1,5 @@
-/* ============================================================
-   Footer Section — Kitchero Theme
-   Ported from Next.js Footer.tsx
-   BEM naming: .kt-footer, .kt-footer__*
-   ============================================================ */
 
 .kt-footer {
-  /* R232.54 — Footer was hardcoded `var(--kt-black)` + `var(--kt-stone-100)`
-     which overrode the schema's `color_scheme` setting entirely (user
-     feedback: "footer'a uygulanmıyor bu scheme"). The footer schema
-     ships `color_scheme` and the markup already emits the `color-X`
-     class — only the CSS needed wiring. Default scheme is `scheme-4`
-     (Dark Editorial) so the out-of-box look stays black-ish, matching
-     the original design. Merchants can flip to any other scheme via
-     Footer → Color scheme. */
   background-color: rgb(var(--kt-c-bg, 0 0 0));
   color: rgb(var(--kt-c-fg, 245 245 244));
   padding: 6rem 1.5rem;
@@ -31,12 +18,6 @@
   /* Uses .page-width class from Liquid for consistent container */
 }
 
-/* Main Grid
-   R-SS2 — Mobile grid gap raised from 3rem to 4.5rem so the
-   stacked columns (brand → footer menu → main menu) read as
-   discrete groups instead of one flowing list. Desktop keeps
-   3rem since the columns sit side-by-side and don't suffer the
-   same "everything piles up" problem. */
 .kt-footer__grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -54,28 +35,15 @@
 /* Brand Column */
 .kt-footer__brand-heading {
   font-family: var(--kt-f-accent-family);
-  /* R213 FLUID-TYPO: stepped 3rem mobile / 4.5rem ≥750px →
-     clamp() so "Let's build your dream space." doesn't jump
-     to its full-desktop 4.5rem the moment viewport crosses
-     750px. Lands ~3.6rem on laptop. */
   font-size: clamp(3rem, 4vw + 1rem, 4.5rem);
   font-style: italic;
   letter-spacing: -0.025em;
   line-height: 1.1;
   margin-bottom: 2rem;
-  /* R232.54 — scheme-aware (was hardcoded white). */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
 .kt-footer__brand-text {
-  /* Cool neutral tint (translucent white) instead of stone-500.
-     stone-500 is #78716c — a warm brown-grey designed for light
-     backgrounds. On the dark footer it reads with a brown tinge
-     that contrasts oddly against the otherwise neutral palette;
-     user described it as "looks like a different grey, not THE
-     grey". rgba(255, 255, 255, 0.55) is a true neutral muted
-     white that sits cleanly against the stone-900 footer.
-     R232.54 — scheme-aware. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   /* Was 1.25rem (20px) — too prominent on mobile, competing with
      the headline above. 0.9375rem (15px) restores the typographic
@@ -104,7 +72,6 @@
   gap: 1rem;
   font-size: 1.25rem;
   font-weight: 500;
-  /* R232.54 — scheme-aware. */
   color: rgb(var(--kt-c-fg, 255 255 255));
   text-decoration: none;
   padding-bottom: 1rem;
@@ -122,10 +89,6 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  /* R232.54 — Action-themed pill. The CTA arrow circle inverts vs
-     the surface: bg uses --kt-c-action (always contrasts surface),
-     icon uses --kt-c-action-text. Falls back to white-on-black
-     (the original dark-footer pairing). */
   background-color: rgb(var(--kt-c-action, 255 255 255));
   color: rgb(var(--kt-c-action-text, 0 0 0));
   border-radius: 50%;
@@ -136,49 +99,18 @@
   transform: scale(1.1) translateY(-2px);
 }
 
-/* Link Columns — ported birebir from Next.js Footer.tsx:
-     h4: text-sm uppercase tracking-[0.2em] text-stone-500
-         font-semibold mb-8
-     ul: space-y-4 text-stone-300 text-lg font-light
-     a:  hover:text-white transition-colors */
 .kt-footer__column-title {
   font-size: 0.75rem;
-  /* R-followup — Eyebrow weight dropped 600 → 500 and alpha
-     0.55 → 0.38. The previous combination (bold + uppercase +
-     wide tracking + 0.55 alpha) optically matched the lighter
-     links underneath (font-weight 300, alpha 0.75) — bold + lower
-     alpha balanced against light + higher alpha, so the eyebrow
-     read at the same "weight" as the navigation items it was
-     supposed to sit above. Reporter: "başlıklar link lerle aynı
-     renk sertliğinde, daha muted durmalı". Pulling the eyebrow
-     to alpha 0.38 with weight 500 keeps the uppercase + tracking
-     typographic distinction intact while clearly demoting the
-     label below the link contrast — the column title now reads
-     as a quiet section marker, links read as the primary
-     content. Font-size also dropped 0.875 → 0.75rem to reinforce
-     the hierarchy. */
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.38);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 2.5rem;
 }
 
 .kt-footer__link-list {
   display: flex;
   flex-direction: column;
-  /* R-SS2-followup — Mobile gap walked back from 1.25rem to 0.25rem.
-     Each link already carries `padding: 0.5rem 0` (1rem total
-     vertical) for its WCAG 2.5.8 tap target, so a 0.25rem flex gap
-     stacks to a ~22px effective separation between link centres —
-     dense enough that the list reads as one continuous column,
-     not a bullet-spaced list. The merchant flagged the 1.25rem
-     value as "aşırı fazla boşluk" on mobile; this restores the
-     compact density they wanted while the column-title margin
-     (2.5rem) and grid gap (4.5rem between columns) still carry
-     the heavy lifting on group separation. Desktop bumps back up
-     a notch via the breakpoint below — wider screens benefit
-     from a slightly looser list rhythm. */
   gap: 0.25rem;
   list-style: none;
   padding: 0;
@@ -201,28 +133,15 @@
   margin: 0;
   font-size: 0.875rem;
   font-style: italic;
-  /* R232.54 — scheme-aware. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   line-height: 1.5;
 }
 
 .kt-footer__link {
-  /* Was 1.125rem (18px) on mobile — links read as second-level
-     headings instead of navigation. Stepping down to 0.9375rem
-     (15px) lets the column headings ("FOOTER MENU", "MAIN MENU")
-     sit above the links in the hierarchy, the way the user
-     expects from a footer. Desktop steps back to 1rem (16px),
-     still readable but no longer "shouting".
-     R296 — `display: inline-block` + 0.5rem block padding pushes
-     each link's tap-zone to ~36-40px tall so consecutive links
-     no longer fail WCAG 2.5.8 (≥24px effective target including
-     spacing). 0.5rem block padding stacks with the parent `gap:
-     1rem` for a generous tap surface on mobile. */
   display: inline-block;
   padding: 0.5rem 0;
   font-size: 0.9375rem;
   font-weight: 300;
-  /* R232.54 — scheme-aware link color (was stone-300). */
   color: rgba(var(--kt-c-fg, 211 211 211), 0.75);
   text-decoration: none;
   transition: color 0.25s ease;
@@ -238,7 +157,6 @@
 
 .kt-footer__link:hover,
 .kt-footer__link:focus-visible {
-  /* R232.54 — scheme-aware hover. */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
@@ -263,21 +181,16 @@
   line-height: 0.75;
   font-weight: 700;
   letter-spacing: -0.05em;
-  /* R232.54 — Ghosted wordmark. Was hardcoded stone-900 which on a
-     stone-900 footer = "barely-visible giant wordmark" by design.
-     For scheme-aware, use --kt-c-fg at very low alpha so the same
-     ghost effect lands on any scheme (light surfaces get a faint
-     dark ghost, dark surfaces get a faint light ghost). */
   color: rgba(var(--kt-c-fg, 28 25 23), 0.06);
   text-transform: uppercase;
   user-select: none;
   pointer-events: none;
-  /* R-SS3 — Bottom margin so the giant wordmark doesn't kiss the
-     divider above the copyright row. `line-height: 0.75` was
-     stripping the natural type leading from the bottom edge of
-     the letterform, pushing the divider rule right against the
-     descender tail. Mobile uses 2rem, desktop 2.5rem. */
   margin-bottom: 2rem;
+}
+
+/* Decorative wordmark: drawn from data-text so it is not read as page text. */
+.kt-footer__branding-text::before {
+  content: attr(data-text);
 }
 
 @media screen and (min-width: 750px) {
@@ -289,13 +202,7 @@
 /* Bottom Bar */
 .kt-footer__bottom {
   width: 100%;
-  /* R-SS3 — Bumped padding-top from 1.5rem to 2rem so the
-     divider rule and the copyright row don't crowd the giant
-     wordmark above. The duplicated `padding-top` assignment
-     (was 2rem then re-set to 1.5rem) is fixed: single 2rem
-     value. */
   padding-top: 2rem;
-  /* R232.54 — scheme-aware divider. */
   border-top: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.08);
   display: flex;
   flex-direction: column;
@@ -317,27 +224,22 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.6875rem;
-  /* R232.54 — scheme-aware muted footnote. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   font-weight: 500;
   letter-spacing: -0.01em;
   height: 2.5rem;
 }
 
 .kt-footer__copyright a {
-  /* R232.54 — scheme-aware. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   text-decoration: underline;
   text-underline-offset: 0.25rem;
   transition: color 0.2s ease;
 }
 
 .kt-footer__copyright a:hover {
-  /* R232.54 — slight brighten on hover. */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.85);
 }
-
-/* ── R139 PRIVACY-1: Cookie preferences re-access button ── */
 
 .kt-footer__cookie-preferences {
   display: inline-flex;
@@ -348,8 +250,7 @@
   border: none;
   font: inherit;
   font-size: inherit;
-  /* R232.54 — scheme-aware. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   text-decoration: underline;
   text-underline-offset: 0.25rem;
   cursor: pointer;
@@ -358,7 +259,6 @@
 
 .kt-footer__cookie-preferences:hover,
 .kt-footer__cookie-preferences:focus-visible {
-  /* R232.54 — slight brighten on hover (was stone-700 which was actually DARKER on the dark footer, surprisingly low contrast — fixed by going brighter for consistent hover affordance). */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.85);
 }
 
@@ -378,27 +278,12 @@ html.no-js .kt-footer__cookie-preferences {
   flex-wrap: wrap;
 }
 
-/* R232.7 — `<select>` + Update button row inside each localization
-   form. Previously the button inherited the global `.button` size
-   (1.2rem × 2.4rem padding) which dwarfed the country/language pill
-   next to it. Tight row sizing keeps the pair visually balanced and
-   the button reads as the secondary affordance the WCAG-3.2.2
-   "no auto-submit" rule requires us to ship. */
 .kt-footer__localization-form .localization-selector {
   display: inline-flex;
   align-items: stretch;
   gap: 0.5rem;
 }
 
-/* R232.55 — Footer-scoped localization wrapper override. The global
-   `.localization-selector` in `kt-localization-form.css` paints the
-   wrapper with `color: var(--kt-stone-400)`. The select inside used
-   to `color: inherit` from that wrapper, so the dropdown text
-   inherited stone-400 (muted dark grey) — on a scheme-5 emerald
-   footer that reads as faded pink-ish on green (user feedback:
-   "dropdown text sıkıntılı görünüyor"). Force the wrapper AND its
-   select to follow the footer's scheme `--kt-c-fg` so the text is
-   readable against any scheme surface. */
 .kt-footer__localization-form .localization-selector {
   color: rgb(var(--kt-c-fg, 168 162 158));
 }
@@ -414,20 +299,7 @@ html.no-js .kt-footer__cookie-preferences {
   color: rgb(var(--kt-c-fg, 168 162 158));
   border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.22);
   border-radius: 9999px;
-  /* R232.17 — extra right padding (2.25rem vs left 1.25rem) reserves
-     room for the custom chevron SVG painted via background-image
-     below. The previous version stripped the native UA arrow via
-     `appearance: none` but never replaced it, leaving the browser's
-     half-clipped fallback glyph visible on the right edge. */
   padding: 0.5rem 2.25rem 0.5rem 1.25rem;
-  /* R232.55 — Background-image chevron REMOVED. The R232.17 inline
-     SVG had `stroke="white"` hardcoded — claimed to be scheme-aware
-     in the comment but white-on-emerald (scheme-5) read as
-     mismatched. The global `.localization-selector::after` already
-     draws a chevron via `mask-image + currentColor` on the WRAPPER,
-     so removing this duplicate background-image lets that ::after
-     take over and follow whatever color the wrapper is using —
-     which now tracks the scheme. */
   font: inherit;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
@@ -496,7 +368,6 @@ html.no-js .kt-footer__cookie-preferences {
 .kt-footer__policies {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  /* R232.54 — scheme-aware divider (was hardcoded stone-800 fallback). */
   border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.12);
 }
 
@@ -509,7 +380,7 @@ html.no-js .kt-footer__cookie-preferences {
 }
 
 .kt-footer__policy-link {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   font-size: 0.8125rem;
   text-decoration: none;
   border-bottom: 1px solid transparent;
@@ -543,7 +414,7 @@ html.no-js .kt-footer__cookie-preferences {
      extra area around the icon just catches taps. */
   min-width: 44px;
   min-height: 44px;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   transition: color 0.2s ease;
 }
 
@@ -565,29 +436,20 @@ html.no-js .kt-footer__cookie-preferences {
 .kt-footer__newsletter-input {
   flex: 1;
   background: transparent;
-  /* R105 — WCAG 1.4.11. white@0.15 on dark footer was ~1.1:1.
-     0.45 alpha lifts to ~3:1 against the kt-footer dark scheme. */
   border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.45);
   color: rgb(var(--kt-c-fg, 250 250 249));
   border-radius: 4px;
   padding: 0.75rem 1rem;
-  /* R104 — 1rem prevents iOS Safari zoom-on-focus on the
-     footer newsletter email input. */
   font-size: 1rem;
 }
 
 .kt-footer__newsletter-input::placeholder {
-  /* R105 — WCAG 1.4.3 (4.5:1). stone-500 on stone-900 was ~3.7:1
-     — fails AA. stone-300 (#d6d3d1) ≈ 12:1 on dark footer,
-     comfortably clears AA while keeping the placeholder visibly
-     dimmer than typed text. */
   color: rgba(var(--kt-c-fg, 211 211 211), 0.75);
 }
 
 .kt-footer__newsletter-btn {
   white-space: nowrap;
   padding: 0.75rem 1.5rem;
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -609,9 +471,6 @@ html.no-js .kt-footer__cookie-preferences {
   color: var(--kt-red-600, #dc2626);
 }
 
-/* R122 — GDPR consent checkbox row in footer newsletter block.
-   Footer is on dark background (kt-stone-900-ish); checkbox uses
-   stone-50 accent so the checked state is visible against dark. */
 .kt-footer__newsletter-consent {
   margin: 0.625rem 0 0;
   display: flex;

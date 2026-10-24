@@ -1,25 +1,3 @@
-{%- comment -%}
-  Customer account sidebar navigation — shared across main-account,
-  main-addresses, and main-order so a signed-in customer sees the
-  same shell everywhere and `aria-current` flips to the right link.
-
-  Accepts:
-  - current: {String} one of 'details' | 'addresses' | 'orders' | ''.
-    The 'orders' value flags "I'm on the order detail screen, which
-    is reached from the Details landing"; we mark Details active so
-    the nav stays contextually anchored.
-
-  Landmark pattern: outer <aside> carries the "complementary"
-  landmark semantics, inner <nav> wraps the link group so screen
-  readers announce "navigation" when the user lands on the links and
-  "complementary" for the aside itself (WCAG 1.3.1 — navigational
-  link lists belong inside a <nav>).
-
-  Extracted from main-account.liquid / main-addresses.liquid to DRY
-  the markup and to close the R11 gap where main-order.liquid had
-  only a single "← Back to account" link and lost the sidebar shell
-  when customers deep-linked to /account/orders/:id and refreshed.
-{%- endcomment -%}
 {%- liquid
   assign nav_current = current | default: ''
   # Treat the Order-detail view as "I'm in the Details area" for
@@ -51,18 +29,6 @@
       {{ 'kt.customer.account.addresses' | t }}
       <span class="kt-account__nav-count">{{ customer.addresses_count }}</span>
     </a>
-    {%- comment -%}
-      R91 — logout is now a POST form, not a GET <a>. GET-based
-      logout is vulnerable to:
-      - Browser link prefetchers (Chrome, Edge prefetch hovered links)
-        accidentally signing the customer out
-      - Pre-rendering / link-checker tools triggering logout
-      - CSRF-style attacks via embedded `<img src="...account/logout">`
-      The Shopify Skeleton convention is a real `{% form 'logout' %}`
-      submit button styled as a link. The CSS rule
-      `.kt-account__nav-link--logout` already styles the underlying
-      element identically; native button reset is applied below.
-    {%- endcomment -%}
     {%- form 'logout' -%}
       <button type="submit" class="kt-account__nav-link kt-account__nav-link--logout kt-account__nav-link--button">
         {{ 'kt.customer.account.log_out' | t }}

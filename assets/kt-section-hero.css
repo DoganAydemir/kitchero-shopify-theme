@@ -1,37 +1,6 @@
-/* ============================================================
-   Hero Section — Kitchero Theme
-   Ported from Hero.tsx — 3-slide carousel
-   ============================================================ */
 
 .kt-hero {
   position: relative;
-  /* R-density — section_height_desktop / _mobile from settings.
-     Defaults full viewport on every breakpoint.
-
-     `--kt-banner-height` is the live height of the announcement
-     banner above the header (set by assets/kt-section-header.js
-     on resize + on shopify:section:load/unload). Subtracting it
-     here keeps the hero exactly fitted to the visible viewport
-     under the banner — banner + header + hero stack to one
-     screen on first paint, instead of the hero spilling past the
-     fold by the banner's height. Falls back to 0px when no
-     banner is present, so the section is still a clean 100vh on
-     pages with the banner disabled.
-
-     R-SS2 — viewport-unit cascade for mobile-browser chrome bars:
-       1. `100vh`  — oldest fallback (pre-2022 browsers).
-       2. `100svh` — small viewport. Excludes mobile address bar +
-          bottom toolbar (the smallest state). Without this fallback
-          step, a fresh-paint with the toolbars showing would have
-          the hero's bottom content hidden behind Chrome's bottom
-          bar on iOS / the Edge mobile toolbar / etc.
-       3. `100dvh` — dynamic viewport. Adjusts in real time as the
-          browser shows/hides its chrome (e.g. when the user starts
-          scrolling and Chrome retracts the URL bar). This is the
-          ideal value for "fill exactly the visible area" hero
-          experiences. Universally supported on 2026 evergreen
-          browsers (Safari 15.4+, Chrome 108+, Firefox 101+); the
-          two earlier rules keep older agents covered. */
   height: calc(var(--kt-hero-height-m, 100vh) - var(--kt-banner-height, 0px));
   height: calc(var(--kt-hero-height-m, 100svh) - var(--kt-banner-height, 0px));
   height: calc(var(--kt-hero-height-m, 100dvh) - var(--kt-banner-height, 0px));
@@ -47,8 +16,6 @@
   }
 }
 
-/* R-density — overlay color/opacity from merchant settings.
-   Default 30% black so heading text reads against any image. */
 .kt-hero::after {
   content: "";
   position: absolute;
@@ -59,7 +26,6 @@
   z-index: 2;
 }
 
-/* R-density — content positioning from merchant select. */
 .kt-hero--position-top-left .kt-hero__slide-content { align-items: flex-start; justify-content: flex-start; text-align: left; }
 .kt-hero--position-top-center .kt-hero__slide-content { align-items: flex-start; justify-content: center; text-align: center; }
 .kt-hero--position-top-right .kt-hero__slide-content { align-items: flex-start; justify-content: flex-end; text-align: right; }
@@ -70,7 +36,6 @@
 .kt-hero--position-bottom-center .kt-hero__slide-content { align-items: flex-end; justify-content: center; text-align: center; }
 .kt-hero--position-bottom-right .kt-hero__slide-content { align-items: flex-end; justify-content: flex-end; text-align: right; }
 
-/* R-density — text color from merchant setting. */
 .kt-hero__slide-content {
   color: var(--kt-hero-text, #ffffff);
 }
@@ -101,29 +66,9 @@
   transform: translateY(0);
 }
 
-/* Heading slide-up from behind clip mask — matches Framer initial={{ y: "100%" }} */
 .kt-hero__heading-clip {
   display: block;
   overflow: hidden;
-  /* R183 HERO-ITALIC-CLIP-1: bump horizontal margin/padding so the
-     italic serif glyph (`serif_word` slot — e.g. "daily") doesn't
-     get clipped on the right edge. Italic slope extends the visual
-     bounding box past the typographic advance-width by ~10-15% of
-     font-size; 0.15em wasn't enough room — letters with descender
-     slope (y, j, g) were bleeding into the next clip pane and
-     visually overlapping the bold sans-serif word that follows.
-     Negative horizontal margin cancels the extra padding's layout
-     impact so the gap between words stays visually consistent.
-
-     R211 HERO-ITALIC-DESCENDER-CLIP: same pattern bottom-side now.
-     R183 left vertical padding at 0.1em — that's ~12px at 7.5rem
-     display size, far short of the italic serif's descender depth
-     for "y", "g", "j", "p" (typically ~25-30% of em). The "y" tail
-     in `daily` was visibly cut at the baseline. Bumped bottom
-     padding to 0.25em with a matching -0.25em margin so layout
-     stays tight while the painted glyph fits inside the
-     overflow:hidden clip. Top stays at 0.1em — sans-serif clips
-     above it have no top-clipping issue. */
   margin: -0.1em -0.3em -0.25em;
   padding: 0.1em 0.3em 0.25em;
 }
@@ -138,7 +83,6 @@
   transform: translateY(0);
 }
 
-/* CTA scale-in — matches Framer initial={{ opacity: 0, scale: 0.9 }} */
 .kt-hero__anim--scale {
   opacity: 0;
   transform: scale(0.9);
@@ -161,24 +105,7 @@
   object-fit: cover;
 }
 
-/* R187 PLACEHOLDER-CONTRAST-2: when no merchant image is uploaded
-   for a hero slide, the snippet falls through to Shopify's
-   `lifestyle-1` placeholder SVG. Those SVGs paint with a
-   transparent background — fine on the surrounding stone-50
-   storefront, but invisible against this section's stone-900
-   backdrop (R183 palette tokens made `--kt-black` resolve, which
-   surfaced this latent issue). Give the placeholder layer the
-   classic Shopify bordered-grey treatment so the BEFORE-image
-   composition reads on a fresh-install demo.
-
-   Once a real image uploads, the `.placeholder-svg` class is gone
-   and these rules no longer match — zero impact on production. */
 .kt-hero__slide-image.placeholder-svg {
-  /* R232.68 — Solid stone-100 bg + border REMOVED. Shopify's
-     `hero-apparel` / `lifestyle` placeholder SVG has its own
-     graphic that should render against the section bg; the grey
-     panel was overlaying it with a flat rectangle. Keep `color`
-     so the SVG `fill: currentColor` resolves to a visible tone. */
   color: rgb(var(--kt-c-fg, 168 162 158));
 }
 
@@ -229,45 +156,17 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  /* R276 — was hardcoded `color: var(--kt-stone-300)` (#d6d3d1)
-     which ignored the merchant text colour. Now cascades through
-     `--kt-hero-text` with `color-mix` at 85% so the tagline reads
-     as a slightly softer companion to the full-strength heading
-     at any merchant-chosen hue. Fallback chain: full text-color
-     → color-mix on supporting browsers. Browsers without
-     color-mix get full text-color which still respects the
-     setting — they just lose the subtle ~85% dim. */
   color: var(--kt-hero-text, #d6d3d1);
   color: color-mix(in srgb, var(--kt-hero-text, #ffffff) 85%, transparent);
   margin-bottom: 1.5rem;
 }
 
-/* R290 — Responsive bump removed. After the R290 eyebrow-size
-   unification (base went from 0.625rem to 0.75rem to match the
-   rest of the theme), this media-query was setting the same
-   0.75rem value — dead weight. Mobile + desktop now share the
-   theme-wide eyebrow scale. */
-
 /* Heading */
 .kt-hero__heading {
-  /* R276 — was hardcoded `color: var(--kt-white)` which ignored
-     the merchant's "Text color" setting. The setting is wired
-     onto the section root as `--kt-hero-text` (see hero.liquid
-     style attribute), and the schema info copy reads "Color of
-     the heading and description on the image." Cascade the
-     custom property so the heading respects the chosen colour.
-     Fallback `#ffffff` preserves the existing white default on
-     stores that haven't customised the setting. */
   color: var(--kt-hero-text, #ffffff);
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
-  /* R211 HERO-LINE-SPACING: was 0.5rem flex column gap which, on
-     top of the row's 0.5rem vertical padding (below) and the
-     italic clip's 0.1em vertical breathing room, stacked into
-     ~24px of extra air between line 1 and line 2 at base font
-     size. Display heading wants near-zero gap so the two lines
-     read as one tightly-set headline. */
   gap: 0;
   margin: 0;
 }
@@ -295,19 +194,7 @@
 .kt-hero__heading-row {
   display: flex;
   align-items: baseline;
-  /* R183 HERO-ITALIC-GAP-1: gap was 1rem mobile / 2rem desktop —
-     too tight when the serif italic word (`serif_word`) sits next
-     to the bold sans-serif word (`line2`). At display sizes
-     (clamp 3-7.5rem) the italic slope made the two words
-     visually merge. Bumped to 1.5rem / 2.5rem so they read as
-     two distinct words even at the largest desktop size. */
   gap: 1.5rem;
-  /* R211 HERO-LINE-SPACING: vertical padding dropped from 0.5rem
-     to 0 — it was vestigial overflow buffer that R183 already
-     handled at the heading-clip level. Keeping it added 1rem of
-     unnecessary air between line 1 and the row containing line
-     2, fighting the tight display-heading rhythm. Horizontal
-     0.25rem stays as a safety margin against italic slope. */
   padding: 0 0.25rem;
 }
 
@@ -324,10 +211,6 @@
   font-style: italic;
   font-weight: 300;
   letter-spacing: -0.025em;
-  /* R276 — was `rgba(255,255,255,0.9)`. Now uses the merchant
-     text colour; `opacity: 0.9` reproduces the previous slightly-
-     softer-than-the-bold-word read at the same hue without
-     hard-coding white. */
   color: var(--kt-hero-text, #ffffff);
   opacity: 0.9;
   line-height: 1.1;
@@ -356,18 +239,6 @@
 .kt-hero__desc {
   margin-top: 2rem;
   max-width: 32rem;
-  /* R276 — was hardcoded `color: #ffffff8a` (white at 54% alpha).
-     The "Text color" merchant setting was supposed to drive the
-     description hue per the schema info, but the hardcoded white
-     prevented any colour change from showing up. Switch to the
-     `--kt-hero-text` cascade with a `color-mix` to reach the same
-     ~54% transparency at whatever hue the merchant picked.
-     Fallback for browsers without color-mix support: plain
-     full-opacity text-color (still respects the setting, just
-     without the subtle dim — acceptable degradation since the
-     hero overlay already provides contrast). color-mix shipped
-     in Chrome/Edge 111, Safari 16.4, Firefox 113 (Mar 2023) so
-     coverage is broad for a 2026 Theme Store submission. */
   color: var(--kt-hero-text, #ffffff);
   color: color-mix(in srgb, var(--kt-hero-text, #ffffff) 54%, transparent);
   font-size: 1rem;
@@ -383,14 +254,6 @@
 }
 
 /* CTA Button */
-/* R183 HERO-CTA-SPACING-1: the CTA was rendering visually
-   "disconnected" from the description above — the wrapper
-   `.kt-hero__anim` div has no margin and the `.kt-hero__desc`
-   max-width clip means the CTA can sit hard against the description's
-   bottom edge with no breathing room. Adding margin-top on the CTA
-   itself (rather than the wrapper) means it works whether the
-   description is rendered or not, AND survives changes to the
-   surrounding markup. */
 .kt-hero__cta {
   display: inline-flex;
   align-items: center;
@@ -541,9 +404,6 @@
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  /* R296 — Was 0.4 (~3.7:1, sub-18.5px text fails WCAG 1.4.3 AA).
-     0.65 yields ~5.5:1 on a dark hero overlay while keeping the
-     label visibly softer than the section's main heading. */
   color: rgba(255, 255, 255, 0.65);
   margin-bottom: 0.5rem;
 }
@@ -553,8 +413,6 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  /* R296 — Was 0.2 (~1.8:1, gross contrast fail). 0.6 yields
-     ~4.7:1 — meets WCAG 1.4.3 AA for sub-18.5 px body text. */
   color: rgba(255, 255, 255, 0.6);
 }
 

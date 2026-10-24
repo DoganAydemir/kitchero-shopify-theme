@@ -1,11 +1,3 @@
-/* ==========================================================================
-   Recently Viewed Products — R127
-
-   Custom properties:
-     --kt-rv-cols-desktop: 2-5
-     --kt-rv-cols-mobile:  1 or 2
-     --kt-section-padding-top / -bottom
-   ========================================================================== */
 
 .kt-recently-viewed {
   padding-top: var(--kt-section-padding-top, 64px);
@@ -16,21 +8,6 @@
 
 .kt-recently-viewed[hidden] { display: none; }
 
-/* R282 — Editor-only empty-state hint.
-
-   On the live storefront the section silently hides when there's
-   no browsing history to surface. Inside the theme editor we
-   instead reveal a visible "this section will populate as
-   customers browse" message via recently-viewed.js so the
-   merchant has clear feedback: the section IS wired up, it just
-   needs PDP visits to fill. Painted inside the grid container
-   (replacing the skeleton placeholders) so vertical rhythm of
-   the section frame is preserved.
-
-   The hint is keyed off a content-only class painted by the JS,
-   so on the storefront — where the empty-state branch returns
-   without rendering anything — these rules are dead weight in
-   the cascade. Cost is ~80 bytes of CSS per page; acceptable. */
 .kt-recently-viewed__editor-hint {
   grid-column: 1 / -1;
   padding: 2rem 1.5rem;
@@ -131,7 +108,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* R106 — anywhere wrap so unbroken-token titles still fit. */
   overflow-wrap: anywhere;
   word-break: break-word;
 }

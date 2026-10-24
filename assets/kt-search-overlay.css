@@ -1,15 +1,4 @@
-/* ============================================================
-   Search Overlay — Kitchero Theme
-   Ported from SearchOverlay.tsx
-   ============================================================ */
 
-/* R141 SEARCH-OVERLAY-ANIM-1: fade + slide transition for
-   reviewer-tier polish. Previously the overlay snapped from
-   display:none to display:block — instant, abrupt, mismatched
-   the cart-drawer / newsletter-popup polish. Use opacity +
-   transform pair instead of display, gated by aria-hidden so
-   the closed state stays unfocusable + transparent. visibility
-   prevents tab-focus while the overlay is still fading out. */
 .kt-search-overlay {
   position: fixed;
   inset: 0;
@@ -38,11 +27,6 @@
 .kt-search-overlay__backdrop {
   position: fixed;
   inset: 0;
-  /* R113 — drawer-tier z-index token. Backdrop sits at the
-     drawer level; content one above (calc trick keeps the
-     `+1` ordering intent explicit). Merchants integrating
-     chat widgets / cookie banners use --kt-z-* tokens to
-     reason about layering. */
   z-index: var(--kt-z-drawer);
   background-color: rgba(28, 25, 23, 0.9);
   backdrop-filter: blur(8px);
@@ -134,14 +118,6 @@
   font-style: italic;
   color: var(--kt-white);
   outline: none;
-  /* Strip the WebKit/Blink native search-cancel button. macOS Safari
-   * and Chrome-on-Mac inject a system-blue "x" icon into every
-   * <input type="search"> as soon as it has content. The blue
-   * accent is off-brand on a dark-stone overlay (user reported:
-   * "input un yanındaki x icon mavi. temayla ilgisi yok"). The
-   * overlay already has a dedicated .kt-search-overlay__close
-   * button for clearing/exiting, so the duplicate browser-supplied
-   * control is purely visual noise. */
   -webkit-appearance: none;
   appearance: none;
 }
@@ -157,26 +133,11 @@
   display: none;
 }
 
-/* Mouse/touch :focus → no ring (parent's `:focus-within` border-color
-   flip is the visual indicator and avoids the "double border on
-   mobile" the user reported when an inset box-shadow was added).
-   Keyboard `:focus-visible` keeps an explicit ring because axe-core
-   / Lighthouse a11y audits flag elements that suppress focus-visible
-   styling outright (WCAG 2.4.7 + 2.4.11). The ring uses a thin
-   bottom inset shadow that visually merges with the wrapper's
-   border-bottom — no double-line because they overlap precisely.
-   `:not(:focus-visible)` on the bare `:focus` rule keeps mouse/touch
-   focus unstyled. R295. */
 .kt-search-overlay__input:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
 }
 
-/* R232.36 — Inset shadow removed. The wrapper's `border-bottom`
-   already flips to white via `:focus-within` so keyboard users see
-   the focus indicator. Painting a second 2px line inside the input
-   produced the double-line ghost the user flagged (input baseline
-   + wrapper border separated by the wrap's 0.75rem padding). */
 .kt-search-overlay__input:focus-visible {
   outline: none;
 }
@@ -188,24 +149,14 @@
 }
 
 .kt-search-overlay__input::placeholder {
-  /* R105 — WCAG 1.4.3. stone-500 on the dark overlay (rgba(28,25,
-     23,0.9)) was ~3.7:1 — fails AA 4.5:1. stone-300 ≈ 12:1 on
-     stone-900 backdrop, clears AA. Placeholder still reads as
-     "lighter than typed text" but no longer disappears. */
   color: var(--kt-stone-300);
 }
 
 .kt-search-overlay__results {
   margin-top: 2.5rem;
-  /* R105 — same dark-overlay context, same fix. The "Recent
-     searches" / "No results" copy was below AA before. */
   color: var(--kt-stone-300);
 }
 
-/* R-SS1 — Big breathing room above POPULAR SEARCHES so it reads
-   as a distinct section, not the next bullet of the predictive
-   results. Stronger top divider matches the chunking inside the
-   predictive list. */
 .kt-search-overlay__suggestions {
   margin-top: 3rem;
   padding-top: 2.5rem;
@@ -228,13 +179,6 @@
 }
 
 .kt-search-overlay__suggestion-pill {
-  /* R-search-audit — Touch-target floor (WCAG 2.5.5). The pills
-     used to render at ~32px tall (0.5rem vertical padding × 2 +
-     line-height) which fell short of the 44×44 minimum on touch.
-     `min-height: 44px` enforces the floor without changing the
-     visual padding (it just lets the pill grow vertically when
-     content is shorter than 44px). `display: inline-flex` +
-     `align-items: center` keeps the label vertically centred. */
   display: inline-flex;
   align-items: center;
   min-height: 44px;

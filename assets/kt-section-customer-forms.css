@@ -67,19 +67,8 @@
 
 .kt-customer__input {
   width: 100%;
-  /* R105 — WCAG 1.4.11 (3:1 UI component contrast). 0.18 alpha
-     against the scheme background was ~1.18:1 on default light
-     scheme; 0.45 lifts it to ≥3:1 across all 4 ship-default
-     schemes (light, ivory, slate, midnight) without making the
-     border feel heavy. */
   border: 1px solid rgba(var(--kt-c-fg), 0.45);
   padding: 0.75rem 1rem;
-  /* R104 — 16px (1rem) prevents iOS Safari from zooming the
-     viewport on focus. Anything below triggers Safari's
-     "I think you'd like this bigger" auto-zoom which then
-     leaves the field at a different position than the user
-     tapped. Affects login, register, addresses, activate-account,
-     reset-password — every customer-facing form. */
   font-size: 1rem;
   color: rgb(var(--kt-c-fg));
   background: transparent;
@@ -87,10 +76,6 @@
 }
 
 .kt-customer__input::placeholder {
-  /* R105 — WCAG 1.4.3 (4.5:1 normal text). 0.5 alpha on default
-     light scheme was ~3.4:1 — fails AA. 0.65 ≈ 4.6:1, clears AA
-     across all 4 ship-default schemes. Placeholders stay visibly
-     "lighter than typed text" but become readable. */
   color: rgb(var(--kt-c-fg-muted));
 }
 
@@ -110,8 +95,6 @@
   background-color: rgb(var(--kt-c-action));
   color: rgb(var(--kt-c-action-text));
   border: none;
-  /* R-btn-case-normalize — Same theme-wide convention as
-     financing-cta__btn: button labels stay natural-case. */
   font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -356,16 +339,6 @@ html:not(.js) .kt-customer__forgot-link {
   margin: 0.375rem 0 0;
   font-size: 0.8125rem;
   line-height: 1.4;
-  /* R-wcag-contrast — red-500 #ef4444 measures only 4.07:1 against
-     stone-50 #FAFAF9 (the default light scheme background) and the
-     0.8125rem (13px) bold body is NOT WCAG "large text" (large
-     requires 14pt+ bold = 18.66px+), so red-500 fails 1.4.3 AA
-     4.5:1 on the default surface. Red-600 #dc2626 measures 4.83:1
-     on stone-50 — clears AA. For dark schemes (#1C1917 surface),
-     red-400 would be the equivalent — the scheme-aware override
-     below adapts when the section sits in an `inverse` scheme
-     class. Bold weight retained for redundancy + WCAG 1.4.1 Use
-     of Color (icon + text + color together identify the error). */
   color: var(--kt-red-600, #dc2626);
   font-weight: 600;
 }

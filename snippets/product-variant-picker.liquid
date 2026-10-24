@@ -1,34 +1,9 @@
-{%- comment -%}
-  Product Variant Picker — renders option selectors.
-  Birebir from source: finish selector (swatches) + cabinet type (grid buttons).
-  Uses Shopify product.options_with_values.
 
-  Accepts:
-  - product: {Object} Shopify product
-  - section: {Object} caller section, used to build unique IDs
-                      (R296 — prevents WCAG 4.1.1 duplicate-ID fail
-                      when the same product renders in PDP +
-                      featured-product block on the same page).
-{%- endcomment -%}
-
-{%- comment -%}
-  R296 — Unique ID suffix. Match the convention used in
-  snippets/product-form.liquid so the noscript variant select / quantity
-  input IDs stay distinct per render instance.
-{%- endcomment -%}
 {%- assign vp_uid = product.id -%}
 {%- if section and section.id -%}
   {%- assign vp_uid = product.id | append: '-' | append: section.id -%}
 {%- endif -%}
 
-{%- comment -%}
-  R137 VARIANT-1: also hide the picker when the product has only a
-  single variant (one option, one value). `has_only_default_variant`
-  is true ONLY when the product literally uses Shopify's "Default
-  Title" variant — a one-option / one-value product still has a real
-  option, so the unless above doesn't suppress the awkward
-  single-radio fieldset. The size==1 guard catches that case.
-{%- endcomment -%}
 {%- unless product.has_only_default_variant or product.variants.size == 1 -%}
   <div class="kt-variant-picker" data-variant-picker>
     {%- for option in product.options_with_values -%}
@@ -238,35 +213,9 @@
                 endif
               -%}
 
-              {%- comment -%}
-                A11y — the `<label>` wraps a visually-hidden radio input
-                plus a styled `<span>` with no text content. Without an
-                accessible name on the input, screen readers announce
-                "radio button" with no option value. Reviewer a11y pass
-                flags this. Fix: `aria-label` on the input carries the
-                option name (+ sold-out status) to assistive tech while
-                the `title` attribute continues to serve sighted users
-                as a hover tooltip. Keep in sync with the option cell
-                below (non-color grid buttons render visible text, so
-                they don't need the aria-label treatment).
-              {%- endcomment -%}
               {%- capture swatch_a11y_label -%}
                 {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
-              {%- comment -%}
-                R137 VARIANT-5: include the option's parent-loop index
-                in the radio `name` attribute. Without it, two options
-                whose names collapse to the same handle (e.g. "Color"
-                and "color"; "Size *" and "Size!") share a radio group
-                and selecting one unchecks the other — variant matching
-                breaks because selectedOptions arrays only retain the
-                last interaction. forloop.parentloop.index0 is the
-                option index (0, 1, 2…); forloop.index0 alone here
-                would be the VALUE index and would put each value into
-                its own group entirely. data-option-index on the
-                fieldset already uses parentloop.index0 — name attr
-                now matches.
-              {%- endcomment -%}
               <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}">
                 <input
                   type="radio"
@@ -301,19 +250,6 @@
                   endif
                 endfor
               -%}
-              {%- comment -%}
-                R137 VARIANT-2: SR users navigating the grid radios
-                hear "Size: XL, dimmed" with no semantic indication
-                that the variant is sold out — only the disabled
-                state. Mirror the swatch pattern's aria-label so
-                grid radios announce option name + value + sold-out
-                status consistently. Sighted users still get the
-                visible value text inside the span.
-
-                R137 VARIANT-5: forloop.parentloop.index0 disambiguates
-                radio groups when two option handles collide (see swatch
-                input above for full rationale).
-              {%- endcomment -%}
               {%- capture btn_a11y_label -%}
                 {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
@@ -373,26 +309,6 @@
     {%- endcomment -%}
     <script type="application/json" data-variant-data>{{ product.variants | json }}</script>
 
-    {%- comment -%}
-      VAR-04 fix (R86): `?option_values=ID1,ID2,...` deep-link
-      support. The `product.variants | json` blob above does NOT
-      include each variant's `option_values` array (it serializes
-      the variant's flat fields — id, sku, title, price, options
-      string array, etc.). The R84 JS parser tried to read
-      `lookupVariant.option_values[].id` from that blob and
-      silently failed for every variant.
-
-      This separate map renders only the data the deep-link
-      resolver needs: { variantId: [option_value_id, ...] }.
-      `variant.option_values` IS available in Liquid (just not in
-      the canonical | json output) so we iterate explicitly. JS
-      reads `Kitchero.optionValuesMap[productId]` and matches the
-      URL param against the array sets.
-
-      JSON shape: {"<variant-id>": [<ov-id>, <ov-id>, ...], ...}
-      Idempotent across re-renders. Empty object when product has
-      single default variant (no merchant options).
-    {%- endcomment -%}
     <script type="application/json" data-option-values-map>{
       {%- for variant in product.variants -%}
         "{{ variant.id }}": [

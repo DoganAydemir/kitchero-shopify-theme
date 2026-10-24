@@ -8,19 +8,9 @@
  */
 
 .kt-collapsible-visual {
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950/stone-50; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 12 10 9));
   color: rgb(var(--kt-c-fg, 250 250 249));
   padding: 6rem 0;
-  /* R-sticky-ancestor — was `overflow: hidden`, which turned the
-     `.kt-collapsible-visual__visual` sticky right-column image
-     (line 248, desktop ≥1024px) into regular relatively-positioned
-     content, killing the section's core interaction (image stays
-     pinned while accordion items scroll past on the left).
-     `overflow: clip` preserves the decorative clipping for the
-     dark background's overlays without becoming a sticky-breaking
-     containing block. Modern-browser support (Chromium 90+,
-     Safari 16+, Firefox 81+) — all Shopify last-2 cohorts. */
   overflow: clip;
 }
 
@@ -50,8 +40,6 @@
 
 /* Header ------------------------------------------------------- */
 
-/* R232.50 — scheme-aware inner colors throughout (eyebrows, headings,
-   borders, item titles, panel content, image-stack placeholder). */
 .kt-collapsible-visual__header {
   margin-bottom: 3rem;
   padding-left: 1.5rem;
@@ -73,7 +61,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-collapsible-visual__heading {
@@ -99,7 +87,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg, 168 162 158), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   max-width: 36rem;
 }
 
@@ -125,15 +113,6 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  /* R270 — On desktop the grid cell stretches to match the
-     image's tall aspect (≈ 4/3 or 16/9 of the kitchen visual on
-     the right column). Without `justify-content: center` the
-     3 feature items pile at the TOP of the cell, leaving a big
-     empty band underneath that visually anchored the eye to the
-     wrong place. Center the items vertically so the click-list
-     reads centered against the image. Mobile (`grid-template-
-     columns: 1fr`) is a single column and the rule is a no-op
-     there — items flow naturally from the top under the heading. */
   justify-content: center;
 }
 
@@ -195,7 +174,7 @@
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-collapsible-visual__item.is-active .kt-collapsible-visual__item-eyebrow {
@@ -239,13 +218,6 @@
 .kt-collapsible-visual__content {
   display: block;
   padding-top: 1rem;
-  /* R-collapsible-visual-content-muted — Was scheme-aware 0.6 alpha
-     but landed too white-ish against the dark section backdrop;
-     user wanted a clearly muted "broken white" supporting tier.
-     Hardcoded white at 0.5 alpha lands ~4.5:1 on the dark bg —
-     at the WCAG body bar, reads supporting vs the 100% heading.
-     This section is always rendered on dark, so the scheme-
-     coherence trade-off matches banner-cover __desc v3. */
   color: rgba(255, 255, 255, 0.5);
   font-size: 1rem;
   font-weight: 300;
@@ -313,18 +285,6 @@
   display: block;
 }
 
-/* R-cv-svg-cover — SVG elements ignore `object-fit: cover` (it's
-   only valid for replaced elements like img/video — for an inline
-   SVG the user agent honours the SVG's own preserveAspectRatio
-   attribute, which Shopify's placeholder ships as `xMidYMid meet`
-   = "fit inside, leave letterbox bars"). On this 4:5 card the
-   SVG's natural aspect ratio left grey margins around the
-   silhouette instead of filling the frame edge to edge.
-   Force-scaling the SVG element so it overflows its native
-   bounds, then letting the parent's `overflow: hidden` crop the
-   excess, simulates `xMidYMid slice` (cover). scale(2.5) was
-   tuned to fill comfortably for both lifestyle-1 and product-N
-   placeholder artworks at this aspect ratio. */
 .kt-collapsible-visual__image svg,
 .kt-collapsible-visual__placeholder-svg {
   transform: scale(2.5);

@@ -30,8 +30,7 @@
 -%}
 
 <announcement-banner
-  class="kt-announcement-banner{% if should_rotate and block_count > 1 %} kt-announcement-banner--has-toggle{% endif %}"
-  data-color-theme="{{ section.settings.color_theme }}"
+  class="kt-announcement-banner color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if should_rotate and block_count > 1 %} kt-announcement-banner--has-toggle{% endif %}"
   data-alignment="{{ section.settings.alignment }}"
   data-section-id="{{ section.id }}"
   data-block-count="{{ block_count }}"
@@ -41,28 +40,7 @@
   aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
   aria-label="{{ 'kt.section.announcement-banner.aria_label' | t }}"
 >
-  {%- comment -%}
-    R298 — Gate widened from `block_count > 0` (announcement-only count)
-    to `section.blocks.size > 0` (all block types). The previous gate
-    suppressed the entire `<div class="kt-announcement-banner__track">`
-    when the merchant added the section but populated it with ONLY an
-    `@app` block (a valid configuration since the schema declares both
-    `announcement` and `@app` block types). The `{%- when '@app' -%}`
-    branch inside the track never executed → the @app block was
-    invisible/unselectable on the storefront, breaking the Theme Store
-    app-block render-path test.
-  {%- endcomment -%}
   {%- if section.blocks.size > 0 -%}
-    {%- comment -%}
-      R298 — `aria-live="polite"` REMOVED. The banner auto-rotates on
-      a setInterval; with a live region SR users heard every
-      announcement cycle indefinitely (every ~5s, until pause-on-
-      focus/hover, never on idle). Theme Store reviewers flagged
-      this as "marketing copy spam" — announcement banners are
-      decorative storefront communications, not status updates.
-      The play/pause toggle button is the user-controlled affordance
-      for accessing the content; auto-announce is removed.
-    {%- endcomment -%}
     <div
       class="kt-announcement-banner__track"
     >
@@ -145,24 +123,10 @@
       "content": "t:sections.announcement-banner.settings.header_appearance.content"
     },
     {
-      "type": "select",
-      "id": "color_theme",
-      "label": "t:sections.announcement-banner.settings.color_theme.label",
-      "options": [
-        {
-          "value": "dark",
-          "label": "t:sections.announcement-banner.settings.color_theme.options__1.label"
-        },
-        {
-          "value": "light",
-          "label": "t:sections.announcement-banner.settings.color_theme.options__2.label"
-        },
-        {
-          "value": "accent",
-          "label": "t:sections.announcement-banner.settings.color_theme.options__3.label"
-        }
-      ],
-      "default": "dark"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.shared.color_scheme.label",
+      "default": "scheme-4"
     },
     {
       "type": "select",
@@ -237,7 +201,7 @@
     {
       "name": "t:sections.announcement-banner.presets.name",
       "settings": {
-        "color_theme": "dark",
+        "color_scheme": "scheme-4",
         "alignment": "center",
         "auto_rotate": false,
         "rotate_speed": 5

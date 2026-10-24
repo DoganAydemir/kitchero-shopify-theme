@@ -1,65 +1,15 @@
-/* ============================================================
-   Header Section — Kitchero Theme
-   Ported from Next.js Navbar.tsx
-   BEM naming: .kt-header, .kt-header__*
-   ============================================================ */
 
-/* R216 — Shopify wraps every section in `<div id="shopify-section-…"
-   class="shopify-section">`, and that wrapper's natural height is
-   exactly the header's height (~76px). `position: sticky` inside
-   that wrapper can't pin to viewport top:0 because the sticky
-   element can't offset within a parent that's the same height as
-   itself — the moment the user scrolls past the header's flow
-   position, the wrapper (with the sticky element inside) scrolls
-   up and out of view. `display: contents` flattens the wrapper
-   so the header's containing block becomes the body (full
-   document height), restoring sticky's expected behavior. The
-   wrapper still exists in the DOM (the editor's section-select
-   click target works fine via the id), but layout treats the
-   header as a direct child of body. */
 .shopify-section:has(> .kt-header) {
   display: contents;
 }
 
-/* Solid mode (default): bg-stone-950/95 shadow-lg.
-   Sticky instead of fixed so the announcement-banner (which renders
-   first in the header-group) can sit in natural flow above the
-   header — no JS measurement / no CSS variable gymnastics needed,
-   the browser handles the stacking for us. When the user scrolls
-   past the banner, the header sticks to the top; banner scrolls away
-   cleanly. Transparent mode overrides to `fixed` further down because
-   hero-first pages need the header to float over the LCP image. */
 .kt-header {
   position: sticky;
   top: 0;
   left: 0;
   right: 0;
-  /* R129 — use the design-system z-index token (--kt-z-sticky = 100)
-     instead of a literal 1000 that bypassed the ladder defined in
-     kt-css-variables.liquid. Falls back to 100 when the token is
-     undefined (e.g. early-paint before the variables snippet runs). */
   z-index: var(--kt-z-sticky, 100);
-  /* R88 — include `-webkit-backdrop-filter` in the transition list
-     so iOS Safari 14 / 15 also animates the prefixed property
-     during scroll-state transitions. Without it, the unprefixed
-     `backdrop-filter` is the only animated declaration on those
-     browsers, and the visual blur appears/disappears instantly
-     instead of fading.
-
-     R142 ANIM-LAYOUT-1: dropped `padding 0.5s ease` from the
-     transition list. .kt-header itself has no padding (it sits at
-     position: sticky and the inner row carries the padding) so the
-     transition was dead — but kept here it would silently animate
-     any future padding addition and trigger a layout pass on every
-     scroll-state toggle. Removing prevents future regressions. */
   transition: background-color 0.5s ease, backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease;
-  /* R232.56 — Header bg scheme-aware. Was hardcoded rgba(12,10,9,
-     0.95) — stone-950 with 95% alpha for the glassy backdrop. Now
-     reads `--kt-c-bg` so merchants who pick a different scheme see
-     a matching glassy chrome (e.g. scheme-1 cream gives a cream
-     glassy header). Default scheme-4 (Dark Editorial) keeps the
-     out-of-box look near the original dark glass; the 12,10,9
-     fallback covers no-scheme installs. */
   background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
   color: rgb(var(--kt-c-fg, 245 245 244));
   backdrop-filter: blur(12px);
@@ -67,49 +17,7 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Transparent mode: no background until scrolled — floats over hero.
-   Needs `position: fixed` (not sticky) so it literally overlaps the
-   hero instead of pushing it down in flow. When an announcement
-   banner is also present, the `body:has(.kt-announcement-banner)`
-   override below offsets `top` by the banner's height so the
-   header drops just below the banner instead of painting on top of
-   it — letting merchants run both features simultaneously.
-   Adds a subtle text-shadow on the logo + nav links so they stay
-   legible over light backgrounds too (not just dark heroes). The
-   shadow disappears once the header becomes solid on scroll.
-
-   R232.4 — selector swapped from
-     `body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"])`
-   to
-     `body.kt-body--header-transparent`
-   The previous `:has(:first-of-type)` chain didn't match in the
-   Shopify theme editor preview iframe because the editor injects
-   sibling wrappers between `<main>` and the first .shopify-section,
-   shifting `:first-of-type` onto an injected element that doesn't
-   carry the data attribute. JS (`syncTransparentBodyClass`) now
-   walks the DOM with `querySelector('main .shopify-section')` —
-   robust to intermediate wrappers — and toggles the body class.
-   CSS keys off the class for predictable matching in both
-   storefront and editor contexts. */
 body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]) {
-  /* R216 — `position: fixed` keeps the header out of flow so the
-     hero can bleed up behind it (transparent overlay use case).
-
-     `top` is driven by `--kt-header-top`, which a scroll handler
-     in kt-section-header.js updates each rAF tick to
-     `max(0, bannerHeight - scrollY)`. The effect: at scrollY=0 the
-     header sits just below the announcement banner; as the user
-     scrolls, the banner moves out of the viewport in flow AND the
-     header's `top` follows it down to 0 at the SAME rate — no
-     wasted gap between banner and header, no jump when the banner
-     fully scrolls off, no class-swap reflow (the header stays
-     `position: fixed` the whole time, only its background and
-     text-shadow change on the scrolled state).
-
-     Fallback chain ensures correctness at first paint:
-       --kt-header-top  → set by JS once it hydrates
-       --kt-banner-height → set by JS, falls back to 40px below
-       last fallback (0px) → no banner → header flush at top */
   position: fixed;
   top: var(--kt-header-top, var(--kt-banner-height, 0px));
   background-color: transparent;
@@ -137,16 +45,6 @@ body:has(.kt-announcement-banner).kt-body--header-transparent .kt-header:not([da
   }
 }
 
-/* On a transparent-header page, scroll-to-solid requires an
-   explicit override on the high-specificity body:has() chain.
-   The base `.kt-header--scrolled` rule below (specificity 0,1,0)
-   would lose to `body:has(...) .kt-header { background: transparent }`
-   above (specificity 0,2,1), leaving the header transparent
-   even after the user scrolls past the hero. Bumping the scroll
-   state to `body:has(...) .kt-header.kt-header--scrolled`
-   (specificity 0,2,2) wins over both the transparent override
-   AND the base scrolled rule, so the dark bg + blur + shadow
-   come back as expected. Position stays `fixed` throughout. */
 body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]).kt-header--scrolled {
   position: fixed;
   background-color: rgba(var(--kt-c-bg, 12 10 9), 0.95);
@@ -169,23 +67,6 @@ body.kt-body--header-transparent .kt-header:not([data-header-style="solid"]):not
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* R232 — Explicit merchant override.
-   `data-header-style` on the <header> element wins over the
-   `:has()` auto-detection so a merchant who picks "Solid" gets a
-   solid header even on a page that leads with a banner, and a
-   merchant who picks "Transparent" gets the overlay on a page
-   whose first section doesn't carry the auto-detect attribute.
-
-   Specificity note: the auto-detect rules above use the chain
-   `body:has(main > .shopify-section:first-of-type [data-allows-transparent-header="true"]) .kt-header`
-   which is (0,2,1). To beat that without bumping it further we
-   anchor the override on the same body:has(...) ancestry where
-   needed (force-solid case) and on a single high-specificity
-   attribute selector for the force-transparent case. */
-
-/* Force SOLID — kills the transparent overlay on banner-led pages.
-   Resets position to sticky, brings back the standard solid bg,
-   removes the text-shadow legibility hack. */
 body.kt-body--header-transparent .kt-header[data-header-style="solid"],
 .kt-header[data-header-style="solid"] {
   position: sticky;
@@ -202,20 +83,6 @@ body.kt-body--header-transparent .kt-header[data-header-style="solid"] .kt-heade
   text-shadow: none;
 }
 
-/* Force TRANSPARENT — lights up the overlay on a page whose first
-   section doesn't carry data-allows-transparent-header. Mirrors the
-   :has() transparent rule above but anchored on the explicit
-   attribute instead of the DOM-detection ancestry.
-
-   R232.2 — `!important` on `position` and `background-color` to
-   guarantee the override wins over the default `.kt-header` rule
-   AND any later rule cascades. The previous version relied on
-   specificity alone, but in some Shopify editor preview contexts
-   the default sticky rule was still winning, leaving the header
-   in flow above the banner instead of overlaying it. !important
-   on these two declarations is the surgical fix — it does not
-   spill into other properties (transition, z-index, etc.) which
-   stay inheritable. */
 .kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) {
   position: fixed !important;
   top: var(--kt-header-top, var(--kt-banner-height, 0px));
@@ -225,20 +92,6 @@ body.kt-body--header-transparent .kt-header[data-header-style="solid"] .kt-heade
   box-shadow: none;
 }
 
-/* R232.3 — banner-aware fallback for explicit transparent mode.
-   Without this, when the merchant picks Transparent on a page that
-   ALSO has an announcement banner, the fixed header lands at top:0
-   and visually overlaps the banner (banner content bleeds through
-   the transparent header at the same vertical pixel range).
-
-   `!important` on `top` is needed because in some render contexts
-   (Shopify theme editor preview iframe in particular) the JS
-   never gets a chance to write `--kt-banner-height` before the
-   first paint, and other Liquid-side rules with comparable
-   specificity were also targeting `top` — the `!important` is the
-   surgical guarantee that the banner-aware fallback wins. The
-   var()s still take precedence over the literal fallback once the
-   JS hydrates the values. */
 body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:not(.kt-header--scrolled) {
   top: var(--kt-header-top, var(--kt-banner-height, 40px)) !important;
 }
@@ -270,10 +123,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* R-header-audit — Padding sourced from merchant settings via
-     `--kt-header-padding-top` / `--kt-header-padding-bottom`. Falls
-     back to the previous hardcoded 1rem when the section style
-     attribute is absent. */
   padding-top: var(--kt-header-padding-top, 1rem);
   padding-bottom: var(--kt-header-padding-bottom, 1rem);
   /* Container width MUST match `.page-width` (--kt-page-max, 1500px)
@@ -304,27 +153,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
     padding-right: 2rem;
   }
 }
-
-/* ============================================================
-   R-header-audit — Layout variants
-
-   `[data-logo-position]` + `[data-nav-alignment]` on the <header>
-   pick between four practical layouts on desktop (≥ 990 px where
-   the desktop nav is visible):
-
-     1. logo=left  + nav=center  (default — classic split-nav)
-     2. logo=left  + nav=right   (nav clusters next to icons)
-     3. logo=center + nav=center (logo dominant centre, nav stacks
-        below or wraps — on this theme it stays inline; nav still
-        renders to the right of the centred logo)
-     4. logo=center + nav=right  (same as #3 for inline behaviour)
-
-   The `kt-header__inner` is a single flex row. We achieve the
-   variants by toggling `margin-left: auto` on the nav element to
-   pull it left or right against the natural `space-between`.
-   Mobile keeps the existing logo-left layout regardless of these
-   settings because the desktop nav is hidden < 990 px.
-   ============================================================ */
 
 @media screen and (min-width: 990px) {
   /* Default: logo=left, nav=center — flex `space-between`
@@ -360,9 +188,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   }
 }
 
-/* R232.57 — Logo color scheme-aware so the wordmark tracks the
-   merchant's chosen header surface (cream scheme → dark wordmark,
-   dark scheme → light wordmark). */
 .kt-header__logo {
   text-decoration: none;
   color: rgb(var(--kt-c-fg, 255 255 255));
@@ -377,14 +202,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
-/* R291 — Logo intrinsic width comes from two merchant settings
-   (kt_logo_width + kt_logo_width_mobile) rendered as inline
-   custom properties on the `.kt-header__logo` wrapper. CSS
-   picks the matching one via a `min-width: 750px` breakpoint.
-   Fallbacks (100px mobile / 120px desktop) match the schema
-   defaults so the logo still renders if a merchant somehow
-   deletes the settings entry. `height: auto` keeps the natural
-   aspect ratio regardless of which width is active. */
 .kt-header__logo-image {
   display: block;
   height: auto;
@@ -412,11 +229,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__menu {
   display: flex;
-  /* R-header-audit — Wrap to multi-row when the merchant has many
-     menu items (>8 at default widths). Without `flex-wrap`, the
-     menu would push the icons cluster off-screen on narrower
-     laptops. Two-row nav is visually heavier than ideal, but
-     it's a graceful degradation vs. a hidden / clipped nav. */
   flex-wrap: wrap;
   align-items: center;
   gap: 0;
@@ -432,24 +244,13 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   cursor: pointer;
   gap: 0.25rem;
   padding: 0.5rem 1rem;
-  /* font-medium / tracking-wide. Nudged a touch below the Next.js
-     `text-sm` (0.875rem) baseline for a slightly tighter nav. */
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.025em;
-  /* R232.57 — scheme-aware: was hardcoded stone-300 (rgba 214,211,209)
-     which read as light-on-dark in the original scheme but stayed
-     light when merchant chose a cream/emerald surface. Now muted-fg. */
   color: rgba(var(--kt-c-fg, 214 211 209), 0.85);
   text-decoration: none;
   transition: color 0.2s ease;
   white-space: nowrap;
-  /* R-header-audit — Long menu name + many-items overflow safety.
-     `max-width` truncates a single item's text with an ellipsis if
-     a merchant types a particularly long menu label ("Black Friday
-     Holiday Sale Collection 2026"). Pair with the wrap rule on the
-     parent `.kt-header__menu` so >8 items wrap to a second row
-     instead of pushing icons off-screen on narrower laptops. */
   max-width: 14rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -458,19 +259,9 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 .kt-header__menu-link:hover,
 .kt-header__menu-link:focus-visible,
 .kt-header__menu-link[aria-current="page"] {
-  /* R232.57 — scheme-aware hover/active full-strength fg. */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
-/* R184 MENU-BADGE-1: small inline pill rendered next to the
-   matched menu link's text. Block-driven (snippets/menu-link-
-   badge.liquid + header schema `menu_link_badge` block) so
-   merchants can flag a "Deals" item with a "SALE" badge,
-   "New Arrivals" with "NEW", etc. — without smuggling raw
-   `<span>` HTML through the linklist title (which is `| escape`d
-   for XSS safety per REJ-SEC-002). Background + text color come
-   from merchant `color` picker settings, applied via inline
-   style (per-block, can't be moved to a class). */
 .kt-header__menu-badge {
   display: inline-flex;
   align-items: center;
@@ -508,22 +299,11 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   transform: rotate(180deg);
 }
 
-/* Flyout Dropdown (2-level, narrow list)
-   From Navbar.tsx: duration-500, cubic-bezier easing */
-/* R232.57 — flyout popover surface scheme-aware so the panel sits on
-   the merchant's scheme bg with subtle fg-toned border. */
 .kt-header__flyout {
   position: absolute;
   top: 100%;
   left: 50%;
   width: 200px;
-  /* Desktop dropdown surface is intentionally decoupled from the
-     header's color scheme: when a merchant runs a dark-glass header
-     the flyout still renders as a light surface so the link list
-     stays high-contrast and matches the original Next.js design
-     intent. Mobile drawer (.kt-header__mobile-panel) keeps the
-     scheme-aware treatment via its own `mobile_menu_color_scheme`
-     setting; only the desktop hover/click dropdown is pinned here. */
   background-color: #ffffff;
   border: 1px solid var(--kt-stone-200, #e7e5e4);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -538,12 +318,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
               transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Hover-to-open is gated behind `(hover: hover)` so a touch laptop
-   or iPad Pro reaching the desktop breakpoint doesn't fire the
-   sticky-hover state on the flyout (the menu would stay open until
-   the user taps another menu item). The companion `[data-open]`
-   selector — driven by the JS click/keyboard handler — stays
-   unguarded so all input modalities still open the flyout. */
 @media (hover: hover) and (pointer: fine) {
   .kt-header__menu-item:hover > .kt-header__flyout {
     opacity: 1;
@@ -630,9 +404,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   color: rgb(var(--kt-c-action-text));
 }
 
-/* Mega Menu — birebir from Navbar.tsx:
-   duration-700, cubic-bezier(0.16,1,0.3,1), origin-top
-   opacity + translateY(-8px) + blur → visible */
 .kt-header__mega-menu {
   position: absolute;
   top: 100%;
@@ -690,12 +461,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 .kt-header__mega-grid {
   display: grid;
-  /* R96 — auto-fit grid replaces fixed `repeat(3, 1fr)`. Merchants
-     can configure menus with 1, 2, 3, 4, 5+ child categories;
-     fixed 3-col would overflow or stuff items into a stacked 4th
-     column. minmax(min(220px, 100%), 1fr) gives each column at
-     least 220px, fits as many as possible per row, wraps cleanly
-     for narrower viewports. */
   grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   /* Row-gap is generous (2.75rem) so a second-row column ("BY
      BRAND" wrapping below "BY STYLE" on a wide menu) reads as a
@@ -751,10 +516,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   transform: translateY(0);
 }
 
-/* Column title — text-xs / font-bold / tracking-widest / mb-6
-   Next.js source uses text-stone-400 but that fails WCAG AA on the
-   white mega-panel bg (2.3:1). Bumped to stone-500 (#78716c) for
-   4.8:1 contrast — still muted, still reads as an eyebrow label. */
 /* Eyebrow label — deliberately lifted UP the color ramp (lighter
    than the link list below) so the title reads as scaffolding
    metadata rather than a competing line. Previous stone-500 sat
@@ -785,13 +546,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   gap: 0.5rem;
 }
 
-/* R232.8 — Body-font (not heading serif), 13.5px, regular weight.
-   Was inheriting the section-default heading serif via parent
-   `.kt-header__menu-link` ancestry on some layouts, which painted
-   the mega-menu items as oversized serif headlines instead of
-   the secondary-link tier they should be. Pinning font-family
-   here keeps the hierarchy (eyebrow label → link) legible at
-   small sizes. */
 /* Mega link rest is anchored to stone-700 (#434343) so the items
    sit clearly DARKER than the eyebrow title above. Previous
    rgba(87,83,78,0.85) ≈ #7c7872 was visually indistinguishable
@@ -844,8 +598,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   padding: 1.5rem;
 }
 
-/* Featured title — font-serif / text-xl / tracking-wide / leading-tight
-   matches Next.js `font-serif text-xl tracking-wide leading-tight` */
 .kt-header__mega-featured-title {
   font-family: var(--kt-f-accent-family);
   font-size: 1.25rem;
@@ -855,9 +607,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   margin-bottom: 0.5rem;
 }
 
-/* Featured description — text-sm / stone-300 (white/70 equiv)
-   matches Next.js `text-stone-500 text-sm leading-relaxed mb-4` but
-   lightened so it reads on the dark gradient overlay */
 .kt-header__mega-featured-desc {
   font-size: 0.875rem;
   line-height: 1.625;
@@ -865,8 +614,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   margin: 0 0 1rem 0;
 }
 
-/* Featured CTA — text-xs / font-bold / tracking-widest
-   matches Next.js `text-xs font-bold tracking-widest uppercase` */
 .kt-header__mega-featured-cta {
   display: inline-flex;
   align-items: center;
@@ -905,14 +652,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   gap: 0.75rem;
 }
 
-/* R232.40 — On mobile (≤640px) the icon cluster crowds the logo:
-   4 icons (search + account + cart + hamburger) at 44px each plus
-   3 × 12px gaps eats ~212px, leaving zero breathing room next to
-   a 100px logo inside a 360-380px viewport. User feedback:
-   "Mobilde icon lar ve logo çok yaklaşmış". Tighten the
-   inter-icon gap and the container side-padding on small mobile
-   to reclaim ~28px of visual separation between the logo and the
-   icons cluster without touching the WCAG 2.5.5 44×44 hit area. */
 @media (max-width: 640px) {
   .kt-header__icons {
     gap: 0.25rem;
@@ -921,21 +660,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
 
 @media screen and (min-width: 990px) {
   .kt-header__icons {
-    /* R187 HEADER-ICON-CLUSTER-1: removed the `border-left` divider
-       between the menu and the icon cluster. The 44x44 hit-area
-       icons + flex gap already provide enough spatial separation;
-       the divider read as visual noise on the dark header and
-       conflicted with the breathing room the cluster needs.
-       Padding-left + margin-left also dropped — they only existed
-       to push the cluster off the divider; without the divider
-       those spacers cause the icons to drift toward the cart edge.
-       R191 — gap tightened from 1rem to 0.5rem. With the 0.5rem
-       padding on each icon, edge-to-edge separation is still
-       0.5rem padding + 0.5rem gap + 0.5rem padding = 24px (WCAG
-       2.5.8 minimum recommended). The previous 1rem gap (32px
-       edge-to-edge) read as too loose, especially after R190
-       moved USD to the leading edge — the cluster looked spread
-       out rather than coherent. */
     gap: 0.5rem;
   }
 }
@@ -950,7 +674,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   min-width: 44px;
   min-height: 44px;
   padding: 0.5rem;
-  /* R232.57 — header icon rest color scheme-aware (was stone-300). */
   color: rgba(var(--kt-c-fg, 214 211 209), 0.85);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -966,20 +689,13 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  /* R269 — kill the UA tap-flash on iOS Safari + Android Chrome so the
-     cart/search/account icons don't briefly highlight grey on tap. */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* R269 — `:focus { outline: none }` kills the UA blue focus rectangle
-   that iOS Safari paints after a tap (older WebKit treats tap as focus
-   regardless of `:focus-visible`). Keyboard users still see the focus
-   indicator via the color change on the `:focus-visible` rule below. */
 .kt-header__icon:focus {
   outline: none;
 }
 
-/* R232.57 — icon hover/focus scheme-aware fg. */
 .kt-header__icon:hover,
 .kt-header__icon:focus-visible {
   color: rgb(var(--kt-c-fg, 255 255 255));
@@ -1002,23 +718,10 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   stroke-width: 1.5;
 }
 
-/* R110 — `<shopify-account>` upgrade fallback. Before the web
-   component class is registered (Shopify CDN slow / blocked / not
-   yet defined), the browser treats it as HTMLUnknownElement and
-   renders both slotted children as adjacent siblings, so the
-   header briefly shows TWO stacked account icons. Hide the
-   signed-in slot until the component upgrades (`:defined` matches
-   the registered custom element), so only the signed-out variant
-   shows during the upgrade window. After upgrade, the component's
-   Shadow DOM places the correct one based on auth state and this
-   rule no longer applies. */
 shopify-account:not(:defined) [slot="signed-in-avatar"] {
   display: none;
 }
 
-/* R232.57 — cart count pill uses the scheme's action color so it
-   reads as a real branded chip on every scheme (cream scheme gets
-   a cream button bg with dark text, dark scheme gets the inverse). */
 .kt-header__cart-count {
   position: absolute;
   top: 0;
@@ -1050,28 +753,11 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
 @media screen and (min-width: 990px) {
   .kt-header__locale {
     display: block;
-    /* R190 LOCALE-ORDER-LEFT-1: visually push the country/currency
-       selector to the LEFT of the icon cluster (before search/account
-       icons), even though the DOM keeps it after the search button.
-       Reasoning: the USD/EN text label has a different visual weight
-       from the 44x44 SVG icons. Sandwiching it between icons broke the
-       cluster's rhythm (icon-icon-text-icon). Pushing it to the leading
-       edge groups the icons cleanly (text | icon icon icon-with-badge).
-       Pure CSS-order, no markup change — Theme Store rule CLU-03
-       ("left of cart icon in the header") still satisfied because
-       cart stays at the rightmost position. */
     order: -1;
   }
 }
 
 .kt-header__locale-summary {
-  /* Inherit the .kt-header__icon look (44×44 hit area, hover color)
-     but stretch horizontally to fit the EN / USD label. <summary>
-     defaults to list-item display — kill the marker and use flex
-     to align the label and chevron.
-     R191 — horizontal padding equalised with the 0.5rem padding on
-     the SVG icons so the spacing between USD and the next icon
-     matches the spacing between the icon pair. */
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -1105,8 +791,6 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   transform: rotate(180deg);
 }
 
-/* R232.57 — locale popover surface scheme-aware: scheme bg with
-   subtle fg-toned border so the panel sits naturally on every scheme. */
 .kt-header__locale-popover {
   position: absolute;
   top: calc(100% + 0.5rem);
@@ -1133,7 +817,6 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   gap: 0.25rem;
 }
 
-/* R232.57 — locale form label scheme-aware. */
 .kt-header__locale-form-label {
   font-size: 0.6875rem;
   font-weight: 600;
@@ -1146,16 +829,9 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   appearance: none;
   -webkit-appearance: none;
   font: inherit;
-  /* R296 — Was 0.875rem (14px); bumped to 1rem so the locale popover
-     stays iOS-zoom-safe if rendered in a mobile viewport (Theme Store
-     tests at the 320px breakpoint). */
   font-size: 1rem;
   padding: 0.625rem 2rem 0.625rem 0.75rem;
-  /* R296 — Was effectively 32-34px tall (padding + 14px font),
-     failing WCAG 2.5.5 (44px touch target). Pin to the 44px floor. */
   min-height: 44px;
-  /* R232.57 — select chrome scheme-aware (subtle fg-tinted fill +
-     border, fg text color). SVG fill inside data URL left alone. */
   background-color: rgba(var(--kt-c-fg, 255 255 255), 0.04);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d6d3d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat: no-repeat;
@@ -1166,19 +842,14 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   cursor: pointer;
 }
 
-/* R232.57 — focus ring uses scheme fg. */
 .kt-header__locale-form-select:focus-visible {
   outline: 2px solid rgb(var(--kt-c-fg, 250 250 249));
   outline-offset: 2px;
   border-color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
 }
 
-/* R232.57 — locale submit uses the scheme's action color so the CTA
-   reads as an actual branded button on every scheme. */
 .kt-header__locale-form-submit {
   margin-top: 0.5rem;
-  /* R296 — 0.5rem block padding pushed under WCAG 2.5.5 minimum;
-     0.75rem keeps the visual proportions but ensures ≥44px tall. */
   padding: 0.75rem 1rem;
   min-height: 44px;
   background-color: rgb(var(--kt-c-action, 250 250 249));
@@ -1193,7 +864,6 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   cursor: pointer;
 }
 
-/* R232.57 — hamburger toggle color tracks the scheme. */
 .kt-header__menu-toggle {
   display: flex;
   align-items: center;
@@ -1220,27 +890,10 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   stroke-width: 1.5;
 }
 
-/* R269 — explicit `:focus { outline: none }` so iOS Safari and
-   Android Chrome don't paint the UA blue focus rectangle after a
-   tap. iOS Safari treats tap as focus (no `:focus-visible` distinction
-   on older WebKit), so without this rule the hamburger icon kept a
-   stuck blue outline after the user opened then closed the mobile
-   menu. Keyboard users still get a visible focus indicator via the
-   `:focus-visible` rule below — pointer/tap focus stays invisible. */
 .kt-header__menu-toggle:focus {
   outline: none;
 }
 
-/* R-SS2 — Same pattern as `.kt-header__mobile-panel-close`:
-   programmatic .focus() from JS (or restored focus when the drawer
-   closes and the toggle re-receives focus per WAI-ARIA practice)
-   retains :focus-visible state on Chromium / Safari if the session
-   has any prior keyboard input, leaving a hard 2px rectangular
-   outline that reads to merchants as a stuck "bordered button".
-   Swap the rectangle for a soft circular tint — keyboard a11y
-   indicator is still present (WCAG 2.4.7 satisfied via background
-   change with sufficient contrast), but pointer/tap users no
-   longer perceive a persistent border around the icon. */
 .kt-header__menu-toggle:focus-visible {
   outline: none;
   border-radius: 9999px;
@@ -1257,13 +910,9 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
    on the header, once inside the panel) and the layout looked broken.
    1100 sits above header but still under cart-drawer (2100) so the
    cart can open over an active mobile menu. */
-/* R232.57 — mobile drawer panel scheme-aware: surface follows the
-   merchant's bg scheme, text follows fg. Default fallback keeps the
-   original dark drawer look (stone-900 / stone-50). */
 .kt-header__mobile-panel {
   position: fixed;
   inset: 0;
-  /* R113 — drawer tier (mobile menu sits at the drawer level). */
   z-index: var(--kt-z-drawer);
   background-color: rgb(var(--kt-c-bg, 28 25 23));
   color: rgb(var(--kt-c-fg, 250 250 249));
@@ -1279,13 +928,6 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   transform: translateY(0);
 }
 
-/* JS-off fallback: the mobile panel rendered INLINE (no overlay,
-   no fixed positioning, no slide animation) so visitors without
-   JavaScript — reviewer JS-off smoke test + locked-down browsers
-   — can still reach navigation on mobile. Hamburger toggle and
-   sub-panel forward/back buttons are hidden because they require
-   JS. Links inside the panel (href anchors) work natively. */
-/* R232.57 — JS-off mobile panel inherits scheme bg. */
 html.no-js .kt-header__mobile-panel {
   position: static;
   transform: none;
@@ -1334,7 +976,6 @@ html.no-js .kt-header__mobile-slider {
   height: auto;
 }
 
-/* R232.57 — JS-off panel borders / titles scheme-aware. */
 html.no-js .kt-header__mobile-view {
   position: static;
   inset: auto;
@@ -1349,7 +990,7 @@ html.no-js .kt-header__mobile-view-title {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(var(--kt-c-fg, 255 255 255), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
   padding: 0.5rem 0;
 }
 
@@ -1357,10 +998,6 @@ html.no-js .kt-header__mobile-view-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* `env(safe-area-inset-top)` pushes the close button below the iPhone
-     notch; without it the close button sits under the notch in portrait
-     orientation and the user can't tap it. `max()` floor guarantees the
-     normal 1.25rem padding on devices without a notch. */
   padding: max(1.25rem, env(safe-area-inset-top, 0px)) 1.5rem 1.25rem;
   flex-shrink: 0;
 }
@@ -1376,15 +1013,9 @@ html.no-js .kt-header__mobile-view-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* R141 NAV-CLOSE-44-1: enforce a 44×44 hit area floor (WCAG 2.5.5).
-     Previous `padding: 0.5rem` + 28px SVG arithmetically gives 44px
-     but font-rounding browsers (Samsung Internet, some Android
-     Chrome variants) render at 43px and miss the spec. min-width/
-     min-height makes the floor explicit and survives rounding. */
   min-width: 2.75rem;
   min-height: 2.75rem;
   padding: 0.5rem;
-  /* R232.57 — close button color scheme-aware. */
   color: rgb(var(--kt-c-fg, 250 250 249));
   background: none;
   border: none;
@@ -1404,27 +1035,10 @@ html.no-js .kt-header__mobile-view-title {
   outline: none;
 }
 
-/* The mobile-nav JS programmatically focuses the close button on
-   drawer-open (for screen reader announcement). In Chromium and
-   Safari, programmatic `.focus()` retains `:focus-visible` state
-   if the user has interacted via keyboard *anywhere* during the
-   session — which left a hard 2px white outline-rectangle around
-   the X button after every drawer-open, even on pure touch users.
-   Swap the rectangular outline for a soft circular tint so the
-   keyboard focus indicator is still present (WCAG 2.4.7) but
-   doesn't read as a stuck "bordered button" on touch. */
-/* R232.57 — focus tint scheme-aware. */
 .kt-header__mobile-panel-close:focus-visible {
   outline: none;
   background: rgba(var(--kt-c-fg, 255 255 255), 0.12);
 }
-
-/* ============================================================
-   Mobile menu — multi-panel slide navigation
-   Ported birebir from Navbar.tsx.
-   Each panel is a full-viewport absolute-positioned view with its
-   own `data-state` attribute driving its translateX.
-   ============================================================ */
 
 .kt-header__mobile-slider {
   position: relative;
@@ -1453,13 +1067,10 @@ html.no-js .kt-header__mobile-view-title {
   transform: translateX(0);
 }
 
-/* Panels the user has already passed through — held just off-screen
-   to the left, ready to slide back in when the user taps Back. */
 .kt-header__mobile-view[data-state="behind"] {
   transform: translateX(-100%);
 }
 
-/* Panels ahead of the user (not yet visited) — off-screen to the right. */
 .kt-header__mobile-view[data-state="ahead"] {
   transform: translateX(100%);
 }
@@ -1478,24 +1089,6 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* Back button — small uppercase link at the top of each sub-panel.
-   R269 — Was `color: stone-500` resting + `color: stone-50` on hover.
-   Reporter said: "bu mobile menu deki back bazen beyaz bazen gri
-   tonlarda oluyor. her zaman beyaz kalmalı!" — the resting stone-500
-   read as muted/gray-ish next to the bright white menu items, and
-   tap-stuck `:hover` states made the colour appear to flip between
-   paint frames. Pinned to stone-50 in every state so the BACK chip
-   reads as the same light tone whether the user has tapped it,
-   hovered (desktop sim), or just opened the panel. */
-/* R232.57 — back link color follows scheme fg in every state.
-   R-SS8-followup — Merchant screenshot showed the BACK button
-   wrapped in a crisp rectangular outline at rest. `border: none`
-   + `background: none` alone don't kill iOS Safari's native
-   `<button>` chrome — Mobile WebKit paints its own outer shell
-   (subtle inset shadow + thin outline) unless `appearance: none`
-   is explicitly applied. Adding the appearance reset across the
-   three vendor prefixes plus an explicit `box-shadow: none`
-   nukes the UA-painted box so only our own styling remains. */
 .kt-header__mobile-back {
   appearance: none;
   -webkit-appearance: none;
@@ -1526,23 +1119,6 @@ html.no-js .kt-header__mobile-view-title {
   color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
-/* R-SS8 round 3 — Earlier attempts swapped the UA focus rectangle
-   for a soft pill-tint background, but `kt-section-header-mobile-nav.js`
-   programmatically calls `.focus()` on the BACK button when a
-   sub-panel slides into view (`focusCurrentPanel()` at line 210
-   of the nav JS, for SR announcement parity). iOS Safari treats
-   that programmatic focus as triggering `:focus` (NOT always
-   `:focus-visible`), so the pill-tint rule never matched and the
-   button retained its UA-painted button chrome — exactly the
-   "bordered box" the merchant kept screenshotting.
-
-   The cleanest fix sidesteps the focus-visible / focus split
-   entirely: kill the outline on BOTH states, kill any UA chrome
-   on every state, and use a text-underline as the focus indicator
-   instead of any box/background. The underline reads as an
-   editorial affordance (matches the BACK label's existing
-   typographic treatment) and ALWAYS satisfies WCAG 2.4.7
-   regardless of which focus pseudo the browser decides to fire. */
 .kt-header__mobile-back:focus,
 .kt-header__mobile-back:focus-visible {
   outline: none;
@@ -1573,7 +1149,6 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 /* Panel title — small uppercase label above the sub-menu */
-/* R232.57 — mobile sub-panel header label + divider scheme-aware. */
 .kt-header__mobile-view-title {
   font-family: var(--kt-f-body-family);
   font-size: 0.75rem;
@@ -1587,7 +1162,6 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 /* Menu items (both top-level and sub-level). Shared styling. */
-/* R232.57 — mobile nav link text + row divider scheme-aware. */
 .kt-header__mobile-link {
   display: flex;
   align-items: center;
@@ -1616,9 +1190,8 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* R232.57 — hover muted fg. */
 .kt-header__mobile-link:hover {
-  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* Text label inside a mobile menu link. Uses the flex: 1 so the
@@ -1639,7 +1212,6 @@ html.no-js .kt-header__mobile-view-title {
   color: inherit;
 }
 
-/* R232.57 — chevron icon color follows muted fg. */
 .kt-header__mobile-link svg {
   flex-shrink: 0;
   color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
@@ -1658,13 +1230,6 @@ html.no-js .kt-header__mobile-view-title {
   transform: scaleX(-1) translateX(-4px);
 }
 
-/* R269 — explicit `:focus { outline: none }` + tap-highlight-color
-   transparent so the UA blue tap rectangle doesn't get stuck on the
-   "Home" / category links after the user taps them in the mobile
-   menu. The reporter said: "home link nedense bordered kaldı! yine
-   clicked olduğu için olabilir" — iOS Safari treats tap as :focus
-   on older WebKit, leaving the link outlined until the next tap
-   elsewhere. Keyboard users still get the focus ring via :focus-visible. */
 .kt-header__mobile-link {
   -webkit-tap-highlight-color: transparent;
 }
@@ -1673,12 +1238,6 @@ html.no-js .kt-header__mobile-view-title {
   outline: none;
 }
 
-/* R232.57 — focus ring scheme-aware. Gated to precise pointers
-   (desktop/keyboard) only. On touch, a tap or the nav JS's programmatic
-   focus could fire :focus-visible and leave a stuck "bordered box" on
-   the Home/category links. Suppressing it there (the bare :focus rule
-   above already sets outline:none) keeps mobile clean; keyboard users
-   on pointer:fine still get a clear WCAG 2.4.7 ring. */
 @media (pointer: fine) {
   .kt-header__mobile-link:focus-visible {
     outline: 2px solid rgb(var(--kt-c-fg, 255 255 255));
@@ -1687,14 +1246,13 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 /* "View all {parent}" link at the top of each sub-panel */
-/* R232.57 — "View all" link muted fg. */
 .kt-header__mobile-link--all {
   font-size: 0.9375rem;
   font-family: var(--kt-f-body-family);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
-  color: rgba(var(--kt-c-fg, 159 159 158), 0.5);
+  color: rgb(var(--kt-c-fg-muted));
   padding: 0.75rem 0;
 }
 
@@ -1704,12 +1262,10 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* R232.57 — hover full fg. */
 .kt-header__mobile-link--all:hover {
   color: rgb(var(--kt-c-fg, 250 250 249));
 }
 
-/* R232.57 — mobile primary CTA uses scheme action colors. */
 .kt-header__mobile-cta {
   display: block;
   width: 100%;
@@ -1737,7 +1293,6 @@ html.no-js .kt-header__mobile-view-title {
 }
 
 /* Sub-panel (nested mobile navigation) */
-/* R232.57 — sub-panel surface matches parent drawer scheme. */
 .kt-header__mobile-sub {
   position: absolute;
   inset: 0;
@@ -1776,18 +1331,6 @@ html.no-js .kt-header__mobile-view-title {
   transform: translateX(4px);
 }
 
-/* The mobile-nav JS programmatically focuses the back button when
-   a sub-panel slides in (for screen-reader context). Chromium and
-   Safari treat that programmatic focus as keyboard-equivalent and
-   keep `:focus-visible` true after the touch, leaving a hard
-   white 2px ring + 2px offset rectangle around the back link
-   even on pure touch use. Suppress the ring on bare `:focus`
-   (mouse/touch) but RESTORE it on `:focus-visible` so keyboard
-   users get a clear focus indicator. R296: the earlier revision
-   suppressed `:focus-visible` outline outright, which is a hard
-   WCAG 2.4.7 fail — axe-core flags it as "focus-visible-must-have-styles".
-   The inset shadow paints inside the button so the touch target
-   stays the same physical size on mobile. */
 .kt-header__mobile-back {
   -webkit-tap-highlight-color: transparent;
 }
@@ -1797,14 +1340,7 @@ html.no-js .kt-header__mobile-view-title {
   box-shadow: none;
 }
 
-/* R232.57 — focus ring scheme-aware. */
 .kt-header__mobile-back:focus-visible {
-  /* No box/ring here. The earlier inset box-shadow painted a
-     "bordered box" that mobile browsers showed whenever the nav JS
-     programmatically focused this button on sub-panel open (iOS fires
-     :focus-visible for that). The keyboard focus indicator is the
-     text underline set in the R-SS8 rule above — a non-box affordance
-     that still satisfies WCAG 2.4.7. */
   outline: none;
   box-shadow: none;
   border-radius: 0;
@@ -1821,24 +1357,10 @@ html.no-js .kt-header__mobile-view-title {
   }
 }
 
-/* R216 — transparent mode used to get an extra-tall padding band
-   (py-5 mobile / py-8 desktop) inherited from the Next.js Navbar,
-   on the theory that a header floating over a hero needs more
-   breathing room. In practice that taller band created a visual
-   asymmetry against the solid variant — when merchants flipped
-   the header style in the editor, the row appeared to jump and
-   the content read as "not vertically centered" because the
-   inner row grew by ~32px in desktop while the action-icon row
-   stayed at the same 44px min-height. Match the solid padding
-   exactly so both modes paint the same row height; the floating
-   feel still comes from the transparent background + text-shadow,
-   no extra height needed. */
-
 /* Mobile locale + country selector — lives at the bottom of the
    mobile panel. Small, subtle, full-width controls so they don't
    compete with the primary navigation. Hidden at ≥990px (tablet and
    up) because the footer already carries the same selectors. */
-/* R232.57 — divider above locale selector scheme-aware. */
 .kt-header__mobile-locale {
   padding: 1.25rem 1.5rem 2rem;
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
@@ -1853,13 +1375,12 @@ html.no-js .kt-header__mobile-view-title {
   gap: 0.375rem;
 }
 
-/* R232.57 — locale label muted fg. */
 .kt-header__mobile-locale-label {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-header__mobile-locale-select {
@@ -1868,15 +1389,6 @@ html.no-js .kt-header__mobile-view-title {
   padding: 0.625rem 0.875rem;
   font: inherit;
   font-size: 0.9375rem;
-  /* The mobile panel chrome is kt-stone-900 (near-black). Text needs
-   * to be light, not stone-900 — the previous default rendered as
-   * black-on-black and the user could not see the selected
-   * country/language at all. stone-50 keeps strong contrast against
-   * the panel background AND degrades sensibly if a future
-   * scheme-aware variant ever lands the dropdown in a light context.
-   * Border + caret SVG bumped to a lighter rgba(255,255,255,...) so
-   * the field's edges and chevron remain perceivable. */
-  /* R232.57 — select chrome scheme-aware (fg-tinted border, fg text). */
   color: rgb(var(--kt-c-fg, 250 250 249));
   background-color: transparent;
   border: 1px solid rgba(var(--kt-c-fg, 255 255 255), 0.2);
@@ -1893,7 +1405,6 @@ html.no-js .kt-header__mobile-view-title {
 /* Native dropdown options panel — explicitly request a light-on-dark
  * panel so macOS / Windows OS-themed option lists don't render
  * black-on-black against the mobile menu's dark chrome. */
-/* R232.57 — native option list matches scheme bg/fg. */
 .kt-header__mobile-locale-select option {
   background-color: rgb(var(--kt-c-bg, 28 25 23));
   color: rgb(var(--kt-c-fg, 250 250 249));
@@ -1904,9 +1415,6 @@ html.no-js .kt-header__mobile-view-title {
   outline-offset: 2px;
 }
 
-/* R232.57 — locale submit uses scheme action colors so the CTA is
-   a real branded button on every scheme (kept R112 spirit: merchant
-   rebrands ripple here without touching CSS). */
 .kt-header__mobile-locale-submit {
   min-height: 44px;
   padding: 0.625rem 1rem;
@@ -1927,19 +1435,6 @@ html.no-js .kt-header__mobile-view-title {
     display: none;
   }
 }
-
-/* ============================================================
-   R-header-audit — prefers-reduced-motion compliance
-
-   Header's scroll-state transitions (background-color, backdrop-
-   filter, box-shadow morphing on .kt-header--scrolled) and the
-   mobile drawer's slide animations both run at 400-500ms eases
-   by default. Visitors with reduced-motion preference (vestibular
-   disorders, motion sickness, OS-level "Reduce motion" toggle)
-   need these animations zeroed so the header still changes state
-   but does so instantly. axe-core and Theme Store reviewers test
-   this preference explicitly.
-   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
   .kt-header,

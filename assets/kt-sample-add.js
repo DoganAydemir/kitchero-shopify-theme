@@ -1,26 +1,3 @@
-/**
- * Showroom "Add sample to cart" — AJAX add + cart-drawer open.
- *
- * The showroom door-sample block renders a plain {% form 'product' %}
- * (snippets live in main-product-showroom.liquid). Left alone it does a
- * full-page POST to /cart, which on this theme means the customer lands
- * on the cart page instead of the slide-out drawer the rest of the store
- * uses. This intercepts the sample form's submit, adds via /cart/add.js,
- * then refreshes + opens the shared cart drawer — matching the main PDP's
- * add-to-cart UX.
- *
- * We deliberately do NOT reuse product-form.js's initProductForm here:
- * that helper queries `[data-option-value]` / `[data-variant-select]` at
- * the whole-section level and would wrongly wire the showroom's MAIN
- * product variant picker to the sample form. This is a self-contained,
- * variant-less handler keyed to the sample form's own class.
- *
- * Progressive enhancement: with JS disabled the {% form %} still POSTs
- * natively to /cart, so adding a sample keeps working.
- *
- * Idempotent: guarded by window.__kitcheroSampleAddLoaded.
- */
-
 if (!window.__kitcheroSampleAddLoaded) {
   window.__kitcheroSampleAddLoaded = true;
 
@@ -48,19 +25,16 @@ if (!window.__kitcheroSampleAddLoaded) {
       var btn = form.querySelector(BTN_SELECTOR);
 
       form.addEventListener('submit', function (e) {
-        /* Inflight guard — block rapid double-taps; /cart/add.js is not
-           idempotent so two quick POSTs add the sample twice. */
         if (form.dataset.sampleLoading === 'true') {
           e.preventDefault();
           return;
         }
 
         var idInput = form.querySelector('[name="id"]');
-        if (!idInput || !String(idInput.value || '').trim()) return; /* let native handle/ignore */
+        if (!idInput || !String(idInput.value || '').trim()) return;
 
         var drawer = getDrawer();
-        /* No drawer on the page (cart_type: page) — let the native POST
-           fall through to /cart, mirroring the rest of the theme. */
+
         if (!drawer || typeof drawer.refreshDrawer !== 'function') return;
 
         e.preventDefault();
@@ -85,20 +59,15 @@ if (!window.__kitcheroSampleAddLoaded) {
             });
           })
           .then(function (added) {
-            /* Let cart-aware widgets (free-shipping bar, analytics) react. */
             document.dispatchEvent(
               new CustomEvent('kitchero:cart:added', { bubbles: true, detail: added })
             );
-            /* Canonical pattern (see cart-drawer.js): refresh from the
-               server — which re-renders the panel and the header count —
-               then open the freshly-rendered drawer. */
+
             return drawer.refreshDrawer().then(function () {
               if (typeof drawer.open === 'function') drawer.open();
             });
           })
           .catch(function () {
-            /* Hard failure (network / sold out race). Fall back to the
-               native cart page so the customer is never stuck. */
             window.location.href = cartUrl();
           })
           .finally(function () {
@@ -123,7 +92,6 @@ if (!window.__kitcheroSampleAddLoaded) {
       init();
     }
 
-    /* Theme editor — re-bind when the showroom section is reloaded. */
     document.addEventListener('shopify:section:load', function (event) {
       init(event.target);
     });

@@ -9,7 +9,6 @@
   --kt-marquee-duration: 40s;
   --kt-gallery-item-gap: 1rem;
   --kt-gallery-item-radius: 0.75rem; /* rounded-xl */
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0; /* py-24 */
@@ -34,7 +33,6 @@
   }
 }
 
-/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-gallery-marquee__heading-block {
   border-left: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 1.5rem;
@@ -47,7 +45,7 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 1rem;
 }
 
@@ -96,12 +94,6 @@
   animation-direction: reverse;
 }
 
-/* R87 — Theme editor: pause the infinite scroll while the merchant
-   is editing the section so they can inspect a stable frame. The
-   `.shopify-design-mode` class is added to <html> by the inline
-   bootstrap in layout/theme.liquid:305 when Shopify.designMode is
-   true. Running infinite CSS animations in editor make it
-   impossible to align/inspect individual gallery items. */
 .shopify-design-mode .kt-gallery-marquee__track {
   animation-play-state: paused;
 }
@@ -145,13 +137,6 @@
   }
 }
 
-/* Focus ring for keyboard users on linkable tiles.
-   R-focus-ring-clip — Item has `overflow: hidden` for the image
-   crop, and sits inside `.kt-gallery-marquee__row` (overflow:hidden)
-   AND `.kt-gallery-marquee` section (overflow:hidden). An outset
-   ring at any positive offset gets clipped horizontally as items
-   animate through the row. Inset outline keeps the ring visible
-   on every frame. WCAG 2.4.7. */
 .kt-gallery-marquee__item:focus-visible {
   outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: -2px;
@@ -286,8 +271,6 @@
   }
 }
 
-/* R-wcag-pause — Pause/play toggle pinned bottom-right of the
-   marquee container, 44x44 with focus ring + scheme-aware bg. */
 .kt-gallery-marquee {
   position: relative;
 }

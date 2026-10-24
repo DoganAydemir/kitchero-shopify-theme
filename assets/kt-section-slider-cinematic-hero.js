@@ -1,17 +1,3 @@
-/**
- * Slider — Cinematic Hero
- *
- * Cross-fade slider with Ken Burns zoom on active slide.
- *
- * - Advance by swapping `--active` class on slide + text nodes.
- * - Autoplay via setInterval, configurable via data-autoplay-interval.
- * - Pause on hover (optional), prev/next arrows, dot pagination, play/pause toggle.
- * - Honors prefers-reduced-motion: no autoplay, instant cross-fade, no Ken Burns.
- * - Re-initializes on shopify:section:load, cleans on shopify:section:unload.
- *
- * Wrapped in a load-guard so the same script can be included more than once
- * (Section Rendering API, theme editor rehydration) without double-binding.
- */
 if (!window.__kitcheroSliderCinematicLoaded) {
   window.__kitcheroSliderCinematicLoaded = true;
 
@@ -19,7 +5,7 @@ if (!window.__kitcheroSliderCinematicLoaded) {
     'use strict';
 
     var SECTION_SELECTOR = '[data-section-type="slider-cinematic-hero"]';
-    var instances = new Map(); // sectionId -> controller
+    var instances = new Map();
 
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -42,8 +28,7 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       dots.forEach(function (el) {
         var isActive = Number(el.dataset.slideDot) === index;
         el.classList.toggle('kt-slider-cinematic__dot--active', isActive);
-        /* role="tab" ARIA pattern — use aria-selected (not aria-current) and
-           roving tabindex so only the active tab is in the tab sequence. */
+
         el.setAttribute('aria-selected', isActive ? 'true' : 'false');
         el.setAttribute('tabindex', isActive ? '0' : '-1');
       });
@@ -123,7 +108,6 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         }
       }
 
-      /* Wire controls */
       var prevBtn = root.querySelector('[data-slider-prev]');
       var nextBtn = root.querySelector('[data-slider-next]');
       if (prevBtn) {
@@ -139,10 +123,6 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         });
       }
 
-      /* Touch swipe on mobile. Same horizontal-bias pattern as the
-         hero slider — 50px threshold + dY-vs-dX guard so vertical
-         page scroll isn't hijacked. Pauses autoplay on touch start
-         so the slide doesn't advance under the user's finger. */
       var swipeStartX = 0, swipeStartY = 0, swipeMoved = false;
       var SWIPE_THRESHOLD = 50;
       root.addEventListener('touchstart', function (e) {
@@ -169,13 +149,7 @@ if (!window.__kitcheroSliderCinematicLoaded) {
           if (!reducedMotion && interval > 0) controller.start();
         }
       }, { passive: true });
-      /* R21-C: touchcancel resets the swipe state when iOS / Android
-         system gestures (pulldown notification panel, edge-swipe to go
-         back, incoming call sheet) interrupt the touch sequence
-         mid-gesture. Without this, `swipeMoved` stays true into the
-         next interaction and autoplay never resumes — the carousel
-         visually freezes from the customer's perspective until they
-         manually swipe again. */
+
       root.addEventListener('touchcancel', function () {
         swipeMoved = false;
         if (!reducedMotion && interval > 0) controller.start();
@@ -189,10 +163,6 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         });
       });
 
-      /* Keyboard navigation for the tablist — ArrowLeft/Right cycles tabs,
-         Home/End jumps to first/last. Roving tabindex (set in setActive)
-         means only the selected tab is focusable; arrows then move focus
-         AND select the next tab (automatic activation). */
       var tablist = root.querySelector('[role="tablist"]');
       if (tablist) {
         tablist.addEventListener('keydown', function (event) {
@@ -225,20 +195,11 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       if (pauseOnHover && !reducedMotion) {
         root.addEventListener('mouseenter', onEnter);
         root.addEventListener('mouseleave', onLeave);
-        /* WCAG 2.2.2 (Pause, Stop, Hide): autoplaying content must be
-           pausable by the user. Pause-on-hover alone covers pointer
-           users, but a keyboard user who tabs to an inner CTA still
-           sees the slider rotate underneath them — and on focus loss
-           the in-flight animation may move the focused control out
-           from under their cursor (motion-attached focus shift).
-           Mirror onEnter/onLeave for focusin/focusout so the
-           autoplay halts whenever any descendant has keyboard
-           focus. Pattern shared with kt-section-hero.js. */
+
         root.addEventListener('focusin', onEnter);
         root.addEventListener('focusout', onLeave);
       }
 
-      /* Theme editor — react to block select */
       root.addEventListener('shopify:block:select', function (event) {
         var target = event.target && event.target.closest
           ? event.target.closest('[data-slide-index]')
@@ -249,14 +210,9 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         }
       });
 
-      /* Initial state */
       setActive(root, 0);
       updateToggle();
 
-      /* R87 — pause autoplay in theme editor so the merchant can
-         inspect a stable slide while editing. block:select handler
-         already drives navigation in editor; the timer is only for
-         real-storefront rotation. */
       var inEditor = window.Shopify && window.Shopify.designMode;
       if (playing && !inEditor) {
         timerId = setInterval(controller.next, interval * 1000);
@@ -277,7 +233,6 @@ if (!window.__kitcheroSliderCinematicLoaded) {
       }
     }
 
-    /* Initial load */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initAll);
     } else {
@@ -289,12 +244,7 @@ if (!window.__kitcheroSliderCinematicLoaded) {
         ? event.target.querySelector(SECTION_SELECTOR)
         : null;
       if (!root) return;
-      /* Theme editor fires :load on every settings change without
-         a paired :unload — without first tearing down the prior
-         controller, its setInterval keeps firing on the detached
-         DOM forever (closure prevents GC) and instances Map gets
-         overwritten without destroy. Mirror the R74/R75 destroy-
-         then-recreate pattern. */
+
       if (root.dataset.sectionId) {
         teardown(root.dataset.sectionId);
       }

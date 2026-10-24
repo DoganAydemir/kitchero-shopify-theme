@@ -12,16 +12,6 @@
   assign featured_product_add_to_cart_default = 'kt.product.add_to_cart' | t
 -%}
 
-{%- comment -%}
-  Fresh-install / no-product-picked fallback. Without this branch
-  a merchant who drags featured-product onto the homepage but
-  hasn't picked a product yet sees a blank section with no
-  indication what to configure (Theme Store reviewer flags as
-  "broken section / unfinished theme"). Inside the editor we
-  show an editorial hint pointing at the picker setting; on the
-  live storefront we render nothing so the page doesn't have a
-  hollow section band.
-{%- endcomment -%}
 {%- if product == blank -%}
   {%- if request.design_mode -%}
     <section
@@ -43,8 +33,8 @@
 {%- else -%}
 
 <section
-  class="kt-featured-product color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-featured-product color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="featured-product"
   aria-label="{{ 'kt.section.featured_product.region_label' | t | default: 'Featured product' }}"
@@ -130,12 +120,6 @@
             {%- when 'description' -%}
               <div class="kt-featured-product__description rte" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
-                  {%- comment -%}
-                    R87 — pre-assign word_limit_safe so the `default`
-                    fallback lands on the variable, not on the
-                    truncatewords output. Default 40 matches main-
-                    product schema.
-                  {%- endcomment -%}
                   {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
                   {{ product.description | strip_html | truncatewords: word_limit_safe }}
                 {%- else -%}
@@ -255,11 +239,6 @@
                       Without it, the customer can't tell "in stock now"
                       from "ships when restocked".
                     {%- endcomment -%}
-                    {%- comment -%}
-                      R298 — Pre-order badge always-render with hidden
-                      flag so product-form.js can toggle atomically on
-                      variant change. Same pattern as snippets/product-form.liquid.
-                    {%- endcomment -%}
                     {%- assign fp_preorder_hidden = true -%}
                     {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
                       {%- assign fp_preorder_hidden = false -%}
@@ -268,35 +247,6 @@
 
                     <div class="kt-featured-product__error" data-product-form-error role="alert" hidden></div>
 
-                    {%- comment -%}
-                      R298 — Shopify Dynamic Checkout (`form | payment_button`)
-                      is now ALWAYS emitted. Theme Store / Online Store sales
-                      channel mandates the accelerated checkout button inside
-                      every `{% form 'product' %}` — Shop Pay, Apple Pay,
-                      Google Pay, PayPal, etc. — regardless of palette
-                      concerns. Merchants disable individual buttons in
-                      Settings → Payments if they don't want them.
-
-                      `payment_terms` (Shop Pay Installments / Klarna /
-                      Afterpay messaging) sits beneath the button so installment
-                      copy follows the offer when enabled. Both render zero
-                      output when the merchant hasn't configured them, so
-                      always-on is safe.
-                    {%- endcomment -%}
-                    {%- comment -%}
-                      R27-INV: mirror snippets/product-form.liquid's
-                      data-payment-button-wrapper hook so kt-section-
-                      main-product.js + product-form.js can disable
-                      Shop Pay / Apple Pay / Google Pay synchronously
-                      with the regular submit button when the customer
-                      switches to a sold-out variant. Without the hook
-                      the shadow-DOM Dynamic Checkout buttons remain
-                      clickable + would attempt to checkout an
-                      unavailable variant (Shopify checkout 422 surface,
-                      poor UX). Initial-render sold-out state is also
-                      gated server-side via aria-disabled + style for
-                      the no-JS path.
-                    {%- endcomment -%}
                     <div
                       class="kt-featured-product__dynamic-checkout"
                       data-payment-button-wrapper
@@ -332,14 +282,6 @@
               </div>
 
             {%- when '@app' -%}
-              {%- comment -%}
-                R87 — Theme Store rule: every block must wrap in
-                an element carrying `block.shopify_attributes` so
-                the editor can highlight + scroll-to the block on
-                merchant click. Bare `{% render block %}` works
-                functionally but breaks the editor "select block"
-                affordance entirely.
-              {%- endcomment -%}
               <div class="kt-featured-product__app-block" {{ block.shopify_attributes }}>
                 {%- render block -%}
               </div>
@@ -385,7 +327,10 @@
   "tag": "div",
   "class": "section",
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "settings": [
     {
@@ -405,41 +350,6 @@
       "label": "t:sections.featured-product.settings.view_product_link.label",
       "default": true
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        {
-          "value": "stone_100",
-          "label": "t:sections.shared.bg_color.options__stone_100.label"
-        },
-        {
-          "value": "custom",
-          "label": "t:sections.shared.bg_color.options__custom.label"
-        }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

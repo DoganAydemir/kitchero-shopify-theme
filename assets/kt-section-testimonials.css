@@ -1,18 +1,7 @@
-/* Testimonials — "Living with Kitchero" — Birebir from Testimonials.tsx */
 
-/* R232.50 — scheme-aware inner colors. Hardcoded stone-* text and
-   white-on-dark text inside the section now route through opacity-
-   graded --kt-c-fg so the cards, quote, and meta track the scheme.
-   The spotlight bg-image overlay + grayscale layers are untouched
-   (they sit above the section surface as a decorative photo
-   treatment). */
 
 /* section: bg-stone-950 py-32 border-t border-white/5 relative overflow-hidden */
 .kt-testimonials {
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 (dark);
-     fallback preserves the cinematic dark mood for the spotlight overlay.
-     Bg-image layers (.kt-testimonials__bg-base / __spotlight) sit ABOVE
-     this and are untouched. */
   background-color: rgb(var(--kt-c-bg, 12 10 9));
   color: rgb(var(--kt-c-fg, 255 255 255));
   padding: 8rem 0;
@@ -38,18 +27,6 @@
 }
 
 .kt-testimonials__bg-base--placeholder {
-  /* R209 — placeholder mode now mirrors the merchant-image dim
-     cascade exactly. R207's centred-icon approach + R208's full-
-     bleed light grey panel both fought the section's dark
-     cinematic mood. The right answer is to let the parent
-     `.kt-testimonials__bg-base` rule do its job: opacity 0.1
-     normally, 0.2 on section hover, grayscale always. Render the
-     `lifestyle-1` placeholder svg full-bleed at solid white fill
-     and the cascade dims it like a real 10%-opacity merchant
-     kitchen photo — kitchen line-art faintly visible by default,
-     slightly brighter on hover. Spotlight reveal layer (sibling
-     selector below) handles the mouse-follow brightening the
-     same way it does for merchant images. */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,26 +38,6 @@
   fill: rgba(255, 255, 255, 1);
 }
 
-/* R210 — spotlight reveal in placeholder mode now uses a plain
-   white background-colour. R209 tried inline svg as a spotlight
-   child, but `mask-image` reliably clips only an element's CSS
-   background (color or image) — propagation to inline-svg
-   children is inconsistent across browsers, and Chrome on the
-   user's setup wasn't masking the svg, so no visible spotlight
-   formed. A flat `rgba(255,255,255,0.65)` is unambiguously
-   masked by the JS-driven radial-gradient (450px circle at
-   mouseX mouseY, black 0% → transparent 100%) into a soft
-   feathered circle that follows the cursor.
-
-   Combined effect: the section-hover bg-base lift (0.1 → 0.2)
-   slightly brightens the dim kitchen line-art across the whole
-   section, AND the spotlight wash adds a brighter feathered
-   circle directly under the cursor — same visual goal as the
-   merchant-image experience (which composites the same image
-   at low + high opacity, mask-clipped). The brightness tracks
-   what the spotlight reveals over a real photo: ~60% × white
-   when the parent's hover opacity hits 0.6 in the masked
-   region. */
 .kt-testimonials__spotlight--placeholder {
   background-color: rgba(255, 255, 255, 0.65);
 }
@@ -135,27 +92,16 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-400). */
-  color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 1.5rem;
 }
 
-/* h2: text-4xl md:text-6xl font-serif italic text-white leading-tight.
-   R207 — explicit `font-weight: 400` overrides the global
-   `h1..h6 { font-weight: var(--kt-f-heading-weight) }` rule from
-   base.css, which was rendering the source's regular-weight serif
-   italic ("Living with Kitchero.") as a heavier display weight.
-   Same cascade race we hit on the home-financing partner header
-   in R202 — fix is the same shape: declare the desired weight
-   explicitly so the global heading rule doesn't win. */
 .kt-testimonials__title {
   font-family: var(--kt-f-accent-family);
-  /* R213 FLUID-TYPO: 2.25rem → 3.75rem stepped → clamp() fluid. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(2.25rem, 3vw + 1rem, 3.75rem)));
 
   font-style: italic;
   font-weight: 400;
-  /* R232.50 — scheme-aware (was white). */
   color: rgb(var(--kt-c-fg, 255 255 255));
   line-height: 1.1;
   margin: 0;
@@ -164,8 +110,7 @@
 /* Right description: max-w-xs text-stone-400 font-light leading-relaxed */
 .kt-testimonials__header-desc {
   max-width: 20rem;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   font-weight: 300;
   line-height: 1.625;
   font-size: 0.9375rem;
@@ -191,14 +136,6 @@
   }
 }
 
-/* R213 — pushed 3-up breakpoint from 1024px to 1180px. At
-   1024px-1180px the 3-column layout left ~152px text width per
-   card after avatar (48px) + gap (16px) + side padding (32px×2),
-   not enough for "CUSTOMER NAME" with letter-spacing 0.1em — the
-   author name wrapped onto two lines. 1180px gives ~200px text
-   width, comfortably wider than the 168px name string at full
-   size. Below 1180px the 2-up grid (already declared above) keeps
-   each card wide enough for single-line author names. */
 @media screen and (min-width: 1180px) {
   .kt-testimonials__grid {
     grid-template-columns: repeat(3, 1fr);
@@ -225,16 +162,6 @@
   background: rgba(var(--kt-c-bg, 28 25 23), 0.88);
   border-color: rgba(var(--kt-c-fg, 255 255 255), 0.2);
 }
-
-/* R209 — R208 added a `.kt-testimonials--no-bg .kt-testimonials__card`
-   alpha bump (0.4 → 0.85) to keep cards readable over the
-   light grey placeholder panel. R209 dropped the panel in
-   favour of the dim-cascade placeholder svg approach (which
-   keeps the section bg dark like the with-image state), so the
-   readability override is no longer needed and the card alpha
-   stays at the source's 0.4 frosted-glass value across both
-   states. The `--no-bg` section modifier was also removed in
-   R209 since nothing else scoped to it. */
 
 /* Editor-only highlight added by JS when the merchant selects a
    block in the theme editor. Pulses briefly so the card is easy
@@ -265,7 +192,6 @@
 /* blockquote: text-lg md:text-xl text-stone-300 font-light italic leading-relaxed mb-10 */
 .kt-testimonials__quote-text {
   font-size: 1.125rem;
-  /* R232.50 — scheme-aware quote body (was stone-500). */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
   font-weight: 300;
   font-style: italic;
@@ -316,21 +242,10 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  /* R207 — slightly lifted from 0.05 to 0.08 so the circular
-     no-photo slot reads more clearly against the card's
-     translucent stone-900 surface. */
   background-color: rgba(255, 255, 255, 0.08);
 }
 
 .kt-testimonials__avatar--placeholder svg {
-  /* R207 — was filling the circle 100%×100% with a stretched
-     `lifestyle-1` placeholder svg (kitchen scene). Now uses an
-     inline head-and-shoulders glyph that needs to sit centred at
-     ~60% of the slot — small enough to read as an icon, large
-     enough to anchor the card's name + role text beside it.
-     `currentColor` flows from the rule below so the silhouette
-     gets a muted near-white tint rather than the raw stroke
-     default. */
   width: 60%;
   height: 60%;
   color: rgba(255, 255, 255, 0.45);
@@ -340,7 +255,6 @@
 .kt-testimonials__author-name {
   font-size: 0.875rem;
   font-weight: 700;
-  /* R232.50 — scheme-aware (was white). */
   color: rgb(var(--kt-c-fg, 255 255 255));
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -350,18 +264,9 @@
 /* Role: text-[10px] text-stone-500 uppercase tracking-widest mt-1 */
 .kt-testimonials__author-role {
   font-size: 0.625rem;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0.25rem 0 0;
 }
 
-/* R289 — The CTA "READY TO BEGIN?" sub-section that lived here as
-   `.kt-testimonials-cta__*` has been extracted into a standalone
-   section. The matching styles now live in
-   `assets/kt-section-parallax-cta.css` under the
-   `.kt-parallax-cta__*` namespace. Merchants who want the same
-   visual treatment add the "Parallax CTA" section from the
-   Theme Editor; the testimonials surface itself is now purely
-   the quote band, no CTA chrome. */

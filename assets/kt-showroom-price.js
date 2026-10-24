@@ -1,6 +1,3 @@
-/* Showroom price block: keeps the sale label, sale color and monthly
-   payment in sync when the customer picks another variant. Listens for
-   the `variant:change` event that product-form.js dispatches. */
 (function () {
   'use strict';
 

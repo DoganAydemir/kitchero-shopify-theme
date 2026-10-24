@@ -3,11 +3,6 @@
    left-aligned content block, pill CTA. BEM namespace: .kt-banner-hero
    ========================================================================== */
 
-/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-white);
-   falls back to 255 255 255 so default look unchanged when scheme
-   variables aren't loaded. The outer banner-hero is a padding band
-   around the inner __frame which has its own bg-image; making the
-   outer band scheme-aware lets it blend into the page surface. */
 .kt-banner-hero {
   --banner-hero-radius: 1rem;
   --banner-hero-padding-x: 1.5rem;
@@ -15,8 +10,6 @@
 
   display: block;
   width: 100%;
-  /* R-density — section padding via merchant settings, ADDED to
-     the existing internal padding-y. Default 0 → no change vs prior. */
   margin-top: var(--banner-hero-pad-top, 0);
   margin-bottom: var(--banner-hero-pad-bottom, 0);
   padding: var(--banner-hero-padding-y) var(--banner-hero-padding-x);
@@ -120,11 +113,6 @@
   display: block;
   margin-bottom: 1rem;
   color: rgba(255, 255, 255, 0.6);
-  /* R153 EYEBROW-FONT-1: 10px is below WCAG 1.4.4 reflow comfort
-     on iPhone SE (375px). Bump to 11px (0.6875rem) so eyebrow
-     copy stays legible on the smallest viewports without breaking
-     the visual scale (4em letter-spacing keeps the wide-spaced
-     editorial feel). */
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.4em;
@@ -137,19 +125,6 @@
   color: var(--kt-white);
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-weight: 400;
-  /* R153 HEADING-CLAMP-1: replaced 3-step media-query scale with
-     a single `clamp(min, vw-derived, max)` so heading glides
-     across breakpoints (no jump at 750/990px) AND so long
-     translations (DE "Donaudampfschifffahrt", FR with accents)
-     don't overflow the viewport on narrow screens.
-
-     R269 — Was `overflow-wrap: break-word` + `hyphens: auto` so
-     long compounds could split. Reporter found that on mobile
-     this split short English words mid-character once the line
-     filled up. Editorial display headings should keep words
-     whole; if a long DE/FR compound still doesn't fit, that
-     surfaces as a merchant content-length problem (clear signal
-     to shorten the headline) rather than a "patlak" word split. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(1.875rem, 4vw + 1rem, 3.75rem)));
 
   line-height: 1.1;

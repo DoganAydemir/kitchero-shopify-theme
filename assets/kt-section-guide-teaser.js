@@ -1,20 +1,6 @@
-/**
- * Guide Teaser — GSAP staggered entrance animation on cards
- * Matches GuideTeaser.tsx.
- */
 (function () {
   'use strict';
 
-
-  /* Skip scroll-bound animations entirely inside Shopify's theme
-     editor (Shopify.designMode is true only in the editor iframe).
-     Editor lifecycle quirks — section adds, removes, re-renders —
-     fire shopify:section:load / unload in rapid sequence and can
-     trigger ScrollTrigger.refresh() against half-torn-down DOM,
-     which has surfaced as "page won't scroll to the footer after
-     I drop in this section" reports across multiple sections that
-     don't even use pinning. The live storefront still gets every
-     animation because designMode is undefined there. */
   if (window.Shopify && window.Shopify.designMode) return;
   function init(container) {
     var section = container.querySelector('[data-section-type="guide-teaser"]');
@@ -44,20 +30,16 @@
   }
 
   var instances = {};
-  document.querySelectorAll('[data-section-type="guide-teaser"]').forEach(function (el) {
-    instances[el.dataset.sectionId] = init(el.closest('.shopify-section') || el);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="guide-teaser"]').forEach(function (el) {
+      instances[el.dataset.sectionId] = init(el.closest('.shopify-section') || el);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="guide-teaser"]');
     if (!s) return;
-    /* Theme editor fires shopify:section:load on every settings change
-       without a paired :unload first. If we reassign instances[id]
-       without reverting the previous gsap.context, the prior
-       ScrollTriggers stay registered — they keep firing on scroll,
-       accumulate in ScrollTrigger.getAll(), and gradually freeze the
-       editor. Mirror the destroy-then-recreate pattern from R74
-       kt-section-how-it-works.js. */
+
     var sectionId = s.dataset.sectionId;
     if (instances[sectionId]) {
       instances[sectionId].revert();
@@ -69,9 +51,7 @@
     var id = e.detail.sectionId;
     if (instances[id]) {
       instances[id].revert();
-      // Same rationale as kt-section-why-choose-us: revert() leaves
-      // the wrapper entry behind; delete it so the map doesn't grow
-      // per editor re-render.
+
       delete instances[id];
     }
   });

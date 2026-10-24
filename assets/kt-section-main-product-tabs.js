@@ -1,17 +1,3 @@
-/*
- * Product detail tabs (default PDP).
- *
- * Enhances the full-width detail set into a WAI-ARIA tab interface:
- * one tablist of role="tab" buttons + role="tabpanel" panels. The
- * markup ships with the first panel visible and the rest `hidden`; with
- * JS disabled the `.no-js` stylesheet rules reveal every panel and hide
- * the tab bar, so all content stays reachable (progressive enhancement).
- *
- * Keyboard: Left/Right (and Up/Down) move between tabs, Home/End jump to
- * the ends, focus follows selection — the standard tabs pattern.
- * Editor: re-inits on shopify:section:load and activates the matching
- * tab on shopify:block:select.
- */
 (function () {
   function initTabs(root) {
     if (root.__ktTabsReady) return;
@@ -43,7 +29,6 @@
       });
     });
 
-    // Expose for the editor block:select hook.
     root.__ktTabsSelect = select;
     root.__ktTabsReady = true;
   }
@@ -56,7 +41,6 @@
   if (document.readyState !== 'loading') { initAll(); }
   else { document.addEventListener('DOMContentLoaded', function () { initAll(); }); }
 
-  // Theme editor compatibility.
   document.addEventListener('shopify:section:load', function (e) { initAll(e.target); });
   document.addEventListener('shopify:block:select', function (e) {
     var el = e.target;

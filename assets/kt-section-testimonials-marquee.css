@@ -3,12 +3,8 @@
    BEM prefix: .kt-testimonials-marquee
    ========================================================================= */
 
-/* R232.50 — scheme-aware inner colors. Heading border, eyebrow,
-   stars, quote, author meta and strip backdrop now route through
-   opacity-graded --kt-c-fg so the marquee tracks the active scheme. */
 .kt-testimonials-marquee {
   --kt-marquee-duration: 25s;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back unchanged. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 6rem 0;
@@ -33,7 +29,6 @@
 }
 
 .kt-testimonials-marquee__heading-block {
-  /* R232.50 — scheme-aware accent rule (was stone-900). */
   border-left: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   padding-left: 1.5rem;
 }
@@ -44,8 +39,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 0.5rem;
 }
 
@@ -55,7 +49,6 @@
 
   line-height: 1.15;
   letter-spacing: -0.02em;
-  /* R232.50 — scheme-aware (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
   font-weight: 400;
@@ -68,16 +61,6 @@
   width: 100%;
   overflow: hidden;
   padding: 3rem 0; /* py-12 */
-  /* R232.72 — Inset strip surface. R232.52 used `--kt-c-bg-contrast`
-     which goes through Shopify's 25%-darken calc on light schemes —
-     way too aggressive, painted a medium-grey band (user feedback:
-     "orta kısım garip şekilde dark gray olmuş"). Stone-50
-     hardcoded was the original (R232.50 muddied it with a 6% fg
-     overlay that vanished, R232.52 over-corrected with bg-contrast).
-     Settle on a stable scheme-aware pattern: paint the section's
-     own scheme bg + a 6% fg overlay applied via a separate layer.
-     On light schemes the overlay reads as a faint darker tier, on
-     dark schemes as a faint lighter tier. Fallback stays stone-50. */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.05), rgba(var(--kt-c-fg, 28 25 23), 0.05));
 }
@@ -92,10 +75,6 @@
   will-change: transform;
 }
 
-/* R298 — Pause on hover + keyboard focus-within (parallel-experience
-   for keyboard users tabbing through testimonial links). Original
-   only had a JS-toggled `--paused` modifier; adding hover/focus
-   gives pointer + keyboard users the same reading window. */
 .kt-testimonials-marquee--paused .kt-testimonials-marquee__track,
 .kt-testimonials-marquee:hover .kt-testimonials-marquee__track,
 .kt-testimonials-marquee:focus-within .kt-testimonials-marquee__track {
@@ -143,7 +122,6 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  /* R232.50 — scheme-aware accent (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
@@ -164,7 +142,6 @@
   font-family: var(--kt-f-accent-family, Georgia, 'Times New Roman', serif);
   font-size: 1.125rem; /* text-lg mobile */
   line-height: 1.4;
-  /* R232.50 — scheme-aware (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
   opacity: 0.8;
   font-style: italic;
@@ -200,7 +177,6 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
@@ -209,8 +185,7 @@
   font-size: 0.625rem; /* text-[10px] */
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-top: 0.25rem;
 }
 
@@ -220,7 +195,6 @@
   white-space: normal;
 }
 
-/* R-wcag-pause — Pause/play toggle for the infinite marquee. */
 .kt-testimonials-marquee {
   position: relative;
 }

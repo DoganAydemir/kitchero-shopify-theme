@@ -38,32 +38,15 @@
 {%- endfor -%}
 
 {%- if trust_configured_count > 0 or request.design_mode -%}
-{%- comment -%}
-  R115 — `<section>` is a region landmark in the AT tree. Adding
-  aria-label gives the trust-bar an accessible name so SR users
-  navigating landmarks (NVDA D / VO Ctrl+Opt+U) hear "Trust
-  signals, region" instead of an unnamed section. Trust-bar has
-  no visible heading (just stat tiles), so aria-label is the
-  correct pattern here (vs aria-labelledby for sections with a
-  visible heading).
-{%- endcomment -%}
 <section
-  class="kt-trust-bar color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-trust-bar color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="trust-bar"
   aria-label="{{ 'kt.section.trust-bar.aria_label' | t | default: 'Trust signals' }}"
 >
   <div class="page-width">
     {%- if trust_configured_count == 0 and request.design_mode -%}
-      {%- comment -%}
-        Hardcoded inline `style="color: #57534e"` was a Theme Store
-        deceptive-code/design rule violation: contrast-critical text
-        rendering an inline color bypasses the merchant color
-        scheme + locks reviewers' override capability. Class moved
-        to assets/kt-section-trust-bar.css with `color: rgb(var(--kt-c-fg))`
-        so the editor hint inherits the active scheme.
-      {%- endcomment -%}
       <p class="kt-trust-bar__editor-hint">
         {{ 'kt.section.trust-bar.editor_hint' | t | default: 'Edit each stat block to add real numbers and labels — empty stats are hidden on the live storefront.' }}
       </p>
@@ -103,14 +86,6 @@
                     <span class="kt-trust-bar__prefix">{{ block.settings.prefix | escape }}</span>
                   {%- endif -%}
                 </div>
-                {%- comment -%}
-                  Stat label — not a page-outline heading. Previously
-                  h3 and tripping Lighthouse's heading-order audit on
-                  pages where the preceding section is h1/h2 and the
-                  stat label jumps to h3 without intermediate h2s.
-                  <p> reads as stat caption in the a11y tree instead
-                  of competing in the heading outline.
-                {%- endcomment -%}
                 <p class="kt-trust-bar__label">{{ block.settings.label | escape }}</p>
               </div>
             </div>
@@ -131,35 +106,6 @@
   "class": "section",
   "settings": [
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },

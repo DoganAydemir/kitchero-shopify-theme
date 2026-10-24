@@ -1,7 +1,3 @@
-/* ============================================================
-   Appointment Drawer — Kitchero Theme
-   Ported from AppointmentDrawer.tsx
-   ============================================================ */
 
 .kt-appointment-drawer {
   display: none;
@@ -14,7 +10,6 @@
 .kt-appointment-drawer__overlay {
   position: fixed;
   inset: 0;
-  /* R113 — drawer tier; +1 above for the panel itself. */
   z-index: var(--kt-z-drawer);
   background-color: rgba(28, 25, 23, 0.6);
   backdrop-filter: blur(4px);
@@ -63,10 +58,6 @@
   will-change: transform;
   pointer-events: none;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
-  /* R294 — Shared "Drawers" theme settings (border thickness +
-     opacity). 0 thickness default → no visible chrome. Matches
-     the cart-drawer for visual consistency between the two
-     slide-in panels. */
   border-left: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
   /* No `transition` declaration on purpose — cart-drawer.css has
      the full rationale at the equivalent rule. Short version:
@@ -191,13 +182,6 @@
   margin-bottom: 1rem;
 }
 
-/* R268 — Drawer-scoped input override. The global `.field__input`
-   in base.css already lands at 16px font + 12/16px padding (the
-   iOS-zoom-safe baseline). Inside the drawer the panel is at most
-   480px wide and the body has 24px padding, so usable input width
-   is ~432px — we can tighten further without crowding. Smaller
-   chrome inside an editorial slide-in matches the cart-drawer's
-   "compact, decisive" feel. */
 .kt-appointment-drawer .field__input,
 .kt-appointment-drawer .field__textarea {
   padding: 0.625rem 0.875rem;
@@ -250,56 +234,26 @@
      bottom inset on top of our 1.5rem base padding so the submit
      button doesn't sit under the home-indicator bar. Falls back
      silently on non-safe-area devices (env() returns 0). */
-  /* R-appt-footer-nopad — Horizontal padding is 0 on purpose: the
-     footer sits INSIDE __body, which already applies 1.5rem side
-     padding. Its own side padding double-indented the submit button,
-     making it visibly narrower than the input fields above it. Keep
-     only the top spacing + the safe-area bottom inset; the button's
-     width:100% then matches the fields exactly. */
   padding: 1.5rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--kt-stone-200);
 }
 
 .kt-appointment-drawer__submit {
-  /* R-appt-submit-fullwidth — the global `.button` class is
-     `display: inline-flex`, which can shrink-wrap the CTA to its label
-     width. Force a block-level flex at full width so the submit always
-     spans the footer (matching the input fields above) regardless of
-     the inherited button chrome; centre the label inside it. */
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   max-width: none;
   margin: 0;
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   letter-spacing: 0.01em;
   font-weight: 600;
   border-radius: 4px;
-  /* R232.42 — Override the global `.button` chrome (font 1.4rem +
-     padding 1.2rem 2.4rem ≈ huge 24-25px tall + 22pt label) which
-     looked grossly oversized inside the 480px-wide drawer. User
-     feedback: "showroom prd de butona basınca açılan Lead sidebar
-     da buton çirkin aşırı büyük". Drop to drawer-tier proportions
-     (12px font, 14px vertical padding) so the CTA fits the compact
-     editorial slide-in feel of the appointment surface — still tall
-     enough for WCAG 2.5.5 (min 44px hit area) thanks to padding +
-     line-height. Matches the cart-drawer's "Checkout" button
-     scale. */
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 0.875rem 1.5rem;
   line-height: 1.1;
 }
 
-/* R-appt-privacy-fineprint — the GDPR disclosure had NO rule, so it
-   inherited body size + near-black colour and read like primary copy.
-   It's legally-required microcopy: render it as a muted 11px footnote
-   (panel is fixed white, so stone-500 is the muted tier). The
-   translated `privacy_note_html` emits a bare <a>; style it as a clean
-   editorial underline (stone-700) instead of the UA default blue so it
-   doesn't compete with the CTA. 11px stays above the 10px legibility
-   floor used elsewhere (pullquote, visualize-studio fine-print). */
 .kt-appointment-drawer__privacy {
   margin: 0 0 1.25rem;
   font-size: 11px;

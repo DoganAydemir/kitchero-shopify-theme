@@ -4,7 +4,6 @@
    ========================================================================== */
 
 .kt-collapsible-minimal {
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding-block: 6rem; /* py-24 */
@@ -34,7 +33,6 @@
   text-align: center;
 }
 
-/* R232.50 — scheme-aware inner colors throughout. */
 .kt-collapsible-minimal__eyebrow {
   display: block;
   margin-bottom: 1rem;
@@ -42,7 +40,7 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-collapsible-minimal__title {
@@ -159,7 +157,7 @@
 }
 
 .kt-collapsible-minimal__summary:hover .kt-collapsible-minimal__item-title {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* ---------- Plus / minus icon (CSS-only, rotates 45deg when open) ----------
@@ -248,12 +246,6 @@
   font-family: var(--kt-f-body-family);
   font-size: 0.9375rem;
   line-height: 1.7;
-  /* R-wcag-contrast — Bumped stone-400 → stone-600 (#57534e). The
-     previous stone-400 (#a8a29e) on white background measured 2.50:1,
-     below WCAG 1.4.3 AA's 4.5:1 minimum for body copy. stone-600
-     measures ~8:1, comfortably above AA. Hierarchy is preserved
-     because section titles use stone-900 (the lightest grey-step
-     before pure body text). */
   color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
   font-weight: 400;
 }
@@ -271,8 +263,6 @@
 .kt-collapsible-minimal__content ul,
 .kt-collapsible-minimal__content ol,
 .kt-collapsible-minimal__content blockquote {
-  /* R-wcag-contrast — see note above; stone-400 → stone-600 to hit
-     WCAG 1.4.3 AA on body copy. */
   color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 

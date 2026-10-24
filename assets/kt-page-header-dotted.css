@@ -1,19 +1,7 @@
-/* ============================================================
-   Page Header — Dotted
-   Shared header component with 4-layer decorative pattern:
-     1. Static 24px radial-gradient dot grid
-     2. Larger parallax dots
-     3. Scanlines
-     4. Technical "+" markers (parallax)
-   Ported from PageHeader.tsx. Matches the visual used on the
-   collection hero so all section-heading pages feel cohesive.
-   ============================================================ */
 
 .kt-page-header-dotted {
   position: relative;
   overflow: hidden;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back so the default look stays. */
-  /* R232.50 — scheme-aware inner borders/decorations via opacity-graded --kt-c-fg */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   border-bottom: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
@@ -120,9 +108,6 @@
   line-height: 1;
 }
 
-/* R132 — marker-position modifiers replace inline `style="top:…; left:…"`
-   on every marker span. Mirrors the kt-collection__marker--1..4 pattern
-   in kt-section-main-collection.css. */
 .kt-page-header-dotted__marker--1 { top: 2.5rem; left: 15%; }
 .kt-page-header-dotted__marker--2 { top: 35%; right: 10%; }
 .kt-page-header-dotted__marker--3 { bottom: 2.5rem; left: 40%; }
@@ -206,11 +191,6 @@
 }
 
 .kt-page-header-dotted__eyebrow-wrap {
-  /* R-dotted-eyebrow-gap — Default 1rem (16px) read fine on
-     desktop but landed ~36px on mobile after the dotted-grid
-     vertical rhythm, leaving an awkward gap between the eyebrow
-     and the title. Tighter 0.375rem (6px) on mobile keeps the
-     pair coupled; desktop unchanged. */
   margin-bottom: 0.375rem;
 }
 
@@ -227,7 +207,7 @@
   font-weight: 700;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* Title — serif display */
@@ -263,7 +243,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.65;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0;
 }
 
@@ -273,34 +253,6 @@
   }
 }
 
-/* Count pill wrap — sits inside the flex column on mobile.
-   R-SS10 round 3 — Earlier passes (inline-flex + max-content,
-   then block + fit-content) still let the pill render full
-   width on mobile per the merchant's latest screenshot. Root
-   cause was the flex-item default behaviour winning out:
-     • Flex items default to `flex-shrink: 1 / flex-grow: 0 /
-       flex-basis: auto`. In a column-direction flex container,
-       the cross-axis defaults to `stretch` UNLESS the child
-       sets `align-self`.
-     • Adding `align-self: flex-start` SHOULD shut off stretch,
-       but Safari iOS sometimes resolved `width: fit-content` to
-       the available cross-axis space when combined with
-       `overflow: hidden` (which the reveal-mask group rule sets
-       on this same selector).
-
-   The bullet-proof combination layers FIVE defensive properties
-   so no single browser quirk can defeat it:
-     1. `align-self: flex-start` — opt out of cross-axis stretch.
-     2. `flex: 0 0 auto` — explicit shorthand for "don't grow,
-        don't shrink, basis follows width property".
-     3. `display: inline-block` — natural inline-level sizing
-        that always shrink-wraps content regardless of parent
-        layout (block-formatting context can't stretch an
-        inline-level element).
-     4. `width: -webkit-fit-content; width: fit-content;` — for
-        engines that still want a width hint.
-     5. `max-width: 100%` — guard against very long count
-        labels overflowing the viewport. */
 .kt-page-header-dotted__count-wrap {
   align-self: flex-start;
   flex: 0 0 auto;
@@ -326,7 +278,7 @@
   display: inline-block;
   padding: 0.5rem 1rem;
   border: 1px solid rgba(var(--kt-c-fg, 211 211 211), 0.22);
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;

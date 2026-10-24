@@ -76,13 +76,6 @@
             hint, per current a11y best practice.
           {%- endcomment -%}
           <label for="login-email" class="kt-customer__label kt-form__label--required">{{ 'kt.customer.login.email' | t }}</label>
-          {%- comment -%}
-            `value="..."` preserves the typed email on server-side
-            validation failure. Shopify redirects back to the page
-            with `form.email` populated; without the explicit value
-            binding the input renders empty and the user has to
-            retype. Password field stays empty for security.
-          {%- endcomment -%}
           <input
             type="email"
             autocapitalize="off"
@@ -96,9 +89,6 @@
             required
             aria-required="true"
             inputmode="email"
-            {%- comment -%}
-              R104 — Return key advances to password field on mobile.
-            {%- endcomment -%}
             enterkeyhint="next"
             autocomplete="email"
             {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="login-email-error"{% endif %}
@@ -115,9 +105,6 @@
             placeholder="{{ 'kt.customer.login.password' | t }}"
             required
             aria-required="true"
-            {%- comment -%}
-              R104 — Return key fires Sign in.
-            {%- endcomment -%}
             enterkeyhint="go"
             autocomplete="current-password"
             {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="login-password-error"{% endif %}
@@ -125,15 +112,6 @@
           {%- render 'form-field-error', form: form, field: 'password', describedby_id: 'login-password-error' -%}
         </div>
 
-        {%- comment -%}
-          R296 — Honeypot for naive credential-stuffing bots. Most bots
-          fill every visible AND aria-hidden field; a real visitor (or
-          AT user, since the wrapper is `inert` + `aria-hidden`) never
-          submits a value here. The merchant's app / Shopify admin can
-          filter out submissions where `customer[website]` is non-empty.
-          Matches the pattern already used in `sections/contact-form.liquid`
-          and `sections/newsletter-signup.liquid`.
-        {%- endcomment -%}
         <p class="kt-form__honeypot" aria-hidden="true" inert>
           <label for="login-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
           <input type="text" id="login-website-trap-{{ section.id }}" name="customer[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -199,14 +177,6 @@
             </div>
           {%- endif -%}
           <div class="kt-customer__field">
-            {%- comment -%}
-              R151 FORGOT-MODAL-LABEL-1: drop visually-hidden so the
-              label is visible — codebase moved to visible-label
-              policy (see lines 68-77 above). Forgot-modal email field
-              was the only remaining customer-form input with a hidden
-              label; aligning with the rest of the customer flow.
-              WCAG 2.5.3 / 3.3.2 polish.
-            {%- endcomment -%}
             <label for="forgot-email" class="kt-customer__label">{{ 'kt.customer.login.email' | t }}</label>
             <input
               type="email"

@@ -1,9 +1,3 @@
-/**
- * Shop Categories — GSAP horizontal scroll pinning on desktop
- * Mobile: native horizontal scroll (CSS snap)
- * Desktop: pinned horizontal scroll via ScrollTrigger
- * Matches ShopCategories.tsx exactly.
- */
 (function () {
   'use strict';
 
@@ -16,21 +10,6 @@
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return null;
 
-    /* Skip pinning entirely inside Shopify's theme editor (`design
-       mode`). ScrollTrigger `pin: true` rewrites the page-scroll
-       behaviour to lock the section while the user drags through it
-       horizontally — which is the desired effect on the live store,
-       but inside the editor's iframe it produces a "scroll dead-
-       zone" that the merchant reads as "I can't scroll past this
-       section to reach the footer". Even with the mm.revert()
-       cleanup on shopify:section:unload, the editor's rapid add /
-       reorder / remove cycle can leave a half-torn-down pin if the
-       events fire in an unexpected order — the safest contract is
-       to never install the pin in design mode at all. The live
-       storefront still gets the full pinned-horizontal experience
-       because Shopify.designMode is only ever true inside the
-       editor. Same gate is the canonical Shopify recommendation
-       for any scroll-disturbing animation.  */
     if (window.Shopify && window.Shopify.designMode) return null;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -60,9 +39,11 @@
     return mm;
   }
 
-  document.querySelectorAll('[data-section-type="shop-categories"]').forEach(function (el) {
-    var id = el.dataset.sectionId;
-    instances[id] = initShopCategories(el.closest('.shopify-section') || el);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="shop-categories"]').forEach(function (el) {
+      var id = el.dataset.sectionId;
+      instances[id] = initShopCategories(el.closest('.shopify-section') || el);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {
@@ -82,17 +63,8 @@
     }
   });
 
-  /* Theme editor: when merchant selects a category block in the
-     sidebar, scroll the corresponding card into view so it's visible
-     while they edit settings. The horizontal-scroll pin is skipped in
-     designMode (see early return above), so the card is in normal
-     flow and scrollIntoView works naturally. */
   document.addEventListener('shopify:block:select', function (event) {
     var card = event.target;
     if (!card || !card.classList || !card.classList.contains('kt-shop-categories__card')) return;
-    /* Scroll-into-view handled centrally by global.js's block:select
-       handler (50%-visibility-guarded). A local unconditional scroll
-       re-jolted the page on every re-select (section re-render after a
-       setting tweak). */
   });
 })();

@@ -3,23 +3,9 @@
    Loaded via search-overlay snippet, scoped inside #predictive-search-results.
    ------------------------------------------------------------------ */
 
-/* R232.37 — Stronger group separation. Previous spacing relied on a
-   single 1.5rem gap which read as one continuous list (the user
-   flagged "Products / Journal alanlar iç içe girmiş gibi, ayrık
-   durmuyorlar"). Each group now opens with a divider rule above
-   its title and pushes its title down with a top-padding so the
-   eyebrow-style label visually anchors the section. */
 .kt-predictive-search {
   display: flex;
   flex-direction: column;
-  /* R232.46 — Big breathing between groups so they read as discrete
-     blocks. Inner spacing (title↔items) is intentionally TIGHT (see
-     the group `gap` + zero title margin below) so the eyebrow stays
-     clearly attached to its items. Previous revision (R232.45) added
-     1rem margin-bottom under the title which combined with the
-     group's flex `gap` to push the label ~26px off its first item —
-     each label ended up floating in its own zone, exactly the
-     "iç içe / disconnected" pattern the user flagged. */
   gap: 2.75rem;
   padding: 0.5rem 0 0;
 }
@@ -32,22 +18,12 @@
   gap: 0.75rem;
 }
 
-/* R232.37 — first group skips the divider so it sits flush against
-   the search input bar. Subsequent groups carry a hairline rule
-   above the title for clear visual chunking.
-   R232.45 — Top padding bumped 1.5rem → 2.25rem so the title doesn't
-   visually flatten against the divider line above it. */
 .kt-predictive-search__group + .kt-predictive-search__group {
   border-top: 1px solid var(--kt-stone-200);
   padding-top: 2.25rem;
 }
 
 .kt-predictive-search__group-title {
-  /* R232.46 — margin-bottom REMOVED. The parent flex container uses
-     `gap` to space the title from the item list, so a non-zero
-     margin-bottom here would compound with the gap and visually
-     orphan the label. Letter-spacing/weight stay generous so the
-     label still reads as a category eyebrow. */
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -82,10 +58,6 @@
 
 .kt-predictive-search__link:hover,
 .kt-predictive-search__link:focus-visible,
-/* R83 ARIA restructure — role="option" + .is-active moved from
-   <a> to <li> to match Shopify's documented predictive-search
-   pattern. The visual highlight cascades from the active option
-   to its inner link via descendant selector. */
 .kt-predictive-search__item.is-active .kt-predictive-search__link {
   background-color: var(--kt-stone-100);
 }
@@ -175,7 +147,6 @@
   color: var(--kt-stone-600);
 }
 
-
 /* ============================================================
    Dark-context overrides — predictive search inside the search
    overlay (which paints on a dark stone-950 backdrop). The base
@@ -187,15 +158,6 @@
    ============================================================ */
 
 .kt-search-overlay .kt-predictive-search {
-  /* R-SS1 — Even bigger between-group spacing. The previous 2.75rem
-     gap + 2.25rem padding-top + thin 0.18-alpha divider still let
-     the three categories (PRODUCTS / JOURNAL / PAGES) read as one
-     continuous list per the latest mobile screenshots. Bumping the
-     gap to 3.5rem, padding-top to 2.75rem, and tightening the
-     bottom of each group with a 1rem padding-bottom puts ~96px of
-     breathing room between the last item of one group and the
-     eyebrow label of the next — enough that each chunk reads as
-     its own block instead of a vertically-flowing list. */
   gap: 3.5rem;
   padding-top: 1rem;
 }
@@ -211,10 +173,6 @@
   /* Light bottom padding so the chunk has air under its last item
      before the next group's divider starts. */
   padding-bottom: 0.25rem;
-  /* R-SS1 — Hairline boosted to 0.25 alpha so the chunk boundary
-     is unmistakable on the dark stone-950 backdrop. The previous
-     0.18 alpha was readable but failed the user's "ayrık durmalı"
-     test in screenshot review. */
   border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
@@ -224,9 +182,6 @@
 }
 
 .kt-search-overlay .kt-predictive-search__group-title {
-  /* R-SS1 — eyebrow nudged from 0.6875 → 0.75 rem and alpha
-     0.55 → 0.7 so the category header reads as a deliberate
-     label, not a faded ghost. */
   font-size: 0.75rem;
   letter-spacing: 0.22em;
   font-weight: 700;
@@ -253,8 +208,6 @@
 
 .kt-search-overlay .kt-predictive-search__link:hover,
 .kt-search-overlay .kt-predictive-search__link:focus-visible,
-/* Mirror R83 restructure — descendant selector reaches the link
-   when the parent option carries .is-active. */
 .kt-search-overlay .kt-predictive-search__item.is-active .kt-predictive-search__link {
   background-color: rgba(255, 255, 255, 0.06);
 }
@@ -271,10 +224,6 @@
 
 .kt-search-overlay .kt-predictive-search__thumb--empty {
   background-color: rgba(255, 255, 255, 0.05);
-  /* R296 — 0.4 → 0.65. The placeholder glyph inside an empty
-     thumbnail tile is treated as a graphical UI affordance, but
-     for SR users it can still be announced as a heading initial
-     letter — keep above WCAG 1.4.11 3:1 minimum with margin. */
   color: rgba(255, 255, 255, 0.65);
 }
 
@@ -318,17 +267,6 @@
 .kt-search-overlay .kt-predictive-search__empty {
   color: rgba(255, 255, 255, 0.55);
 }
-
-/* ============================================================
-   R-search-audit — Loading skeleton + error state + CLS guard
-
-   Three new states surface to the customer during fetch:
-     • Skeleton  — 3 ghost rows pulsing while results load
-     • Error     — visible message on offline / rate-limit / fail
-     • Min-height — reserve 240px on the results container so the
-                    overlay doesn't reflow when the first response
-                    swaps the skeleton out
-   ============================================================ */
 
 #predictive-search-results {
   /* CLS guard — without this, the overlay's `__results` div is

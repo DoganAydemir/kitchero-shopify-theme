@@ -1,11 +1,4 @@
-/* Why Choose Us (product PDP companion) — birebir from showroom/[id]/page.tsx
-   py-24 md:py-32 bg-stone-50 border-t border-stone-200
-   6-col feature grid */
 
-/* R232.50 — scheme-aware inner colors. Eyebrow, heading, card
-   surface, icon chip (action-themed), title, and description now
-   opacity-grade against --kt-c-fg / route through --kt-c-action so
-   the section tracks the active scheme. */
 
 .kt-why-choose-us-product {
   padding: 6rem 0;
@@ -18,7 +11,6 @@
   background-color: var(--kt-stone-50, #fafaf9);
   background-color: color-mix(in srgb, rgb(var(--kt-c-bg, 250 250 249)) 96%, rgb(var(--kt-c-fg, 28 25 23)));
   color: rgb(var(--kt-c-fg, 28 25 23));
-  /* R232.50 — scheme-aware top rule (was stone-200). */
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
@@ -39,8 +31,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 1rem;
 }
 
@@ -49,7 +40,6 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (2.25rem));
 
   letter-spacing: -0.025em;
-  /* R232.50 — scheme-aware (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0;
   line-height: 1.1;
@@ -108,11 +98,6 @@
   margin-bottom: 0;
 }
 
-/* R232.9 — same fix for title-only cards (icon + title, no desc).
-   Title's `margin-bottom: 0.75rem` was leaking visible space
-   beneath the title that justify-content:center couldn't absorb,
-   leaving bottom-padding looking ~12px larger than top-padding
-   on icon+title-only configurations (the default theme demo). */
 .kt-why-choose-us-product__title:last-child {
   margin-bottom: 0;
 }
@@ -125,7 +110,6 @@
 .kt-why-choose-us-product__icon {
   width: 3rem;
   height: 3rem;
-  /* R232.50 — action-themed icon chip (was stone-900 + white). */
   background-color: rgb(var(--kt-c-action, 28 25 23));
   color: rgb(var(--kt-c-action-text, 255 255 255));
   border-radius: 9999px;
@@ -145,7 +129,6 @@
   font-size: calc(var(--kt-f-heading-scale, 1) * (1.125rem));
 
   font-weight: 700;
-  /* R232.50 — scheme-aware (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
   margin: 0 0 0.75rem;
 }
@@ -153,8 +136,7 @@
 /* Description: text-stone-500 text-sm leading-relaxed */
 .kt-why-choose-us-product__desc {
   font-size: 0.875rem;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   line-height: 1.625;
   margin: 0;
 }

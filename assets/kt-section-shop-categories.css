@@ -1,20 +1,8 @@
-/* ============================================================
-   Shop Categories Section — Kitchero Theme
-   Ported from ShopCategories.tsx — Horizontal scroll gallery
-   ============================================================ */
 
 .kt-shop-categories {
-  /* R232.47 — scheme-aware bg + text. Was hardcoded stone-50;
-     falls back to stone-50 (250 250 249) when no scheme is set. */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
-  /* R272 — Was `padding-top: 6rem` only. The section ended flush
-     against whatever sat below it (typically a darker / lighter
-     section), making the stone-50 surface read as if it was
-     bleeding into the next block. Reporter wanted the bottom
-     padding to mirror the top so the section has a balanced
-     vertical rhythm regardless of what follows. */
   padding-top: 6rem;
   padding-bottom: 6rem;
 }
@@ -24,13 +12,11 @@
 }
 
 .kt-shop-categories__title {
-  /* R213 FLUID-TYPO: 3rem → 4.375rem stepped → clamp() fluid. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(3rem, 4vw + 1rem, 4.375rem)));
 
   font-weight: 600;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware heading */
   color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1rem;
 }
@@ -39,8 +25,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  /* R232.50 — scheme-aware muted body */
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-shop-categories__subtitle {
@@ -62,14 +47,6 @@
   gap: 2rem;
   padding: 0 1.5rem;
   overflow-x: auto;
-  /* `proximity` (not `mandatory`) on mobile so vertical page-scroll
-     isn't fought by snap-locking. `mandatory` was forcing the
-     viewport to "stick" to the nearest card every time the user
-     scrolled past this section vertically — they reported page
-     scroll "tak diye duruyor" (snapping/cutting off). Proximity
-     only snaps when the user is already close to a card boundary
-     and is actively dragging horizontally; it doesn't interfere
-     with momentum-scrolling THROUGH the section vertically. */
   scroll-snap-type: x proximity;
   /* `touch-action: pan-x` — explicitly tells the browser this
      container only accepts horizontal pan gestures. Vertical
@@ -99,30 +76,15 @@
 .kt-shop-categories__card {
   position: relative;
   height: 100%;
-  /* Was 85vw — that filled essentially the entire mobile viewport
-     so the carousel looked like a single static card with no
-     indication of further content. 72vw shows ONE full card plus
-     ~28% of the next one (the "1.3 cards" framing the user asked
-     for) so the partial sliver acts as an affordance that the
-     row is horizontally scrollable. */
   width: 72vw;
   flex-shrink: 0;
   overflow: hidden;
-  /* R294 — Shared "Collection cards" corner radius (theme settings). */
   border-radius: var(--kt-ccard-radius, 12px);
   scroll-snap-align: center;
   display: block;
   text-decoration: none;
 }
 
-/* R-focus-ring-clip — The card carries `overflow: hidden` (for the
-   border-radius image crop) AND sits inside a horizontal-scroll
-   container with zero vertical padding. The global `:focus-visible
-   { outline-offset: 2px }` rule paints the ring OUTSIDE the card,
-   where the parent scroll container clips it on every side. Switch
-   to an inset outline so the focus indicator stays visible inside
-   the rounded edge while keyboard-tabbing through the carousel.
-   WCAG 2.4.7 + axe-core `focusable-content` rule. */
 .kt-shop-categories__card:focus-visible {
   outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: -2px;
@@ -142,9 +104,6 @@
 
 .kt-shop-categories__card-image-wrap {
   position: absolute;
-  /* R294 — Image inset = merchant `Image padding` from
-     "Collection cards" theme settings. Drives the photo inward
-     when the merchant wants padding around the cover image. */
   inset: var(--kt-ccard-img-pad, 0px);
   overflow: hidden;
   /* Match the parent card's radius so the inset photo follows
@@ -160,9 +119,6 @@
   transition: transform 0.7s ease;
 }
 
-/* R298 — `:focus-within` parallels for keyboard users. The card is
-   an `<a>` anchor (single keyboard-accessible target), so :focus-
-   within fires when the anchor receives focus. */
 .kt-shop-categories__card:hover .kt-shop-categories__card-image,
 .kt-shop-categories__card:focus-within .kt-shop-categories__card-image {
   transform: scale(1.05);
@@ -221,9 +177,6 @@
   transform: translateY(0);
 }
 
-/* R298 — Mobile touch: no hover state on touch devices, so the
-   arrow is invisible by default. Show at rest so customers know
-   the affordance exists. */
 @media (hover: none) {
   .kt-shop-categories__card-arrow {
     opacity: 1;

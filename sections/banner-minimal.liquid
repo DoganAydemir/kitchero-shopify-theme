@@ -14,10 +14,10 @@
 {%- assign padding_bottom = section.settings.padding_bottom | default: 0 -%}
 
 <section
-  class="kt-banner-minimal color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-banner-minimal color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-allows-transparent-header="true"
-  style="--kt-banner-minimal-overlay-opacity: {{ overlay_opacity }}; --kt-banner-minimal-min-height-mobile: {{ min_height_mobile }}px; --kt-banner-minimal-min-height-desktop: {{ min_height_desktop }}px; --kt-banner-minimal-pad-top: {{ padding_top }}px; --kt-banner-minimal-pad-bottom: {{ padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-banner-minimal-overlay-opacity: {{ overlay_opacity }}; --kt-banner-minimal-min-height-mobile: {{ min_height_mobile }}px; --kt-banner-minimal-min-height-desktop: {{ min_height_desktop }}px; --kt-banner-minimal-pad-top: {{ padding_top }}px; --kt-banner-minimal-pad-bottom: {{ padding_bottom }}px;"
 >
   <div class="kt-banner-minimal__frame">
     <div class="kt-banner-minimal__media">
@@ -45,16 +45,6 @@
         {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-minimal__image' }}
       {%- endif -%}
       <div class="kt-banner-minimal__overlay" aria-hidden="true"></div>
-      {%- comment -%}
-        R-banner-minimal-hint-removed — Earlier rounds rendered a
-        design-mode-only "pick an image" coaching hint when the
-        merchant hadn't picked one yet. User feedback: the hint
-        adds noise without information — merchants opening this
-        section already know they need to upload an image, the
-        placeholder SVG below the overlay carries the visual cue
-        on its own, and Shopify's settings panel on the right
-        spells out "Image" as an explicit setting.
-      {%- endcomment -%}
     </div>
 
     <div class="kt-banner-minimal__content">
@@ -248,26 +238,6 @@
       "default": 0
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -279,7 +249,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

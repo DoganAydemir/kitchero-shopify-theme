@@ -14,11 +14,6 @@
 .kt-cart-page {
   background-color: rgb(var(--kt-c-bg));
   color: rgb(var(--kt-c-fg));
-  /* R137 — additive padding from merchant settings on top of the
-     editorial baseline. `--kt-cart-pad-top/-bottom` come from the
-     section schema's padding_top/padding_bottom range; defaults to 0
-     so behaviour matches before the density bump unless the
-     merchant explicitly raises it. */
   padding: calc(2rem + var(--kt-cart-pad-top, 0px)) 0 calc(5rem + var(--kt-cart-pad-bottom, 0px));
 }
 
@@ -34,11 +29,6 @@
   }
 }
 
-/* ── Gift wrapping (R140) ─────────────────────────────────
-   Cart-side opt-in checkbox. Bound to `attributes[Gift wrapping]`
-   in cart.attributes; merchant sees the choice on the order admin
-   + order email. Visual is a fully-styled custom checkbox so it
-   reads as a deliberate cart UI rather than a vanilla form input. */
 .kt-gift-wrap {
   margin: 0.75rem 0 0;
   padding: 0.875rem 1rem;
@@ -53,11 +43,6 @@
   gap: 0.75rem;
   cursor: pointer;
   user-select: none;
-  /* R-touch-target — WCAG 2.5.5 Theme Store touch-target minimum.
-     The 20x20 visual swatch + 14px label collapsed the label to
-     ~24px tall on most renderings, below the 44px floor. Enforcing
-     min-height on the label makes the whole row a 44px touch zone
-     without changing the visual swatch size. */
   min-height: 44px;
 }
 
@@ -153,18 +138,9 @@
   }
 }
 
-/* ── R138 CART-422-1: Inline error region ─────────────────── */
-
 .kt-cart-page__error {
   margin: 0 0 1rem;
   padding: 0.875rem 1.25rem;
-  /* R297 — Status-error tokens (`--kt-c-status-error-bg/fg`) are
-     emitted from `snippets/kt-css-variables.liquid` and consumed by
-     the order-status pill system in `kt-section-customer-account.css`.
-     Cart error reuses the same tokens for consistency — merchants
-     swapping a custom scheme see all error surfaces flip in lockstep.
-     Border colour is derived via color-mix so it stays in the same
-     hue family without adding a third token. */
   background-color: var(--kt-c-status-error-bg, #fef2f2);
   border: 1px solid color-mix(in srgb, var(--kt-c-status-error-fg, #991b1b) 25%, transparent);
   border-left: 3px solid var(--kt-c-status-error-fg, #991b1b);
@@ -274,11 +250,6 @@
   line-height: 1.25;
   letter-spacing: -0.01em;
   transition: color 0.15s ease;
-  /* R106 — long unbroken tokens (60-char custom SKUs, German
-     compound nouns, unbroken Asian character chains) overflow
-     the cart row's two-column grid on mobile (~360px viewports)
-     and push the qty stepper / line-total off-screen. Cart-drawer
-     applies the same protection at kt-cart-drawer.css:340. */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -593,8 +564,6 @@
   border-right: 1px solid rgba(var(--kt-c-fg), 0.12);
   background: transparent;
   font-family: inherit;
-  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus on
-     the cart-page quantity field. */
   font-size: 1rem;
   font-weight: 500;
   color: rgb(var(--kt-c-fg));
@@ -684,7 +653,7 @@
   padding: 0;
   margin: 0.25rem 0 0 0;
   font-size: 0.75rem;
-  color: var(--kt-emerald-600);
+  color: var(--kt-emerald-700, #047857);
   font-weight: 400;
   overflow-wrap: anywhere;
 }
@@ -798,7 +767,7 @@
 }
 
 .kt-cart-page__summary-row--discount .kt-cart-page__summary-value {
-  color: var(--kt-emerald-600);
+  color: var(--kt-emerald-700, #047857);
 }
 
 .kt-cart-page__summary-divider {
@@ -817,11 +786,6 @@
 }
 
 .kt-cart-page__summary-row--total .kt-cart-page__summary-value {
-  /* R-cart-numerics — Drop the serif accent family for price figures.
-     Inherits the body font (sans-serif) like the rest of the summary
-     row values; only the section heading + product titles keep the
-     editorial serif treatment. Mirrors the cart-drawer change so the
-     two checkout surfaces stay visually consistent. */
   font-size: 1.5rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1015,13 +979,6 @@
   }
 }
 
-/* ── Cart upsell / recommendations (R134 / CR-C) ──────────────
-   Full-width band below the items + summary grid. Card list keeps
-   the editorial cart layout uncluttered: small thumb + title +
-   price stack. Wrapping product link IS the entire card (no second
-   tap target) so a screen-reader user only hears one announcement
-   per card. Mirrors the cart-drawer recommendation visual language
-   so the two surfaces feel like a family. */
 .kt-cart-page__recommendations {
   margin-top: 4rem;
   padding-top: 3rem;
@@ -1115,22 +1072,7 @@
   color: var(--kt-stone-600);
 }
 
-/* R92 — Print stylesheet. Customers print cart for record-keeping
-   (especially on B2B / quote-driven flows). Without explicit print
-   rules the page prints with the full chrome (header/footer/drawers/
-   navigation) wasting ink + paper, and interactive widgets (qty
-   steppers, remove buttons, discount input, checkout button) print
-   as visible-but-useless controls. The base.css:829 global rule
-   already hides theme chrome; this section adds cart-specific
-   print refinements: hide interactive widgets, page-break protection
-   on line items + totals so rows don't split across pages. */
 @media print {
-  /* R298 — Selector set rewritten to match the ACTUAL BEM classes
-     emitted by sections/main-cart.liquid. The previous list targeted
-     5 dead classes (`__qty`, `__remove`, `__note-toggle`,
-     `__discount-form`, `__empty-cta`) that don't exist in the
-     markup — qty stepper, remove links, and discount input all
-     printed live on customer receipts. */
   .kt-cart-page__qty-stepper,
   .kt-cart-page__qty-input,
   .kt-cart-page__item-remove-link,
@@ -1154,15 +1096,6 @@
     page-break-inside: avoid;
   }
 }
-
-/* ============================================================
-   R-cart-audit — Terms & conditions checkbox
-
-   Optional consent gate before checkout when `kt_cart_show_terms`
-   is enabled. The checkbox row sits between the cart subtotal +
-   the checkout CTA so the customer must explicitly confirm before
-   the Checkout button becomes interactive.
-   ============================================================ */
 
 .kt-cart-page__terms {
   display: flex;

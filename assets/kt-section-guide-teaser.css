@@ -2,8 +2,6 @@
 
 .kt-guide-teaser {
   padding: 6rem 0;
-  /* R232.47 — Scheme-aware. `var(--kt-white)` was hardcoded so the
-     section ignored color_scheme. Default fallback keeps white. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
 }
@@ -23,22 +21,16 @@
   }
 }
 
-/* R232.50 — scheme-aware inner colors below: eyebrow, title, body,
-   CTA hover, dividers, card borders & meta. */
 .kt-guide-teaser__label {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 0.5rem;
 }
 
 .kt-guide-teaser__title {
-  /* R213 FLUID-TYPO: was stepped 3rem mobile / 4.375rem ≥750px.
-     Migrated to clamp() so laptop widths (~1024px) land around
-     3.5rem instead of jumping straight to the 4.375rem desktop
-     ceiling. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(3rem, 4vw + 1rem, 4.375rem)));
 
   font-weight: 600;
@@ -47,14 +39,6 @@
   color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
-/* R205 — birebir Tailwind from GuideTeaser.tsx:
-   `flex items-center gap-3 text-lg font-medium text-stone-600
-    hover:text-stone-900 transition-colors uppercase tracking-widest
-    border-b-2 border-transparent hover:border-stone-900 pb-1`.
-   Previous Shopify port had it as a stone-900 underlined link with
-   opacity-fade hover — visually a different component. Now matches
-   the source: muted-grey default, darkens + draws an underline on
-   hover, with a 24px diagonal-up-right arrow next to the wordmark. */
 .kt-guide-teaser__view-all {
   display: inline-flex;
   align-items: center;
@@ -129,7 +113,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 0.75rem;
 }
 
@@ -142,7 +126,7 @@
 
 .kt-guide-teaser__card-desc {
   font-size: 0.9375rem;
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   font-weight: 300;
   line-height: 1.5;
 }
@@ -153,7 +137,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 0.75rem;
 }
 
@@ -164,7 +148,7 @@
   gap: 0.75rem;
   margin-top: 1rem;
   font-size: 0.8125rem;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-guide-teaser__card-author {
@@ -185,7 +169,7 @@
   content: '\00B7';
   position: absolute;
   left: 0;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 [dir="rtl"] .kt-guide-teaser__card-date::before {
@@ -193,20 +177,6 @@
   right: 0;
 }
 
-/* R-fresh-install-v2 — Onboarding placeholder cards render on the
-   LIVE storefront when the merchant hasn't published articles yet
-   (and hasn't added Article blocks). Mirrors the CLAUDE.md
-   image-placeholder rule at the section level: "Never leave a
-   blank or broken space when an image is missing". The cards
-   stay fully visible (no opacity dim, no pointer-events lock) so
-   they read as intentional onboarding state rather than disabled
-   skeleton — Theme Store reviewer pattern from Skeleton.
-
-   The card markup is the same `kt-guide-teaser__card` container,
-   so width/spacing/typography inherit untouched. The `--placeholder`
-   modifier is a CSS hook for any future "mark as empty" visual
-   variant (e.g. subtle "Coming soon" pill); kept empty intentionally
-   so today's onboarding cards visually MATCH future real cards. */
 .kt-guide-teaser__card--placeholder {
   /* Intentionally empty — full visibility, no dim. See comment above. */
 }

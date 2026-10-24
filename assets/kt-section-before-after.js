@@ -1,17 +1,6 @@
-/**
- * Before/After Slider — touch + mouse drag + keyboard.
- * Handle is WAI-ARIA slider (role="slider" + aria-valuenow). Keyboard
- * users can move with Arrow/Home/End/PageUp/PageDown. Re-inits on
- * shopify:section:load.
- */
 (function () {
   'use strict';
 
-  /* WeakMap<slider, { onMouseUp, onTouchEnd }> — window-level listeners
-     we attached per instance. We need to be able to remove them on
-     shopify:section:unload to keep the editor from accumulating a
-     stranded mouseup/touchend listener every time the section is
-     removed or re-added. */
   var windowHandlers = new WeakMap();
 
   function initSlider(container) {
@@ -46,39 +35,21 @@
       setPct((x - rect.left) / rect.width * 100);
     }
 
-    /* Pointer Events — unified mouse / touch / pen. setPointerCapture
-       on the slider keeps the drag tracking even when the cursor /
-       finger leaves the slider's bounding rect, so a fast horizontal
-       flick doesn't drop the drag mid-motion (visible jank). The
-       previous mouse + touch split missed pen input entirely (Surface,
-       iPad pencil) and dropped drags when the pointer left the slider
-       on the mouse path. */
-    /* Track the currently-captured pointerId so shopify:section:unload
-       can release it deterministically before the slider element is
-       detached. Without this the editor's host iframe could end up
-       sitting on a captured pointer that targets an orphaned DOM
-       node — the suspected cause of the "scroll won't reach the
-       footer after I drop in then remove a before/after section"
-       symptom. */
     var capturedPointerId = null;
 
     slider.addEventListener('pointerdown', function (e) {
       dragging = true;
       capturedPointerId = e.pointerId;
-      try { slider.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+      try { slider.setPointerCapture(e.pointerId); } catch (_) {  }
       updateFromX(e.clientX);
     });
 
     var onPointerUp = function (e) {
       dragging = false;
-      try { slider.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+      try { slider.releasePointerCapture(e.pointerId); } catch (_) {  }
       capturedPointerId = null;
     };
 
-    /* Document-level for safety — pointercancel fires when the OS
-       interrupts the gesture (e.g. iOS pull-to-refresh, Android
-       app-switch). Clearing dragging there prevents a "stuck" handle
-       state when the user returns to the page. */
     slider.addEventListener('pointerup', onPointerUp);
     slider.addEventListener('pointercancel', onPointerUp);
     slider.addEventListener('pointerleave', function () { dragging = false; });
@@ -89,16 +60,12 @@
 
     windowHandlers.set(slider, {
       onPointerUp: onPointerUp,
-      /* Getter so the unload listener reads the live id at teardown
-         time, not whatever value was current when initSlider ran. */
+
       getCapturedPointerId: function () { return capturedPointerId; }
     });
 
-    /* Click — jump to position */
     slider.addEventListener('click', function (e) { updateFromX(e.clientX); });
 
-    /* Keyboard (WAI-ARIA slider pattern).
-       Arrow = ±5%, PageUp/Down = ±10%, Home/End = 0/100. */
     handle.addEventListener('keydown', function (e) {
       var handled = true;
       switch (e.key) {
@@ -118,7 +85,6 @@
       }
     });
 
-    /* Keyboard drag must not also fire the slider click handler. */
     handle.addEventListener('click', function (e) { e.stopPropagation(); });
 
     render();
@@ -133,18 +99,6 @@
     if (ba) initSlider(ba);
   });
 
-  /* Pointer-up / cancel listeners are scoped to the slider element
-     itself (not window), so they GC with the DOM when shopify:section
-     :unload removes the section. We still release any active pointer
-     capture here so the editor's host iframe doesn't end up holding a
-     captured pointer on an element that's about to be detached — a
-     stranded capture is the most plausible cause of the reported
-     "page won't scroll to the footer after I drop in (and then
-     remove) the before/after section" symptom: the editor's drag
-     interaction at the moment of removal silently kept the capture,
-     blocking subsequent scroll events on the surrounding chrome.
-     try/catch wraps the release because the spec lets the browser
-     have already auto-released it. */
   document.addEventListener('shopify:section:unload', function (e) {
     if (!e.target || !e.target.querySelector) return;
     var slider = e.target.querySelector('[data-before-after]');
@@ -153,7 +107,7 @@
     if (entry && typeof entry.getCapturedPointerId === 'function') {
       var id = entry.getCapturedPointerId();
       if (id != null) {
-        try { slider.releasePointerCapture(id); } catch (_) { /* ignore */ }
+        try { slider.releasePointerCapture(id); } catch (_) {  }
       }
     }
     windowHandlers.delete(slider);

@@ -8,7 +8,6 @@
    ============================================================ */
 
 .kt-list-collections {
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   color: rgb(var(--kt-c-fg, 28 25 23));
   padding: 4rem 0 6rem;
@@ -31,14 +30,6 @@
   gap: 2.5rem;
 }
 
-/* R232.13 — Was hardcoded `repeat(2, 1fr)` at the tablet breakpoint
-   regardless of the merchant's `columns_desktop` setting, then jumped
-   to the merchant-controlled value at 990px+. The editor preview at
-   tablet width displayed 2 columns even after the merchant slid the
-   "Columns on desktop" slider to 3, which read as the setting not
-   working. Now tablet uses `min(2, merchant_columns)` so the layout
-   never exceeds the merchant choice on smaller viewports but also
-   respects the value down to the tablet breakpoint. */
 @media screen and (min-width: 750px) {
   .kt-list-collections__grid {
     grid-template-columns: repeat(min(2, var(--kt-list-collections-columns, 3)), 1fr);
@@ -67,7 +58,6 @@
   color: inherit;
 }
 
-/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-list-collections__card:focus-visible {
   outline: 2px solid rgb(var(--kt-c-fg, 28 25 23));
   outline-offset: 4px;
@@ -80,10 +70,6 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
-  /* R294 — Corner radius from "Collection cards" theme settings.
-     Default 12px keeps the soft-rectangle silhouette that reads
-     contemporary next to the serif headings; merchants can drop
-     to 0 for sharp or push higher for a softer look. */
   border-radius: var(--kt-ccard-radius, 12px);
   margin-bottom: 1.75rem;
   /* Quiet shadow on rest, deeper on hover (rule below). Both shadows
@@ -105,11 +91,6 @@
 
 .kt-list-collections__image {
   position: absolute;
-  /* R294 — Image inset = merchant `Image padding` setting from
-     "Collection cards". Absolute children anchor to the parent's
-     padding-box, so we drive the inset directly here rather than
-     putting padding on the wrapper (padding on a position:relative
-     parent does not push absolute children inward). */
   inset: var(--kt-ccard-img-pad, 0px);
   width: auto;
   height: auto;
@@ -164,14 +145,14 @@
 }
 
 .kt-list-collections__card:hover .kt-list-collections__title {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-list-collections__desc {
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0;
   max-width: 28rem;
   display: -webkit-box;
@@ -195,7 +176,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-list-collections__cta {
@@ -242,7 +223,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.6;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0 0 2rem 0;
 }
 

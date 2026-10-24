@@ -1,18 +1,11 @@
-{%- comment -%}
-  Financing Partners — minimalist centered intro used on the /financing
-  template. Two-line editorial headline + description + a row of partner
-  name-marks (logo_image optional; falls back to text wordmark) with
-  grayscale → color hover treatment. Ported from the "PARTNER INTRO"
-  block in the Next.js financing page.
-{%- endcomment -%}
 
 {{ 'kt-section-financing-partners.css' | asset_url | stylesheet_tag }}
 
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
 <section
-  class="kt-financing-partners color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-financing-partners color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="financing-partners"
 >
@@ -29,21 +22,6 @@
       {%- if section.blocks.size > 0 -%}
         <ul class="kt-financing-partners__list" role="list">
           {%- for block in section.blocks -%}
-            {%- comment -%}
-              R168 DEMO-PLACEHOLDER-COPY-2: skip partner blocks
-              the merchant hasn't configured. Without this guard,
-              an empty `<span class="…__wordmark">` (no name, no
-              logo image) renders as a visible-but-empty list
-              item — Theme Store reviewers see an unfinished
-              partner row on the storefront preview. Schema
-              defaults are now null (the previous "Lender name"
-              instruction copy was a demo-content reject vector),
-              so the merchant has to actively fill in either the
-              name OR the logo image for the block to render at
-              all. Both branches of the wordmark/logo conditional
-              already exist below; this just gates the entire
-              list-item render on at least one being supplied.
-            {%- endcomment -%}
             {%- if block.type != 'partner' -%}{% continue %}{%- endif -%}
             {%- if block.settings.name == blank and block.settings.logo_image == blank -%}{% continue %}{%- endif -%}
               <li class="kt-financing-partners__item" {{ block.shopify_attributes }}>
@@ -120,35 +98,6 @@
       "default": "List the payment providers you work with and what each one offers."
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -200,7 +149,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

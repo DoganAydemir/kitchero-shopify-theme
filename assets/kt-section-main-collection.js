@@ -1,25 +1,8 @@
-/**
- * Main Collection — sort, sticky bar, GSAP parallax dots + text reveal
- * Birebir from PageHeader.tsx + CollectionsGrid.tsx
- */
 (function () {
   'use strict';
 
-  /* Theme-editor flag — set once at IIFE scope and consulted at the
-     GSAP/ScrollTrigger block inside init() rather than gating the
-     entire IIFE. This section also wires the filter drawer toggle
-     and the sort listener, which merchants should still be able to
-     exercise inside the editor; only the scroll-bound parallax +
-     reveal animations need to stand down to avoid the editor's
-     ScrollTrigger.refresh() lifecycle quirks (which surfaced as
-     the "page won't scroll to the footer after I drop in / remove
-     a section" reports). */
   var IN_THEME_EDITOR = !!(window.Shopify && window.Shopify.designMode);
 
-  /* WeakMap<section, { onScroll, onKeydown, ctx }> — handles and gsap
-     context we attached per section, stored so shopify:section:unload
-     can detach them. Without this, every re-render in the editor leaks
-     a scroll listener, a keydown listener, and a live ScrollTrigger. */
   var sectionState = new WeakMap();
 
   function init(container) {
@@ -31,25 +14,17 @@
     var state = { onScroll: null, onKeydown: null, ctx: null };
     sectionState.set(section, state);
 
-    /* Sort select → navigate to sorted URL */
     var sortSelect = section.querySelector('[data-collection-sort]');
     if (sortSelect) {
       sortSelect.addEventListener('change', function () {
         var url = new URL(window.location.href);
         url.searchParams.set('sort_by', this.value);
-        /* R149 SORT-PAGE-RESET-1: drop `page=N` when sort changes.
-           Previously a shopper on `?page=3` who switched sort
-           landed on page 3 of the new ordering — which may have
-           fewer pages → empty grid OR wrong items shown. Reviewers
-           test this on collections with 70+ products. JS-off form
-           POST already drops page (action = collection.url with no
-           page param); JS path now matches. */
+
         url.searchParams.delete('page');
         window.location.href = url.toString();
       });
     }
 
-    /* Sticky bar scroll state */
     var controls = section.querySelector('[data-collection-controls]');
     if (controls) {
       var onScroll = function () {
@@ -60,42 +35,22 @@
       state.onScroll = onScroll;
     }
 
-    /* Grid column toggle — uses CSS classes, not inline styles.
-       R-grid-toggle — Two bugs in the previous implementation:
-       1. `section.querySelector('#product-grid')` matched a bare id
-          but the Liquid template emits `id="product-grid-{{ section.id }}"`
-          (section-id-suffixed for multi-section pages). The bare
-          selector never found the grid, the early `return` aborted
-          every click, the toggle did nothing.
-       2. The remove-list only stripped `--cols-3` / `--cols-4`. The
-          Liquid template always emits a `--cols-{N}` class (default
-          `--cols-3`), so switching FROM 3 TO 2 left the `--cols-3`
-          class behind because it wasn't in the strip list — the
-          new `--cols-2` add (also missing) couldn't override the
-          stale class.
-       Now uses the `[data-product-grid]` hook (same selector across
-       all section instances) and strips/adds all three cols variants. */
     var grid = section.querySelector('[data-product-grid]');
     section.querySelectorAll('[data-grid-cols]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var cols = btn.dataset.gridCols;
         if (!grid) return;
 
-        /* Remove all desktop col classes — order independent. */
         grid.classList.remove(
           'kt-collection__grid--cols-2',
           'kt-collection__grid--cols-3',
           'kt-collection__grid--cols-4'
         );
 
-        /* Add the matching class for the clicked col count. Liquid
-           initial render always emits one of these three, so we
-           always add one back here. */
         if (cols === '2' || cols === '3' || cols === '4') {
           grid.classList.add('kt-collection__grid--cols-' + cols);
         }
 
-        /* Active state + aria-pressed sync across all toggle buttons. */
         section.querySelectorAll('[data-grid-cols]').forEach(function (b) {
           b.classList.remove('kt-collection__grid-btn--active');
           b.setAttribute('aria-pressed', 'false');
@@ -105,9 +60,6 @@
       });
     });
 
-    /* Mobile filter drawer — open/close + scroll lock.
-       Backdrop, close button, and Escape all dismiss; Apply button
-       submits the form which navigates to the filtered URL. */
     var drawer = section.querySelector('[data-filter-drawer]');
     var openBtn = section.querySelector('[data-open-filter-drawer]');
     var closeBtns = section.querySelectorAll('[data-close-filter-drawer]');
@@ -115,23 +67,14 @@
     function openDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'false');
-      /* R-filter-inert-fix — Liquid markup ships `inert` on the
-         drawer for SR/keyboard safety while it's closed (so the
-         CSS-hidden controls don't surface in the tab order or AT
-         tree). `aria-hidden=false` without removing `inert` left
-         the drawer visible but every control DEAD — checkboxes,
-         selects, inputs all silently swallowed taps. The sibling
-         `collection-drawer-filter.js` does this toggle correctly;
-         this in-section binding was the outlier. Mirror the
-         sibling's pattern so any drawer instance bound by this
-         section also becomes interactive on open. */
+
       drawer.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('collection-section-filter-drawer');
       } else {
         document.body.style.overflow = 'hidden';
       }
-      /* Focus the close button so keyboard users can dismiss right away */
+
       var closer = drawer.querySelector('.kt-filter-drawer__close');
       if (closer && typeof closer.focus === 'function') {
         window.setTimeout(function () { closer.focus(); }, 50);
@@ -141,9 +84,7 @@
     function closeDrawer() {
       if (!drawer) return;
       drawer.setAttribute('aria-hidden', 'true');
-      /* Re-apply inert when closing so SR/keyboard users can't
-         tab into the hidden controls. Same pair as
-         collection-drawer-filter.js. */
+
       drawer.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('collection-section-filter-drawer');
@@ -168,67 +109,62 @@
       state.onKeydown = onKeydown;
     }
 
-    /* GSAP parallax + reveal animations. Gated on the theme-editor
-       flag captured at IIFE top — see IN_THEME_EDITOR comment above
-       for the rationale (editor-only scroll dead-zone reports). */
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!IN_THEME_EDITOR && !prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
+    (window.ktWhenMotion || function (cb) { cb(); })(function () {
+      if (!IN_THEME_EDITOR && !prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
 
-      var hero = section.querySelector('[data-collection-hero]');
-      if (!hero) return;
+        var hero = section.querySelector('[data-collection-hero]');
+        if (!hero) return;
 
-      state.ctx = gsap.context(function () {
-        /* Text reveal animation */
-        gsap.fromTo(
-          '.kt-collection__label, .kt-collection__title, .kt-collection__desc, .kt-collection__count',
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out' }
-        );
-
-        /* Parallax dots (Layer 2) — y: 20% on scroll */
-        var dots = section.querySelector('[data-parallax-dots]');
-        if (dots) {
-          gsap.to(dots, {
-            y: '20%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: hero,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
-        }
-
-        /* Parallax markers (Layer 4) — y: 35% on scroll */
-        var markers = section.querySelector('[data-parallax-markers]');
-        if (markers) {
-          gsap.to(markers, {
-            y: '35%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: hero,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
-        }
-
-        /* Product card entrance */
-        var cards = section.querySelectorAll('.kt-card-product');
-        if (cards.length > 0) {
-          gsap.fromTo(cards,
-            { opacity: 0, y: 50 },
-            {
-              opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
-              scrollTrigger: { trigger: cards[0], start: 'top 85%', once: true }
-            }
+        state.ctx = gsap.context(function () {
+          gsap.fromTo(
+            '.kt-collection__label, .kt-collection__title, .kt-collection__desc, .kt-collection__count',
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out' }
           );
-        }
-      }, section);
-    }
+
+          var dots = section.querySelector('[data-parallax-dots]');
+          if (dots) {
+            gsap.to(dots, {
+              y: '20%',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: hero,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+              }
+            });
+          }
+
+          var markers = section.querySelector('[data-parallax-markers]');
+          if (markers) {
+            gsap.to(markers, {
+              y: '35%',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: hero,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+              }
+            });
+          }
+
+          var cards = section.querySelectorAll('.kt-card-product');
+          if (cards.length > 0) {
+            gsap.fromTo(cards,
+              { opacity: 0, y: 50 },
+              {
+                opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
+                scrollTrigger: { trigger: cards[0], start: 'top 85%', once: true }
+              }
+            );
+          }
+        }, section);
+      }
+    });
   }
 
   document.querySelectorAll('[data-section-type="main-collection"]').forEach(function (el) {
@@ -247,12 +183,9 @@
     if (!state) return;
     if (state.onScroll) window.removeEventListener('scroll', state.onScroll);
     if (state.onKeydown) document.removeEventListener('keydown', state.onKeydown);
-    /* gsap.context().revert() kills every tween and ScrollTrigger the
-       context owns — essential, otherwise ScrollTriggers keep firing
-       against a detached DOM until GSAP's internal list is flushed. */
+
     if (state.ctx && typeof state.ctx.revert === 'function') state.ctx.revert();
-    /* Re-enable body scroll in case the drawer was open at unload.
-       Use scrollLock.unlock so we don't stomp a sibling drawer. */
+
     if (window.Kitchero && Kitchero.scrollLock) {
       Kitchero.scrollLock.unlock('collection-section-filter-drawer');
     } else if (document.body) {

@@ -34,8 +34,8 @@
 -%}
 
 <section
-  class="kt-collapsible-accordion color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-collapsible-accordion color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-allow-multiple="{% if allow_multiple %}true{% else %}false{% endif %}"
 >
@@ -115,26 +115,6 @@
   </div>
 </section>
 
-{%- comment -%}
-  FAQ structured data (R139 / HG-1). When the merchant opts in via
-  `enable_faq_schema` we emit a Schema.org FAQPage JSON-LD payload so
-  Google can surface the questions as rich results in search.
-
-  Default OFF — emitting FAQPage on a section that contains anything
-  other than genuine FAQ content (returns policy, shipping table, etc.)
-  triggers Google's "Misleading or incorrect content" penalty per
-  https://developers.google.com/search/docs/appearance/structured-data/faqpage
-  Merchants opt in only on real FAQ accordions.
-
-  Implementation notes:
-  - Two-pass loop. First pass counts `item` blocks so the second pass
-    knows when to omit the trailing comma; @app blocks are skipped.
-  - `strip_html` on title + content so Schema.org receives plain text
-    (FAQ schema allows HTML in `acceptedAnswer.text`, but stripping
-    keeps the payload compact and never trips on unbalanced markup).
-  - `| json` emits a fully quoted, JSON-escape-safe string — handles
-    embedded quotes / newlines / `<` characters without manual escaping.
-{%- endcomment -%}
 {%- if section.settings.enable_faq_schema -%}
   {%- assign faq_items_total = 0 -%}
   {%- for block in section.blocks -%}
@@ -250,35 +230,6 @@
       "default": false
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -320,7 +271,10 @@
   ],
   "max_blocks": 12,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

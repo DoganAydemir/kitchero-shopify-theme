@@ -11,17 +11,6 @@
       {%- render 'account-nav', current: 'addresses' -%}
 
       <div class="kt-account__content">
-        {%- comment -%}
-          R145 ADDRESSES-DUP-H1-1: previously emitted both `<h1>`
-          (line 7) and `<h2>` (here) with the same translated string
-          ("Addresses"), creating a duplicate-heading defect that
-          reviewers running axe-core / Lighthouse a11y flagged. The
-          h1 in the page header is sufficient to name the region;
-          the visual styling on the actions row is preserved by the
-          surrounding flex container without needing a heading. SR
-          users no longer hear "Addresses, heading 1, Addresses,
-          heading 2".
-        {%- endcomment -%}
         <div class="kt-addresses__actions">
           <button type="button" class="kt-addresses__btn" data-addresses-toggle-new aria-expanded="false" aria-controls="AddressNewForm">
             {{ 'kt.customer.addresses.add_new' | t }}
@@ -30,32 +19,9 @@
 
         {%- comment -%} New address form {%- endcomment -%}
         <div id="AddressNewForm" class="kt-addresses__form" hidden data-new-form>
-          {%- comment -%}
-            R140 (R8 audit) — was `<h3>` which made the page heading
-            order `h1 → h3` (no intervening h2). axe-core / Lighthouse
-            flag this as a `heading-order` violation; Theme Store
-            reviewer scripts run the same rule. The form is a direct
-            sub-section of the addresses page, so `<h2>` matches the
-            real document outline. The `kt-customer__errors-title`
-            inside the form (h2) becomes h3 in the same edit so the
-            error block stays one level below its enclosing form.
-          {%- endcomment -%}
           <h2 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_add_title' | t }}</h2>
           {%- form 'customer_address', customer.new_address -%}
             {%- if form.errors -%}
-              {%- comment -%}
-                R145 ADDRESSES-ALERT-ROLE-1: scope `role="alert"` to
-                the dynamic `<ul>` only — placing it on the outer
-                `<div>` causes NVDA/JAWS to re-announce the static
-                heading + every list item as one run-on string on
-                submit. Pattern matches main-login / main-register /
-                main-reset-password / main-activate-account which
-                already have this fix; addresses was the laggard
-                flagged by R139 and remediated here.
-                tabindex="-1" stays on the outer div for focus
-                management (focusFirstFormError targets it).
-                data-form-error-summary tag added for parity.
-              {%- endcomment -%}
               <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
                 <h3 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t }}</h3>
                 <ul class="kt-customer__errors-list" role="alert">
@@ -126,29 +92,6 @@
               </div>
               <div class="kt-addresses__field" data-province-field>
                 <label for="AddressProvinceNew" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
-                {%- comment -%}
-                  R148 JS-OFF-PROVINCE-1: the `<select>` is populated
-                  by `assets/customer-addresses.js` reading
-                  `data-provinces` from the country select and binding
-                  options at runtime. Without JS the select stays
-                  empty — JS-off customers hit Shopify's "Province
-                  required" validation 422 with no way to fill it.
-                  Provide a `<noscript>` plain text input as fallback
-                  so JS-off customers can type their province manually
-                  (Shopify accepts free-text province strings on form
-                  POST and validates server-side).
-
-                  PROVINCE-DUP-NAME-1: the empty `<select>` is rendered
-                  with `disabled` so JS-off browsers don't submit an
-                  empty `address[province]` alongside the `<noscript>`
-                  input that uses the same name. Disabled form controls
-                  are excluded from submission per HTML spec, so the
-                  `<input>` inside `<noscript>` becomes the sole carrier
-                  of the province value when scripting is off. The
-                  customer-addresses.js handler removes `disabled` when
-                  it populates options so JS-on users get a working
-                  select.
-                {%- endcomment -%}
                 <select id="AddressProvinceNew" name="address[province]" class="kt-customer__input" data-default="{{ form.province | escape }}" disabled autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="AddressProvinceNew-error"{% endif %}>
 
                 </select>
@@ -206,19 +149,6 @@
                       Without it, JS-off users posting the delete get a
                       422 on stores with strict CSRF middleware.
                     {%- endcomment -%}
-                    {%- comment -%}
-                      R148 JS-OFF-DELETE-1: pass `method: 'delete'` to
-                      `{% form %}` so Shopify emits the proper DELETE-
-                      intent hidden fields (its own `_method` plus the
-                      authenticity token) instead of the implicit UPDATE
-                      method. Previously we ALSO injected an `_method`
-                      hidden input manually — duplicate `_method` keys
-                      got Shopify treating the JS-off submit as an
-                      address UPDATE with empty fields, returning 422
-                      "First name can't be blank" instead of deleting.
-                      The `method:` keyword is the Shopify-canonical
-                      delete-form pattern.
-                    {%- endcomment -%}
                     {%- form 'customer_address', address, class: 'kt-addresses__delete-form', method: 'delete' -%}
                       {%- comment -%}
                         `data-confirm-message` carries a translated
@@ -241,11 +171,6 @@
                     <h2 class="kt-addresses__form-title">{{ 'kt.customer.addresses.form_edit_title' | t }}</h2>
                     {%- form 'customer_address', address -%}
                       {%- if form.errors -%}
-                        {%- comment -%}
-                          R145 ADDRESSES-ALERT-ROLE-1: same fix as
-                          new-address form above — role="alert" on
-                          the dynamic <ul>, not the outer div.
-                        {%- endcomment -%}
                         <div class="kt-customer__errors" tabindex="-1" data-form-error-summary>
                           <h3 class="kt-customer__errors-title">{{ 'kt.contact.form.error_heading' | t | default: 'There was a problem with your submission' }}</h3>
                           <ul class="kt-customer__errors-list" role="alert">
@@ -331,13 +256,6 @@
                         </div>
                         <div class="kt-addresses__field" data-province-field>
                           <label for="AddressProvince{{ address.id }}" class="kt-addresses__label">{{ 'kt.customer.addresses.province' | t }}</label>
-                          {%- comment -%}
-                            R148 JS-OFF-PROVINCE-1: edit-form parity
-                            with new-form noscript fallback above.
-                            PROVINCE-DUP-NAME-1: `disabled` attribute
-                            prevents the empty select from submitting
-                            alongside the noscript input.
-                          {%- endcomment -%}
                           <select id="AddressProvince{{ address.id }}" name="address[province]" class="kt-customer__input" data-default="{{ form.province | default: address.province | escape }}" disabled autocomplete="address-level1" {% if form.errors contains 'province' %}aria-invalid="true" aria-describedby="{{ err_province }}"{% endif %}>
 
                 </select>

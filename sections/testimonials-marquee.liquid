@@ -7,13 +7,13 @@
 -%}
 
 <section
-  class="kt-testimonials-marquee color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-testimonials-marquee color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="testimonials-marquee"
   data-pause-on-hover="{% if pause_on_hover %}true{% else %}false{% endif %}"
   data-marquee-pause-host
   data-marquee-pause-modifier="kt-testimonials-marquee--paused"
-  style="--kt-marquee-duration: {{ duration }}s;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-marquee-duration: {{ duration }}s;"
 >
   {%- comment -%} Heading block {%- endcomment -%}
   {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
@@ -91,15 +91,6 @@
             {%- endif -%}
 
             {%- if block.settings.quote != blank -%}
-              {%- comment -%}
-                Semantic <blockquote> for the testimonial copy + <cite>
-                for the author attribution. WCAG / Theme Store reviewer
-                expectation — the testimonials-pullquote section
-                already uses the same pair, this brings the marquee
-                variant in line. The <p> inside <blockquote> is
-                required by HTML spec (blockquote requires flow content;
-                bare text would be invalid).
-              {%- endcomment -%}
               <blockquote class="kt-testimonials-marquee__quote">
                 <p>&ldquo;{{ block.settings.quote | escape }}&rdquo;</p>
               </blockquote>
@@ -128,28 +119,9 @@
               </div>
             {%- endif -%}
           </div>
-        {%- comment -%}
-          R298 — Inline @app render branch REMOVED. The previous `else`
-          fell through for every non-testimonial block — including
-          `@app` — and rendered it inside the marquee track wrapped in
-          `block.shopify_attributes`. The same @app blocks were then
-          rendered AGAIN by the `{% render 'section-app-blocks' %}`
-          snippet below, producing duplicate DOM nodes with duplicate
-          editor block handles. Editor block-select flickered + live
-          storefront double-rendered app content. The snippet is now
-          the canonical render path.
-        {%- endcomment -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
-    {%- comment -%}
-      R295 — Editor-only hint when the merchant adds the section to
-      a template but hasn't created any testimonial blocks yet.
-      Without blocks the marquee track is empty and the section
-      looks broken — this hint tells the merchant exactly how to
-      populate it. Shown only inside `request.design_mode` so the
-      live storefront stays clean.
-    {%- endcomment -%}
     {%- if request.design_mode and section.blocks.size == 0 -%}
       <p class="kt-testimonials-marquee__editor-hint" aria-live="polite">
         {{ 'kt.section.testimonials-marquee.editor_hint_empty' | t | default: 'Add at least one Testimonial block in the theme editor to populate this marquee.' }}
@@ -251,35 +223,6 @@
       "default": true
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -338,7 +281,10 @@
   ],
   "max_blocks": 16,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

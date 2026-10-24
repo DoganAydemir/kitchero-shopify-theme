@@ -16,7 +16,10 @@
 
 {%- liquid
   assign heading_tag = section.settings.heading_tag | default: 'h3'
-  assign invert = section.settings.invert_colors
+  assign invert = false
+  if section.settings.layout == 'background'
+    assign invert = true
+  endif
   assign image_position = section.settings.image_position | default: 'right'
   assign variant_class = 'kt-financing-panel'
   if invert
@@ -32,8 +35,8 @@
 -%}
 
 <section
-  class="{{ variant_class }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="{{ variant_class }} color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="financing-panel"
 >
@@ -363,11 +366,21 @@
       "content": "t:sections.financing-panel.settings.header__appearance.content"
     },
     {
-      "type": "checkbox",
-      "id": "invert_colors",
-      "label": "t:sections.financing-panel.settings.invert_colors.label",
-      "info": "t:sections.financing-panel.settings.invert_colors.info",
-      "default": false
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.financing-panel.settings.layout.label",
+      "info": "t:sections.financing-panel.settings.layout.info",
+      "options": [
+        {
+          "value": "split",
+          "label": "t:sections.financing-panel.settings.layout.options__split.label"
+        },
+        {
+          "value": "background",
+          "label": "t:sections.financing-panel.settings.layout.options__background.label"
+        }
+      ],
+      "default": "split"
     },
     {
       "type": "image_picker",
@@ -376,26 +389,6 @@
       "info": "t:sections.financing-panel.settings.background_image.info"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -512,7 +505,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

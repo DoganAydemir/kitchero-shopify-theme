@@ -1,18 +1,3 @@
-/**
- * Slider — Editorial Split
- *
- * Wires up the two-pane cross-fade carousel:
- *   - Image pane fades between slides (CSS transition on `.is-active`)
- *   - Copy pane cross-fades with staggered reveal for eyebrow/heading/
- *     description/CTA via `[data-editorial-anim]` + `--anim-delay`
- *   - Numbered nav (`[data-editorial-nav]`) swaps slides
- *   - Progress bar (`[data-editorial-progress]`) resets + re-runs its
- *     CSS keyframe each advance so the fill stays in sync with the JS
- *     `setInterval` that drives autoplay
- *   - Respects `prefers-reduced-motion` (no autoplay, instant swaps)
- *   - Safe for Shopify theme editor via shopify:section:load/unload
- *   - Idempotent load-guard: tolerates double <script> injection
- */
 if (!window.__kitcheroSliderEditorialLoaded) {
   window.__kitcheroSliderEditorialLoaded = true;
 
@@ -21,7 +6,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
 
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /** Map<sectionId, { timer, section, cleanup }> */
     var instances = new Map();
 
     function initSection(section) {
@@ -29,7 +13,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
       var sectionId = section.getAttribute('data-section-id');
       if (!sectionId) return;
 
-      /* If already initialised (editor reload), tear down first */
       destroySection(sectionId);
 
       var interval = parseFloat(section.getAttribute('data-autoplay-interval') || '0');
@@ -40,8 +23,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
       var navBtns = section.querySelectorAll('[data-editorial-nav]');
       var progressBar = section.querySelector('[data-editorial-progress]');
 
-      /* Assign --anim-delay once from each element's data-delay so CSS
-         can stagger the reveal without a per-slide class. */
       section.querySelectorAll('[data-editorial-anim]').forEach(function (el) {
         var delay = parseInt(el.getAttribute('data-delay') || '0', 10);
         el.style.setProperty('--anim-delay', delay);
@@ -69,9 +50,7 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         navBtns.forEach(function (btn, i) {
           var on = i === nextIndex;
           btn.classList.toggle('is-active', on);
-          /* role="tab" ARIA pattern — aria-selected + roving tabindex so
-             only the active tab is reachable by a single Tab press. Arrow
-             keys move between tabs (see tablist keydown handler below). */
+
           btn.setAttribute('aria-selected', on ? 'true' : 'false');
           btn.setAttribute('tabindex', on ? '0' : '-1');
         });
@@ -82,11 +61,9 @@ if (!window.__kitcheroSliderEditorialLoaded) {
 
       function restartProgress() {
         if (!progressBar) return;
-        /* Cancel & re-add the CSS animation: remove class, force reflow,
-           add class. The animation `duration` reads the CSS custom
-           property `--kt-editorial-interval` set on the section root. */
+
         progressBar.classList.remove('is-running');
-        // Force reflow so the next class addition starts a fresh animation
+
         void progressBar.offsetWidth;
         progressBar.classList.add('is-running');
       }
@@ -100,24 +77,9 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         if (prefersReducedMotion) return;
         if (!interval || interval <= 0) return;
         if (total < 2) return;
-        /* R87 — Theme editor pause: don't rotate slides while the
-           merchant edits a specific slide setting. block:select
-           drives navigation in editor; this timer is only for the
-           live storefront. */
+
         if (window.Shopify && window.Shopify.designMode) return;
-        /* Drive advancement off the progress bar's CSS animation
-           rather than a JS setInterval. The earlier setInterval
-           ran on its own timer queue while the CSS animation ran
-           on the compositor — on mobile (especially backgrounded
-           tabs or low-power mode) JS timers throttle to as low as
-           1 Hz while CSS animations keep painting at 60fps. The
-           progress bar would visibly hit 100% and then *pause*
-           for hundreds of ms (sometimes >1s) before the throttled
-           setInterval finally fired advance(). animationend on the
-           progress element fires on the same compositor cycle the
-           bar completes, so the next slide swaps in immediately
-           after the fill reaches 100% — users see continuous
-           progression instead of "stalls between slides". */
+
         restartProgress();
       }
 
@@ -126,17 +88,10 @@ if (!window.__kitcheroSliderEditorialLoaded) {
           window.clearInterval(timer);
           timer = null;
         }
-        /* Pause the progress bar animation in place so resuming
-           doesn't snap it back to 0%. Removing `is-running` strips
-           the CSS animation; the bar's last-painted width sits
-           still until restartProgress() adds the class back. */
+
         if (progressBar) progressBar.classList.remove('is-running');
       }
 
-      /* When the bar reaches 100%, that's our "go to next slide"
-         signal. setActive() restarts the progress animation, so
-         the cycle continues. Single listener on the bar element
-         scopes the trigger to *this* section's progress bar. */
       if (progressBar) {
         progressBar.addEventListener('animationend', function (e) {
           if (e.animationName !== 'kt-editorial-progress') return;
@@ -147,9 +102,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         });
       }
 
-      /* Pause/play toggle — required by WCAG 2.1 SC 2.2.2.
-         User-controlled, persists until next page load.
-         aria-pressed="true" = autoplay running, "false" = paused. */
       var playToggle = section.querySelector('[data-editorial-play-toggle]');
       var userPaused = false;
       function syncPlayToggleState() {
@@ -168,44 +120,27 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         });
       }
 
-      /* WCAG 2.2.2 (Pause, Stop, Hide): pause autoplay whenever any
-         descendant has keyboard focus, resume on blur. Without this,
-         a keyboard user tabbing to the inner CTA sees the slider
-         rotate beneath them — the focused element may be replaced
-         mid-tab, causing focus loss (4.1.2 fail). The userPaused
-         toggle takes precedence: if the user explicitly paused via
-         the play/pause control, focus events should not auto-resume. */
       section.addEventListener('focusin', function () {
         stopAutoplay();
       });
       section.addEventListener('focusout', function (e) {
-        /* Resume only if focus is leaving the section entirely
-           (relatedTarget outside section), not when moving between
-           inner controls. Skip resume if user explicitly paused. */
         if (e.relatedTarget && section.contains(e.relatedTarget)) return;
         if (userPaused || prefersReducedMotion || interval <= 0 || total < 2) return;
         startAutoplay();
       });
 
-      /* Wire nav clicks: swap slide + restart autoplay timer */
       navBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           var idx = parseInt(btn.getAttribute('data-editorial-nav'), 10);
           if (isNaN(idx)) return;
           setActive(idx);
-          /* Restart so user click gets full interval before next auto-advance.
-             Skip restart if user explicitly paused via toggle. */
+
           if (!userPaused && !prefersReducedMotion && interval > 0 && total > 1) {
             startAutoplay();
           }
         });
       });
 
-      /* Touch swipe on mobile — without this, users on phones can
-         only navigate via the small "01 / 02 / 03" tab buttons. 50px
-         horizontal threshold + dY-vs-dX guard so vertical scroll
-         isn't hijacked. Pauses autoplay during drag so the slide
-         doesn't advance mid-gesture. */
       var swipeStartX = 0, swipeStartY = 0, swipeMoved = false;
       var SWIPE_THRESHOLD = 50;
       section.addEventListener('touchstart', function (e) {
@@ -237,10 +172,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         }
       }, { passive: true });
 
-      /* Keyboard nav on the tablist — WAI-ARIA Authoring Practices tab
-         pattern: ArrowLeft/Right cycle, Home/End jump to ends. Activates
-         the target tab (automatic activation) and moves DOM focus so the
-         roving tabindex follows the user. */
       var tablist = section.querySelector('[role="tablist"]');
       if (tablist) {
         tablist.addEventListener('keydown', function (event) {
@@ -263,7 +194,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         });
       }
 
-      /* Pause autoplay when the section is off-screen (saves CPU) */
       var observer = null;
       if ('IntersectionObserver' in window && !prefersReducedMotion && interval > 0 && total > 1) {
         observer = new IntersectionObserver(function (entries) {
@@ -280,14 +210,12 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         startAutoplay();
       }
 
-      /* Kick off progress bar on mount */
       restartProgress();
 
       instances.set(sectionId, {
         section: section,
         timer: function () { return timer; },
-        /* Exposed so the shopify:block:select handler can jump to the
-           slide the merchant clicked in the theme editor. */
+
         setActive: setActive,
         stopAutoplay: stopAutoplay,
         cleanup: function () {
@@ -313,14 +241,12 @@ if (!window.__kitcheroSliderEditorialLoaded) {
         .forEach(initSection);
     }
 
-    /* Initial mount */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initAll);
     } else {
       initAll();
     }
 
-    /* Theme editor lifecycle */
     document.addEventListener('shopify:section:load', function (e) {
       var section = document.querySelector('[data-section-id="' + e.detail.sectionId + '"][data-section-type="slider-editorial-split"]');
       if (section) initSection(section);
@@ -330,10 +256,6 @@ if (!window.__kitcheroSliderEditorialLoaded) {
       destroySection(e.detail.sectionId);
     });
 
-    /* Theme editor: when merchant clicks a slide block in the sidebar,
-       jump to that slide so they can see what they're editing. The
-       block element itself is event.target and carries either
-       data-editorial-image or data-editorial-copy with its index. */
     document.addEventListener('shopify:block:select', function (e) {
       var sectionId = e.detail && e.detail.sectionId;
       if (!sectionId) return;

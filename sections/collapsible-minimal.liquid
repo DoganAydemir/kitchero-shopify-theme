@@ -22,9 +22,9 @@
 -%}
 
 <section
-  class="kt-collapsible-minimal color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-collapsible-minimal color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
-  style="--kt-col-count: {{ col_count }};{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-col-count: {{ col_count }};"
   aria-labelledby="CollapsibleMinimal-{{ section.id }}-heading"
 >
   <div class="kt-collapsible-minimal__inner">
@@ -75,10 +75,6 @@
                 </div>
               </details>
             {%- when '@app' -%}
-              {%- comment -%}
-                R87 — shopify_attributes wrapper for editor
-                highlight on app-block select.
-              {%- endcomment -%}
               <div class="kt-collapsible-minimal__app-block" {{ block.shopify_attributes }}>
                 {% render block %}
               </div>
@@ -89,11 +85,6 @@
   </div>
 </section>
 
-{%- comment -%}
-  FAQ structured data (R139 / HG-1). See collapsible-accordion.liquid
-  for the full rationale. Same opt-in / opt-out toggle, same two-pass
-  loop, same `strip_html | json` defence. Defaults to OFF.
-{%- endcomment -%}
 {%- if section.settings.enable_faq_schema -%}
   {%- assign faq_items_total = 0 -%}
   {%- for block in section.blocks -%}
@@ -191,35 +182,6 @@
       "default": false
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -297,7 +259,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   }
 }
 {% endschema %}

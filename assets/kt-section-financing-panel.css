@@ -11,10 +11,8 @@
 
 .kt-financing-panel {
   position: relative;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded white / stone-900; falls back unchanged.
-     Note: --inverted variant below overrides for the dark variant. */
-  background-color: rgb(var(--kt-c-bg, 255 255 255));
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
   padding: 6rem 0;
   overflow: hidden;
 }
@@ -23,13 +21,6 @@
   .kt-financing-panel {
     padding: 8rem 0;
   }
-}
-
-/* ── Inverted (dark) variant ───────────────────────────── */
-
-.kt-financing-panel--inverted {
-  background-color: var(--kt-stone-950); /* stone-950 */
-  color: var(--kt-white);
 }
 
 .kt-financing-panel__bg {
@@ -93,50 +84,16 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 1.5rem;
-  /* R232.66 — Media frame falls back to a subtle tier-shifted bg so
-     the Shopify default placeholder SVG (lifestyle-2) sits cleanly
-     on any scheme. Previous version (`rgb(--kt-c-fg)`) painted a
-     SOLID DARK rectangle whenever a merchant hadn't uploaded an
-     image — combined with the placeholder's own 0.6 opacity below,
-     the section read as a "solid black block" instead of showing
-     Shopify's expected placeholder graphic (user feedback:
-     "soldaki foto neden tek renk?"). Using --kt-c-bg-contrast gives
-     a soft scheme-aware shade that the placeholder reads against. */
-  /* R232.72 — `--kt-c-bg-contrast` Shopify 25%-darken calc was too
-     aggressive on light schemes; replaced with the subtle layered
-     bg pattern (scheme bg + 6% fg overlay) so the placeholder reads
-     as a soft tier-shifted frame on any scheme. */
-  /* R-cover-dark — Default (real merchant photo) backdrop is a fixed
-     dark stone. The editorial photo sits at 0.6 opacity (below), so
-     whatever shows through the 40% transparency must be DARK for the
-     image to read as a rich dark tone. When this was wired to
-     `--kt-c-bg` the backdrop went near-white on light colour schemes
-     and the photo composited to a washed-out light-grey veil — not the
-     intended moody cover treatment. The placeholder case overrides
-     this back to the soft scheme frame just below. */
   background-color: var(--kt-stone-900, #1c1917);
   background-image: none;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* Empty state — no merchant image, Shopify's lifestyle-2 placeholder
-   SVG is showing. Restore the soft scheme-aware frame so the light
-   placeholder strokes read against it instead of vanishing into a
-   solid dark block (the earlier "soldaki foto neden tek renk?"
-   regression). `:has()` keys off the placeholder element the Liquid
-   renders only in the no-image branch. */
 .kt-financing-panel__media:has(.placeholder-svg) {
-  background-color: rgb(var(--kt-c-bg, 250 250 249));
-  background-image: linear-gradient(rgba(var(--kt-c-fg, 28 25 23), 0.06), rgba(var(--kt-c-fg, 28 25 23), 0.06));
+  background-color: rgb(var(--kt-c-bg));
+  background-image: linear-gradient(rgba(var(--kt-c-fg), 0.06), rgba(var(--kt-c-fg), 0.06));
 }
 
-/* Inverted (dark mode) variant — only the surface treatment changes:
-   a deeper shadow + a thin inner ring so the media frame separates
-   cleanly from the dark backdrop. Aspect ratio stays at 4/5 to match
-   the light variant — the previous `4/3` override here was a leftover
-   from an early Next.js mock and made the image visibly resize as
-   merchants flipped the "Invert (dark mode)" switch on/off. Layout
-   should never depend on a colour-mode toggle. */
 .kt-financing-panel--inverted .kt-financing-panel__media {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
@@ -146,11 +103,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  /* R232.66 — Opacity 0.6 is the editorial muted-photo look. Pair
-     with `:not(.placeholder-svg)` so Shopify's default placeholder
-     SVG renders at full opacity (otherwise placeholder + dark frame
-     + 0.6 opacity made the section look like a solid black block on
-     fresh installs). Real merchant uploads keep the 0.6 muted look. */
   opacity: 1;
 }
 
@@ -226,24 +178,22 @@
   margin-bottom: 2rem;
 }
 
-/* R232.50 — light-variant inner colors derive from scheme; --inverted overrides below keep dark variant intact */
 .kt-financing-panel__eyebrow-rule {
   display: inline-block;
   width: 3rem;
   height: 1px;
-  background-color: rgb(var(--kt-c-fg, 28 25 23));
+  background-color: rgb(var(--kt-c-fg));
 }
 
 .kt-financing-panel__eyebrow {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.04em;
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(var(--kt-c-fg));
   line-height: 1;
 }
 
 .kt-financing-panel--inverted .kt-financing-panel__eyebrow {
-  color: var(--kt-white);
   font-weight: 700;
   font-size: 1.875rem;
   letter-spacing: -0.025em;
@@ -264,7 +214,7 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(var(--kt-c-fg));
   margin: 0 0 2rem 0;
 }
 
@@ -273,10 +223,6 @@
     font-size: calc(var(--kt-f-heading-scale, 1) * (3rem));
 
   }
-}
-
-.kt-financing-panel--inverted .kt-financing-panel__title {
-  color: var(--kt-white);
 }
 
 .kt-financing-panel__title-line {
@@ -289,20 +235,15 @@
 
 .kt-financing-panel__title-line--italic {
   font-style: italic;
-  color: var(--kt-green-700); /* emerald-700 */
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-financing-panel__title-line--muted {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   font-style: normal;
 }
 
-.kt-financing-panel--inverted .kt-financing-panel__title-line--muted {
-  color: var(--kt-stone-400); /* stone-400 — passes on stone-950 dark bg */
-}
-
 .kt-financing-panel--inverted .kt-financing-panel__title-line--italic {
-  color: var(--kt-stone-400);
   font-style: normal;
 }
 
@@ -312,15 +253,7 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.625;
-  /* R-financing-panel-desc-muted-v2 — Earlier 0.55 → 0.45 step
-     was visually too subtle on first push (user reported the
-     section unchanged). Dropping further to 0.4 for a clearly
-     noticeable tier-shift; lands ~3.9:1 on stone-50, which is
-     under AA body 4.5:1 but acceptable for an intentional muted
-     lead paragraph (decorative/secondary copy classification).
-     Trade-off accepted because the section's hierarchy story
-     requires the title pair to dominate. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.4);
+  color: rgb(var(--kt-c-fg-muted));
   max-width: 32rem;
   margin: 0 0 3rem 0;
 }
@@ -329,15 +262,6 @@
   .kt-financing-panel__desc {
     font-size: 1rem;
   }
-}
-
-.kt-financing-panel--inverted .kt-financing-panel__desc {
-  /* The inverted panel is ALWAYS a dark photo surface, so the desc must
-     be light regardless of the active color scheme. The previous
-     `rgba(var(--kt-c-fg), 0.5)` resolved to the scheme fg — DARK on a
-     light scheme — giving dark-on-dark, unreadable text. Pin to a muted
-     white (matches the inverted title/eyebrow which use --kt-white). */
-  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ── Features (checklist) ──────────────────────────────── */
@@ -362,14 +286,8 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 9999px;
-  /* R232.66 — Check chip + glyph follow the active scheme instead of
-     a fixed light-emerald-on-emerald palette that disappeared into
-     scheme-5's surface. Subtle 8% fg chip + full-strength fg glyph
-     reads as a soft "elevated check" on any scheme (cream / dark /
-     emerald / charcoal). User feedback: "bu rengi seçince check ler
-     beyaz olmamalı". */
-  background-color: rgba(var(--kt-c-fg, 236 253 245), 0.08);
-  color: rgb(var(--kt-c-fg, 21 128 61));
+  background-color: rgba(var(--kt-c-fg), 0.08);
+  color: rgb(var(--kt-c-fg));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -385,15 +303,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.5;
-  color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
-}
-
-/* Dark-mode override — feature checklist lines were locked at
-   stone-700 (dark grey on white) and stayed unreadable on the
-   inverted stone-950 backdrop. stone-200 keeps the lines clearly
-   muted vs the title above but legible against the dark surface. */
-.kt-financing-panel--inverted .kt-financing-panel__feature-text {
-  color: var(--kt-stone-200);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 @media screen and (min-width: 750px) {
@@ -409,7 +319,7 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(var(--kt-c-fg, 245 245 244), 0.08);
+  border-top: 1px solid rgba(var(--kt-c-fg), 0.08);
 }
 
 @media screen and (min-width: 750px) {
@@ -418,23 +328,9 @@
   }
 }
 
-/* Dark-mode override — the default stone-100 divider rule above was
-   tuned for the light surface (subtle hairline on near-white) but
-   reads as a hard white slash on the inverted stone-950 backdrop.
-   `rgba(255,255,255,0.08)` keeps the same visual purpose (a quiet
-   separation between the icon-grid and the step row) without
-   shouting at the eye on the dark variant. */
-.kt-financing-panel--inverted .kt-financing-panel__steps {
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-
 .kt-financing-panel__step-icon {
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+  color: rgb(var(--kt-c-fg-muted));
   margin-bottom: 0.75rem;
-}
-
-.kt-financing-panel--inverted .kt-financing-panel__step-icon {
-  color: var(--kt-stone-400); /* stone-400 — passes on stone-950 dark bg */
 }
 
 .kt-financing-panel__step-icon svg {
@@ -447,28 +343,15 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  color: rgb(var(--kt-c-fg));
   margin: 0 0 0.25rem 0;
-}
-
-/* Dark-mode override — step row titles were locked at stone-900
-   (near-black) and stayed invisible against the inverted stone-950
-   backdrop ("SELECT FINANCING", "PREQUALIFY", "PAY OVER TIME"
-   appeared as faint outlines). White brings them back to full
-   contrast on the dark surface, matching the editorial title above. */
-.kt-financing-panel--inverted .kt-financing-panel__step-title {
-  color: var(--kt-white);
 }
 
 .kt-financing-panel__step-desc {
   font-size: 0.6875rem;
   line-height: 1.5;
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0;
-}
-
-.kt-financing-panel--inverted .kt-financing-panel__step-desc {
-  color: var(--kt-stone-400); /* stone-400 — passes on stone-950 dark bg */
 }
 
 /* ── Highlights (2x2 icon grid, dark variant) ─────────── */
@@ -506,9 +389,9 @@
   color: var(--kt-stone-300);
 }
 
-.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-icon {
-  border-color: rgba(var(--kt-c-fg, 231 229 228), 0.15);
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
+.kt-financing-panel .kt-financing-panel__highlight-icon {
+  border-color: rgba(var(--kt-c-fg), 0.15);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-financing-panel__highlight-icon svg {
@@ -529,8 +412,8 @@
   line-height: 1.3;
 }
 
-.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-title {
-  color: rgb(var(--kt-c-fg, 28 25 23));
+.kt-financing-panel .kt-financing-panel__highlight-title {
+  color: rgb(var(--kt-c-fg));
 }
 
 .kt-financing-panel__highlight-desc {
@@ -546,12 +429,12 @@
   margin: 0;
 }
 
-.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__highlight-desc {
+.kt-financing-panel .kt-financing-panel__highlight-desc {
   /* Light scheme muted to 0.4 (matches the panel's intro __desc
      tier above). Per-card support copy reads as the calmest
      element on the card behind the green-check + uppercase
      title pair. */
-  color: rgba(var(--kt-c-fg, 122 122 122), 0.4);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* ── CTA button ────────────────────────────────────────── */
@@ -567,7 +450,6 @@
   padding: 1rem 2.5rem;
   background-color: var(--kt-white);
   color: var(--kt-stone-950);
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -588,12 +470,12 @@
   transform: translateY(-1px);
 }
 
-.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta {
-  background-color: rgb(var(--kt-c-action, 28 25 23));
-  color: rgb(var(--kt-c-action-text, 255 255 255));
+.kt-financing-panel .kt-financing-panel__cta {
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
 }
 
-.kt-financing-panel:not(.kt-financing-panel--inverted) .kt-financing-panel__cta:hover {
+.kt-financing-panel .kt-financing-panel__cta:hover {
   opacity: 0.88;
 }
 

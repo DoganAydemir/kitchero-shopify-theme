@@ -4,13 +4,6 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  /* R-wcag-contrast — Bumped stone-500 → stone-400 so the chevron +
-     select text clear WCAG 1.4.3 AA on the dark footer surface
-     (#0c0a09). stone-500 #78716c on that surface measures 4.20:1
-     (fails 4.5:1); stone-400 #a8a29e measures 7.5:1 (clears AA
-     comfortably). The footer is the primary surface this selector
-     ships on so we anchor to the dark-friendly tone here; light
-     overrides below (mobile-panel, etc.) re-set color as needed. */
   color: var(--kt-stone-400);
 }
 
@@ -19,7 +12,6 @@
   background: rgba(12, 10, 9, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
-  /* R-wcag-contrast — stone-400 instead of stone-500; see note above. */
   color: var(--kt-stone-400);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -73,11 +65,6 @@
   outline-offset: 2px;
 }
 
-/* Inside the mobile menu panel (kt-stone-900 background) the
- * default stone-500 text color sits dark-on-dark and the value
- * was unreadable — user reported the dropdown rendered as a solid
- * black block. Override to a brighter foreground (stone-50) and
- * ensure the chevron caret stays visible too. */
 .kt-header__mobile-panel .localization-selector {
   /* Brighter wrapper color so the ::after chevron lands on stone-50
      to match the select's bumped foreground in this context. */
