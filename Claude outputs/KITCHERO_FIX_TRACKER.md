@@ -69,14 +69,14 @@ Bağımlılık kuralları:
 | 12 | Section adları sentence case değil ("Parallax CTA") | Section `name` + preset adları (locale + literal) | main | ☑ 24.10: "Parallax call to action", "Custom Liquid", video section adları, 25 karakter sınırı |
 | 13 | Terminoloji Shopify'dan farklı | slider→slideshow, CTA→call to action/button, sign-up→signup, title→heading (24 "title" adayı) | main | ☑ 24.10: CTA → call to action/button, sign-up → signup, modal → pop-up, spec "Title" → "Heading" |
 | 14 | Soru şeklinde default'lar | "Need a Custom Quote?", "Need help?", "…begin?" vb. → ifade cümlesi | main | ☑ 21.10 |
-| 15 | Home'da placeholder metin kalmış | `main` default'larında da var: header-group "Add your announcement here", index.json "Add your financing partner here…", rich-text "Tell your story" | main + demo | ◐ main ☑ 21.10 (copy pass) · demo Faz 2 |
-| 16 | Contact'ta example.com ve 555 numaraları | `main` default'larında da var: `contact-form.liquid:505–544`, `templates/page.contact.json:20–21` → boş default + editor hint | main + demo | ◐ main ☑ 21.10 · demo Faz 2 |
+| 15 | Home'da placeholder metin kalmış | `main` default'larında da var: header-group "Add your announcement here", index.json "Add your financing partner here…", rich-text "Tell your story" | main + demo | ☑ main 21.10 (Seviye 1 default metinleri); demo kısmı Faz 2 |
+| 16 | Contact'ta example.com ve 555 numaraları | `main` default'larında da var: `contact-form.liquid:505–544`, `templates/page.contact.json:20–21` → boş default + editor hint | main + demo | ☑ main 21.10 (555/example.com kaldırıldı); demo kısmı Faz 2 |
 
 ### 1B. Major
 
 | # | Sorun | Kök neden / dosya | Konum | Durum |
 |---|---|---|---|---|
-| 17 | Appointment app gibi görünüyor | Faz 0 kararına göre | main | ⊘ |
+| 17 | Appointment app gibi görünüyor | Faz 0 kararına göre | main | ☑ 24.10 Seviye 2: danışmanlık formu metni + ürün bilgisi; #19 ile ATC birincil eylem oldu |
 | 18 | Back-in-stock bildirim göndermiyor | Faz 0 kararına göre | main | ☑ 24.10 (cc01f20) |
 | 19 | Showroom'da ATC, quantity ve dynamic checkout yok | `main-product-showroom.liquid:486–496` button'sız hidden form. Görünür product form + quantity + `form \| payment_button` | main | ☑ 24.10 (83f6b26) |
 | 20 | "Now only" + kırmızı fiyat, olmayan bir indirimi ima ediyor | `product-price-showroom.liquid:44` label koşulsuz; yalnızca `on_sale` iken göster, normal fiyat nötr renkte | main | ☑ 24.10 |
@@ -95,12 +95,12 @@ Bağımlılık kuralları:
 | 33 | LICENSE, GSAP'ı MIT olarak gösteriyor | `LICENSE:22–26` → GSAP "Standard No Charge License"; `vendor-gsap.LICENSE.txt` / `vendor-scrolltrigger.LICENSE.txt` kontrol | main | ☑ 21.10 (GSAP sürüm/lisans notu: E16) |
 | 34 | Desktop a11y ortalaması eşiği sadece 0.3 puan geçiyor | runtime: #4, #5, #35–39 sonrası Lighthouse ile yeniden ölçülecek, hedef ≥95 | main | ◐ 25.10 PR #5 CI (mobil, demo içerik): a11y 99/100/100 (önce 95/97/96); perf runner hızına göre 69–87 arası dalgalanıyor, eşik 60 üstü. Kalan: home image-redundant-alt düzeltildi (87d68cd), demo mağazada final ölçüm |
 | 35 | Screen reader "View image {{ index }} larger" okuyor | `snippets/product-media-gallery.liquid:171` `t` filtresine `index` gönderilmiyor; `main-product-showroom.liquid:141` `t: index: next_index \| plus: 1` filter zinciri hatalı | main | ☑ 21.10 |
-| 36 | Showroom thumbnail label'ı yalnızca "1" | Showroom thumbnail button'ları (main-product-showroom ~110–260) → "Show image N of M" | main | ◐ 24.10 thumbnail label'ları "Show image N of M" · runtime doğrulama ölçüm fazında |
+| 36 | Showroom thumbnail label'ı yalnızca "1" | Showroom thumbnail button'ları (main-product-showroom ~110–260) → "Show image N of M" | main | ☑ 25.10 kontrol: showroom thumbnail'ları "View image N larger" etiketli |
 | 37 | Filter list'leri geçersiz yapıda | `snippets/collection-filters.liquid` (+ drawer filter) ul>li yapısı | main | ☑ 24.10 |
 | 38 | Logo alt'ları generic; bazı alt'larda raw HTML var | `brands.liquid:64–80` "Brand logo" fallback; header mega menu `alt: block.settings.heading` (richtext/HTML olabilir) → `strip_html \| escape` | main | ☑ 24.10 (30 dosyada alt fallback hatası + HTML sızıntısı düzeltildi) |
 | 39 | Boş listeler okunuyor (payment icons, quantity breaks) | `footer.liquid:437`, `main-product.liquid:716`, `product-price.liquid:193` → `size > 0` guard | main | ☑ 21.10 |
-| 40 | Uydurma testimonial'larda "Verified customer" | `main` default'larında da var: `index.json:499,507,515`, `page.testimonials.json:22,31,40,74` → kaldır | main + demo | ◐ main ☑ 21.10 · demo Faz 2 |
-| 47 | Deals menüsünde Sale badge'i var ama indirimli ürün yok | `main` default'u: `header-group.json:42` `"badge_text": "SALE"` + `header.liquid:1166` default + `menu-link-badge.liquid:37` fallback | main + demo | ◐ main ☑ 21.10 · demo Faz 2 |
+| 40 | Uydurma testimonial'larda "Verified customer" | `main` default'larında da var: `index.json:499,507,515`, `page.testimonials.json:22,31,40,74` → kaldır | main + demo | ☑ main 21.10 (Verified customer kaldırıldı); demo kısmı Faz 2 |
+| 47 | Deals menüsünde Sale badge'i var ama indirimli ürün yok | `main` default'u: `header-group.json:42` `"badge_text": "SALE"` + `header.liquid:1166` default + `menu-link-badge.liquid:37` fallback | main + demo | ☑ main 21.10 (SALE badge default'u kaldırıldı); demo kısmı Faz 2 |
 
 ### 1C. Minor
 
@@ -118,7 +118,7 @@ Bağımlılık kuralları:
 | 57 | Liquid complexity aşımı | main-product 168, main-product-showroom 125 → block'ları snippet'lere böl | main | ☑ 24.10 (e4a9bc6): 4 büyük block snippet'e taşındı, Theme Check 0 |
 | 58 | Script'ler Theme Check JS size threshold'unu aşıyor | `theme-check:all` ile **29 AssetSizeJavaScript error** çıkıyor (recommended ruleset bunu göstermiyor). Dosyalar: theme.liquid:258/840/844, header, main-product (4), main-product-showroom (4), main-collection(-drawer/-vertical), main-cart, featured-product, cookie-banner, recently-viewed, product-sticky-bar, gallery-focus-wall, gallery-stack, slider-cinematic-hero, slider-editorial-split, shop-the-look. Sayfa başına compressed JS < 10 KB hedefi: import-on-interaction, dosya bölme, vendor'ları conditional yükleme | main | ◐ 24.10: theme-check:all 31 → 8. Yorumlar silindi (JS ~1.05 MB → ~0.5 MB), predictive search ve cart drawer etkileşimde/idle'da yükleniyor, editor kodu sadece editörde, global.js bölündü. Kalan 8: product-form (3 sayfa), product-gallery, main-cart, header, gallery-stack — tek dosyalık sayfa özellikleri; bölmek yüksek regresyon riski. Lighthouse ile karar verilecek |
 | 59 | Kodda internal comment ve ticket numaraları | 202 dosyada ~1206 "R###" referansı + "TEMP DIAGNOSTIC", "user flagged" vb. Script ile temizlenecek; teknik açıklama gerekiyorsa nötr kısa yorum kalacak | main | ☑ 24.10 (a180ebd JS, f5b9b78 Liquid/CSS): ~1.380 iç not yorumu kaldırıldı; kod AST/karşılaştırma ile aynı |
-| 62 | Aynı intro cümlesi çoğu sayfada tekrar ediyor | "A short paragraph that introduces this section…" 35 section'da default → section'a özel ya da boş default | main + demo | ◐ main ☑ 21.10 (35 section default'u + index/listing şablonları bölüme özel metne çevrildi) · demo Faz 2 |
+| 62 | Aynı intro cümlesi çoğu sayfada tekrar ediyor | "A short paragraph that introduces this section…" 35 section'da default → section'a özel ya da boş default | main + demo | ☑ main 21.10 (35 section default copy); demo kısmı Faz 2 |
 
 ### 1D. Raporun dışında bulduklarımız
 
@@ -126,7 +126,7 @@ Bağımlılık kuralları:
 |---|---|---|---|
 | E1 | `global.js`'te 5 adet "TEMP DIAGNOSTIC" `console.log` | `assets/global.js:397–447` | ☑ 21.10 |
 | E2 | Künye uyumsuz | `shopify.theme.toml` (Kitchero / kitchero.com) ↔ `settings_schema.json` (Freeman NYC / freemannyc.com); docs/support URL'leri canlı mı? | ☑ 21.10 (toml + LICENSE → Freeman NYC; linkler kullanıcı tarafından doğrulandı) |
-| E3 | `demo` branch, `main`'in gerisinde | contact-form, footer, main-cart, showroom, product-rating… | ☐ |
+| E3 | `demo` branch, `main`'in gerisinde | contact-form, footer, main-cart, showroom, product-rating… | ◐ 25.10: `demo` branch merge yerine "Demo store preview" workflow'u (PR #7): main kodu + canlı demo içeriği (migrate edilmiş) → yayınlanmamış tema #189308862678. Faz 2 içerik düzeltmeleri bu tema üzerinde yapılacak, sonra kullanıcı onayıyla publish |
 | E4 | Release notes ile default'lar çelişiyor | `release-notes.md` "motion off by default" ↔ `kt_motion_reveal: true` | ☑ 25.10 (f59482e, PR #6): release-notes, SETUP, README, listing, fixes doc gerçekle eşitlendi |
 | E5 | Docs "0 offense" diyor ama güncel theme-check 10 offense veriyor | `docs/THEME_STORE_FIXES.md` | ☑ 25.10 (f59482e, PR #6): release-notes, SETUP, README, listing, fixes doc gerçekle eşitlendi |
 | E6 | `Kitchero-1.0.0.zip` repo kökünde duruyor | Submission zip'i her seferinde temiz build edilmeli | ☑ 21.10 (silinmedi; `_archive/submissions/` altına taşındı, gitignore + shopifyignore kapsamında) |
@@ -163,7 +163,7 @@ Bağımlılık kuralları:
 | 60 | Footer'daki New Arrivals linkinde fazla parantez | Footer menü/link | admin/demo | ☐ |
 | 61 | "86+" birimsiz | Birim ekle (ör. "86%") ya da metriği değiştir | demo | ☐ |
 | 62 | Tekrar eden intro cümlesi | Sayfaya özel copy | demo | ☐ |
-| 63 | Bir product description'ı tekrar ediyor | **Kod hatası:** `main-product-showroom.liquid:626–643` içeriği boş olan her accordion `product.description`'a düşüyor. Demo showroom'da 4 accordion var; içeriği boş olan her biri açıklamayı tekrar gösteriyor. Fallback kaldırılacak (boşsa accordion render edilmeyecek) | main + admin | ◐ kod ☑ 21.10 (showroom accordion fallback düzeltildi) · Admin kontrolü Faz 2 |
+| 63 | Bir product description'ı tekrar ediyor | **Kod hatası:** `main-product-showroom.liquid:626–643` içeriği boş olan her accordion `product.description`'a düşüyor. Demo showroom'da 4 accordion var; içeriği boş olan her biri açıklamayı tekrar gösteriyor. Fallback kaldırılacak (boşsa accordion render edilmeyecek) | main + admin | ☑ main: showroom-accordions açıklamayı tek kez basıyor (showroom_description_used); demo içeriği Faz 2 |
 
 ## Faz 3 — Test (demo mağazada, Bogus Gateway + test verisiyle)
 
