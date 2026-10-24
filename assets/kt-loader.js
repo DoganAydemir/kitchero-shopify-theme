@@ -1,19 +1,3 @@
-/**
- * Kitchero First-Paint Loader — "The Opening"
- *
- * Drives the counter (00 → 100) and the bottom progress bar. Every
- * other element animates via pure CSS keyframes so they stay in sync
- * with the browser's compositor even on slow devices.
- *
- * The counter is time-based theater, not a real byte tracker — it
- * follows an ease-out curve over ~1.8s. It caps at 95% until
- * `window.load` fires so it never finishes before the real page.
- *
- * Total visible time on a cold load: ~2.2s reveal + 0.9s exit = ~3.1s.
- * On a warm/cached load the counter runs the same 1.8s for consistency
- * (awwwards loaders are narrative, not honest).
- */
-
 (function () {
   'use strict';
 
@@ -46,15 +30,11 @@
   function runCounter(loader) {
     var numEl = loader.querySelector('.kt-loader__counter-num');
     var barEl = loader.querySelector('.kt-loader__bar-fill');
-    /* Guard matchMedia — sandboxed iframes and very old browsers may
-       not expose it. Falls back to the full animation in those cases,
-       which is the safe default (no a11y harm; just no reduced-motion
-       opt-out). Matches the pattern used in the rest of the codebase. */
+
     var reduced = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduced) {
-      /* Skip the theatrical counter — just snap to 100, brief hold, exit. */
       if (numEl) numEl.textContent = '100';
       if (barEl) barEl.style.width = '100%';
       setTimeout(function () { exit(loader); }, 400);
@@ -72,8 +52,7 @@
     function tick(now) {
       var elapsed = now - start;
       var progress = Math.min(elapsed / duration, 1);
-      /* easeOutQuart — fast start, very gentle finish, more dramatic
-         than cubic. Classic reveal-style curve. */
+
       var eased = 1 - Math.pow(1 - progress, 4);
       var target = docReady ? 100 : 95;
       var pct = Math.floor(eased * target);
@@ -93,9 +72,7 @@
 
   function exit(loader) {
     loader.setAttribute('data-state', 'exiting');
-    /* Release scroll lock at the start of the exit so any on-scroll
-       reveal animations in the page below start in sync with the
-       curtain opening, not after it fully closes. */
+
     document.documentElement.classList.remove('kt-loader-active');
     setTimeout(function () {
       loader.setAttribute('data-state', 'hidden');

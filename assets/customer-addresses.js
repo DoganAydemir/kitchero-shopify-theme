@@ -1,6 +1,3 @@
-/* Customer addresses — toggle, delete confirm, and province binding.
-   Vanilla JS. Re-inits on shopify:section:load for editor parity. */
-
 (function () {
   'use strict';
 
@@ -8,7 +5,6 @@
     if (!section || section.dataset.addressesInit === 'true') return;
     section.dataset.addressesInit = 'true';
 
-    // Province selector binding (uses Shopify's global CountryProvinceSelector).
     var selects = section.querySelectorAll('select[id^="AddressCountry"]');
     selects.forEach(function (countrySelect) {
       var match = countrySelect.id.match(/AddressCountry(.*)$/);
@@ -28,19 +24,12 @@
         provinceSelect.innerHTML = '';
         if (!parsed.length) {
           if (provinceField) provinceField.hidden = true;
-          // PROVINCE-DUP-NAME-1: keep the select `disabled` when empty
-          // so the browser excludes it from form submission (matches
-          // the initial server-rendered state). Without disabling, an
-          // empty `<select name="address[province]">` would submit "",
-          // overwriting any value the customer typed elsewhere.
+
           provinceSelect.disabled = true;
           return;
         }
         if (provinceField) provinceField.hidden = false;
-        // Enable submission now that we have real options to choose
-        // from. The server-rendered markup ships `disabled` so JS-off
-        // browsers don't submit an empty province alongside the
-        // <noscript> input fallback (same name attribute).
+
         provinceSelect.disabled = false;
         var defaultValue = provinceSelect.getAttribute('data-default') || '';
         parsed.forEach(function (pair) {
@@ -52,7 +41,6 @@
         });
       }
 
-      // Select default country if any
       var defaultCountry = countrySelect.getAttribute('data-default');
       if (defaultCountry) {
         for (var i = 0; i < countrySelect.options.length; i++) {
@@ -66,7 +54,6 @@
       countrySelect.addEventListener('change', updateProvinces);
     });
 
-    // Toggle: new form
     var newBtn = section.querySelector('[data-addresses-toggle-new]');
     var newForm = section.querySelector('[data-new-form]');
     if (newBtn && newForm) {
@@ -75,10 +62,6 @@
         newForm.hidden = open;
         newBtn.setAttribute('aria-expanded', String(!open));
         if (!open) {
-          /* Guard against forms with no focusable inputs (a merchant
-             could ship an address-edit form whose template is still
-             mounting). Without the null-check, .focus() on null throws
-             TypeError and the whole click handler dies. */
           var firstField = newForm.querySelector('input, select, textarea');
           if (firstField) firstField.focus();
         }
@@ -93,7 +76,6 @@
       }
     }
 
-    // Toggle: edit forms
     section.querySelectorAll('[data-addresses-toggle-edit]').forEach(function (btn) {
       var id = btn.getAttribute('data-addresses-toggle-edit');
       var form = section.querySelector('[data-edit-form="' + id + '"]');
@@ -117,15 +99,6 @@
       }
     });
 
-    // Delete confirm — intercept the NATIVE form submit.
-    // The button lives inside a <form action="{{ address.url }}"
-    // method="post"><input _method=delete>…</form> wrapper so the
-    // submission works without JS (hit Enter on the button or click
-    // it — form submits, server deletes, page refreshes). JS
-    // enhancement here just adds a confirm() prompt. Previously we
-    // synthesized a fresh form in JS and submitted it; that
-    // duplicated work and crucially LEFT users without JS unable
-    // to delete at all.
     section.querySelectorAll('[data-addresses-delete]').forEach(function (btn) {
       var form = btn.closest('form');
       if (!form) return;
@@ -134,8 +107,6 @@
         if (msg && !confirm(msg)) {
           e.preventDefault();
         }
-        // If confirmed, let the native form POST proceed — Shopify
-        // sees _method=delete and routes to the DELETE handler.
       });
     });
   }

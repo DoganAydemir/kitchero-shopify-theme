@@ -1,19 +1,3 @@
-/* ==========================================================================
-   Announcement Banner — auto-rotate cross-fade
-   --------------------------------------------------------------------------
-   When the section has 2+ announcement blocks AND auto-rotate is enabled
-   AND the visitor has not requested reduced motion, this custom element
-   cycles through the slides on the configured interval.
-
-   Pause behaviour: rotation pauses while the user hovers the bar OR while
-   focus is inside the bar (keyboard users mid-tab don't lose their target),
-   and resumes when both conditions clear.
-
-   Theme editor: re-initialises on shopify:section:load so merchants see
-   live changes; brings the selected slide to the front on shopify:block:select
-   so the merchant can edit the block they're looking at.
-   ========================================================================== */
-
 (function () {
   'use strict';
 
@@ -47,15 +31,11 @@
       this.rotateSpeed = parseInt(this.getAttribute('data-rotate-speed'), 10) || 5000;
       this.playToggle = this.querySelector('[data-announcement-play-toggle]');
 
-      // Need at least 2 slides AND opted-in rotation AND no reduced-motion
-      // request before we start spinning the timer.
       if (this.shouldRotate && this.slides.length > 1 && !prefersReducedMotion()) {
         this.bindEvents();
         this.start();
       }
 
-      // Pause/play toggle — WCAG 2.2.2. User control persists across
-      // hover/focus/visibility resumes via userPaused flag.
       if (this.playToggle) {
         var self = this;
         this.playToggle.addEventListener('click', function () {
@@ -93,9 +73,7 @@
 
     start() {
       this.stop();
-      /* R87 — pause rotation in theme editor so merchant can edit
-         a specific message block without it cycling out from under
-         them. block:select drives navigation in editor instead. */
+
       if (window.Shopify && window.Shopify.designMode) return;
       var self = this;
       this.timer = window.setInterval(function () {
@@ -115,24 +93,17 @@
     }
 
     resume() {
-      // Don't auto-resume if user explicitly paused via the toggle.
       if (this.userPaused) return;
       this.isPaused = false;
     }
 
     handleFocusOut(event) {
-      // focusout fires before focus lands on the relatedTarget. If
-      // focus is moving to another descendant we keep the bar paused;
-      // only resume when focus has truly left the banner.
       if (!this.contains(event.relatedTarget)) {
         this.resume();
       }
     }
 
     handleVisibilityChange() {
-      // Browsers throttle setInterval in background tabs, but Safari in
-      // particular can let it pile up; explicitly stop/start when the
-      // tab visibility flips, so the bar resumes cleanly when refocused.
       if (document.hidden) {
         this.stop();
       } else if (this.shouldRotate && this.slides.length > 1) {
@@ -157,10 +128,6 @@
       target.classList.add('kt-announcement-banner__slide--active');
       target.removeAttribute('aria-hidden');
 
-      /* Sync tabindex on inner anchors so inactive slides' links can't
-         be reached by keyboard Tab while their slide is aria-hidden.
-         WCAG 4.1.2 — focusable elements inside aria-hidden subtrees
-         confuse assistive tech. */
       var currentLink = current.querySelector('a');
       var targetLink = target.querySelector('a');
       if (currentLink) currentLink.setAttribute('tabindex', '-1');
@@ -172,9 +139,6 @@
 
   window.customElements.define('announcement-banner', AnnouncementBanner);
 
-  // Theme editor — bring the selected block to front so merchants can
-  // edit the slide they're looking at, even if it's not the active one
-  // mid-rotation.
   document.addEventListener('shopify:block:select', function (event) {
     var bar = event.target.closest('announcement-banner');
     if (!bar) return;

@@ -1,13 +1,3 @@
-/**
- * Background-video hero — pause/play toggle + reduced-motion guard.
- *
- * WCAG 2.2.2 Pause, Stop, Hide (Level A) requires any auto-playing
- * content longer than 5s to offer a user-controllable pause. The
- * section template ships the button; this script wires it up and
- * also auto-pauses for visitors with prefers-reduced-motion set so
- * their motion-sensitivity setting carries through even if no one
- * tells them the button is there.
- */
 (function () {
   'use strict';
 
@@ -37,9 +27,8 @@
     var prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* Honor user motion preference — pause immediately. */
     if (prefersReducedMotion) {
-      try { video.pause(); } catch (_) { /* no-op */ }
+      try { video.pause(); } catch (_) {  }
       setState(btn, true);
     } else {
       setState(btn, video.paused);

@@ -1,17 +1,10 @@
-/**
- * Shop Color — Category accordion + finish image switching
- * Works on both desktop (hover) and mobile (click/tap)
- */
 (function () {
   'use strict';
 
   function initShopColor(container) {
     var section = container.querySelector('[data-section-type="shop-color"]');
     if (!section) return;
-    /* Guard against double-binding when shopify:section:load fires on a
-       section whose listeners were already wired. All listeners are on
-       scoped elements inside the section, so they GC with the DOM when
-       the section is removed — no explicit unload handler needed. */
+
     if (section.dataset.shopColorBound === 'true') return;
     section.dataset.shopColorBound = 'true';
 
@@ -42,30 +35,24 @@
       var color2 = btn.dataset.finishColor2 || '';
       var link = btn.dataset.finishLink || '';
 
-      /* Switch desktop images */
       hideAllImages();
       var targetImg = section.querySelector('[data-finish-image="' + imageId + '"]');
       if (targetImg) targetImg.style.opacity = '1';
 
-      /* Update desktop overlay info */
       if (codeEl) codeEl.textContent = code;
       if (labelEl) labelEl.textContent = name + (cat ? ' \u2014 ' + cat : '');
 
-      /* Update palette */
       if (paletteTop) paletteTop.style.backgroundColor = color1;
       if (paletteBottom) paletteBottom.style.backgroundColor = color2;
 
-      /* Update mobile inline image + info */
       var parentCat = btn.closest('[data-category-id]');
       if (parentCat) {
-        /* Switch mobile image slide */
         parentCat.querySelectorAll('[data-mobile-finish-image]').forEach(function (slide) {
           slide.classList.remove('kt-shop-color__mobile-image-slide--active');
         });
         var mobileSlide = parentCat.querySelector('[data-mobile-finish-image="' + imageId + '"]');
         if (mobileSlide) mobileSlide.classList.add('kt-shop-color__mobile-image-slide--active');
 
-        /* Update code, name, swatch */
         var mobileCode = parentCat.querySelector('.kt-shop-color__mobile-image-code');
         var mobileName = parentCat.querySelector('.kt-shop-color__mobile-image-name');
         var mobileSwatch = parentCat.querySelectorAll('.kt-shop-color__mobile-swatch > div');
@@ -77,10 +64,6 @@
         }
       }
 
-      /* Point the preview cards (desktop overlay + this category's mobile
-         image overlay) at the active finish's product link. An empty
-         link leaves the card non-clickable rather than navigating to
-         nowhere. */
       var deskLink = section.querySelector('[data-finish-link-target]');
       var mobileLink = parentCat ? parentCat.querySelector('[data-mobile-finish-link-target]') : null;
       [deskLink, mobileLink].forEach(function (a) {
@@ -95,7 +78,6 @@
         }
       });
 
-      /* Active state on button */
       clearAllFinishActive();
       btn.classList.add('kt-shop-color__finish-btn--active');
     }
@@ -103,11 +85,7 @@
     function activateCategory(cat) {
       categories.forEach(function (c) {
         c.classList.remove('kt-shop-color__category--active');
-        /* R140 (R8 audit) — aria-expanded now lives on the inner
-           `<button data-category-trigger>` (native trigger inside
-           the h3 heading), not the wrapper div. Wrapper no longer
-           has role="button" — that pattern nested interactive
-           controls and violated WCAG 4.1.2. */
+
         var trigger = c.querySelector('[data-category-trigger]');
         if (trigger) trigger.setAttribute('aria-expanded', 'false');
       });
@@ -119,22 +97,12 @@
       if (firstBtn) showFinish(firstBtn);
     }
 
-    /* Set initial state */
     var firstCat = section.querySelector('.kt-shop-color__category--active');
     if (firstCat) {
       var firstBtn = firstCat.querySelector('[data-finish-select]');
       if (firstBtn) showFinish(firstBtn);
     }
 
-    /* Category — hover on desktop, click on the trigger button.
-       R140 (R8 audit) — keydown handler removed because the
-       accordion trigger is now a native `<button>` (inside the
-       h3 heading wrapper), so Enter/Space activation is provided
-       by the browser. mouseenter stays on the wrapper so hovering
-       anywhere over the category row activates it on desktop.
-       Click is bound to the trigger button — bubbling reaches the
-       wrapper too, but binding directly avoids the wrapper-click
-       indirection. */
     categories.forEach(function (cat) {
       cat.addEventListener('mouseenter', function () { activateCategory(cat); });
       var trigger = cat.querySelector('[data-category-trigger]');
@@ -146,7 +114,6 @@
       }
     });
 
-    /* Finish buttons — hover on desktop, click on both */
     allFinishBtns.forEach(function (btn) {
       btn.addEventListener('mouseenter', function (e) {
         e.stopPropagation();
@@ -167,23 +134,9 @@
     initShopColor(e.target);
   });
 
-  /* Theme editor lifecycle: section removal detaches the host node, so
-     the per-element `mouseenter` / `click` listeners attached to
-     categories and finish buttons inside it get GC'd with the tree.
-     Declaring the symmetric unload handler so theme-check-style
-     lifecycle audits don't flag REJ-JS-001. */
   document.addEventListener('shopify:section:unload', function () {
-    /* No-op: per-element listeners are GC'd with the removed DOM. */
   });
 
-  /* R-editor-lifecycle — Theme editor block:select handler.
-     `shop-color` renders `category` blocks as an accordion where
-     non-active rows collapse their content to grid-rows: 0fr +
-     opacity 0. Without this handler, picking a non-active category
-     block in the editor sidebar leaves its panel content
-     (finish_X_name / finish_X_code settings, mobile swatches)
-     invisible — merchant cannot see what they're editing.
-     Activate the matching category on `:block:select`. */
   document.addEventListener('shopify:block:select', function (event) {
     var block = event.target;
     if (!block) return;

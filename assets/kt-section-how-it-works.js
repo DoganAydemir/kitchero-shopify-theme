@@ -1,20 +1,6 @@
-/**
- * How It Works — GSAP scale-down on previous cards as next card scrolls in
- * Matches HowItWorks.tsx.
- */
 (function () {
   'use strict';
 
-
-  /* Skip scroll-bound animations entirely inside Shopify's theme
-     editor (Shopify.designMode is true only in the editor iframe).
-     Editor lifecycle quirks — section adds, removes, re-renders —
-     fire shopify:section:load / unload in rapid sequence and can
-     trigger ScrollTrigger.refresh() against half-torn-down DOM,
-     which has surfaced as "page won't scroll to the footer after
-     I drop in this section" reports across multiple sections that
-     don't even use pinning. The live storefront still gets every
-     animation because designMode is undefined there. */
   if (window.Shopify && window.Shopify.designMode) return;
   function initHowItWorks(container) {
     var section = container.querySelector('[data-section-type="how-it-works"]');
@@ -29,7 +15,7 @@
       var cards = gsap.utils.toArray('.kt-how-it-works__card', section);
 
       cards.forEach(function (card, i) {
-        if (i === cards.length - 1) return; /* Last card doesn't scale */
+        if (i === cards.length - 1) return;
 
         ScrollTrigger.create({
           trigger: cards[i + 1],
@@ -57,11 +43,7 @@
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="how-it-works"]');
     if (!s) return;
-    /* Theme editor fires shopify:section:load on every settings change.
-       If we re-initialise without first reverting the previous gsap.context,
-       the prior ScrollTriggers leak — they keep firing on scroll, accumulate
-       in ScrollTrigger.getAll(), and gradually freeze the editor. Mirror
-       the destroy-then-recreate pattern used in kt-section-ecosystem.js. */
+
     var sectionId = s.dataset.sectionId;
     if (instances[sectionId]) {
       instances[sectionId].revert();
@@ -76,17 +58,8 @@
     }
   });
 
-  /* Theme editor: when merchant selects a step block in the sidebar,
-     scroll the corresponding card into view so it's visible while
-     they edit settings. Steps are rendered as `.kt-how-it-works__card`
-     with `{{ block.shopify_attributes }}`, so block:select fires on
-     the card element directly. */
   document.addEventListener('shopify:block:select', function (event) {
     var card = event.target;
     if (!card || !card.classList || !card.classList.contains('kt-how-it-works__card')) return;
-    /* Scroll-into-view handled centrally by global.js's block:select
-       handler (50%-visibility-guarded). A local unconditional scroll
-       re-jolted the page on every re-select (section re-render after
-       each setting tweak). */
   });
 })();

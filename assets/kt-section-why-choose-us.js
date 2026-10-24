@@ -1,20 +1,6 @@
-/**
- * Why Choose Us — GSAP parallax on hero image
- * Matches WhyChooseUs.tsx.
- */
 (function () {
   'use strict';
 
-
-  /* Skip scroll-bound animations entirely inside Shopify's theme
-     editor (Shopify.designMode is true only in the editor iframe).
-     Editor lifecycle quirks — section adds, removes, re-renders —
-     fire shopify:section:load / unload in rapid sequence and can
-     trigger ScrollTrigger.refresh() against half-torn-down DOM,
-     which has surfaced as "page won't scroll to the footer after
-     I drop in this section" reports across multiple sections that
-     don't even use pinning. The live storefront still gets every
-     animation because designMode is undefined there. */
   if (window.Shopify && window.Shopify.designMode) return;
   function init(container) {
     var section = container.querySelector('[data-section-type="why-choose-us"]');
@@ -26,13 +12,6 @@
     gsap.registerPlugin(ScrollTrigger);
 
     var ctx = gsap.context(function () {
-      /* R201 — selector also matches the placeholder svg, so the
-         parallax fires both for merchants who've uploaded a real
-         hero image AND for the editor-demo state where the
-         placeholder_svg renders. The original selector was
-         `.kt-why-choose-us__hero-image` which never matched anything
-         the Liquid template emits (it writes `.kt-why-choose-us__image`),
-         so parallax was silently dead since day one. */
       var image = section.querySelector('.kt-why-choose-us__image, .kt-why-choose-us__image-wrap .placeholder-svg');
       if (!image) return;
 
@@ -62,13 +41,7 @@
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="why-choose-us"]');
     if (!s) return;
-    /* Theme editor fires shopify:section:load on every settings change
-       without a paired :unload first. The parallax `scrub: true`
-       ScrollTriggers in this section are especially leak-prone — each
-       unrevert keeps firing on every scroll event. Mirror the
-       destroy-then-recreate pattern from R74
-       kt-section-how-it-works.js: revert previous context BEFORE
-       overwriting the map entry. */
+
     var sectionId = s.dataset.sectionId;
     if (instances[sectionId]) {
       instances[sectionId].revert();
@@ -80,10 +53,7 @@
     var id = e.detail.sectionId;
     if (instances[id]) {
       instances[id].revert();
-      // Also drop the map entry so the next :load doesn't find a
-      // stale GSAP context object (revert() internally kills the
-      // timeline but leaves the wrapper; keeping it around would
-      // grow the instances map for every editor re-render).
+
       delete instances[id];
     }
   });

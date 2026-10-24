@@ -1,23 +1,3 @@
-/**
- * Gallery Marquee — Style 01: The Marquee Wall
- *
- * - Duplicates each [data-marquee-track] contents once at init so the
- *   CSS animation translating the track by -50% lands exactly on the
- *   start of the duplicated set (seamless infinite loop).
- * - Two rows per section: one scrolls left (default direction), the
- *   other scrolls right (CSS `animation-direction: reverse` on
- *   `.kt-gallery-marquee__track--reverse`).
- * - Pause-on-hover for pointer users is handled in pure CSS via
- *   `.kt-gallery-marquee__row:hover`. For keyboard focus, we toggle a
- *   section-level `.kt-gallery-marquee--paused` class on focusin/out so
- *   tabbing through tiles pauses the whole gallery.
- * - Re-inits on shopify:section:load (theme editor) and clears init
- *   flags on shopify:section:unload.
- *
- * Wrapped in an idempotent load-guard so double-inclusion (Section
- * Rendering API, editor rehydration) does not cause double-duplication
- * or double-bound listeners.
- */
 if (!window.__kitcheroGalleryMarqueeLoaded) {
   window.__kitcheroGalleryMarqueeLoaded = true;
 
@@ -41,8 +21,7 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       children.forEach(function (child) {
         var clone = child.cloneNode(true);
         clone.setAttribute('aria-hidden', 'true');
-        /* Make cloned interactive tiles unreachable via keyboard so
-           focus order doesn't include the duplicates. */
+
         if (clone.tagName === 'A') {
           clone.setAttribute('tabindex', '-1');
         }
@@ -84,14 +63,12 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       Array.prototype.forEach.call(sections, initSection);
     }
 
-    /* Initial boot */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () { initAll(); });
     } else {
       initAll();
     }
 
-    /* Theme editor: section load */
     document.addEventListener('shopify:section:load', function (event) {
       var sectionId = event.detail && event.detail.sectionId;
       if (!sectionId) return;
@@ -101,8 +78,6 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       initSection(section);
     });
 
-    /* Theme editor: section unload — clear init flags so a fresh mount
-       re-inits cleanly if the same DOM is re-inserted. */
     document.addEventListener('shopify:section:unload', function (event) {
       var sectionId = event.detail && event.detail.sectionId;
       if (!sectionId) return;
@@ -117,20 +92,11 @@ if (!window.__kitcheroGalleryMarqueeLoaded) {
       delete section.dataset.kitcheroGalleryMarqueePauseBound;
     });
 
-    /* Theme editor: when merchant selects an image block, pause the
-       marquee animation (so the tile stops sliding) and scroll the
-       row into view so the chosen tile is reachable. The pause class
-       is the same one already used for keyboard-focus pause and is
-       cleared on block:deselect. */
     document.addEventListener('shopify:block:select', function (event) {
       var item = event.target;
       if (!item || !item.classList || !item.classList.contains('kt-gallery-marquee__item')) return;
       var section = item.closest('[data-section-type="gallery-marquee"]');
       if (section) section.classList.add(PAUSE_CLASS);
-      /* Scroll-into-view handled centrally by global.js (guarded);
-         pausing the marquee is the local side-effect we keep. The local
-         unconditional scroll was removed — it re-jolted the page on
-         every re-select (section re-render after a setting tweak). */
     });
 
     document.addEventListener('shopify:block:deselect', function (event) {

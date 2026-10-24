@@ -1,38 +1,3 @@
-/* Back-in-Stock Modal — open/close + focus trap + variant sync.
- *
- * Wired against the markup in snippets/back-in-stock.liquid.
- * Each modal carries its own data-back-in-stock-modal so multiple
- * product cards / featured-product blocks on the same page each
- * get an independent modal without ID collisions.
- *
- * Lifecycle:
- * 1. Click on [data-back-in-stock-trigger] -> open()
- *    - Set aria-hidden="false"
- *    - Remove inert
- *    - Lock body scroll via Kitchero.scrollLock (falls back to
- *      direct overflow if scrollLock isn't loaded)
- *    - Move focus to the first focusable element inside the modal
- *    - Cache the trigger so close() can restore focus correctly
- * 2. Close paths:
- *    - Click [data-back-in-stock-close] (close button or backdrop)
- *    - Press Escape
- *    - Successful form post (auto-close on success state load,
- *      gives the customer a moment to read the success message)
- * 3. Variant change sync:
- *    - product-form.js fires no custom event today, so we listen
- *      to the native `change` event on the variant picker's option
- *      radios and rebuild the hidden contact message + visible
- *      variant title with the new selection. Without this, the
- *      message field would freeze on the variant that was selected
- *      when the page loaded — the merchant gets the wrong
- *      restock-request context.
- *
- * Posted-success detection: Shopify's contact form redirects to
- * `return_to?contact_posted=true` after a successful POST. On page
- * load we check for that param and auto-open the matching modal so
- * the success alert is visible (otherwise the customer would land
- * back on the PDP with no indication their email landed).
- */
 (function () {
   'use strict';
 
@@ -47,9 +12,6 @@
       '[tabindex]:not([tabindex="-1"])',
     ].join(',');
     return Array.prototype.slice.call(root.querySelectorAll(selectors)).filter(function (el) {
-      /* Filter out elements with offsetParent === null (display:none /
-         inside hidden parent) so focus doesn't jump to an invisible
-         control. */
       return el.offsetParent !== null || el === document.activeElement;
     });
   }
@@ -61,36 +23,9 @@
     var modalId = modal.id;
     if (!modalId) return;
 
-    /* Capture the product container BEFORE moving the modal to
-       <body>. After the move, modal.closest() won't reach the
-       product section anymore — the variant-change sync would
-       silently break. */
     var productContainer = modal.closest('[data-product-info]') || modal.closest('section');
 
-    /* Portal pattern — move the modal to <body> on init so any
-       ancestor `transform`, `filter`, `perspective`, or `will-
-       change` doesn't create a containing block for our
-       `position: fixed`. The PDP product card sections animate
-       via GSAP/ScrollTrigger and set inline `transform` on
-       wrappers, which silently turns `position: fixed` into
-       `position: absolute` relative to the transformed ancestor
-       — modal anchored to the product card instead of the
-       viewport, page content visible around it.
-       Moving the modal to `<body>` puts it OUT of every
-       transformed subtree so position: fixed works as expected.
-
-       Section reload handling: when Shopify reloads a section
-       (theme editor / Section Rendering API), the OLD modal —
-       now living at body, detached from its source section —
-       stays orphaned while a NEW copy renders inside the fresh
-       section markup. We detect the duplicate by ID and remove
-       the orphan before appending the new one, so re-renders
-       don't accumulate ghost modals at body. */
     if (modal.parentNode !== document.body) {
-      /* getElementById would return the first match (likely the
-         in-section new modal, which IS the one we have a ref to).
-         querySelectorAll lets us iterate every element with this
-         ID and remove any orphan body-child with the same ID. */
       var dupes = document.querySelectorAll('[id="' + CSS.escape(modalId) + '"]');
       Array.prototype.forEach.call(dupes, function (d) {
         if (d !== modal && d.parentNode === document.body) {
@@ -105,10 +40,6 @@
     var panel = modal.querySelector('.kt-back-in-stock__panel');
     var lastTrigger = null;
 
-    /* Saved scroll Y at lock time — restored on unlock so the
-       customer returns to the same scroll position. Without
-       this the iOS-safe lock pattern below jumps the page to
-       the top when the modal closes. */
     var savedScrollY = 0;
 
     function lockScroll() {
@@ -116,13 +47,7 @@
         Kitchero.scrollLock.lock('back-in-stock-' + modalId);
         return;
       }
-      /* iOS-safe body scroll lock. `overflow: hidden` on body
-         is insufficient on iOS Safari — the browser still
-         allows touch-scroll of the body via WebKit's elastic
-         scroll. The `position: fixed` + negative top trick
-         actually freezes the body, while leaving inner
-         scrollable containers (the modal panel) free to
-         scroll internally. */
+
       savedScrollY = window.scrollY || window.pageYOffset || 0;
       var body = document.body;
       body.style.position = 'fixed';
@@ -143,8 +68,7 @@
       body.style.left = '';
       body.style.right = '';
       body.style.width = '';
-      /* Restore the scroll position the customer was at before
-         opening the modal. Without this they snap to top. */
+
       window.scrollTo(0, savedScrollY);
     }
 
@@ -153,15 +77,10 @@
       modal.removeAttribute('inert');
       modal.setAttribute('aria-hidden', 'false');
       lockScroll();
-      /* Defer focus until the CSS opacity transition has begun so
-         screen readers don't announce the panel before it's visually
-         in place. */
+
       requestAnimationFrame(function () {
         var focusables = getFocusable(panel);
-        /* Skip the close button as the first focus target — landing
-           on it would announce "Close, button" before the heading.
-           Prefer the email input, falling back to whatever comes
-           first after the close. */
+
         var emailInput = panel.querySelector('input[type="email"]');
         if (emailInput) {
           emailInput.focus();
@@ -182,11 +101,6 @@
       lastTrigger = null;
     }
 
-    /* Trap focus inside the modal while open. Tab from the last
-       focusable wraps to the first; Shift+Tab from the first wraps
-       to the last. Without this, tabbing past the submit button
-       sends focus into the underlying page (which is supposed to
-       be inert, but inert is still patchy in older browsers). */
     function onKeydown(e) {
       if (modal.getAttribute('aria-hidden') !== 'false') return;
       if (e.key === 'Escape' || e.keyCode === 27) {
@@ -208,13 +122,6 @@
       }
     }
 
-    /* Named handlers + tracked refs so shopify:section:unload can
-       detach everything cleanly. Section-reload safety: theme
-       editor saves re-render the section and would otherwise
-       leave document-level + productContainer-level listeners
-       attached to the now-detached modal instance, causing the
-       Accept/Close handlers to fire multiple times per click
-       (REJ-JS-001 — Theme Store reject). */
     var triggerHandlers = [];
     Array.prototype.forEach.call(triggers, function (trigger) {
       var h = function (e) {
@@ -234,10 +141,6 @@
 
     document.addEventListener('keydown', onKeydown);
 
-    /* Sync hidden message field with the active variant. The PDP's
-       option radios live in the product section (now physically
-       far from the modal after the portal move above), so we
-       listen on the captured productContainer reference. */
     var onVariantChange = null;
     if (productContainer) {
       onVariantChange = function (e) {
@@ -247,11 +150,6 @@
       productContainer.addEventListener('change', onVariantChange);
     }
 
-    /* Expose teardown — invoked from the document-level
-       shopify:section:unload listener below so every handler
-       installed above is removed when the owning section
-       unloads. The portaled modal is also removed from <body>
-       since it no longer has a section to belong to. */
     modal._kitcheroBackInStockDestroy = function () {
       triggerHandlers.forEach(function (h) { h.el.removeEventListener('click', h.fn); });
       closeHandlers.forEach(function (h) { h.el.removeEventListener('click', h.fn); });
@@ -267,46 +165,30 @@
       modal._kitcheroBackInStockDestroy = null;
     };
 
-    /* Auto-open after a successful contact form POST so the
-       customer actually sees the success alert. Without this the
-       browser-issued redirect just reloads the PDP with the form
-       collapsed back into the modal — customer wonders if the
-       submission landed. */
     var successAlert = modal.querySelector('[data-back-in-stock-success]');
     if (successAlert) {
       try {
         var params = new URLSearchParams(window.location.search);
         if (params.get('contact_posted') === 'true') {
-          /* Use setTimeout so the open call lands after the page's
-             other init scripts (Lenis, focus management) settle. */
           setTimeout(function () { open(null); }, 250);
         }
-      } catch (e) { /* old browser without URLSearchParams — skip */ }
+      } catch (e) {  }
     }
   }
 
   function syncVariantContext(modal, productContainer) {
-    /* Read the variant picker's currently-checked radios and rebuild
-       the hidden message body. Mirrors the Liquid render exactly:
-       product title, then per-option `Name: Value, Name: Value`,
-       then a blank line, then the variant URL. The variant URL
-       comes from the picker's hidden <select> whose `value`
-       product-form.js keeps in sync with the active radio set. */
     var titleEl = modal.querySelector('[data-back-in-stock-product-title]');
     var variantTitleEl = modal.querySelector('[data-back-in-stock-variant-title]');
     var messageEl = modal.querySelector('[data-back-in-stock-message]');
     var productTitle = titleEl ? titleEl.textContent.trim() : '';
     if (!messageEl) return;
 
-    /* Collect selected options. */
     var selectedOptions = [];
     var fieldsets = productContainer.querySelectorAll('[data-option-index]');
     Array.prototype.forEach.call(fieldsets, function (fs) {
       var legendName = '';
       var legend = fs.querySelector('.kt-variant-picker__label');
       if (legend) {
-        /* Pull the option name from the legend text, stripping the
-           trailing ":" and the selected-value span. */
         var labelClone = legend.cloneNode(true);
         var selectedSpan = labelClone.querySelector('[data-option-selected]');
         if (selectedSpan) selectedSpan.remove();
@@ -323,12 +205,11 @@
       variantTitleEl.textContent = variantTitle;
     }
 
-    /* Build message body. Match Liquid render shape. */
     var lines = [productTitle];
     if (selectedOptions.length) {
       lines.push(selectedOptions.join(', '));
     }
-    /* Variant URL — pull from the hidden <select> the picker maintains. */
+
     var variantSelect = productContainer.querySelector('[data-variant-select]');
     var variantId = variantSelect ? variantSelect.value : '';
     var productUrlAnchor = productContainer.querySelector('a[href*="/products/"]');
@@ -359,20 +240,10 @@
     initAll(e.target);
   });
 
-  /* REJ-JS-001 fix: when the owning section unloads, find the
-     portaled modal (now living at body, not inside the section)
-     by matching the section.id suffix on the modal's element id
-     — modal IDs are emitted as `BackInStockModal-{productId}-
-     {sectionId}` from the snippet, so the section id is the
-     suffix after the last hyphen pair that contains the section
-     handle. Calls the per-instance destroyer to remove every
-     listener and the body-portaled DOM node. */
   document.addEventListener('shopify:section:unload', function (e) {
     if (!e || !e.target || !e.target.id) return;
     var sectionId = e.target.id.replace(/^shopify-section-/, '');
-    /* CSS.escape needed because Shopify section IDs contain
-       `template--<digits>__main` — the `--` and `__` are valid
-       CSS but the suffix selector needs escaping for safety. */
+
     var modals = document.querySelectorAll('[data-back-in-stock-modal]');
     Array.prototype.forEach.call(modals, function (modal) {
       if (modal.id && modal.id.indexOf(sectionId) !== -1) {

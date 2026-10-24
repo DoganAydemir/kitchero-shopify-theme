@@ -1,13 +1,3 @@
-/**
- * Countdown — ticks every second, hides when expired.
- * Reads data-ends-at ISO date from element.
- * Re-inits on shopify:section:load, cleans on unload.
- *
- * Wrapped in a load-guard so that if the same script ends up on the page
- * more than once (edge cases: Section Rendering API returning HTML with a
- * nested script tag, theme editor rehydration), we don't double-bind
- * interval timers + event listeners.
- */
 if (!window.__kitcheroCountdownLoaded) {
   window.__kitcheroCountdownLoaded = true;
 
@@ -20,14 +10,6 @@ if (!window.__kitcheroCountdownLoaded) {
       return String(n).padStart(2, '0');
     }
 
-    /* Normalise Shopify's `%z` UTC offset output (e.g. `+0100`) to
-       the ISO-8601 strict form (`+01:00`) so older WebKit parsers
-       (Safari < 13.4 / iOS < 13.4 — still ~3-5% of mobile traffic)
-       accept the timestamp. Without this the countdown silently
-       hides on those browsers via the isNaN guard below — merchant
-       configured a real deal, customer sees nothing. RegExp matches
-       `±HHMM` at end-of-string and inserts the colon. Leaves
-       already-colon-formatted offsets untouched. */
     function normaliseIsoOffset(str) {
       if (typeof str !== 'string') return str;
       return str.replace(/([+-])(\d{2})(\d{2})$/, '$1$2:$3');
@@ -67,22 +49,12 @@ if (!window.__kitcheroCountdownLoaded) {
         return true;
       }
 
-      /* Initial tick */
       if (!tick()) return null;
 
-      /* Theme editor preview — render a one-shot frame and skip the
-         per-second interval. Without this guard, the editor preview
-         iframe repaints every second while the merchant edits the
-         metafield-driven offer date, hammering the editor's idle CPU
-         budget and triggering needless layout shifts as the digits
-         change. The frozen value still reflects the metafield because
-         we already called tick() once above. Mirrors the
-         announcement-banner.js Shopify.designMode short-circuit. */
       if (window.Shopify && window.Shopify.designMode) {
         return null;
       }
 
-      /* Start interval */
       var intervalId = setInterval(function () {
         if (!tick()) clearInterval(intervalId);
       }, 1000);
@@ -91,7 +63,6 @@ if (!window.__kitcheroCountdownLoaded) {
     }
 
     function initAll() {
-      /* Clean previous timers */
       timers.forEach(function (id) { clearInterval(id); });
       timers = [];
 
@@ -105,22 +76,9 @@ if (!window.__kitcheroCountdownLoaded) {
 
     document.addEventListener('shopify:section:load', initAll);
     document.addEventListener('shopify:section:unload', function (event) {
-      /* R103 — re-init from the surviving DOM instead of wiping ALL
-         countdowns. The previous handler called clearInterval on every
-         active timer regardless of which section unloaded, which froze
-         every countdown elsewhere on the page when the merchant
-         deleted/reordered ANY section in the theme editor. initAll()
-         is idempotent — it clears all timers, then re-creates one per
-         [data-countdown] element still present in the DOM. The
-         unloaded section's elements are gone by the time this fires,
-         so they naturally drop out; siblings get fresh intervals
-         and keep ticking. */
       initAll();
     });
-    /* External re-init trigger — dispatched by collection-filters.js
-     * after AJAX-swapping the product grid. Newly rendered cards that
-     * carry [data-countdown] need fresh intervals, but the filter JS
-     * can't reach countdown's IIFE-scoped initAll directly. */
+
     document.addEventListener('kitchero:countdown:refresh', initAll);
   })();
 }

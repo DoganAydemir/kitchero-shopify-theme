@@ -1,24 +1,3 @@
-/**
- * Marquee pause/play toggle — shared handler for the three marquee
- * sections (brands, gallery-marquee, testimonials-marquee). WCAG 2.2.2
- * Pause, Stop, Hide: infinite CSS marquees with real text content
- * must expose a user-controllable pause. Hover and focus-within
- * already mitigate pointer/keyboard users; this script adds a
- * persistent on-page pause control accessible to touch and screen-
- * reader users.
- *
- * Markup contract (set on the section root):
- *   data-marquee-pause-host="kt-brands"          (BEM block name)
- *   data-marquee-pause-modifier="kt-brands--paused"  (full modifier
- *     class to toggle)
- * Inside the section, a button:
- *   data-marquee-pause-toggle
- *   aria-pressed="true"  (autoplay default = playing = pressed=true)
- *
- * The toggle button itself owns its visual play/pause icon swap via
- * `[hidden]` on the inner SVG icons; this script just maintains
- * `aria-pressed` and the modifier class.
- */
 (function () {
   'use strict';
 

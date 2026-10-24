@@ -1,21 +1,6 @@
-/**
- * Product Form — quantity buttons + AJAX add to cart + variant switching
- * Re-inits on shopify:section:load.
- */
 (function () {
   'use strict';
 
-  /**
-   * Delegates to cart-drawer.js's refreshDrawer() so the fetch-and-swap
-   * logic lives in one place. Falls back to a JSON-only cart-count
-   * sync if no drawer is on the page (e.g. cart_type: page).
-   *
-   * Looks up the drawer in two places: the canonical
-   * `Kitchero.cartDrawer` namespace and the legacy
-   * `window.kitcheroCartDrawer` alias (kept for backward compat — the
-   * alias is removed on v2). Theme apps that grabbed the old global
-   * keep working while internal callers prefer the namespaced path.
-   */
   function refreshCartDrawer() {
     var drawer = (window.Kitchero && window.Kitchero.cartDrawer) || window.kitcheroCartDrawer;
     if (drawer && typeof drawer.refreshDrawer === 'function') {
@@ -35,13 +20,6 @@
         });
       })
       .catch(function (err) {
-        /* Network failure here means the post-ATC cart count update
-           silently failed. Without this catch, the unhandled
-           promise rejection bubbles to console as a red error and
-           the customer sees a stale header count. Log + announce
-           so SR users at least know something went off. The line
-           was successfully added (server-side) — only the UI
-           refresh failed. */
         if (window.console && typeof console.error === 'function') {
           console.error('refreshCart count update failed:', err);
         }
@@ -49,21 +27,11 @@
   }
 
   function initProductForm(container) {
-    /* `[data-product-form]` is on the wrapper <div>, not the <form>
-       itself — hyphenated kwargs inside a `{% form %}` tag are fragile
-       (see snippets/product-form.liquid). We grab the wrapper first,
-       then locate the real <form> element inside it for the submit
-       listener. */
     var wrapper = container.querySelector('[data-product-form]');
     if (!wrapper) return;
     var form = wrapper.querySelector('form');
     if (!form) return;
-    /* Guard against double-binding. shopify:section:load fires whenever
-       the merchant changes a product-section setting in the editor,
-       and our listeners are all on scoped elements (form, buttons,
-       inputs) that GC with the section, so no unload cleanup is
-       needed — but we must not stack a second submit handler on the
-       same form or add-to-cart would fire twice. */
+
     if (form.dataset.productFormBound === 'true') return;
     form.dataset.productFormBound = 'true';
 
@@ -77,38 +45,13 @@
     var variantSelect = container.querySelector('[data-variant-select]');
     var optionInputs = container.querySelectorAll('[data-option-value]');
 
-    /* VAR-04 — Shopify supports two PDP deep-link URL formats:
-       ?variant=[variant-id] (resolved by Liquid into
-       product.selected_variant before render) and
-       ?option_values=[id-1],[id-2],... (resolved at the variant-
-       value level). Most marketing surfaces and app-block
-       recommendation cards now use the option_values format.
-
-       R84 first attempt read `variant.option_values` from
-       `product.variants | json` — which doesn't serialize that
-       field — and silent-failed. R86 fix: read from the explicit
-       <script data-option-values-map> emitted by
-       product-variant-picker.liquid which IS variant→[ov-id]
-       mapping data we control.
-
-       Algorithm:
-       1. Parse ?option_values URL param into Set of requested IDs
-       2. Read the option-values-map JSON blob from the section
-       3. Find the variant whose ID-array equals the requested set
-       4. Look up that variant in the standard variants blob to
-          get its `options` string array
-       5. Programmatically check the matching option-value radios
-       Silent no-op on parse failure or missing data. */
     try {
       var optionValuesParam = new URLSearchParams(window.location.search).get('option_values');
       if (optionValuesParam) {
         var rawIds = optionValuesParam.split(',')
           .map(function (s) { return parseInt(s.trim(), 10); })
           .filter(function (n) { return !isNaN(n); });
-        /* R96 — dedupe so URLs like ?option_values=12345,12345 don't
-           cause length mismatch in the variant-lookup loop below
-           (each variant has unique option_value IDs; duplicates
-           in the URL would never match). */
+
         var seenIds = {};
         var requestedIds = [];
         for (var ridx = 0; ridx < rawIds.length; ridx++) {
@@ -141,10 +84,7 @@
                 if (lookupVariant.options) {
                   for (var oi = 0; oi < optionInputs.length; oi++) {
                     var optInput = optionInputs[oi];
-                    /* `data-option-index` lives on the parent
-                       <fieldset> (per product-variant-picker.liquid:26),
-                       not on the individual radio. Walk up via closest()
-                       to read it. */
+
                     var fieldset = optInput.closest('[data-option-index]');
                     var optIdx = fieldset ? parseInt(fieldset.dataset.optionIndex, 10) : NaN;
                     if (!isNaN(optIdx) && lookupVariant.options[optIdx] === optInput.value) {
@@ -155,26 +95,16 @@
                 break;
               }
             } else {
-              /* R-PDP4 M1 — Strip `?option_values` from the URL when no
-                 variant matches the IDs in the param. Marketing surfaces
-                 (recommendation engines, affiliate links) occasionally
-                 send URLs with stale or wrong option_value IDs — without
-                 this cleanup the URL keeps polluting subsequent share/
-                 back-navigation states forever, and `?variant=N` writes
-                 from the same session coexist with the dead
-                 `option_values` so the resolver re-runs on every
-                 pushState. Replace the URL in place (no history entry)
-                 so the customer's back-button history isn't polluted. */
               try {
                 var cleanUrl = new URL(window.location.href);
                 cleanUrl.searchParams.delete('option_values');
                 window.history.replaceState(window.history.state, '', cleanUrl.toString());
-              } catch (cleanErr) { /* URL constructor missing — leave URL */ }
+              } catch (cleanErr) {  }
             }
           }
         }
       }
-    } catch (e) { /* URLSearchParams may throw on very old browsers — silent fall-back to default variant */ }
+    } catch (e) {  }
 
     function clearError() {
       if (!errorEl) return;
@@ -186,25 +116,11 @@
       if (!errorEl) return;
       errorEl.textContent = message;
       errorEl.hidden = false;
-      /* R-PDP4 H3 — Move keyboard focus to the error region so SR
-         users can re-read with their cursor and sighted keyboard
-         users don't lose context. `tabindex="-1"` is required for
-         programmatic focus on a non-focusable element; we set it
-         lazily so the markup stays clean for the default (hidden)
-         state. role="alert" already implies aria-live="assertive"
-         (declared in snippets/product-form.liquid) so the screen
-         reader reads the message; the .focus() call lands the
-         visual cursor + Tab anchor for follow-up. */
+
       if (!errorEl.hasAttribute('tabindex')) errorEl.setAttribute('tabindex', '-1');
-      try { errorEl.focus({ preventScroll: false }); } catch (e) { /* old browser */ }
+      try { errorEl.focus({ preventScroll: false }); } catch (e) {  }
     }
 
-    /* Quantity buttons — honour the variant's quantity_rule. The Liquid
-       template emits `data-qty-min` / `data-qty-step` / `data-qty-max`
-       on the input from `variant.quantity_rule.{min,increment,max}`,
-       so the stepper must respect those bounds (B2B / wholesale case
-       packs land qty=6,12,18 not 1,2,3). Fallback to 1/1/Infinity when
-       the dataset is empty so non-B2B catalogs still increment by 1. */
     function readQtyRule() {
       var min = parseInt(qtyInput && qtyInput.dataset.qtyMin, 10);
       var step = parseInt(qtyInput && qtyInput.dataset.qtyStep, 10);
@@ -215,13 +131,6 @@
       return { min: min, step: step, max: max };
     }
 
-    /* Reflect the current value vs. quantity_rule.min/max on the +/-
-       button disabled state — cart drawer and cart page do this; the
-       PDP stepper previously silently clamped via Math.min/Math.max,
-       leaving the buttons clickable at the rule bounds. WCAG 4.1.2
-       Name-Role-Value: an interactive control whose action has no
-       effect should expose `disabled` state. Also a Theme Store
-       consistency concern (cart vs. PDP behaviour parity). */
     function syncStepperDisabled() {
       if (!qtyInput) return;
       var rule = readQtyRule();
@@ -259,15 +168,6 @@
       });
     }
 
-    /* Sanitize manual typed input — clamp to integers within the
-       quantity_rule.min/max range AND snap to the rule.step grid on
-       blur. The original clamp was hardcoded to `1` which violated
-       B2B case-pack contracts (variant sold in packs of 6, customer
-       types "7" → server 422 with no client-side feedback). Now we
-       read the live rule from the input's `min`/`max`/`step` attrs
-       (which the variant-change handler keeps in sync) and round to
-       the nearest valid increment so the typed-input path matches
-       the +/- button path. */
     if (qtyInput) {
       qtyInput.addEventListener('blur', function () {
         var rule = readQtyRule();
@@ -275,9 +175,6 @@
         if (isNaN(val) || val < rule.min) {
           val = rule.min;
         } else if (rule.step > 1) {
-          /* Snap to nearest valid step relative to rule.min: e.g. min=6
-             step=6 → valid values 6, 12, 18 …; customer types "7", we
-             snap to 6 (round-down) or 12 (round-up) — round to nearest. */
           var stepsFromMin = Math.round((val - rule.min) / rule.step);
           val = rule.min + (stepsFromMin * rule.step);
         }
@@ -285,14 +182,7 @@
         qtyInput.value = val;
         syncStepperDisabled();
       });
-      /* R-PDP4 H11 — Enter on the qty input would natively submit the
-         form WITHOUT running the blur snap above first (Chrome implicit-
-         submit fires before blur in the same task). Customer typing "7"
-         on a B2B step-6 product and pressing Enter would post 7 → 422.
-         Intercept Enter, run blur (triggers the snap), then dispatch
-         the form's submit programmatically so the regular ATC handler
-         (with reportValidity + offline + timeout guards) runs against
-         a now-valid quantity. */
+
       qtyInput.addEventListener('keydown', function (event) {
         if (event.key !== 'Enter' && event.code !== 'Enter') return;
         event.preventDefault();
@@ -300,24 +190,18 @@
         if (typeof form.requestSubmit === 'function') {
           form.requestSubmit();
         } else {
-          /* Safari <16 doesn't have requestSubmit; fall back to manual
-             event dispatch which preserves the submit listener path. */
           form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         }
       });
     }
 
-    /* Initial sync so a freshly-rendered form with rule.min > 1 starts
-       with the minus button disabled. */
     if (qtyInput) syncStepperDisabled();
 
-    /* Variant switching — when option radio changes, find matching variant */
     if (optionInputs.length > 0 && variantSelect) {
       optionInputs.forEach(function (input) {
         input.addEventListener('change', function () {
           updateVariant(container, variantIdInput, variantSelect, atcBtn, atcText);
 
-          /* Update selected label */
           var group = input.closest('[data-option-index]');
           if (group) {
             var idx = group.dataset.optionIndex;
@@ -326,85 +210,22 @@
           }
         });
       });
-
-      /* R298 — Browser back/forward state restoration. When the
-         customer hits Back after swatch-changing into another
-         variant, `popstate` fires with the PREVIOUS URL — we re-
-         read `?variant=X` and re-check the matching radios so the
-         UI mirrors the URL. Without this listener, Back returned
-         the URL to a prior variant but the picker stayed visually
-         on the latest selection — confusing + breaks bookmarks.
-
-         R-listener-leak — The popstate listener was previously
-         attached HERE inside `initProductForm`, which runs on every
-         `shopify:section:load`. The `productFormBound` guard at line
-         50 only blocks double-binding on the same form node, but
-         Section Rendering API replaces the entire section DOM, so
-         each edit-and-save in the theme editor produced a fresh
-         form with no flag → another window-level popstate handler
-         stacked. After N edits, a single Back press fired N
-         handlers, each closing over a detached container — memory
-         leak + flicker. The listener now lives at module scope
-         (below `initAll`) with a single load-guard flag, and
-         re-discovers the active PDP section at handler time. */
     }
 
-    /* AJAX Add to Cart */
     var atcInflight = false;
-    /* AbortController scoped to this form. The inflight boolean above
-       guards against rapid double-tap stacking, but it doesn't cover
-       the case where the section unloads (theme editor reload, route
-       change in a SPA shell) while a /cart/add.js request is still in
-       flight — without a controller the success handler then writes
-       to a detached DOM (atcBtn classList toggles, drawer open()).
-       We keep one controller per inflight request and abort it from
-       a section:unload listener registered at the file-level below. */
+
     var atcController = null;
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      /* Inflight guard — prevents a rapid double-tap from submitting
-         two /cart/add.js requests. Shopify's add endpoint is NOT
-         idempotent: two identical POSTs within 100 ms add the item
-         twice. Reject the second submit until the first finishes. */
       if (atcInflight) return;
 
-      /* R-PDP2 — Empty-variant submit guard. When the customer picks an
-         unavailable option combination, `updateVariant()` further down
-         sets `variantIdInput.value = ''` and disables the ATC button.
-         But native form submit can still fire via Enter on a non-button
-         control (Chrome implicit-submit) — which would POST `id=` to
-         `/cart/add.js` and surface a confusing 422. The disabled state
-         + missing variant id are the canonical "do not submit" signal;
-         catch them here before the inflight flag flips and before any
-         payload is built. */
       var currentVariantIdInput = form.querySelector('[name="id"]');
       var currentVariantId = currentVariantIdInput ? String(currentVariantIdInput.value || '').trim() : '';
       if (!currentVariantId) return;
 
-      /* R-PDP4 H5 — Native HTML5 validation gate. Quantity input has
-         `min`/`max`/`step` attributes for B2B quantity-rule products
-         (sold in multiples of 6, etc.); if the customer typed an
-         out-of-bounds value and tabbed away (so the blur snap from
-         the qty stepper hasn't fired) the form would post the bad
-         number and surface a 422 with raw server text. Triggering
-         `reportValidity()` here gives the customer the browser's
-         native, localized constraint message in-place, focused on
-         the bad input — meeting WCAG 3.3.1 (Error Identification)
-         without an extra round-trip. */
       if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
 
-      /* R-PDP4 H2 — Offline pre-check. Shopify's /cart/add.js fetch
-         throws a raw `TypeError: Failed to fetch` when the device is
-         offline; the catch branch falls through to the generic
-         `addToCartError` string, which is technically true but
-         actionable only if the customer is told it's a connectivity
-         issue. Peek at `navigator.onLine` first; if the API reports
-         false, surface the localized offline message and abort
-         before the fetch is even constructed. (`navigator.onLine`
-         being true does NOT guarantee internet — captive portals,
-         enterprise proxies — but a false reading is reliable on every
-         modern browser and saves a 10-second hang on flaky cellular). */
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         var offlineMsg = (Kitchero.variantStrings && Kitchero.variantStrings.offlineError)
           || 'You appear to be offline. Reconnect and try again.';
@@ -414,102 +235,41 @@
 
       atcInflight = true;
       atcController = new AbortController();
-      /* R-PDP4 H1 — 30-second timeout. Without an explicit deadline a
-         stalled connection (Theme Store reviewers test on simulated
-         slow 3G) leaves `atcInflight = true` forever — the customer
-         taps ATC, sees the spinner, then nothing happens. The button
-         stays aria-disabled and there's no recovery path short of a
-         page refresh. Aborting after 30s lets the catch branch
-         surface a timeout-specific message and reset the button. */
+
       var atcTimeoutId = setTimeout(function () {
         if (atcController) {
-          try { atcController.abort(); } catch (e) { /* already aborted */ }
+          try { atcController.abort(); } catch (e) {  }
         }
       }, 30000);
-      /* Hang the timer id off the controller so the finally block
-         (.then below) can clear it on every settle path. */
+
       atcController.__kitcheroTimeoutId = atcTimeoutId;
-      /* Expose the controller on the form so the section:unload
-         listener at the bottom of this file can find and abort it. */
+
       form.__kitcheroAtcController = atcController;
 
       clearError();
 
-      /* Build the add-to-cart payload from the whole form, not just
-         {id, quantity}. Previously the hand-rolled object dropped
-         every other input the form carries:
-           - `selling_plan`         → subscription/pre-order products
-             failed silently (customer picked a plan, cart added as
-             one-time; if product.requires_selling_plan the /cart/add
-             returned 422 with no visible error).
-           - `properties[*]`         → gift-card recipient email/name/
-             send-on-date, engraving text, gift-wrap toggle, and any
-             merchant-added custom line-item properties all vanished
-             before hitting Shopify. Gift-card recipients never got
-             their email; engraved orders shipped blank.
-           - File upload inputs      → properties with `type="file"`
-             (custom monograms) dropped.
-         `FormData(form)` picks up every named field including
-         selling_plan + properties[*] automatically. Shopify's
-         /cart/add.js accepts multipart/form-data, so the `Content-Type`
-         header is removed here to let the browser set the correct
-         boundary-aware value. */
       var formData = new FormData(form);
 
-      /* Loading state — use a dedicated `--loading` class + aria-busy
-         instead of `disabled`. The :disabled selector carries the
-         sold-out red styling in CSS, which would flash on every ATC
-         click if we reused it here. */
       if (atcBtn) {
         atcBtn.classList.add('kt-product-form__atc--loading');
         atcBtn.setAttribute('aria-busy', 'true');
-        /* inert/aria-disabled keep the button non-interactive for
-           keyboard and screen-reader users without inheriting the
-           sold-out red scheme from :disabled. */
+
         atcBtn.setAttribute('aria-disabled', 'true');
       }
 
-      /* Section Rendering API — request the cart-drawer + header
-         markup in the SAME response so we don't have to fire a
-         secondary GET after the POST. Saves one round-trip on every
-         add-to-cart. The server returns
-         `{ items: [...], sections: { 'cart-drawer': '<aside…>' } }`
-         when `sections` is on the body; we read it in the success
-         handler below. */
-      /* R137 CART-SYNC-3 expansion: include `header-cart-icon` in the
-         sections= request so the response carries BOTH the drawer panel
-         and the header cart count markup. Then applySectionsHTML can
-         handle the count update inline without falling through to its
-         /cart.js header-count fallback fetch. Two paint targets, ONE
-         network round-trip. */
       formData.append('sections', 'cart-drawer,header-cart-icon');
       formData.append('sections_url', window.location.pathname);
 
       fetch(Kitchero.routes.cartAdd + '.js', {
         method: 'POST',
-        /* No Content-Type header — FormData triggers the browser to
-           set multipart/form-data with the right boundary. */
+
         headers: { 'Accept': 'application/json' },
         body: formData,
         signal: atcController.signal
       })
         .then(function (response) {
-          /* Shopify returns a JSON body with `description` on 422
-             (quantity/stock errors) — surface it to the customer
-             verbatim since it's already localized by Shopify. */
           return response.json().then(function (data) {
             if (!response.ok) {
-              /* R-PDP4 H4 — Extended error resolver. Shopify's
-                 /cart/add.js returns three different 4xx body shapes:
-                   1. `{ description, message }`         (classic 422)
-                   2. `{ errors: ["text"...] }`           (some quantity-rule failures)
-                   3. `{ errors: { quantity: ["text"...] } }`  (Bundle / Shop Pay accelerated)
-                 The previous resolver only handled shape 1 and fell
-                 through to the generic string on shapes 2/3 — losing
-                 actionable detail like "Order minimum is 6 units".
-                 Flatten any `errors` array or object-of-arrays into
-                 a single comma-joined string when description/message
-                 are absent. */
               var serverMsg = data && (data.description || data.message);
               if (!serverMsg && data && data.errors) {
                 if (Array.isArray(data.errors)) {
@@ -537,12 +297,6 @@
           });
         })
         .then(function (data) {
-          /* R137 CART-SYNC-3: Capture the parsed `data` payload from
-             the upstream resolver so we can hand `data.sections` to
-             the drawer's applySectionsHTML below — eliminating the
-             redundant secondary fetch the drawer-mode branch used to
-             fire via refreshCartDrawer(). */
-          /* Show success state */
           var addedLabel = (Kitchero.variantStrings && Kitchero.variantStrings.addedToCart) || 'Added to cart!';
           if (atcBtn) {
             atcBtn.classList.remove('kt-product-form__atc--loading');
@@ -554,31 +308,11 @@
               if (atcText) atcText.textContent = Kitchero.variantStrings ? Kitchero.variantStrings.addToCart : 'Add to cart';
             }, 2000);
           }
-          /* SR announcement — cart-count span only covers the case
-             where the visible count changed. For blind users on a
-             single-quantity PDP we want an explicit "Added to cart"
-             even though the count going 0→1 already implies it. The
-             visual button state reverts after 2s, so leaning on the
-             button's textContent for announcement would miss readers
-             who arrive at it after the revert. */
+
           if (window.Kitchero && typeof Kitchero.announce === 'function') {
             Kitchero.announce(addedLabel);
           }
 
-          /* R-PDP5 — Publish a standard ecommerce event so any GA4 /
-             GTM / pixel app block listening for `product_added_to_cart`
-             receives the variant id + quantity. Shopify's Web Pixels
-             Manager (`Shopify.analytics.publish`) is the official
-             event bus and is in the Theme Store / Shopify Plus
-             review checklists. We DO NOT replicate any data Shopify
-             already auto-emits via the platform-level Pixel ATC
-             instrumentation; this is the THEME's explicit hook so
-             custom merchant scripts can react to the moment our
-             AJAX submit succeeds (vs. waiting on the cart API
-             round-trip that the Pixels Manager listens to). Safe
-             fallback: if `Shopify.analytics` is missing (older
-             store before Web Pixels Manager), dispatch a CustomEvent
-             that GTM dataLayer scripts can subscribe to. */
           try {
             var addedPayload = {
               productVariantId: data && data.variant_id ? String(data.variant_id) : (data && data.id ? String(data.id) : ''),
@@ -589,27 +323,11 @@
               window.Shopify.analytics.publish('product_added_to_cart', addedPayload);
             }
             document.dispatchEvent(new CustomEvent('kitchero:cart:added', { bubbles: true, detail: addedPayload }));
-          } catch (e) { /* analytics publish is non-critical */ }
+          } catch (e) {  }
 
           var cartType = document.body.getAttribute('data-cart-type') || 'drawer';
 
           if (cartType === 'page') {
-            /* Page mode — the merchant wants customers on the /cart
-               page after adding. Refresh header count first so it
-               blips visibly, then navigate. The delay keeps the
-               "Added to Cart!" success state on the button long
-               enough for the customer to register what happened.
-
-               R137 CART-SYNC-7: the ATC response (`data`) already
-               returns the full cart payload — the variant just added
-               carries `items_count` (older Shopify) and modern
-               responses include the `data.items` array. Prefer
-               reading the count from the existing payload instead of
-               firing a redundant /cart.js GET. We also have
-               data.sections['header-cart-icon'] from the upstream
-               sections= body — apply that markup first; if absent
-               (proxy stripped, app block intercepted) fall through
-               to the legacy /cart.js refresh. */
             var pageHeaderApplied = false;
             if (data && data.sections && data.sections['header-cart-icon']) {
               try {
@@ -624,7 +342,6 @@
                 });
                 pageHeaderApplied = true;
               } catch (_) {
-                /* Parse failed — fall through to the /cart.js path. */
               }
             }
             var pageRefresh;
@@ -647,17 +364,8 @@
             }
             pageRefresh
               .catch(function () {
-                /* header count refresh failed; still navigate. */
               })
               .then(function () {
-                /* R-PDP4 M3 — Track the timer id and clear it on
-                   page-leave events so a customer who clicks Back or
-                   another link inside the 700ms window doesn't see
-                   the cart redirect fire against a possibly-unmounted
-                   page. `pagehide`/`beforeunload` both clear; we use
-                   `pagehide` first (bfcache-friendly), `beforeunload`
-                   as backstop for browsers where pagehide doesn't
-                   fire on rapid same-document navigations. */
                 var redirectTimerId = setTimeout(function () {
                   window.location.href = Kitchero.routes.cart;
                 }, 700);
@@ -671,22 +379,6 @@
                 window.addEventListener('beforeunload', cancelRedirect, { once: true });
               });
           } else {
-            /* Drawer mode — apply the cart-drawer + header-cart-icon
-               section HTML returned by the SAME ATC POST (we appended
-               `sections=cart-drawer` to the body on line 286 so the
-               response carries pre-rendered markup). R137 CART-SYNC-3
-               eliminates the secondary `refreshCartDrawer()` fetch
-               that previously fired here — saves one full
-               round-trip on every add-to-cart, the most-instrumented
-               interaction in any Lighthouse cart-flow trace.
-
-               Fallback chain: if drawer.applySectionsHTML is missing
-               (custom element not yet upgraded — script eval race),
-               OR data.sections is missing (server-side proxy stripped
-               it), we drop back to the legacy refreshCartDrawer()
-               path so behaviour stays correct in degraded environments.
-               That fallback in turn catches its own errors with a
-               JSON count-only refresh. */
             var drawerForApply = (window.Kitchero && window.Kitchero.cartDrawer)
               || window.kitcheroCartDrawer
               || document.querySelector('cart-drawer')
@@ -700,13 +392,6 @@
               && data.sections
               && data.sections['cart-drawer']
             ) {
-              /* Append a second sections request body to ATC so the
-                 header cart icon refreshes too — no, can't do here at
-                 .then time. Instead, applySectionsHTML's header-fallback
-                 branch fires a /cart.js for the count when
-                 sections['header-cart-icon'] is missing. Acceptable:
-                 only one extra request total (the count fallback)
-                 vs the old two requests (full drawer fetch + count). */
               drawerRefresh = drawerForApply.applySectionsHTML(data.sections);
             } else {
               drawerRefresh = refreshCartDrawer();
@@ -714,12 +399,6 @@
 
             drawerRefresh
               .catch(function () {
-                /* Inner fetch must check response.ok + have its own catch
-                   so a 5xx / network failure doesn't propagate as an
-                   unhandled promise rejection past the .then() below
-                   (which would land in global.js's unhandledrejection
-                   handler and emit a console.warn — Theme Store reviewer
-                   would catch that with DevTools open during ATC). */
                 return fetch(Kitchero.routes.cart + '.js', {
                   headers: { 'Accept': 'application/json' },
                 })
@@ -733,26 +412,9 @@
                       el.style.display = cart.item_count > 0 ? '' : 'none';
                     });
                   })
-                  .catch(function () { /* swallow — drawer will still open */ });
+                  .catch(function () {  });
               })
               .then(function () {
-                /* Prefer the custom element's open() — moves focus into
-                   the drawer (close button) so SR users hear the drawer
-                   announced instead of staying on the ATC button they
-                   just clicked, which no longer represents the primary
-                   action. Falls back to raw aria-hidden toggle for the
-                   rare case where the custom element hasn't upgraded
-                   yet (script eval race).
-
-                   R-PDP4 H12 — Re-query the drawer reference AFTER the
-                   `applySectionsHTML` resolution. The earlier capture
-                   (line ~530, `drawerForApply`) could point at a node
-                   that the section swap detached/replaced; calling
-                   `.open()` on the stale reference toggles aria-hidden
-                   on a node no longer in the document while the fresh
-                   replacement stays hidden. The fresh query inside the
-                   .then() guarantees the open() targets the current
-                   DOM. */
                 var drawerEl = (window.Kitchero && window.Kitchero.cartDrawer)
                   || window.kitcheroCartDrawer
                   || document.querySelector('cart-drawer')
@@ -760,11 +422,6 @@
                 if (drawerEl && typeof drawerEl.open === 'function') {
                   drawerEl.open();
                 } else if (drawerEl) {
-                  /* Fallback path: `cart-drawer.js` custom element hasn't
-                     upgraded yet (script eval race), so we do a minimal
-                     manual open. Use the same 'cart-drawer' scrollLock
-                     owner id the drawer component uses so its own
-                     close() correctly releases the lock later. */
                   drawerEl.setAttribute('aria-hidden', 'false');
                   drawerEl.removeAttribute('inert');
                   if (window.Kitchero && Kitchero.scrollLock) {
@@ -775,28 +432,14 @@
                 }
               })
               .catch(function () {
-                /* Terminal safety net: even if drawer.open() throws
-                   (e.g. custom element threw mid-upgrade) we don't want
-                   an uncaught promise leaking to the console — the ATC
-                   button has already settled into its success state. */
               });
           }
 
-          /* Publish event */
           if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
         })
         .catch(function (error) {
-          /* R-PDP4 H1 — Distinguish AbortError caused by the section
-             unloading mid-fetch (silent — the page is gone, no UI to
-             surface to) from AbortError caused by our own 30-second
-             timeout (which IS surfaceable as "request timed out").
-             The section-unload handler at the bottom of this file
-             nulls `atcController` BEFORE calling `.abort()`, so we
-             can detect "did the timeout abort fire?" by whether the
-             controller is still present and its timer id was reached. */
           if (error && error.name === 'AbortError') {
             if (atcController) {
-              /* Timer-initiated abort — surface a timeout message. */
               if (atcBtn) {
                 atcBtn.classList.remove('kt-product-form__atc--loading');
                 atcBtn.removeAttribute('aria-busy');
@@ -818,26 +461,8 @@
             || 'Something went wrong. Please try again.';
           var errorMessage = (error && error.message) || fallback;
           showError(errorMessage);
-          /* R-PDP4 H3 — Drop the explicit `Kitchero.announce(..., 'assertive')`.
-             The error region already carries `role="alert"` (verified in
-             snippets/product-form.liquid) which gives it an implicit
-             aria-live="assertive". The previous double-announce path
-             (announce() + role=alert) resulted in NVDA reading the
-             error twice — confusing recovery UX. The single role=alert
-             announcement is enough; the showError() side effect now
-             includes focus management to put SR users right on the
-             error region for re-read. */
         })
         .then(function () {
-          /* Release inflight lock regardless of path. On success the
-             aria-disabled is released here (not in the success branch
-             because that branch continues to refresh + navigate after
-             a 700ms delay). Page-mode re-enables the button briefly
-             before the navigation actually happens; that's cosmetic
-             and harmless. */
-          /* R-PDP4 H1 — Always clear the timeout id so it doesn't fire
-             stale aborts against a fresh later submit. Hung off the
-             controller as a property in the submit handler. */
           if (atcController && atcController.__kitcheroTimeoutId) {
             clearTimeout(atcController.__kitcheroTimeoutId);
           }
@@ -845,14 +470,6 @@
           atcController = null;
           if (form.__kitcheroAtcController) delete form.__kitcheroAtcController;
 
-          /* R232.29 — Comprehensive re-enable for ATC + accelerated
-             checkout buttons after the cart-add fetch settles.
-             Previously only `aria-disabled` was cleared, but Shopify's
-             accelerated-checkout widget (listening to the form's
-             submit event independently) leaves both ATC and its own
-             buttons in a `disabled` state until something fires an
-             enable signal. We own this signal here since we
-             `preventDefault()` the native submit. */
           if (atcBtn) {
             atcBtn.disabled = false;
             atcBtn.removeAttribute('disabled');
@@ -871,18 +488,6 @@
     });
   }
 
-  /**
-   * Lazy-parse the `<script type="application/json" data-variant-data>`
-   * blob rendered by product-variant-picker.liquid. Previously every
-   * `<option>` in the hidden variant select carried a full
-   * `data-variant-json` attribute — ~600 bytes × 20 variants = 12KB
-   * of HTML overhead PLUS repeated `JSON.parse` on every swatch
-   * click. Parse once, cache on the container, reuse.
-   *
-   * Returns an array of variant objects, or an empty array on parse
-   * failure (defensive — product-form.js must never throw in the
-   * variant-match hot path).
-   */
   function getVariantsData(container) {
     if (container._kitcheroVariants) return container._kitcheroVariants;
     var blob = container.querySelector('script[data-variant-data]');
@@ -899,40 +504,20 @@
   }
 
   function updateVariant(container, variantIdInput, variantSelect, atcBtn, atcText) {
-    /* `form` is referenced later (selling_plan `:checked` lookup) but is
-       NOT in scope here — updateVariant is module-scoped, not nested in
-       initProductForm, so it never received the closure's `form`. Left
-       undefined it throws `ReferenceError: form is not defined`, which
-       aborts the change handler (product-form.js:318) before the label,
-       gallery, and price ever update. Derive it from the container the
-       same way initProductForm does so the reference resolves. */
     var wrapper = container.querySelector('[data-product-form]');
     var form = wrapper ? wrapper.querySelector('form') : container.querySelector('form');
 
-    /* Collect selected options */
     var selectedOptions = [];
     container.querySelectorAll('[data-option-value]:checked').forEach(function (input) {
       selectedOptions.push(input.value);
     });
 
-    /* Find matching variant — iterate the cached JSON array, not the
-       hidden select's options (we no longer write variant JSON per
-       option). `variant.options` is `[option1, option2, option3]`
-       from Shopify; compare index-by-index against the selected
-       radios. */
     var variants = getVariantsData(container);
     var matchedVariant = null;
     for (var idx = 0; idx < variants.length; idx++) {
       var variant = variants[idx];
       if (!variant || !variant.options) continue;
-      /* R-PDP2 — Require exact option-arity match. Iterating only
-         over `selectedOptions.length` and breaking on mismatch lets a
-         partial-prefix variant ("Red" alone) win over a fully
-         qualified variant ("Red / XL") when the customer's UI hasn't
-         registered every required option yet (rare race during JS
-         hydration on multi-option products). Comparing array sizes
-         first guarantees we only match a variant that exposes the
-         same number of axes the customer just picked. */
+
       if (variant.options.length !== selectedOptions.length) continue;
       var match = true;
       for (var i = 0; i < selectedOptions.length; i++) {
@@ -945,32 +530,9 @@
     }
 
     if (matchedVariant) {
-      /* Update hidden ID */
       if (variantIdInput) variantIdInput.value = matchedVariant.id;
       variantSelect.value = matchedVariant.id;
 
-      /* Update URL. R298 — Use `pushState` for the FIRST user-
-         initiated variant change so the browser back button
-         returns the customer to the previous variant (or to the
-         page they came from). Subsequent changes within the same
-         "session" use `replaceState` to avoid back-button history
-         spam (5 colour clicks shouldn't yield 5 back-stack
-         entries). `container._kitcheroHistoryPushed` tracks whether
-         we've already pushed for this PDP visit.
-
-         R-variant-edge — gate the URL rewrite on the section being an
-         actual PDP. The same module powers `featured-product` on the
-         homepage, `quick-view`, `product` blocks inside collection
-         sections, etc. Without this gate, picking a swatch on a
-         homepage featured-product rewrites the homepage URL to
-         `/?variant=12345` — a `?variant=` param has meaning only under
-         `/products/{handle}`, so refreshing or bookmarking captures a
-         misleading URL and Shop reviewers flag broken navigation state.
-         `data-section-type="main-product"` is set on both
-         `sections/main-product.liquid` and
-         `sections/main-product-showroom.liquid` (the two true PDP
-         surfaces). Featured-product uses `"featured-product"`, quick-
-         view uses `"quick-view"`, etc., and all skip the rewrite. */
       var sectionType = container && container.dataset && container.dataset.sectionType;
       if (sectionType === 'main-product') {
         var url = new URL(window.location.href);
@@ -982,32 +544,15 @@
           container._kitcheroHistoryPushed = true;
         }
 
-        /* R-PDP2 — Keep the share button URL aligned with the active
-           variant. Without this sync the button captured `request.origin
-           + product.url` at first paint and forever shared the default-
-           variant link; a shopper who configured a colour/size and then
-           hit Share would send a friend to the unconfigured PDP. The
-           share URL mirrors `window.location.href` (which we just
-           updated above with `?variant=…`) so SMS/Twitter/Web-Share
-           recipients land on the exact variant the sender is viewing.
-           Falls back to product.url-derived value on featured-product
-           cards where we deliberately don't push history. */
         try {
           var shareUrl = window.location.href;
           var shareButtons = container.querySelectorAll('[data-share-btn][data-share-url]');
           for (var si = 0; si < shareButtons.length; si++) {
             shareButtons[si].setAttribute('data-share-url', shareUrl);
           }
-        } catch (e) { /* share URL sync is non-critical */ }
+        } catch (e) {  }
       }
 
-      /* Dispatch `variant:change` event so Shopify-native custom
-         elements (`<shopify-payment-terms>` Shop Pay Installments
-         banner, `<pickup-availability>` widget, app-block stock
-         counters, etc.) re-fetch their state for the new variant.
-         Theme Store reviewers test "variant selection updates
-         dynamically" — without this dispatch, the Installments
-         banner price stays frozen on the original variant. */
       try {
         container.dispatchEvent(new CustomEvent('variant:change', {
           bubbles: true,
@@ -1017,41 +562,16 @@
           bubbles: false,
           detail: { variant: matchedVariant, productId: container.dataset.productId }
         }));
-      } catch (e) { /* CustomEvent unsupported in very old browsers — ignore */ }
+      } catch (e) {  }
 
-      /* Pickup availability — re-fetch the rendered banner via
-         Shopify's Section Rendering API for the picked variant.
-         Theme Store testing checklist (Section 7) explicitly tests:
-         a variant available at five locations must show five rows; a
-         variant only available at non-pickup locations must hide the
-         banner; a variant sold out everywhere must clear it. The
-         banner is rendered server-side once on first paint by
-         `snippets/pickup-availability.liquid`, but the variant-level
-         pickup payload (`variant.store_availabilities`) varies between
-         variants, so the banner has to be re-rendered, not just
-         re-styled. We fetch
-           /products/{handle}?section_id=pickup-availability&variant=ID
-         which returns just the banner HTML scoped to that variant
-         context, then swap the `[data-pickup-availability]` node.
-         The fetch is fire-and-forget — a slow network or 4xx leaves
-         the previous banner in place rather than blanking the area. */
       var productUrl = container.dataset.productUrl;
       var pickupNode = container.querySelector('[data-pickup-availability]');
       if (pickupNode) {
-        /* Pickup-availability Section Rendering API requires the
-           canonical /variants/[variant-id]/ prefix per Shopify docs
-           (themes/delivery-fulfillment/pickup-availability), NOT the
-           product-URL?variant=X pattern used elsewhere. The variants
-           endpoint resolves stock/location data per-variant rather
-           than per-product, which is what the section reads. Use
-           Shopify.routes.root so the locale prefix (e.g. /de/) is
-           preserved on multi-locale storefronts. */
         var routesRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
         var pickupUrl = routesRoot + 'variants/' + encodeURIComponent(matchedVariant.id) + '/?section_id=pickup-availability';
-        /* AbortController — if the customer rapid-fires variant
-           switches, only the LAST fetch's response should land. */
+
         if (container.__kitcheroPickupController) {
-          try { container.__kitcheroPickupController.abort(); } catch (e) { /* noop */ }
+          try { container.__kitcheroPickupController.abort(); } catch (e) {  }
         }
         container.__kitcheroPickupController = new AbortController();
         fetch(pickupUrl, {
@@ -1066,23 +586,15 @@
           .then(function (html) {
             var doc = new DOMParser().parseFromString(html, 'text/html');
             var fresh = doc.querySelector('[data-pickup-availability]');
-            /* Re-query the live node — variant matcher could have run
-               twice in quick succession; pick the LATEST node so we
-               replace the most recent element, not a stale reference. */
+
             var current = container.querySelector('[data-pickup-availability]');
             if (fresh && current && current.parentNode) {
               current.parentNode.replaceChild(fresh, current);
             } else if (current && !fresh) {
-              /* Section rendered nothing (e.g. variant has no pickup
-                 anywhere on a multi-location store) — clear the
-                 container so the customer sees the cleared state. */
               current.parentNode.removeChild(current);
             }
           })
           .catch(function (err) {
-            /* AbortError on rapid switches is expected; log other
-               errors but keep the previous banner so the page never
-               looks broken. */
             if (err && err.name !== 'AbortError') {
               if (typeof console !== 'undefined' && console.warn) {
                 console.warn('Pickup availability fetch failed:', err);
@@ -1091,16 +603,6 @@
           });
       }
 
-      /* Re-sync quantity rule from the new variant. B2B catalogs
-         (and merchants who configure per-variant case packs) set
-         `variant.quantity_rule.min/max/increment` per-variant. If
-         a customer picks a "Case of 12" variant whose min is 12
-         while the input still shows the previous variant's min of
-         1, the ATC submit silently 422s with "Order minimum 12".
-         This block reads the new rule (defaults to 1/null/1) and
-         pushes it back to both the visible input attributes AND
-         the input value when the customer is below the new min,
-         so they see the correction immediately. */
       var qtyInput = container.querySelector('[data-qty-input]');
       if (qtyInput) {
         var rule = matchedVariant.quantity_rule || {};
@@ -1123,36 +625,10 @@
         if (newMax != null && currentVal > newMax) qtyInput.value = newMax;
       }
 
-      /* Stash the currently-matched variant on the container so the
-         selling-plan:change handler below can re-price when the
-         customer picks a subscription cadence without having to
-         re-match against option inputs. Cheap DOM storage (one JSON
-         per container), cleared on next variant change automatically. */
       try {
         container.dataset.currentVariantJson = JSON.stringify(matchedVariant);
-      } catch (e) { /* circular / non-serializable — ignore */ }
+      } catch (e) {  }
 
-      /* Refresh visible SKU / Barcode / Weight — Theme Store Section 7
-         requires variant-bound merchant data (SKU at minimum) to update
-         with the variant. The elements are rendered server-side from
-         `selected_or_first_available_variant.{sku,barcode,weight}`; we
-         sync them here on every variant change. Two markup patterns
-         coexist:
-           1. Title block — single `<p data-product-sku>` with a
-              `.visually-hidden` label as its first child. The `hidden`
-              attribute lives ON the `<p>` itself.
-           2. Product details block — `<dd data-product-sku>` (and
-              -barcode, -weight) nested inside a
-              `<div data-product-detail-row="…">` wrapper. The wrapper
-              owns the `hidden` attribute so the entire row (label + value)
-              disappears together.
-         Both patterns route through `refreshDetail()` below — it detects
-         the wrapper if present, else operates on the element directly.
-         R297 — querySelectorAll (not querySelector) so the update lands
-         on every matching node across blocks (title + product_details).
-         Scoped to `container` to keep multiple product forms on a single
-         page (e.g., main-product + featured-product for a different
-         product) independent. */
       try {
         var escapeDetail = function (str) {
           return String(str).replace(/[<>"&]/g, function (c) {
@@ -1160,32 +636,6 @@
           });
         };
 
-        /* Mirror Shopify's `weight_with_unit` Liquid filter on the JS
-           side. Two precision points the previous implementation
-           missed:
-
-             1. variant.weight is already in `variant.weight_unit`
-                units (kg / g / lb / oz) per Shopify's variant JSON
-                shape — same as the Liquid filter expects.
-
-             2. Number formatting needs to match the storefront locale's
-                decimal separator. `1.5 kg` on EN vs `1,5 kg` on DE/FR;
-                the prior raw `String(rounded)` always emitted a `.`
-                regardless of locale, so a DE shopper saw `1,5 kg` at
-                first paint (server-rendered via Liquid) and then `1.5
-                kg` after variant change — visible flicker for the
-                same value. `Number.toLocaleString()` keyed off
-                `document.documentElement.lang` gives the matching
-                separator across all 5 supported locales.
-
-             3. The unit string itself ("kg", "lb") isn't translated
-                here because Shopify's Liquid filter doesn't translate
-                it either — both surfaces show the raw unit code. The
-                row's `data-weight-unit` attribute (set in the Liquid
-                template) is the ground-truth unit for the active
-                variant, used in preference to `matchedVariant.weight_unit`
-                so an undocumented JSON shape difference can never
-                cause an `oz` shop to display `kg`. */
         var docLang = (document.documentElement.lang || 'en').replace('_', '-');
         var formatVariantWeight = function (weight, unitFromRow) {
           if (weight === null || weight === undefined || weight <= 0) return '';
@@ -1208,11 +658,7 @@
           for (var i = 0; i < elements.length; i++) {
             var el = elements[i];
             var row = el.closest('[data-product-detail-row]');
-            /* Per-element value computation lets the weight formatter
-               read each row's own `data-weight-unit` attribute, which
-               matters when (rare but supported) a merchant runs side-
-               by-side product forms with different shop weight units
-               via section embed. */
+
             var value = (typeof opts.compute === 'function') ? opts.compute(row) : rawValue;
             var hasValue = (value !== null && value !== undefined && value !== '' && value !== 0 && value !== false);
             if (row) {
@@ -1244,27 +690,11 @@
             return formatVariantWeight(matchedVariant.weight, unit);
           }
         });
-      } catch (e) { /* product detail updates are non-critical */ }
+      } catch (e) {  }
 
-      /* Re-read the active selling plan (if any) so the new variant
-         shows the subscription-discounted price instead of flipping
-         back to one-time price for one frame. The radios share the
-         same `name="selling_plan"` — grab the checked one via
-         `:checked` so we read the customer's actual selection, not
-         the first radio in DOM order. */
       var activePlanInput = form.querySelector('input[name="selling_plan"]:checked');
       var activePlanId = activePlanInput ? activePlanInput.value : null;
 
-      /* Verify the active selling plan still exists for the new
-         variant. Subscription-eligible variants share allocations
-         keyed by `selling_plan_id`; if the new variant has no
-         allocation matching the customer's previously-checked plan
-         (e.g., they switched to a one-time-only variant), the radio
-         must be unchecked otherwise the form submits a selling_plan
-         id Shopify will reject (or worse: silently quietly accept
-         on a different plan). Also fall back to renderPriceForVariant
-         with no activePlanId so the price stack flips back to one-
-         time pricing instead of lying. */
       if (activePlanId && matchedVariant.selling_plan_allocations) {
         var planStillValid = false;
         for (var pi = 0; pi < matchedVariant.selling_plan_allocations.length; pi++) {
@@ -1275,39 +705,20 @@
           }
         }
         if (!planStillValid) {
-          /* R-PDP3 — Defensive null guard on `activePlanInput`. The
-             logical invariant `activePlanId truthy ⇒ activePlanInput
-             non-null` holds in the current code path (see assignment
-             above) but the cost of a single `&&` is dwarfed by the
-             cost of a runtime TypeError on subscription products if
-             a future refactor mutates `activePlanId` independently
-             of `activePlanInput`. */
           if (activePlanInput) activePlanInput.checked = false;
           activePlanId = null;
-          /* Tell SR users the subscription option dropped — they may
-             have selected a cadence then switched colour and the radio
-             silently went stale. */
+
           if (window.Kitchero && typeof Kitchero.announce === 'function' && Kitchero.variantStrings && Kitchero.variantStrings.subscriptionUnavailable) {
             Kitchero.announce(Kitchero.variantStrings.subscriptionUnavailable);
           }
         }
       } else if (activePlanId && !matchedVariant.selling_plan_allocations) {
-        /* New variant carries no subscription allocations at all. */
         if (activePlanInput) activePlanInput.checked = false;
         activePlanId = null;
       }
 
       renderPriceForVariant(container, matchedVariant, activePlanId);
 
-      /* R298 — Update low-stock indicator atomically with price/SKU.
-         Previously the price + sku + ATC label refreshed instantly
-         but the "Only N left" badge was server-rendered and stayed
-         frozen on the initial variant — a Theme Store "variant
-         selection updates atomically" failure. We refresh from
-         `matchedVariant.inventory_quantity` against the merchant
-         threshold (`Kitchero.lowStockThreshold` exposed in
-         layout/theme.liquid) only when inventory is Shopify-tracked
-         AND > 0 AND ≤ threshold. */
       try {
         var lowStockEl = container.querySelector('[data-low-stock]');
         if (lowStockEl) {
@@ -1321,15 +732,6 @@
             trackedQty <= threshold
           );
           if (showLowStock) {
-            /* R-PDP5 — Pick the plural form matching `trackedQty`.
-               Layout exposes both `lowStockOneHtml` (singular,
-               passed count:1 through Shopify's plural selector) and
-               `lowStockHtml` (other, passed count:[count]). Choosing
-               by `trackedQty === 1` keeps Spanish "Solo queda 1" vs
-               "Solo quedan 5" grammatically correct, and stays
-               functionally identical in languages without one/other
-               distinction (Turkish) since Shopify resolves both
-               keys to the same string there. */
             var lowStrings = (window.Kitchero && Kitchero.variantStrings) || {};
             var tmpl = (trackedQty === 1 && lowStrings.lowStockOneHtml)
               ? lowStrings.lowStockOneHtml
@@ -1341,12 +743,8 @@
             lowStockEl.textContent = '';
           }
         }
-      } catch (e) { /* low-stock update is non-critical */ }
+      } catch (e) {  }
 
-      /* R298 — Pre-order badge atomic update. The badge is now always
-         in the DOM with `hidden` toggled; show it when the variant is
-         Shopify-tracked, out of stock, and `inventory_policy: continue`
-         (backorderable). Mirrors the low-stock pattern above. */
       try {
         var preorderEls = container.querySelectorAll('[data-preorder]');
         if (preorderEls.length) {
@@ -1360,18 +758,12 @@
             preorderEls[pi].hidden = !showPreorder;
           }
         }
-      } catch (e) { /* preorder update is non-critical */ }
+      } catch (e) {  }
 
-      /* R298 — In-stock / sold-out status spans atomic update. Both
-         spans ship in the DOM with `hidden` toggled; we show exactly
-         one (or neither, when the low-stock badge owns the row).
-         Same atomic-update class as the low-stock + pre-order badges. */
       try {
         var inEl = container.querySelector('[data-stock-status="in"]');
         var outEl = container.querySelector('[data-stock-status="out"]');
         if (inEl || outEl) {
-          /* Determine if low-stock badge is currently visible (it owns
-             the row when shown — hide both in/out spans in that case). */
           var lowStockOwning = false;
           var lowStockProbe = container.querySelector('[data-low-stock]');
           if (lowStockProbe && lowStockProbe.hidden === false) {
@@ -1382,9 +774,8 @@
           if (inEl) inEl.hidden = !showIn;
           if (outEl) outEl.hidden = !showOut;
         }
-      } catch (e) { /* stock-status update is non-critical */ }
+      } catch (e) {  }
 
-      /* Update ATC button state */
       if (atcBtn) {
         atcBtn.disabled = !matchedVariant.available;
         if (atcText) {
@@ -1394,23 +785,6 @@
         }
       }
 
-      /* Sync the dynamic checkout cluster (Shop Pay / Apple Pay /
-         Google Pay / Buy It Now) to the variant's availability.
-         Shopify's `{{ form | payment_button }}` filter renders
-         shadow-DOM custom elements (`<shopify-accelerated-checkout>`,
-         `<shopify-buy-it-now-button>`) that maintain their OWN
-         enabled/disabled state independently of the regular
-         `<button data-add-to-cart>`. Without this sync a customer
-         on a sold-out variant sees the ATC button greyed out but
-         Shop Pay still clickable — clicking it boots them into
-         the Shopify-Pay checkout flow where they hit the
-         "unavailable" wall. Theme Store flags this as a buy-
-         cluster atomic-update violation.
-         We disable the wrapper's child controls via the
-         `pointer-events: none; opacity: 0.5` CSS pair (custom
-         element internals don't expose a clean `.disabled`
-         property across the iframe boundary) AND set
-         `aria-disabled` on the wrapper for SR users. */
       try {
         var dynCheckoutWraps = container.querySelectorAll('[data-payment-button-wrapper]');
         for (var dci = 0; dci < dynCheckoutWraps.length; dci++) {
@@ -1425,40 +799,20 @@
             wrap.style.opacity = '0.5';
           }
         }
-      } catch (e) { /* non-critical */ }
+      } catch (e) {  }
 
-      /* Toggle the back-in-stock notification CTA. The trigger button
-         + modal are always rendered server-side (so JS-off customers
-         still see the notify form when they land on a sold-out variant);
-         visibility is JS-driven from the matched variant's available
-         flag. Hidden when the variant is buyable to keep the buy-block
-         visually focused on the primary action. */
       try {
         var backInStockTrigger = container.querySelector('[data-back-in-stock-trigger]');
         if (backInStockTrigger) {
           backInStockTrigger.hidden = matchedVariant.available;
         }
-      } catch (e) { /* non-critical */ }
+      } catch (e) {  }
 
-      /* Announce the variant change + new price to the polite SR live
-         region. Visual swatch + label swap happens silently otherwise
-         — blind users hear nothing after picking a swatch, and the
-         sold-out state change is invisible to them. Skipped when the
-         announcer utility hasn't loaded yet (early page state). */
       if (window.Kitchero && typeof Kitchero.announce === 'function') {
         var announcement = matchedVariant.title;
         if (!matchedVariant.available && Kitchero.variantStrings && Kitchero.variantStrings.soldOut) {
           announcement += ' — ' + Kitchero.variantStrings.soldOut;
         } else {
-          /* Look up the price element fresh — `renderPriceForVariant`
-             above just re-rendered it, so the textContent is the new
-             post-variant price. Previously this branch read a `priceEl`
-             that was never declared in this scope (only inside
-             `renderPriceForVariant`), throwing a ReferenceError on
-             every successful variant change in builds where the
-             `Kitchero.variantStrings.soldOut` localized string was
-             empty / missing — the announcement throw aborted gallery
-             sync below it. Scoped lookup here keeps it self-contained. */
           var priceEl = container.querySelector('.kt-product-price__current');
           if (priceEl && priceEl.textContent) {
             announcement += ' — ' + priceEl.textContent.trim();
@@ -1467,24 +821,6 @@
         Kitchero.announce(announcement);
       }
 
-      /* Update gallery to variant's featured media.
-
-         We used to match by URL path segment (img.src.includes(…)),
-         which broke any time Shopify changed CDN transforms or the
-         variant's `featured_image.src` differed from what was rendered
-         via `image_url: width: 1200`. The stable identifier is the
-         media ID, which both sides of the handshake agree on:
-
-           • Liquid writes `data-media-id="{{ media.id }}"` on each
-             slide/thumb.
-           • `variant.featured_media.id` is the same numeric ID.
-
-         We dispatch a decoupled `gallery:goto` CustomEvent on the
-         gallery root so product-gallery.js remains the single owner
-         of slide/thumb/lightbox state — this is the only file that
-         calls `goTo(index)`, so sync issues with the lightbox's
-         `currentIndex` cannot occur. Falls back to `featured_image.id`
-         on the off-chance a legacy store ships without media. */
       var targetMediaId = null;
       if (matchedVariant.featured_media && matchedVariant.featured_media.id) {
         targetMediaId = matchedVariant.featured_media.id;
@@ -1499,32 +835,10 @@
             detail: { mediaId: targetMediaId }
           }));
         } else {
-          /* Standalone-image fallback — `featured-product` renders a
-             single static `<img>` without a `[data-product-gallery]`
-             wrapper. The wrapper carries `[data-variant-featured-image]`
-             so we can locate the image and swap its src/srcset/alt
-             directly from `variant.featured_image`. Without this, the
-             gallery dispatch above silently no-ops on featured-product
-             and the image stays on the original variant while price/
-             SKU/availability update around it — Theme Store atomic-
-             variant-update rule. */
           var imgWrap = container.querySelector('[data-variant-featured-image]');
           var imgEl = imgWrap && imgWrap.querySelector('img');
           var variantImage = matchedVariant.featured_image || (matchedVariant.featured_media && matchedVariant.featured_media.preview_image);
           if (imgEl && variantImage && variantImage.src) {
-            /* Strip any existing Shopify CDN transform suffix and re-
-               construct widths so srcset stays in sync. variantImage.src
-               from `product.variants | json` already includes the base
-               CDN URL without size transforms.
-
-               R-PDP3 — Use the URL constructor instead of `split('?')`
-               so both query AND fragment (`#...`) get cleanly dropped
-               from the base. `split('?')[0]` left fragments intact
-               (`cdn.shopify.com/.../image.jpg#abc`) which then leaked
-               into the generated srcset entries and broke loading on
-               some CDN proxies that treat fragments as part of the
-               cache key. The URL parse also defends against malformed
-               relative URLs by routing through the document origin. */
             var baseSrc;
             try {
               var parsed = new URL(variantImage.src, window.location.origin);
@@ -1532,9 +846,6 @@
               parsed.hash = '';
               baseSrc = parsed.toString();
             } catch (urlErr) {
-              /* URL constructor unavailable / malformed src — fall back
-                 to the legacy split so we never lose the image swap
-                 entirely on legacy browsers (Theme Store iOS 14 floor). */
               baseSrc = variantImage.src.split('?')[0].split('#')[0];
             }
             var existingWidths = [400, 600, 900, 1200];
@@ -1548,20 +859,11 @@
                 imgEl.setAttribute('width', String(variantImage.width));
                 imgEl.setAttribute('height', String(variantImage.height));
               }
-            } catch (swapErr) { /* malformed CDN URL — leave existing image */ }
+            } catch (swapErr) {  }
           }
         }
       }
     } else {
-      /* No variant matches the picked option combo — e.g. customer
-         selected "Red + XL" on a product where Red only ships in S/M.
-         Without this branch, the hidden `name="id"` input keeps the
-         PREVIOUS variant's id and ATC silently adds the wrong line to
-         the cart. Per the round-5 audit (real-purchase reviewer test
-         case): clicking an unavailable combo must surface the state,
-         not fall through. Disable ATC, swap label to "Unavailable",
-         clear the variant id so a stale value cannot be POSTed, and
-         announce to SR users. */
       if (variantIdInput) variantIdInput.value = '';
       if (variantSelect) variantSelect.value = '';
 
@@ -1582,26 +884,6 @@
     }
   }
 
-  /**
-   * Format a cents integer as a currency string using the merchant's
-   * configured `shop.money_format`. Delegates to `Kitchero.formatMoney`
-   * (defined in `assets/global.js`) which parses `{{amount}}` /
-   * `{{amount_with_comma_separator}}` / etc. placeholders so JS output
-   * matches Liquid `| money` output EXACTLY.
-   *
-   * R-money-parity — Previously used `Intl.NumberFormat` which produces
-   * CLDR output (e.g. `₺1.499,00`) that diverges from `shop.money_format`
-   * (e.g. `1.499 TL`) on every store that customized the admin's
-   * currency format — visibly different prices on the SAME variant
-   * between PDP (post-JS update) and cart (Liquid render). Theme Store
-   * reviewers flag the divergence as "deceptive pricing" and reject.
-   *
-   * Defensive fallback: if `Kitchero.formatMoney` isn't yet available
-   * (e.g. script load race on cached pages) fall back to CLDR Intl —
-   * better stale-currency than blank price. Production load order
-   * (global.js loaded before product-form.js with defer) makes the
-   * fallback unreachable in practice.
-   */
   function formatMoney(cents) {
     if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
       return window.Kitchero.formatMoney(cents);
@@ -1621,35 +903,6 @@
     }
   }
 
-  /**
-   * Render the product price block (`.kt-product-price__current` +
-   * `__compare` + `__discount`) for a given variant and optional
-   * selling-plan id.
-   *
-   * Why this exists as a standalone function: previously the price
-   * render lived inline inside `updateVariant` and only ran on
-   * option-swatch clicks. That meant when the customer picked a
-   * "Subscribe & save 15%" radio the PDP price stayed at full price
-   * until checkout — a known Theme Store reject because the customer
-   * can't confirm the discounted amount before committing.
-   *
-   * Now called from BOTH variant-change AND selling-plan:change so
-   * the display stays consistent with what will actually be charged.
-   *
-   * Lookup order for price:
-   *   1. `variant.selling_plan_allocations[planId].price` when a
-   *      selling plan is active. This is the discounted recurring
-   *      price (e.g. 15% off $100 = $85 shown here).
-   *   2. `variant.price` otherwise — one-time purchase price.
-   *
-   * Compare-at: we only show compare/discount when we have a clear
-   * "was/now" pair. For one-time purchase that's
-   * `compare_at_price > price`. For a subscription it's
-   * `variant.price > allocation.price` (the sub discount, so the
-   * compare-at displays the one-time price struck through), OR the
-   * existing compare_at when larger. Pick the max so the savings
-   * display is never understated.
-   */
   function renderPriceForVariant(container, variant, sellingPlanId) {
     if (!container || !variant) return;
     var priceEl = container.querySelector('.kt-product-price__current');
@@ -1659,19 +912,12 @@
     var displayPrice = variant.price;
     var comparePrice = variant.compare_at_price || 0;
 
-    /* Resolve allocation for the active plan. The selling_plan_allocations
-       array has an entry per plan that applies to this variant; the
-       shape is `{ price, compare_at_price, per_delivery_price,
-       selling_plan_id, ... }`. A one-time purchase selection leaves
-       sellingPlanId empty, so we fall through to variant.price. */
     if (sellingPlanId && variant.selling_plan_allocations && variant.selling_plan_allocations.length) {
       for (var i = 0; i < variant.selling_plan_allocations.length; i++) {
         var alloc = variant.selling_plan_allocations[i];
         if (String(alloc.selling_plan_id) === String(sellingPlanId)) {
           displayPrice = alloc.price;
-          /* When subscribing, the one-time `variant.price` IS the
-             compare-at — that's the savings. Keep existing compare_at
-             if the merchant set one higher (sale + sub stacked). */
+
           var subCompare = variant.price;
           if (subCompare > displayPrice) {
             comparePrice = Math.max(comparePrice, subCompare);
@@ -1700,16 +946,6 @@
       if (discountEl) discountEl.style.display = 'none';
     }
 
-    /* Volume pricing (B2B / wholesale) — rebuild the
-       quantity_price_breaks list when the customer flips a
-       variant. Previously the list was server-rendered for the
-       initial variant only; flipping bulk SKUs left the table
-       frozen on the first variant's tiers, mis-pricing the
-       buy decision. The wrapper ships in the DOM at all times
-       (hidden when empty) so we can always find the target.
-       `quantity_price_breaks_configured?` isn't on the variant
-       JSON blob; we infer it from a non-empty `quantity_price_breaks`
-       array directly. */
     var volumeEl = container.querySelector('[data-volume-pricing]');
     if (volumeEl) {
       var breaks = variant && variant.quantity_price_breaks;
@@ -1732,18 +968,6 @@
       }
     }
 
-    /* Unit price (groceries / wellness / cosmetics with reference unit
-       like "$2.50/100ml"). Theme Store testing checklist explicitly
-       requires "Unit prices change dynamically on variant selection".
-       The container ([data-unit-price]) is rendered server-side from
-       `variant.unit_price_measurement` for the FIRST available variant;
-       when the customer picks another variant, this block must reflect
-       the new variant's unit_price/measurement OR vanish entirely if
-       the new variant has no measurement set.
-
-       `variant.unit_price_measurement` shape:
-         { measured_type, quantity_value, quantity_unit,
-           reference_value, reference_unit } */
     var unitWrap = container.querySelector('[data-unit-price]');
     if (unitWrap) {
       var upm = variant && variant.unit_price_measurement;
@@ -1753,8 +977,6 @@
         var unitQtyEl   = unitWrap.querySelector('.kt-product-price__unit-qty');
         if (unitValueEl) unitValueEl.textContent = formatMoney(variant.unit_price);
         if (unitRefEl) {
-          /* Mirror the Liquid logic: only prefix the reference value
-             when it isn't 1 (e.g. "100 ml" vs just "kg").   = &nbsp; */
           var refText = '';
           if (upm.reference_value !== 1) {
             refText = String(upm.reference_value) + ' ';
@@ -1764,9 +986,6 @@
         }
         if (unitQtyEl) {
           if (upm.quantity_value !== upm.reference_value) {
-            /* "(250 g per 1 kg)" — German price-transparency law form.
-               Reproduce the localized template at runtime by reading
-               the data-template attribute set in the Liquid render. */
             var template = unitQtyEl.getAttribute('data-template') || '';
             var rendered = template
               .replace('{quantity_value}', String(upm.quantity_value))
@@ -1786,18 +1005,6 @@
     }
   }
 
-  /**
-   * Global listener for selling-plan:change — fired by
-   * selling-plan-picker.js when the customer ticks a different
-   * subscription cadence radio. Finds the owning product form's
-   * stashed variant and re-runs the price render for the new plan.
-   *
-   * Lives outside `initProductForm` so a single listener covers every
-   * product section on the page (search results, recommended slider,
-   * PDP main form) without per-form re-binding. The event bubbles
-   * from the section container to `document`; we walk back to the
-   * section container to read `currentVariantJson`.
-   */
   document.addEventListener('selling-plan:change', function (e) {
     var container = e.target && (e.target.closest ? e.target.closest('[data-section-type]') : null);
     if (!container || !container.dataset) return;
@@ -1808,18 +1015,6 @@
       try { variant = JSON.parse(variantJson); } catch (err) { variant = null; }
     }
     if (!variant) {
-      /* First plan change before any variant swap — find the
-         currently-selected variant by id in the cached data blob. */
-      /* R-PDP3 — Locale-prefix-safe form lookup. The earlier
-         `action*="/cart/add"` substring match worked on shops without
-         Markets but missed `/de/cart/add`, `/fr/cart/add` etc. on
-         localized storefronts because the actual rendered action URL
-         is the locale-prefixed routes.cart_add_url, not always the
-         bare `/cart/add` string. `data-product-form` is the canonical
-         hook we already emit on the wrapper element in
-         snippets/product-form.liquid; falling back to `action$=
-         "/cart/add"` keeps backward-compat with any inherited form
-         that omits the hook. */
       var form = container.querySelector('[data-product-form] form, form[data-product-form], form[action$="/cart/add"]');
       var select = form && form.querySelector('[data-variant-select]');
       if (select && select.value) {
@@ -1838,12 +1033,6 @@
     try {
       renderPriceForVariant(container, variant, planId);
 
-      /* Subscription ATC label switch — Shopify subscription UX
-         guideline: the main CTA copy should change when a recurring
-         plan is selected so the customer understands they're
-         committing to a subscription, not a one-time purchase.
-         Reverts to the regular "Add to cart" copy when the customer
-         switches back to one-time (planId blank). */
       var atcText = container.querySelector('[data-add-to-cart-text]');
       if (atcText && Kitchero.variantStrings) {
         if (planId) {
@@ -1855,20 +1044,15 @@
         }
       }
 
-      /* Announce the new price to SR users — subscription discount
-         applied silently is confusing. */
       if (window.Kitchero && typeof Kitchero.announce === 'function') {
         var priceEl = container.querySelector('.kt-product-price__current');
         if (priceEl && priceEl.textContent) {
           Kitchero.announce(priceEl.textContent.trim());
         }
       }
-    } catch (err) { /* malformed JSON — skip */ }
+    } catch (err) {  }
   });
 
-  /**
-   * Share — Web Share API first, clipboard fallback. No external service.
-   */
   function initShareButton(btn) {
     if (!btn || btn.dataset.shareInit === '1') return;
     btn.dataset.shareInit = '1';
@@ -1881,7 +1065,7 @@
 
     btn.addEventListener('click', function () {
       if (navigator.share) {
-        navigator.share({ title: title, url: url }).catch(function () { /* user dismissed — no-op */ });
+        navigator.share({ title: title, url: url }).catch(function () {  });
         return;
       }
       var restore = function () {
@@ -1899,12 +1083,6 @@
         return;
       }
 
-      /* Last-resort fallback for browsers without Web Share API AND
-         without Clipboard API (or with both blocked — permission
-         policy, insecure context, etc.). Fill a hidden textarea with
-         the share URL, select it, execCommand('copy'), and toast
-         "Link copied" if it succeeded. If even that fails, select
-         the text so the customer can press Ctrl+C manually. */
       legacyCopyFallback();
 
       function legacyCopyFallback() {
@@ -1925,9 +1103,6 @@
             restore();
           }
         } catch (e) {
-          /* Give up silently. The <a href> fallback on the button
-             element's own `href` attribute (when present) is the
-             customer's remaining recourse. */
         }
       }
     });
@@ -1937,13 +1112,6 @@
     container.querySelectorAll('[data-share-btn]').forEach(initShareButton);
   }
 
-  /* Init — both the full PDP (`main-product`) and the homepage
-     featured-product section share the same form contract:
-     `[data-product-form]` wrapper + variant picker with `[data-option-value]`
-     radios + `[data-variant-select]` JSON registry. Handling both with
-     one set of selectors means a merchant-placed featured-product on
-     the homepage gets Ajax add-to-cart, live price updates, and
-     dynamic checkout behavior for free. */
   var PRODUCT_SECTION_SELECTOR = '[data-section-type="main-product"], [data-section-type="featured-product"]';
 
   document.querySelectorAll(PRODUCT_SECTION_SELECTOR).forEach(function (el) {
@@ -1951,25 +1119,9 @@
     initActions(el);
   });
 
-  /* R-listener-leak — Module-scope popstate handler with single-bind
-     guard. The previous in-`initProductForm` placement stacked one
-     handler per `shopify:section:load`, causing memory leaks and
-     multi-fire flicker on Back/Forward in the theme editor. Now
-     bound once per page lifetime; the handler re-discovers the
-     active PDP section via PRODUCT_SECTION_SELECTOR and applies the
-     URL's `?variant=ID` to the live picker radios. Featured-product
-     sections are intentionally excluded from the URL rewrite path
-     (see line ~639 gate), so popstate on a homepage with a
-     featured-product section will find no `?variant=` to apply —
-     graceful no-op. */
   if (!window.__kitcheroProductPopstateBound) {
     window.__kitcheroProductPopstateBound = true;
-    /* R-PDP4 H6/M7 — Shared URL→picker sync. The popstate handler
-       and the new pageshow bfcache restore handler both need this
-       logic, so it's factored out. `variantParam` absent +
-       `resetToDefault` true means "URL has no ?variant= so put the
-       picker back on the product's default variant" (WCAG 1.3.2
-       Meaningful Sequence — URL and UI must agree). */
+
     function syncPickerFromUrl(resetToDefault) {
       var section = document.querySelector('[data-section-type="main-product"]');
       if (!section) return;
@@ -1985,11 +1137,6 @@
           }
         }
       } else if (resetToDefault) {
-        /* No ?variant in URL — pick the first available variant the
-           way Liquid's `selected_or_first_available_variant` would
-           on a fresh page load. Without this, hitting Back from a
-           navigated-to variant URL left the picker frozen on the
-           last-selected swatch even though the URL had reverted. */
         for (var vi = 0; vi < variants.length; vi++) {
           if (variants[vi] && variants[vi].available) { targetVariant = variants[vi]; break; }
         }
@@ -2008,17 +1155,6 @@
     }
     window.addEventListener('popstate', function () { syncPickerFromUrl(true); });
 
-    /* R-PDP4 H6 — bfcache restore. Safari/Firefox keep the full JS
-       state + DOM when navigating away then back (Back-Forward Cache);
-       the `pageshow` event fires on restore with `event.persisted ===
-       true`. The cached variants array + memoized history-pushed
-       state can be out of sync with the restored URL (e.g. user
-       picked variant N, navigated to cart, hit Back — URL has
-       `?variant=N` but the picker silently re-painted from
-       `_kitcheroVariants` cache with no change events firing).
-       Re-running the URL→picker sync inside the persisted branch
-       guarantees the visible picker matches the restored URL on
-       every bfcache return. */
     window.addEventListener('pageshow', function (event) {
       if (event.persisted) syncPickerFromUrl(true);
     });
@@ -2032,13 +1168,6 @@
     }
   });
 
-  /* Section unload — abort any in-flight /cart/add.js request the
-     section's product form may have started. Without this, theme
-     editor reloads while the merchant is mid-add fire the success
-     handler against a removed DOM (atcBtn classList writes silently
-     no-op, but `drawerEl.open()` falls into the manual fallback
-     branch and toggles aria-hidden on a node about to be GC'd).
-     Touching a controller that's already null/aborted is a no-op. */
   document.addEventListener('shopify:section:unload', function (e) {
     var section = e.target.querySelector
       ? e.target.querySelector(PRODUCT_SECTION_SELECTOR)
@@ -2046,7 +1175,7 @@
     if (!section) return;
     var form = section.querySelector('form');
     if (form && form.__kitcheroAtcController) {
-      try { form.__kitcheroAtcController.abort(); } catch (err) { /* no-op */ }
+      try { form.__kitcheroAtcController.abort(); } catch (err) {  }
       delete form.__kitcheroAtcController;
     }
   });

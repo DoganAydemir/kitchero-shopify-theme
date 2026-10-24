@@ -1,23 +1,3 @@
-/**
- * Newsletter Popup — auto-opens after a merchant-configured delay, with a
- * localStorage cooldown so returning visitors aren't nagged repeatedly.
- *
- * Behavior:
- *  - On load: read [data-newsletter-popup]. If localStorage cooldown has not
- *    expired AND the form was NOT just submitted successfully (Liquid sets
- *    data-posted-successfully="true" in that case), do nothing.
- *  - Otherwise wait `data-delay-seconds` seconds, then open the modal.
- *  - If data-posted-successfully is set, open immediately in success state
- *    and auto-close after 5 seconds.
- *  - Close on: backdrop click, [data-popup-close] click, Escape key.
- *  - Focus trap Tab/Shift-Tab within the dialog.
- *  - Autofocus the email input on open (or the first focusable element in
- *    success state).
- *  - Body scroll is locked while open.
- *  - Manual trigger: any element with [data-newsletter-popup-open] opens it.
- *  - Idempotent via window.__kitcheroNewsletterPopupLoaded so the file is
- *    safe against duplicate script injection.
- */
 if (!window.__kitcheroNewsletterPopupLoaded) {
   window.__kitcheroNewsletterPopupLoaded = true;
 
@@ -34,10 +14,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
     var openTimer = null;
 
     function promoteSuccessSentinel(p) {
-      /* Liquid can only resolve `form.posted_successfully?` inside the
-       * {% form %} block, so the section renders a <span data-newsletter-
-       * posted-success> sentinel there. Promote that signal onto the
-       * popup root so the rest of this module can read a single flag. */
       if (!p) return;
       if (p.getAttribute('data-posted-successfully') === 'true') return;
       var sid = p.getAttribute('data-section-id');
@@ -127,10 +103,7 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
 
       lastTrigger = triggerEl || document.activeElement;
       p.setAttribute('aria-hidden', 'false');
-      /* Remove inert so inner focusables (email input, submit, close)
-         re-enter the Tab order. Paired with the closePopup() side that
-         re-applies inert. The HTML default state is `inert`+`aria-hidden=true`
-         so the subtree is fully out of focus until this runs. */
+
       p.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('newsletter-popup');
@@ -138,15 +111,10 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
         document.body.style.overflow = 'hidden';
       }
 
-      /* Enable focus trap so Tab/Shift+Tab stay within the modal.
-       * WCAG 2.4.3 — focus order must not leak to the page behind a
-       * role="dialog" aria-modal="true" element. Mirrors the pattern
-       * used by cart-drawer + search-overlay. */
       if (window.Kitchero && Kitchero.focusTrap && dialog) {
         Kitchero.focusTrap.enable(dialog);
       }
 
-      /* Focus: email input if present, otherwise first focusable in dialog */
       setTimeout(function () {
         var email = p.querySelector('[data-popup-email]');
         var target = email;
@@ -159,8 +127,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
         }
       }, 100);
 
-      /* If this render is the post-submit success state, auto-close after
-       * the user has had time to read the discount code. */
       if (p.getAttribute('data-posted-successfully') === 'true') {
         if (autoCloseTimer) clearTimeout(autoCloseTimer);
         autoCloseTimer = setTimeout(function () {
@@ -174,9 +140,7 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       if (!p || !isOpen()) return;
 
       p.setAttribute('aria-hidden', 'true');
-      /* Re-apply inert so closed-state subtree is removed from the Tab
-         order, click events, and the accessibility tree. Mirrored on
-         openPopup(). */
+
       p.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('newsletter-popup');
@@ -184,8 +148,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
         document.body.style.overflow = '';
       }
 
-      /* Release focus trap so surrounding page is keyboard-reachable
-       * again. Paired with the openPopup() enable call above. */
       if (window.Kitchero && Kitchero.focusTrap && dialog) {
         Kitchero.focusTrap.disable(dialog);
       }
@@ -208,18 +170,8 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       var p = getPopup();
       if (!p) return;
 
-      /* Theme editor guard — never auto-open in `Shopify.designMode`.
-       * The merchant is actively editing section settings; the popup's
-       * modal overlay would trap them and every settings change would
-       * re-fire `shopify:section:load` → re-open the popup → trap again,
-       * making the section uneditable. They can still preview the popup
-       * by triggering a [data-newsletter-popup-open] control manually.
-       * Theme Store reviewers flag auto-opening modals in the editor as
-       * a blocking rejection ("modal traps merchant workflow"). */
       if (window.Shopify && Shopify.designMode) return;
 
-      /* Always open (immediately) when Shopify redirected back after a
-       * successful submission — the merchant needs to see the success panel. */
       if (p.getAttribute('data-posted-successfully') === 'true') {
         openPopup(null);
         return;
@@ -229,15 +181,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
 
       if (openTimer) clearTimeout(openTimer);
       openTimer = setTimeout(function () {
-        /* Modal-stacking guard — when the auto-open fires while the
-           customer already has the cart drawer, mobile nav panel, or
-           search overlay open, the newsletter popup would render at a
-           lower z-index BEHIND the active modal (invisible) but still
-           install its own focus trap. Keyboard / SR users would then
-           type into a hidden form. WCAG 2.4.3 (Focus Order) violation.
-           Detect any sibling modal in the open state and skip this
-           cycle; the user's next page-load attempt re-arms the timer
-           naturally, so the popup still surfaces eventually. */
         var anyModalOpen = (
           document.querySelector('cart-drawer[aria-hidden="false"]') ||
           document.querySelector('.kt-cart-drawer[aria-hidden="false"]') ||
@@ -252,7 +195,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       }, readDelayMs(p));
     }
 
-    /* Delegated click handler — handles current + future triggers. */
     document.addEventListener('click', function (e) {
       var opener = e.target.closest('[data-newsletter-popup-open]');
       if (opener) {
@@ -262,8 +204,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       }
       var closer = e.target.closest('[data-popup-close]');
       if (closer && closer.closest('[data-newsletter-popup]')) {
-        /* Success-state "Start Shopping" link has [data-popup-close] AND an
-         * href — let navigation happen but still close + mark dismissed. */
         if (!(closer.tagName === 'A' && closer.getAttribute('href'))) {
           e.preventDefault();
         }
@@ -272,16 +212,9 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       }
     });
 
-    /* Keyboard: Escape closes, Tab traps focus */
     document.addEventListener('keydown', function (e) {
       if (!isOpen()) return;
       if (e.key === 'Escape' || e.code === 'Escape') {
-        /* shouldSuppressEscape must be queried with the SAME element that
-           openPopup() passed to focusTrap.enable() — `dialog`, not `popup`.
-           Querying with `popup` returns true unconditionally when this trap
-           is active because the stack's top entry is `dialog`, so ESC was
-           silently suppressed and the popup became un-closable via keyboard.
-           WCAG 2.1.2 violation; especially severe on auto-opening modals. */
         if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(dialog)) return;
         e.preventDefault();
         closePopup(true);
@@ -290,14 +223,12 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       trapFocus(e);
     });
 
-    /* Initial boot — DOMContentLoaded if still parsing, otherwise now. */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', maybeAutoOpen);
     } else {
       maybeAutoOpen();
     }
 
-    /* Theme editor: re-init when the section reloads, clean up on unload. */
     document.addEventListener('shopify:section:load', function (e) {
       if (e.target && e.target.querySelector && e.target.querySelector('[data-newsletter-popup]')) {
         popup = null;
@@ -320,8 +251,6 @@ if (!window.__kitcheroNewsletterPopupLoaded) {
       }
     });
 
-    /* Theme editor: when merchant selects the section, force it open so they
-     * can preview/edit the content. */
     document.addEventListener('shopify:section:select', function (e) {
       if (e.target && e.target.querySelector && e.target.querySelector('[data-newsletter-popup]')) {
         popup = null;

@@ -1,32 +1,11 @@
-/**
- * Testimonials — Mouse-follow spotlight reveal effect
- *
- * Matches Testimonials.tsx: radial-gradient mask follows the cursor with a
- * spring-like ease so the spotlight smoothly trails behind the mouse.
- *
- * Framer-motion's `useSpring(stiffness: 100, damping: 30)` is approximated
- * here with a simple lerp factor of ~0.12 per frame running on rAF.
- *
- * IMPORTANT: the mask-image is written inline via JS every frame (not via
- * CSS custom properties). Some browsers fail to parse
- * `radial-gradient(<len> circle at var(--x, 50%) var(--y, 50%), ...)` and
- * silently drop the position clause, so the spotlight never appears. Writing
- * the full gradient string each frame bypasses that CSS-parser quirk.
- *
- * Opacity is still controlled by CSS :hover transition.
- */
 (function () {
   'use strict';
 
-  /* Reduced-motion guard — under `prefers-reduced-motion: reduce` we
-     snap the spotlight directly to the cursor each frame instead of
-     LERPing toward it, so there's no visible motion trail. WCAG 2.3.3
-     compliance for customers who've opted out of animated motion. */
   var prefersReducedMotion = window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var LERP = prefersReducedMotion ? 1 : 0.12;  // 1 = snap, 0.12 = smooth trail
-  var RADIUS = 450;         // spotlight radius in px (matches Testimonials.tsx)
+  var LERP = prefersReducedMotion ? 1 : 0.12;
+  var RADIUS = 450;
 
   function maskString(x, y) {
     return (
@@ -50,9 +29,6 @@
     var isHovering = false;
     var initialized = false;
 
-    // Initial mask — a zero-radius circle at center, so nothing is revealed
-    // before the first mousemove. We can't use `0` because browsers treat
-    // a zero-size radial gradient as invalid, so start tiny at 1px.
     spotlight.style.webkitMaskImage =
       'radial-gradient(circle 1px at 50% 50%, black 0%, transparent 100%)';
     spotlight.style.maskImage =
@@ -69,7 +45,6 @@
       var dx = Math.abs(targetX - currentX);
       var dy = Math.abs(targetY - currentY);
 
-      // Keep animating while hovering OR until we've caught up to the target
       if (isHovering || dx > 0.5 || dy > 0.5) {
         rafId = requestAnimationFrame(animate);
       } else {
@@ -77,14 +52,6 @@
       }
     }
 
-    /* R12-D — Cache the section's viewport rect on mouseenter and
-       invalidate it only when the layout the cache depends on can
-       change (scroll, resize). The previous implementation called
-       `section.getBoundingClientRect()` on every mousemove — a 60 Hz
-       cursor stream forced layout flushes that surfaced as a
-       Long-Task warning. The cached rect stays accurate for the
-       entire hover unless the user scrolls or the viewport resizes,
-       both of which invalidate it. */
     var cachedRect = null;
     function refreshRect() {
       cachedRect = section.getBoundingClientRect();
@@ -98,8 +65,6 @@
       targetX = e.clientX - cachedRect.left;
       targetY = e.clientY - cachedRect.top;
 
-      // On first move inside the section, snap the spotlight to the cursor
-      // so it doesn't slide in from (0, 0) on the first hover.
       if (!initialized) {
         currentX = targetX;
         currentY = targetY;
@@ -146,12 +111,7 @@
   document.addEventListener('shopify:section:load', function (e) {
     var s = e.target.querySelector('[data-section-type="testimonials"]');
     if (!s) return;
-    /* If this section was already initialized (rare, but happens when
-       merchant changes a setting in the editor and Shopify re-fires
-       :load without a preceding :unload), tear down the old listeners
-       + RAF before creating a new instance. Without this teardown the
-       previous mousemove/enter/leave handlers + RAF tick stay bound,
-       leaking on every editor edit cycle. */
+
     var sid = s.dataset.sectionId;
     if (destroyers[sid]) {
       destroyers[sid]();
@@ -167,18 +127,10 @@
     }
   });
 
-  /* Theme editor: when the merchant clicks a testimonial block in the
-     sidebar, scroll that card into view. event.target is the block
-     element (the .kt-testimonials__card div). */
   document.addEventListener('shopify:block:select', function (e) {
     var card = e.target;
     if (!card || !card.classList || !card.classList.contains('kt-testimonials__card')) return;
-    /* Scroll-into-view handled centrally by global.js's block:select
-       handler (50%-visibility-guarded). A local unconditional scroll
-       re-jolted the page on every re-select (section re-render after a
-       setting tweak). */
-    /* Temporary highlight ring so the merchant can see which card is
-       selected — clears itself after 1.5s. */
+
     card.classList.add('kt-testimonials__card--editor-selected');
     window.setTimeout(function () {
       card.classList.remove('kt-testimonials__card--editor-selected');

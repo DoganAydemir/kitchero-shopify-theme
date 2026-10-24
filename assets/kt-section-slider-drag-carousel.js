@@ -1,33 +1,12 @@
-/**
- * Drag Carousel — Slider Style 02
- *
- * Horizontal scroll-snap carousel with pointer-drag support.
- * - Pointer drag: mousedown tracks startX + startScroll; mousemove sets
- *   scrollLeft = startScroll - (currentX - startX).
- * - Swaps cursor grab <-> grabbing.
- * - Suppresses click events if the user dragged more than the threshold
- *   (avoids accidental navigation when the item is a link).
- * - Arrow buttons scroll by one item's outerWidth + gap with smooth behavior.
- * - Enables/disables arrows based on scroll position.
- * - Re-inits on shopify:section:load for the matching section.
- * - Cleans up on shopify:section:unload.
- *
- * Idempotent: guarded by window.__kitcheroSliderDragLoaded.
- */
-
 if (!window.__kitcheroSliderDragLoaded) {
   window.__kitcheroSliderDragLoaded = true;
 
   (function () {
     'use strict';
 
-    var DRAG_THRESHOLD = 5; /* px — below this counts as a click, not a drag */
+    var DRAG_THRESHOLD = 5;
     var SCROLL_EDGE_EPSILON = 4;
 
-    /* Respect prefers-reduced-motion by substituting 'auto' for 'smooth'
-       behavior on all programmatic scrollBy/scrollTo calls. Drag is
-       user-direct and unaffected. Re-queried per call so a customer
-       toggling OS-level reduce-motion mid-session picks up live. */
     function scrollBehavior() {
       try {
         return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
@@ -36,7 +15,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       }
     }
 
-    /* Registry of teardown fns, keyed by section id */
     var teardowns = Object.create(null);
 
     function getGapPx(el) {
@@ -84,25 +62,17 @@ if (!window.__kitcheroSliderDragLoaded) {
 
       section.dataset.kcDragInited = 'true';
 
-      /* ---------- Pointer drag ---------- */
       var isDown = false;
       var startX = 0;
       var startScroll = 0;
       var moved = false;
 
       function onPointerDown(e) {
-        /* Only primary mouse button; allow touch + pen */
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         isDown = true;
         moved = false;
         startX = e.pageX;
         startScroll = track.scrollLeft;
-        /* Do NOT capture the pointer or flag dragging on pointerdown.
-           Capturing on a plain tap/click can swallow the `click` on a
-           slide's <a> link (browsers may retarget the click to the
-           capturing element), so the link never navigates. We capture
-           only once real movement begins (onPointerMove), leaving clean
-           clicks free to reach the link. */
       }
 
       function onPointerMove(e) {
@@ -111,10 +81,8 @@ if (!window.__kitcheroSliderDragLoaded) {
         if (!moved && Math.abs(dx) > DRAG_THRESHOLD) {
           moved = true;
           track.classList.add('is-dragging');
-          /* Now that it's a genuine drag, capture so a fast flick that
-             takes the finger off the track still gets move/up events
-             (prevents the carousel freezing mid-flick on mobile). */
-          try { track.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+
+          try { track.setPointerCapture(e.pointerId); } catch (_) {  }
         }
         if (moved) {
           track.scrollLeft = startScroll - dx;
@@ -126,9 +94,9 @@ if (!window.__kitcheroSliderDragLoaded) {
         isDown = false;
         track.classList.remove('is-dragging');
         if (e && e.pointerId) {
-          try { track.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+          try { track.releasePointerCapture(e.pointerId); } catch (_) {  }
         }
-        /* Reset `moved` on the next tick so click handler can read it */
+
         window.setTimeout(function () {
           moved = false;
         }, 0);
@@ -142,7 +110,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       }
 
       function onDragStart(e) {
-        /* Prevent native image drag ghost */
         e.preventDefault();
       }
 
@@ -153,7 +120,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       track.addEventListener('click', onClickCapture, true);
       track.addEventListener('dragstart', onDragStart);
 
-      /* ---------- Arrows ---------- */
       function scrollBySteps(dir) {
         var step = getStep(track);
         track.scrollBy({ left: dir * step, behavior: scrollBehavior() });
@@ -170,7 +136,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       if (prevBtn) prevBtn.addEventListener('click', onPrevClick);
       if (nextBtn) nextBtn.addEventListener('click', onNextClick);
 
-      /* ---------- Scroll state ---------- */
       function onScroll() {
         updateArrowState(section);
       }
@@ -183,7 +148,6 @@ if (!window.__kitcheroSliderDragLoaded) {
 
       updateArrowState(section);
 
-      /* ---------- Teardown ---------- */
       teardowns[section.dataset.sectionId || section.id || 'anon'] =
         function teardown() {
           track.removeEventListener('pointerdown', onPointerDown);
@@ -216,7 +180,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       }
     }
 
-    /* ---------- Boot ---------- */
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () {
         initAll();
@@ -225,7 +188,6 @@ if (!window.__kitcheroSliderDragLoaded) {
       initAll();
     }
 
-    /* ---------- Shopify theme editor hooks ---------- */
     document.addEventListener('shopify:section:load', function (event) {
       var section = event.target.querySelector(
         '[data-section-type="slider-drag-carousel"]'
@@ -238,11 +200,7 @@ if (!window.__kitcheroSliderDragLoaded) {
         section = event.target;
       }
       if (!section) return;
-      /* :load can fire without a paired :unload on settings change.
-         The window resize and pointermove/pointerup listeners are on
-         window — they do NOT GC with section DOM replacement.
-         teardowns Map gets overwritten without firing, leaking the
-         old closures permanently. Tear down before re-init. */
+
       var sectionId = section.dataset.sectionId;
       if (sectionId) {
         teardownSection(sectionId);
@@ -255,16 +213,12 @@ if (!window.__kitcheroSliderDragLoaded) {
       if (sectionId) teardownSection(sectionId);
     });
 
-    /* Theme editor: when the merchant clicks a carousel item block in
-       the sidebar, smooth-scroll the track so that block is in view.
-       event.target is the block element itself (has [data-carousel-item]). */
     document.addEventListener('shopify:block:select', function (event) {
       var block = event.target;
       if (!block || !block.matches || !block.matches('[data-carousel-item]')) return;
       var track = block.closest('[data-carousel-track]');
       if (!track) return;
-      /* Use scrollTo with an offset calculation rather than scrollIntoView
-         — scrollIntoView scrolls the page vertically, which is jarring. */
+
       var trackRect = track.getBoundingClientRect();
       var blockRect = block.getBoundingClientRect();
       var currentScroll = track.scrollLeft;

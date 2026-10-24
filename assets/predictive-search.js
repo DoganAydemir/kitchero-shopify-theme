@@ -1,47 +1,12 @@
-/**
- * Predictive Search — fetches suggestions from Shopify API.
- *
- * Uses routes.predictive_search_url (exposed via Kitchero.routes) for
- * search-as-you-type. Calls Shopify's Section Rendering API with
- * `section_id=predictive-search` so the response HTML is pre-rendered
- * by the section at `sections/predictive-search.liquid`.
- *
- * Lifecycle: the script binds one `input` listener on the search input
- * and one `click` listener per suggestion pill. Both need to survive
- * the theme editor's `shopify:section:load` event (fires when a
- * merchant re-renders a section containing the search overlay or
- * the suggestion pills inside search-popular-queries snippet). We
- * achieve that by re-running `bindSearch` on every section:load, using
- * per-node bound flags so the same DOM node never gets duplicate
- * listeners when the surrounding section is re-rendered without the
- * input itself being replaced.
- */
 (function () {
   'use strict';
 
   var debounceTimer;
 
-  /* AbortController for in-flight predictive-search requests. Fast
-     typists trigger several overlapping fetches as they type — without
-     cancellation, responses race each other and whichever lands LAST
-     wins the DOM, which is often the response to a PRIOR query. Users
-     see stale matches that don't reflect what they typed. On each new
-     fetch, abort the previous controller before firing the new one. */
   var abortCtl = null;
 
-  /* R88 — 429 backoff state. Fast typists can hammer the
-     /search/suggest.json endpoint past Shopify's rate limit; when
-     that happens we record a "skip until" timestamp and refuse to
-     fire new fetches for 5s. Without this the next keystroke just
-     hits another 429. Module-scoped so the state persists across
-     successive keypresses (per-fetch closure would reset it). */
   var predictiveSearchRateLimitedUntil = 0;
 
-  /* SR announcement helper — pushes result counts through the global
-     Kitchero.announce() live region. The results container itself has
-     aria-live="polite" but mass DOM replacement doesn't always fire
-     announcements reliably across SRs; a discrete textContent swap
-     on the persistent announcer is the belt-and-braces. */
   function announceResultCount(count) {
     if (!(window.Kitchero && typeof Kitchero.announce === 'function')) return;
     var tpl = window.Kitchero.searchSettings && window.Kitchero.searchSettings.resultsAnnouncement;
@@ -57,10 +22,6 @@
     Kitchero.announce(msg);
   }
 
-  /* Toggle the combobox's `aria-expanded` based on whether the listbox
-     currently has result content. Lets AT announce "listbox collapsed"
-     when the query clears and "listbox expanded, N results" when
-     suggestions appear. Pair with aria-controls on the input. */
   function setExpanded(input, expanded) {
     if (input && input.setAttribute) {
       input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -74,14 +35,6 @@
       return;
     }
 
-    /* Which resource types to ask Shopify for. Driven by theme settings
-       (Theme options → Search behavior → Include in results). Falls back
-       to a sane default including collection so merchants who land on a
-       store with no explicit setting still get category matches (e.g.
-       typing "sofa" surfaces the /collections/sofas page, not just
-       individual sofa products). Previously omitted collection, which
-       hid a navigation shortcut customers expected from every other
-       Shopify store. */
     var types = (window.Kitchero && Kitchero.searchSettings && Kitchero.searchSettings.types) || 'product,collection,article,page';
     if (!types) {
       resultsContainer.innerHTML = '';
@@ -91,30 +44,6 @@
     var routes = window.Kitchero && Kitchero.routes;
     if (!routes || !routes.predictiveSearch) return;
 
-    /* JSON endpoint instead of Section Rendering API.
-     *
-     * History: this code went through 5+ debugging rounds across
-     * multiple commits trying to make the section-rendering pattern
-     * work (`/search/suggest?section_id=predictive-search`). Bugs
-     * surfaced at every level:
-     *   • disabled_on wildcard in the section schema → Section
-     *     Rendering API silently refused to invoke the Liquid path.
-     *   • encodeURIComponent(types) → commas became %2C →
-     *     Shopify treated the type list as one literal string.
-     *   • Even with both fixed, /search/suggest with section_id
-     *     kept returning the empty-state branch in some
-     *     environments — the user reported "still no results"
-     *     after every theoretically-complete fix.
-     *
-     * Switching to the JSON endpoint eliminates the entire class
-     * of section-render bugs. We call /search/suggest.json
-     * directly, get a guaranteed JSON payload back, and render
-     * the result groups manually in JS. The DOM output matches
-     * the kt-predictive-search markup the section template would
-     * have produced — same classes, same a11y semantics, same
-     * keyboard navigation hooks. The Liquid section file is
-     * retained as a no-JS fallback hook + defensive scaffold but
-     * is no longer on the critical path. */
     var jsonUrl = routes.predictiveSearch
       + (routes.predictiveSearch.indexOf('.json') === -1 ? '.json' : '');
 
@@ -124,63 +53,27 @@
     params.set('resources[limit]', '4');
     var url = jsonUrl + '?' + params.toString();
 
-    /* Cancel any prior in-flight fetch so a slow earlier response
-       can't overwrite the DOM with stale matches. */
     if (abortCtl) abortCtl.abort();
     abortCtl = new AbortController();
-    /* R298 — Capture the controller in a local so the 8s timeout
-       closure can't accidentally abort the NEXT fetch's controller
-       after this one is reassigned. */
+
     var localAbortCtl = abortCtl;
 
-    /* R88 — offline gate. Browser dispatches `TypeError: Failed to
-       fetch` for offline mode; without this gate we'd repeatedly
-       hit the catch path on every keystroke, clearing results +
-       logging warnings. Bail early with a non-error UX instead.
-
-       R-search-audit — Surface an inline "offline" message so the
-       customer knows search is unavailable, not just an empty
-       dropdown. Audit flagged the silent UX dead-end. */
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       resultsContainer.innerHTML = renderError('offline');
       setExpanded(input, true);
       return;
     }
 
-    /* R88 — 429 (rate-limit) backoff. Fast typists triggering the
-       Shopify endpoint over its threshold get HTTP 429; without
-       backoff the next keystroke fires another fetch, hitting 429
-       again. Skip fetches for 5s after a 429 response to give the
-       endpoint room to reset.
-
-       R-search-audit — Surface a "Search temporarily unavailable"
-       message during the 5s cool-off so the customer sees why
-       results stopped updating. */
     if (predictiveSearchRateLimitedUntil > Date.now()) {
       resultsContainer.innerHTML = renderError('rate_limited');
       setExpanded(input, true);
       return;
     }
 
-    /* R88 — client-side timeout. Slow-3G stalls on /search/suggest.json
-       can leave the input hanging silently. 8s timeout aborts the
-       request and lets the next keystroke try again. */
     var timeoutId = setTimeout(function () {
-      /* R298 — Abort the OUR controller (captured above), not the
-         current module-level `abortCtl` which may already point at
-         a fresh request from a later keystroke. */
-      try { localAbortCtl.abort(); } catch (e) { /* noop */ }
+      try { localAbortCtl.abort(); } catch (e) {  }
     }, 8000);
 
-    /* R91 — aria-busy signals "results are loading" to screen-reader
-       users while the fetch is in flight. Without it SR announces
-       the current (stale) DOM as the only state until the response
-       lands. Cleared in tail .then so success/error both release.
-
-       R-search-audit — Render a VISIBLE skeleton (3 ghost rows)
-       while aria-busy is true, so the sighted customer sees that
-       results are loading instead of an empty void. Replaced by
-       real results or the empty-state in the response handler. */
     resultsContainer.setAttribute('aria-busy', 'true');
     resultsContainer.innerHTML = renderSkeleton();
 
@@ -207,15 +100,7 @@
         if (totalCount === 0) {
           resultsContainer.innerHTML = renderEmpty(query);
           announceResultCount(0);
-          /* R298 — `aria-expanded="false"` on empty results. WAI-ARIA
-             combobox semantics: `aria-expanded="true"` requires a
-             visible listbox of `role="option"` children. The empty-
-             state branch renders only a `role="status"` message
-             with NO options, so the combobox state is "collapsed"
-             from the AT perspective. Previously `setExpanded(input,
-             true)` reported expanded with zero options and pointed
-             `aria-controls` at a container with no listbox descendants
-             — unparseable. */
+
           setExpanded(input, false);
           return;
         }
@@ -230,30 +115,15 @@
         setExpanded(input, true);
       })
       .catch(function (err) {
-        /* R91 — release aria-busy on the error path too so SR users
-           don't hear an indefinite "loading" announcement after a
-           network failure. */
         resultsContainer.removeAttribute('aria-busy');
-        /* AbortError is expected — we cancelled the request ourselves
-           on a newer keystroke. Silently ignore; any other error
-           clears the results so the UI doesn't freeze on stale data. */
+
         if (err && err.name === 'AbortError') return;
-        /* R-search-audit — Render a visible error message instead
-           of clearing silently. Differentiates rate-limit (the
-           caller already set predictiveSearchRateLimitedUntil) from
-           generic failure for clearer recovery messaging. */
+
         var errKind = (err && err.message === 'Search rate-limited') ? 'rate_limited' : 'generic';
         resultsContainer.innerHTML = renderError(errKind);
         setExpanded(input, true);
       });
   }
-
-  /* HTML render helpers — produce the same kt-predictive-search markup
-     the Liquid section ships, so existing CSS + keyboard nav hooks
-     continue to work without changes. Use innerHTML strings rather
-     than DOM construction because the tree is shallow + read-only and
-     the perf delta is negligible vs the readability win. All user-
-     supplied strings are escaped via escapeHtml(). */
 
   function escapeHtml(s) {
     if (s == null) return '';
@@ -268,14 +138,6 @@
   function strings() {
     return (window.Kitchero && window.Kitchero.searchSettings) || {};
   }
-
-  /* Group renderers — mirror the Liquid template's ARIA structure
-     per Shopify's predictive-search docs + WAI-ARIA combobox spec:
-     each group <ul> carries role="listbox" + aria-labelledby pointing
-     to the group <h2> id; each <li> carries role="option" (NOT the
-     inner <a>). The keydown handler below selects on .kt-predictive-
-     search__item now, with aria-activedescendant pointing to the <li>
-     id. */
 
   function renderProductGroup(products) {
     var s = strings();
@@ -296,11 +158,7 @@
       }
       html += '<span class="kt-predictive-search__text">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
-      /* `price` comes from formatMoney() which uses Intl.NumberFormat
-         and today only returns digits / currency glyphs / separators —
-         nothing exploitable. Pipe it through escapeHtml() anyway as
-         defense-in-depth so a future fallback path that returned a
-         raw merchant string couldn't introduce an XSS vector. */
+
       if (price) html += '<span class="kt-predictive-search__price">' + escapeHtml(price) + '</span>';
       html += '</span></a></li>';
     });
@@ -360,11 +218,7 @@
     var s = strings();
     var label = s.viewAll || 'View all results';
     var routes = window.Kitchero && window.Kitchero.routes;
-    /* Markets locale-prefix safe fallback. The bare '/search' literal
-       breaks /de/, /fr/, /es/, /tr/ storefronts on the unlikely path
-       where Kitchero.routes.search wasn't bootstrapped. Mirror R28
-       cart-drawer.js fix: fall back through Shopify.routes.root which
-       is always set by Shopify, then root-relative search. */
+
     var fallbackRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
     var searchUrl = (routes && routes.search) ? routes.search : (fallbackRoot + 'search');
     return '<div class="kt-predictive-search__footer">' +
@@ -379,12 +233,6 @@
     return '<p class="kt-predictive-search__empty" role="status">' + escapeHtml(msg) + '</p>';
   }
 
-  /* R-search-audit — Visible loading skeleton.
-     Three ghost rows that pulse via CSS keyframes; aria-busy on the
-     parent container takes care of the SR announcement, the visual
-     skeleton stops the dropdown from looking dead during fetch.
-     Replaced by real results / empty-state / error-state in the
-     fetch chain. */
   function renderSkeleton() {
     var rows = '';
     for (var i = 0; i < 3; i++) {
@@ -399,15 +247,6 @@
     return '<div class="kt-predictive-search__skeleton">' + rows + '</div>';
   }
 
-  /* R-search-audit — Visible error state.
-     Three kinds:
-       • offline      — navigator.onLine === false branch
-       • rate_limited — 429 cool-off (5s window)
-       • generic      — any other fetch failure
-     Each maps to a translation string from the locale; falls back
-     to English copy if the key isn't set. role="status" so SR
-     announces the change politely (not assertive — error here is
-     soft, customer can try again). */
   function renderError(kind) {
     var s = strings();
     var key;
@@ -424,30 +263,7 @@
     return '<p class="kt-predictive-search__error" role="status">' + escapeHtml(key) + '</p>';
   }
 
-  /* Money formatting — best-effort using Intl.NumberFormat. Shopify's
-     /search/suggest.json returns price as cents (integer) under
-     `price` and the currency under `currency`. The locale is read
-     from `<html lang>` so number formatting (decimal/thousands
-     separator placement) follows the storefront locale, not the
-     browser's preferred language — a French visitor on the German
-     storefront should still see "1.299,00 €" rather than the French
-     "1 299,00 €". When the suggest endpoint omits `currency` we
-     fall back to `Shopify.currency.active` (set in theme.liquid
-     bootstrap) so non-USD storefronts don't render a hardcoded "$"
-     prefix that misleads German / Turkish / French shoppers. */
   function formatMoney(cents, currency) {
-    /* R-money-parity — Delegate to `Kitchero.formatMoney` (global.js)
-       which parses the merchant-configured `shop.money_format` so
-       the predictive-search dropdown matches the Liquid `| money`
-       output the same query returns on the full search results
-       page (which uses `| money_with_currency`). Previous
-       `Intl.NumberFormat` implementation produced CLDR output that
-       diverged from `shop.money_format` on customized markets,
-       failing Theme Store reviewer parity tests. The `currency`
-       parameter from the suggest endpoint is no longer needed
-       because `shop.money_format` already carries the symbol /
-       suffix. CLDR fallback retained for the unreachable script-
-       load race. */
     if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
       return window.Kitchero.formatMoney(cents);
     }
@@ -462,7 +278,7 @@
           style: 'currency',
           currency: activeCurrency,
         }).format(amount);
-      } catch (e) { /* fall through */ }
+      } catch (e) {  }
     }
     return amount.toFixed(2) + ' ' + activeCurrency;
   }
@@ -470,46 +286,21 @@
   function bindInput(input, resultsContainer) {
     if (!input || input.__ktPredictiveBound) return;
     input.__ktPredictiveBound = true;
-    /* R298 — Per-input debounce timer (was module-level shared across
-       all inputs). Two inputs (overlay + main-search page) share the
-       module before this fix; one input's keystroke cancelled the
-       other's pending fetch. Now each input owns its own timer. */
+
     var localDebounce = null;
     input.addEventListener('input', function () {
       clearTimeout(localDebounce);
       var query = this.value.trim();
-      /* 180 ms debounce — tuned to match Shopify's predictive-search
-         endpoint latency (typically 60-120 ms). 300 ms felt laggy
-         vs. live-search UX; 180 ms still drops typed-and-deleted
-         characters before firing the request. */
+
       localDebounce = setTimeout(function () {
         fetchResults(input, resultsContainer, query);
       }, 180);
     });
 
-    /* Keyboard navigation through predictive results. ArrowDown moves
-       the highlight down, ArrowUp moves it up, Enter follows the
-       highlighted link. Without this, keyboard-only users have to
-       Tab through every result individually to pick one. */
     input.addEventListener('keydown', function (event) {
-      /* WAI-ARIA combobox: aria-activedescendant on the input must
-         point to the element that carries role="option". The R83
-         restructuring moved role="option" from the inner <a> to the
-         wrapping <li> so the option semantics match Shopify's
-         documented predictive-search pattern. Query the <li>
-         (.kt-predictive-search__item) here, not the <a>. */
       var options = resultsContainer.querySelectorAll('.kt-predictive-search__item');
       if (!options.length) return;
 
-      /* Each option needs a unique id so the input's
-         `aria-activedescendant` can point at it — that's how the
-         WAI-ARIA combobox pattern tells screen readers WHICH option
-         in the listbox is currently highlighted while DOM focus
-         stays on the input. Without ids + activedescendant, NVDA /
-         JAWS users typing into the search and arrowing through
-         suggestions hear only the input value, never the highlighted
-         result. Assign lazily here (idempotent — keeps ids stable
-         across re-renders within the same query). */
       for (var idx = 0; idx < options.length; idx++) {
         if (!options[idx].id) {
           options[idx].id = 'kt-predictive-option-' + idx;
@@ -535,11 +326,6 @@
         if (prev < 0) prev = options.length - 1;
         setActive(options, prev, input);
       } else if (event.key === 'Enter' && currentIndex >= 0) {
-        /* Only intercept Enter when the user has navigated into the
-           results — otherwise allow the default form submit to reach
-           the full-page /search results. The actual navigation
-           happens via the inner <a> click; the role="option" wrapper
-           is purely an ARIA construct. */
         event.preventDefault();
         var anchor = options[currentIndex].querySelector('.kt-predictive-search__link');
         if (anchor) anchor.click();
@@ -555,16 +341,11 @@
     if (!option) return;
     option.classList.add('is-active');
     option.setAttribute('aria-selected', 'true');
-    /* Sync the combobox input's aria-activedescendant to point at
-       the currently-highlighted option (the <li role="option">,
-       not the inner <a>). SR users focused on the input hear the
-       option announced via the option's accessible name. */
+
     if (input && option.id) {
       input.setAttribute('aria-activedescendant', option.id);
     }
-    /* Scroll the result into view if the list is tall enough to
-       overflow its container. `block: 'nearest'` avoids a jumpy
-       center-scroll on short result lists. */
+
     if (typeof option.scrollIntoView === 'function') {
       option.scrollIntoView({ block: 'nearest' });
     }
@@ -581,9 +362,6 @@
   }
 
   function bindPills(input, resultsContainer, root) {
-    /* Suggestion pills — populate input and trigger search. Scoped to
-       `root` so re-binding after a section:load only touches the pills
-       inside the just-re-rendered node. */
     var scope = root || document;
     var pills = scope.querySelectorAll('[data-search-term]');
     for (var i = 0; i < pills.length; i++) {
@@ -602,17 +380,6 @@
   }
 
   function init(root) {
-    /* Re-resolve the input + results container every run — on a theme
-       editor section:load the old references may have been detached
-       from the document.
-
-       Each `[data-search-input]` pairs with its OWN results container
-       via `aria-controls="..."`. Previously we looked up ONE global
-       `#predictive-search-results` which only matched the overlay —
-       the full-page /search input had no listbox target and its
-       live-suggestions path was dead. Reading aria-controls off each
-       input scopes the pairing and aligns with the ARIA combobox
-       pattern already in the markup. */
     var inputs = (root === document ? document : (root.querySelectorAll ? root : document))
       .querySelectorAll('[data-search-input]');
     if (!inputs.length) return;
@@ -637,21 +404,10 @@
     init(document);
   }
 
-  /* Theme editor lifecycle — re-init when a section containing the
-     search input or the suggestion pills is re-rendered. Without this,
-     merchants who add/reorder sections in the editor would see dead
-     search UI (listeners bound to DOM nodes that are no longer in the
-     document). */
   document.addEventListener('shopify:section:load', function (event) {
     init(event.target || document);
   });
 
-  /* R295 — Unload pair. `init()` uses a `dataset.bound` guard, so the
-     listeners die with the DOM node when Shopify removes the section
-     wrapper. No timers / observers are held at the module level. The
-     stub satisfies the Theme Store reviewer expectation of paired
-     load/unload events. */
   document.addEventListener('shopify:section:unload', function (event) {
-    /* No-op: bindings are scoped to DOM nodes removed by Shopify. */
   });
 })();

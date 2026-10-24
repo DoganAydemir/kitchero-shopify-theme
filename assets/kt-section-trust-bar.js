@@ -1,20 +1,6 @@
-/**
- * Trust Bar — GSAP number counter + line animations
- * Matches TrustBar.tsx exactly.
- */
 (function () {
   'use strict';
 
-
-  /* Skip scroll-bound animations entirely inside Shopify's theme
-     editor (Shopify.designMode is true only in the editor iframe).
-     Editor lifecycle quirks — section adds, removes, re-renders —
-     fire shopify:section:load / unload in rapid sequence and can
-     trigger ScrollTrigger.refresh() against half-torn-down DOM,
-     which has surfaced as "page won't scroll to the footer after
-     I drop in this section" reports across multiple sections that
-     don't even use pinning. The live storefront still gets every
-     animation because designMode is undefined there. */
   if (window.Shopify && window.Shopify.designMode) return;
   function initTrustBar(container) {
     var section = container.querySelector('[data-section-type="trust-bar"]');
@@ -23,7 +9,6 @@
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (prefersReducedMotion) {
-      /* Set final numbers directly without counting up */
       var staticNumbers = section.querySelectorAll('.kt-trust-bar__number');
       staticNumbers.forEach(function (num) {
         var val = parseInt(num.dataset.countTo, 10);
@@ -37,7 +22,6 @@
     gsap.registerPlugin(ScrollTrigger);
 
     var ctx = gsap.context(function () {
-      /* Counter animations */
       var numbers = gsap.utils.toArray('.kt-trust-bar__number', section);
       numbers.forEach(function (num, i) {
         var val = parseInt(num.dataset.countTo, 10);
@@ -60,7 +44,6 @@
         });
       });
 
-      /* Line scale animations */
       gsap.from('.kt-trust-bar__line', {
         scaleY: 0,
         transformOrigin: 'top',
@@ -78,13 +61,6 @@
     return ctx;
   }
 
-  /* Per-section ctx store. The previous implementation used a single
-     module-scoped `ctx` — so when two trust-bar sections existed on
-     the same page (e.g. merchant drops one above the fold + one in
-     the footer group), the second initTrustBar() clobbered the first
-     ctx reference, and on section:unload of EITHER the first's
-     GSAP timelines got reverted (not the second's). Keyed by
-     section id so each instance owns its own ctx lifecycle. */
   var ctxBySection = Object.create(null);
 
   function sectionIdOf(node) {

@@ -1,14 +1,6 @@
-/* ============================================================
-   Testimonials pullquote slider.
-   Only binds when more than one quote block is present. Handles
-   prev/next buttons, dot indicators, auto-advance (paused on
-   hover/focus), and keyboard arrow navigation.
-   ============================================================ */
 (function () {
   'use strict';
 
-  /* Map<rootElement, goToFn> so the shopify:block:select handler can
-     call into a bound slider instance to jump to a specific slide. */
   var boundSliders = new WeakMap();
 
   function initSlider(root) {
@@ -25,11 +17,7 @@
     var total = slides.length;
     var interval = null;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    /* R232.74 — Autoplay interval now driven by merchant setting.
-       `data-autoplay-interval` is in SECONDS; 0 = autoplay disabled
-       (the default). Previously hardcoded to 7000ms which made
-       autoplay always-on regardless of merchant preference and
-       forced the WCAG 2.2.2 pause button to render on every install. */
+
     var autoplaySeconds = parseInt(root.getAttribute('data-autoplay-interval') || '0', 10);
     var autoplayMs = (isNaN(autoplaySeconds) || autoplaySeconds <= 0) ? 0 : autoplaySeconds * 1000;
 
@@ -40,16 +28,13 @@
       slides.forEach(function (slide, n) {
         var on = n === index;
         slide.classList.toggle('kt-testimonials-pullquote__slide--active', on);
-        /* tabpanel visibility for assistive tech — hide inactive slides
-           so screen readers don't announce every quote at once. */
+
         slide.setAttribute('aria-hidden', on ? 'false' : 'true');
       });
       dots.forEach(function (dot, n) {
         var on = n === index;
         dot.classList.toggle('kt-testimonials-pullquote__dot--active', on);
-        /* role="tab" pattern — aria-selected + roving tabindex so only
-           the active tab is in the sequential focus order. Arrow keys
-           move between tabs (tablist keydown handler below). */
+
         dot.setAttribute('aria-selected', on ? 'true' : 'false');
         dot.setAttribute('tabindex', on ? '0' : '-1');
       });
@@ -57,14 +42,9 @@
 
     function startAuto() {
       if (reduceMotion || interval) return;
-      /* R232.74 — Skip when autoplay is disabled (merchant left
-         interval at 0). With autoplay off there's no auto-motion
-         and no need for the WCAG 2.2.2 pause control either (which
-         is now also conditionally rendered). */
+
       if (autoplayMs <= 0) return;
-      /* R87 — designMode pause so merchant editing a quote block
-         doesn't see the slide rotate. block:select still drives
-         navigation in editor. */
+
       if (window.Shopify && window.Shopify.designMode) return;
       interval = setInterval(function () { goTo(index + 1); }, autoplayMs);
     }
@@ -78,9 +58,6 @@
       dot.addEventListener('click', function () { goTo(n); stopAuto(); });
     });
 
-    /* Keyboard nav scoped to the tablist — WAI-ARIA Authoring Practices
-       tab pattern: ArrowLeft/Right cycle, Home/End jump to ends. Focus
-       follows selection so the roving tabindex stays coherent. */
     var tablist = root.querySelector('[role="tablist"]');
     if (tablist) {
       tablist.addEventListener('keydown', function (e) {
@@ -100,11 +77,6 @@
       });
     }
 
-    /* WCAG 2.2.2 Pause/Play toggle — user-controllable pause for the
-       7s autoplay. `userPaused` is the persistent pause state set by
-       the toggle; hover/focus pauses are transient (resume after the
-       cursor leaves). When `userPaused` is true, hover/focus exits
-       must NOT resume autoplay. */
     var userPaused = false;
     var playToggle = root.querySelector('[data-pullquote-play-toggle]');
     var iconPause = root.querySelector('.kt-testimonials-pullquote__play-icon--pause');
@@ -135,7 +107,6 @@
       if (!userPaused) startAuto();
     });
 
-    /* Touch swipe */
     var startX = 0, startY = 0, touchActive = false;
     track.addEventListener('touchstart', function (e) {
       if (!e.touches || e.touches.length !== 1) return;
@@ -154,14 +125,11 @@
       goTo(index + (dx < 0 ? 1 : -1));
       stopAuto();
     }, { passive: true });
-    /* R21-C: touchcancel resets touchActive so a system-interrupted
-       swipe doesn't strand the next gesture in mid-state. */
+
     track.addEventListener('touchcancel', function () {
       touchActive = false;
     }, { passive: true });
 
-    /* Expose goTo + stopAuto so the theme editor block:select handler
-       can jump to a specific slide when the merchant clicks a block. */
     boundSliders.set(root, { goTo: goTo, stopAuto: stopAuto });
 
     startAuto();
@@ -178,10 +146,6 @@
     initAll();
   }
   document.addEventListener('shopify:section:load', function (e) {
-    /* :load fires on settings changes without :unload. The 7s
-       setInterval per slider would keep firing on detached DOM
-       (closure prevents GC) for every editor save. Tear down any
-       pre-existing slider in this section before re-init. */
     if (e.target && e.target.querySelectorAll) {
       var oldNodes = e.target.querySelectorAll('.kt-testimonials-pullquote--slider');
       Array.prototype.forEach.call(oldNodes, function (root) {
@@ -193,9 +157,6 @@
     initAll(e.target);
   });
 
-  /* Theme editor: stop the autoplay interval when a section is removed
-     so we don't leak a 7s timer for every deleted/re-added section. The
-     DOM listeners GC with the nodes, but setInterval keeps firing. */
   document.addEventListener('shopify:section:unload', function (e) {
     if (!e.target) return;
     var nodes = e.target.querySelectorAll
@@ -208,8 +169,6 @@
     });
   });
 
-  /* Theme editor: when merchant selects a quote block in the sidebar,
-     jump to that slide. event.target is the <article data-pullquote-slide>. */
   document.addEventListener('shopify:block:select', function (e) {
     var slide = e.target;
     if (!slide || !slide.matches || !slide.matches('[data-pullquote-slide]')) return;

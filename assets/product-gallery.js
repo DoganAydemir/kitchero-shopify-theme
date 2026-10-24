@@ -1,15 +1,6 @@
-/**
- * Product Gallery — thumbnail switching + fullscreen lightbox
- * Birebir from product/[id]/page.tsx gallery behavior.
- * Re-inits on shopify:section:load.
- */
 (function () {
   'use strict';
 
-  /* Devices with a fine pointer (mouse / trackpad) get the
-     magnifier-style mouse-follow pan when the lightbox image is
-     zoomed. Touch-only devices fall back to the default overflow
-     scroll so users can drag the image with their finger. */
   var hasFinePointer =
     window.matchMedia && window.matchMedia('(pointer: fine)').matches;
 
@@ -27,27 +18,6 @@
     var lightboxPrev = gallery.querySelector('[data-lightbox-prev]');
     var lightboxNext = gallery.querySelector('[data-lightbox-next]');
 
-    /* Portal the lightbox to <body> — same reason as the back-in-
-       stock modal (commit 8a19ef7): the PDP wraps product cards in
-       Lenis/GSAP-animated containers that set inline `transform`
-       on themselves, and CSS spec turns `position: fixed` into
-       `position: absolute` against the nearest transformed ancestor.
-       Without this move, the lightbox would anchor to the gallery's
-       transformed wrapper instead of the viewport, painting at a
-       weird position with the page content visible around it.
-
-       Section reload cleanup: when Shopify re-renders the gallery's
-       owning section (theme editor / Section Rendering API), the
-       old portaled lightbox would stay orphaned at body while a
-       new copy renders inside the fresh section markup. We tag
-       each lightbox with the section id it belongs to and purge
-       any prior orphan that carries the same tag before appending
-       the new one.
-
-       The JS references captured above stay valid after the DOM
-       move — variable bindings persist across reparenting.
-       Idempotent: skips the append when the lightbox is already
-       a body child. */
     if (lightbox) {
       var sectionEl = container.closest('.shopify-section') || container;
       var sectionId = (sectionEl && sectionEl.id) || 'gallery';
@@ -69,12 +39,6 @@
     var imageUrls = [];
     var imageAlts = [];
 
-    /* Collect image URLs for lightbox (use the largest srcset candidate
-       when available, otherwise fall back to src). Push a sentinel
-       (null) for video / model / external_video slides so the array
-       indices stay aligned with `slides` — without it, mixed-media
-       galleries open the wrong image in the lightbox after a video
-       slide because `imageUrls.length < slides.length`. */
     slides.forEach(function (slide) {
       var img = slide.querySelector('img');
       if (!img) {
@@ -91,21 +55,6 @@
       imageUrls.push(url);
       imageAlts.push(img.alt || '');
 
-      /* R-SS5-showroom — Mark each slide loaded as soon as its
-         image finishes downloading. CSS shows a centred spinner on
-         every slide; this attribute hard-hides it. Pattern works
-         for both gallery types:
-           • Default product gallery — JS-driven goTo() also paints
-             a spinner over the active slide via
-             `.kt-gallery__main--loading` (added in commit 0731113),
-             but THAT only covers the active slide. This per-slide
-             attribute covers ALL slides at init, so cached / eager
-             images skip the spinner entirely.
-           • Showroom gallery — no goTo() flow (mobile is scroll-
-             snap, desktop is a multi-slide grid). The per-slide
-             attribute is the ONLY signal we have, so the spinner
-             on the next horizontal slide stays visible until its
-             lazy-loaded bytes arrive. */
       if (img.complete && img.naturalWidth > 0) {
         slide.setAttribute('data-image-loaded', 'true');
       } else {
@@ -115,20 +64,14 @@
           img.removeEventListener('error', markLoaded);
         };
         img.addEventListener('load', markLoaded);
-        /* `error` also clears the loader — a broken image src must
-           not leave the spinner stuck spinning over a dead slide. */
+
         img.addEventListener('error', markLoaded);
       }
     });
 
-    /* Pause every active video / external video / model on slide
-       change so audio doesn't keep playing in the background after
-       the customer swipes / clicks to another slide / closes the
-       lightbox. Native <video> uses pause(); YouTube / Vimeo iframes
-       receive the documented postMessage commands. */
     function pauseAllMedia() {
       gallery.querySelectorAll('video').forEach(function (v) {
-        try { v.pause(); } catch (e) { /* not playable yet — ignore */ }
+        try { v.pause(); } catch (e) {  }
       });
       gallery.querySelectorAll('iframe').forEach(function (iframe) {
         var src = iframe.src || '';
@@ -138,50 +81,30 @@
           } else if (src.indexOf('vimeo') > -1) {
             iframe.contentWindow.postMessage('{"method":"pause"}', '*');
           }
-        } catch (e) { /* cross-origin / not yet ready — ignore */ }
+        } catch (e) {  }
       });
-      /* R140 PDP-MODEL-PAUSE-1: Shopify 3D models render via the
-         <model-viewer> custom element. The previous pause sweep
-         only stopped <video> + iframes — `auto-rotate` keeps
-         spinning AND any model-viewer audio (rare but possible
-         for animated GLB clips with audio tracks) keeps playing
-         across slide changes. model-viewer exposes a `pause()`
-         method that halts both animation and audio. Wrapped in
-         try/catch because the element may not have upgraded yet
-         when slide change fires immediately after first paint. */
+
       gallery.querySelectorAll('model-viewer').forEach(function (mv) {
         try {
           if (typeof mv.pause === 'function') mv.pause();
-          /* Also clear auto-rotate so the model returns to its
-             initial pose on next view rather than spinning where
-             we left it. Setting the property to false is the
-             documented model-viewer toggle. */
+
           if ('autoRotate' in mv) mv.autoRotate = false;
-        } catch (e) { /* model-viewer not upgraded — ignore */ }
+        } catch (e) {  }
       });
     }
 
-    /* Lightbox image load/loading state handling — show spinner until
-       the new image's `load` event fires, then fade it in.
-       Matches the product/[id]/page.tsx isImageLoading behavior. */
     function setLightboxImage(url, alt) {
       if (!lightboxImage) return;
 
-      // Reset to loading state: hide image, show spinner, clear any
-      // leftover zoom pan transform from the previous image, and exit
-      // zoom mode so the new image starts at its fit-to-viewport size.
       lightboxImage.classList.remove('is-loaded');
       lightboxImage.style.transform = '';
       if (lightboxViewport) {
         lightboxViewport.classList.add('is-loading');
         lightboxViewport.classList.remove('kt-lightbox__viewport--zoomed');
       }
-      /* R12-D — Drop the cached viewport+image rects. New slide has
-         different intrinsic dimensions; the next zoom-in must read
-         fresh measurements. */
+
       if (typeof invalidateZoomCache === 'function') invalidateZoomCache();
 
-      // Detach previous onload to avoid stale callbacks.
       lightboxImage.onload = null;
       lightboxImage.onerror = null;
 
@@ -190,32 +113,17 @@
         if (lightboxViewport) lightboxViewport.classList.remove('is-loading');
       };
       lightboxImage.onerror = function () {
-        // Still hide the spinner on error so the user isn't stuck staring
-        // at an endlessly spinning circle — we leave the image invisible.
         if (lightboxViewport) lightboxViewport.classList.remove('is-loading');
       };
 
       lightboxImage.alt = alt || '';
       lightboxImage.src = url || '';
 
-      // If the browser already has the image cached, `load` may never fire
-      // (Firefox). Fall back to `complete`.
       if (lightboxImage.complete && lightboxImage.naturalWidth > 0) {
         lightboxImage.onload();
       }
     }
 
-    /* R-SS5 — Loader during thumbnail switch.
-       Non-active slides are emitted with `loading="lazy"` so the
-       initial page payload stays light. Lazy-loaded images inside
-       `display: none` slides may not be fetched until the slide
-       becomes visible, and on slower connections the customer
-       sees ~1-2s of a white panel between thumb tap and the new
-       image appearing. The fix shows a centred spinner the
-       moment a non-cached image is requested, and hides it as
-       soon as the new image's `load` event (or `complete`) fires.
-       Cached images skip the spinner entirely so there's no
-       flash for frequent re-clicks. */
     var galleryMain = gallery.querySelector('.kt-gallery__main');
     function showLoader() {
       if (galleryMain) galleryMain.classList.add('kt-gallery__main--loading');
@@ -224,23 +132,13 @@
       if (galleryMain) galleryMain.classList.remove('kt-gallery__main--loading');
     }
 
-    /* Switch to slide by index */
     function goTo(index) {
       if (index < 0) index = totalSlides - 1;
       if (index >= totalSlides) index = 0;
       currentIndex = index;
 
-      /* Pause any active media before switching slides. Avoids the
-         audio-leak / multi-video-playing footgun reviewers test for. */
       pauseAllMedia();
 
-      /* R-SS5 — Inspect the image in the target slide. If it's
-         a real `<img>` and hasn't finished loading yet (`complete`
-         false), arm the loader and wait for `load` / `error`
-         before hiding it. Bind both events so a 404 doesn't leave
-         the spinner stuck. Wrapped in a try/catch so a non-image
-         slide (video / model_viewer / external_video) silently
-         no-ops. */
       var targetImg = slides[index] && slides[index].querySelector('img.kt-gallery__image');
       if (targetImg && !targetImg.complete) {
         showLoader();
@@ -256,11 +154,7 @@
       }
 
       slides.forEach(function (s) { s.classList.remove('kt-gallery__slide--active'); });
-      /* R92 — flip aria-current alongside the visual --active class so
-         SR users hear the active thumb announcement, not just the
-         visually-styled state. Liquid renders the initial
-         aria-current on the active thumb (product-media-gallery.liquid)
-         but variant change / user click must keep it in sync. */
+
       thumbs.forEach(function (t) {
         t.classList.remove('kt-gallery__thumb--active');
         t.removeAttribute('aria-current');
@@ -270,16 +164,7 @@
       if (thumbs[index]) {
         thumbs[index].classList.add('kt-gallery__thumb--active');
         thumbs[index].setAttribute('aria-current', 'true');
-        /* Scroll thumb into view — but NEVER inside the theme editor.
-           setActive() re-runs on every shopify:section:load (i.e. every
-           setting tweak the merchant makes), and scrollIntoView there
-           yanked the whole page (the showroom "scroll to bottom on every
-           edit" report). The editor preview shows the full gallery
-           anyway, so the thumb is always reachable. Live storefront keeps
-           the behaviour for real image navigation.
-           R107 — runtime prefers-reduced-motion gate. CSS rule is
-           ignored by Safari 15-17 when JS passes 'smooth' (WebKit
-           bug 218927). WCAG 2.3.3 — honor user motion preference. */
+
         if (!(window.Shopify && window.Shopify.designMode)) {
           var prm = window.matchMedia
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -287,27 +172,16 @@
         }
       }
 
-      /* Update lightbox image if open. Sentinel-aware — non-image
-         slides (video, model) push `null` into imageUrls so we
-         simply skip the update; the lightbox stays on the previous
-         frame, which beats opening on a broken `src=""`. */
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false' && lightboxImage && imageUrls[index]) {
         setLightboxImage(imageUrls[index], imageAlts[index]);
       }
 
-      /* R19-E: keep the lightbox slide counter in sync with the
-         active slide. aria-live="polite" on the wrapper handles the
-         SR announce; the visible "N / M" reads correctly because
-         the slash node sits between two content nodes (current and
-         total). Only present on multi-media products (counter is
-         conditionally rendered in the snippet). */
       if (lightbox) {
         var counterCurrent = lightbox.querySelector('[data-lightbox-counter-current]');
         if (counterCurrent) counterCurrent.textContent = (index + 1);
       }
     }
 
-    /* Thumb click */
     thumbs.forEach(function (thumb) {
       thumb.addEventListener('click', function () {
         var idx = parseInt(thumb.dataset.mediaIndex, 10);
@@ -315,19 +189,10 @@
       });
     });
 
-    /* External variant-swap sync — product-form.js dispatches
-       `gallery:goto` with the newly selected variant's media ID when
-       the customer picks an option. We look up the matching slide by
-       `data-media-id` and delegate to `goTo(index)` so slide, thumb,
-       and lightbox `currentIndex` all stay in step. Decoupling via a
-       CustomEvent means product-form.js never reaches into gallery
-       internals, and the gallery never cares why the index changed. */
     gallery.addEventListener('gallery:goto', function (e) {
       var mediaId = e.detail && e.detail.mediaId;
       if (!mediaId) return;
-      /* Coerce both sides to strings — CSS attribute selectors are
-         string-typed, and `variant.featured_media.id` arrives as a
-         number from the variant JSON. */
+
       var targetSlide = gallery.querySelector(
         '[data-gallery-slide][data-media-id="' + String(mediaId) + '"]'
       );
@@ -336,20 +201,11 @@
       if (!isNaN(targetIndex)) goTo(targetIndex);
     });
 
-    /* Main image area click → open lightbox (E-commerce PDP wrapper) */
     if (mainArea) {
       mainArea.addEventListener('click', function () {
         openLightbox();
       });
 
-      /* Touch swipe between slides on mobile. The lightbox already has
-         its own swipe (lines 234+); this is the inline gallery
-         equivalent so phone users don't have to tap thumbs to navigate.
-         50px horizontal threshold + dY-bias guard so vertical scroll
-         isn't hijacked. Without this, mobile users can only tap thumbs
-         (or open the lightbox) to navigate the gallery — Theme-Store
-         reviewers test this on real iPhone and expect swipe parity
-         with native shop apps. */
       var inlineSwipeStartX = 0, inlineSwipeStartY = 0, inlineSwipeMoved = false;
       var INLINE_SWIPE_THRESHOLD = 50;
       mainArea.addEventListener('touchstart', function (e) {
@@ -366,58 +222,27 @@
         var dx = e.changedTouches[0].clientX - inlineSwipeStartX;
         var dy = e.changedTouches[0].clientY - inlineSwipeStartY;
         if (Math.abs(dx) < INLINE_SWIPE_THRESHOLD) return;
-        if (Math.abs(dy) > Math.abs(dx)) return; // vertical scroll
-        /* Suppress the click handler that fires on touchend (would
-           otherwise open the lightbox unintentionally during a swipe).
-           A subsequent click is suppressed via a one-shot capture
-           listener — released on the next tick so genuine taps work. */
+        if (Math.abs(dy) > Math.abs(dx)) return;
+
         var suppressClick = function (ev) { ev.preventDefault(); ev.stopPropagation(); };
         mainArea.addEventListener('click', suppressClick, { capture: true, once: true });
         setTimeout(function () {
           mainArea.removeEventListener('click', suppressClick, { capture: true });
         }, 350);
         if (dx < 0) {
-          /* Swipe left → next slide */
           if (currentIndex + 1 < slides.length) goTo(currentIndex + 1);
         } else {
-          /* Swipe right → previous slide */
           if (currentIndex > 0) goTo(currentIndex - 1);
         }
       }, { passive: true });
-      /* R21-C: reset inline-swipe state when iOS / Android system
-         gestures interrupt mid-swipe — without this, inlineSwipeMoved
-         can stay true and the next genuine tap would be treated as a
-         swipe-end. */
+
       mainArea.addEventListener('touchcancel', function () {
         inlineSwipeMoved = false;
       }, { passive: true });
     }
 
-    /* Slide click → open lightbox to that specific image (Showroom PDP
-       uses inline gallery without a single [data-gallery-main] wrapper,
-       so each slide needs its own click handler). Works for E-commerce
-       too: clicking the currently-active slide opens the lightbox.
-
-       Gated on `data-media-type === 'image'`. Video and 3D-model slides
-       skip the lightbox entirely — `<video>`/`<model-viewer>` ship
-       their own controls and the lightbox only knows how to render an
-       <img>, so opening it on non-image media would present an empty
-       viewer.
-
-       Keyboard parity: Enter/Space on a focused image slide fires the
-       same openLightbox path. Image slides ship tabindex="0" +
-       role="button" from the Liquid template; non-image slides don't,
-       so this listener no-ops on them naturally. */
     slides.forEach(function (slide, slideIdx) {
       var openFromSlide = function () {
-        /* Skip ONLY when the slide explicitly declares a non-image
-           media type. `dataset.mediaType` is `undefined` on layouts
-           that don't emit the attribute (the showroom PDP iterates
-           images-only and historically didn't set the attribute), so
-           the previous strict equality `!== 'image'` rejected those
-           legitimate image slides. The defensive form below treats
-           undefined / empty string as "image by default" and only
-           bails on explicit `video` / `model` / `external_video`. */
         var t = slide.dataset.mediaType;
         if (t && t !== 'image') return;
         var targetIndex = parseInt(slide.dataset.gallerySlide, 10);
@@ -427,7 +252,6 @@
       };
 
       slide.addEventListener('click', function () {
-        // Avoid double-firing when the click already bubbles up to mainArea.
         if (mainArea && mainArea.contains(slide)) return;
         openFromSlide();
       });
@@ -440,25 +264,6 @@
       });
     });
 
-    /* Gallery-level delegated click — backup for the showroom layout
-       where slides are nested inside multiple wrappers
-       (`.kt-showroom__gallery-desktop` > `.kt-showroom__gallery-pair`
-       > `.kt-showroom__gallery-half`, etc.). The per-slide listener
-       above works in isolation but can race against parent-DOM
-       click handlers in custom layouts; the delegated listener here
-       guarantees that ANY click landing on (or inside) a
-       `[data-gallery-slide]` opens the lightbox even when the
-       per-slide handler hasn't bound for any reason. Idempotent:
-       openLightbox checks aria-hidden and skips if already open.
-
-       Selector intentionally drops the `[data-media-type="image"]`
-       requirement — showroom slides historically don't carry that
-       attribute. The mediaType check happens inside the handler
-       (defensive: only skip on explicit video / model declaration).
-
-       Capture-phase = false (default bubble) — fires AFTER the
-       per-slide handlers, so when both succeed the second call
-       finds an already-open lightbox and is a no-op. */
     gallery.addEventListener('click', function (e) {
       var slide = e.target.closest('[data-gallery-slide]');
       if (!slide || !gallery.contains(slide)) return;
@@ -471,28 +276,16 @@
       openLightbox();
     });
 
-    /* R128 — track the element that opened the lightbox so closeLightbox()
-       can restore focus there. Every other modal in the theme follows this
-       pattern; without it, keyboard / SR users get focus stranded on the
-       closed lightbox subtree. */
     var lightboxLastTrigger = null;
 
-    /* Lightbox open */
     function openLightbox() {
       if (!lightbox || !lightboxImage) return;
       lightboxLastTrigger = document.activeElement;
-      /* R-PDP3 — Flip `loading="lazy"` to "eager" before setting the
-         src so Chrome's lazy-loading IntersectionObserver doesn't
-         defer the request behind the modal animation. The lightbox
-         is now in-viewport by definition (it's a fullscreen dialog);
-         lazy semantics no longer make sense and the deferral was
-         visible as a 100-200ms blank-spinner gap on first open. */
+
       lightboxImage.loading = 'eager';
       setLightboxImage(imageUrls[currentIndex], imageAlts[currentIndex]);
       lightbox.setAttribute('aria-hidden', 'false');
-      /* Remove inert so the close/prev/next buttons re-enter the
-         focus chain. Pairs with closeLightbox() re-applying inert.
-         Markup default state is `inert` + `aria-hidden=true`. */
+
       lightbox.removeAttribute('inert');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.lock('product-gallery-lightbox');
@@ -502,12 +295,10 @@
       if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.enable(lightbox);
     }
 
-    /* Lightbox close */
     function closeLightbox() {
       if (!lightbox) return;
       lightbox.setAttribute('aria-hidden', 'true');
-      /* Re-apply inert so the closed lightbox subtree leaves the
-         focus chain. Mirrored on openLightbox(). */
+
       lightbox.setAttribute('inert', '');
       if (window.Kitchero && Kitchero.scrollLock) {
         Kitchero.scrollLock.unlock('product-gallery-lightbox');
@@ -523,10 +314,7 @@
         lightboxImage.style.transform = '';
       }
       if (window.Kitchero && Kitchero.focusTrap) Kitchero.focusTrap.disable(lightbox);
-      /* R128 — restore focus to the trigger that opened the lightbox.
-         Document.contains guard handles the rare case where the trigger
-         was removed from the DOM (e.g. variant change replaced the
-         gallery thumb). Falls back silently when missing. */
+
       if (lightboxLastTrigger && document.contains(lightboxLastTrigger) && typeof lightboxLastTrigger.focus === 'function') {
         lightboxLastTrigger.focus();
       }
@@ -534,36 +322,19 @@
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
-    /* R-PDP4 H7 — bfcache restore reset. Safari/Firefox persist full
-       JS state + DOM when the user navigates away from a PDP whose
-       lightbox is open (e.g. they tap the cart link inside the
-       lightbox-stacked back-in-stock modal). On Back, the `pageshow`
-       event fires with `event.persisted === true` and the restored
-       DOM has `aria-hidden="false"`, focus trap stale, body overflow
-       locked — visually a stuck modal blocking the page.
-       Force-close on every persisted restore so the customer lands
-       on a clean PDP. */
+
     window.addEventListener('pageshow', function (event) {
       if (event.persisted && lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
         closeLightbox();
       }
     });
-    /* R128 — backdrop click closes the lightbox to match every other modal
-       in the theme (cart-drawer, search-overlay, video-modal, etc.). The
-       click is gated to events that target the kt-lightbox root (not
-       descendants) so clicks on viewport / image / nav buttons don't
-       accidentally close. */
+
     if (lightbox) lightbox.addEventListener('click', function (event) {
       if (event.target === lightbox) closeLightbox();
     });
     if (lightboxPrev) lightboxPrev.addEventListener('click', function () { goTo(currentIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener('click', function () { goTo(currentIndex + 1); });
 
-    /* Touch swipe — swipe left/right on the lightbox viewport to advance
-       to the next/previous image. Threshold 50px; only triggers on a
-       mostly-horizontal gesture (dx > dy) so vertical scrolling / pinch
-       zoom don't accidentally switch images. Disabled while the image
-       is in the zoomed state because the user is then panning. */
     if (lightboxViewport) {
       var touchStartX = 0;
       var touchStartY = 0;
@@ -593,10 +364,6 @@
         var absDy = Math.abs(dy);
         var elapsed = Date.now() - touchStartTime;
 
-        /* Require a meaningful horizontal swing, mostly horizontal direction,
-           and a reasonable duration (flick = <600ms). Tapping to zoom
-           toggles is handled by the click event — this only fires on a
-           real swipe. */
         if (absDx < 50) return;
         if (absDx < absDy * 1.2) return;
         if (elapsed > 600) return;
@@ -613,19 +380,6 @@
       }, { passive: true });
     }
 
-    /* Update the zoomed image's translate so the area under the
-       cursor is what's visible. Called on click-to-zoom (using the
-       click coordinates for the initial position) and on mousemove
-       while zoomed. No-op on touch devices — those still use the
-       native overflow scroll. */
-    /* R12-D — Both the viewport rect and the rendered image rect stay
-       constant for the lifetime of a single zoom session (the image
-       only translates, never scales mid-session). Caching them on
-       zoom-in eliminates two forced layout reads per mousemove —
-       previously a 60-120 Hz cursor stream was running Read-Read-Write
-       at every event. Cache is invalidated on zoom-out, window resize,
-       slide navigation, and image load (handled by the surrounding
-       click / keyboard / nav handlers via `invalidateZoomCache`). */
     var zoomViewportRect = null;
     var zoomImageOverflowX = 0;
     var zoomImageOverflowY = 0;
@@ -667,41 +421,24 @@
       zoomRafPending = true;
       requestAnimationFrame(applyZoomPan);
     }
-    /* Invalidate the cache whenever the layout that the cached rects
-       depend on can change — window resize, lightbox-image load swap,
-       and zoom-out transition. (Navigation between slides triggers
-       a fresh image load → existing handlers already reset transform,
-       and the load callback below clears the cache so the next zoom
-       reads fresh dimensions.) */
+
     window.addEventListener('resize', invalidateZoomCache, { passive: true });
 
-    /* Lightbox zoom toggle — clicking anywhere inside the viewport
-       (image, padding area, or loaded image bounds) toggles the zoomed
-       state. The prev/next/close buttons are siblings of the viewport
-       so they never fire this handler. The spinner has pointer-events
-       none so it's invisible to clicks. */
     if (lightboxViewport) {
       lightboxViewport.addEventListener('click', function (e) {
-        // Only toggle once the image has finished loading, otherwise the
-        // very first click (while still loading) would zoom into nothing.
         if (lightboxViewport.classList.contains('is-loading')) return;
 
         var isNowZoomed = lightboxViewport.classList.toggle('kt-lightbox__viewport--zoomed');
 
         if (!isNowZoomed) {
-          // Un-zoomed → reset inline transform so the next zoom starts fresh.
           if (lightboxImage) lightboxImage.style.transform = '';
           invalidateZoomCache();
         } else if (hasFinePointer) {
-          // Initial pan based on where the user clicked — so the clicked
-          // spot is what remains visible after the zoom-in.
           invalidateZoomCache();
           updateZoomPan(e.clientX, e.clientY);
         }
       });
 
-      /* Mouse-follow pan — desktop/trackpad only. Moving the cursor
-         translates the image so the hovered area is visible. */
       if (hasFinePointer) {
         lightboxViewport.addEventListener('mousemove', function (e) {
           updateZoomPan(e.clientX, e.clientY);
@@ -709,17 +446,6 @@
       }
     }
 
-    /* R19-E: keyboard zoom toggle. Mouse/touch users have click +
-       pinch; keyboard-only users had no way to invoke the zoomed
-       state, which fails WCAG 2.1.1 (Keyboard) because the zoomed
-       view is the canonical way to inspect product details (grain,
-       finish, stitch). `+` / `=` toggles into zoom (or re-centers
-       if already zoomed); `-` toggles out. Pan after zoom-in stays
-       mouse-driven on desktop (cursor-follow) and overflow-driven
-       on touch — that's acceptable because the keyboard user can
-       still see the centered zoom; we don't need to add arrow-key
-       panning on top. Skipped when no viewport (single-media flow
-       hides the viewport entirely on some product layouts). */
     function toggleLightboxZoom(forceZoomState) {
       if (!lightboxViewport || !lightboxImage) return;
       if (lightboxViewport.classList.contains('is-loading')) return;
@@ -731,28 +457,20 @@
         lightboxImage.style.transform = '';
         invalidateZoomCache();
       } else if (hasFinePointer) {
-        // Center the zoom for keyboard users (no cursor coords to
-        // anchor on); mouse users still get cursor-follow via the
-        // existing mousemove handler.
         invalidateZoomCache();
         var rect = lightboxViewport.getBoundingClientRect();
         updateZoomPan(rect.left + rect.width / 2, rect.top + rect.height / 2);
       }
     }
 
-    /* Keyboard: Escape close, arrows navigate, +/- zoom */
     function onKeydown(e) {
       if (!lightbox || lightbox.getAttribute('aria-hidden') !== 'false') return;
-      // Only handle Escape / arrow keys if this lightbox is the
-      // top-most stacked modal — otherwise let the inner modal own
-      // the keypress.
+
       if (window.Kitchero && Kitchero.focusTrap && Kitchero.focusTrap.shouldSuppressEscape && Kitchero.focusTrap.shouldSuppressEscape(lightbox)) return;
       if (e.code === 'Escape') closeLightbox();
       if (e.code === 'ArrowLeft') goTo(currentIndex - 1);
       if (e.code === 'ArrowRight') goTo(currentIndex + 1);
-      // R19-E: +/= zooms in (toggles), - / _ zooms out. e.code is
-      // physical-key-based (Equal / Minus / NumpadAdd / NumpadSubtract)
-      // so the same keys work across keyboard layouts.
+
       if (e.code === 'Equal' || e.code === 'NumpadAdd') {
         e.preventDefault();
         toggleLightboxZoom(true);
@@ -763,20 +481,6 @@
     }
     document.addEventListener('keydown', onKeydown);
 
-    /* Vertical thumb strip height sync — the main image is
-       `aspect-ratio: 1` with a fluid width, so its rendered height
-       depends on the column width at the current viewport. A fixed
-       CSS `max-height` either crops the strip too short (forcing the
-       customer to scroll for thumbs the main image had room for) or
-       lets the strip's natural content height push the flex row
-       taller than the main image (which then stretches under
-       `align-items: stretch` and breaks the aspect ratio).
-       Solution: observe the main image's rendered height with a
-       ResizeObserver and write it into `--kt-thumbs-max-h` on the
-       thumb container so the CSS `max-height` always matches the
-       image. Only active >=990px; below that the gallery is a
-       column layout with a horizontal thumb rail, no height match
-       needed. */
     var thumbsEl = gallery.querySelector('[data-gallery-thumbs]');
     var thumbResizeObserver = null;
     var applyThumbsHeight = null;
@@ -793,27 +497,15 @@
       };
       thumbResizeObserver = new ResizeObserver(applyThumbsHeight);
       thumbResizeObserver.observe(mainArea);
-      /* Window resize covers the desktop ↔ mobile breakpoint
-         crossing (ResizeObserver fires on box changes but not on
-         media-query state changes that don't alter the observed
-         box itself). */
+
       window.addEventListener('resize', applyThumbsHeight);
-      /* Run once after the next paint so the main image's intrinsic
-         dimensions are settled (image_tag width/height attrs lock
-         the aspect immediately, but full layout settles on
-         requestAnimationFrame). */
+
       requestAnimationFrame(applyThumbsHeight);
     }
 
     return function destroy() {
       document.removeEventListener('keydown', onKeydown);
-      /* R-PDP2 — Tear down the window-scoped `resize` listener that
-         feeds the lightbox-zoom cache (`invalidateZoomCache`). Without
-         this the listener accumulates on every section reload (theme
-         editor save loop) and the previous closures keep firing
-         against detached lightbox nodes — both a memory leak and a
-         silent error path. The listener was registered around line
-         ~647 in `setupLightboxZoom`. */
+
       window.removeEventListener('resize', invalidateZoomCache);
       if (thumbResizeObserver) {
         thumbResizeObserver.disconnect();
@@ -821,17 +513,10 @@
           window.removeEventListener('resize', applyThumbsHeight);
         }
       }
-      /* Defensive: if the section unloads while the lightbox is
-         open (editor re-render during zoom), the previous close()
-         path never ran, so body.style.overflow stays 'hidden' and
-         Kitchero.focusTrap keeps an active trap on the now-detached
-         lightbox node. Force the cleanup here so the next section
-         load starts from a clean state. */
+
       if (lightbox && lightbox.getAttribute('aria-hidden') === 'false') {
         lightbox.setAttribute('aria-hidden', 'true');
-        /* Match the close path: re-apply inert so the detached
-           lightbox doesn't leave any focusable descendant in the
-           page's focus chain after section unload. */
+
         lightbox.setAttribute('inert', '');
         if (window.Kitchero && Kitchero.scrollLock) {
           Kitchero.scrollLock.unlock('product-gallery-lightbox');
@@ -843,7 +528,6 @@
     };
   }
 
-  /* Init */
   var destroyers = {};
   document.querySelectorAll('[data-product-gallery]').forEach(function (el) {
     var section = el.closest('.shopify-section') || el;

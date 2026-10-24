@@ -1,29 +1,6 @@
-/* ============================================================
-   Financing Calculator behaviour.
-   Monthly-payment math (standard amortisation):
-     M = P * r * (1 + r)^n / ((1 + r)^n − 1)
-   where r = apr / 100 / 12 and n = term in months.
-   When apr === 0, we fall back to P / n to avoid division-by-zero.
-
-   Works with `shopify:section:load` so it re-binds in the theme
-   editor when a merchant re-renders the section.
-   ============================================================ */
 (function () {
   'use strict';
 
-  /* R12-A money-parity — Delegate to `Kitchero.formatMoney` (global.js)
-     so monthly-payment output matches Liquid `| money` rendering across
-     the page (cart, product price, etc.). Previously used a raw
-     `Intl.NumberFormat` which produces CLDR output (e.g. `₺1.499,00`)
-     diverging from `shop.money_format` (e.g. `1.499 TL`) on every store
-     that customized the admin's currency format — visibly different
-     prices for the same financing terms vs. checkout. Theme Store flags
-     the divergence as "deceptive pricing" → reject.
-
-     `Kitchero.formatMoney` takes a cents integer, so the monthly payment
-     (a decimal in major units) is converted via `Math.round(value * 100)`
-     before delegation. Intl is retained as a fallback when global.js
-     hasn't loaded yet (defer race on cached pages). */
   var fallbackFormatter = null;
   function formatCurrency(value) {
     if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
@@ -51,9 +28,6 @@
     return fallbackFormatter.format(value);
   }
 
-  /* parseFloat that tolerates comma decimals — Shopify number inputs
-     in a localized (e.g. Turkish) admin sometimes persist as "14,99"
-     which parseFloat() truncates to 14, badly breaking the APR math. */
   function parseNumber(value) {
     if (typeof value !== 'string') value = String(value || '');
     value = value.replace(/\s/g, '').replace(',', '.');
@@ -97,12 +71,6 @@
       });
     }
 
-    /* R12-D — Debounce the `input` event so rapid keystrokes don't run
-       a full `Math.pow` + `formatCurrency` + textContent cycle for every
-       character. `change` still fires immediately on blur / Enter so the
-       user always sees a settled value once they leave the field. The
-       100ms delay is short enough to feel live but long enough for the
-       browser to coalesce a fast typing burst into one paint. */
     var recomputeTimer = null;
     function debouncedRecompute() {
       if (recomputeTimer) clearTimeout(recomputeTimer);
@@ -142,13 +110,6 @@
     initAll(event.target);
   });
 
-  /* Theme editor lifecycle: when a merchant removes the section, Shopify
-     detaches the host node from the DOM, which lets the browser GC the
-     listeners we attached above (input/click/change on per-instance
-     elements). No additional teardown needed — declaring the handler so
-     reviewer audits and theme-check-style lifecycle scans see the
-     symmetric load/unload pair and don't flag REJ-JS-001. */
   document.addEventListener('shopify:section:unload', function () {
-    /* No-op: per-element listeners are GC'd with the removed DOM. */
   });
 })();
