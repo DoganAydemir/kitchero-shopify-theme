@@ -16,7 +16,10 @@
 
 {%- liquid
   assign heading_tag = section.settings.heading_tag | default: 'h3'
-  assign invert = section.settings.invert_colors
+  assign invert = false
+  if section.settings.layout == 'background'
+    assign invert = true
+  endif
   assign image_position = section.settings.image_position | default: 'right'
   assign variant_class = 'kt-financing-panel'
   if invert
@@ -363,11 +366,21 @@
       "content": "t:sections.financing-panel.settings.header__appearance.content"
     },
     {
-      "type": "checkbox",
-      "id": "invert_colors",
-      "label": "t:sections.financing-panel.settings.invert_colors.label",
-      "info": "t:sections.financing-panel.settings.invert_colors.info",
-      "default": false
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.financing-panel.settings.layout.label",
+      "info": "t:sections.financing-panel.settings.layout.info",
+      "options": [
+        {
+          "value": "split",
+          "label": "t:sections.financing-panel.settings.layout.options__split.label"
+        },
+        {
+          "value": "background",
+          "label": "t:sections.financing-panel.settings.layout.options__background.label"
+        }
+      ],
+      "default": "split"
     },
     {
       "type": "image_picker",

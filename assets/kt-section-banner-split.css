@@ -1,23 +1,10 @@
 /* =============================================================
    Banner Split 50/50
    Two-column promotional banner. Mobile stacks; desktop is
-   a 50/50 flex row. Dark text pane + image pane.
+   a 50/50 flex row. Text pane (panel color scheme) + image pane.
    ============================================================= */
 
 .kt-banner-split {
-  /* R232.50 — scheme-aware inner tokens. The text-pane surface
-     (banner-split-bg) routes through --kt-c-fg-as-dark-pane to keep
-     a dark editorial pane regardless of scheme, but text + button
-     now use --kt-c-action / --kt-c-action-text so they track the
-     merchant's brand. Image pane stays photo. The default fallback
-     reproduces the previous hardcoded stone-950 / white look. */
-  --kt-banner-split-bg: var(--kt-stone-950);
-  --kt-banner-split-fg: var(--kt-white);
-  --kt-banner-split-muted: var(--kt-stone-400);
-  --kt-banner-split-eyebrow: var(--kt-c-accent, #34d399);
-  --kt-banner-split-btn-bg: rgb(var(--kt-c-action, 255 255 255));
-  --kt-banner-split-btn-fg: rgb(var(--kt-c-action-text, 12 10 9));
-  --kt-banner-split-btn-hover-bg: rgb(var(--kt-c-action, 250 250 249));
   --kt-banner-split-radius: 1rem;
   --kt-banner-split-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
@@ -25,13 +12,10 @@
   margin-top: var(--kt-banner-split-pad-top, 0);
   margin-bottom: var(--kt-banner-split-pad-bottom, 0);
   padding: 3rem 1.5rem;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-stone-50);
-     falls back to 250 250 249 so default look unchanged. The inner
-     __inner / __text panels carry their own bg via the dark
-     --kt-banner-split-bg token, so they stay dark by design; this
-     just lets the outer padding band match the page surface. */
-  background-color: rgb(var(--kt-c-bg, 250 250 249));
-  color: rgb(var(--kt-c-fg, 28 25 23));
+  /* Outer band uses the section color scheme; the card uses the
+     panel color scheme set on .kt-banner-split__inner. */
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
 }
 
 @media (min-width: 750px) {
@@ -40,16 +24,14 @@
   }
 }
 
-.kt-banner-split--inverted {
-  --kt-banner-split-bg: var(--kt-stone-50);
-  --kt-banner-split-fg: var(--kt-stone-950);
-  --kt-banner-split-muted: var(--kt-stone-500);
-  --kt-banner-split-btn-bg: var(--kt-stone-950);
-  --kt-banner-split-btn-fg: var(--kt-white);
-  --kt-banner-split-btn-hover-bg: var(--kt-stone-900);
-}
-
 .kt-banner-split__inner {
+  --kt-banner-split-bg: rgb(var(--kt-c-bg));
+  --kt-banner-split-fg: rgb(var(--kt-c-fg));
+  --kt-banner-split-muted: rgb(var(--kt-c-fg-muted));
+  --kt-banner-split-eyebrow: rgb(var(--kt-c-fg-muted));
+  --kt-banner-split-btn-bg: rgb(var(--kt-c-action));
+  --kt-banner-split-btn-fg: rgb(var(--kt-c-action-text));
+  --kt-banner-split-btn-hover-bg: rgb(var(--kt-c-action));
   display: flex;
   flex-direction: column;
   /* Aligned to global --kt-page-max so this banner's left edge
