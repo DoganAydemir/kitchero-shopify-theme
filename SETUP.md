@@ -4,135 +4,42 @@ This document describes the metafields, menus, and settings a merchant must conf
 
 ---
 
-## Required Metafields
+## Product data (optional metafields)
 
-The theme reads the following product metafields. Create them in **Settings > Custom data > Products** before using the corresponding features.
+Kitchero doesn't depend on any fixed metafield. Each product data
+feature reads the metafield you choose in **Theme settings > Product
+data**. Enter the metafield as `namespace.key` (for example
+`custom.deal_ends_at`). Leave a field blank to turn that feature off.
 
-### 1. Deal Countdown Timer
+Create the metafield definitions first in **Settings > Custom data >
+Products** (or **Variants** for swatches), then enter the same
+`namespace.key` in Theme settings.
 
-| Field | Value |
-|---|---|
-| **Namespace & key** | `custom.deal_ends_at` |
-| **Type** | `date_time` |
-| **Required** | No (optional per product) |
-| **Used by** | Product cards, product detail page |
+| Theme setting | Metafield type | Owner | What it does |
+|---|---|---|---|
+| Deal end date metafield | Date and time | Product | Shows a countdown on the product page and cards until that time. Hidden after it passes. |
+| Manual rating metafield | Decimal (0–5) | Product | Star rating, used only when no review app fills `reviews.rating`. |
+| Feature list metafield | List of single line text | Product | Feature tags on product pages. When empty, product tags are shown. |
+| Country of origin metafield | Single line text | Product | Row in the Product details block. |
+| Length / Width / Height metafields | Number (decimal) | Product | Dimensions row in the Product details block. |
+| Dimension unit metafield | Single line text | Product | Unit for the dimensions, for example `cm` or `in`. Defaults to cm. |
+| Variant swatch color metafield | Color or single line text (hex) | Variant | Swatch color, used only when the option value has no Shopify swatch. |
+| Variant swatch image metafield | File (image) | Variant | Swatch image, used only when the option value has no Shopify swatch. |
 
-When this metafield is set to a future date/time on a product, a live countdown timer appears on that product's card and detail page. Once the date passes, the countdown automatically hides.
+### Review app ratings
 
-**How to set it:**
-1. Go to **Settings > Custom data > Products**.
-2. Click **Add definition**.
-3. Set namespace and key to `custom.deal_ends_at`.
-4. Choose type **Date and time**.
-5. Save, then edit any product and set the date under the metafields section.
+When a review app fills Shopify's standard `reviews.rating` and
+`reviews.rating_count` metafields (Shopify Product Reviews, Judge.me,
+Loox and others do), ratings show automatically. The manual rating
+metafield is only a fallback.
 
----
+### Sample box (premium product page)
 
-### 2. Product Rating (manual fallback)
-
-| Field | Value |
-|---|---|
-| **Namespace & key** | `custom.rating` |
-| **Type** | `number_decimal` |
-| **Required** | No (optional) |
-| **Used by** | Product cards, product detail page |
-
-The theme first checks for the Shopify-native `reviews.rating` metafield (populated automatically by review apps like Shopify Product Reviews, Judge.me, Loox, etc.). If that is not present, it falls back to this manual `custom.rating` field.
-
-**Values:** A decimal between `0` and `5` (e.g., `4.5`).
-
-**How to set it:**
-1. Go to **Settings > Custom data > Products**.
-2. Click **Add definition**.
-3. Set namespace and key to `custom.rating`.
-4. Choose type **Decimal**.
-5. Set validation: minimum `0`, maximum `5`.
-6. Save, then edit any product and enter a rating value.
-
----
-
-### 3. Shopify Native Review Metafields (automatic)
-
-These are populated automatically by Shopify-compatible review apps:
-
-| Namespace & key | Type | Description |
-|---|---|---|
-| `reviews.rating` | `rating` | Star rating object with `.value.rating` and `.value.scale_max` |
-| `reviews.rating_count` | `number_integer` | Total number of reviews |
-
-No manual setup is needed if you install a review app.
-
----
-
-### 4. Door Sample Thumbnail (Showroom PDP)
-
-| Field | Value |
-|---|---|
-| **Namespace & key** | `custom.door_sample` |
-| **Type** | `File` (file_reference, accepts images) |
-| **Required** | No (optional per product) |
-| **Used by** | `product.showroom` template — the small thumbnail next to the product title |
-
-The Showroom product page shows a small 80×106 door-sample thumbnail next to the product title. This image is meant to be a close-up of the cabinet door front (or a color swatch) so shoppers instantly see the finish they're looking at.
-
-**Fallback:** When this metafield is not set, the theme renders the product's **featured image** instead. That is rarely what you want on a Showroom layout, so setting the metafield per product is strongly recommended.
-
-**How to set it:**
-1. Go to **Settings > Custom data > Products**.
-2. Click **Add definition**.
-3. Set namespace and key to `custom.door_sample`.
-4. Choose type **File** with the option **Accept files of type: Image** enabled.
-5. Save.
-6. Edit any product that uses the `product.showroom` template, scroll to **Metafields** and upload a door-front / finish close-up (recommended 400×520 px or larger, 4:5.2 portrait aspect works best).
-
----
-
-### 5. Variant Color Swatch (per variant override)
-
-| Field | Value |
-|---|---|
-| **Namespace & key** | `custom.swatch_color` |
-| **Type** | `color` (or `single_line_text_field` containing a CSS hex like `#1a1a1a`) |
-| **Required** | No (optional per variant) |
-| **Applies to** | **Variants** (Settings > Custom data > Variants) |
-| **Used by** | Product variant picker — color option swatches |
-
-The color swatch on the variant picker is resolved in this order:
-
-1. **`custom.swatch_color` variant metafield** (hex string — overrides everything)
-2. **`custom.swatch_image` variant metafield** (image swatch — see #6 below)
-3. **CSS named color** matching the option value (e.g., `Black`, `White`)
-4. **Built-in finish palette** for brand-specific names (`Espresso`, `Walnut`, `Oak`, `Beige`, etc.)
-
-Only valid CSS hex strings (`#rgb`, `#rrggbb`, `#rrggbbaa`) are accepted from the metafield — any other value is ignored to prevent CSS injection.
-
-**How to set it:**
-1. Go to **Settings > Custom data > Variants**.
-2. Click **Add definition**.
-3. Set namespace and key to `custom.swatch_color`.
-4. Choose type **Color** (recommended) or **Single line text** if you need to paste hex from a design system.
-5. Save, then edit any variant to set the color.
-
----
-
-### 6. Variant Image Swatch (per variant override)
-
-| Field | Value |
-|---|---|
-| **Namespace & key** | `custom.swatch_image` |
-| **Type** | `File` (file_reference, accepts images) |
-| **Required** | No (optional per variant) |
-| **Applies to** | **Variants** (Settings > Custom data > Variants) |
-| **Used by** | Product variant picker — image-pattern swatches |
-
-Use this when a flat color isn't enough — e.g., wood grain, marble veining, fabric texture. The image is rendered as the swatch chip background (covered, centered, ~40×40 px display).
-
-**How to set it:**
-1. Go to **Settings > Custom data > Variants**.
-2. Click **Add definition**.
-3. Set namespace and key to `custom.swatch_image`.
-4. Choose type **File** with **Accept files of type: Image** enabled.
-5. Save, then edit any variant to upload a swatch tile (recommended 200×200 px, square).
+The Sample box block on the `product.showroom` template links to a
+separate, low-cost product (for example a door sample). Pick it in the
+block's **Sample product** setting; its featured image is used as the
+card photo and it's added to cart with its own button. The box stays
+hidden until a product is picked.
 
 ---
 
@@ -159,10 +66,11 @@ Access all theme settings in **Online Store > Themes > Customize > Theme setting
 | Setting Group | Key Settings |
 |---|---|
 | **Logo** | Logo image, desktop width, favicon |
-| **Colors** | 4 built-in color schemes (Light Stone, Dark, Emerald, Midnight) |
+| **Colors** | 7 color schemes; each section picks one in its own settings |
 | **Typography** | Heading font, body font, accent/serif font, size scales |
 | **Layout** | Page width (1000-1600px), section spacing, grid spacing |
-| **Animations** | Enable/disable scroll reveal animations (GSAP) |
+| **Animations** | Turn scroll animations on or off (they never load on phones or with reduced motion) |
+| **Product data** | Metafields used for countdown, rating, features, origin, dimensions and swatches |
 | **Buttons** | Border thickness, radius, shadow |
 | **Inputs** | Border thickness, radius |
 | **Product cards** | Style, image padding, text alignment, colors, borders, shadows |
@@ -402,8 +310,7 @@ Before going live, verify:
 - [ ] Main menu assigned (with 2 or 3 levels as desired)
 - [ ] Footer menus assigned
 - [ ] Social media links configured
-- [ ] `custom.deal_ends_at` metafield created (if using countdowns)
-- [ ] `custom.rating` metafield created (if not using a review app)
+- [ ] Product data metafields entered in Theme settings > Product data (if you use countdowns, manual ratings, features, origin, dimensions or custom swatches)
 - [ ] All home page section blocks populated with real content (no Lorem ipsum)
 - [ ] At least one collection and one product tested on each page
 - [ ] Cart drawer/page tested with items added
@@ -419,10 +326,10 @@ Before going live, verify:
 ## Troubleshooting
 
 **Countdown not showing on a product card:**
-Verify `custom.deal_ends_at` metafield is set to a future date and the metafield definition is saved. The countdown hides automatically when the end date has passed.
+Check that **Theme settings > Product data > Deal end date metafield** names your metafield (for example `custom.deal_ends_at`) and that the product has a future date in it. The countdown hides after the date passes.
 
 **Star ratings not showing:**
-If using a review app, ensure it populates `reviews.rating` (the Shopify native namespace). If using manual ratings, ensure `custom.rating` is set and its value is between 0 and 5.
+If you use a review app, make sure it fills Shopify's `reviews.rating` metafield. For manual ratings, enter your metafield in **Theme settings > Product data > Manual rating metafield** and give products a value between 0 and 5.
 
 **Images not loading:**
 Check that all image settings have images uploaded. The theme shows Shopify's default SVG placeholders when a merchant hasn't selected an image — this is intentional for the theme editor.
@@ -431,7 +338,7 @@ Check that all image settings have images uploaded. The theme shows Shopify's de
 Mega menus activate only when a menu item has **grandchildren** (3 levels deep). 2-level menus render as flyout dropdowns. To convert a flyout to a mega menu, add child items to the second-level items.
 
 **Animations feel janky:**
-Disable scroll-reveal animations in **Theme settings > Animations > Reveal sections on scroll**. This disables GSAP/ScrollTrigger effects while keeping all content functional.
+Turn off **Theme settings > Animations > Reveal sections on scroll**. Content stays fully visible and usable. Animations never load on phones or for visitors who prefer reduced motion.
 
 **Theme editor shows "Liquid error":**
-Run `shopify theme check` from the command line to identify the issue. All sections should pass with 0 errors.
+Run `shopify theme check` to find the file and line. The theme ships with 0 Theme Check offenses on the recommended ruleset.

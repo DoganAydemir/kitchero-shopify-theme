@@ -39,34 +39,15 @@ annotated in `THEME_STORE_RULES_OFFICIAL.md`.
 | 9 | `sections/featured-product.liquid` with @app block | ✅ Resolved (section + CSS + 5-locale parity) |
 | 10 | Address country `<select>` autocomplete token | ✅ Resolved (R117: `country` → `country-name` for spec-correct match) |
 | 11 | Settings preset declared with at least one named entry | ✅ Resolved (single `Kitchero` preset, name takes parent theme name per Shopify rule) |
-| 12 | Locale schema strings (en/tr/de/fr/es) | ✅ Resolved (1,720 schema keys + 527 storefront keys × 5 locales, full parity verified R117) |
+| 12 | Locale schema strings (en/tr/de/fr/es) | ✅ Resolved (same keys in all 5 locales) |
 
 ---
 
 ## Final gate (current criteria)
 
-Before declaring Theme-Store-ready:
-1. `shopify theme check` → 0 errors, 0 warnings (recommended ruleset).
-2. Lighthouse CI → all thresholds pass.
-3. Manual theme-editor walk-through of every template + both
-   customer forms.
-4. `THEME_STORE_RULES_OFFICIAL.md` → all 160 rules verified or fixed
-   with sourced-commit closure annotations.
-5. `REJECT_RULES.md` → 6-agent reject-vector sweep returns 0
-   findings on the most recent round.
-
-The first four are met as of R117. The fifth is met when the most
-recent `git log --grep='reject-prevention'` commit is followed by a
-sweep round with zero new findings.
-
----
-
-## Optional / post-submission
-
-- **Translation QA** — DE/FR/ES schema strings are translated via
-  the same internal pipeline; Phase-2 native-speaker review
-  recommended before GA marketing pushes.
-- **`blocks/` theme-blocks architecture** — nice-to-have for modern
-  Skeleton parity; not required for first submission.
-- **Combined Listings** (Shopify 2024+ parent-child product feature)
-  — Theme Store does not currently mandate; deferred.
+Before resubmitting:
+1. `shopify theme check` → 0 offenses (recommended ruleset), enforced in CI.
+2. Lighthouse CI on the demo store → performance ≥ 60, accessibility ≥ 90.
+3. Manual theme-editor walk-through of every template and the customer forms.
+4. Every item in the October 2026 audit is closed in
+   `Claude outputs/KITCHERO_FIX_TRACKER.md`.

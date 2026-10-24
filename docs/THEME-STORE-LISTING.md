@@ -47,9 +47,9 @@ editable from the theme editor, with no developer required.
 ### Two PDP layouts
 - **E-commerce:** 58/42 split with sticky product info, vertical thumbnail
   gallery, pulsing countdown timer, quantity picker, and dynamic checkout.
-- **Showroom:** Book-an-appointment + home-measure CTAs replace the add-to-cart
-  path, with a "Door sample" entry point to keep commerce alive. Alternating
-  full-width and paired galleries down the page.
+- **Premium product page:** quantity, Add to cart and dynamic checkout buttons,
+  followed by consultation request buttons and an optional sample product box.
+  Alternating full-width and paired galleries down the page.
 
 ### Three collection layouts
 - Horizontal filter bar (compact, editorial).
@@ -74,7 +74,7 @@ with merchant-configurable delay and cooldown.
   metafield — no deceptive UI.
 
 ### Out of the box
-- i18n for 5 languages — English, Turkish, German, French, Spanish — all fully translated (527 storefront + 1,720 schema keys per locale, full parity).
+- 5 languages — English, Turkish, German, French, Spanish — with the same keys in every locale.
 - 4 color schemes, 3-font system (Inter + Playfair Display by default,
   swappable via Shopify's font picker).
 - WCAG AA accessible. Keyboard-navigable. Visible focus rings. 4.5:1 contrast.
@@ -93,7 +93,7 @@ three seconds of the storefront. If that's you, welcome home.
 - Two PDP layouts (e-commerce + showroom) and three collection grids with AJAX filtering
 - 60+ drop-in sections including cinematic sliders, video heroes, galleries, and modal newsletter
 - GSAP-powered scroll animations, Ken Burns hero, bento lightbox, interactive hotspots
-- i18n for 5 languages (EN, TR, DE, FR, ES all fully translated), WCAG AA, full @app block support
+- 5 languages (EN, TR, DE, FR, ES), WCAG 2.1 AA contrast on the included color schemes, app block support
 
 ---
 
@@ -161,21 +161,24 @@ Before submission, the demo store must have:
 ## Review notes (short note to Shopify reviewers — optional but helpful)
 
 ```
-Kitchero ports a complete Next.js / Tailwind frontend into vanilla Shopify
-Liquid + plain CSS + vanilla JS with no build step, strictly following Shopify's
-Skeleton conventions (no reference-theme UI reused).
+Kitchero is built on Shopify Skeleton with Liquid, plain CSS and vanilla JS
+(no build step). Demo store: kitchero-kitchen.myshopify.com.
 
-Known behaviors worth noting:
-- The newsletter popup auto-opens after a merchant-defined delay and uses
-  localStorage cooldown to avoid annoying returning visitors. This is not
-  deceptive UI — the discount code is real and the cooldown is honored.
-- The countdown timer reads `custom.deal_ends_at` (merchant-editable metafield).
-  When the date is in the past, the timer hides itself. No fake urgency.
-- Video sections require merchants to upload MP4s to Shopify Files, or paste
-  YouTube/Vimeo URLs for modal playback — no external CDNs are used.
-- All interactive sections re-init on `shopify:section:load` and cleanup on
-  unload, per the editor compatibility rule.
+Notes:
+- Colors come only from color schemes; sections have no separate color pickers.
+- Product data features (countdown, rating, features, origin, dimensions,
+  swatches) read metafields the merchant chooses in Theme settings > Product
+  data. Nothing is shown when a metafield is empty.
+- The premium product page (product.showroom) includes quantity, Add to cart and
+  dynamic checkout buttons, with consultation requests as secondary actions.
+- The availability request on sold-out variants sends a contact message to the
+  store; it does not promise automatic restock emails.
+- The newsletter pop-up opens after a merchant-set delay and respects a cooldown
+  after it is closed or submitted. Any discount code shown is set by the merchant.
+- Scroll animations load only on screens 750px and wider without reduced motion.
+- Video sections use MP4 files from Shopify Files or YouTube/Vimeo links.
+- Interactive sections re-initialize on shopify:section:load and clean up on
+  unload.
 
-Theme Check: 0 errors, 0 warnings on the `theme-check:recommended`
-ruleset (165 files inspected).
+Theme Check: 0 offenses on the theme-check:recommended ruleset.
 ```
