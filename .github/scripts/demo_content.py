@@ -73,15 +73,15 @@ EDITS = [
     ('templates/index.json', 'testimonials', 't3', {'name': 'Sophia Martin', 'role': 'Homeowner'}),
 
     # Logos: five distinct fictional brands (uploaded to Admin > Files)
-    ('templates/index.json', 'brands', 'b1', {'image': 'shopify://shop_images/logo-varenholt.png', 'alt': 'Varenholt'}),
-    ('templates/index.json', 'brands', 'b2', {'image': 'shopify://shop_images/logo-quillstone.png', 'alt': 'Quillstone'}),
-    ('templates/index.json', 'brands', 'b3', {'image': 'shopify://shop_images/logo-alder-pine.png', 'alt': 'Alder & Pine'}),
-    ('templates/index.json', 'brands', 'b4', {'image': 'shopify://shop_images/logo-marrowick.png', 'alt': 'Marrowick'}),
-    ('templates/index.json', 'brands', 'b5', {'image': 'shopify://shop_images/logo-tessaline.png', 'alt': 'Tessaline'}),
+    ('templates/index.json', 'brands', 'b1', {'image': 'shopify://shop_images/brand-varenholt.png', 'alt': 'Varenholt'}),
+    ('templates/index.json', 'brands', 'b2', {'image': 'shopify://shop_images/brand-quillstone.png', 'alt': 'Quillstone'}),
+    ('templates/index.json', 'brands', 'b3', {'image': 'shopify://shop_images/brand-alder-pine.png', 'alt': 'Alder & Pine'}),
+    ('templates/index.json', 'brands', 'b4', {'image': 'shopify://shop_images/brand-marrowick.png', 'alt': 'Marrowick'}),
+    ('templates/index.json', 'brands', 'b5', {'image': 'shopify://shop_images/brand-tessaline.png', 'alt': 'Tessaline'}),
     ('templates/page.financing.json', 'partners', 'p1', {'name': 'Corvan Pay',
-        'logo_image': 'shopify://shop_images/partner-corvan-pay.png'}),
+        'logo_image': 'shopify://shop_images/partner-corvan-pay-mark.png'}),
     ('templates/page.financing.json', 'partners', 'p2', {'name': 'Fernlight Credit',
-        'logo_image': 'shopify://shop_images/partner-fernlight-credit.png'}),
+        'logo_image': 'shopify://shop_images/partner-fernlight-credit-mark.png'}),
 
     # Blog and cart
     ('templates/blog.json', 'main', None, {'description':
