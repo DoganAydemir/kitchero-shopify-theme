@@ -148,6 +148,7 @@
                       lazy-queued when visible, but we let the browser
                       own priority.
                     {%- endcomment -%}
+                    {%- assign image_alt_text = block.settings.image.alt | default: block.settings.title | default: '' | strip_html -%}
                     {{
                       block.settings.image
                       | image_url: width: 1600
@@ -158,9 +159,10 @@
                         height: block.settings.image.height,
                         sizes: '(min-width: 1024px) 50vw, 100vw',
                         widths: '400, 600, 800, 1000, 1200, 1600',
-                        alt: block.settings.image.alt | default: block.settings.title | default: ''
+                        alt: image_alt_text
                     }}
                   {%- else -%}
+                    {%- assign image_alt_text = block.settings.image.alt | default: block.settings.title | default: '' | strip_html -%}
                     {{
                       block.settings.image
                       | image_url: width: 1600
@@ -170,7 +172,7 @@
                         height: block.settings.image.height,
                         sizes: '(min-width: 1024px) 50vw, 100vw',
                         widths: '400, 600, 800, 1000, 1200, 1600',
-                        alt: block.settings.image.alt | default: block.settings.title | default: ''
+                        alt: image_alt_text
                     }}
                   {%- endif -%}
                 {%- else -%}

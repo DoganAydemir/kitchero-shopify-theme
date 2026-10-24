@@ -33,6 +33,7 @@
 
       <div class="kt-video-poster__frame">
         {%- if section.settings.poster_image != blank -%}
+          {%- assign image_alt_text = section.settings.heading | default: '' | strip_html -%}
           {{
             section.settings.poster_image
             | image_url: width: 1600
@@ -43,7 +44,7 @@
               sizes: '(min-width: 990px) 1100px, 100vw',
               width: section.settings.poster_image.width,
               height: section.settings.poster_image.height,
-              alt: section.settings.heading | default: ''
+              alt: image_alt_text
           }}
         {%- else -%}
           {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-video-poster__image' }}

@@ -76,6 +76,7 @@
       {%- comment -%} LEFT pane: image with offer badge {%- endcomment -%}
       <div class="kt-newsletter-popup__media">
         {%- if section.settings.image != blank -%}
+          {%- assign image_alt_text = section.settings.image.alt | default: section.settings.heading_part1 | strip_html -%}
           {{
             section.settings.image
             | image_url: width: 1200
@@ -86,7 +87,7 @@
               sizes: '(min-width: 750px) 450px, 100vw',
               width: section.settings.image.width,
               height: section.settings.image.height,
-              alt: section.settings.image.alt | default: section.settings.heading_part1
+              alt: image_alt_text
           }}
         {%- else -%}
           {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-newsletter-popup__image' }}
@@ -278,6 +279,13 @@
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </span>
+                {%- comment -%}
+                  R104 — Return key fires submit on mobile.
+                {%- endcomment -%}
+                {%- comment -%}
+                  R96 — preserve typed email across validation errors
+                  so customer doesn't retype.
+                {%- endcomment -%}
               <input
                 type="email"
                 autocapitalize="off"
@@ -291,15 +299,8 @@
                 aria-required="true"
                 maxlength="254"
                 inputmode="email"
-                {%- comment -%}
-                  R104 — Return key fires submit on mobile.
-                {%- endcomment -%}
                 enterkeyhint="send"
                 autocomplete="email"
-                {%- comment -%}
-                  R96 — preserve typed email across validation errors
-                  so customer doesn't retype.
-                {%- endcomment -%}
                 value="{{ form.email | escape }}"
                 data-popup-email
                 {% if form.errors contains 'email' %}aria-invalid="true" aria-describedby="{{ popup_email_err }}"{% endif %}

@@ -62,12 +62,12 @@
     {%- for media in product.media -%}
       {%- assign thumb_alt = media.alt | default: product.title -%}
       {%- assign thumb_source = media.preview_image | default: media -%}
-      {%- assign thumb_aria = 'kt.product.media.image_available' | t: index: forloop.index -%}
+      {%- assign thumb_aria = 'kt.product.media.image_available' | t: index: forloop.index, total: forloop.length -%}
       {%- case media.media_type -%}
         {%- when 'video' or 'external_video' -%}
-          {%- assign thumb_aria = 'kt.product.media.video_available' | t: index: forloop.index -%}
+          {%- assign thumb_aria = 'kt.product.media.video_available' | t: index: forloop.index, total: forloop.length -%}
         {%- when 'model' -%}
-          {%- assign thumb_aria = 'kt.product.media.model_available' | t: index: forloop.index -%}
+          {%- assign thumb_aria = 'kt.product.media.model_available' | t: index: forloop.index, total: forloop.length -%}
       {%- endcase -%}
       <button
         type="button"

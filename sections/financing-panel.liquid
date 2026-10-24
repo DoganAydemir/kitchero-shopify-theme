@@ -60,6 +60,7 @@
       <div class="kt-financing-panel__media-col">
         <div class="kt-financing-panel__media">
           {%- if section.settings.image != blank -%}
+            {%- assign image_alt_text = section.settings.image.alt | default: section.settings.eyebrow | strip_html -%}
             {{
               section.settings.image
               | image_url: width: 1200
@@ -70,7 +71,7 @@
                 sizes: '(min-width: 990px) 44vw, 100vw',
                 width: section.settings.image.width,
                 height: section.settings.image.height,
-                alt: section.settings.image.alt | default: section.settings.eyebrow
+                alt: image_alt_text
             }}
           {%- else -%}
             {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg kt-financing-panel__image' }}

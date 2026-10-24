@@ -1879,3 +1879,21 @@ html:not(.js) .kt-loader {
     font-size: max(16px, 1em) !important;
   }
 }
+
+/* ============================================================
+   No-JavaScript fallbacks
+   Entrance animations start hidden and are revealed by section
+   scripts. Without JavaScript (html keeps its `no-js` class) the
+   content shows in its final state instead, and the intro loader,
+   which only JavaScript can dismiss, is skipped.
+   ============================================================ */
+html.no-js .kt-hero__anim,
+html.no-js .kt-hero__anim--scale,
+html.no-js .kt-slider-editorial__copy-slide.is-active [data-editorial-anim] {
+  opacity: 1;
+  transform: none;
+}
+
+html.no-js .kt-loader {
+  display: none;
+}

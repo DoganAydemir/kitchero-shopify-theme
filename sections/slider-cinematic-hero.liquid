@@ -50,6 +50,7 @@
                 {%- assign img_loading = 'lazy' -%}
                 {%- assign img_priority = 'auto' -%}
               {%- endif -%}
+              {%- assign image_alt_text = block.settings.heading | default: shop.name | strip_html -%}
               {{
                 block.settings.image
                 | image_url: width: 2400
@@ -61,7 +62,7 @@
                   sizes: '100vw',
                   width: block.settings.image.width,
                   height: block.settings.image.height,
-                  alt: block.settings.heading | default: shop.name
+                  alt: image_alt_text
               }}
             {%- else -%}
               {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-slider-cinematic__slide-image' }}

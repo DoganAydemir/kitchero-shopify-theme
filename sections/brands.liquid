@@ -61,7 +61,7 @@
               meant non-English locales got the translation-missing
               warning instead of the fallback.
             {%- endcomment -%}
-            {%- assign brand_alt_fallback = 'kt.section.brands.logo_alt' | t -%}
+            {%- assign brand_logo_alt = block.settings.alt | default: block.settings.image.alt | strip_html -%}
             {%- if block.settings.image != blank -%}
               {%- comment -%}
                 Compute width from merchant upload's aspect ratio at
@@ -77,7 +77,7 @@
               {%- assign brand_logo_width_3x = brand_logo_width | times: 3 -%}
               {%- capture brand_logo_widths -%}{{ brand_logo_width }}, {{ brand_logo_width_2x }}, {{ brand_logo_width_3x }}{%- endcapture -%}
               {%- capture brand_logo_sizes -%}{{ brand_logo_width }}px{%- endcapture -%}
-              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', widths: brand_logo_widths, sizes: brand_logo_sizes, width: brand_logo_width, height: 40, alt: block.settings.alt | default: brand_alt_fallback }}
+              {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', widths: brand_logo_widths, sizes: brand_logo_sizes, width: brand_logo_width, height: 40, alt: brand_logo_alt }}
             {%- else -%}
               {%- comment -%}
                 R197 — dropped the placeholder_svg from the no-image

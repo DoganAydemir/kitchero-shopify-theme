@@ -69,6 +69,7 @@
                 <span class="kt-gallery-stack__media">
                   {%- if block.settings.image != blank -%}
                     {%- if is_active -%}
+                      {%- assign image_alt_text = block.settings.caption_title | default: section.settings.heading | default: '' | strip_html -%}
                       {{ block.settings.image
                         | image_url: width: 1200
                         | image_tag:
@@ -80,9 +81,10 @@
                           width: block.settings.image.width,
                           height: block.settings.image.height,
                           draggable: 'false',
-                          alt: block.settings.caption_title | default: section.settings.heading | default: ''
+                          alt: image_alt_text
                       }}
                     {%- else -%}
+                      {%- assign image_alt_text = block.settings.caption_title | default: section.settings.heading | default: '' | strip_html -%}
                       {{ block.settings.image
                         | image_url: width: 1200
                         | image_tag:
@@ -93,7 +95,7 @@
                           width: block.settings.image.width,
                           height: block.settings.image.height,
                           draggable: 'false',
-                          alt: block.settings.caption_title | default: section.settings.heading | default: ''
+                          alt: image_alt_text
                       }}
                     {%- endif -%}
                   {%- else -%}

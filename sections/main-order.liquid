@@ -205,12 +205,13 @@
           {%- endcomment -%}
           <li class="kt-order__item{% if line_item.refunded_quantity > 0 and line_item.refunded_quantity == line_item.quantity %} kt-order__item--refunded{% endif %}">
             {%- if line_item.image -%}
+              {%- assign image_alt_text = line_item.image.alt | default: line_item.title | strip_html -%}
               {{ line_item.image | image_url: width: 160 | image_tag:
                 loading: 'lazy',
                 width: 80,
                 height: 80,
                 class: 'kt-order__item-image',
-                alt: line_item.image.alt | default: line_item.title
+                alt: image_alt_text
               }}
             {%- else -%}
               {%- comment -%}

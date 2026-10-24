@@ -419,7 +419,7 @@
 .kt-showroom-price__current {
   font-size: 2.25rem;
   font-weight: 700;
-  color: var(--kt-red-700);
+  color: rgb(var(--kt-c-fg));
   letter-spacing: -0.025em;
   line-height: 1;
 }
@@ -461,10 +461,27 @@
 .kt-showroom-price__financing-pill {
   display: inline-block;
   font-size: 0.75rem;
-  color: var(--kt-stone-500);
+  color: rgb(var(--kt-c-fg-muted));
   border: 1px solid var(--kt-stone-300);
   border-radius: 9999px;
   padding: 0.25rem 0.75rem;
+}
+
+/* Sale state: red current price only when a compare-at price exists. */
+.kt-showroom-price--sale .kt-showroom-price__current {
+  color: var(--kt-red-700);
+}
+
+.kt-showroom-price__label[hidden] {
+  display: none;
+}
+
+.kt-showroom-price__financing-note {
+  margin: 0.5rem 0 0;
+  max-width: 32rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 /* ============================================================

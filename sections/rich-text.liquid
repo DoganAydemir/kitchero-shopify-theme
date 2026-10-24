@@ -92,16 +92,10 @@
                 without a coaching hint. Merchant choice still
                 wins because non-blank URL passes through.
               {%- endcomment -%}
-              {%- assign rt_btn1_href = block.settings.button_link_1 -%}
-              {%- if rt_btn1_href == blank -%}
-                {%- assign rt_btn1_href = 'shopify://pages/contact' -%}
-              {%- endif -%}
-              {%- assign rt_btn2_href = block.settings.button_link_2 -%}
-              {%- if rt_btn2_href == blank -%}
-                {%- assign rt_btn2_href = 'shopify://collections' -%}
-              {%- endif -%}
+              {%- assign rt_btn1_href = block.settings.button_link_1 | default: pages['contact'].url -%}
+              {%- assign rt_btn2_href = block.settings.button_link_2 | default: routes.collections_url -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>
-                {%- if block.settings.button_label_1 != blank -%}
+                {%- if block.settings.button_label_1 != blank and rt_btn1_href != blank -%}
                   <a
                     href="{{ rt_btn1_href | escape }}"
                     class="kt-rich-text__button kt-rich-text__button--{{ block.settings.button_style_1 | default: 'primary' }}"

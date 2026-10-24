@@ -872,6 +872,7 @@
                       <a class="kt-cart-page__recommendation-link" href="{{ rec_product.url }}">
                         <div class="kt-cart-page__recommendation-media">
                           {%- if rec_product.featured_media != blank -%}
+                            {%- assign image_alt_text = rec_product.featured_media.alt | default: rec_product.title | strip_html -%}
                             {{
                               rec_product.featured_media
                               | image_url: width: 480
@@ -882,7 +883,7 @@
                                 width: 240,
                                 height: 240,
                                 class: 'kt-cart-page__recommendation-image',
-                                alt: rec_product.featured_media.alt | default: rec_product.title
+                                alt: image_alt_text
                             }}
                           {%- else -%}
                             {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg kt-cart-page__recommendation-image' }}

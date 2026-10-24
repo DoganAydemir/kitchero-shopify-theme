@@ -62,6 +62,7 @@
             >
               <div class="kt-gallery-marquee__media">
                 {%- if block.settings.image != blank -%}
+                  {%- assign image_alt_text = block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name | strip_html -%}
                   {{
                     block.settings.image
                     | image_url: width: 800
@@ -72,7 +73,7 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       class: 'kt-gallery-marquee__image',
-                      alt: block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name
+                      alt: image_alt_text
                   }}
                 {%- else -%}
                   {{ 'lifestyle-1' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}
@@ -127,6 +128,7 @@
             >
               <div class="kt-gallery-marquee__media">
                 {%- if block.settings.image != blank -%}
+                  {%- assign image_alt_text = block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name | strip_html -%}
                   {{
                     block.settings.image
                     | image_url: width: 800
@@ -137,7 +139,7 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       class: 'kt-gallery-marquee__image',
-                      alt: block.settings.caption_title | default: block.settings.caption_subtitle | default: section.settings.heading | default: shop.name
+                      alt: image_alt_text
                   }}
                 {%- else -%}
                   {{ 'lifestyle-2' | placeholder_svg_tag: 'kt-gallery-marquee__placeholder-svg placeholder-svg' }}

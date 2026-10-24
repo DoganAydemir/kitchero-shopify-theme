@@ -21,10 +21,6 @@
 {%- assign contact_form_heading_line1_default = 'kt.section.contact.form_heading_line1_default' | t -%}
 {%- assign contact_form_heading_line2_default = 'kt.section.contact.form_heading_line2_default' | t -%}
 {%- assign contact_form_description_default = 'kt.section.contact.form_description_default' | t -%}
-<section
-  class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
-  data-section-id="{{ section.id }}"
   {%- comment -%}
     Section landmark aria-label. The previous version read
     `section.settings.heading | default: contact_region_label` but
@@ -34,6 +30,10 @@
     merchant ever needs a custom landmark label they can add a
     setting; until then the dead reference is removed.
   {%- endcomment -%}
+<section
+  class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  data-section-id="{{ section.id }}"
   aria-label="{{ contact_region_label }}"
 >
   {%- comment -%} Showrooms Grid {%- endcomment -%}

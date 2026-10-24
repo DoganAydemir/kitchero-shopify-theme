@@ -1,0 +1,48 @@
+/* Showroom price block: keeps the sale label, sale color and monthly
+   payment in sync when the customer picks another variant. Listens for
+   the `variant:change` event that product-form.js dispatches. */
+(function () {
+  'use strict';
+
+  function monthlyPayment(principal, apr, months) {
+    if (!principal || principal <= 0 || !months || months <= 0) return 0;
+    if (!apr || apr <= 0) return Math.round(principal / months);
+    var r = apr / 100 / 12;
+    var growth = Math.pow(1 + r, months);
+    return Math.round((principal * r * growth) / (growth - 1));
+  }
+
+  function formatMoney(cents) {
+    if (window.Kitchero && typeof window.Kitchero.formatMoney === 'function') {
+      return window.Kitchero.formatMoney(cents);
+    }
+    return (cents / 100).toFixed(2);
+  }
+
+  function update(root, variant) {
+    if (!root || !variant) return;
+    var price = Number(variant.price) || 0;
+    var compare = Number(variant.compare_at_price) || 0;
+    var onSale = compare > price && price > 0;
+
+    root.classList.toggle('kt-showroom-price--sale', onSale);
+    var label = root.querySelector('[data-showroom-sale-label]');
+    if (label) label.hidden = !onSale;
+
+    var pill = root.querySelector('[data-showroom-financing]');
+    var monthlyEl = root.querySelector('[data-showroom-monthly]');
+    if (pill && monthlyEl) {
+      var months = parseInt(pill.getAttribute('data-months'), 10) || 0;
+      var apr = parseFloat(pill.getAttribute('data-apr')) || 0;
+      monthlyEl.textContent = formatMoney(monthlyPayment(price, apr, months));
+    }
+  }
+
+  document.addEventListener('variant:change', function (event) {
+    var detail = event.detail || {};
+    var source = event.target && event.target.closest ? event.target : null;
+    var scope = source && source !== document ? source.closest('[data-section-id], section, .shopify-section') : null;
+    var roots = (scope || document).querySelectorAll('[data-showroom-price]');
+    for (var i = 0; i < roots.length; i++) update(roots[i], detail.variant);
+  });
+})();

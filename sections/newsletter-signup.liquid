@@ -73,6 +73,27 @@
             {%- endcomment -%}
             <div class="kt-newsletter-page__form-row">
             <label for="newsletter-page-email-{{ section.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
+              {%- comment -%}
+                R104 — `enterkeyhint="send"` swaps the iOS/Android Return
+                key glyph to a "Send" affordance, so the customer doesn't
+                have to dismiss the keyboard and reach for the Subscribe
+                button. Single-field newsletter submits straight from the
+                keyboard.
+              {%- endcomment -%}
+              {%- comment -%}
+                R96 — preserve typed email across validation errors.
+              {%- endcomment -%}
+              {%- comment -%}
+                R139 ARIA-DBY-1: only emit aria-describedby when the
+                referenced error region actually renders. The
+                `<p id="NewsletterPageForm-error">` only exists inside
+                `{%- if form.errors -%}`; emitting the attribute
+                unconditionally pointed at a missing ID and NVDA logged
+                a "described element not found" warning while AXE
+                flagged it as a 4.1.2 issue. Conditional emission keeps
+                the binding sound while still describing the field
+                whenever errors render.
+              {%- endcomment -%}
             <input
               type="email"
               autocapitalize="off"
@@ -86,30 +107,9 @@
               aria-required="true"
               maxlength="254"
               inputmode="email"
-              {%- comment -%}
-                R104 — `enterkeyhint="send"` swaps the iOS/Android Return
-                key glyph to a "Send" affordance, so the customer doesn't
-                have to dismiss the keyboard and reach for the Subscribe
-                button. Single-field newsletter submits straight from the
-                keyboard.
-              {%- endcomment -%}
               enterkeyhint="send"
               autocomplete="email"
-              {%- comment -%}
-                R96 — preserve typed email across validation errors.
-              {%- endcomment -%}
               value="{{ form.email | escape }}"
-              {%- comment -%}
-                R139 ARIA-DBY-1: only emit aria-describedby when the
-                referenced error region actually renders. The
-                `<p id="NewsletterPageForm-error">` only exists inside
-                `{%- if form.errors -%}`; emitting the attribute
-                unconditionally pointed at a missing ID and NVDA logged
-                a "described element not found" warning while AXE
-                flagged it as a 4.1.2 issue. Conditional emission keeps
-                the binding sound while still describing the field
-                whenever errors render.
-              {%- endcomment -%}
               {%- if form.errors -%}
                 aria-invalid="true"
                 aria-describedby="NewsletterPageForm-error-{{ section.id }}"

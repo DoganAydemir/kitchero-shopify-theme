@@ -83,8 +83,6 @@
             {%- if collection.description != blank -%}
               {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> made the browser auto-close the styled wrapper, dropping the desc styling — the text escaped as bare sibling <p>. {%- endcomment -%}
               <div class="kt-collection__desc rte">{{ collection.description }}</div>
-            {%- else -%}
-              <p class="kt-collection__desc">{{ 'kt.section.collection.default_desc' | t | default: 'Browse our masterfully crafted designs, filtered to your exact architectural specifications.' }}</p>
             {%- endif -%}
           {%- endif -%}
         </div>
@@ -95,6 +93,26 @@
         {%- endif -%}
       </div>
     </div>
+    {%- if section.settings.show_collection_image and collection.image != blank -%}
+      <div class="page-width">
+        {%- assign collection_image_alt = collection.image.alt | default: collection.title | strip_html -%}
+        <div class="kt-collection__media">
+          {{
+            collection.image
+            | image_url: width: 2000
+            | image_tag:
+              class: 'kt-collection__media-image',
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '750, 1100, 1500, 2000',
+              sizes: '(min-width: 1400px) 1400px, 100vw',
+              width: collection.image.width,
+              height: collection.image.height,
+              alt: collection_image_alt
+          }}
+        </div>
+      </div>
+    {%- endif -%}
   </section>
 
   {%- comment -%}
@@ -155,10 +173,9 @@
                       {%- endif -%}
                     </div>
                     <form id="FilterBar-{{ filter.param_name }}" action="{{ collection.url }}" method="get" data-collection-filters-form>
+                      <div role="group" aria-label="{{ filter.label | escape }}">
                       <ul
                         class="kt-filter__list list-unstyled"
-                        role="group"
-                        aria-label="{{ filter.label | escape }}"
                       >
                         {%- for value in filter.values -%}
                           <li>
@@ -194,6 +211,7 @@
                           </li>
                         {%- endfor -%}
                       </ul>
+                      </div>
                       {%- comment -%}
                         JS-off fallback. Desktop has one <form> per filter
                         category (one per accordion panel), so submitting
@@ -620,10 +638,9 @@
               {%- endcomment -%}
               <section class="kt-filter-drawer__group">
                 <h3 class="kt-filter-drawer__group-title" id="FilterDrawerGroup-{{ filter.param_name }}">{{ filter.label | escape }}</h3>
+                <div role="group" aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}">
                 <ul
                   class="kt-filter-drawer__options list-unstyled"
-                  role="group"
-                  aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}"
                 >
                   {%- comment -%}
                     Drawer-scoped unique id per checkbox so SR users
@@ -664,6 +681,7 @@
                     </li>
                   {%- endfor -%}
                 </ul>
+                </div>
               </section>
             {%- elsif filter.type == 'price_range' -%}
               {%- comment -%}
@@ -834,6 +852,13 @@
       "type": "checkbox",
       "id": "show_collection_description",
       "label": "t:sections.main-collection.settings.show_collection_description.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "t:sections.shared.show_collection_image.label",
+      "info": "t:sections.shared.show_collection_image.info",
       "default": true
     },
     {

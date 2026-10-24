@@ -52,17 +52,6 @@
         the top window or run drive-by scripts on modal dismiss; this
         closes the OWASP-flagged "unsandboxed third-party iframe" gap.
       {%- endcomment -%}
-      <iframe
-        class="kt-video-modal__frame"
-        data-video-modal-frame
-        src=""
-        width="1280"
-        height="720"
-        title="{{ 'kt.section.video_modal.iframe_title' | t | default: 'Video player' }}"
-        frameborder="0"
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
         {%- comment -%}
           R88 — sandbox attribute tightening. `allow-scripts +
           allow-same-origin` together is the OWASP-flagged "sandbox
@@ -74,6 +63,17 @@
           retained for Cast support; `allow-popups` retained for
           "open on YouTube" affordance.
         {%- endcomment -%}
+      <iframe
+        class="kt-video-modal__frame"
+        data-video-modal-frame
+        src=""
+        width="1280"
+        height="720"
+        title="{{ 'kt.section.video_modal.iframe_title' | t | default: 'Video player' }}"
+        frameborder="0"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
         sandbox="allow-scripts allow-presentation allow-popups"
       ></iframe>
     </div>

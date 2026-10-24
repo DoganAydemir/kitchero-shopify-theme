@@ -407,9 +407,12 @@ if (!window.__kitcheroCookieBannerLoaded) {
     document.addEventListener('click', function (event) {
       var trigger = event.target.closest('[data-privacy-choices]');
       if (!trigger) return;
-      event.preventDefault();
+      /* Only take over the link when the theme banner can open; other-
+         wise global.js tries Shopify's own privacy banner and, failing
+         that, the link navigates to its href. */
       var opened = openCookieBanner();
       if (!opened) return;
+      event.preventDefault();
       var banner = document.querySelector(SELECTORS.banner);
       if (!banner) return;
       setCustomizePanelExpanded(banner, true);

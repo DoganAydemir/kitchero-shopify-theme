@@ -31,25 +31,12 @@
     {%- endif -%}
 
     {%- comment -%}
-      R-financing-cta-link-fallback — Schema `default` only fires
-      for instances Shopify hasn't already saved a value for.
-      Sections added via theme editor get `primary_link: ""` /
-      `secondary_link: ""` written to the template JSON on first
-      save, which then overrides the schema default forever
-      (Shopify treats `""` as a real merchant choice, not absent).
-      Coalesce empty strings to sensible defaults here so existing
-      and fresh-install instances both render filled CTAs by
-      default. Merchant picking their own URL still wins because
-      it's a non-blank value.
+      Blank links fall back to the store's contact page (when it
+      exists) and the collections list. Buttons without a URL are not
+      rendered.
     {%- endcomment -%}
-    {%- assign primary_href = section.settings.primary_link -%}
-    {%- if primary_href == blank -%}
-      {%- assign primary_href = 'shopify://pages/contact' -%}
-    {%- endif -%}
-    {%- assign secondary_href = section.settings.secondary_link -%}
-    {%- if secondary_href == blank -%}
-      {%- assign secondary_href = 'shopify://collections' -%}
-    {%- endif -%}
+    {%- assign primary_href = section.settings.primary_link | default: pages['contact'].url -%}
+    {%- assign secondary_href = section.settings.secondary_link | default: routes.collections_url -%}
 
     <div class="kt-financing-cta__buttons">
       {%- comment -%}
@@ -57,7 +44,7 @@
         URL are configured. Theme Store flags `<a href="#">` as a
         broken link. Editor hint surfaces the gap to merchants.
       {%- endcomment -%}
-      {%- if section.settings.primary_text != blank -%}
+      {%- if section.settings.primary_text != blank and primary_href != blank -%}
         <a
           href="{{ primary_href | escape }}"
           class="kt-financing-cta__btn kt-financing-cta__btn--primary"
