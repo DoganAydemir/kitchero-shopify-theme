@@ -3,12 +3,12 @@
   Birebir from showroom/[id]/page.tsx pricing block.
 
   Renders:
-    "Now only" label (small, muted)
-    Big red current price
+    "Now only" label (only when the variant is on sale)
+    Current price (red only when on sale)
     "Save $X" badge (red pill, only if on sale)
     "Was $X" strikethrough (only if on sale)
-    Monthly installment pill (auto-calculated from financing_months + financing_apr
-    section settings, if provided)
+    Monthly installment pill (amortized from price, financing_months and
+    financing_apr; hidden when financing_months is 0)
 
   Accepts:
   - product: {Object}          Shopify product
@@ -35,13 +35,12 @@
     assign savings = compare_price | minus: current_price
   endif
 
-  unless financing_months
-    assign financing_months = 60
-  endunless
+  assign financing_months = financing_months | default: 0 | floor
+  assign financing_apr = financing_apr | default: 0 | times: 1.0
 -%}
 
-<div class="kt-showroom-price" data-product-price>
-  <span class="kt-showroom-price__label">{{ 'kt.product.price.now_only' | t | default: 'Now only' }}</span>
+<div class="kt-showroom-price{% if on_sale %} kt-showroom-price--sale{% endif %}" data-product-price data-showroom-price>
+  <span class="kt-showroom-price__label" data-showroom-sale-label{% unless on_sale %} hidden{% endunless %}>{{ 'kt.product.price.now_only' | t }}</span>
 
   {%- comment -%}
     The `kt-product-price__current/compare/discount` aliases beside the
@@ -101,23 +100,44 @@
   {%- endif -%}
 
   {%- comment -%}
-    Monthly installment pill — calculated price / months. Suppressed
-    for free products since "Free / 60 months" makes no sense.
+    Monthly installment pill. Standard amortization:
+    payment = price * r * (1 + r)^n / ((1 + r)^n - 1), r = APR / 12.
+    With 0% APR the payment is price / n. assets/kt-showroom-price.js
+    recalculates it when the variant changes.
   {%- endcomment -%}
   {%- if financing_months > 0 and is_free == false -%}
-    {%- assign monthly = current_price | divided_by: financing_months -%}
+    {%- liquid
+      if financing_apr > 0
+        assign monthly_rate = financing_apr | divided_by: 1200.0
+        assign rate_plus_one = monthly_rate | plus: 1.0
+        assign growth = 1.0
+        for i in (1..financing_months)
+          assign growth = growth | times: rate_plus_one
+        endfor
+        assign growth_minus_one = growth | minus: 1.0
+        assign monthly = current_price | times: monthly_rate | times: growth | divided_by: growth_minus_one | round
+      else
+        assign monthly = current_price | times: 1.0 | divided_by: financing_months | round
+      endif
+    -%}
     <p class="kt-showroom-price__financing">
-      <span class="kt-showroom-price__financing-pill">
+      <span
+        class="kt-showroom-price__financing-pill"
+        data-showroom-financing
+        data-months="{{ financing_months }}"
+        data-apr="{{ financing_apr }}"
+      >
         {%- if financing_label != blank -%}
-          {{ financing_label }}
+          {{ financing_label | escape }}
         {%- else -%}
-          {{ monthly | money }} {{ 'kt.product.price.per_month' | t | default: 'per month' }}
-          {%- if financing_apr -%}
+          <span data-showroom-monthly>{{ monthly | money }}</span> {{ 'kt.product.price.per_month' | t }}
+          {%- if financing_apr > 0 -%}
             &nbsp;· {{ 'kt.product.price.apr_suffix_html' | t: rate: financing_apr }}
           {%- endif -%}
-          &nbsp;· {{ financing_months | divided_by: 12 }} {{ 'kt.product.price.years' | t | default: 'years' }}*
+          &nbsp;· {{ 'kt.product.price.months_html' | t: count: financing_months }}
         {%- endif -%}
       </span>
     </p>
+    <p class="kt-showroom-price__financing-note">{{ 'kt.section.financing-calculator.disclaimer_default' | t }}</p>
   {%- endif -%}
 </div>

@@ -1001,6 +1001,7 @@
   class so it never touches the main product's variant picker.
 {%- endcomment -%}
 <script src="{{ 'kt-sample-add.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-showroom-price.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-desc-truncate.js' | asset_url }}" defer="defer"></script>
 {%- if settings.kt_back_in_stock_enabled -%}
   <script src="{{ 'kt-back-in-stock.js' | asset_url }}" defer="defer"></script>
@@ -1100,7 +1101,8 @@
           "type": "number",
           "id": "financing_months",
           "label": "t:sections.main-product-showroom.blocks.price.settings.financing_months.label",
-          "default": 60
+          "info": "t:sections.main-product-showroom.blocks.price.settings.financing_months.info",
+          "default": 0
         },
         {
           "type": "number",
@@ -1112,8 +1114,7 @@
           "type": "text",
           "id": "financing_label",
           "label": "t:sections.main-product-showroom.blocks.price.settings.financing_label.label",
-          "info": "t:sections.main-product-showroom.blocks.price.settings.financing_label.info",
-          "default": "Label"
+          "info": "t:sections.main-product-showroom.blocks.price.settings.financing_label.info"
         }
       ]
     },

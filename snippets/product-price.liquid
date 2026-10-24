@@ -35,25 +35,9 @@
     # by one digit when a variant change repaints.
     assign discount_pct = compare_price | minus: current_price | times: 100 | divided_by: compare_price | round: 0
   endif
-  comment
-    When callers render the product's price block without explicitly
-    passing `variant` (common on collection/search cards), the price
-    can still vary across variants even though we're showing one
-    representative price. Flag that so we can prefix with "From" —
-    matching Shopify's storefront convention and avoiding customer
-    surprise when they land on a PDP to find a higher price than
-    the card showed.
-  endcomment
-  assign show_from_prefix = false
-  if variant == product.selected_or_first_available_variant and product.price_varies
-    assign show_from_prefix = true
-  endif
 -%}
 
 <div class="kt-product-price" data-product-price>
-  {%- if show_from_prefix -%}
-    <span class="kt-product-price__from-label">{{ 'kt.product.from_price_label' | t }}</span>
-  {%- endif -%}
   <span class="kt-product-price__current{% if on_sale %} kt-product-price__current--sale{% endif %}">
     {%- if on_sale -%}
       <span class="visually-hidden">{{ 'kt.product.sale_price' | t }}&nbsp;</span>
