@@ -432,6 +432,54 @@
         }
       }
     },
+    "kt_product_data": {
+      "name": "Produktdaten",
+      "settings": {
+        "intro": {
+          "content": "Verbinden Sie optionale Produktfunktionen mit Ihren eigenen Metafeldern. Geben Sie Namespace und Schlüssel ein, z. B. custom.deal_ends_at. Leer lassen, um die Funktion auszuschalten."
+        },
+        "kt_mf_deal_end": {
+          "label": "Metafeld für Angebotsende",
+          "info": "Produkt-Metafeld mit Datum und Uhrzeit. Bei Produkten mit Wert erscheint ein Countdown."
+        },
+        "kt_mf_rating": {
+          "label": "Metafeld für manuelle Bewertung",
+          "info": "Dezimalzahl von 0 bis 5, nur genutzt, wenn keine Bewertungs-App eine Bewertung liefert."
+        },
+        "kt_mf_features": {
+          "label": "Metafeld für Merkmalsliste",
+          "info": "Liste aus einzeiligem Text. Wird auf Produktseiten als Merkmal-Tags angezeigt."
+        },
+        "kt_mf_origin": {
+          "label": "Metafeld für Herkunftsland",
+          "info": "Einzeiliger Text im Block für Produktdetails."
+        },
+        "kt_mf_length": {
+          "label": "Metafeld für Länge",
+          "info": "Zahl im Block für Produktdetails."
+        },
+        "kt_mf_width": {
+          "label": "Metafeld für Breite",
+          "info": "Zahl im Block für Produktdetails."
+        },
+        "kt_mf_height": {
+          "label": "Metafeld für Höhe",
+          "info": "Zahl im Block für Produktdetails."
+        },
+        "kt_mf_dim_unit": {
+          "label": "Metafeld für Maßeinheit",
+          "info": "Einzeiliger Text wie cm oder in. Standard ist cm."
+        },
+        "kt_mf_swatch_color": {
+          "label": "Metafeld für Variantenfarbe",
+          "info": "Varianten-Farbmetafeld, nur genutzt, wenn ein Optionswert kein Shopify-Farbmuster hat."
+        },
+        "kt_mf_swatch_image": {
+          "label": "Metafeld für Variantenbild",
+          "info": "Varianten-Dateimetafeld, nur genutzt, wenn ein Optionswert kein Shopify-Farbmuster hat."
+        }
+      }
+    },
     "global": {
       "settings": {
         "header__border": {
@@ -2308,10 +2356,10 @@
             "show_sku": { "label": "SKU", "info": "Wird aus dem SKU-Feld der ausgewählten Variante gezogen." },
             "show_barcode": { "label": "Barcode", "info": "Wird aus dem Barcode-Feld der Variante gezogen (ISBN, UPC, GTIN usw.)." },
             "show_weight": { "label": "Gewicht", "info": "Wird aus dem Gewichtsfeld der Variante gezogen. Verborgen bei 0 oder leer. Respektiert die Gewichtseinheit des Shops (kg / g / lb / oz)." },
-            "show_dimensions": { "label": "Paketabmessungen", "info": "Liest die Metafelder custom.length / custom.width / custom.height. Am Produkt setzen, damit diese Zeile erscheint. Einheit standardmäßig cm; über custom.dimensions_unit überschreibbar." },
+            "show_dimensions": { "label": "Paketabmessungen", "info": "Nutzt die unter Theme-Einstellungen > Produktdaten gewählten Metafelder für Länge, Breite, Höhe und Einheit." },
             "show_vendor": { "label": "Marke / Anbieter" },
             "show_type": { "label": "Produkttyp" },
-            "show_origin": { "label": "Herkunftsland", "info": "Liest das Feld product.metafields.custom.country_of_origin." },
+            "show_origin": { "label": "Herkunftsland", "info": "Nutzt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für das Herkunftsland." },
             "show_tags": { "label": "Tags", "info": "Mit `_` beginnende interne Tags werden automatisch ausgeblendet." },
             "layout": {
               "label": "Layout",
@@ -2344,7 +2392,7 @@
         "tags": {
           "name": "Tags",
           "settings": {
-            "info": "Pills werden vorrangig aus product.metafields.custom.features (Liste) bezogen; ohne Metafield wird auf die Produkt-Tags zurückgegriffen. Features verwalten unter Admin → Produkte → [Produkt] → Metafelder, oder Tags unter Admin → Produkte → [Produkt] → Tags."
+            "info": "Zeigt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für Merkmale. Sonst werden die Produkt-Tags angezeigt."
           }
         },
         "trust_badges": {
@@ -2500,7 +2548,7 @@
       "name": "Premium-Produktseite",
       "settings": {
         "paragraph__door_sample": {
-          "content": "Das Muster-Thumbnail stammt aus dem Metafeld custom.door_sample jedes Produkts (file_reference → image). Fällt auf das Hauptbild des Produkts zurück, wenn leer. Siehe SETUP.md für die einmalige Metafeld-Definition."
+          "content": "Die Musterbox zeigt das im Muster-Block gewählte Produkt mit Bild und Preis."
         }
       },
       "blocks": {
@@ -2528,10 +2576,6 @@
               "options__2": {
                 "label": "H2"
               }
-            },
-            "show_door_thumb": {
-              "label": "Muster-Thumbnail anzeigen",
-              "info": "Kleines Akzentbild (z. B. ein Türmuster) neben dem Produkttitel. Das Theme ermittelt das Bild automatisch in dieser Reihenfolge: 1) Metafeld `custom.door_sample`, falls am Produkt gesetzt, 2) Vorschaubild der gewählten Variante, wenn es sich vom Hauptbild des Produkts unterscheidet, 3) ausgeblendet. Metafeld verwenden (empfohlen für Stores mit eigenen Musterfotos): Einstellungen → Metafelder → Produkte → Definition hinzufügen, Namespace `custom`, Schlüssel `door_sample`, Typ Datei → Nur Bilder; dann pro Produkt unter Produkte → [Produkt] → Metafelder festlegen."
             }
           }
         },
@@ -2697,7 +2741,7 @@
         "tag": {
           "name": "Feature-Tag",
           "settings": {
-            "info": "Pills werden vorrangig aus product.metafields.custom.features (Liste) bezogen; ohne Metafield werden diese manuellen Einträge verwendet. Features verwalten unter Admin → Produkte → [Produkt] → Metafelder → Features.",
+            "info": "Zeigt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für Merkmale. Sonst werden diese Einträge angezeigt.",
             "text": {
               "label": "Text"
             }

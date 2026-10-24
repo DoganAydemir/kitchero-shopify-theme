@@ -432,6 +432,54 @@
         }
       }
     },
+    "kt_product_data": {
+      "name": "Ürün verileri",
+      "settings": {
+        "intro": {
+          "content": "İsteğe bağlı ürün özelliklerini kendi metafield'larınıza bağlayın. custom.deal_ends_at gibi bir namespace ve anahtar girin. Özelliği kapatmak için alanı boş bırakın."
+        },
+        "kt_mf_deal_end": {
+          "label": "Kampanya bitiş tarihi metafield'ı",
+          "info": "Ürün tarih ve saat metafield'ı. Dolu olduğu ürünlerde geri sayım görünür."
+        },
+        "kt_mf_rating": {
+          "label": "Manuel puan metafield'ı",
+          "info": "0–5 arası ondalık sayı; yalnızca bir yorum uygulaması puan sağlamıyorsa kullanılır."
+        },
+        "kt_mf_features": {
+          "label": "Özellik listesi metafield'ı",
+          "info": "Tek satırlık metin listesi. Ürün sayfalarında özellik etiketleri olarak gösterilir."
+        },
+        "kt_mf_origin": {
+          "label": "Menşe ülke metafield'ı",
+          "info": "Ürün detayları bloğunda gösterilen tek satırlık metin."
+        },
+        "kt_mf_length": {
+          "label": "Uzunluk metafield'ı",
+          "info": "Ürün detayları bloğunda gösterilen sayı."
+        },
+        "kt_mf_width": {
+          "label": "Genişlik metafield'ı",
+          "info": "Ürün detayları bloğunda gösterilen sayı."
+        },
+        "kt_mf_height": {
+          "label": "Yükseklik metafield'ı",
+          "info": "Ürün detayları bloğunda gösterilen sayı."
+        },
+        "kt_mf_dim_unit": {
+          "label": "Ölçü birimi metafield'ı",
+          "info": "cm veya in gibi tek satırlık metin. Varsayılan cm."
+        },
+        "kt_mf_swatch_color": {
+          "label": "Varyant renk örneği metafield'ı",
+          "info": "Varyant renk metafield'ı; yalnızca seçenek değerinin Shopify renk örneği yoksa kullanılır."
+        },
+        "kt_mf_swatch_image": {
+          "label": "Varyant görsel örneği metafield'ı",
+          "info": "Varyant dosya metafield'ı; yalnızca seçenek değerinin Shopify renk örneği yoksa kullanılır."
+        }
+      }
+    },
     "global": {
       "settings": {
         "header__border": {
@@ -2308,10 +2356,10 @@
             "show_sku": { "label": "SKU", "info": "Seçili varyantın SKU alanından çekilir." },
             "show_barcode": { "label": "Barkod", "info": "Seçili varyantın barkod alanından (ISBN, UPC, GTIN vb.) çekilir." },
             "show_weight": { "label": "Ağırlık", "info": "Varyantın ağırlık alanından çekilir. 0 veya boş ise gizlenir. Mağaza ağırlık birimini (kg / g / lb / oz) kullanır." },
-            "show_dimensions": { "label": "Paket boyutları", "info": "custom.length / custom.width / custom.height metafield'larını okur. Üründe ayarlayın. Birim cm varsayılan; custom.dimensions_unit ile değiştirin." },
+            "show_dimensions": { "label": "Paket boyutları", "info": "Tema ayarları > Ürün verileri'nde seçilen uzunluk, genişlik, yükseklik ve birim metafield'larını kullanır." },
             "show_vendor": { "label": "Marka / satıcı" },
             "show_type": { "label": "Ürün türü" },
-            "show_origin": { "label": "Menşe ülkesi", "info": "product.metafields.custom.country_of_origin alanını okur." },
+            "show_origin": { "label": "Menşe ülkesi", "info": "Tema ayarları > Ürün verileri'nde seçilen menşe ülke metafield'ını kullanır." },
             "show_tags": { "label": "Etiketler", "info": "`_` ile başlayan iç etiketler otomatik gizlenir." },
             "layout": {
               "label": "Düzen",
@@ -2344,7 +2392,7 @@
         "tags": {
           "name": "Etiketler",
           "settings": {
-            "info": "Pill'leri öncelikli olarak product.metafields.custom.features (liste) metafield'inden alır; tanımlı değilse ürünün etiketlerine fallback yapar. Features'ı Admin → Ürünler → [ürün] → Metafield'lar veya etiketleri Admin → Ürünler → [ürün] → Etiketler yolundan yönetin."
+            "info": "Tema ayarları > Ürün verileri'nde seçilen özellik listesi metafield'ını gösterir. Yoksa ürün etiketlerini gösterir."
           }
         },
         "trust_badges": {
@@ -2500,7 +2548,7 @@
       "name": "Premium ürün sayfası",
       "settings": {
         "paragraph__door_sample": {
-          "content": "Numune görseli, her ürünün custom.door_sample (file_reference → image) metafield'ından gelir. Boşsa ürünün öne çıkan görseline düşer. Bir defalık metafield tanımı için SETUP.md'ye bakın."
+          "content": "Örnek kutusu, Örnek bloğunda seçtiğiniz ürünü görseli ve fiyatıyla gösterir."
         }
       },
       "blocks": {
@@ -2528,10 +2576,6 @@
               "options__2": {
                 "label": "H2"
               }
-            },
-            "show_door_thumb": {
-              "label": "Numune küçük görseli göster",
-              "info": "Ürün başlığının yanında gösterilen küçük vurgu görseli (örn. kapak numunesi). Tema, görseli otomatik olarak şu sırayla bulur: 1) Ürüne `custom.door_sample` metaalanı ayarlanmışsa onu, 2) Seçili varyantın öne çıkan görseli ana üründen farklıysa onu, 3) Aksi halde gizli. Metaalanı kullanmak için (numune fotoğrafı olan mağazalar için önerilir): Ayarlar → Özel veriler → Ürünler → Tanım ekle, namespace `custom`, key `door_sample`, tür Dosya → Yalnızca görsel; sonra her ürün için Ürünler → [ürün] → Metaalanlar bölümünden ayarlayın."
             }
           }
         },
@@ -2697,7 +2741,7 @@
         "tag": {
           "name": "Özellik etiketi",
           "settings": {
-            "info": "Pill'leri öncelikli olarak product.metafields.custom.features (liste) metafield'inden alır; tanımlı değilse buradaki manuel girişler kullanılır. Features'ı Admin → Ürünler → [ürün] → Metafield'lar → Features yolundan yönetin.",
+            "info": "Tema ayarları > Ürün verileri'nde seçilen özellik listesi metafield'ını gösterir. Yoksa bu girdileri gösterir.",
             "text": {
               "label": "Metin"
             }

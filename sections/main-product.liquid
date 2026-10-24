@@ -244,7 +244,13 @@
                 {%- endif -%}
 
               {%- when 'countdown' -%}
-                {%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
+                {%- liquid
+                  assign deal_ends_at = blank
+                  assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
+                  if mf_path.size == 2
+                    assign deal_ends_at = product.metafields[mf_path[0]][mf_path[1]].value
+                  endif
+                -%}
                 {%- if deal_ends_at == blank and request.design_mode -%}
                   {%- comment -%}
                     Editor-only hint when the merchant has added the
@@ -909,8 +915,13 @@
                   if block.settings.show_type and product.type != blank
                     assign pd_render_type = true
                   endif
+                  assign pd_origin = blank
+                  assign mf_path = settings.kt_mf_origin | strip | split: '.'
+                  if mf_path.size == 2
+                    assign pd_origin = product.metafields[mf_path[0]][mf_path[1]].value
+                  endif
                   assign pd_render_origin = false
-                  if block.settings.show_origin and product.metafields.custom.country_of_origin.value != blank
+                  if block.settings.show_origin and pd_origin != blank
                     assign pd_render_origin = true
                   endif
                   assign pd_render_tags = false
@@ -926,10 +937,27 @@
                   assign pd_dim_unit = 'cm'
                   assign pd_render_dimensions = false
                   if block.settings.show_dimensions
-                    assign pd_dim_l = product.metafields.custom.length.value
-                    assign pd_dim_w = product.metafields.custom.width.value
-                    assign pd_dim_h = product.metafields.custom.height.value
-                    assign pd_dim_unit = product.metafields.custom.dimensions_unit.value | default: 'cm'
+                    assign pd_dim_l = blank
+                    assign mf_path = settings.kt_mf_length | strip | split: '.'
+                    if mf_path.size == 2
+                      assign pd_dim_l = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
+                    assign pd_dim_w = blank
+                    assign mf_path = settings.kt_mf_width | strip | split: '.'
+                    if mf_path.size == 2
+                      assign pd_dim_w = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
+                    assign pd_dim_h = blank
+                    assign mf_path = settings.kt_mf_height | strip | split: '.'
+                    if mf_path.size == 2
+                      assign pd_dim_h = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
+                    assign pd_dim_unit = blank
+                    assign mf_path = settings.kt_mf_dim_unit | strip | split: '.'
+                    if mf_path.size == 2
+                      assign pd_dim_unit = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
+                    assign pd_dim_unit = pd_dim_unit | default: 'cm'
                     if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank
                       assign pd_render_dimensions = true
                     endif
@@ -1032,7 +1060,7 @@
                     {%- if pd_render_origin -%}
                       <div class="kt-pdp__details-row">
                         <dt class="kt-pdp__details-label">{{ 'kt.product.details.origin' | t }}</dt>
-                        <dd class="kt-pdp__details-value">{{ product.metafields.custom.country_of_origin.value | escape }}</dd>
+                        <dd class="kt-pdp__details-value">{{ pd_origin | escape }}</dd>
                       </div>
                     {%- endif -%}
                     {%- if pd_render_tags -%}
@@ -1100,7 +1128,13 @@
                      so merchants know where the pills will appear once
                      content is added.
                 {%- endcomment -%}
-                {%- assign pdp_metafield_features = product.metafields.custom.features.value -%}
+                {%- liquid
+                  assign pdp_metafield_features = blank
+                  assign mf_path = settings.kt_mf_features | strip | split: '.'
+                  if mf_path.size == 2
+                    assign pdp_metafield_features = product.metafields[mf_path[0]][mf_path[1]].value
+                  endif
+                -%}
                 {%- assign pdp_has_metafield_features = false -%}
                 {%- if pdp_metafield_features != blank and pdp_metafield_features.size > 0 -%}
                   {%- assign pdp_has_metafield_features = true -%}

@@ -128,8 +128,17 @@
                     access could paste `red; background-image: url(...)`
                     and inject arbitrary CSS into every product page.
                   endcomment
-                  assign swatch_meta_color = matching_variant.metafields.custom.swatch_color.value | strip
-                  assign swatch_meta_image = matching_variant.metafields.custom.swatch_image.value
+                  assign swatch_meta_color = blank
+                  assign mf_path = settings.kt_mf_swatch_color | strip | split: '.'
+                  if mf_path.size == 2
+                    assign swatch_meta_color = matching_variant.metafields[mf_path[0]][mf_path[1]].value
+                  endif
+                  assign swatch_meta_color = swatch_meta_color | strip
+                  assign swatch_meta_image = blank
+                  assign mf_path = settings.kt_mf_swatch_image | strip | split: '.'
+                  if mf_path.size == 2
+                    assign swatch_meta_image = matching_variant.metafields[mf_path[0]][mf_path[1]].value
+                  endif
                 endif
 
                 comment

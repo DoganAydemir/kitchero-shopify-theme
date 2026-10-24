@@ -8,7 +8,13 @@
   - product: {Object} Shopify product
 {%- endcomment -%}
 
-{%- assign deal_ends_at = product.metafields.custom.deal_ends_at.value -%}
+{%- liquid
+  assign deal_ends_at = blank
+  assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
+  if mf_path.size == 2
+    assign deal_ends_at = product.metafields[mf_path[0]][mf_path[1]].value
+  endif
+-%}
 
 {%- if deal_ends_at != blank -%}
   <div

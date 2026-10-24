@@ -819,7 +819,14 @@
 {%- endcomment -%}
 {%- assign collection_has_deal = false -%}
 {%- for product in collection.products -%}
-  {%- if product.metafields.custom.deal_ends_at.value != blank -%}
+  {%- liquid
+    assign card_deal_end = blank
+    assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
+    if mf_path.size == 2
+      assign card_deal_end = product.metafields[mf_path[0]][mf_path[1]].value
+    endif
+  -%}
+  {%- if card_deal_end != blank -%}
     {%- assign collection_has_deal = true -%}
     {%- break -%}
   {%- endif -%}

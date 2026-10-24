@@ -309,7 +309,14 @@
       one lookup instead of two per card. Saves ~30-80ms TTFB on
       a 50-product collection page.
     {%- endcomment -%}
-    {%- if product.metafields.custom.deal_ends_at.value != blank -%}
+    {%- liquid
+      assign card_deal_end = blank
+      assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
+      if mf_path.size == 2
+        assign card_deal_end = product.metafields[mf_path[0]][mf_path[1]].value
+      endif
+    -%}
+    {%- if card_deal_end != blank -%}
       {%- render 'countdown', product: product -%}
     {%- endif -%}
 
