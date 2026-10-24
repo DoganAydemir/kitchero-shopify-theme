@@ -17,7 +17,14 @@
   cheap-property check at the top short-circuits the
   expensive property unpacking when no rating exists.
 {%- endcomment -%}
-{%- if product.metafields.reviews.rating.value == blank and product.metafields.custom.rating.value == blank -%}
+{%- liquid
+  assign manual_rating = blank
+  assign mf_path = settings.kt_mf_rating | strip | split: '.'
+  if mf_path.size == 2
+    assign manual_rating = product.metafields[mf_path[0]][mf_path[1]].value
+  endif
+-%}
+{%- if product.metafields.reviews.rating.value == blank and manual_rating == blank -%}
   {%- comment -%} Nothing to render — skip the rest of the snippet. {%- endcomment -%}
 {%- else -%}
 {%- liquid
@@ -26,7 +33,7 @@
   assign rating_count = product.metafields.reviews.rating_count.value
 
   unless rating_value
-    assign rating_value = product.metafields.custom.rating.value
+    assign rating_value = manual_rating
     assign rating_scale_max = 5
     assign rating_count = nil
   endunless

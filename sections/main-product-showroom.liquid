@@ -580,7 +580,13 @@
                        see the visual element and can customise per-template.
                        Block `limit: 8` keeps the manual path constrained.
                   {%- endcomment -%}
-                  {%- assign metafield_features = product.metafields.custom.features.value -%}
+                  {%- liquid
+                    assign metafield_features = blank
+                    assign mf_path = settings.kt_mf_features | strip | split: '.'
+                    if mf_path.size == 2
+                      assign metafield_features = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
+                  -%}
                   {%- assign has_metafield_features = false -%}
                   {%- if metafield_features != blank and metafield_features.size > 0 -%}
                     {%- assign has_metafield_features = true -%}

@@ -244,6 +244,10 @@
                   the actual interaction model.
                 {%- endcomment -%}
                 <div class="kt-header__mega-menu" id="kt-header-mega-{{ link.handle }}">
+                  {%- assign menu_parent_title = link.title | escape -%}
+                  <a href="{{ link.url }}" class="kt-header__mega-view-all">
+                    {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
+                  </a>
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
@@ -260,7 +264,7 @@
                           parent <nav aria-label> already provides the
                           landmark.
                         {%- endcomment -%}
-                        <span class="kt-header__mega-column-title" role="presentation">{{ child_link.title | escape }}</span>
+                        <a href="{{ child_link.url }}" class="kt-header__mega-column-title">{{ child_link.title | escape }}</a>
                         {%- if child_link.links.size > 0 -%}
                           <ul class="kt-header__mega-list list-unstyled" role="list">
                             {%- for grandchild_link in child_link.links -%}
@@ -346,6 +350,10 @@
                   describe the standard-navigation behaviour correctly.
                 {%- endcomment -%}
                 <div class="kt-header__flyout" id="kt-header-flyout-{{ link.handle }}">
+                  {%- assign menu_parent_title = link.title | escape -%}
+                  <a href="{{ link.url }}" class="kt-header__flyout-link kt-header__flyout-link--all">
+                    {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
+                  </a>
                   {%- for child_link in link.links -%}
                     <a href="{{ child_link.url }}" class="kt-header__flyout-link">
                       {{ child_link.title | escape }}

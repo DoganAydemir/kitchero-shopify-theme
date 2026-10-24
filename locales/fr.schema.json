@@ -432,6 +432,54 @@
         }
       }
     },
+    "kt_product_data": {
+      "name": "Données produit",
+      "settings": {
+        "intro": {
+          "content": "Associez des fonctionnalités produit facultatives à vos propres métachamps. Saisissez un espace de noms et une clé, par exemple custom.deal_ends_at. Laissez vide pour désactiver la fonctionnalité."
+        },
+        "kt_mf_deal_end": {
+          "label": "Métachamp de fin d'offre",
+          "info": "Métachamp produit de date et heure. Un compte à rebours s'affiche sur les produits où il est renseigné."
+        },
+        "kt_mf_rating": {
+          "label": "Métachamp de note manuelle",
+          "info": "Décimal de 0 à 5, utilisé seulement si aucune application d'avis ne fournit de note."
+        },
+        "kt_mf_features": {
+          "label": "Métachamp de liste de caractéristiques",
+          "info": "Liste de texte sur une ligne, affichée sous forme d'étiquettes sur les fiches produit."
+        },
+        "kt_mf_origin": {
+          "label": "Métachamp du pays d'origine",
+          "info": "Texte sur une ligne affiché dans le bloc des détails produit."
+        },
+        "kt_mf_length": {
+          "label": "Métachamp de longueur",
+          "info": "Nombre affiché dans le bloc des détails produit."
+        },
+        "kt_mf_width": {
+          "label": "Métachamp de largeur",
+          "info": "Nombre affiché dans le bloc des détails produit."
+        },
+        "kt_mf_height": {
+          "label": "Métachamp de hauteur",
+          "info": "Nombre affiché dans le bloc des détails produit."
+        },
+        "kt_mf_dim_unit": {
+          "label": "Métachamp d'unité de dimension",
+          "info": "Texte sur une ligne comme cm ou in. cm par défaut."
+        },
+        "kt_mf_swatch_color": {
+          "label": "Métachamp de couleur de variante",
+          "info": "Métachamp couleur de variante, utilisé seulement si la valeur d'option n'a pas d'échantillon Shopify."
+        },
+        "kt_mf_swatch_image": {
+          "label": "Métachamp d'image de variante",
+          "info": "Métachamp fichier de variante, utilisé seulement si la valeur d'option n'a pas d'échantillon Shopify."
+        }
+      }
+    },
     "global": {
       "settings": {
         "header__border": {
@@ -2308,10 +2356,10 @@
             "show_sku": { "label": "SKU", "info": "Tiré du champ SKU de la variante sélectionnée." },
             "show_barcode": { "label": "Code-barres", "info": "Tiré du champ code-barres de la variante (ISBN, UPC, GTIN, etc.)." },
             "show_weight": { "label": "Poids", "info": "Tiré du champ poids de la variante. Masqué si 0 ou vide. Respecte l'unité de poids de la boutique (kg / g / lb / oz)." },
-            "show_dimensions": { "label": "Dimensions du colis", "info": "Lit les métachamps custom.length / custom.width / custom.height. Renseignez-les sur le produit pour faire apparaître cette ligne. Unité par défaut : cm ; remplacez via custom.dimensions_unit." },
+            "show_dimensions": { "label": "Dimensions du colis", "info": "Utilise les métachamps de longueur, largeur, hauteur et unité choisis dans Paramètres du thème > Données produit." },
             "show_vendor": { "label": "Marque / fournisseur" },
             "show_type": { "label": "Type de produit" },
-            "show_origin": { "label": "Pays d'origine", "info": "Lit le champ product.metafields.custom.country_of_origin." },
+            "show_origin": { "label": "Pays d'origine", "info": "Utilise le métachamp du pays d'origine choisi dans Paramètres du thème > Données produit." },
             "show_tags": { "label": "Tags", "info": "Les tags internes commençant par `_` sont automatiquement masqués." },
             "layout": {
               "label": "Mise en page",
@@ -2344,7 +2392,7 @@
         "tags": {
           "name": "Tags",
           "settings": {
-            "info": "Les pastilles proviennent de product.metafields.custom.features (liste) si défini ; sinon les tags du produit servent de repli. Gérez les features via Admin → Produits → [produit] → Champs méta, ou les tags via Admin → Produits → [produit] → Tags."
+            "info": "Affiche le métachamp de caractéristiques choisi dans Paramètres du thème > Données produit. Sinon, affiche les balises du produit."
           }
         },
         "trust_badges": {
@@ -2500,7 +2548,7 @@
       "name": "Page produit premium",
       "settings": {
         "paragraph__door_sample": {
-          "content": "La miniature de l'échantillon provient du metafield custom.door_sample de chaque produit (file_reference → image). Retombe sur l'image principale du produit si vide. Voir SETUP.md pour la définition unique du metafield."
+          "content": "La boîte d'échantillon affiche le produit choisi dans le bloc Échantillon, avec son image et son prix."
         }
       },
       "blocks": {
@@ -2528,10 +2576,6 @@
                 "label": "H2"
               },
               "info": "Le titre du produit est le titre principal de la PDP — gardez H1 (par défaut) pour le SEO. Passez à H2 uniquement si ce bloc est réutilisé dans une mise en page où une autre section fournit déjà le H1 de la page."
-            },
-            "show_door_thumb": {
-              "label": "Afficher la miniature de l'échantillon",
-              "info": "Petite image d'accent (par ex. un échantillon de porte) affichée à côté du titre du produit. Le thème détermine l'image automatiquement dans cet ordre : 1) le métachamp `custom.door_sample` s'il est défini sur le produit, 2) l'image en vedette de la variante sélectionnée si elle diffère de l'image principale du produit, 3) masquée. Pour utiliser le métachamp (recommandé pour les boutiques avec des photos d'échantillons dédiées) : Paramètres → Données personnalisées → Produits → Ajouter une définition, namespace `custom`, clé `door_sample`, type Fichier → Images uniquement ; puis configurez l'image par produit dans Produits → [produit] → Métachamps."
             }
           }
         },
@@ -2697,7 +2741,7 @@
         "tag": {
           "name": "Étiquette de fonctionnalité",
           "settings": {
-            "info": "Les pastilles proviennent de product.metafields.custom.features (liste) si défini ; sinon ces entrées manuelles sont utilisées. Gérez les features via Admin → Produits → [produit] → Champs méta → Features.",
+            "info": "Affiche le métachamp de caractéristiques choisi dans Paramètres du thème > Données produit. Sinon, affiche ces entrées.",
             "text": {
               "label": "Texte"
             }

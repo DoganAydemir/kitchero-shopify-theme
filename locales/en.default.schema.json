@@ -432,6 +432,54 @@
         }
       }
     },
+    "kt_product_data": {
+      "name": "Product data",
+      "settings": {
+        "intro": {
+          "content": "Connect optional product features to your own metafields. Enter a namespace and key such as custom.deal_ends_at. Leave a field blank to turn that feature off."
+        },
+        "kt_mf_deal_end": {
+          "label": "Deal end date metafield",
+          "info": "Product date and time metafield. A countdown appears on products where it is set."
+        },
+        "kt_mf_rating": {
+          "label": "Manual rating metafield",
+          "info": "Decimal from 0 to 5, used only when no review app provides a rating."
+        },
+        "kt_mf_features": {
+          "label": "Feature list metafield",
+          "info": "List of single line text. Shown as feature tags on product pages."
+        },
+        "kt_mf_origin": {
+          "label": "Country of origin metafield",
+          "info": "Single line text shown in the product details block."
+        },
+        "kt_mf_length": {
+          "label": "Length metafield",
+          "info": "Number shown in the product details block."
+        },
+        "kt_mf_width": {
+          "label": "Width metafield",
+          "info": "Number shown in the product details block."
+        },
+        "kt_mf_height": {
+          "label": "Height metafield",
+          "info": "Number shown in the product details block."
+        },
+        "kt_mf_dim_unit": {
+          "label": "Dimension unit metafield",
+          "info": "Single line text such as cm or in. Defaults to cm."
+        },
+        "kt_mf_swatch_color": {
+          "label": "Variant swatch color metafield",
+          "info": "Variant color metafield, used only when an option value has no Shopify swatch."
+        },
+        "kt_mf_swatch_image": {
+          "label": "Variant swatch image metafield",
+          "info": "Variant file metafield, used only when an option value has no Shopify swatch."
+        }
+      }
+    },
     "global": {
       "settings": {
         "header__border": {
@@ -2338,7 +2386,7 @@
             },
             "show_dimensions": {
               "label": "Package dimensions",
-              "info": "Reads custom.length / custom.width / custom.height metafields. Set them on the product to make this row appear. Unit defaults to cm; override via custom.dimensions_unit."
+              "info": "Uses the length, width, height, and unit metafields chosen in Theme settings > Product data."
             },
             "show_vendor": {
               "label": "Brand / vendor"
@@ -2348,7 +2396,7 @@
             },
             "show_origin": {
               "label": "Country of origin",
-              "info": "Reads the product.metafields.custom.country_of_origin field. Set it on the product to make this row appear."
+              "info": "Uses the country of origin metafield chosen in Theme settings > Product data."
             },
             "show_tags": {
               "label": "Tags",
@@ -2366,7 +2414,7 @@
         "tags": {
           "name": "Tags",
           "settings": {
-            "info": "Sources pills from product.metafields.custom.features (list) when set; falls back to the product's tags. Manage features via Admin → Products → [product] → Metafields, or tags via Admin → Products → [product] → Tags."
+            "info": "Shows the feature list metafield chosen in Theme settings > Product data. Otherwise shows the product's tags."
           }
         },
         "trust_badges": {
@@ -2522,7 +2570,7 @@
       "name": "Premium product page",
       "settings": {
         "paragraph__door_sample": {
-          "content": "Sample thumbnail comes from each product's metafield custom.door_sample (file_reference → image). Falls back to the product's featured image if empty. See SETUP.md for the one-time metafield definition."
+          "content": "The sample box shows the product you pick in the Sample block, with its image and price."
         }
       },
       "blocks": {
@@ -2550,10 +2598,6 @@
               "options__2": {
                 "label": "H2"
               }
-            },
-            "show_door_thumb": {
-              "label": "Show sample thumbnail",
-              "info": "Small accent image (e.g. a door swatch) shown beside the product title. The theme resolves the image automatically in this order: 1) `custom.door_sample` metafield if set on the product, 2) the selected variant's featured image when different from the product's main image, 3) hidden. To use the metafield (recommended for stores with dedicated swatch photos): Settings → Custom data → Products → Add definition, namespace `custom`, key `door_sample`, type File → Images only; then set the image per product under Products → [product] → Metafields."
             }
           }
         },
@@ -2719,7 +2763,7 @@
         "tag": {
           "name": "Feature tag",
           "settings": {
-            "info": "Sources pills from product.metafields.custom.features (list) when set; otherwise these manual entries are used. Manage features via Admin → Products → [product] → Metafields → Features.",
+            "info": "Shows the feature list metafield chosen in Theme settings > Product data. Otherwise shows these entries.",
             "text": {
               "label": "Text"
             }

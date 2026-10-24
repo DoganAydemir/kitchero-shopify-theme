@@ -432,6 +432,54 @@
         }
       }
     },
+    "kt_product_data": {
+      "name": "Datos del producto",
+      "settings": {
+        "intro": {
+          "content": "Conecta funciones opcionales del producto con tus propios metacampos. Escribe un espacio de nombres y una clave, por ejemplo custom.deal_ends_at. Déjalo en blanco para desactivar la función."
+        },
+        "kt_mf_deal_end": {
+          "label": "Metacampo de fin de oferta",
+          "info": "Metacampo de producto de fecha y hora. Se muestra una cuenta atrás en los productos que lo tienen."
+        },
+        "kt_mf_rating": {
+          "label": "Metacampo de valoración manual",
+          "info": "Decimal de 0 a 5; solo se usa si ninguna app de reseñas aporta valoración."
+        },
+        "kt_mf_features": {
+          "label": "Metacampo de lista de características",
+          "info": "Lista de texto de una línea, mostrada como etiquetas en las páginas de producto."
+        },
+        "kt_mf_origin": {
+          "label": "Metacampo de país de origen",
+          "info": "Texto de una línea mostrado en el bloque de detalles del producto."
+        },
+        "kt_mf_length": {
+          "label": "Metacampo de longitud",
+          "info": "Número mostrado en el bloque de detalles del producto."
+        },
+        "kt_mf_width": {
+          "label": "Metacampo de anchura",
+          "info": "Número mostrado en el bloque de detalles del producto."
+        },
+        "kt_mf_height": {
+          "label": "Metacampo de altura",
+          "info": "Número mostrado en el bloque de detalles del producto."
+        },
+        "kt_mf_dim_unit": {
+          "label": "Metacampo de unidad de medida",
+          "info": "Texto de una línea como cm o in. cm por defecto."
+        },
+        "kt_mf_swatch_color": {
+          "label": "Metacampo de color de variante",
+          "info": "Metacampo de color de variante; solo se usa si el valor de opción no tiene muestra de Shopify."
+        },
+        "kt_mf_swatch_image": {
+          "label": "Metacampo de imagen de variante",
+          "info": "Metacampo de archivo de variante; solo se usa si el valor de opción no tiene muestra de Shopify."
+        }
+      }
+    },
     "global": {
       "settings": {
         "header__border": {
@@ -2308,10 +2356,10 @@
             "show_sku": { "label": "SKU", "info": "Se obtiene del campo SKU de la variante seleccionada." },
             "show_barcode": { "label": "Código de barras", "info": "Se obtiene del campo código de barras de la variante (ISBN, UPC, GTIN, etc.)." },
             "show_weight": { "label": "Peso", "info": "Se obtiene del campo peso de la variante. Oculto si es 0 o vacío. Respeta la unidad de peso de la tienda (kg / g / lb / oz)." },
-            "show_dimensions": { "label": "Dimensiones del paquete", "info": "Lee los metacampos custom.length / custom.width / custom.height. Configúralos en el producto para que aparezca esta fila. Unidad por defecto: cm; sustituible vía custom.dimensions_unit." },
+            "show_dimensions": { "label": "Dimensiones del paquete", "info": "Usa los metacampos de longitud, anchura, altura y unidad elegidos en Configuración del tema > Datos del producto." },
             "show_vendor": { "label": "Marca / proveedor" },
             "show_type": { "label": "Tipo de producto" },
-            "show_origin": { "label": "País de origen", "info": "Lee el campo product.metafields.custom.country_of_origin." },
+            "show_origin": { "label": "País de origen", "info": "Usa el metacampo de país de origen elegido en Configuración del tema > Datos del producto." },
             "show_tags": { "label": "Etiquetas", "info": "Las etiquetas internas que empiezan por `_` se ocultan automáticamente." },
             "layout": {
               "label": "Diseño",
@@ -2344,7 +2392,7 @@
         "tags": {
           "name": "Etiquetas",
           "settings": {
-            "info": "Las píldoras se obtienen primero de product.metafields.custom.features (lista); si no está definido, se utilizan las etiquetas del producto como respaldo. Gestiona las características desde Admin → Productos → [producto] → Metafields, o las etiquetas desde Admin → Productos → [producto] → Etiquetas."
+            "info": "Muestra el metacampo de características elegido en Configuración del tema > Datos del producto. Si no, muestra las etiquetas del producto."
           }
         },
         "trust_badges": {
@@ -2500,7 +2548,7 @@
       "name": "Página de producto premium",
       "settings": {
         "paragraph__door_sample": {
-          "content": "La miniatura de muestra proviene del metacampo custom.door_sample de cada producto (file_reference → image). Usa la imagen destacada del producto si está vacío. Consulte SETUP.md para la definición única del metacampo."
+          "content": "La caja de muestra muestra el producto elegido en el bloque Muestra, con su imagen y precio."
         }
       },
       "blocks": {
@@ -2528,10 +2576,6 @@
                 "label": "H2"
               },
               "info": "El título del producto es el encabezado principal de la PDP — mantén H1 (predeterminado) para SEO. Cambia a H2 solo si este bloque se reutiliza en un diseño donde otra sección ya proporciona el H1 de la página."
-            },
-            "show_door_thumb": {
-              "label": "Mostrar miniatura de muestra",
-              "info": "Pequeña imagen de acento (por ejemplo, una muestra de puerta) que se muestra junto al título del producto. El tema resuelve la imagen automáticamente en este orden: 1) metacampo `custom.door_sample` si está establecido en el producto, 2) imagen destacada de la variante seleccionada si difiere de la imagen principal del producto, 3) oculta. Para usar el metacampo (recomendado para tiendas con fotos de muestra dedicadas): Configuración → Datos personalizados → Productos → Agregar definición, namespace `custom`, clave `door_sample`, tipo Archivo → Solo imágenes; luego configura la imagen por producto en Productos → [producto] → Metacampos."
             }
           }
         },
@@ -2697,7 +2741,7 @@
         "tag": {
           "name": "Etiqueta de característica",
           "settings": {
-            "info": "Las píldoras se obtienen primero de product.metafields.custom.features (lista); si no está definido, se utilizan estas entradas manuales. Gestiona las características desde Admin → Productos → [producto] → Metafields → Features.",
+            "info": "Muestra el metacampo de características elegido en Configuración del tema > Datos del producto. Si no, muestra estas entradas.",
             "text": {
               "label": "Texto"
             }

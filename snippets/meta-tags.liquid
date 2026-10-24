@@ -415,7 +415,14 @@
     R153 RATING-WORST-NUM-1: emit numeric `worstRating` (was string
     "1"). Schema.org/RichResults prefers numeric. Drop quotes.
   {%- endcomment -%}
-  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: product.metafields.custom.rating.value -%}
+  {%- liquid
+    assign sd_manual_rating = blank
+    assign mf_path = settings.kt_mf_rating | strip | split: '.'
+    if mf_path.size == 2
+      assign sd_manual_rating = product.metafields[mf_path[0]][mf_path[1]].value
+    endif
+  -%}
+  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: sd_manual_rating -%}
   {%- assign sd_rating_count = product.metafields.reviews.rating_count.value -%}
   {%- assign sd_rating_scale = product.metafields.reviews.rating.value.scale_max | default: 5 -%}
   {%- if sd_rating and sd_rating_count and sd_rating_count > 0 -%}
