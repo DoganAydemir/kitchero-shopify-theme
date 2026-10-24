@@ -16,11 +16,12 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 ## Uygulama sırası (kolaydan zora, bağımlılıklar gözetilerek)
 
 **Paralel yürüyecek, Faz 0 kararları (yönetici onayı bekleyenler):** #18, #65 · E16 (GSAP lisans/sürüm kararı, Seviye 3'te sunulacak) · #19 detay istişaresi · #80 görsel taraması
-**Seviye 1 durumu (21.10):** kod tarafı tamamlandı; `fix/audit-level-1` branch'inde 6 commit (2b1ca7c…426b39c). Push yapılamadı (bu ortamda GitHub kimlik bilgisi yok) → kullanıcı GitHub Desktop'tan "Publish branch" ile yayınlayacak. Kalan: E4/E5 (doküman güncellemesi, kod bittikten sonra). Demo tarafları Faz 2'de.
+**Seviye 1 durumu (21.10):** kod tarafı tamamlandı; `fix/audit-level-1` branch'inde 6 commit (2b1ca7c…426b39c). Kullanıcı branch'i publish etti; PR #1 Chrome üzerinden açılıp `main`'e merge edildi (7ea5116, 21.10). Merge öncesi kontrol: kitchero-kitchen ve 4zilkgr1'de GitHub'a bağlı tema yok. Kalan: E4/E5 (doküman güncellemesi, kod bittikten sonra). Demo tarafları Faz 2'de.
 **Seviye 1, default ve tek satırlık düzeltmeler:** E1, #4, #51, #26, #24, #52, #53, #23, #22, #25, #33, #82, #39, #35, #16, #40, #47, #15, #62 (main default'ları), #14, #63 (kod kısmı), E2, E4, E5, E6, E13 (kod kısmı)
 **Seviye 2, küçük mantık değişiklikleri:** #17 (metin + form eklemeleri), #20, #21, #36, #38, #54, #6, #27, #2, #48, #50, #1, #37, #29 (main: `page.financing.json` ref'leri)
 **Seviye 3, orta büyüklükte işler:** #49, #3 + #28, #19, #18 (karar sonrası), #56, #30 (karar sonrası template + settings senkronu)
 **Seviye 4, büyük refactor'lar:** #8 + #9 → ardından metin taraması #10, #11, #12, #13, #32 + E14 (de/fr/es çeviri kalitesi) → #57, #58, #55 → #59 (kod fazının en sonunda, script ile)
+**CI düzeltmesi:** E18 (Seviye 2 PR'ı ile birlikte)
 **Ölçüm (kod bittikten sonra):** #5 + E17 (düşük alpha renkler), #7, #34
 **Kod bittikten sonra:** E8 (doküman düzeltmeleri), E12 (SETUP.md)
 **Sonrasında:** E3 (`main → demo` merge) → Faz 2 (demo: #15, #16, #29, #31, #40–47, #60–63, E13 favicon yükleme) → Faz 3 (test: #66–77) → Faz 4 (paket: #64, #78–83, E11) → Faz 5 (final gate)
@@ -137,6 +138,7 @@ Bağımlılık kuralları:
 | E15 | `templates/index.json` default'larında claim içeren metinler: trust bar sahte istatistikleri (500 Happy customers, 10+ Years, 99 Customer satisfaction — birimsiz), "Lifetime support", "built to order in our workshop… hand-rubbed", financing "Soft credit check, no application fee, decision in minutes", "0% APR available", testimonials açıklaması "We follow up…", `page.financing.json` FAQ cevapları | #15/#62 copy pass'te nötr placeholder'a çevrilecek (öneri metinleri kullanıcıya sunulacak) | ☑ 21.10 (index + listing index, page.financing FAQ, newsletter, product trust badge'leri, showroom warranty, financing section default'ları, testimonial preset'leri) |
 | E16 | GSAP 3.12.5, eski GreenSock Standard License altında (dosya header'ı). Satılan bir tema içinde dağıtım koşulları doğrulanmalı; güncel GSAP sürümüne geçiş değerlendirilecek (R24 kuralı: vendor dosyalarına onaysız dokunulmaz) | Lisans metni gsap.com/standard-license üzerinden teyit + kullanıcı kararı | ⊘ |
 | E17 | Muted metinlerde `rgba(var(--kt-c-fg), 0.55)` gibi düşük alpha kullanımları kontrast hatası üretiyor (bir tanesi collection description'da düzeltildi) | #5 kapsamında tüm CSS'te `--kt-c-fg-muted`'a geçilecek | ☐ |
+| E18 | GitHub CI kırık (koddan bağımsız): Theme Check workflow'u Node 20 kullanıyor, Shopify CLI bunu desteklemiyor (`enableCompileCache` hatası). Lighthouse CI'daki `SHOP_STORE`/`SHOP_ACCESS_TOKEN` secret'ları geçersiz (404) | `.github/workflows/theme-check.yml` → Node 22. Lighthouse secret'ları kitchero-kitchen + geçerli token ile güncellenecek (kullanıcı, GitHub Settings > Secrets) | ☐ |
 
 ## Faz 2 — Demo mağaza (`demo` branch + Admin), Faz 1'den sonra
 
