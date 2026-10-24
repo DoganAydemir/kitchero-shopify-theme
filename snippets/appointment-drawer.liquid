@@ -6,11 +6,14 @@
 
 <div class="kt-appointment-drawer" id="appointment-drawer" aria-hidden="true" inert>
   <div class="kt-appointment-drawer__overlay" data-appointment-close></div>
-  <div class="kt-appointment-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="AppointmentDrawerTitle" tabindex="-1">
+  <div class="kt-appointment-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="AppointmentDrawerTitle" aria-describedby="AppointmentDrawerIntro" tabindex="-1">
 
     {%- comment -%} Header {%- endcomment -%}
     <div class="kt-appointment-drawer__header">
-      <h2 class="kt-appointment-drawer__title" id="AppointmentDrawerTitle">{{ 'kt.section.appointment.title' | t }}</h2>
+      <div>
+        <h2 class="kt-appointment-drawer__title" id="AppointmentDrawerTitle">{{ 'kt.section.appointment.title' | t }}</h2>
+        <p class="kt-appointment-drawer__intro" id="AppointmentDrawerIntro">{{ 'kt.section.appointment.description' | t }}</p>
+      </div>
       <button type="button" class="kt-appointment-drawer__close" data-appointment-close aria-label="{{ 'kt.a11y.close' | t | default: 'Close' }}">
         {% render 'icon-close', width: 20, height: 20, stroke_width: 1.5 %}
       </button>
@@ -19,6 +22,10 @@
     {%- comment -%} Form Body {%- endcomment -%}
     <div class="kt-appointment-drawer__body">
       {% form 'contact', id: 'appointment-form' %}
+        <input type="hidden" name="contact[Request type]" value="{{ 'kt.section.appointment.title' | t | escape }}">
+        {%- if product -%}
+          <input type="hidden" name="contact[Product]" value="{{ product.title | escape }} — {{ request.origin }}{{ product.url }}">
+        {%- endif -%}
         {%- if form.posted_successfully? -%}
           {%- comment -%}
             Success sentinel — an empty `<span>` whose presence
