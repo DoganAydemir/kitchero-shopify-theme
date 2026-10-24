@@ -29,6 +29,7 @@
       {%- comment -%} Hotspot layer — ABOVE clipped container {%- endcomment -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'hotspot' -%}
+          {%- assign hotspot_label = block.settings.product.title | default: block.settings.product_title | default: shop_the_look_product_aria_default -%}
           <div
             class="kt-shop-the-look__hotspot-wrap"
             style="--kt-hotspot-x: {{ block.settings.horizontal_position }}%; --kt-hotspot-y: {{ block.settings.vertical_position }}%; --kt-hotspot-x-mobile: {{ block.settings.horizontal_position_mobile | default: block.settings.horizontal_position }}%; --kt-hotspot-y-mobile: {{ block.settings.vertical_position_mobile | default: block.settings.vertical_position }}%;"
@@ -39,7 +40,7 @@
               type="button"
               class="kt-shop-the-look__hotspot"
               data-hotspot-toggle="{{ block.id }}"
-              aria-label="{{ block.settings.product_title | default: shop_the_look_product_aria_default | escape }}"
+              aria-label="{{ hotspot_label | escape }}"
               aria-expanded="false"
               aria-controls="ShopTheLookPopup-{{ section.id }}-{{ block.id }}"
               aria-haspopup="dialog"
@@ -54,7 +55,7 @@
               data-hotspot-popup="{{ block.id }}"
               role="dialog"
               aria-modal="true"
-              aria-label="{{ block.settings.product_title | default: shop_the_look_product_aria_default | escape }}"
+              aria-label="{{ hotspot_label | escape }}"
               aria-hidden="true"
               inert
             >
