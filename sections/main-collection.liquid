@@ -173,10 +173,9 @@
                       {%- endif -%}
                     </div>
                     <form id="FilterBar-{{ filter.param_name }}" action="{{ collection.url }}" method="get" data-collection-filters-form>
+                      <div role="group" aria-label="{{ filter.label | escape }}">
                       <ul
                         class="kt-filter__list list-unstyled"
-                        role="group"
-                        aria-label="{{ filter.label | escape }}"
                       >
                         {%- for value in filter.values -%}
                           <li>
@@ -212,6 +211,7 @@
                           </li>
                         {%- endfor -%}
                       </ul>
+                      </div>
                       {%- comment -%}
                         JS-off fallback. Desktop has one <form> per filter
                         category (one per accordion panel), so submitting
@@ -638,10 +638,9 @@
               {%- endcomment -%}
               <section class="kt-filter-drawer__group">
                 <h3 class="kt-filter-drawer__group-title" id="FilterDrawerGroup-{{ filter.param_name }}">{{ filter.label | escape }}</h3>
+                <div role="group" aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}">
                 <ul
                   class="kt-filter-drawer__options list-unstyled"
-                  role="group"
-                  aria-labelledby="FilterDrawerGroup-{{ filter.param_name }}"
                 >
                   {%- comment -%}
                     Drawer-scoped unique id per checkbox so SR users
@@ -682,6 +681,7 @@
                     </li>
                   {%- endfor -%}
                 </ul>
+                </div>
               </section>
             {%- elsif filter.type == 'price_range' -%}
               {%- comment -%}

@@ -75,10 +75,9 @@
                   matching the <fieldset><legend> a11y pattern
                   without breaking the <details> styling.
                 {%- endcomment -%}
+                <div role="group" aria-label="{{ filter.label | escape }}">
                 <ul
                   class="kt-filter__list list-unstyled"
-                  role="group"
-                  aria-label="{{ filter.label | escape }}"
                 >
                   {%- for value in filter.values -%}
                     <li>
@@ -121,6 +120,7 @@
                     </li>
                   {%- endfor -%}
                 </ul>
+                </div>
 
                 {%- if filter.active_values.size > 0 -%}
                   <a href="{{ filter.url_to_remove }}" class="kt-filter__reset">
