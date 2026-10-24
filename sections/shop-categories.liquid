@@ -29,7 +29,16 @@
         >
           <div class="kt-shop-categories__card-image-wrap">
             {%- if block.settings.image != blank -%}
-              {%- assign category_image_alt = block.settings.image.alt | default: block.settings.title | strip_html -%}
+              {%- liquid
+                comment
+                  The card title is visible next to the image, so the image only gets alt text when it adds something.
+                endcomment
+                assign category_image_alt = block.settings.image.alt | strip_html | strip
+                assign category_title_plain = block.settings.title | strip_html | strip
+                if category_image_alt == category_title_plain
+                  assign category_image_alt = ''
+                endif
+              -%}
               {{
                 block.settings.image
                 | image_url: width: 1200
