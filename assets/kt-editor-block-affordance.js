@@ -86,3 +86,98 @@
     blockEl.classList.remove(SELECTED_CLASS);
   });
 })();
+
+(function (global) {
+  'use strict';
+
+  if (!(global.Shopify && global.Shopify.designMode)) return;
+
+  var blockPulseClass = 'kt-editor-block-selected';
+  var blockPulseDuration = 1200;
+
+  document.addEventListener('shopify:block:select', function (event) {
+    var block = event.target;
+    if (!block || !block.classList) return;
+
+    var rect = block.getBoundingClientRect();
+    var viewportH = window.innerHeight || document.documentElement.clientHeight;
+    var visH = Math.min(rect.bottom, viewportH) - Math.max(rect.top, 0);
+    var mostlyVisible = visH > 0 && visH >= Math.min(rect.height * 0.5, 240);
+    if (!mostlyVisible && typeof block.scrollIntoView === 'function') {
+      try {
+        var prm = window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        block.scrollIntoView({ behavior: prm ? 'auto' : 'smooth', block: 'center' });
+      } catch (_) { block.scrollIntoView(); }
+    }
+
+    block.classList.add(blockPulseClass);
+    if (block.__ktBlockPulseTimer) clearTimeout(block.__ktBlockPulseTimer);
+    block.__ktBlockPulseTimer = setTimeout(function () {
+      block.classList.remove(blockPulseClass);
+      block.__ktBlockPulseTimer = null;
+    }, blockPulseDuration);
+  });
+
+  document.addEventListener('shopify:block:deselect', function (event) {
+    var block = event.target;
+    if (!block || !block.classList) return;
+    block.classList.remove(blockPulseClass);
+    if (block.__ktBlockPulseTimer) {
+      clearTimeout(block.__ktBlockPulseTimer);
+      block.__ktBlockPulseTimer = null;
+    }
+  });
+
+  var ktSeenSections = new Set();
+
+  function ktSeedSections() {
+    var nodes = document.querySelectorAll('[id^="shopify-section-"]');
+    for (var i = 0; i < nodes.length; i += 1) {
+      ktSeenSections.add(nodes[i].id.replace(/^shopify-section-/, ''));
+    }
+  }
+  ktSeedSections();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ktSeedSections);
+  }
+  global.addEventListener('load', ktSeedSections);
+  setTimeout(function () {
+    ktSeedSections();
+  }, 1500);
+
+  var ktTrueScrollTo = global.scrollTo;
+  var ktTrueScrollIntoView = Element.prototype.scrollIntoView;
+  var ktHoldTimer = null;
+  var ktPinY = 0;
+  function ktPin() {
+    if ((global.pageYOffset || document.documentElement.scrollTop || 0) !== ktPinY) {
+      document.documentElement.scrollTop = ktPinY;
+      if (document.body) { document.body.scrollTop = ktPinY; }
+    }
+  }
+  function ktHoldScroll(savedY) {
+    ktPinY = savedY;
+    if (!ktHoldTimer) {
+      global.scrollTo = function () {};
+      Element.prototype.scrollIntoView = function () {};
+      global.addEventListener('scroll', ktPin, { passive: true });
+    } else {
+      clearTimeout(ktHoldTimer);
+    }
+    ktHoldTimer = setTimeout(function () {
+      global.scrollTo = ktTrueScrollTo;
+      Element.prototype.scrollIntoView = ktTrueScrollIntoView;
+      global.removeEventListener('scroll', ktPin);
+      ktHoldTimer = null;
+    }, 1000);
+  }
+
+  document.addEventListener('shopify:section:load', function (event) {
+    var sid = event.detail && event.detail.sectionId;
+    var isReRender = sid && ktSeenSections.has(sid);
+    if (sid) ktSeenSections.add(sid);
+    if (!isReRender) return;
+    ktHoldScroll(global.pageYOffset || document.documentElement.scrollTop || 0);
+  });
+})(window);

@@ -249,24 +249,11 @@
     {% render 'meta-tags' %}
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'kt-page-behavior.js' | asset_url }}" defer="defer"></script>
 
-    {%- comment -%}
-      Theme-editor block affordance — universal `shopify:block:select`
-      fallback that scrolls the rendered block into view and applies a
-      dashed outline so merchants get visible feedback for every block
-      type, not just slider slides / accordion items that already have
-      dedicated handlers (hero, sliders, collapsibles, testimonials).
-      The script self-aborts on the live storefront via a
-      `Shopify.designMode` check, so the bytes are downloaded once and
-      then short-circuit — zero runtime cost for shoppers. Gating the
-      <script> tag itself on `request.design_mode` would skip the
-      download entirely, but Shopify still injects the editor preview
-      with `request.design_mode` truthy on every preview page; the
-      runtime guard handles the rare case where the editor flag and
-      the loaded payload diverge (e.g. a hot reload during a settings
-      change).
-    {%- endcomment -%}
-    <script src="{{ 'kt-editor-block-affordance.js' | asset_url }}" defer="defer"></script>
+    {%- if request.design_mode -%}
+      <script src="{{ 'kt-editor-block-affordance.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
 
     {%- comment -%}
       Motion bundle is ~100 KB unminified (GSAP + ScrollTrigger + Lenis +
@@ -868,7 +855,55 @@
     </script>
 
     {%- if settings.kt_cart_type == 'drawer' -%}
-      <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+      {%- comment -%}
+        The cart drawer script loads after the page is idle or on the first
+        interaction. window.ktLoadCartDrawer(callback) runs the callback once
+        the drawer is ready; a cart icon click before that waits for it.
+      {%- endcomment -%}
+      <script>
+        (function () {
+          var state = 0;
+          var queue = [];
+          function flush() {
+            customElements.whenDefined('cart-drawer').then(function () {
+              var callbacks = queue;
+              queue = [];
+              callbacks.forEach(function (callback) { callback(); });
+            });
+          }
+          function load(callback) {
+            if (typeof callback === 'function') queue.push(callback);
+            if (state === 2) { flush(); return; }
+            if (state === 1) return;
+            state = 1;
+            var script = document.createElement('script');
+            script.src = {{ 'cart-drawer.js' | asset_url | json }};
+            script.onload = function () { state = 2; flush(); };
+            document.head.appendChild(script);
+          }
+          window.ktLoadCartDrawer = load;
+          document.addEventListener('click', function (event) {
+            if (state === 2 && customElements.get('cart-drawer')) return;
+            var icon = event.target.closest && event.target.closest('.kt-header__cart-icon');
+            if (!icon || !document.querySelector('cart-drawer')) return;
+            event.preventDefault();
+            load(function () {
+              var drawer = document.querySelector('cart-drawer');
+              if (drawer && typeof drawer.open === 'function') drawer.open();
+            });
+          }, true);
+          ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+            document.addEventListener(type, function () { load(); }, { once: true, passive: true });
+          });
+          window.addEventListener('load', function () {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(function () { load(); }, { timeout: 3000 });
+            } else {
+              setTimeout(load, 2000);
+            }
+          });
+        })();
+      </script>
     {%- endif -%}
 
     {%- if settings.kt_search_predictive -%}

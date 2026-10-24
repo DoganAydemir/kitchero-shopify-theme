@@ -379,60 +379,67 @@
                 window.addEventListener('beforeunload', cancelRedirect, { once: true });
               });
           } else {
-            var drawerForApply = (window.Kitchero && window.Kitchero.cartDrawer)
-              || window.kitcheroCartDrawer
-              || document.querySelector('cart-drawer')
-              || document.getElementById('cart-drawer');
+            var applyToDrawer = function () {
+              var drawerForApply = (window.Kitchero && window.Kitchero.cartDrawer)
+                || window.kitcheroCartDrawer
+                || document.querySelector('cart-drawer')
+                || document.getElementById('cart-drawer');
 
-            var drawerRefresh;
-            if (
-              drawerForApply
-              && typeof drawerForApply.applySectionsHTML === 'function'
-              && data
-              && data.sections
-              && data.sections['cart-drawer']
-            ) {
-              drawerRefresh = drawerForApply.applySectionsHTML(data.sections);
-            } else {
-              drawerRefresh = refreshCartDrawer();
-            }
+              var drawerRefresh;
+              if (
+                drawerForApply
+                && typeof drawerForApply.applySectionsHTML === 'function'
+                && data
+                && data.sections
+                && data.sections['cart-drawer']
+              ) {
+                drawerRefresh = drawerForApply.applySectionsHTML(data.sections);
+              } else {
+                drawerRefresh = refreshCartDrawer();
+              }
 
-            drawerRefresh
-              .catch(function () {
-                return fetch(Kitchero.routes.cart + '.js', {
-                  headers: { 'Accept': 'application/json' },
+              drawerRefresh
+                .catch(function () {
+                  return fetch(Kitchero.routes.cart + '.js', {
+                    headers: { 'Accept': 'application/json' },
+                  })
+                    .then(function (r) {
+                      if (!r.ok) throw new Error('cart.js header refresh failed');
+                      return r.json();
+                    })
+                    .then(function (cart) {
+                      document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
+                        el.textContent = cart.item_count;
+                        el.style.display = cart.item_count > 0 ? '' : 'none';
+                      });
+                    })
+                    .catch(function () {  });
                 })
-                  .then(function (r) {
-                    if (!r.ok) throw new Error('cart.js header refresh failed');
-                    return r.json();
-                  })
-                  .then(function (cart) {
-                    document.querySelectorAll('.kt-header__cart-count').forEach(function (el) {
-                      el.textContent = cart.item_count;
-                      el.style.display = cart.item_count > 0 ? '' : 'none';
-                    });
-                  })
-                  .catch(function () {  });
-              })
-              .then(function () {
-                var drawerEl = (window.Kitchero && window.Kitchero.cartDrawer)
-                  || window.kitcheroCartDrawer
-                  || document.querySelector('cart-drawer')
-                  || document.getElementById('cart-drawer');
-                if (drawerEl && typeof drawerEl.open === 'function') {
-                  drawerEl.open();
-                } else if (drawerEl) {
-                  drawerEl.setAttribute('aria-hidden', 'false');
-                  drawerEl.removeAttribute('inert');
-                  if (window.Kitchero && Kitchero.scrollLock) {
-                    Kitchero.scrollLock.lock('cart-drawer');
-                  } else {
-                    document.body.style.overflow = 'hidden';
+                .then(function () {
+                  var drawerEl = (window.Kitchero && window.Kitchero.cartDrawer)
+                    || window.kitcheroCartDrawer
+                    || document.querySelector('cart-drawer')
+                    || document.getElementById('cart-drawer');
+                  if (drawerEl && typeof drawerEl.open === 'function') {
+                    drawerEl.open();
+                  } else if (drawerEl) {
+                    drawerEl.setAttribute('aria-hidden', 'false');
+                    drawerEl.removeAttribute('inert');
+                    if (window.Kitchero && Kitchero.scrollLock) {
+                      Kitchero.scrollLock.lock('cart-drawer');
+                    } else {
+                      document.body.style.overflow = 'hidden';
+                    }
                   }
-                }
-              })
-              .catch(function () {
-              });
+                })
+                .catch(function () {
+                });
+            };
+            if (window.ktLoadCartDrawer && !customElements.get('cart-drawer')) {
+              window.ktLoadCartDrawer(applyToDrawer);
+            } else {
+              applyToDrawer();
+            }
           }
 
           if (window.Kitchero && Kitchero.bus) Kitchero.bus.emit('cart:update', formData);
