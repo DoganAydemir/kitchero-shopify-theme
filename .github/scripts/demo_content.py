@@ -51,7 +51,7 @@ EDITS = [
     ('templates/index.json', 'trust_bar', 'stat_1', {'value': '30', 'prefix': '', 'label': 'Products in the catalog'}),
     ('templates/index.json', 'trust_bar', 'stat_2', {'value': '6', 'prefix': '', 'label': 'Product categories'}),
     ('templates/index.json', 'trust_bar', 'stat_3', {'value': '2', 'prefix': '', 'label': 'Design studios in New York'}),
-    ('templates/index.json', 'trust_bar', 'stat_4', {'value': '3', 'prefix': '', 'label': 'Cabinet finish colors'}),
+    ('templates/index.json', 'trust_bar', 'stat_4', {'value': '3', 'prefix': '', 'label': 'Hardware finishes'}),
     ('templates/index.json', 'ecosystem', 'feat_1', {'description':
         'Cabinet layouts planned around your room, your appliances, and the way you cook, from galley kitchens to open-plan islands.'}),
     ('templates/index.json', 'ecosystem', 'feat_2', {'description':
@@ -78,6 +78,8 @@ EDITS = [
     ('templates/index.json', 'brands', 'b3', {'image': 'shopify://shop_images/brand-alder-pine.png', 'alt': 'Alder & Pine'}),
     ('templates/index.json', 'brands', 'b4', {'image': 'shopify://shop_images/brand-marrowick.png', 'alt': 'Marrowick'}),
     ('templates/index.json', 'brands', 'b5', {'image': 'shopify://shop_images/brand-tessaline.png', 'alt': 'Tessaline'}),
+    ('templates/page.financing.json', 'partners', None, {'description':
+        'We work with established lenders so you can pick the option that fits your budget, with terms shown before you commit.'}),
     ('templates/page.financing.json', 'partners', 'p1', {'name': 'Corvan Pay',
         'logo_image': 'shopify://shop_images/partner-corvan-pay-mark.png'}),
     ('templates/page.financing.json', 'partners', 'p2', {'name': 'Fernlight Credit',
