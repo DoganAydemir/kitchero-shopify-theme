@@ -530,7 +530,7 @@
 }
 
 /* ============================================================
-   Lead-gen CTAs: Book Appointment (black pill) + Book Home Measure (outline pill)
+   Consultation CTAs (primary dark pill + secondary accent pill)
    ============================================================ */
 
 .kt-showroom__ctas {
@@ -848,29 +848,32 @@
   outline-offset: 2px;
 }
 
-/* ── R157 / R166 SHOWROOM-BUY-PARITY-1: secondary buy controls ─── */
-
-/* Wrapper styling only — the inner markup is now the canonical
-   snippets/product-form.liquid (BEM `kt-product-form__*`), so all
-   field, button, and Shop Pay styling comes from kt-product-form.css.
-   This block keeps the visual "secondary surface" treatment: a
-   subtle border-top separator below the appointment / consultation
-   CTA so the reviewer-required Add-to-cart sits cleanly without
-   stealing visual weight from the merchant's primary lead-gen
-   conversion path. The `--no-qty` row variant is what the showroom
-   uses by default (qty = 1 hidden input), so the ATC button gets
-   to span full width without a stepper next to it. */
+/* ── Buy buttons block ─────────────────────────────────────────
+   Inner markup is the canonical snippets/product-form.liquid
+   (kt-product-form__*), styled by kt-product-form.css. When the
+   quantity stepper is hidden, the Add to cart button fills the row. */
 .kt-showroom__buy-controls {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--kt-stone-200, #e7e5e4);
+  margin-bottom: 1.5rem;
 }
 
-/* When the merchant hides the visible qty stepper on the buy block
-   (typical showroom default), the form row collapses to just the
-   ATC + dynamic checkout, so let the ATC fill the row. */
 .kt-showroom__buy-controls .kt-product-form__row--no-qty .kt-product-form__atc {
   flex: 1 1 100%;
+}
+
+/* With buy buttons on the page, consultation CTAs step back to
+   outline buttons so Add to cart stays the primary action. */
+.kt-showroom__ctas--secondary .kt-showroom__cta--primary,
+.kt-showroom__ctas--secondary .kt-showroom__cta--secondary {
+  background-color: transparent;
+  color: var(--kt-stone-900);
+  border-color: var(--kt-stone-300, #d6d3d1);
+  box-shadow: none;
+}
+
+.kt-showroom__ctas--secondary .kt-showroom__cta--primary:hover,
+.kt-showroom__ctas--secondary .kt-showroom__cta--secondary:hover {
+  background-color: transparent;
+  border-color: var(--kt-stone-900);
 }
 
 /* ============================================================

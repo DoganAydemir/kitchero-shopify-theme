@@ -7,11 +7,11 @@
 {{ 'kt-product-gallery.css' | asset_url | stylesheet_tag }}
 {{ 'kt-product-variant-picker.css' | asset_url | stylesheet_tag }}
 {%- comment -%}
-  R166 SHOWROOM-BUY-PARITY-1: the buy_controls block now renders the
-  canonical snippets/product-form.liquid. Its styles live in
+  The buy_buttons block renders the canonical
+  snippets/product-form.liquid. Its styles live in
   kt-product-form.css (shared with main-product.liquid). Loading
-  unconditionally is safe — file is small and the block is part of
-  the default preset, so virtually every showroom render needs it.
+  unconditionally is safe — the file is small and the block is part
+  of the default preset.
 {%- endcomment -%}
 {{ 'kt-product-form.css' | asset_url | stylesheet_tag }}
 {{ 'kt-desc-truncate.css' | asset_url | stylesheet_tag }}
@@ -34,20 +34,22 @@
 
   Block-driven architecture (matches main-product.liquid pattern):
   Every element in the right info column (brand, title, price,
-  variant_picker, ctas, tags, accordions, warranty, door_sample,
+  variant_picker, buy_buttons, ctas, tags, accordions, warranty,
+  door_sample,
   @app) is a reorderable/removable block. Merchants control the
   full layout from the theme editor. No hardcoded section-level
   content settings — everything lives on its block.
 
   Key differences vs E-commerce PDP:
-  - No quantity selector, no main Add to Cart
-  - Two CTAs: "Book Your Free Appointment" + "Book a Free Home Measure"
+  - Buy buttons (quantity, Add to cart, dynamic checkout) followed
+    by consultation CTAs as secondary actions
   - Rich pricing block with "Now only", save badge, monthly installment
   - Title + door thumbnail row
   - Color swatches are bigger (36px) with "+N more" indicator
   - Size selector uses big rounded-xl buttons (3-col)
   - Accordion titles use serif font, bigger
-  - "Order a Door Sample" box — the ONLY place ATC happens
+  - "Order a sample" box — a separate low-cost sample product with
+    its own small Add to cart
 {%- endcomment -%}
 
 {%- comment -%}
@@ -365,6 +367,7 @@
           {%- endcomment -%}
           {%- assign tags_rendered = false -%}
           {%- assign accordions_rendered = false -%}
+          {%- assign buy_blocks = section.blocks | where: 'type', 'buy_buttons' -%}
 
           {%- for block in section.blocks -%}
             {%- case block.type -%}
@@ -476,29 +479,24 @@
                   {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
                 {%- comment -%}
-                  R-showroom-picker-wiring — product-form.js wires the
-                  variant picker (selected-option label, ?variant URL,
-                  gallery sync) ONLY when it finds a [data-product-form]
-                  wrapper containing a <form> + [data-variant-id] inside
-                  the section (initProductForm returns early otherwise).
-                  The showroom intentionally drops the buy_controls block
-                  (R-showroom-no-buy), so that wrapper was missing and the
-                  colour swatches updated nothing — no label change, no
-                  gallery sync. This hidden, button-less {% form 'product' %}
-                  restores the wiring WITHOUT exposing an add-to-cart CTA,
-                  so the lead-gen intent stays intact. visually-hidden +
-                  aria-hidden keep it out of layout and the a11y tree; with
-                  no submit control and no text input it can't be submitted
-                  (no implicit Enter submit). Only emitted when the product
-                  actually has selectable variants.
+                  product-form.js wires the variant picker (selected-option
+                  label, ?variant URL, gallery sync) only when it finds a
+                  [data-product-form] wrapper in the section. The buy_buttons
+                  block provides it; when the merchant removes that block,
+                  this hidden, button-less form keeps the picker working.
                 {%- endcomment -%}
-                {%- unless product.has_only_default_variant or product.variants.size == 1 -%}
+                {%- if buy_blocks.size == 0 and product.has_only_default_variant == false -%}
                   <div data-product-form class="visually-hidden" aria-hidden="true">
                     {%- form 'product', product -%}
                       <input type="hidden" name="id" data-variant-id value="{{ product.selected_or_first_available_variant.id }}">
                     {%- endform -%}
                   </div>
-                {%- endunless -%}
+                {%- endif -%}
+
+              {%- when 'buy_buttons' -%}
+                <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
+                  {%- render 'product-form', product: product, section: section, show_quantity: block.settings.show_quantity -%}
+                </div>
 
               {%- when 'ctas' -%}
                 {%- comment -%}
@@ -532,7 +530,7 @@
                   endif
                 -%}
                 {%- if show_primary or show_secondary -%}
-                <div class="kt-showroom__ctas" {{ block.shopify_attributes }}>
+                <div class="kt-showroom__ctas{% if buy_blocks.size > 0 %} kt-showroom__ctas--secondary{% endif %}" {{ block.shopify_attributes }}>
                   {%- if show_primary -%}
                     {%- if primary_is_url -%}
                       <a href="{{ block.settings.primary_cta_link | escape }}" class="kt-showroom__cta kt-showroom__cta--primary">
@@ -909,26 +907,9 @@
                           {%- endif -%}
                         </button>
                         {%- comment -%}
-                          Dynamic Checkout Button — renders Shop Pay /
-                          Apple Pay / Google Pay buttons next to the
-                          standard add-to-cart. Required by Theme Store
-                          on every {% form 'product' %} block; without
-                          it the showroom sample form fails the audit.
-                          Gated on a merchant setting so showrooms that
-                          want a clean visual layout (no shop_pay button)
-                          can hide it via the theme editor.
-                        {%- endcomment -%}
-                        {%- comment -%}
-                          Dynamic Checkout (`form | payment_button`)
-                          intentionally not rendered — the button lives
-                          inside a closed shadow DOM, so its blue Shop-
-                          Pay-default colour cannot be themed to match
-                          the storefront. Same call removed from
-                          featured-product and the main PDP form for
-                          consistency. The matching schema toggle was
-                          dropped too. If installment messaging is
-                          wanted back without the blue button, emit
-                          `{{ form | payment_terms }}` directly here.
+                          No dynamic checkout here on purpose: the sample is a
+                          secondary purchase. The buy_buttons block carries the
+                          product's Add to cart and dynamic checkout buttons.
                         {%- endcomment -%}
                       {%- endform -%}
                     </div>
@@ -959,18 +940,6 @@
                   {%- render 'pickup-availability', variant: product.selected_or_first_available_variant, product: product -%}
                 </div>
 
-              {%- comment -%}
-                R-showroom-no-buy — The `buy_controls` block (qty +
-                Reserve / Buy-it-now / Notify) was removed: the showroom
-                is a LEAD-GEN template (consultation request + door
-                sample), so a direct add-to-cart / accelerated-checkout
-                surface for the main product doesn't belong here. The
-                standard `product.json` template (main-product) keeps the
-                full purchase flow, and the `door_sample` block below
-                still provides a real `{% form 'product' %}` add-to-cart
-                path, so the theme's purchase capability is intact for
-                Theme Store review.
-              {%- endcomment -%}
 
               {%- when '@app' -%}
                 {%- comment -%}
@@ -1131,6 +1100,23 @@
       "name": "t:sections.main-product-showroom.blocks.variant_picker.name",
       "limit": 1,
       "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "t:sections.main-product-showroom.blocks.buy_buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity",
+          "label": "t:sections.main-product-showroom.blocks.buy_buttons.settings.show_quantity.label",
+          "default": true
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.buy_buttons.settings.paragraph.content"
+        }
+      ]
     },
     {
       "type": "description",
@@ -1551,7 +1537,16 @@
           "type": "variant_picker"
         },
         {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "pickup_availability"
+        },
+        {
           "type": "ctas"
+        },
+        {
+          "type": "door_sample"
         },
         {
           "type": "tag",
@@ -1604,12 +1599,6 @@
         },
         {
           "type": "warranty"
-        },
-        {
-          "type": "door_sample"
-        },
-        {
-          "type": "pickup_availability"
         }
       ]
     }
