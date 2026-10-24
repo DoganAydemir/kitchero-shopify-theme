@@ -48,7 +48,7 @@ EDITS = [
     ('sections/footer-group.json', 'footer', 'link_list_r7bk7C', {'heading': 'Shop'}),
 
     # Home
-    ('templates/index.json', 'trust_bar', 'stat_1', {'value': '45', 'prefix': '', 'label': 'Products in the catalog'}),
+    ('templates/index.json', 'trust_bar', 'stat_1', {'value': '30', 'prefix': '', 'label': 'Products in the catalog'}),
     ('templates/index.json', 'trust_bar', 'stat_2', {'value': '6', 'prefix': '', 'label': 'Product categories'}),
     ('templates/index.json', 'trust_bar', 'stat_3', {'value': '2', 'prefix': '', 'label': 'Design studios in New York'}),
     ('templates/index.json', 'trust_bar', 'stat_4', {'value': '3', 'prefix': '', 'label': 'Cabinet finish colors'}),
@@ -273,6 +273,15 @@ if entry:
         if 'door_sample' in order and 'ctas' in order:
             order.remove('door_sample')
             order.insert(order.index('ctas') + 1, 'door_sample')
+        entry[2] = True
+
+# Demo stores must not use apps (Theme Store requirements): drop app embeds
+# left behind by uninstalled apps (Judge.me, Wishlist Plus).
+entry = doc('config/settings_data.json')
+if entry and isinstance(entry[1].get('current'), dict):
+    blocks = entry[1]['current'].get('blocks') or {}
+    for block_id in [k for k, b in blocks.items() if str(b.get('type', '')).startswith('shopify://apps/')]:
+        blocks.pop(block_id)
         entry[2] = True
 
 # Favicon (audit E13)
