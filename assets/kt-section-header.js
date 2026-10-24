@@ -357,6 +357,22 @@
     setExpanded(item, willOpen);
   });
 
+  /* Space on the trigger anchor. Browsers fire `click` for Enter on a
+     link but not for Space, so Space is handled here to give keyboard
+     users the same toggle. The parent page stays reachable through the
+     "View all" link at the top of each panel. */
+  bindListener(document, 'keydown', function (e) {
+    if (e.key !== ' ' && e.key !== 'Spacebar') return;
+    var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [data-flyout-trigger]');
+    if (!trigger) return;
+    var item = trigger.closest('.kt-header__menu-item');
+    if (!item || !item.querySelector('.kt-header__mega-menu, .kt-header__flyout')) return;
+    e.preventDefault();
+    var willOpen = !item.hasAttribute('data-open');
+    closeAll(willOpen ? item : null);
+    setExpanded(item, willOpen);
+  });
+
   /* Click outside the header closes any open dropdown. */
   bindListener(document, 'click', function (e) {
     var insideHeader = e.target && e.target.closest && e.target.closest('.kt-header');

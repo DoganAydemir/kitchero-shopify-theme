@@ -763,6 +763,7 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
    the title clear vertical space; pair this with the darker link
    color below for a clean two-tier visual stack. */
 .kt-header__mega-column-title {
+  text-decoration: none;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -1958,4 +1959,29 @@ html.no-js .kt-header__mobile-view-title {
   .kt-header__mobile-view {
     transition: none !important;
   }
+}
+
+/* Parent links inside dropdown panels ("View all ..."), so the
+   top-level page and each column page stay reachable by keyboard. */
+.kt-header__mega-view-all {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+a.kt-header__mega-column-title:hover,
+a.kt-header__mega-column-title:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.kt-header__flyout-link--all {
+  font-weight: 600;
+  border-bottom: 1px solid rgba(68, 64, 60, 0.12);
 }
