@@ -815,3 +815,18 @@
     });
   });
 })(window);
+
+/* "Your privacy choices" footer link. Opens Shopify's customer privacy
+   preferences when the store uses Shopify's privacy banner. When the
+   theme cookie banner handles the click (cookie-banner.js) or neither is
+   available, the link keeps its normal href. */
+document.addEventListener('click', function (event) {
+  if (event.defaultPrevented) return;
+  var trigger = event.target && event.target.closest ? event.target.closest('[data-privacy-choices]') : null;
+  if (!trigger) return;
+  var banner = window.privacyBanner;
+  if (banner && typeof banner.showPreferences === 'function') {
+    event.preventDefault();
+    banner.showPreferences();
+  }
+});

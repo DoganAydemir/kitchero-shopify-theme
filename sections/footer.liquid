@@ -479,6 +479,7 @@
               policy page get a working link either way.
             {%- endcomment -%}
             {%- if section.settings.show_privacy_choices -%}
+              {%- assign privacy_choices_url = pages['your-privacy-choices'].url | default: shop.privacy_policy.url | default: routes.root_url -%}
               <li>
                   {%- comment -%}
                     R20-C: route through the pages object so Markets-
@@ -491,7 +492,7 @@
                     not matching the legal-required CCPA URL.
                   {%- endcomment -%}
                 <a
-                  href="{{ pages['your-privacy-choices'].url | default: '/pages/your-privacy-choices' }}"
+                  href="{{ privacy_choices_url }}"
                   class="kt-footer__policy-link"
                   data-privacy-choices
                 >
