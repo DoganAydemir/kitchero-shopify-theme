@@ -1,10 +1,3 @@
-{%- comment -%}
-  Financing CTA — closing call-to-action band with a two-line serif
-  heading (second word italic stone-400), a muted description, and two
-  pill buttons side-by-side ("Apply Now" filled, "Explore Collections"
-  outlined). Ported from the bottom CTA in the Next.js /financing page.
-  Sits on a stone-100 band with a hairline top border.
-{%- endcomment -%}
 
 {{ 'kt-section-financing-cta.css' | asset_url | stylesheet_tag }}
 
@@ -39,11 +32,6 @@
     {%- assign secondary_href = section.settings.secondary_link | default: routes.collections_url -%}
 
     <div class="kt-financing-cta__buttons">
-      {%- comment -%}
-        R162 EMPTY-HREF-1: each CTA emits ONLY when both label AND
-        URL are configured. Theme Store flags `<a href="#">` as a
-        broken link. Editor hint surfaces the gap to merchants.
-      {%- endcomment -%}
       {%- if section.settings.primary_text != blank and primary_href != blank -%}
         <a
           href="{{ primary_href | escape }}"

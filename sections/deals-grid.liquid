@@ -1,15 +1,5 @@
 {{ 'kt-section-deals-grid.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Deals Grid — birebir from Next.js /deals page. Dotted header +
-  premium package cards (tier badge, popular flag, price + includes
-  overlay, strikethrough original, "Free Design" accent, fill-on-
-  hover CTA) + bottom "Need a custom quote?" dual-CTA strip.
-
-  Cards link to collections, NOT product detail (per the project
-  roadmap — deal cards surface a curated collection, not a single SKU).
-{%- endcomment -%}
-
 {%- assign deals_cta_default = 'kt.section.deals_grid.cta_default' | t -%}
 <section class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="" data-section-id="{{ section.id }}">
@@ -165,13 +155,6 @@
     <div class="page-width">
       <div class="kt-deals-cta__inner">
         {%- if section.settings.bottom_heading != blank -%}
-          {%- comment -%}
-            R16-E: heading_tag is merchant-configurable so this section
-            doesn't accidentally become the page's H1 when it lands on
-            a template that lacks an explicit top-level heading
-            (custom /pages/deals layouts, builder homepages). Schema
-            default `h2` keeps the visual hierarchy stable.
-          {%- endcomment -%}
           {%- assign deals_cta_tag = section.settings.bottom_heading_tag | default: 'h2' -%}
           <{{ deals_cta_tag }} class="kt-deals-cta__title">{{ section.settings.bottom_heading }}</{{ deals_cta_tag }}>
         {%- endif -%}

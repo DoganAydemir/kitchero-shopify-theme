@@ -115,26 +115,6 @@
   </div>
 </section>
 
-{%- comment -%}
-  FAQ structured data (R139 / HG-1). When the merchant opts in via
-  `enable_faq_schema` we emit a Schema.org FAQPage JSON-LD payload so
-  Google can surface the questions as rich results in search.
-
-  Default OFF — emitting FAQPage on a section that contains anything
-  other than genuine FAQ content (returns policy, shipping table, etc.)
-  triggers Google's "Misleading or incorrect content" penalty per
-  https://developers.google.com/search/docs/appearance/structured-data/faqpage
-  Merchants opt in only on real FAQ accordions.
-
-  Implementation notes:
-  - Two-pass loop. First pass counts `item` blocks so the second pass
-    knows when to omit the trailing comma; @app blocks are skipped.
-  - `strip_html` on title + content so Schema.org receives plain text
-    (FAQ schema allows HTML in `acceptedAnswer.text`, but stripping
-    keeps the payload compact and never trips on unbalanced markup).
-  - `| json` emits a fully quoted, JSON-escape-safe string — handles
-    embedded quotes / newlines / `<` characters without manual escaping.
-{%- endcomment -%}
 {%- if section.settings.enable_faq_schema -%}
   {%- assign faq_items_total = 0 -%}
   {%- for block in section.blocks -%}

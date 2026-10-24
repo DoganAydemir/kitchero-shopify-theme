@@ -75,10 +75,6 @@
                 </div>
               </details>
             {%- when '@app' -%}
-              {%- comment -%}
-                R87 — shopify_attributes wrapper for editor
-                highlight on app-block select.
-              {%- endcomment -%}
               <div class="kt-collapsible-minimal__app-block" {{ block.shopify_attributes }}>
                 {% render block %}
               </div>
@@ -89,11 +85,6 @@
   </div>
 </section>
 
-{%- comment -%}
-  FAQ structured data (R139 / HG-1). See collapsible-accordion.liquid
-  for the full rationale. Same opt-in / opt-out toggle, same two-pass
-  loop, same `strip_html | json` defence. Defaults to OFF.
-{%- endcomment -%}
 {%- if section.settings.enable_faq_schema -%}
   {%- assign faq_items_total = 0 -%}
   {%- for block in section.blocks -%}

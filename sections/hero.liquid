@@ -1,39 +1,5 @@
 {{ 'kt-section-hero.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  R144 — Slide 0 LCP optimisation. Eager loading + fetchpriority=high
-  prioritise the LCP image as soon as the HTML parser reaches the
-  <img> tag — equivalent treatment without spending one of the
-  template's two resource-hint slots on a `<link rel="preload">`.
-
-  `preload: true` was previously emitted on slide 0 to inject a
-  preload link via Shopify's content_for_header pipeline. Combined
-  with the two font preloads in layout/theme.liquid that put the
-  homepage at 3 preloads/template, exceeding PRF-3's "max two
-  resource hints per template" cap (Theme Store performance rule).
-  The font preloads stay (heading + body fonts are render-blocking
-  via @font-face); image discovery via fetchpriority is good enough
-  for LCP — Lighthouse's "Preload LCP image" hint goes from green
-  to amber but the metric itself stays well within budget.
-{%- endcomment -%}
-
-{%- comment -%}
-  R-density: pre-compute style-vars from new merchant settings.
-  Inline `style` attribute carries CSS custom properties that
-  the kt-section-hero.css (and inline rules below) consume.
-  Defaults match the previous hardcoded behaviour so existing
-  storefronts don't regress visually after this density bump.
-
-  DESIGN INTENT — no section-level color_scheme / bg_color settings:
-  Hero is a full-bleed image slider with merchant-controlled
-  `overlay_color` + `overlay_opacity` + `text_color` settings. The
-  hero image fills the viewport so section background never paints
-  through, and overlay+text colors directly govern legibility. A
-  color_scheme dropdown would be redundant (its bg is invisible
-  behind the image, its fg overridden by the explicit text_color).
-  Theme-level color customization remains available via the global
-  color_scheme_group (kt_schemes) in settings_schema.json.
-{%- endcomment -%}
 {%- liquid
   assign hero_height_d = section.settings.section_height_desktop | default: 100
   assign hero_height_m = section.settings.section_height_mobile | default: 100
@@ -46,25 +12,6 @@
     assign hero_autoplay = true
   endif
 -%}
-  {%- comment -%} R-homepage-audit — `data-show-pagination` attribute + matching
-    `show_pagination` setting REMOVED. JS never bound dot markup, so the toggle
-    silently no-op'd in the editor (audit gap). Native arrow keys + ARIA
-    play/pause toggle remain the keyboard affordances for the slider. {%- endcomment -%}
-  {%- comment -%}
-    R93 — every `<section>` landmark needs an accessible name so SR
-    landmarks navigation (NVDA Insert+F7, VoiceOver rotor) lists
-    something more useful than "region". For sections with a
-    visible heading, prefer aria-labelledby pointing to its id;
-    for landmark-without-heading sections, use a literal aria-label.
-    Hero is heading-driven (slide H1 announces page topic).
-
-    R301 — aria-roledescription="carousel" on the root + per-slide
-    aria-roledescription="slide" below. WAI-ARIA Authoring Practices
-    Carousel pattern: a slider with auto-rotation MUST announce its
-    role via `aria-roledescription` so SRs say "Hero carousel" instead
-    of just "region". Per-slide context is added on each slide
-    container further down.
-  {%- endcomment -%}
 <section
   class="kt-hero kt-hero--position-{{ hero_position }}{% unless hero_autoplay %} kt-hero--no-autoplay{% endunless %}"
   data-section-id="{{ section.id }}"
@@ -128,17 +75,6 @@
                 alt: hero_slide_alt
             }}
           {%- else -%}
-            {%- comment -%}
-              R182 PLACEHOLDER-VERTICAL-1: `hero-apparel-1` is
-              Shopify's fashion-vertical placeholder (mannequin /
-              apparel imagery). Using it on a generic kitchen /
-              home-goods theme produces an off-brand first
-              impression for reviewers and merchants who don't
-              run apparel stores. `lifestyle-1` is the vertical-
-              neutral interior/space placeholder, suitable for
-              kitchen, home goods, furniture, and other lifestyle
-              verticals — same set Shopify uses across Skeleton.
-            {%- endcomment -%}
             {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-hero__slide-image' }}
           {%- endif -%}
         </div>
@@ -170,19 +106,6 @@
     active (handled in `assets/kt-section-hero.js`).
   {%- endcomment -%}
   <div class="kt-hero__content">
-    {%- comment -%}
-      Empty-block guards. Two distinct cases:
-
-      1. Production with 0 slide blocks. The hero is the home page's
-         primary <h1> source — without it the page ships with no h1
-         (Lighthouse SEO + Theme Store reviewer flag). Emit a safety
-         <h1> from `shop.name` so the page always has a heading
-         landmark even if the merchant accidentally empties the hero.
-
-      2. Theme editor (request.design_mode) with 0 blocks. Show a
-         clear merchant hint that they need to add a slide block,
-         since an empty hero looks like the section is broken.
-    {%- endcomment -%}
     {%- if section.blocks.size == 0 -%}
       <div class="kt-hero__text">
         <h1 class="kt-hero__heading">{{ shop.name | escape }}</h1>
@@ -202,19 +125,6 @@
           {%- assign heading_open = '<p class="kt-hero__heading" role="heading" aria-level="2" aria-hidden="true">' -%}
           {%- assign heading_close = '</p>' -%}
         {%- endif -%}
-        {%- comment -%}
-          R296 — `block.shopify_attributes` is emitted ONCE per block,
-          on `.kt-hero__slide` (line 63 above). Shopify's preview-
-          inspector docs say "only one element should include these
-          attributes to prevent identification conflicts during
-          duplication operations." Previously this `.kt-hero__text`
-          sibling also carried the attributes, so duplicating a slide
-          in the editor created two candidate target nodes for the
-          editor's block-select pulse — the outline ring flickered
-          between image and text DOM nodes and `data-slide-index`
-          resolution in `assets/kt-section-hero.js` could pick the
-          wrong index. Single-emission resolves both.
-        {%- endcomment -%}
         <div
           class="kt-hero__text{% unless forloop.first %} hidden{% endunless %}"
           data-slide-text="{{ forloop.index0 }}"

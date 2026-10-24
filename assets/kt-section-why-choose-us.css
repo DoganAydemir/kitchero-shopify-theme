@@ -1,9 +1,4 @@
-/* Why Choose Us / "The Standard." — Birebir from WhyChooseUs.tsx */
 
-/* section: bg-stone-950 text-white overflow-hidden relative py-32 md:py-48
-   R232.47 — scheme-aware bg + text. Was hardcoded stone-950 / white;
-   falls back to the legacy dark editorial palette when no scheme
-   class is active. */
 .kt-why-choose-us {
   background-color: rgb(var(--kt-c-bg, 12 10 9));
   color: rgb(var(--kt-c-fg, 255 255 255));
@@ -31,15 +26,6 @@
   gap: 2.5rem;
 }
 
-/* R214 — pushed the row layout from 750px to 990px. iPad portrait
-   (768-989px) was switching to row at 750px, splitting the heading
-   column with the description column to its right. The heading
-   then ran out of horizontal room and the title's clamp floor
-   (3.75rem) caused "HEADING 1" to wrap mid-string with the digit
-   dropping to its own line. Keeping iPad portrait on the stacked
-   column layout fixes the wrap and reads as a more comfortable
-   single-narrative band. Row layout returns at 990px+ where the
-   heading column is wide enough for the display title. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__header {
     flex-direction: row;
@@ -56,18 +42,10 @@
   font-weight: 700;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware heading (default scheme is dark → white text) */
   color: rgb(var(--kt-c-fg, 255 255 255));
   margin: 0;
 }
 
-/* R214 — title clamp now scoped to 990px+ alongside the row
-   header layout. At iPad portrait the header is full-width
-   stacked, but the clamp would still run at 8vw which read as
-   too aggressive for the heading column's tighter context. Floor
-   3.75rem at iPad portrait sits comfortably; clamp resumes at
-   990px where the heading shares space with the description
-   column. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__title {
     font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(3.75rem, 8vw + 0.5rem, 10rem)));
@@ -78,19 +56,12 @@
 /* p: text-xl md:text-2xl text-stone-400 font-light max-w-md md:text-right md:pb-4 */
 .kt-why-choose-us__desc {
   font-size: 1.125rem;
-  /* R232.50 — scheme-aware muted body. Original stone-400 hit
-     ~6.5:1 on stone-950; opacity-graded fg keeps the same muted
-     read on any scheme bg (light → grey muted, dark → off-white). */
   color: rgba(var(--kt-c-fg, 168 162 158), 0.55);
   font-weight: 300;
   max-width: 28rem;
   margin: 0;
 }
 
-/* R214 — desc bump + right-align scoped to 990px+ alongside the
-   row header layout. At iPad portrait the desc sits below the
-   heading in a stacked layout — left-aligned at 1.25rem reads
-   naturally there. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__desc {
     font-size: 1.25rem;
@@ -139,30 +110,9 @@
 .kt-why-choose-us__image-wrap .placeholder-svg {
   position: absolute;
   inset: 0;
-  /* R201 — placeholder geometry now mirrors the real `<img>` rule
-     (height: 130%; top: -15%) so GSAP's yPercent ±15 parallax has
-     headroom in both directions. Without this the placeholder was
-     locked at 100%×100% and the scroll trigger animated a fully
-     contained element with nowhere to travel — the demo looked
-     static even after the JS selector was fixed. */
   width: 100%;
   height: 130%;
   top: -15%;
-  /* R198 PLACEHOLDER-CONTRAST-4: same fix pattern as R182
-     (before-after), R187 (hero), R193 (ecosystem). Section
-     background is stone-950 (near-black) and the placeholder svg
-     paints transparent — so on a fresh-install demo the entire
-     hero image area rendered as a solid black rectangle. Classic
-     Shopify grey treatment so reviewers see "image will go here"
-     instead of an empty void. The .placeholder-svg class is gone
-     the moment a real image is uploaded, so this rule
-     auto-disables in production.
-     R232.68 — Solid stone-100 bg REMOVED. The grey panel was
-     overlaying Shopify's `lifestyle-1` placeholder illustration,
-     so the user only saw the flat grey rectangle, never the actual
-     Shopify graphic. Let the placeholder's own SVG art render
-     against the section bg (defaults scheme-4 dark editorial).
-     `color` keeps controlling the SVG fill via currentColor. */
   color: rgb(var(--kt-c-fg, 168 162 158));
   opacity: 1;
 }
@@ -179,16 +129,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
-  /* R232.50 — scheme-aware divider (stone-800 was dark-only) */
   border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.08);
 }
 
-/* R214 — 3-up grid pushed from 750px to 990px. At iPad portrait
-   (768-989px), 3 columns × ~256px each made the feature title
-   "Feature title" wrap as "Feature / title" with the description
-   collapsing into a tight column. 1-up stack at iPad portrait is
-   easier to read; 3-up resumes at 990px+ where each column is
-   wide enough to hold the title on a single line. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__grid {
     grid-template-columns: repeat(3, 1fr);
@@ -200,15 +143,9 @@
   display: flex;
   flex-direction: column;
   padding-top: 3rem;
-  /* R232.50 — scheme-aware divider */
   border-top: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.08);
 }
 
-/* R214 — feature horizontal-divider layout scoped to 990px+
-   alongside the 3-up grid. At iPad portrait the features stack
-   vertically and the horizontal-padding scheme would create
-   weird off-centre indents — the mobile-style stack rule
-   (top-border, padding-top) is the right pattern there. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__feature {
     padding-bottom: 2rem;
@@ -218,7 +155,6 @@
   /* md:pr-16 md:border-r */
   .kt-why-choose-us__feature:first-child {
     padding-right: 4rem;
-    /* R232.50 — scheme-aware divider */
     border-right: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.08);
   }
 
@@ -226,7 +162,6 @@
   .kt-why-choose-us__feature:nth-child(2) {
     padding-left: 4rem;
     padding-right: 4rem;
-    /* R232.50 — scheme-aware divider */
     border-right: 1px solid rgba(var(--kt-c-fg, 41 37 36), 0.08);
   }
 
@@ -242,9 +177,6 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 600;
-  /* R232.50 — scheme-aware eyebrow. Dialed down from 0.6 → 0.4 so the
-     "01 / MEMBER UPDATES" kicker reads as a quiet label, subordinate to
-     the feature title. */
   color: rgba(var(--kt-c-fg, 168 162 158), 0.4);
   margin-bottom: 1.5rem;
   display: block;
@@ -256,13 +188,9 @@
   font-weight: 500;
   letter-spacing: -0.025em;
   margin-bottom: 1.5rem;
-  /* R232.50 — scheme-aware feature heading */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 
-/* R214 — feature title bump scoped to 990px+ alongside 3-up grid.
-   At iPad portrait the 1-up stack gives each card the full
-   container width — the mobile 1.875rem reads naturally there. */
 @media screen and (min-width: 990px) {
   .kt-why-choose-us__feature-title {
     font-size: 2.25rem;
@@ -272,8 +200,6 @@
 /* p: text-stone-400 leading-relaxed text-lg */
 .kt-why-choose-us__feature-desc {
   font-size: 0.9375rem;
-  /* R232.50 — scheme-aware muted body. Opacity-graded fg keeps the
-     muted read on any scheme (light → grey muted, dark → off-white). */
   color: rgba(var(--kt-c-fg, 168 162 158), 0.5);
   line-height: 1.625;
 }

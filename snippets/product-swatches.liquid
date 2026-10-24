@@ -40,13 +40,6 @@
 -%}
 
 {%- if color_option and color_option.values.size > 0 -%}
-  {%- comment -%}
-    R131 — kt_swatch_max_visible (theme setting, default 5) caps the
-    visible swatch count so a 12-color product doesn't push the card
-    title off the row. Hidden swatches surface as a "+N" indicator,
-    inviting the customer to click through to the PDP for the full
-    range.
-  {%- endcomment -%}
   {%- assign max_visible = settings.kt_swatch_max_visible | default: 5 -%}
   {%- assign total_count = color_option.values.size -%}
   {%- assign hidden_count = total_count | minus: max_visible -%}
@@ -120,18 +113,6 @@
         endif
       -%}
 
-      {%- comment -%}
-        R298 — Card swatches link to the matching variant URL. Shopify
-        2024+ exposes `value.variant` on `product.options_with_values`
-        iteration: the first product variant whose option-N matches
-        this value. We append `?variant=ID` to the product URL so a
-        click lands the customer on the PDP with that swatch already
-        selected (deep-link resolution on the PDP picker handles the
-        radio/price/image sync). Anchors with `aria-label` carry the
-        colour name; the inner span is `aria-hidden` to avoid double-
-        announcement. `data-swatch-link` lets future analytics target
-        the click without churning class names.
-      {%- endcomment -%}
       {%- assign swatch_variant_url = product.url -%}
       {%- if value.variant -%}
         {%- assign swatch_variant_url = product.url | append: '?variant=' | append: value.variant.id -%}

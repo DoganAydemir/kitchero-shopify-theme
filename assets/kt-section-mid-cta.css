@@ -1,5 +1,3 @@
-/* Mid CTA — 50/50 split with image + measurement lines overlay
-   Birebir from MidCta.tsx */
 
 .kt-mid-cta {
   display: grid;
@@ -19,12 +17,6 @@
   flex-direction: column;
   justify-content: center;
   padding: 4rem 1.5rem;
-  /* R232.48 — Scheme-aware bg. Was hardcoded `var(--kt-stone-100)` —
-     the section root carries the `color-scheme-X` class but the
-     visible left panel is this inner element, so root-level scheme
-     wiring did nothing visually. Falls back to stone-100
-     (245 245 244) when no scheme is set so the legacy look stays
-     identical on a default install. */
   background-color: rgb(var(--kt-c-bg, 245 245 244));
   color: rgb(var(--kt-c-fg, 28 25 23));
   position: relative;
@@ -37,7 +29,6 @@
 }
 
 /* Subtle decorative line (top-left) */
-/* R232.50 — scheme-aware decorative divider */
 .kt-mid-cta__text::before {
   content: '';
   position: absolute;
@@ -64,35 +55,18 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  /* R232.48 — Scheme-aware muted text. Was hardcoded stone-700 which
-     looked correct on the legacy stone-100 surface but became dark
-     text on a dark scheme (scheme-4) or low-contrast on emerald.
-     Using `--kt-c-fg` with 80% opacity gives a muted-but-readable
-     eyebrow against any scheme surface. Fallback stone-700 keeps
-     the default look. */
   color: rgba(var(--kt-c-fg, 68 64 60), 0.8);
   margin-bottom: 1.5rem;
 }
 
 .kt-mid-cta__heading {
   font-family: var(--kt-f-accent-family);
-  /* R213 FLUID-TYPO: was a stepped 3rem (mobile) → 4.375rem
-     (≥750px) declaration. At laptop widths (~1024px) the desktop
-     ceiling kicked in too early, leaving no intermediate scale —
-     italic words like "heading" wrapped mid-glyph as "head-/ing"
-     because the font outgrew the column. clamp() gives smooth
-     fluid scaling: 3rem floor on mobile, ~3.6rem at 1024px,
-     ceilings at 4.375rem on full desktop. */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(3rem, 4vw + 1rem, 4.375rem)));
 
   letter-spacing: -0.025em;
-  /* R232.48 — Scheme-aware heading color. Was stone-900 hardcoded. */
   color: rgb(var(--kt-c-fg, 28 25 23));
   margin-bottom: 1.5rem;
   line-height: 1.1;
-  /* R213 — italic serif "heading" was breaking mid-word at
-     intermediate widths via UA hyphenation. Force `manual` so
-     only soft-hyphens (none in this content) trigger breaks. */
   hyphens: manual;
 }
 
@@ -103,7 +77,6 @@
 
 .kt-mid-cta__desc {
   font-size: 1rem;
-  /* R232.48 — Scheme-aware body copy. Was stone-600 hardcoded. */
   color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
   font-weight: 300;
   line-height: 1.6;

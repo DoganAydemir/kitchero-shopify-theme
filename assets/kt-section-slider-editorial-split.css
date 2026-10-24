@@ -7,12 +7,6 @@
 
 .kt-slider-editorial {
   position: relative;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
-     dark editorial default preserved via the fallback. */
-  /* R232.50 — inner text/borders now opacity-graded against --kt-c-fg
-     so they track the active scheme. Image-pane overlay gradients
-     and white-on-photo CTA stay hardcoded (those sit on the photo
-     side). */
   background-color: rgb(var(--kt-c-bg, 12 10 9));
   color: rgb(var(--kt-c-fg, 255 255 255));
   overflow: hidden;
@@ -46,17 +40,6 @@
   aspect-ratio: 4 / 3;
   flex-shrink: 0;
   overflow: hidden;
-  /* R232.71 — Image-pane bg REMOVED. R232.50 had wired this to
-     `rgba(var(--kt-c-fg), 0.9)` intending a dark fallback behind
-     the photo. But on every scheme except scheme-1/2/3 (where
-     --kt-c-fg is dark and 0.9 reads as the intended near-black),
-     this paints a near-solid LIGHT rectangle covering the
-     placeholder/image (user feedback: "yine shopify placeholder
-     img sorunu var, üzerinde renk var. çöz!"). The placeholder
-     rule below already gives the placeholder its own subtle bg
-     when no image is uploaded; the slide images themselves carry
-     their own visual once loaded. Transparent pane lets the
-     section's scheme surface fill the gap during loading. */
   background-color: transparent;
 }
 
@@ -87,16 +70,6 @@
   height: 100%;
   object-fit: cover;
 }
-
-/* R232.71 — Placeholder override REMOVED.
-   Previously this section painted a near-solid 90% fg image-pane
-   bg, which hid the Shopify default placeholder SVG entirely.
-   The R-comment block above (now removed) tried to compensate by
-   forcing a light fill on the placeholder so it would read against
-   the dark pane. With the image-pane bg now transparent (R232.71),
-   the global `.placeholder-svg` rule from `base.css` already paints
-   a scheme-aware subtle grey illustration that reads correctly on
-   any active scheme — no section-specific override needed. */
 
 .kt-slider-editorial__image-overlay {
   position: absolute;
@@ -151,7 +124,6 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 5rem;
   line-height: 1;
-  /* R232.50 — scheme-aware (was 0.18 white). */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.18);
   margin-bottom: 1.5rem;
   font-weight: 300;
@@ -169,7 +141,6 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-400). */
   color: rgba(var(--kt-c-fg, 159 159 158), 0.4);
   margin-bottom: 1rem;
 }
@@ -182,7 +153,6 @@
      clipped by the reveal-mask overflow on adjacent lines. */
   line-height: 1.2;
   letter-spacing: -0.01em;
-  /* R232.50 — scheme-aware heading on copy-pane surface. */
   color: rgb(var(--kt-c-fg, 255 255 255));
   margin: 0 0 1.25rem 0;
   padding-bottom: 0.08em;
@@ -205,7 +175,6 @@
 .kt-slider-editorial__description {
   font-size: 0.9375rem;
   line-height: 1.7;
-  /* R232.50 — scheme-aware muted (was 0.72 white). */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.55);
   margin: 0 0 2rem 0;
 }
@@ -233,7 +202,6 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.875rem 1.5rem;
-  /* R232.50 — action-themed CTA (was white-on-dark). */
   background-color: rgb(var(--kt-c-action, 255 255 255));
   color: rgb(var(--kt-c-action-text, 28 25 23));
   font-size: 0.875rem;
@@ -245,7 +213,6 @@
 }
 
 .kt-slider-editorial__cta:hover {
-  /* R232.50 — scheme-aware hover via opacity. */
   opacity: 0.88;
   transform: translateY(-1px);
 }
@@ -290,11 +257,6 @@
   font-family: var(--kt-f-accent-family, Georgia, serif);
   font-size: 0.9375rem;
   font-weight: 500;
-  /* R296 — 0.4 → 0.65 (~5.5:1 on stone-900). Was failing WCAG
-     1.4.3 AA at sub-18.5 px nav-button text size. Hover and
-     active state still distinct from the resting state because
-     hover bumps to 0.75 and active uses full white + weight 700. */
-  /* R232.50 — scheme-aware muted on copy-pane surface. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   cursor: pointer;
   transition: color 0.2s ease;
@@ -302,12 +264,10 @@
 }
 
 .kt-slider-editorial__nav-btn:hover {
-  /* R232.50 — scheme-aware. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.85);
 }
 
 .kt-slider-editorial__nav-btn.is-active {
-  /* R232.50 — scheme-aware active. */
   color: rgb(var(--kt-c-fg, 255 255 255));
   font-weight: 700;
 }
@@ -319,10 +279,6 @@
 }
 
 .kt-slider-editorial__nav-sep {
-  /* R296 — 0.2 → 0.4. Separator is a single character ("/") that
-     reads as decorative meta — still needs ≥3:1 as a non-text UI
-     element per WCAG 1.4.11. 0.4 white on stone-900 ~3.4:1. */
-  /* R232.50 — scheme-aware. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.4);
   font-size: 0.875rem;
 }
@@ -330,9 +286,6 @@
 .kt-slider-editorial__nav-total {
   margin-left: 0.5rem;
   font-size: 0.75rem;
-  /* R296 — 0.35 → 0.65. Total count ("of N") is visible body
-     text, ≥4.5:1 required. 0.65 white ~5.5:1. */
-  /* R232.50 — scheme-aware muted. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.65);
   letter-spacing: 0.1em;
 }
@@ -341,7 +294,6 @@
   width: 100%;
   max-width: 12rem;
   height: 2px;
-  /* R232.50 — scheme-aware track. */
   background-color: rgba(var(--kt-c-fg, 255 255 255), 0.1);
   border-radius: 9999px;
   overflow: hidden;
@@ -351,7 +303,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  /* R232.50 — scheme-aware fill. */
   background-color: rgb(var(--kt-c-fg, 255 255 255));
   transform-origin: left center;
   transform: scaleX(0);
@@ -381,7 +332,6 @@
   margin-left: 0.75rem;
   border: 0;
   background: transparent;
-  /* R232.50 — scheme-aware. */
   color: rgba(var(--kt-c-fg, 255 255 255), 0.6);
   cursor: pointer;
   padding: 0;
@@ -390,7 +340,6 @@
 }
 
 .kt-slider-editorial__play-toggle:hover {
-  /* R232.50 — scheme-aware. */
   color: rgb(var(--kt-c-fg, 255 255 255));
 }
 

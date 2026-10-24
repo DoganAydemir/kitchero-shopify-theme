@@ -91,15 +91,6 @@
             {%- endif -%}
 
             {%- if block.settings.quote != blank -%}
-              {%- comment -%}
-                Semantic <blockquote> for the testimonial copy + <cite>
-                for the author attribution. WCAG / Theme Store reviewer
-                expectation — the testimonials-pullquote section
-                already uses the same pair, this brings the marquee
-                variant in line. The <p> inside <blockquote> is
-                required by HTML spec (blockquote requires flow content;
-                bare text would be invalid).
-              {%- endcomment -%}
               <blockquote class="kt-testimonials-marquee__quote">
                 <p>&ldquo;{{ block.settings.quote | escape }}&rdquo;</p>
               </blockquote>
@@ -128,28 +119,9 @@
               </div>
             {%- endif -%}
           </div>
-        {%- comment -%}
-          R298 — Inline @app render branch REMOVED. The previous `else`
-          fell through for every non-testimonial block — including
-          `@app` — and rendered it inside the marquee track wrapped in
-          `block.shopify_attributes`. The same @app blocks were then
-          rendered AGAIN by the `{% render 'section-app-blocks' %}`
-          snippet below, producing duplicate DOM nodes with duplicate
-          editor block handles. Editor block-select flickered + live
-          storefront double-rendered app content. The snippet is now
-          the canonical render path.
-        {%- endcomment -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
-    {%- comment -%}
-      R295 — Editor-only hint when the merchant adds the section to
-      a template but hasn't created any testimonial blocks yet.
-      Without blocks the marquee track is empty and the section
-      looks broken — this hint tells the merchant exactly how to
-      populate it. Shown only inside `request.design_mode` so the
-      live storefront stays clean.
-    {%- endcomment -%}
     {%- if request.design_mode and section.blocks.size == 0 -%}
       <p class="kt-testimonials-marquee__editor-hint" aria-live="polite">
         {{ 'kt.section.testimonials-marquee.editor_hint_empty' | t | default: 'Add at least one Testimonial block in the theme editor to populate this marquee.' }}

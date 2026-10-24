@@ -1,29 +1,3 @@
-{%- comment -%}
-  Page Header — Dotted
-  Shared "architectural" page header with layered dotted grid + parallax
-  markers. Ported from PageHeader.tsx (used across the Next.js theme on
-  feature showcase pages).
-
-  Accepts:
-  - eyebrow: {String} tiny uppercase category label (optional; hides if blank)
-  - title: {String} main heading (required)
-  - description: {String} supporting paragraph (optional)
-  - count_text: {String} small pill badge on the right (optional, e.g. "4 Variants")
-  - heading_tag: {String} semantic tag — 'h1' (default) or 'h2'
-  - meta_html: {String} pre-built HTML row rendered between title and description
-                (optional, e.g. article date + author from main-article.liquid)
-
-  Visual layers:
-    1. Base matrix grid (static 24px radial-gradient dots, opacity 0.18)
-    2. Major parallax dots (80px dots, opacity 0.22, drift 20%)
-    3. Scanlines (1px horizontal lines, opacity 0.05)
-    4. Technical `+` markers (opacity 0.3, drift 35%)
-
-  Animations: GSAP reveals the content (y:50 → 0, opacity 0 → 1) and
-  scrolls layers 2 + 4 on `window` scroll. Respects
-  `prefers-reduced-motion`. CSS on its own renders the static layout so
-  the header looks right even before JS runs.
-{%- endcomment -%}
 
 {{ 'kt-page-header-dotted.css' | asset_url | stylesheet_tag }}
 
@@ -66,15 +40,6 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%}
-          Gate the heading on `title != blank`. Without this guard the
-          template emits an empty `<h1></h1>` when a merchant has not
-          filled in the title setting yet — empty headings fail axe /
-          Lighthouse a11y checks AND give Theme Store reviewers a
-          visible "ghost row" above the page content. Decorative dot
-          layers + section markers still render, so the visual rhythm
-          is preserved; only the heading element is dropped when blank.
-        {%- endcomment -%}
         {%- if title != blank -%}
           <div class="kt-page-header-dotted__title-wrap">
             <{{ heading_tag }}

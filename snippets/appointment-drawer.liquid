@@ -1,8 +1,3 @@
-{%- comment -%}
-  Appointment / Free Estimate Drawer — slide-in from right.
-  Ported from AppointmentDrawer.tsx.
-  Uses Shopify {% form 'contact' %} for submission.
-{%- endcomment -%}
 
 <div class="kt-appointment-drawer" id="appointment-drawer" aria-hidden="true" inert>
   <div class="kt-appointment-drawer__overlay" data-appointment-close></div>
@@ -27,17 +22,6 @@
           <input type="hidden" name="contact[Product]" value="{{ product.title | escape }} — {{ request.origin }}{{ product.url }}">
         {%- endif -%}
         {%- if form.posted_successfully? -%}
-          {%- comment -%}
-            Success sentinel — an empty `<span>` whose presence
-            tells appointment-drawer.js "the form just submitted
-            successfully, auto-open the drawer on load". Without
-            this, Shopify redirects back to the current page, the
-            success `<p>` below renders inside the aria-hidden
-            drawer, and the user sees no feedback — they assume
-            the submit failed and re-submit. The span carries no
-            text so SR users don't hear a duplicate announcement
-            (the `role="status"` paragraph below handles that).
-          {%- endcomment -%}
           <span data-appointment-posted-successfully hidden></span>
           <p class="kt-form__success" role="status" data-contact-feedback="appointment-form">
             {{ 'kt.section.appointment.success' | t | default: 'Thanks — we will be in touch shortly.' }}
@@ -45,14 +29,6 @@
         {%- endif -%}
 
         {%- if form.errors -%}
-          {%- comment -%}
-            R297 — `data-form-error-summary` + anchor-wrapped list
-            items match the login/contact pattern. Keyboard users tab
-            from the summary into the failing field via the anchor;
-            the global focus helper (`assets/global.js:444
-            focusFirstFormError`) targets `[data-form-error-summary]`
-            first then falls back to `[role="alert"][tabindex="-1"]`.
-          {%- endcomment -%}
           <div class="kt-form__error-summary" data-form-error-summary tabindex="-1" data-contact-feedback="appointment-form">
             <p class="kt-form__error-title" role="alert">{{ 'kt.section.contact.error_title' | t | default: 'Please correct the following:' }}</p>
             <ul class="kt-form__error-list">
@@ -157,26 +133,11 @@
           {%- render 'form-field-error', form: form, field: 'phone', describedby_id: 'appointment-phone-error' -%}
         </div>
 
-        {%- comment -%}
-          R-appt-interest-removed — The "Interested in" radio group
-          (Option A / Option B) was hard-coded placeholder copy with no
-          merchant-facing setting, so a store owner had no way to relabel
-          or remove the options. Dropped from the consultation form to
-          keep it a clean name/email/phone/message lead capture. If a
-          merchant ever needs a category field, it should come back as a
-          configurable block setting, not fixed placeholder labels.
-        {%- endcomment -%}
-
         {%- comment -%} Message {%- endcomment -%}
         <div class="kt-appointment-drawer__field">
           <label for="appointment-message" class="field__label">
             {{ 'kt.section.appointment.message' | t | default: 'Message' }}
           </label>
-          {%- comment -%}
-            R297 — Bound the message length so spam bots cannot post
-            multi-MB payloads. 2000 chars is plenty for a consultation
-            request; matches the cart-note + contact-form caps.
-          {%- endcomment -%}
           <textarea
             id="appointment-message"
             name="contact[body]"
@@ -196,13 +157,6 @@
           <input type="text" id="appointment-website-trap" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
         </p>
 
-        {%- comment -%}
-          R342 LEGAL-PRIVACY-APPOINTMENT: PII collection (name +
-          email + phone + message) triggers GDPR Art. 13
-          disclosure-at-collection. Link gated on
-          shop.privacy_policy so stores without a published
-          policy don't ship a dangling link.
-        {%- endcomment -%}
         {%- if shop.privacy_policy != blank -%}
           <p class="kt-appointment-drawer__privacy">
             {{ 'kt.section.contact.privacy_note_html' | t: link: shop.privacy_policy.url }}

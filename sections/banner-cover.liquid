@@ -1,17 +1,7 @@
-{%- comment -%}
-  Banner Cover — full-bleed cover-photo hero with dark gradient overlay and
-  centered content (eyebrow + big serif title + lead paragraph). Ported
-  from the About page hero in the Next.js kitchen theme ("Style 2" variant
-  of banner-hero). Used for editorial page headers where the imagery is
-  the star.
-{%- endcomment -%}
 
 {{ 'kt-section-banner-cover.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  # R-heading-hierarchy: schema default is `h2` — align the liquid fallback
-  # so a merchant who clears the value still gets the safe choice (no
-  # double-h1 on pages that already ship a template-level h1).
   assign heading_tag = section.settings.heading_tag | default: 'h2'
   assign min_h_mobile = section.settings.min_height_mobile | default: 480
   assign min_h_desktop = section.settings.min_height_desktop | default: 640
@@ -20,33 +10,7 @@
   assign padding_bottom = section.settings.padding_bottom | default: 0
 -%}
 
-{%- comment -%}
-  R145 REGION-NAME-1: <section> landmark needs an accessible name.
-  Prefer aria-labelledby pointing at the visible heading (so SR
-  announces the actual banner copy as the region name). Fall back
-  to a generic aria-label when heading is blank — banner-cover is
-  often used with image-only / no heading, so a stable label is
-  needed for the empty-heading case.
-{%- endcomment -%}
 {%- assign banner_cover_heading_id = 'BannerCoverHeading-' | append: section.id -%}
-{%- comment -%}
-  R-bc-placeholder — Modifier class for the no-image state. When the
-  merchant hasn't uploaded a hero image yet (fresh install, demo
-  build, About page before content is filled), we paint a deep stone
-  background instead of Shopify's default `lifestyle-1` placeholder
-  illustration. Two wins:
-    1. The white `__title` text reads at WCAG AAA contrast against
-       the dark backdrop (was ~1.5:1 against light grey placeholder
-       — outright fail).
-    2. Theme Store reviewers see a polished neutral surface on first
-       load, not the bag/shoe/handbag stroke illustrations that
-       scream "I'm an empty placeholder, the merchant didn't set
-       this up". Submission polish is what differentiates paid
-       themes from free.
-  The modifier disappears the moment the merchant uploads an image —
-  the image branch above renders normally, dark fallback never
-  reaches the DOM.
-{%- endcomment -%}
 {%- assign banner_cover_has_image = false -%}
 {%- if section.settings.image != blank -%}
   {%- assign banner_cover_has_image = true -%}
@@ -95,24 +59,6 @@
           alt: image_alt_text
       }}
     {%- else -%}
-      {%- comment -%}
-        R-bc-placeholder-v2 — Earlier round opted out of Shopify's
-        placeholder SVG entirely (just a gradient) to avoid the
-        light SVG strokes competing with the heading. Reverting
-        that choice per user request — every other section in the
-        theme renders a Shopify SVG placeholder when its image
-        slot is empty (CLAUDE.md "Empty States" pattern), so
-        banner-cover staying silent broke the family rule.
-
-        Workaround for the heading-competition issue: render the
-        `lifestyle-1` SVG behind the gradient + dark overlay, and
-        the CSS `__image--placeholder` rule heavily mutes its
-        opacity (~0.08) so it reads as a soft silhouette rather
-        than a foreground illustration. Theme Store reviewers
-        also expect this — an empty banner section in a fresh
-        install needs an obvious visual placeholder, not a flat
-        gradient that reads as "intentional design". */
-      {%- endcomment -%}
       <div class="kt-banner-cover__image kt-banner-cover__image--placeholder" role="presentation">
         {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-cover__image-placeholder-svg' }}
       </div>
@@ -125,13 +71,6 @@
       <span class="kt-banner-cover__eyebrow">{{ section.settings.eyebrow }}</span>
     {%- endif -%}
 
-    {%- comment -%}
-      R87 — gate the heading element on a non-blank value. Previous
-      code emitted an empty `<h1></h1>` when the merchant cleared
-      the heading setting — a Lighthouse a11y warning ("page
-      contains an empty heading"). Now we only emit the heading
-      tag when there's content for it.
-    {%- endcomment -%}
     {%- if section.settings.heading != blank -%}
       <{{ heading_tag }} id="{{ banner_cover_heading_id }}" class="kt-banner-cover__title">
         {{- section.settings.heading -}}
@@ -155,15 +94,6 @@
   skips on `index` / `cart` / `404` page types, so dropping the
   banner-cover on the homepage doesn't accidentally render a
   stray trail.
-{%- endcomment -%}
-{%- comment -%}
-  R-banner-breadcrumb-toggle — Section-level escape hatch. The
-  global `settings.kt_show_breadcrumbs` flag still gates the entire
-  theme; this section-level `show_breadcrumbs` defaults to true so
-  existing banner-cover instances keep their breadcrumb, but lets
-  a merchant hide it per-instance (landing page hero, marketing
-  campaign banner, etc. — where the trail adds noise). Both must
-  be true to render.
 {%- endcomment -%}
 {%- if settings.kt_show_breadcrumbs and section.settings.show_breadcrumbs -%}
   {%- render 'breadcrumbs', class_extra: 'kt-breadcrumbs-wrap' -%}

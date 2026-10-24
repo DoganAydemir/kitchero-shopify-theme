@@ -2,29 +2,6 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'kt-section-featured-products.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  Featured Products — cross-collection multi-product picker.
-
-  Theme Store basics tier — every commercial theme ships this
-  section. Differs from `featured-collection` in that the merchant
-  picks INDIVIDUAL products via blocks rather than a single
-  collection. Use cases:
-    - Spotlighting 4-6 hero products on the home page that span
-      multiple collections (e.g. Best of Kitchen + Best of Bath
-      mixed into one band)
-    - Editorial curation — "Editor's picks" / "Founders' favourites"
-    - Limited-time spotlights without creating a temporary collection
-
-  Each `product` block has its own product picker; the merchant adds
-  one block per spotlit product. card-product snippet (R97-R116
-  hardened) is reused for visual + a11y consistency.
-
-  Empty states:
-    - No blocks configured + design_mode → editor hint
-    - All blocks have empty product picker + design_mode → editor hint
-    - Either condition + live storefront → section emits NOTHING
-{%- endcomment -%}
-
 {%- liquid
   assign cols_desktop = section.settings.columns_desktop | default: 4
   assign cols_mobile = section.settings.columns_mobile | default: 2
@@ -96,10 +73,6 @@
           {%- case block.type -%}
             {%- when 'product' -%}
               {%- if block.settings.product != blank -%}
-                {%- comment -%}
-                  shopify_attributes is necessary for the editor's
-                  block-select highlight ring. R97 pattern.
-                {%- endcomment -%}
                 <div class="kt-featured-products__item" {{ block.shopify_attributes }}>
                   {%- render 'card-product',
                       product: block.settings.product,
@@ -112,14 +85,6 @@
                   -%}
                 </div>
               {%- elsif request.design_mode -%}
-                {%- comment -%}
-                  Per-block empty hint inside design_mode only —
-                  reviewer adding multiple blocks needs to know which
-                  block is unconfigured. Live storefront skips
-                  unconfigured blocks silently (already filtered by
-                  configured_block_count check above for full-empty
-                  case).
-                {%- endcomment -%}
                 <div class="kt-featured-products__item kt-featured-products__item--editor-hint" {{ block.shopify_attributes }}>
                   <p class="kt-featured-products__editor-hint kt-featured-products__editor-hint--inline">
                     {{ 'kt.section.featured-products.editor_hint_block' | t | default: 'Pick a product for this block.' }}

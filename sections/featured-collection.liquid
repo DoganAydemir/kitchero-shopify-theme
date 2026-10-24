@@ -1,32 +1,6 @@
 {{ 'kt-section-featured-collection.css' | asset_url | stylesheet_tag }}
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Featured Collection — single-collection product showcase.
-
-  Theme Store basics tier — every commercial theme ships this section.
-  Renders a configurable subset of products from ONE collection chosen
-  by the merchant, with an optional "View all" link to the full
-  collection page. Server-side rendered (no async fetch) because
-  `collection.products` is available at section render time.
-
-  Layout modes:
-    - grid: standard responsive product grid (default)
-    - carousel: horizontal-snap scroll on mobile, larger viewports
-      stay grid (carousel-on-mobile is the modern pattern; full
-      desktop carousel is a separate slider-* section)
-
-  Empty states:
-    - No collection picked + design_mode → onboarding hint, no
-      products rendered
-    - No collection picked + live → section emits nothing
-    - Collection has 0 products + design_mode → onboarding hint
-    - Collection has 0 products + live → section emits nothing
-
-  Card-product snippet is reused (R97-R116 hardened) so accessibility,
-  WCAG contrast, lazy-loading, and i18n behaviors are inherited.
-{%- endcomment -%}
-
 {%- liquid
   assign section_collection = section.settings.collection
   assign products_to_show = section.settings.products_count | default: 4
@@ -101,10 +75,6 @@
         </div>
 
         {%- if section.settings.show_view_all -%}
-          {%- comment -%}
-            R104 — Return-key advance not relevant for nav links;
-            visible CTA only. Link goes to the full collection page.
-          {%- endcomment -%}
           <a
             href="{{ section_collection.url }}"
             class="kt-featured-collection__view-all"

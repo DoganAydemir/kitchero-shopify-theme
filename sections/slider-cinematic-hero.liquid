@@ -9,9 +9,6 @@
       assign height_class = 'kt-slider-cinematic--medium'
   endcase
 
-  # R-heading-hierarchy: schema default is `h2` (line ~250 below) — align
-  # the liquid fallback. Previously `h1`, which caused a double-h1 trap when
-  # placed on non-home templates that already ship a template h1.
   assign heading_tag = section.settings.heading_tag | default: 'h2'
 -%}
 
@@ -76,16 +73,6 @@
     {%- endfor -%}
   </div>
 
-  {%- comment -%}
-    Content — shows the active slide's text, stacked and cross-faded.
-
-    Heading level: ONLY the first slide's heading is a real <h1>/<h2>/etc.
-    via `heading_tag`; the rest render as <p role="heading" aria-level="N">.
-    A 3-slide carousel previously emitted 3 of the same heading tag — when
-    the chosen tag was h1 (the default for hero context) this produced
-    multiple h1s on a single page, a WCAG 1.3.1 / 2.4.6 failure and a
-    Theme Store reviewer flag. Mirrors the fix used in `hero.liquid`.
-  {%- endcomment -%}
   {%- assign heading_level = heading_tag | remove: 'h' -%}
   <div class="kt-slider-cinematic__content">
     {%- for block in section.blocks -%}

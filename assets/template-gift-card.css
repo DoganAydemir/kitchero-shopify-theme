@@ -201,8 +201,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* ── R138 GIFT-1: Visible balance row (outside artwork overlay) ─ */
-
 .kt-gift-card__balance-row {
   display: flex;
   align-items: baseline;
@@ -542,11 +540,6 @@
 }
 
 @media print {
-  /* R298 — Re-enable `print-color-adjust: exact` ONLY for the gift-
-     card-page subtree. base.css globally sets `economy` so the rest
-     of the storefront skips background printing; gift-card artwork
-     IS the value, so we need the card colours and QR contrast to
-     survive even with "Background graphics off" toggled. */
   .kt-gift-card-page,
   .kt-gift-card-page * {
     print-color-adjust: exact !important;
@@ -570,21 +563,11 @@
   .kt-gift-card__qr-section {
     border-color: var(--kt-stone-200);
   }
-  /* R91 — gift card code MUST print in monospace so customers can
-     transcribe without confusing 0/O, 1/l/I when typing into a
-     redemption form. The accent serif (Georgia) used on screen
-     looks elegant but is ambiguous in monospaced contexts.
-     Letter-spacing 0.15em adds visual breathing room between
-     glyphs. Font-size bumped to 18pt for at-arm's-length reading. */
   .kt-gift-card__code {
     font-family: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace !important;
     font-size: 18pt;
     letter-spacing: 0.15em;
   }
-  /* R91 — QR code must scan reliably from print. Default 160px on
-     screen downscales to ~1.67" / 42mm at typical 96dpi which is
-     borderline for camera scanning under low light. 220px enforces
-     ~2.3" / 58mm — comfortably above QR Code 1.0 minimum. */
   .kt-gift-card__qr {
     width: 220px;
     height: 220px;
@@ -594,12 +577,6 @@
     width: 100%;
     height: 100%;
   }
-  /* R137 PRINT-2: when reviewers print with "Background graphics OFF"
-     (Chrome's default unless the customer explicitly toggles it),
-     stone-tinted backgrounds inside pills/captions disappear and the
-     stone-200/700 text becomes invisible against white paper. Force
-     pure black on text + add a 1pt border on the pill so the visual
-     element survives a no-background print. */
   .kt-gift-card__pill,
   .kt-gift-card__qr-caption,
   .kt-gift-card__qr-hint,

@@ -1,20 +1,5 @@
 {{ 'kt-section-brands.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  R115 — brands marquee has no visible heading (just a logo
-  parade), so aria-label provides the AT landmark name.
-{%- endcomment -%}
-{%- comment -%}
-  R274 — `logo_opacity` + `logo_style` merchant settings drive the
-  logo dim + grayscale via two CSS custom properties on the
-  section root. CSS consumes them in kt-section-brands.css. The
-  previous hardcoded `opacity: 0.4` on `.kt-brands__logo` is
-  preserved as the default value here so existing stores look
-  identical until the merchant chooses to opt out. `logo_style:
-  grayscale` is the new default — most logo strips read better in
-  uniform B&W even on color sites because brand palettes clash
-  with each other when paraded side by side.
-{%- endcomment -%}
 {%- assign brands_logo_opacity = section.settings.logo_opacity | default: 40 | divided_by: 100.0 -%}
 {%- if section.settings.logo_style == 'color' -%}
   {%- assign brands_logo_filter = 'none' -%}
@@ -79,16 +64,6 @@
               {%- capture brand_logo_sizes -%}{{ brand_logo_width }}px{%- endcapture -%}
               {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', widths: brand_logo_widths, sizes: brand_logo_sizes, width: brand_logo_width, height: 40, alt: brand_logo_alt }}
             {%- else -%}
-              {%- comment -%}
-                R197 — dropped the placeholder_svg from the no-image
-                fallback. The svg + name pair was creating a stacked
-                column inside the fixed-height marquee item, and the
-                svg's intrinsic viewBox padding shifted the visual
-                centre off the row's baseline. Brand text alone is a
-                cleaner fallback (matches the Next.js source pattern)
-                and centres exactly inside .kt-brands__item without
-                any extra layout math.
-              {%- endcomment -%}
               {%- if block.settings.alt != blank -%}
                 <span class="kt-brands__placeholder-name">{{ block.settings.alt }}</span>
               {%- endif -%}
@@ -98,18 +73,6 @@
       {%- endfor -%}
     {%- endfor -%}
   </div>
-  {%- comment -%}
-    Visible pause toggle REMOVED per user request — the round control
-    cluttered the partner logo strip. WCAG 2.2.2 mitigation remains:
-      1. `:hover` + `:focus-within` pause the marquee on desktop
-         (kt-section-brands.css `.kt-brands:hover/:focus-within`).
-      2. `prefers-reduced-motion: reduce` disables the animation
-         entirely (`animation: none`).
-    The host keeps `data-marquee-pause-host` / `kt-brands--paused`
-    infrastructure so a future global "pause animations" control can
-    re-enable a toggle without re-emitting it here. Mirrors the same
-    removal already done in gallery-marquee.liquid (R232.69).
-  {%- endcomment -%}
   {%- endif -%}
 </section>
 

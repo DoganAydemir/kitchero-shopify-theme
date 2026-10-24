@@ -8,7 +8,6 @@
      read like a missing-margin bug. 1.5rem (24px) is the standard
      page-gutter that matches `page-width` elsewhere in the theme. */
   padding: 10rem 1.5rem 8rem;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back so the default look stays. */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   text-align: center;
@@ -25,7 +24,6 @@
   margin: 0 auto;
 }
 
-/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 .kt-newsletter-page__label {
   font-size: 0.75rem;
   font-weight: 700;
@@ -78,34 +76,9 @@
 
 .kt-newsletter-page__input {
   flex: 1;
-  /* R268 — was `padding: 1rem 1.25rem` (16px / 20px). User
-     reported the newsletter input "kaba" (heavy/crude) next to
-     the rest of the editorial chrome. Drop to 12px / 16px so
-     the input lands at the same baseline as the global
-     `.field__input` shell after the R268 refresh. */
   padding: 0.75rem 1rem;
-  /* R268 — was `border: 1px solid var(--kt-stone-500)` (#78716c
-     ≈ medium-dark grey, ~3.74:1 on white). At 3.74:1 the border
-     cleared WCAG 1.4.11 but visually read as a dark hairline
-     that competed with typed text. Drop to `rgba(0,0,0,0.18)`
-     (≈1.6:1 against white) which is OUTSIDE the WCAG 3:1
-     threshold for UI components — to compensate, the `:focus`
-     state below keeps a stone-900 1px box-shadow ring AND the
-     placeholder text contrast is already AA at 0.65 alpha (see
-     base.css). Newsletter subscription is a low-stakes input
-     (single email field, no destructive action) so the
-     downgraded resting-state contrast is acceptable in exchange
-     for the visual polish merchants asked for. */
   border: 1px solid rgba(var(--kt-c-fg, 0 0 0), 0.18);
-  /* R-newsletter-input-pill — Was border-radius: 0 (sharp
-     rectangle). Aligned with Kitchero pill-button convention
-     used across banner-hero, banner-minimal, banner-split,
-     brands, deals-grid, cookie-banner, customer-account,
-     financing-cta — all 9999px. The input + submit button sit
-     in the same row; both pills keeps the row coherent and
-     matches the design language. */
   border-radius: 9999px;
-  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: rgb(var(--kt-c-fg, 28 25 23));
   background: rgb(var(--kt-c-bg, 255 255 255));
@@ -132,10 +105,7 @@
   background-color: rgb(var(--kt-c-action, 28 25 23));
   color: rgb(var(--kt-c-action-text, 255 255 255));
   border: none;
-  /* R-newsletter-btn-pill — Same rationale as input above:
-     match the pill convention used theme-wide. */
   border-radius: 9999px;
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -153,13 +123,6 @@
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
-/* R-newsletter-note-link — Privacy-policy anchor inside the
-   note line was inheriting the browser's default link blue
-   because no scoped rule overrode it. Pin to the scheme fg
-   (slightly muted so the link reads as inline emphasis rather
-   than a CTA), keep underline + 3px offset for hit-target +
-   accessibility (WCAG anchor recognisability). Hover bumps to
-   full fg for the affordance. */
 .kt-newsletter-page__note-link {
   color: rgba(var(--kt-c-fg, 28 25 23), 0.85);
   text-decoration: underline;
@@ -199,10 +162,6 @@
   text-align: center;
 }
 
-/* R122 — GDPR consent checkbox row.
-   Inline with the Subscribe button on desktop, stacks above on mobile.
-   Checkbox 18×18 (WCAG 2.5.5 — touch target via the surrounding label
-   click-area which is full-width). */
 .kt-newsletter-page__consent {
   /* Margin removed — the parent .kt-newsletter-page__form is now
      a column flex with `gap: 1rem`, so vertical spacing between

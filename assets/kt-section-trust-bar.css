@@ -1,42 +1,19 @@
-/* ============================================================
-   Trust Bar Section — Kitchero Theme
-   Ported from TrustBar.tsx — Animated stat counters
-   ============================================================ */
 
 .kt-trust-bar {
   padding: 6rem 0;
-  /* R232.47 — Scheme-aware. `var(--kt-stone-100)` was hardcoded so
-     the section ignored color_scheme. Falls back to stone-100
-     (245 245 244) when no scheme is active. */
   background-color: rgb(var(--kt-c-bg, 245 245 244));
   overflow: hidden;
   color: rgb(var(--kt-c-fg, 28 25 23));
-  /* R232.50 — scheme-aware hairline border */
   border-top: 1px solid rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 
-/* Editor-only hint shown when all stats are empty (request.design_mode
-   gate in trust-bar.liquid). Replaces a hardcoded inline color the
-   reviewer would flag — the token-based color tracks the merchant's
-   active color scheme. */
 .kt-trust-bar__editor-hint {
   text-align: center;
   padding: 1rem;
   font-size: 0.875rem;
-  /* R232.50 — scheme-aware muted text */
   color: rgba(var(--kt-c-fg, 87 83 78), 0.7);
 }
 
-/* R288 — Was a fixed `grid-template-columns: repeat(4, 1fr)` on
-   desktop. With fewer than 4 blocks the empty tracks consumed
-   their 1fr share and shoved the populated tracks to the start
-   of the row — reporter saw "değer 4 ten az olunca sola dayalı".
-   Switch to flex with `justify-content: center` so the populated
-   tiles always cluster in the middle of the row regardless of
-   block count (1 / 2 / 3 / 4 stats all read as a centred group).
-   Each tile uses a fixed flex-basis with a max-width so all
-   tiles render at the same width, mirroring the original grid
-   geometry when count == 4. */
 .kt-trust-bar__grid {
   display: flex;
   flex-wrap: wrap;
@@ -78,11 +55,6 @@
   gap: 2rem;
   position: relative;
   align-items: flex-start;
-  /* R87 — long uppercase TR/DE labels ("MÜKEMMELLİĞİN YILLARI",
-     "JAHRE DER EXZELLENZ") at 0.15em letter-spacing in the 4-col
-     grid push past the grid track. min-width: 0 lets the flex item
-     shrink below its content size; overflow-wrap on the descendant
-     label allows mid-word break for unbroken compounds. */
   min-width: 0;
 }
 
@@ -111,7 +83,6 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  /* R232.50 — scheme-aware divider */
   background-color: rgba(var(--kt-c-fg, 211 211 211), 0.22);
   transform-origin: top;
 }
@@ -133,11 +104,6 @@
 .kt-trust-bar__value-row {
   display: flex;
   align-items: baseline;
-  /* R287 — Was the implicit 0 gap + a 0.25rem margin-left on
-     the prefix. At the value-row's display size (number 70px,
-     prefix 36-60px) a 4px gap reads as "0Prefix" (no visible
-     separation). Bump to 0.5rem (8px) so the prefix lands as
-     its own glyph after the number with clear breathing room. */
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
@@ -157,20 +123,8 @@
 
 .kt-trust-bar__prefix {
   font-size: 2.25rem;
-  /* R232.50 — scheme-aware eyebrow */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   font-weight: 300;
-  /* R287 — margin removed; the value-row above now uses `gap`
-     which handles spacing in both LTR and RTL automatically.
-     R288 — Explicit `line-height: 1` matches the number's tight
-     line-box. Without it the prefix inherited the body's
-     default ~1.7 line-height; with baseline-aligned flex
-     children, the prefix's larger line-box pushed the row's
-     bounding box past the number's edges, so a block WITH a
-     prefix rendered taller than a block WITHOUT. Reporter saw
-     "+ gibi bir değer rakam yanına girmezsem yükseklik patlıyor".
-     Matching line-heights locks the row height to the number's
-     glyph height regardless of whether the prefix is present. */
   line-height: 1;
 }
 
@@ -185,22 +139,6 @@
   letter-spacing: 0.15em;
   font-weight: 700;
   text-transform: uppercase;
-  /* R288b — Label colour pinned to stone-500 per direct
-     reporter request. Earlier R288 used stone-600 (~6.6:1 on
-     stone-100) to stay above the WCAG AA 4.5:1 floor for normal
-     text; stone-500 lands ~4.4:1 on stone-100 which is just
-     below that floor. The merchant's design preference
-     ("color ını --kt-stone-500 yap") wins here — the label is
-     uppercase + font-weight 700, and at 14px bold WCAG counts
-     "large" text (18pt regular or 14pt bold ≈ 18.66px/14px
-     bold) for the 3:1 floor, which stone-500 clears comfortably
-     (>4:1 on all supported bgs: stone-100, stone-50, white).
-     Note: 14px is at the edge of WCAG's "large" definition
-     (14pt = 18.66px is the conservative cut-off), so reviewers
-     may interpret either way; we accept the slim risk for the
-     requested visual treatment. Hover state lifts to stone-900
-     for the interactive reward. */
-  /* R232.50 — scheme-aware label (resting muted state) */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   margin-top: 1rem;
   transition: color 0.2s ease;
@@ -210,6 +148,5 @@
   /* Hover reveals the label at full chroma — small interactive
      reward that lifts the muted resting state without making
      the resting state any heavier. */
-  /* R232.50 — scheme-aware hover */
   color: rgb(var(--kt-c-fg, 28 25 23));
 }

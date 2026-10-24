@@ -1,39 +1,6 @@
 {{ 'kt-section-cookie-banner.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'cookie-banner.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  Cookie / Privacy Consent Banner — Shopify Customer Privacy API.
-
-  Theme Store hard requirement (post-2024) — themes that target EU/
-  UK/Brazil/California markets must surface a customer-facing
-  consent UI for cookie tracking. Without it, GDPR / UK GDPR /
-  LGPD / CPRA non-compliance is on the merchant's liability sheet,
-  and the Theme Store reviewer flags the gap.
-
-  Implementation contract: this banner ONLY communicates with
-  Shopify's `customerPrivacy` API — NOT a custom cookie or
-  localStorage state. Theme Store explicitly forbids competing
-  consent layers because they confuse Shopify's own analytics +
-  Web Pixels gating. Doc: shopify.dev/api/customer-privacy.
-
-  API surface used:
-    Shopify.loadFeatures(['consent-tracking-api', ...])
-    Shopify.customerPrivacy.setTrackingConsent(true|false, cb)
-    Shopify.customerPrivacy.userTrackingConsent()
-       — returns 'allow' | 'no_interaction' | 'declined'
-    Shopify.customerPrivacy.userCanBeTracked()
-
-  States:
-    1. userTrackingConsent === 'no_interaction' → show banner
-    2. 'allow' or 'declined' → suppress banner (decision made)
-  No localStorage cooldown — Shopify's API IS the source of truth.
-
-  Editor preview: section is hidden in design_mode unless the
-  merchant explicitly clicks the section in the sidebar
-  (shopify:section:select). Otherwise the banner would interfere
-  with editor-side preview clicks.
-{%- endcomment -%}
-
 {%- if section.settings.enabled -%}
   {%- assign cookie_decline_default = 'kt.section.cookie_banner.decline_default' | t -%}
   {%- assign cookie_accept_default = 'kt.section.cookie_banner.accept_default' | t -%}
@@ -75,17 +42,6 @@
         >
           {{- section.settings.decline_label | default: cookie_decline_default | escape -}}
         </button>
-        {%- comment -%}
-          R160 GRANULAR-GDPR-CONSENT: Customize button toggles a
-          per-purpose consent panel (analytics, marketing,
-          preferences, sale_of_data). EU GDPR Art. 7(2) requires
-          consent to be granular per processing purpose — single
-          "Accept all" / "Decline" pair = pre-bundled consent =
-          regulator-flagged ePrivacy violation. Customize panel
-          provides the per-purpose granularity; Accept all and
-          Decline remain as quick paths for customers who don't
-          need granular control.
-        {%- endcomment -%}
         <button
           type="button"
           class="kt-cookie-banner__btn kt-cookie-banner__btn--customize"
@@ -123,22 +79,6 @@
         <fieldset class="kt-cookie-banner__purpose">
           <legend class="visually-hidden">{{ 'kt.cookie_banner.purposes_legend' | t | default: 'Cookie purposes' }}</legend>
 
-          {%- comment -%}
-            R322 GDPR-PRECHECKED-FIX: GDPR Art. 7(2), ePrivacy Directive,
-            CPRA, and LGPD all require consent to be obtained by a clear
-            affirmative action. Pre-checked boxes do NOT constitute valid
-            consent (CJEU Planet49 ruling C-673/17, EDPB Guidelines
-            05/2020). Theme Store reviewers reject themes with pre-
-            checked marketing / analytics / preferences toggles. All
-            four purpose toggles default to unchecked; if the customer
-            opens Customize and clicks "Save preferences" without
-            ticking any, the granular payload writes all-false (correct
-            opt-out). Customers who want full tracking still have the
-            "Accept all" quick path which writes everything-true. The JS
-            still pre-fills checkboxes from the Customer Privacy API
-            getters on re-open so returning users see their actual prior
-            decisions instead of always-false.
-          {%- endcomment -%}
           <label class="kt-cookie-banner__toggle">
             <input
               type="checkbox"

@@ -4,11 +4,6 @@
    Mobile-first, breakpoint at 750px.
 */
 
-/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-white);
-   falls back to 255 255 255 so default look unchanged when scheme
-   variables aren't loaded. The banner-minimal root is the outer
-   padding band; the inner __frame holds the image + dark overlay
-   with its own white text, which is unaffected by this change. */
 .kt-banner-minimal {
   --kt-banner-minimal-overlay-opacity: 0.5;
   --kt-banner-minimal-min-height-mobile: 400px;
@@ -16,9 +11,6 @@
 
   display: block;
   width: 100%;
-  /* R-density — section padding via merchant settings (margin level
-     so it stacks with the existing internal padding rather than
-     replacing it). */
   margin-top: var(--kt-banner-minimal-pad-top, 0);
   margin-bottom: var(--kt-banner-minimal-pad-bottom, 0);
   /* Vertical padding matches the other banner variants (banner-hero /
@@ -74,10 +66,6 @@
 }
 
 .kt-banner-minimal__inner {
-  /* R232.58 — Widened from 36rem → 44rem so longer italic suffixes
-     (which merchants often write as full sentences) wrap to 2 lines
-     instead of 4-5. The "minimal centered" feel stays because the
-     CTA + description still anchor at the centre. */
   max-width: 44rem;
   width: 100%;
 }
@@ -88,27 +76,15 @@
   color: var(--kt-white);
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(2.25rem, 8vw, 2.75rem)));
 
-  /* R232.58 — line-height 1 → 1.12 so multi-line italic doesn't
-     pinch ascenders/descenders together when the merchant types a
-     longer italic phrase. Tight enough to still read as a single
-     editorial line; loose enough to handle 2-3 line wraps without
-     letter shapes colliding. */
   line-height: 1.12;
   letter-spacing: -0.015em;
   text-transform: lowercase;
   margin: 0 0 1rem 0;
-  /* R232.58 — Soft balance so wrapped lines have roughly equal
-     length instead of an orphaned word on the last line. Falls back
-     silently on browsers without `text-wrap: balance` support
-     (Safari < 17.4). */
   text-wrap: balance;
 }
 
 .kt-banner-minimal__heading-italic {
   font-style: italic;
-  /* R232.58 — Slightly tighter italic line-height because italic
-     descenders extend further than upright; pairs with the
-     upright `line-height: 1.12` to keep visual rhythm consistent. */
   display: inline-block;
   line-height: 1.1;
 }

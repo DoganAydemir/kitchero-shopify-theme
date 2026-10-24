@@ -1,26 +1,8 @@
 {{ 'kt-section-why-choose-us-product.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Why Choose Us (product PDP companion) — 6-col feature grid.
-  Birebir from showroom/[id]/page.tsx "Why Choose Us?" section.
-  Each block: icon + title + description.
-{%- endcomment -%}
-
 <section class="kt-why-choose-us-product color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="" data-section-id="{{ section.id }}" data-section-type="why-choose-us-product">
   <div class="page-width">
-    {%- comment -%}
-      R-heading-hierarchy: derive the block's heading tag from the section's
-      chosen heading_tag so the hierarchy never skips a level. The section
-      heading and the block titles must stay exactly one level apart:
-        section h2 → block h3
-        section h3 → block h4
-      Previously the block was hardcoded `<h4>`, which produced an h2 → h4
-      skip whenever a merchant chose the h2 option for the section heading
-      (WCAG 1.3.1 / 2.4.6 fail). When the section heading is blank we still
-      anchor the block tag to one level below the section default so the
-      outline stays stable.
-    {%- endcomment -%}
     {%- assign section_heading_tag = section.settings.heading_tag | default: 'h3' -%}
     {%- if section_heading_tag == 'h2' -%}
       {%- assign block_heading_tag = 'h3' -%}

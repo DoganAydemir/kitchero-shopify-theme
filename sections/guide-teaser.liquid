@@ -2,13 +2,6 @@
 
 {%- assign guide_teaser_heading_default = 'kt.section.guide_teaser.heading_default' | t -%}
 
-{%- comment -%}
-  R116 — hoist the `blogs[handle]` lookup once at the
-  section root. Previously fired twice (header CTA + grid
-  data resolution), each triggering a blog object hydration.
-  Single assign reuses the resolved object across both
-  branches.
-{%- endcomment -%}
 {%- assign blog_obj = nil -%}
 {%- if section.settings.blog != blank -%}
   {%- assign blog_obj = blogs[section.settings.blog] -%}
@@ -19,22 +12,6 @@
 {%- endif -%}
 {%- assign article_blocks = section.blocks | where: 'type', 'article' -%}
 
-{%- comment -%}
-  R-fresh-install-v2 — REVERTED the live-hide gate. CLAUDE.md
-  "Empty States (Placeholders)" rule mandates `Never leave a
-  blank or broken space when an image is missing` and the
-  Shopify SVG placeholder fallback pattern. Hiding the
-  whole section on live for fresh installs violated that
-  spirit (the section's footprint went blank entirely).
-
-  Correct approach mirrors the image-placeholder rule at
-  the section level: ALWAYS render the section, fill empty
-  state with Shopify SVG placeholders + onboarding-style
-  text that's clearly merchant-directional, not generic
-  "Article title goes here" filler. This is the pattern
-  Skeleton (and Dawn before the rule split) uses and the
-  one Theme Store reviewers expect on first install.
-{%- endcomment -%}
 <section class="kt-guide-teaser color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
   <div class="page-width">
@@ -46,16 +23,6 @@
         {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
         <{{ heading_tag }} class="kt-guide-teaser__title">{{ section.settings.heading | default: guide_teaser_heading_default }}</{{ heading_tag }}>
       </div>
-      {%- comment -%}
-        R204 — "View All Journals" CTA was previously gated entirely
-        on `blog_obj` resolving. With no blog selected (the
-        fresh-install demo state), the button vanished even though
-        the original Next.js source always shows it next to the
-        heading. Two-tier resolution now: merchant's explicit URL
-        setting wins, blog page is the natural fallback. If neither
-        is set the button stays hidden so we don't render a dead
-        link.
-      {%- endcomment -%}
       {%- assign view_all_url = section.settings.view_all_link -%}
       {%- if view_all_url == blank and blog_obj -%}
         {%- assign view_all_url = blog_obj.url -%}
@@ -124,29 +91,6 @@
         {%- comment -%} No live articles — use merchant-configured blocks {%- endcomment -%}
         {%- for block in article_blocks -%}
           {%- if block.type == 'article' -%}
-            {%- comment -%}
-              R165 GUIDE-TEASER-HTML-BALANCE-1: previously the
-              wrapper opener (`<a>` vs `<div>`) and closer (`</a>`
-              vs `</div>`) were each split across separate
-              `{%- if -%}` blocks. While Liquid renders balanced
-              markup at runtime, static HTML analyzers (Theme
-              Check, axe pre-render, manual code review) flag the
-              opener-without-matching-closer in source — and a
-              reviewer reading source sees the unmatched tag pair
-              as a Theme Store A11Y-6 ("valid HTML") concern.
-
-              Capture the inner card markup once, then emit it
-              inside a fully-balanced `<a>` block OR a fully-
-              balanced `<div>` block. Each branch is now a single
-              opener + closer pair that any static analyzer reads
-              as valid. Behaviour identical: linked cards still
-              render as `<a>`, unlinked still render as `<div>`.
-
-              R162 EMPTY-HREF-1 rationale preserved: when the
-              merchant hasn't linked the article yet, render the
-              card as a non-clickable `<div>` for layout preview
-              instead of `<a href="#">`.
-            {%- endcomment -%}
             {%- capture guide_card_inner -%}
               <div class="kt-guide-teaser__card-image-wrap">
                 {%- if block.settings.image != blank -%}
@@ -188,19 +132,6 @@
           {%- endif -%}
         {%- endfor -%}
       {%- else -%}
-        {%- comment -%}
-          R-fresh-install-v2 — Onboarding empty state. Mirrors the
-          CLAUDE.md image-placeholder rule pattern at the section
-          level: Shopify `image` SVG placeholders + onboarding-
-          directional text ("Add your first blog post" / "Connect a
-          blog" via the dedicated kt.section.guide_teaser.empty_*
-          locale keys), NOT generic "Article title goes here"
-          filler that reads as unfinished demo content. Live
-          storefront keeps the section visible — merchant first-
-          install always has something to look at, never a blank
-          stripe; Theme Store reviewer sees clear merchant guidance
-          rather than fake article cards.
-        {%- endcomment -%}
         {%- for i in (1..3) -%}
           <div class="kt-guide-teaser__card kt-guide-teaser__card--placeholder">
             <div class="kt-guide-teaser__card-image-wrap">

@@ -1,16 +1,4 @@
 {{ 'kt-section-predictive-search.css' | asset_url | stylesheet_tag }}
-{%- comment -%}
-  Search Overlay — full-screen search modal.
-  Ported from SearchOverlay.tsx.
-
-  - Form submits to /search (routes.search_url) as a regular GET request
-    so the modal works without JavaScript.
-  - Popular search term pills come from theme setting
-    `settings.kt_search_popular` (comma-separated). When empty, the
-    suggestions row is hidden entirely.
-  - JS (assets/search-overlay.js) handles open/close, body scroll lock,
-    focus trap, Escape-to-close, and pill → input fill.
-{%- endcomment -%}
 
 <div class="kt-search-overlay" id="search-overlay" aria-hidden="true" inert data-search-overlay>
   <div class="kt-search-overlay__backdrop" data-search-close aria-hidden="true"></div>
@@ -62,17 +50,6 @@
             aria-haspopup="listbox"
             data-search-input
           >
-          {%- comment -%}
-            R296 — Type scope is driven by the merchant's "Include in
-            results" theme settings (Theme settings → Search behavior).
-            Previously the value was hardcoded to ALL four types,
-            which meant disabling "Pages" or "Journal articles" in
-            theme settings had no effect — the Enter-key submit still
-            asked Shopify to search across every type. Now we build
-            the scope string from the same toggles that drive the
-            predictive-search overlay, so a merchant who wants a
-            product-only search consistently gets product-only.
-          {%- endcomment -%}
           {%- liquid
             assign overlay_search_types = ''
             if settings.kt_search_inc_products

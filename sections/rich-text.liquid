@@ -56,42 +56,6 @@
               </div>
 
             {%- when 'buttons' -%}
-              {%- comment -%}
-                R286 — CTA rendering policy (matches multicolumn
-                R284 for cross-section consistency).
-
-                Previous (R162) gated each button on URL
-                presence and replaced the missing-URL state
-                with an editor-only hint paragraph. Reporter
-                wanted the styled button to render in all
-                cases so the section layout stays consistent
-                between editor and storefront, accepting the
-                `href="#"` fallback ("link ler bence olmalı
-                user girmese bile"). On the live storefront an
-                empty-URL button now scrolls to top on click;
-                merchants are expected to fill the URL before
-                publishing. Theme Store reviewers may flag the
-                placeholder href, but the trade-off matches
-                the user's explicit preference and keeps the
-                section's CTA UX identical to multicolumn.
-              {%- endcomment -%}
-              {%- comment -%}
-                R296 — Empty-link guard. Only render each `<a>` when
-                BOTH label AND link are set. The earlier `default: '#'`
-                fallback yielded dead anchors that fail WCAG 2.4.4
-                (Link Purpose) and Theme Store rejects.
-              {%- endcomment -%}
-              {%- comment -%}
-                R-rich-text-button-fallback — Same pattern as
-                financing-cta: schema URL settings reject defaults,
-                so existing block instances arrive with empty
-                link strings overriding any "starter" value.
-                Coalesce blank link → sensible storefront URL
-                (button_1 → contact, button_2 → catalog) so the
-                buttons render clickable from a fresh install
-                without a coaching hint. Merchant choice still
-                wins because non-blank URL passes through.
-              {%- endcomment -%}
               {%- assign rt_btn1_href = block.settings.button_link_1 | default: pages['contact'].url -%}
               {%- assign rt_btn2_href = block.settings.button_link_2 | default: routes.collections_url -%}
               <div class="kt-rich-text__buttons" {{ block.shopify_attributes }}>

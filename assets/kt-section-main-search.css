@@ -41,28 +41,12 @@
   letter-spacing: -0.03em;
   color: var(--kt-stone-900);
   margin: 0;
-  /* R106 — H1 interpolates `safe_terms` (escaped search query).
-     A 200-char query like "shoes shoes shoes shoes ..." breaks
-     out of the viewport without word-break. anywhere mode
-     guarantees we never render an unbreakable line. */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 /* ── Form ──────────────────────────────────────────────── */
 
-/* Underline-style search form. User feedback over multiple rounds:
- *   round 1: "kutu, buton vs. çok çirkin" → pill removed
- *   round 2: "search soldaki icon kutuya yapışamaz! ayrık durmalı"
- *            → gap between icon and input
- *            "sağdaki search buton text olmamalı. btn gibi olmalı"
- *            → submit becomes a real filled button again, just sized
- *               proportionally to the form
- *
- * Layout: [magnifier] [── input ────] [SEARCH ▮]
- *  with a small gap between icon and input, and a clearly-shaped
- *  filled-rectangle submit on the right that reads as a button
- *  rather than a text link. */
 .kt-search-page__form {
   position: relative;
   display: flex;
@@ -99,7 +83,6 @@
   background: transparent;
   border: 0;
   font-family: inherit;
-  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   color: var(--kt-stone-900);
   outline: none;
@@ -178,15 +161,6 @@
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* R232.39 — Hover was previously unscoped: when the user hovered
-   the currently-active dark tab (stone-900 bg + white text), this
-   rule flipped `color` to stone-900 → dark text on a dark bg, which
-   looked broken ("Journal hover patlamış. ikisi de dark görünüyor"
-   per user feedback when hovering the Articles/Journal tab while
-   another tab was active). Restrict the inactive hover treatment to
-   non-active tabs and give the active tab its own hover state
-   (slight bg tint shift so the press affordance survives without
-   killing the white label). */
 .kt-search-page__tab:not(.kt-search-page__tab--active):hover {
   color: var(--kt-stone-900);
   border-color: var(--kt-stone-500);
@@ -326,18 +300,6 @@
 
 .kt-search-page__grid {
   display: grid;
-  /* R269 — Mobile: single column. The 2-column mobile grid left
-     each card at ~163px usable width which was narrower than the
-     1.25rem (20px) serif title's break point — "Testimonials"
-     wrapped as "Testi" / "monia" / "ls" (the global break-word
-     rule kicked in once the word didn't fit). Single column gives
-     the card the full content width and the page-result/title
-     renders on one or two whole-word lines as designed.
-
-     Tablet (≥750px): 2 columns — cards have enough room for a
-     line of decent reading width.
-
-     Desktop (≥990px): 3 columns. */
   grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   align-items: stretch;

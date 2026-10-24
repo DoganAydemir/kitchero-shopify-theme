@@ -1,69 +1,10 @@
-{%- comment -%}
-  Product Form — quantity + add to cart + dynamic checkout button.
-  Birebir from source PDP: quantity selector + ATC + share.
-  Uses Shopify {% form 'product' %} with variant ID.
-
-  Accepts:
-  - product:              {Object}  Shopify product
-  - show_dynamic_checkout {Boolean} render the Shop Pay / Buy it now button.
-                                    Defaults to true (Theme Store best practice).
-  - show_quantity         {Boolean} render the quantity stepper.
-                                    Defaults to true. Pass false to hide the
-                                    stepper for layouts where qty=1 is implied
-                                    (showroom buy block, etc).
-                                    R166: snippet still posts qty=1 via a
-                                    hidden input when stepper is hidden so
-                                    the form submit shape stays consistent.
-  - atc_label             {String}  Override the Add-to-cart button label.
-                                    Defaults to `kt.product.add_to_cart` t-key.
-                                    Lets the showroom's "Reserve this item"
-                                    / "Order sample" copy reach the same
-                                    canonical product form.
-  - section:              {Object}  The caller section. Used to suffix DOM
-                                    IDs (e.g. `Quantity-<id>-<section.id>`)
-                                    so the same product rendered through
-                                    BOTH main-product and a featured-product
-                                    block doesn't collide on duplicate IDs.
-                                    R296 — Theme Store WCAG 4.1.1 fix.
-{%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
-{%- comment -%}
-  R296 — Build a unique form-ID suffix. When the caller passes `section`
-  we use `section.id`; otherwise we fall back to `product.id` so callers
-  outside a section context (rare — only the cart upsell snippet) still
-  get a unique form. Suffixed IDs prevent duplicate-ID WCAG 4.1.1 fails
-  when the same snippet renders twice on one page (e.g. PDP + a
-  featured-product block referencing the same product).
-{%- endcomment -%}
 {%- assign pf_uid = product.id -%}
 {%- if section and section.id -%}
   {%- assign pf_uid = product.id | append: '-' | append: section.id -%}
 {%- endif -%}
-{%- comment -%}
-  R232.6 — `id: 'ProductForm-' | append: pf_uid` inline-filter inside
-  the `{% form %}` tag was reading the second comma as a positional
-  arg separator on some Shopify Liquid parser versions, then treating
-  the entire concatenated string as the form-type literal — the
-  storefront raised "Invalid form type" for the section.id-bearing
-  ID on the showroom template (where pf_uid includes the
-  `template--...__main` section id). Pre-computing the id with
-  `assign` keeps the filter chain out of the form-tag kwarg list.
-{%- endcomment -%}
 {%- assign product_form_id = 'ProductForm-' | append: pf_uid -%}
-{%- comment -%}
-  R298 — Dynamic Checkout (Shop Pay / Buy it now / Apple Pay / Google Pay)
-  is now ALWAYS rendered. Shopify's Online Store sales channel +
-  Theme Store submission requirements mandate `{{ form | payment_button }}`
-  inside every `{% form 'product' %}`. A prior session disabled it because
-  the Shop Pay button's closed-shadow-DOM blue palette didn't match the
-  storefront's dark CTA language — but Theme Store reviewers reject themes
-  that omit the accelerated checkout button regardless of palette concerns
-  (merchants disable individual buttons in Settings → Payments if needed).
-  The kwarg name `show_dynamic_checkout` is preserved so legacy callers
-  that pass `false` are honoured for backwards-compat, but it now defaults
-  to `true` for any new caller.
-{%- endcomment -%}
 {%- if show_dynamic_checkout == nil -%}
   {%- assign show_dynamic_checkout = true -%}
 {%- endif -%}
@@ -97,18 +38,6 @@
     <script src="{{ 'gift-card-recipient.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
 
-  {%- comment -%}
-    Selling-plan picker — Shopify Theme Store rule SUB-01 + SUB-03:
-    the `<input name="selling_plan">` MUST live inside the
-    `{% form 'product' %}` block. R86 moved this here from
-    main-product.liquid (which previously rendered it as a sibling
-    BEFORE invoking product-form, leaving the input outside the
-    form scope and breaking native non-JS submission + the JS
-    variant-change → plan-update path). featured-product.liquid
-    has its own form/picker pair already, so this render is gated
-    on the product actually having selling plans (silent no-op
-    otherwise).
-  {%- endcomment -%}
   {%- if product.selling_plan_groups.size > 0 -%}
     {%- render 'product-selling-plans', product: product, current_variant: current_variant, section: section -%}
   {%- endif -%}
@@ -132,14 +61,6 @@
   {%- assign qty_step = current_variant.quantity_rule.increment | default: 1 -%}
   {%- assign qty_max = current_variant.quantity_rule.max -%}
 
-  {%- comment -%}
-    R232.20 — Layout split. Quantity stepper lives in its own row
-    above the buy cluster; Add to Cart + Buy it now form a paired
-    side-by-side CTA on desktop (stacked on mobile). The previous
-    structure parked qty next to ATC and stacked the accelerated
-    checkout below, which read as three disconnected tiers instead
-    of one buy decision.
-  {%- endcomment -%}
   {%- assign safe_product_title = product.title | escape -%}
 
   {%- if show_quantity -%}
@@ -148,21 +69,6 @@
         <button type="button" class="kt-product-form__qty-btn" data-qty-minus aria-label="{{ 'kt.product.quantity.decrease' | t: title: safe_product_title }}">
           <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
-        {%- comment -%}
-          R-PDP6 — `autocomplete="off"` keeps browsers from re-populating
-          the qty with the customer's previous purchase quantity on
-          another product (Chrome's "Last typed value" heuristic for
-          numeric inputs). Without it a B2B shopper who bought 12 of
-          item A and navigates to item B with `step=6` would silently
-          land on `12` and submit — bypassing the step snap until
-          they manually adjust. WHATWG recommends `off` for purely
-          mechanical numeric steppers; semantic counterparts (qty in
-          a saved order template) are the exception.
-
-          The previous `pattern="[0-9]*"` is moot on `type=number`
-          (HTML spec — pattern doesn't apply to non-text types) so
-          it's removed to avoid misleading future maintainers.
-        {%- endcomment -%}
         <input
           type="number"
           name="quantity"
@@ -184,13 +90,6 @@
           {% render 'icon-plus' %}
         </button>
       </div>
-      {%- comment -%}
-        Case-pack / quantity-rule indicator — required by Shopify B2B
-        docs when a variant ships with `quantity_rule.increment > 1`
-        or `min > 1` or a finite `max`. Without a visible message,
-        customers get cryptic 422s from /cart/add and Theme Store
-        reviewers flag opaque B2B UX as a rejection.
-      {%- endcomment -%}
       {%- if qty_step > 1 or qty_min > 1 or qty_max != blank -%}
         <p class="kt-product-form__qty-rule" data-qty-rule role="note">
           {%- if qty_step > 1 -%}
@@ -217,15 +116,6 @@
   {%- assign atc_disabled = false -%}
   {%- unless current_variant.available -%}{%- assign atc_disabled = true -%}{%- endunless -%}
 
-  {%- comment -%}
-    Buy cluster — ATC + dynamic-checkout share this row. The
-    dynamic-checkout container is rendered as the SECOND child here
-    (not below) so the showroom-style paired CTA layout works —
-    `display: flex` on desktop puts them side-by-side; mobile media
-    query stacks them. Pre-order badge + error sentinel still
-    render BELOW this cluster (see further down) since they're
-    status messages, not buy actions.
-  {%- endcomment -%}
   <div class="kt-product-form__buy-row{% if show_dynamic_checkout %} kt-product-form__buy-row--paired{% endif %}">
     <button
       type="submit"
@@ -233,14 +123,6 @@
       {% if atc_disabled %}disabled{% endif %}
       data-add-to-cart
     >
-      {%- comment -%}
-        R232.32 — Optional shopping-bag icon, merchant-toggleable
-        via the "Show icon on Add to cart" theme setting. Inline
-        SVG keeps the icon scheme-aware via `currentColor` and
-        avoids a separate request. Hidden when sold-out (disabled
-        button — `:disabled` selector strips it via CSS) so the
-        icon doesn't compete with the "Sold out" label.
-      {%- endcomment -%}
       {%- if settings.kt_atc_show_icon -%}
         <svg class="kt-product-form__atc-icon" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -250,11 +132,6 @@
       {%- endif -%}
       <span data-add-to-cart-text>
         {%- if current_variant.available -%}
-          {%- comment -%}
-            R166: `atc_label` lets the showroom buy block surface
-            "Reserve this item" / "Order sample" copy through the
-            same canonical form.
-          {%- endcomment -%}
           {%- if atc_label != blank -%}
             {{ atc_label | escape }}
           {%- else -%}
@@ -296,17 +173,6 @@
     inventory and out-of-stock state to avoid false-positive badging
     on products whose merchant doesn't track stock at all.
   {%- endcomment -%}
-  {%- comment -%}
-    R298 — Pre-order badge is now ALWAYS rendered in the DOM with the
-    `hidden` attribute toggled to match the initial variant state. The
-    `[data-preorder]` hook lets `assets/product-form.js`'s `updateVariant`
-    atomically show/hide the badge when the customer switches between
-    in-stock and backorderable-out-of-stock variants. Previously the
-    badge was only emitted when the initial variant happened to be a
-    pre-order — variant change couldn't toggle it on/off because the
-    element didn't exist in the DOM. Same atomic-update bug class the
-    low-stock badge was already fixed for.
-  {%- endcomment -%}
   {%- assign preorder_initial_hidden = true -%}
   {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
     {%- assign preorder_initial_hidden = false -%}
@@ -335,16 +201,6 @@
     JS-off support, JS-toggled on variant change.
   {%- endcomment -%}
   {%- if settings.kt_back_in_stock_enabled -%}
-    {%- comment -%}
-      Render the TRIGGER button here (inside the product form) so it
-      sits visually below the disabled add-to-cart button. The MODAL
-      itself is rendered AFTER `{% endform %}` below — see the
-      render_mode rationale in snippets/back-in-stock.liquid. Putting
-      the modal inside the product form would create a nested-<form>
-      parse error; the HTML5 parser would silently drop the inner
-      `{% form 'contact' %}` tag and the Notify-me submit would post
-      to /cart/add instead of /contact (user-reported regression).
-    {%- endcomment -%}
     {%- render 'back-in-stock',
         product: product,
         variant: current_variant,
@@ -356,12 +212,6 @@
         render_mode: 'trigger'
     -%}
   {%- endif -%}
-
-  {%- comment -%}
-    R232.20 — Dynamic checkout button moved INSIDE the buy-row above
-    so it sits side-by-side with the ATC button (showroom CTA pair
-    pattern). The standalone block here is removed.
-  {%- endcomment -%}
 
   {%- comment -%}
     Shop Pay Installments banner — Theme Store paid mandatory feature

@@ -1,19 +1,3 @@
-/* ============================================================
-   Cart Drawer — Kitchero Theme
-
-   Birebir port of src/components/CartDrawer.tsx from the Next.js
-   source. Uses BRAND palette tokens (--kt-stone-*, --kt-white,
-   --kt-red-*) — NOT scheme tokens (--kt-c-*) — because the Next.js
-   source hardcodes bg-white / text-stone-900 / etc. rather than
-   letting the drawer flip with the active color scheme. A dark
-   scheme would otherwise paint the drawer near-black, which is
-   what was happening on this store's stone-950-ink scheme.
-
-   Animation: slide-in from right via `transform: translateX`,
-   500ms cubic-bezier(0.16, 1, 0.3, 1). Overlay fades via opacity.
-   Element stays in the DOM always (no display: none toggle) so
-   the transform has a state to animate FROM.
-   ============================================================ */
 
 /* ── Root + visibility ──────────────────────────────────── */
 
@@ -48,13 +32,6 @@ html.no-js .kt-cart-drawer {
   background-color: rgba(28, 25, 23, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  /* R113 — cart-drawer sits at drawer-tier + 900 so it wins
-     over other drawers (search, mobile-nav, appointment). The
-     cart is the most important drawer in the commerce flow —
-     a customer adding to cart from inside the search overlay
-     should see the cart drawer paint OVER the search overlay,
-     not behind it. Preserves the previous numerical
-     relationship (1100 + 900 = 2000). */
   z-index: calc(var(--kt-z-drawer) + 900);
   opacity: 0;
   /* Same global-cascade defense as the panel rule above — without
@@ -80,14 +57,7 @@ html.no-js .kt-cart-drawer {
   width: 100%;
   background-color: var(--kt-white);
   color: var(--kt-stone-900);
-  /* R294 — Optional left edge from "Drawers" theme settings.
-     Default 0 thickness → no visible chrome (matches the live
-     storefront's edge-to-edge cart drawer). Merchants who want a
-     subtle divider between the drawer and the page can dial the
-     thickness/opacity up. */
   border-left: var(--kt-drawer-border-w, 0px) solid rgba(var(--kt-c-fg), var(--kt-drawer-border-op, 0));
-  /* R113 — panel sits +100 above the overlay (preserves the
-     2000 → 2100 relationship). */
   z-index: calc(var(--kt-z-drawer) + 1000);
   display: flex;
   flex-direction: column;
@@ -95,26 +65,6 @@ html.no-js .kt-cart-drawer {
   transform: translateX(100%);
   will-change: transform;
   pointer-events: none;
-  /* No `transition` on this rule on purpose. Earlier revisions used
-   * `transition: transform 0.5s ...` and the user reported "pat diye
-   * açıldı" through 20+ debug rounds even with !important + force
-   * reflow + double rAF + inert ordering fixes applied. The exact
-   * cause turned out to be browser transition optimization: when
-   * `transform: translateX(100%) → translateX(0)` is requested in
-   * the same animation frame as ARIA + class attribute changes,
-   * Safari and Chromium both elide the transition (the source and
-   * destination compute too quickly, the engine treats it as a
-   * style-only update). `void offsetWidth` triggers a layout flush
-   * but doesn't force a paint, which is what the transition
-   * scheduler actually waits on.
-   *
-   * CSS @keyframes animations are immune to this elision — the
-   * animation timeline is owned by the animation worklet, not the
-   * style-transition pipeline, so the browser cannot collapse a
-   * "from" → "to" keyframe to an instant assignment. This rule
-   * therefore declares NO transition; the
-   * `.kt-cart-drawer--open .kt-cart-drawer__panel` selector below
-   * applies an `animation` declaration instead. */
 }
 
 @media (min-width: 640px) {
@@ -201,8 +151,6 @@ html.no-js .kt-cart-drawer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* WCAG 2.5.5 — 44×44 min hit target even though the inner SVG
-     stays at 20px per the Next.js source. */
   width: 2.75rem;
   height: 2.75rem;
   min-width: 44px;
@@ -353,9 +301,6 @@ html.no-js .kt-cart-drawer {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* R87 — long unbroken tokens (60-char custom SKU, German
-     compound) escape the line-clamp without word-break. The
-     drawer narrow column makes this especially likely on mobile. */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -537,11 +482,6 @@ html.no-js .kt-cart-drawer {
   height: 2.75rem;
   background-color: var(--kt-stone-50);
   border: 1px solid var(--kt-stone-200);
-  /* R105 — WCAG 1.4.11 (3:1 UI component). stone-400 (#a8a29e)
-     on white was ~2.6:1 — the trash icon was barely visible
-     against the drawer panel. stone-600 (#57534e) ≈ 7.4:1 on
-     white, identifies the icon clearly without competing with
-     the active-state red on hover. */
   color: var(--kt-stone-600);
   cursor: pointer;
   border-radius: 0.25rem;
@@ -586,20 +526,12 @@ html.no-js .kt-cart-drawer {
 }
 
 .kt-cart-drawer__subtotal-value {
-  /* R-cart-numerics — Drop the serif accent family; price figures
-     belong to the body font (sans-serif by default) so they read as
-     functional data, not editorial copy. The "Your Cart" title stays
-     serif as a header treatment. Same rationale applied to
-     `__total-value` and the /cart page summary total below. */
   font-size: 1.0625rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
-/* R-cart-parity — Total row mirrors main-cart.liquid summary styling,
-   slightly more prominent than subtotal (bolder weight, same font
-   family) so the post-discount sum reads as the final figure. */
 .kt-cart-drawer__total {
   display: flex;
   justify-content: space-between;
@@ -615,7 +547,6 @@ html.no-js .kt-cart-drawer {
   font-weight: 600;
 }
 .kt-cart-drawer__total-value {
-  /* R-cart-numerics — sans-serif body font; see subtotal-value note. */
   font-size: 1.1875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -702,19 +633,10 @@ html.no-js .kt-cart-drawer {
   min-width: 0;
   padding: 0.5625rem 0.75rem;
   font: inherit;
-  /* R297 — Was 0.875rem (14px) which is the iOS Safari auto-zoom
-     threshold for form inputs. The viewport jumped + scrolled
-     mid-input when a customer tapped the field. 1rem (16px) keeps
-     the visual scale tight via the lower letter-spacing below
-     while clearing the zoom floor. All other inputs in the theme
-     already use 1rem; this was the only sub-threshold field. */
   font-size: 1rem;
   letter-spacing: 0.02em;
   color: rgb(var(--kt-c-fg));
   background-color: transparent;
-  /* R-wcag-contrast (1.4.11) — 0.2 → 0.45 alpha so the discount-code
-     input boundary clears the 3:1 non-text contrast minimum on the
-     default light scheme. */
   border: 1px solid rgba(var(--kt-c-fg), 0.45);
   border-radius: 6px;
   text-transform: uppercase;
@@ -1072,8 +994,6 @@ button.kt-cart-drawer__continue:focus-visible {
   }
 }
 
-/* ── R122 — Cart drawer recommendations / upsell ─────────────────── */
-
 .kt-cart-drawer__recommendations {
   padding: 1.25rem 1rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -1173,11 +1093,6 @@ button.kt-cart-drawer__continue:focus-visible {
   font-weight: 500;
   color: var(--kt-stone-600);
 }
-
-/* ============================================================
-   R-cart-audit — Terms & conditions checkbox (drawer)
-   Same pattern as `.kt-cart-page__terms`; scoped to the drawer.
-   ============================================================ */
 
 .kt-cart-drawer__terms {
   display: flex;

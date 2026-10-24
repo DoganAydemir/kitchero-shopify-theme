@@ -1,42 +1,10 @@
-/* ============================================================
-   Banner Cover — About "Style 2" hero.
-   Full-bleed cover image with a vertical dark gradient (bottom
-   heavy), centered editorial content block on top. Ported
-   birebir from About page hero in Next.js source:
-     <section h-[60vh] md:h-[70vh] bg-stone-900 overflow-hidden>
-       <img absolute inset-0 w-full h-full object-cover opacity-60>
-       <gradient from-stone-900 via-stone-900/40 to-transparent>
-       <container centered pt-20>
-         <h1 3xl md:7xl font-serif text-white>
-         <p stone-300 base md:xl>
-   ============================================================ */
 
-/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-stone-900) /
-   var(--kt-white); falls back so default look unchanged. Fallback values
-   match the previous hardcode (28 25 23 = stone-900 bg, 255 255 255 = white
-   text) so when the scheme variables aren't loaded the dark-hero look
-   reproduces exactly. Inline gradient + image still render on top so the
-   visible surface stays the editorial dark hero unless the merchant
-   explicitly picks a light scheme for this section. */
 .kt-banner-cover {
   position: relative;
   width: 100%;
   min-height: var(--kt-banner-cover-min-height-mobile, 480px);
-  /* R-density — section padding via merchant settings (default 0
-     so the cover remains flush with adjacent sections; merchants
-     who want breathing room set positive values). */
   padding-top: var(--kt-banner-cover-pad-top, 0);
   padding-bottom: var(--kt-banner-cover-pad-bottom, 0);
-  /* R-bc-dark-backdrop — Backdrop pinned to a fixed dark stone, NOT
-     the scheme's `--kt-c-bg`. banner-cover is an editorial DARK hero:
-     the image renders at reduced opacity (see __image below) so the
-     backdrop colour shows through as the photo's tint. When this was
-     wired to `--kt-c-bg`, a page on a LIGHT colour scheme (e.g. the
-     About page) gave a near-white backdrop, so the photo composited
-     over white and read as a washed-out "light grey veil" instead of
-     the intended rich dark tone. The heading / eyebrow / desc are all
-     hardcoded light, so this hero only ever works on a dark backdrop —
-     pinning it keeps the dark tint consistent across every scheme. */
   background-color: var(--kt-stone-900, #1c1917);
   overflow: hidden;
   display: flex;
@@ -68,19 +36,6 @@
   /* Image visibility is a function of overlay: darker overlay = slightly dimmer image */
 }
 
-/* ── Empty-state (no merchant image uploaded yet) ─────────
-   R-bc-placeholder — When the merchant hasn't picked a hero image,
-   the Liquid template emits an empty `<div class="kt-banner-cover__
-   image--placeholder">` and adds `--placeholder` to the section
-   root. We paint a deep stone gradient so:
-     • The white `__title` text clears WCAG AAA contrast (~16:1)
-       instead of failing 1.4.3 on a light-grey Shopify default.
-     • Theme Store reviewers + merchant first-open see a polished
-       surface, not the "bag/shoe/handbag" stroke illustrations of
-       the `lifestyle-1` placeholder SVG.
-   The moment the merchant uploads an image the section root drops
-   `--placeholder`, the `.kt-banner-cover__image` rule above takes
-   over (object-fit cover), and these rules never apply. */
 .kt-banner-cover__image--placeholder {
   /* Opacity calc inherited from the base image rule was tuned for a
      photo with dim overlay; the gradient is already final-tinted, so
@@ -91,22 +46,10 @@
     radial-gradient(120% 80% at 50% 0%, rgba(68, 64, 60, 0.65) 0%, rgba(28, 25, 23, 0) 60%),
     linear-gradient(180deg, var(--kt-stone-900, #1c1917) 0%, var(--kt-stone-950, #0c0a09) 100%);
   background-color: var(--kt-stone-900, #1c1917);
-  /* R-bc-placeholder-svg — Container for Shopify's lifestyle-1
-     placeholder SVG. The SVG sits on top of the gradient stack
-     above; positioning + sizing so it fills the section and
-     reads as a soft silhouette behind the heading content. */
   position: relative;
   overflow: hidden;
 }
 
-/* R-bc-placeholder-svg-v3 — Same scheme-injection issue as the
-   __desc rule below: `rgba(var(--kt-c-fg), 0.18)` rendered
-   invisible because the token didn't resolve on this section's
-   design-mode preview. Switching to a hardcoded white channel
-   (backdrop is always dark — gradient stone-900→stone-950 or
-   merchant photo with dark overlay). 0.22 alpha lands the
-   silhouette as a soft ambient texture — visible without
-   competing with the heading + eyebrow + desc on top. */
 .kt-banner-cover__image--placeholder .placeholder-svg {
   position: absolute;
   inset: 0;
@@ -187,13 +130,6 @@
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.625;
-  /* R-banner-cover-desc-muted-v4 — 0.78 alpha read too close
-     to pure white against the heading; user wanted a noticeably
-     "broken white" muted tone. Stepped down to 0.6 alpha — lands
-     ~5:1 on stone-900 (above the WCAG 4.5:1 body bar) but the
-     visual gap vs the 100% heading widens enough that the desc
-     clearly sits in a supporting tier. Stays hardcoded white
-     (scheme-coherence not needed — backdrop is always dark). */
   color: rgba(255, 255, 255, 0.6);
   max-width: 42rem;
   margin: 0 auto;

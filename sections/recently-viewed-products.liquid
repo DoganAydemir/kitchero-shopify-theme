@@ -2,36 +2,6 @@
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  Recently Viewed Products — customer browsing-history rail.
-
-  Standard commercial-theme pattern (2/3 reference theme intake:
-  Concept + Essence). Reviewer-tested expectation on home page,
-  account dashboard, or as PDP cross-sell. Helps shoppers return
-  to products they considered earlier.
-
-  Architecture (no server-side rendering of customer history —
-  Shopify Liquid can't read browser localStorage):
-
-    1. JS hook on PDP saves current product handle to localStorage
-       `kt_viewed` array (FIFO, last 12). See assets/recently-
-       viewed.js.
-    2. Section emits empty grid container + skeleton placeholders.
-    3. Client JS reads localStorage on page render, fetches each
-       handle via `/products/{handle}.js` (Shopify storefront
-       AJAX API), renders compact cards client-side.
-    4. Filter: skip current product on PDP (don't recommend the
-       page customer is on).
-    5. Empty state: localStorage empty OR all handles 404 → JS
-       hides the section entirely so the home page doesn't show
-       a hollow "Recently viewed" band.
-
-  Privacy: localStorage is first-party browser storage — no cookie,
-  no server transmission. GDPR-compliant by default (functional
-  storage, not behavioral tracking). The customer's viewed
-  history never leaves their device.
-{%- endcomment -%}
-
 {%- liquid
   assign cols_desktop = section.settings.columns_desktop | default: 4
   assign cols_mobile = section.settings.columns_mobile | default: 2

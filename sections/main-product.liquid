@@ -20,35 +20,11 @@
   {{ 'kt-back-in-stock.css' | asset_url | stylesheet_tag }}
 {%- endif -%}
 
-{%- comment -%}
-  R141 (final audit) — was a `media="print" onload="this.media='all'"`
-  async-stylesheet swap. The inline `onload` JS attribute is a Theme
-  Store instant-reject signal (CSP-incompatible) — theme.liquid's
-  own comment already documents that this exact anti-pattern was
-  removed elsewhere because "the onload handler didn't fire reliably
-  across CSP / extension combos." Replaced with Shopify's native
-  `stylesheet_tag` filter so the CSS loads eagerly without inline
-  JS. The accordion CSS is small (~10KB) and the LCP cost is
-  negligible compared to the reject risk.
-{%- endcomment -%}
 {{ 'kt-product-accordion.css' | asset_url | stylesheet_tag }}
 
 {%- assign main_product_countdown_label_default = 'kt.product.countdown.limited_time' | t -%}
 {%- assign main_product_sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
 {%- assign main_product_add_sample_default = 'kt.section.product_showroom.add_sample_default' | t -%}
-
-{%- comment -%}
-  Main Product — E-commerce PDP.
-  Ported from product/[id]/page.tsx but refactored so every element in
-  the info column is a merchant-editable block. The order of blocks in
-  the theme editor drives the order on the page; merchants can add,
-  remove, and rearrange title, price, meta, countdown, description,
-  variant picker, buy buttons, trust-badge group, sample-order box
-  (from showroom), and accordions.
-
-  Left column (58%): fixed gallery (not block-driven; always visible).
-  Right column (42%): sticky info pane built entirely from blocks.
-{%- endcomment -%}
 
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 
@@ -76,29 +52,10 @@
       <div class="kt-pdp__info-col">
         <div class="kt-pdp__info-sticky" data-kt-pdp-anim-group>
 
-          {%- comment -%}
-            Breadcrumb moved out — see the kt-pdp top of section, above
-            the gallery + info layout. Keeping it inside the sticky info
-            column (where it lived before) tucked it into a narrow
-            right-rail context where shoppers couldn't see it as a
-            navigation aid. The user reported "no breadcrumb on PDP"
-            for that reason. The theme-global `settings.kt_show_breadcrumbs`
-            gates visibility; merchants who want a quieter PDP turn it off
-            in Theme settings → Layout.
-          {%- endcomment -%}
-
           {%- for block in section.blocks -%}
             {%- case block.type -%}
 
               {%- when 'title' -%}
-                {%- comment -%}
-                  R295 — PDP MUST emit a single <h1> for SEO +
-                  WCAG 2.4.6. Hardcoded; the earlier R146 schema
-                  option that let merchants downgrade to <h2> was
-                  removed because a downgraded PDP heading is an
-                  instant Theme Store reject and a sitewide SEO
-                  regression.
-                {%- endcomment -%}
                 <h1 class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
                 {%- comment -%}
                   Variant SKU rendered for B2B / wholesale shoppers and
@@ -154,18 +111,6 @@
                   endif
                 -%}
                 {%- if deal_ends_at == blank and request.design_mode -%}
-                  {%- comment -%}
-                    Editor-only hint when the merchant has added the
-                    countdown block but the product is missing the
-                    `custom.deal_ends_at` metafield (which the timer
-                    needs to render). Without this the block silently
-                    disappears in the editor and the merchant can't
-                    tell whether they configured it incorrectly or
-                    whether it's hidden behind another panel — Theme
-                    Store reviewers flag this as broken UX. Live
-                    storefront still renders nothing when the
-                    metafield is blank (no urgency clutter).
-                  {%- endcomment -%}
                   <div class="kt-pdp__countdown-block kt-pdp__countdown-block--placeholder" {{ block.shopify_attributes }}>
                     <p class="kt-pdp__details-hint">{{ 'kt.product.countdown.editor_hint' | t }}</p>
                   </div>
@@ -188,16 +133,6 @@
                         data-ends-at="{{ deal_ends_at | date: '%Y-%m-%dT%H:%M:%S%z' }}"
                         aria-label="{{ block.settings.label | default: main_product_countdown_label_default | escape }}"
                       >
-                        {%- comment -%}
-                          R-PDP5 — Short unit labels routed through
-                          locale strings so FR/DE/TR/ES shoppers get
-                          their own initials (G for Gün, J for Jour,
-                          T for Tag, etc.) instead of the EN D/H/M/S.
-                          The CSS rule limits visual width to ~1ch so
-                          single-character locales render identically;
-                          multi-character locales degrade gracefully
-                          (the label wraps within the unit's flex cell).
-                        {%- endcomment -%}
                         <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-days>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.days_short' | t }}</span></div>
                         <span class="kt-pdp__countdown-colon">:</span>
                         <div class="kt-pdp__countdown-unit"><span class="kt-pdp__countdown-num" data-countdown-hours>00</span><span class="kt-pdp__countdown-key">{{ 'kt.product.countdown.hours_short' | t }}</span></div>
@@ -225,40 +160,7 @@
 
               {%- when 'description' -%}
                 {%- if product.description != blank -%}
-                  {%- comment -%}
-                    `rte` class is critical for Theme Store: "All
-                    RTE-generated content must be consistent across
-                    templates" (h1-h6, blockquote, ul/ol, links). Without
-                    it, the product description here renders with the
-                    section's bare typography while the same RTE content
-                    on main-article (article.content) and main-page
-                    (page.content) gets the unified .rte cascade — a
-                    cross-template typography inconsistency that
-                    reviewers flag explicitly. Skip the class on the
-                    truncated branch because strip_html removes the rich
-                    markup, leaving plain text where the cascade adds
-                    nothing visible.
-                  {%- endcomment -%}
                   {%- if block.settings.truncate -%}
-                    {%- comment -%}
-                      R87 — `truncatewords: block.settings.word_limit
-                      | default: 40` parses as the `default` filter
-                      operating on the (already-truncated) string,
-                      not on `word_limit`. If the merchant clears
-                      the word_limit setting, `truncatewords: nil`
-                      raises a Liquid error or silently returns the
-                      whole description. Pre-assign a safe local
-                      so `default` lands on the variable.
-
-                      Read-more / Read-less toggle: only renders the
-                      toggle button when the actual word count
-                      exceeds the limit (so a 30-word description
-                      with a 40-word limit doesn't show a useless
-                      "Read more" that points at the same content).
-                      Full description ships in a sibling node with
-                      `hidden`; vanilla JS in kt-desc-truncate.js
-                      swaps which one is visible.
-                    {%- endcomment -%}
                     {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
                     {%- assign desc_stripped = product.description | strip_html -%}
                     {%- assign desc_word_count = desc_stripped | split: ' ' | size -%}
@@ -299,25 +201,6 @@
 
               {%- when 'buy_buttons' -%}
                 <div {{ block.shopify_attributes }}>
-                  {%- comment -%}
-                    Selling-plan picker is rendered INSIDE
-                    snippets/product-form.liquid (R86 fix —
-                    SUB-01 / SUB-03 require the `name="selling_plan"`
-                    input to live inside `{% form 'product' %}`).
-                    Previously the picker was a sibling render here
-                    BEFORE product-form, which placed the input
-                    outside the form and silently dropped
-                    selling_plan from the cart payload on non-JS
-                    submission + broke the JS plan-change handler
-                    (its `closest('[data-product-form]')` returned
-                    null because the wrapper hadn't opened yet).
-                  {%- endcomment -%}
-                  {%- comment -%}
-                    R298 — `show_dynamic_checkout` no longer passed false;
-                    Theme Store mandates the accelerated checkout button
-                    inside every `{% form 'product' %}`. Defaults to true
-                    in the snippet.
-                  {%- endcomment -%}
                   {%- render 'product-form', product: product, section: section -%}
                   {%- comment -%}
                     Pickup availability — rendered directly beneath the
@@ -333,19 +216,6 @@
                 </div>
 
               {%- when 'trust_badges' -%}
-                {%- comment -%}
-                  R-PDP6 — Semantic list markup. The badges are a
-                  list of guarantee/policy claims; screen readers
-                  benefit from a `<ul role="list">` container so AT
-                  users hear "list, 4 items" before walking the
-                  badges (some browsers' AT integration drops the
-                  implicit list role when `list-style: none` is
-                  applied via CSS — `role="list"` re-asserts it).
-                  Each badge becomes an `<li>` instead of a
-                  generic `<div>`; the SVG keeps `aria-hidden` +
-                  `focusable="false"` because the adjacent text
-                  label is the canonical accessible name.
-                {%- endcomment -%}
                 <ul class="kt-pdp__trust-badges" role="list" {{ block.shopify_attributes }}>
                   {%- for i in (1..4) -%}
                     {%- assign icon_key = 'badge_' | append: i | append: '_icon' -%}
@@ -411,19 +281,6 @@
                     </div>
                     <div class="kt-pdp__door-sample-body">
                       <div class="kt-pdp__door-sample-info">
-                        {%- comment -%}
-                          R-PDP4 M5 — Demote sample-product title to
-                          h3. The PDP's primary heading is the product
-                          <h1> (title block); section-level headings
-                          (related-products, why-choose-us, concierge)
-                          sit at <h2>. The door-sample product is a
-                          contextually subordinate offering — a low-
-                          cost preview of the main product — and
-                          shouldn't compete with the section-level
-                          outline. <h3> reflects the actual semantic
-                          depth and keeps screen-reader heading
-                          navigation predictable.
-                        {%- endcomment -%}
                         <h3 class="kt-pdp__door-sample-name">{{ sample_product.title | escape }}</h3>
                         <div class="kt-pdp__door-sample-price">
                           <span>{{ sample_variant.price | money }}</span>
@@ -489,49 +346,11 @@
                 {%- render 'pdp-complementary-products', block: block, product: product -%}
 
               {%- when 'payment_icons' -%}
-                {%- comment -%}
-                  R120 — Payment-method icons block. Surfaces the
-                  payment providers the merchant has enabled in
-                  Shopify Payments / Stripe / etc. so shoppers see
-                  trust signals (Visa, Mastercard, PayPal, Apple Pay)
-                  next to the buy button.
-
-                  `shop.enabled_payment_types` returns an array of
-                  Shopify-emitted strings like 'visa', 'master',
-                  'american_express', 'paypal', 'shopify_pay',
-                  'apple_pay', 'google_pay'. The
-                  `payment_type_svg_tag` filter outputs the
-                  corresponding official SVG with proper a11y
-                  attributes — no manual icon library needed and
-                  the visuals stay current as Shopify adds providers.
-
-                  When the merchant has zero enabled payment types
-                  (rare — devstores during initial setup), the loop
-                  renders nothing and the block is silently empty.
-                  In design_mode we surface an editor hint so the
-                  merchant knows what to configure.
-                {%- endcomment -%}
                 <div class="kt-pdp__payment-icons" {{ block.shopify_attributes }}>
                   {%- if block.settings.heading != blank -%}
                     <p class="kt-pdp__payment-icons-heading">{{ block.settings.heading | escape }}</p>
                   {%- endif -%}
                   {%- if shop.enabled_payment_types.size > 0 -%}
-                    {%- comment -%}
-                      R-PDP6 — Each `<li>` carries a `visually-hidden`
-                      label naming the payment method. Shopify's
-                      `payment_type_svg_tag` filter injects a `<title>`
-                      inside the SVG (accessible name) but several
-                      payment-type SVG bundles ship with an empty
-                      `<title>` element on certain Shopify versions —
-                      AT then reads the icon as "image" with no label.
-                      Adding an external visually-hidden span guarantees
-                      every method has an accessible name regardless of
-                      Shopify filter behavior across versions. The type
-                      string ("shopify_pay" / "amazon" / "google_pay")
-                      is humanized via `replace: '_', ' ' | capitalize`
-                      so SR users hear "Shopify pay" rather than
-                      "shopify_pay".
-                    {%- endcomment -%}
                     <ul class="kt-pdp__payment-icons-list" role="list" aria-label="{{ 'kt.product.payment_icons.aria_label' | t | default: 'Accepted payment methods' }}">
                       {%- for type in shop.enabled_payment_types -%}
                         <li class="kt-pdp__payment-icon">
@@ -548,25 +367,6 @@
                 </div>
 
               {%- when 'metafield' -%}
-                {%- comment -%}
-                  R156 PDP-METAFIELD-BLOCK-1: surface arbitrary
-                  product metafields without code edits. Theme Store
-                  paid-tier expects merchants to render Material /
-                  Dimensions / Care Instructions / Country of Origin
-                  / Sustainability Notes etc. as info rows on the PDP
-                  via a configurable block. Block accepts namespace
-                  + key + visible label; reads
-                  `product.metafields[ns][key]`. Renders only when
-                  the metafield exists AND is non-blank — silent on
-                  fresh installs without configuration.
-
-                  Type-aware rendering via `metafield_tag`-like
-                  fallback: pages/products/collections/files become
-                  links via Shopify's auto-coercion of reference
-                  metafields; rich_text / single_line_text /
-                  multi_line_text render as text. The .value
-                  accessor handles type-coercion for native types.
-                {%- endcomment -%}
                 {%- assign mf_ns = block.settings.namespace | default: 'custom' -%}
                 {%- assign mf_key = block.settings.key -%}
                 {%- if mf_ns != blank and mf_key != blank -%}
@@ -578,19 +378,6 @@
                         <p class="kt-pdp__metafield-label">{{ block.settings.label | escape }}</p>
                       {%- endif -%}
                       <div class="kt-pdp__metafield-value">
-                        {%- comment -%}
-                          R18-F (security): `{{ metafield }}` outputs text-type
-                          metafield values RAW — Shopify Liquid does not
-                          auto-escape strings, so a merchant with admin
-                          access could inject `<script>` into a
-                          single_line_text_field and execute it on every
-                          PDP. `| metafield_tag` is Shopify's type-aware
-                          safe renderer: text fields render escaped inside
-                          a wrapping element, rich_text renders sanitized
-                          HTML, references and image metafields render the
-                          appropriate semantic element. Same plumbing
-                          across both main-product and main-product-showroom.
-                        {%- endcomment -%}
                         {{- mf_object | metafield_tag -}}
                       </div>
                     </div>
@@ -611,16 +398,6 @@
                 {%- endif -%}
 
               {%- when 'specifications' -%}
-                {%- comment -%}
-                  R-pdp-completeness — Multi-row specifications table.
-                  5 label+value pairs; each value supports dynamic
-                  sources so the merchant can connect it to any
-                  product metafield via the editor's link icon
-                  (e.g. Snowboard length → custom.snowboard_length).
-                  Rows with blank label or value self-suppress.
-                  Editor hint surfaces when nothing is configured
-                  (design_mode only) so the merchant sees what to do.
-                {%- endcomment -%}
                 {%- liquid
                   assign spec_any = false
                   for i in (1..5)
@@ -722,11 +499,6 @@
                 </div>
 
               {%- when '@app' -%}
-                {%- comment -%}
-                  R87 — wrap in shopify_attributes div so theme
-                  editor can highlight + scroll-to the app block
-                  on merchant click.
-                {%- endcomment -%}
                 <div class="kt-pdp__app-block" {{ block.shopify_attributes }}>
                   {%- render block -%}
                 </div>
@@ -802,12 +574,6 @@
   </div>
 </section>
 
-{%- comment -%}
-  Sticky add-to-cart bar (R135 / CR-B). Rendered outside the section
-  wrapper so it can position fixed-bottom across the entire viewport
-  without being clipped by section padding. The snippet itself gates
-  on `section.settings.show_sticky_atc` and product availability.
-{%- endcomment -%}
 {%- render 'product-sticky-bar', product: product, section: section -%}
 
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
@@ -820,27 +586,6 @@
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product-tabs.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  R285 — Recently-viewed tracker. The script is ALSO loaded by
-  sections/recently-viewed-products.liquid (for the render
-  branch — Phase 2). On its own it loaded ONLY on pages that
-  carry the Recently Viewed rail, which meant the Phase 1
-  tracker never ran when the merchant placed the rail on a
-  home / collection / journal page but the customer was
-  browsing PDPs without the rail. localStorage stayed empty
-  and the rail had nothing to render even after dozens of
-  product views.
-
-  Loading it here AS WELL is safe — the script self-installs a
-  `window.__kitcheroRecentlyViewedLoaded` guard at the top, so
-  a second load (when both a PDP AND the rail are on the same
-  page, or when the storefront uses both templates with the
-  rail) is a no-op. The defer attribute means it never blocks
-  paint. Tracker runs on DOMContentLoaded, reads the handle
-  from `window.location.pathname`, and pushes it onto the
-  `kt_viewed` array in localStorage. Subsequent visits to a
-  page with the rail then have data to render.
-{%- endcomment -%}
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
 {%- comment -%}
   Selling-plan picker JS only emits when the product actually has

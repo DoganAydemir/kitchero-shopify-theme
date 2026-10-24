@@ -105,10 +105,6 @@
   color: rgb(var(--kt-c-fg-muted));
 }
 
-/* R91 — `--button` variant resets <button> default chrome so the
-   logout POST submit (now wrapped in {% form 'logout' %}) renders
-   identically to the previous <a> link. text-align matches the
-   sibling nav <a>s; cursor:pointer signals interactivity. */
 .kt-account__nav-link--button {
   background: transparent;
   border: 0;
@@ -204,20 +200,6 @@
   border-radius: 9999px;
 }
 
-/* Status pills — CLR-1 (R86) regression fix: previous rgba()
-   backgrounds composited with the scheme-bound page bg meaning the
-   effective contrast varied by merchant color scheme. Switched to
-   SOLID light backgrounds (status hue at high luminance) paired with
-   a dark text from the same hue. The pill is now a self-contained
-   contrast region that delivers ≥ 6.5:1 regardless of the parent
-   scheme — light scheme: lifted from page bg; dark scheme: stands
-   out as a bright status badge. Hue families match the original
-   intent (green=paid, amber=pending, red=refunded). */
-/* R112 — status pill colors moved to semantic tokens
-   (--kt-c-status-*-bg/fg in kt-css-variables.liquid) so
-   merchants can rebrand pill states via Custom CSS without
-   forking the section file. Bare hex literals previously
-   blocked override without !important. */
 .kt-account__pill--paid,
 .kt-account__pill--fulfilled {
   background: var(--kt-c-status-paid-bg);
@@ -238,18 +220,6 @@
   color: var(--kt-c-status-error-fg);
 }
 
-/* R91 — Shopify emits more order statuses than the original 3
-   pill variants covered. Without explicit styles these statuses
-   render with no background / muted color, looking like an
-   "unknown" state. Fold the missing statuses into the closest
-   semantic hue family so the badge stays meaningful:
-   - authorized = pre-paid pending finalization → amber (pending)
-   - partially_paid = mid-payment → amber
-   - expired = lapsed authorization → red (refunded family)
-   - unfulfilled = waiting → amber
-   - restocked = returned to inventory → red
-   Catch-all `.kt-account__pill` rule (line ~180) keeps any future
-   status visible with a default neutral background. */
 .kt-account__pill--authorized,
 .kt-account__pill--partially_paid,
 .kt-account__pill--unfulfilled {
@@ -325,7 +295,6 @@
   padding: 0.9rem 2rem;
   background-color: rgb(var(--kt-c-action));
   color: rgb(var(--kt-c-action-text));
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -408,7 +377,6 @@
   border: 1px solid rgba(var(--kt-c-fg), 0.2);
   color: rgb(var(--kt-c-fg));
   padding: 0.5rem 0.9rem;
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.875rem;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -444,13 +412,6 @@
   display: none;
 }
 
-/* R92 — No-JS escape hatch (Theme Store mandatory: "All sections...
-   should work with JavaScript disabled for basic functionality").
-   The toggle button + [hidden] attribute pattern is JS-only.
-   When JS is disabled (`html.no-js`), reveal every address form
-   and hide the toggle buttons so customers can add/edit addresses
-   via native form submission. The forgot-password modal pattern
-   (kt-section-customer-forms.css:244) uses the same approach. */
 html.no-js .kt-addresses__form[hidden] {
   display: flex;
 }
@@ -660,10 +621,6 @@ html.no-js [data-addresses-cancel-edit] {
   text-align: right;
 }
 
-/* R302 — Strike-through original line price on order receipt when
-   a per-line discount applied at order time. Mirrors the cart-page
-   `.kt-cart-page__item-total-was` treatment so the receipt and the
-   cart UX read consistently. */
 .kt-order__item-price-original {
   display: block;
   font-size: 0.8125rem;
@@ -673,11 +630,6 @@ html.no-js [data-addresses-cancel-edit] {
   margin-bottom: 0.125rem;
 }
 
-/* R302 — Line-level discount allocation list under the line price.
-   Surfaces each discount that affected this specific line so the
-   customer can audit "Spring Sale -$5" / "Buy 2 Get 1 Free -$10"
-   against their order. Theme Store rejects order pages that hide
-   line-level savings. */
 .kt-order__item-discounts {
   list-style: none;
   margin: 0.375rem 0 0;
@@ -700,10 +652,6 @@ html.no-js [data-addresses-cancel-edit] {
   align-self: start;
 }
 
-/* R110 — the totals `<dl>` is wrapped in this aside. Browsers
-   give `<dl>` and `<dd>` default margins (UA stylesheet); zero
-   them so the visual layout matches the previous span-based
-   markup exactly. */
 .kt-order__totals-list {
   margin: 0;
 }
@@ -804,11 +752,6 @@ html.no-js [data-addresses-cancel-edit] {
   margin: 0 0 2.5rem;
 }
 
-/* R281b — Password-message wrapper carries the `rte` companion class
-   so `.rte p { color: rgb(var(--kt-c-fg)) }` from base.css pins the
-   inner `<p>` to full-strength foreground, breaking the wrapper-level
-   mute. Push the muted alpha onto the richtext children directly.
-   Specificity (0,0,2,1) > `.rte p` (0,0,1,1). */
 .kt-password__message p,
 .kt-password__message li,
 .kt-password__message blockquote {
@@ -931,37 +874,9 @@ html.no-js [data-addresses-cancel-edit] {
 }
 
 .kt-password__newsletter-btn {
-  /* R-password-newsletter-btn — Override `.kt-customer__submit`'s
-     `width: 100%`. That width is correct for the standalone
-     login / register / reset forms (column layout, single button
-     per row) but inside the password page's inline newsletter row
-     (input + button side by side) the 100% width collapsed the
-     adjacent email input to ~0px and the button stretched to take
-     the whole row, leaving a 1px sliver on the left. `width: auto`
-     resets it so `flex: 0 0 auto` can size by content. */
   width: auto;
   flex: 0 0 auto;
   white-space: nowrap;
-  /* R-password-newsletter-btn-v2 — Bordered ghost variant + match
-     the input's vertical metric.
-
-     Visual change: the filled black "SUBSCRIBE" button on a light
-     page bg felt CTA-loud for a secondary opt-in beneath the
-     primary "ENTER" form. Switched to an outline button (transparent
-     bg, scheme-fg border, scheme-fg text) so the password form
-     remains the primary action and the newsletter row reads as
-     supplementary. Hover swaps to filled for affordance.
-
-     Height match: input uses `padding: 0.85rem 1rem` + `font-size:
-     0.9375rem` (line-height 1.5 by default). Button keeps its
-     uppercase 0.75rem 700 tracking type, so its line-height is
-     ~14px while the input is ~22px — to land both controls at the
-     same outer height the button needs padding-y ≈ 1.05rem
-     (calculated to give ~46px outer when border + content match
-     the input's ~46px). Using padding-y: 1rem + border lands the
-     final pixel at 48 vs input 46 — close enough that the eye
-     reads them as aligned; align-items: stretch picks up any
-     2px residual without text mis-baseline. */
   padding: 1rem 2rem;
   background: transparent;
   color: rgb(var(--kt-c-fg));
@@ -1170,12 +1085,6 @@ html.no-js [data-addresses-cancel-edit] {
   color: var(--kt-amber-700, #b45309);
 }
 
-/* R140 (R38 audit) — refund pill + fully-refunded line modifier.
-   Color red so it doesn't blend with the green "shipped" pill, and
-   strike-through the title + price on full refund so the customer
-   can scan the list and see at a glance which item was refunded.
-   Strike on the <a> only (not the whole <li>) to keep the link
-   tappable for re-purchase via product page. */
 .kt-order__item-fulfillment--refunded {
   color: var(--kt-red-700, #b91c1c);
 }
@@ -1192,10 +1101,6 @@ html.no-js [data-addresses-cancel-edit] {
 
 /* ── Totals row variants ─────────────────────────────── */
 
-/* R110 — was `span:first-child` before the <dl> refactor; now
-   targets the discount row's <dt> label (the description-list
-   term). The CSS layout is unchanged because .kt-order__totals-row
-   still uses flex, just with <dt>/<dd> as flex children. */
 .kt-order__totals-row--discount dt {
   font-size: 0.8125rem;
   color: var(--kt-stone-700);
@@ -1284,13 +1189,6 @@ html.no-js [data-addresses-cancel-edit] {
     -webkit-print-color-adjust: exact;
   }
 
-  /* R298 — Selector rewrite: the real "back to account" link is
-     `.kt-order__back` (no `-to-account` suffix), and there is no
-     anchor adjacent to `.kt-account__greeting`. Previous selectors
-     silently failed to hide either, leaving a "← Back to account"
-     link printed at the top of every order receipt as a dead link.
-     `[data-account-back]` is added as a defensive marker so future
-     templates can also opt in. */
   .kt-account__nav,
   .kt-account__nav-link,
   .kt-order__back,

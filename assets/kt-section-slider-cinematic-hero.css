@@ -3,31 +3,15 @@
    Cross-fade slider with Ken Burns zoom on active slide
    ============================================================ */
 
-/* R232.50 — scheme-aware inner colors. This section's content sits
-   entirely on slide images with dark overlays — all white text /
-   white borders / dark overlays / placeholder svg bg are intentional
-   photo-overlay treatments and stay hardcoded. Only the placeholder
-   `__slide-image.placeholder-svg` background-color (when no photo
-   uploaded) becomes scheme-aware so the section still reads with the
-   chosen color scheme on a fresh install. */
-
 .kt-slider-cinematic {
   position: relative;
   width: 100%;
   overflow: hidden;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-950 / white;
-     dark cinematic default preserved via the fallback. */
   background-color: rgb(var(--kt-c-bg, 12 10 9));
   color: rgb(var(--kt-c-fg, 255 255 255));
   isolation: isolate;
 }
 
-/* Height variants
-   R-SS2 — viewport-unit cascade (vh → svh → dvh) so the slider tracks
-   the visible viewport even when Chrome/Edge mobile bottom toolbar or
-   Safari address bar is showing. dvh adjusts in real time as the
-   chrome retracts on scroll. See kt-section-hero.css for the full
-   rationale on the three-step fallback. */
 .kt-slider-cinematic--full {
   min-height: calc(100vh - var(--kt-header-height, 0px));
   min-height: calc(100svh - var(--kt-header-height, 0px));
@@ -257,10 +241,6 @@
 }
 
 .kt-slider-cinematic__arrow {
-  /* R104 — WCAG 2.5.5 (target size 44×44 minimum). 2.5rem (40px)
-     was below threshold; 2.75rem (44px) clears it. Mobile users
-     missed the arrows on first tap before; reviewers test on
-     actual handsets. */
   width: 2.75rem;
   height: 2.75rem;
   display: inline-flex;
@@ -333,8 +313,6 @@
   position: absolute;
   right: 2rem;
   bottom: 2.5rem;
-  /* R104 — WCAG 2.5.5 (44×44 min). Critical for the WCAG 2.2.2
-     pause-control to be reachable on mobile. */
   width: 2.75rem;
   height: 2.75rem;
   display: inline-flex;
@@ -380,10 +358,6 @@
    Placeholder SVG styling
    ------------------------------------------------------------ */
 .kt-slider-cinematic__slide-image.placeholder-svg {
-  /* R232.68 — 90% fg bg REMOVED. That heavy opacity painted a near-
-     solid rectangle over Shopify's hero-apparel placeholder graphic,
-     turning the slide into a flat dark block on fresh installs. Let
-     the placeholder's own art render against the section bg. */
   color: rgba(var(--kt-c-fg, 168 162 158), 0.7);
 }
 

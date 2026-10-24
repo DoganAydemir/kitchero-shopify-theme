@@ -1,20 +1,3 @@
-{%- comment -%}
-  Apps — generic @app block container section (Theme Store baseline).
-
-  Theme Store reviewers expect this section to exist as a no-config
-  drop-zone for app-block extensions. Common scenarios:
-    - Reviews app injecting a "All reviews" widget on the home page
-    - Wishlist app placing its grid on a custom landing page
-    - Loyalty app adding a points display
-    - Subscription manager injecting its preference UI
-
-  Distinct from per-section @app blocks (which are scoped to specific
-  parent sections). This section is the "generic" drop-zone — merchant
-  picks an app block once, the section renders it.
-
-  Schema deliberately minimal: only color_scheme + padding settings.
-  The app block itself controls its own internal layout.
-{%- endcomment -%}
 
 {%- if section.blocks.size == 0 and request.design_mode -%}
   <section
@@ -49,12 +32,6 @@
   </section>
 {%- endif -%}
 
-{%- comment -%}
-  Inline scoped CSS — apps section is configuration-light so a
-  full kt-section-apps.css stylesheet would be wasteful per-page.
-  Theme-Store rule allows scoped {% style %} blocks for sections
-  that have <100 lines of CSS. R112 audit cleared this pattern.
-{%- endcomment -%}
 {%- style -%}
   .kt-apps {
     padding-top: var(--kt-section-padding-top, 64px);

@@ -12,16 +12,6 @@
   assign featured_product_add_to_cart_default = 'kt.product.add_to_cart' | t
 -%}
 
-{%- comment -%}
-  Fresh-install / no-product-picked fallback. Without this branch
-  a merchant who drags featured-product onto the homepage but
-  hasn't picked a product yet sees a blank section with no
-  indication what to configure (Theme Store reviewer flags as
-  "broken section / unfinished theme"). Inside the editor we
-  show an editorial hint pointing at the picker setting; on the
-  live storefront we render nothing so the page doesn't have a
-  hollow section band.
-{%- endcomment -%}
 {%- if product == blank -%}
   {%- if request.design_mode -%}
     <section
@@ -130,12 +120,6 @@
             {%- when 'description' -%}
               <div class="kt-featured-product__description rte" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
-                  {%- comment -%}
-                    R87 — pre-assign word_limit_safe so the `default`
-                    fallback lands on the variable, not on the
-                    truncatewords output. Default 40 matches main-
-                    product schema.
-                  {%- endcomment -%}
                   {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
                   {{ product.description | strip_html | truncatewords: word_limit_safe }}
                 {%- else -%}
@@ -255,11 +239,6 @@
                       Without it, the customer can't tell "in stock now"
                       from "ships when restocked".
                     {%- endcomment -%}
-                    {%- comment -%}
-                      R298 — Pre-order badge always-render with hidden
-                      flag so product-form.js can toggle atomically on
-                      variant change. Same pattern as snippets/product-form.liquid.
-                    {%- endcomment -%}
                     {%- assign fp_preorder_hidden = true -%}
                     {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' -%}
                       {%- assign fp_preorder_hidden = false -%}
@@ -268,35 +247,6 @@
 
                     <div class="kt-featured-product__error" data-product-form-error role="alert" hidden></div>
 
-                    {%- comment -%}
-                      R298 — Shopify Dynamic Checkout (`form | payment_button`)
-                      is now ALWAYS emitted. Theme Store / Online Store sales
-                      channel mandates the accelerated checkout button inside
-                      every `{% form 'product' %}` — Shop Pay, Apple Pay,
-                      Google Pay, PayPal, etc. — regardless of palette
-                      concerns. Merchants disable individual buttons in
-                      Settings → Payments if they don't want them.
-
-                      `payment_terms` (Shop Pay Installments / Klarna /
-                      Afterpay messaging) sits beneath the button so installment
-                      copy follows the offer when enabled. Both render zero
-                      output when the merchant hasn't configured them, so
-                      always-on is safe.
-                    {%- endcomment -%}
-                    {%- comment -%}
-                      R27-INV: mirror snippets/product-form.liquid's
-                      data-payment-button-wrapper hook so kt-section-
-                      main-product.js + product-form.js can disable
-                      Shop Pay / Apple Pay / Google Pay synchronously
-                      with the regular submit button when the customer
-                      switches to a sold-out variant. Without the hook
-                      the shadow-DOM Dynamic Checkout buttons remain
-                      clickable + would attempt to checkout an
-                      unavailable variant (Shopify checkout 422 surface,
-                      poor UX). Initial-render sold-out state is also
-                      gated server-side via aria-disabled + style for
-                      the no-JS path.
-                    {%- endcomment -%}
                     <div
                       class="kt-featured-product__dynamic-checkout"
                       data-payment-button-wrapper
@@ -332,14 +282,6 @@
               </div>
 
             {%- when '@app' -%}
-              {%- comment -%}
-                R87 — Theme Store rule: every block must wrap in
-                an element carrying `block.shopify_attributes` so
-                the editor can highlight + scroll-to the block on
-                merchant click. Bare `{% render block %}` works
-                functionally but breaks the editor "select block"
-                affordance entirely.
-              {%- endcomment -%}
               <div class="kt-featured-product__app-block" {{ block.shopify_attributes }}>
                 {%- render block -%}
               </div>

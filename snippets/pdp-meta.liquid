@@ -2,18 +2,6 @@
   Rating and stock row block for main-product.
   Accepts: block, product, current_variant
 {%- endcomment -%}
-{%- comment -%}
-  R232.30 — Separator "|" between rating + stock indicator
-  was previously gated only on the merchant's
-  show_rating + show_stock toggles, NOT on whether the
-  rating actually has data. On products with no review
-  metafield (default Shopify products) the rating
-  snippet returned an empty string but the "|" still
-  painted, leaving the stock row reading "| In Stock"
-  with a dangling pipe on the left. Capture the
-  rating output first and only emit the separator
-  when the capture has real content. */
-{%- endcomment -%}
 {%- assign meta_has_rating = false -%}
 {%- if block.settings.show_rating -%}
   {%- capture meta_rating_html -%}
@@ -28,14 +16,6 @@
   {%- if meta_has_rating -%}
     {{ meta_rating_html }}
   {%- endif -%}
-  {%- comment -%}
-    Gift cards never display stock pills — they're
-    inventory-less by definition. Theme Store reviewers
-    flag "Sold out" or "In Stock" status on gift card
-    PDPs as broken merchandising; the gate hides every
-    stock-status surface for gift cards even when the
-    merchant has the show_stock block setting on.
-  {%- endcomment -%}
   {%- assign show_stock_block = block.settings.show_stock -%}
   {%- if product.gift_card? -%}
     {%- assign show_stock_block = false -%}
@@ -44,50 +24,15 @@
     <span class="kt-pdp__meta-sep" aria-hidden="true">|</span>
   {%- endif -%}
   {%- if show_stock_block -%}
-    {%- comment -%}
-      R122 — three-state stock indicator with low-stock
-      "Only N left" messaging when:
-      1. Variant has Shopify-managed inventory
-      2. Has stock left (>0)
-      3. Stock count is at-or-below the merchant-set
-         threshold (settings.kt_low_stock_threshold)
-      4. Merchant has the kt_show_low_stock toggle on
-      Real inventory (not deceptive/fake counter) —
-      Theme Store rule allows this when backed by
-      Shopify's actual inventory_quantity.
-    {%- endcomment -%}
     {%- assign show_low_stock = false -%}
     {%- if settings.kt_show_low_stock and current_variant.available and current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= settings.kt_low_stock_threshold -%}
       {%- assign show_low_stock = true -%}
     {%- endif -%}
-    {%- comment -%}
-      R298 — The low-stock span ALWAYS ships in the DOM
-      (hidden when not applicable) so `product-form.js`'s
-      variant-change handler can toggle visibility +
-      text atomically when the merchant selects a
-      different variant. Before this, the element only
-      rendered when conditions were true on initial
-      paint, so a variant flip from "20 in stock" to
-      "3 left" never surfaced the badge.
-    {%- endcomment -%}
     <span class="kt-pdp__stock kt-pdp__stock--low" role="status" data-low-stock {% unless show_low_stock %}hidden{% endunless %}>
       {%- if show_low_stock -%}
         {{ 'kt.product.low_stock_html' | t: count: current_variant.inventory_quantity | default: 'Only a few left' }}
       {%- endif -%}
     </span>
-    {%- comment -%}
-      R298 — In-stock / sold-out spans always ship in the
-      DOM with `hidden` toggled. Without the always-render
-      pattern, `product-form.js`'s variant-change handler
-      cannot atomically swap In Stock ↔ Sold out when the
-      customer flips between available and unavailable
-      variants — Theme Store "atomic variant update"
-      requirement (same fix class as the low-stock badge
-      above and the pre-order badge in product-form.liquid).
-      `data-stock-status` lets JS pick the right span and
-      a sibling `data-low-stock` element keeps owning the
-      low-stock state independently.
-    {%- endcomment -%}
     {%- assign initial_show_in = false -%}
     {%- assign initial_show_out = false -%}
     {%- unless show_low_stock -%}

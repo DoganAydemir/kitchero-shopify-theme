@@ -61,13 +61,6 @@
                 <ul class="kt-footer__link-list list-unstyled" role="list">
                   {%- for link in block.settings.menu.links -%}
                     <li>
-                      {%- comment -%}
-                        R97 — aria-current="page" surfaces the active page
-                        to assistive tech. Without it, AT users navigating
-                        a long footer link list can't tell which link
-                        represents the current location. Matches the
-                        header navigation pattern.
-                      {%- endcomment -%}
                       <a
                         href="{{ link.url }}"
                         class="kt-footer__link{% if link.current %} kt-footer__link--current{% endif %}"
@@ -126,23 +119,6 @@
                 {%- else -%}
                   <div class="kt-footer__newsletter">
                     <label for="footer-newsletter-email-{{ block.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
-                      {%- comment -%}
-                        R104 — mobile Return key fires submit.
-                      {%- endcomment -%}
-                      {%- comment -%}
-                        R96 — preserve typed email across server-side
-                        validation errors so the customer doesn't
-                        re-type their entire address. form.email is
-                        Shopify's auto-populated previous-input state
-                        when {% form 'customer' %} fails validation.
-                      {%- endcomment -%}
-                      {%- comment -%}
-                        R139 ARIA-DBY-1: only emit aria-describedby when
-                        FooterNewsletter-error actually renders. The
-                        target `<p>` lives inside `{%- if form.errors -%}`;
-                        emitting the attribute unconditionally points at
-                        a missing ID. Pattern matches newsletter-signup.
-                      {%- endcomment -%}
                     <input
                       type="email"
                       autocapitalize="off"
@@ -182,13 +158,6 @@
                       {{ 'kt.newsletter.button_label' | t }}
                     </button>
                   </div>
-                  {%- comment -%}
-                    R122 — GDPR consent gate. Block-level setting
-                    (footer newsletter is per-block configurable).
-                    Same R96/R122-B3 rationale: HTML5 required gates
-                    submission until customer ticks; submit then
-                    sends accepts_marketing=true legitimately.
-                  {%- endcomment -%}
                   {%- if block.settings.show_consent_checkbox -%}
                     {%- comment -%}
                       Wrapper is a <div>, NOT a <p>. `consent_label` is a
@@ -218,14 +187,6 @@
                     </div>
                   {%- endif -%}
                   {%- if form.errors -%}
-                    {%- comment -%}
-                      R297 — Structured summary so SR + keyboard users
-                      can jump to the email field on validation failure.
-                      Wrapper is `tabindex="-1"` + `data-form-error-
-                      summary` so `assets/global.js:444 focusFirstFormError`
-                      can focus it; UL carries `role="alert"` for the
-                      announcement.
-                    {%- endcomment -%}
                     <div
                       class="kt-footer__newsletter-error"
                       id="FooterNewsletter-error-{{ block.id }}"
@@ -331,37 +292,8 @@
         {%- comment -%} Copyright {%- endcomment -%}
         <div class="kt-footer__copyright">
           <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.</span>
-          {%- comment -%}
-            `{{ powered_by_link }}` emits a fully localized `<a>` tag
-            pointing at the correct Shopify URL for the current locale,
-            with the translated label from Shopify's own i18n tables —
-            no hand-maintained locale key needed. Also removes the
-            target="_blank" noopener attribute combo we were carrying
-            manually (reviewer recommendation: don't force external
-            target on the powered-by link, let the user choose).
-          {%- endcomment -%}
           {{ powered_by_link }}
 
-          {%- comment -%}
-            R139 PRIVACY-1: Cookie preferences re-access. Once a
-            customer accepts/declines the consent banner, it stays
-            dismissed forever — without a re-open path the customer
-            can't change their decision. EU/UK GDPR Recital 42 +
-            ePrivacy Directive require consent to be withdrawable as
-            easily as it was given. This button calls
-            window.Kitchero.openCookieBanner (or the global
-            openCookieBanner alias) registered by cookie-banner.js;
-            the data-cookie-preferences attribute also fires the
-            same handler via delegated click in cookie-banner.js.
-
-            Gated on `section.settings.show_cookie_preferences` so
-            merchants who don't use a cookie banner don't ship a
-            dead button. Hidden when JS off — the button is useless
-            without the JS hook, and JS-off visitors don't have
-            consent stored anyway. Rendered as a real <button>
-            (not <a href="#">) so screen readers and bots don't
-            misclassify it as navigation.
-          {%- endcomment -%}
           {%- if section.settings.show_cookie_preferences -%}
             {%- comment -%}
               JS-off case: the button has no functioning hook, so
@@ -384,7 +316,6 @@
           <div class="kt-footer__selectors">
             {%- if localization.available_languages.size > 1 -%}
               {%- form 'localization', id: 'FooterLanguageForm', class: 'kt-footer__localization-form' -%}
-                {%- comment -%} R122 — return_to. {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <div class="localization-selector">
                   <select name="language_code" id="FooterLanguageSelector" aria-label="{{ 'kt.locale.language_label' | t | default: 'Language' }}">
@@ -394,11 +325,6 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  {%- comment -%}
-                    R232.12 — JS auto-submits on `change` (Shopify-
-                    documented pattern, WCAG F36-safe). No-JS fallback
-                    via <noscript>.
-                  {%- endcomment -%}
                   <noscript>
                     <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                   </noscript>
@@ -408,7 +334,6 @@
 
             {%- if localization.available_countries.size > 1 -%}
               {%- form 'localization', id: 'FooterCountryForm', class: 'kt-footer__localization-form' -%}
-                {%- comment -%} R122 — return_to. {%- endcomment -%}
                 <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <div class="localization-selector">
                   <select name="country_code" id="FooterCountrySelector" aria-label="{{ 'kt.locale.country_label' | t | default: 'Country/region' }}">
@@ -418,9 +343,6 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  {%- comment -%}
-                    R232.12 — see language form above.
-                  {%- endcomment -%}
                   <noscript>
                     <button type="submit" class="button button--secondary">{{ 'kt.locale.update' | t | default: 'Update' }}</button>
                   </noscript>
@@ -463,34 +385,9 @@
                 </a>
               </li>
             {%- endfor -%}
-            {%- comment -%}
-              R401 CCPA-YOUR-PRIVACY-CHOICES: California Consumer Privacy
-              Act (CCPA) + CPRA require a conspicuous "Your Privacy
-              Choices" or "Do Not Sell or Share My Personal Information"
-              link for residents of California. Theme Store treats the
-              absence of this affordance as a reject-level compliance
-              gap when sale_of_data is in scope for the merchant.
-              The link uses [data-privacy-choices] to open the cookie
-              banner with the customize panel pre-expanded so the
-              sale_of_data toggle is reachable. Renders as a real
-              <button> for screen readers (not navigation) and falls
-              back to <a href="/pages/your-privacy-choices"> when JS
-              is disabled — merchants who publish a dedicated CCPA
-              policy page get a working link either way.
-            {%- endcomment -%}
             {%- if section.settings.show_privacy_choices -%}
               {%- assign privacy_choices_url = pages['your-privacy-choices'].url | default: shop.privacy_policy.url | default: routes.root_url -%}
               <li>
-                  {%- comment -%}
-                    R20-C: route through the pages object so Markets-
-                    enabled stores get the locale-prefixed URL
-                    (/de/pages/your-privacy-choices etc). Falls back
-                    to the static path when the page hasn't been
-                    created yet — Shopify still resolves that to 404
-                    or the merchant's chosen redirect, which is
-                    better than a localized 404 with the JS path
-                    not matching the legal-required CCPA URL.
-                  {%- endcomment -%}
                 <a
                   href="{{ privacy_choices_url }}"
                   class="kt-footer__policy-link"

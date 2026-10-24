@@ -1,30 +1,8 @@
 {{ 'kt-section-main-cart.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  R137 / HG-5 — wired settings:
-  - color_scheme  → applies a `.color-scheme-X` class so the cart
-                    surface inherits the merchant-picked palette.
-  - padding_top / padding_bottom  → custom properties consumed by
-                    `.kt-cart-page { padding: }` in
-                    kt-section-main-cart.css.
-  - show_free_shipping_bar / show_gift_wrapping_message → visibility
-                    gates on the matching surfaces in this template.
-{%- endcomment -%}
 {%- assign cart_pad_top = section.settings.padding_top | default: 0 -%}
 {%- assign cart_pad_bottom = section.settings.padding_bottom | default: 0 -%}
 {%- assign cart_scheme = section.settings.color_scheme | default: 'scheme-1' -%}
-
-{%- comment -%}
-  Main Cart — full cart page (templates/cart.json). Structure matches
-  the Next.js /cart layout: dotted editorial header, two-column
-  items/summary grid on desktop, stacked on mobile. Items use the
-  same thumb + info + stepper + trash pattern as the cart drawer for
-  visual continuity.
-
-  Uses Shopify's {% form 'cart' %} so updates and checkout both post
-  to /cart with a single submit. Change events on qty inputs auto-
-  submit via the cart page JS (see assets/main-cart.js).
-{%- endcomment -%}
 
 {%- comment -%}
   Render the item-count through the pluralized header locale key.
@@ -65,30 +43,6 @@
     {%- if cart.item_count > 0 -%}
       {%- form 'cart', cart, id: 'CartPageForm', class: 'kt-cart-page__form' -%}
         <div class="kt-cart-page__layout">
-          {%- comment -%}
-            ── Items column ───────────────────────────────
-            R93 — wrapper carries role="list" + each item
-            carries role="listitem" so SR users hear the cart as
-            a list with item count, not an unnamed group of divs.
-            ARIA roles preserve visual CSS without rewriting to
-            <ul>/<li> markup.
-          {%- endcomment -%}
-          {%- comment -%}
-            R138 CART-422-1: visible inline error region — sighted users
-            updating cart qty on a slow connection previously got NO
-            feedback when Shopify returned a 422 ("All 3 in stock",
-            "Maximum quantity exceeded"); only the assertive SR announce
-            surfaced the message. This region is `hidden` by default,
-            revealed by main-cart.js's catch path with the Shopify-
-            localized error string. Auto-clears after 6s. role="alert"
-            so the message is announced when first revealed.
-          {%- endcomment -%}
-          {%- comment -%}
-            R298 — `role="alert"` already implies `aria-live="assertive"`.
-            Declaring both triggers axe-core `aria-redundant` and
-            double-announces on some SRs. theme.liquid:474-480 also
-            documents this rule globally; this surface was missed.
-          {%- endcomment -%}
           <div
             class="kt-cart-page__error"
             data-cart-page-error
@@ -159,13 +113,6 @@
                       </p>
                     {%- endunless -%}
 
-                    {%- comment -%}
-                      R143 CART-DELETED-PROD-1: gate on `item.product`
-                      first (parity with cart-drawer.liquid). When the
-                      product is deleted from admin, `item.product` is
-                      nil and `has_only_default_variant` becomes nil →
-                      unless runs unexpectedly, rendering an empty <ul>.
-                    {%- endcomment -%}
                     {%- if item.product and item.product.has_only_default_variant == false -%}
                       <ul class="kt-cart-page__item-options" role="list">
                         {%- for option in item.options_with_values -%}
@@ -194,12 +141,6 @@
                       {%- endcomment -%}
                       {%- assign cart_charge = item.selling_plan_allocation.checkout_charge -%}
                       {%- if cart_charge and cart_charge.value > 0 and cart_charge.value != item.final_line_price -%}
-                        {%- comment -%}
-                          R86 SUB-05 fix — see cart-drawer.liquid
-                          for rationale. Pre-format charge value
-                          before t-interpolation so `| money` lands
-                          on the variable, not on the t output.
-                        {%- endcomment -%}
                         {%- assign cart_charge_money = cart_charge.value | money -%}
                         <p class="kt-cart-page__item-charge">
                           {{ 'kt.cart.checkout_charge' | t: amount: cart_charge_money }}
@@ -230,15 +171,6 @@
                               <span class="kt-cart-page__item-component-qty">{{ component.quantity }}&times;</span>
                             {%- endif -%}
                             <span class="kt-cart-page__item-component-title">{{ component.product.title | default: component.title | escape }}</span>
-                            {%- comment -%}
-                              R143 CART-DELETED-PROD-1: bundle child
-                              component's product can be nil if it was
-                              deleted while still referenced by the
-                              parent bundle. Same fix as the cart line
-                              variant guard above: explicit
-                              `if component.product and ...` skips the
-                              variant rendering when product gone.
-                            {%- endcomment -%}
                             {%- if component.product and component.product.has_only_default_variant == false -%}
                               <span class="kt-cart-page__item-component-variant">{{ component.variant.title | escape }}</span>
                             {%- endif -%}
@@ -255,12 +187,6 @@
                             <li>
                               <span>{{ property.first | escape }}:</span>
                               {%- if property.last contains '/uploads/' -%}
-                                {%- comment -%}
-                                  Visible filename after split is still
-                                  user-controlled. Same XSS class as
-                                  R75 main-order fix; cart-drawer
-                                  parallel updated alongside.
-                                {%- endcomment -%}
                                 <a href="{{ property.last | escape }}" target="_blank" rel="noopener noreferrer">{{ property.last | split: '/' | last | escape }}</a>
                               {%- else -%}
                                 {{ property.last | escape }}
@@ -283,13 +209,6 @@
                         price-transparency law inspects display.
                       {%- endcomment -%}
                       {%- if item.variant.unit_price_measurement -%}
-                        {%- comment -%}
-                          R86 UNP-03 — switched to Shopify's native
-                          `unit_price_with_measurement` filter (handles
-                          plural / locale spacing / reference_value
-                          edge cases). See cart-drawer.liquid for
-                          full rationale.
-                        {%- endcomment -%}
                         <span class="kt-cart-page__item-unit-measure">
                           {{ item.variant.unit_price | unit_price_with_measurement: item.variant.unit_price_measurement }}
                         </span>
@@ -341,39 +260,11 @@
 
                 {%- comment -%} Quantity stepper {%- endcomment -%}
                 <div class="kt-cart-page__item-qty">
-                  {%- comment -%}
-                    R-xss-cart — pre-escape `item.product.title` once for
-                    re-use in the three aria-label interpolations below.
-                    Liquid's `t:` filter does NOT auto-escape its named
-                    arguments, so a product titled `"><script>…` would
-                    break out of the attribute and execute on every cart
-                    visit (stored XSS via product-title admin). The cart
-                    drawer (snippets/cart-drawer.liquid) and product form
-                    (snippets/product-form.liquid) already follow this
-                    pattern as `safe_*_title` — main-cart was the last
-                    regression. Theme Store reviewers test stored XSS
-                    via product titles consistently.
-                  {%- endcomment -%}
                   {%- assign safe_item_title = item.product.title | escape -%}
                   {%- if cart_can_update -%}
                   <label for="updates_{{ item.key }}" class="visually-hidden">
                     {{ 'kt.product.quantity.label' | t }}
                   </label>
-                  {%- comment -%}
-                    R148 B2B-CART-INC-1: hoist quantity-rule
-                    derivation ABOVE the +/- buttons so the buttons
-                    can compute their delta against the merchant's
-                    configured `quantity_rule.increment` (B2B
-                    case-of-N). Previously the `+` button hardcoded
-                    `plus: 1` which meant a cart line at qty 6 (case
-                    of 6) bumping to 7 would 422 on /cart/change.js
-                    with "Quantity must be a multiple of 6". Drawer
-                    already has this fix (snippets/cart-drawer.liquid:
-                    326-337); cart page now matches. Compute next-up
-                    and next-down values clamped to the variant's
-                    quantity_rule range, then bind the buttons to
-                    those values + disable + flag at-max state.
-                  {%- endcomment -%}
                   {%- assign cart_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
                   {%- assign cart_qty_max = item.variant.quantity_rule.max -%}
                   {%- assign cart_qty_next_up = item.quantity | plus: cart_qty_step -%}
@@ -525,15 +416,6 @@
                 {%- render 'free-shipping-bar' -%}
               {%- endif -%}
 
-              {%- comment -%}
-                Gift wrapping (R137 → R140). When enabled the
-                snippet renders a real opt-in checkbox bound to
-                `attributes[Gift wrapping]`; the merchant-editable
-                message displays as the helper paragraph below the
-                checkbox. Submits with the cart form so the choice
-                lands in cart.attributes — visible to the merchant
-                in the order admin + on the customer's order email.
-              {%- endcomment -%}
               {%- if section.settings.show_gift_wrapping_message -%}
                 {%- render 'gift-wrapping',
                     section: section,
@@ -592,26 +474,6 @@
                 closes the parity gap with zero JS requirement.
               {%- endcomment -%}
               {%- if settings.kt_cart_show_discount -%}
-                {%- comment -%}
-                  R298 — nested `<form>` removed. The cart `{% form 'cart' %}`
-                  block (line 62) wraps the entire page including this
-                  discount section; placing another `<form>` inside is
-                  invalid HTML5 (W3C parsing rule: parser auto-closes
-                  the outer form, re-parenting every subsequent input
-                  out of the cart form context, which breaks no-JS
-                  checkout submit). The discount form element is now
-                  rendered as a SIBLING after `{%- endform -%}` below,
-                  and its inputs/button reference it via the HTML5
-                  `form="CartDiscountForm"` attribute — valid markup
-                  and identical UX. The visual wrapper stays a `<div>`
-                  so layout CSS is unaffected.
-
-                  R301 — Switch from undocumented `cart.discount_codes`
-                  to the officially documented
-                  `cart.cart_level_discount_applications` filtered by
-                  `type == "discount_code"`. Same applied-chip list,
-                  using the property Theme Store reviewers expect.
-                {%- endcomment -%}
                 {%- assign page_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
                 <div class="kt-cart-page__discount" data-cart-discount-form>
                   <input form="CartDiscountForm" type="hidden" name="redirect" value="{{ routes.cart_url }}">
@@ -673,18 +535,6 @@
               </div>
 
               <p class="kt-cart-page__taxes-note">
-                {%- comment -%}
-                  Four-way branch — R150 TAX-EXEMPT-COPY-1 added the
-                  tax-exempt customer arm before the existing 3:
-                  - `customer.tax_exempt?` (B2B / nonprofit) — Shopify
-                    zeros tax at checkout; default "calculated at
-                    checkout" reads wrong there.
-                  - `cart.requires_shipping == false` — gift-card /
-                    fully-digital carts.
-                  - `cart.taxes_included` — EU-style VAT-baked-in.
-                  - default — North American "calculated at checkout".
-                  Drawer parity in snippets/cart-drawer.liquid:634.
-                {%- endcomment -%}
                 {%- if customer.tax_exempt? -%}
                   {{ 'kt.cart.taxes_note_exempt' | t | default: 'Tax-exempt account. Shipping calculated at checkout.' }}
                 {%- elsif cart.requires_shipping == false -%}
@@ -716,19 +566,6 @@
                 </p>
               </noscript>
 
-              {%- comment -%}
-                R-cart-audit — Optional terms/conditions consent
-                checkbox. Theme-level setting (`kt_cart_show_terms`)
-                so the SAME toggle controls both the cart page AND
-                the cart drawer with one switch. Mirrors the existing
-                `kt_cart_show_discount` pattern. When ON the
-                checkout submit ships `disabled` + `data-cart-terms-
-                gated`; JS in main-cart.js / cart-drawer.js listens
-                to the checkbox `change` event and toggles the
-                button. `required` attribute is the no-JS safety
-                net so noscript shoppers still get the validation
-                gate before form submit.
-              {%- endcomment -%}
               {%- if settings.kt_cart_show_terms -%}
                 {%- assign terms_default = 'kt.cart.terms.default_html' | t -%}
                 <div class="kt-cart-page__terms">
@@ -775,17 +612,6 @@
 
               {%- comment -%} Trust strip (reassurance below CTA) {%- endcomment -%}
               <ul class="kt-cart-page__trust" role="list">
-                {%- comment -%}
-                  R-cart-audit — "Secure checkout" label now editable
-                  via `trust_secure_text` setting. Previous hardcoded
-                  text was a real promise (https/checkout uses
-                  Shopify's PCI-compliant pipeline) but reviewers
-                  expected every visible trust line to be merchant-
-                  editable. Setting defaults to the existing
-                  translation so fresh installs keep the same
-                  wording. Blank value → line hidden entirely
-                  (parity with shipping/returns lines below).
-                {%- endcomment -%}
                 {%- assign trust_secure_default = 'kt.cart.trust.secure' | t -%}
                 {%- assign trust_secure_label = section.settings.trust_secure_text | default: trust_secure_default -%}
                 {%- if trust_secure_label != blank -%}
@@ -797,15 +623,6 @@
                     <span>{{ trust_secure_label }}</span>
                   </li>
                 {%- endif -%}
-                {%- comment -%}
-                  R87 — gate shipping/returns trust lines on
-                  non-blank settings. Previous `| default: 'Add a
-                  shipping policy line'` fallback shipped the
-                  placeholder COPY to the live storefront when a
-                  merchant skipped these settings on first install.
-                  Now the line is hidden entirely until the
-                  merchant fills in their real policy text.
-                {%- endcomment -%}
                 {%- if section.settings.trust_shipping_text != blank -%}
                   <li>
                     <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -909,19 +726,6 @@
           {%- endif -%}
         {%- endif -%}
 
-        {%- comment -%}
-          App block slot (required for Theme Store). Each rendered
-          block needs its own wrapper element carrying
-          `{{ block.shopify_attributes }}` so the theme editor can
-          attach its data-shopify-editor-block-id and highlight the
-          block when the merchant selects it in the sidebar. Without
-          the attribute the merchant clicks an app block in the
-          editor and nothing scrolls / outlines on the page — a
-          Theme Store reviewer flags this as broken editor UX.
-          Every other section in the theme uses this pattern
-          (snippets/section-app-blocks.liquid, main-article.liquid,
-          etc.); main-cart now matches.
-        {%- endcomment -%}
         {%- if section.blocks.size > 0 -%}
           <div class="kt-cart-page__blocks">
             {%- for block in section.blocks -%}
@@ -950,25 +754,7 @@
         {%- endif -%}
       {%- endform -%}
 
-      {%- comment -%}
-        R298 — Sibling form for the discount-code section above. Inputs/button
-        inside the cart form's summary column reference this form via the
-        HTML5 `form="CartDiscountForm"` attribute, which is valid and avoids
-        the nested-`<form>` HTML5 parser bug that previously broke no-JS
-        checkout submit. The form is intentionally empty here; its only job
-        is to be the submission target the discount inputs above point to.
-
-        Discount codes can contain reserved URL characters (`&`, `?`, `#`, ` `).
-        `| url_encode` percent-encodes them, which the `/discount/<code>` route
-        expects. `| escape` would HTML-encode them (`&` → `&amp;`) which is
-        the wrong encoding for a URL path component.
-      {%- endcomment -%}
       {%- if cart.item_count > 0 and settings.kt_cart_show_discount -%}
-        {%- comment -%}
-          R301 — Pre-fill form action with the first applied discount code
-          via the officially documented `cart_level_discount_applications`
-          (filtered to user-applied codes). Mirrors the chip list above.
-        {%- endcomment -%}
         {%- assign page_form_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
         <form
           id="CartDiscountForm"

@@ -5,12 +5,6 @@
    ========================================================================== */
 
 .kt-drag-carousel {
-  /* R232.50 — scheme-aware inner colors. Section-surface tokens
-     (border, text, muted, arrow) re-route to opacity-graded
-     --kt-c-fg / --kt-c-bg so they track the active scheme.
-     Caption gradient + overlay stay dark (they sit on the photo
-     thumbnail). Arrow hover uses --kt-c-action for the primary
-     accent. */
   --kt-dc-bg: rgb(var(--kt-c-bg, 250 250 249));
   --kt-dc-border: rgba(var(--kt-c-fg, 231 229 228), 0.15);
   --kt-dc-text: rgb(var(--kt-c-fg, 28 25 23));
@@ -30,7 +24,6 @@
 
   position: relative;
   padding: 5rem 0;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50 / stone-900; falls back unchanged. */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   border-top: 1px solid var(--kt-dc-border);
@@ -169,29 +162,11 @@
   padding: 0 1.5rem 4rem;
   overflow-x: auto;
   overflow-y: hidden;
-  /* `proximity` not `mandatory` — mandatory was creating a vertical
-     scroll "snag" on mobile: scrolling THROUGH this section
-     vertically would get caught by the horizontal snap engine and
-     the page scroll would pause/stutter at each card boundary.
-     Proximity only snaps when the user is finishing a horizontal
-     drag near a card edge, leaving vertical page-scroll alone. */
   scroll-snap-type: x proximity;
   scroll-behavior: smooth;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  /* `touch-action: pan-x` — only horizontal pan gestures bind to
-     this carousel; vertical swipes bubble up to the page so the
-     body keeps scrolling smoothly even when the user's finger
-     happens to start over a card. The earlier note said "pan-x
-     alone forwarded every touch down-then-up delta" — that
-     observation was about an older drag implementation that
-     manually tracked pointermove deltas; the current code uses
-     native overflow-x scroll, where pan-x is the canonical
-     touch-action and does NOT prevent the browser from doing
-     gesture-axis disambiguation. Combined with scroll-snap-type:
-     proximity above this fully removes the vertical page-scroll
-     stutter users reported on mobile. */
   touch-action: pan-x;
 
   /* Hide scrollbars */
@@ -235,8 +210,6 @@
   width: 72vw;
   max-width: 360px;
   aspect-ratio: var(--kt-dc-item-aspect);
-  /* R232.50 — scheme-aware item surface (image fills via .__media,
-     so this base only shows during image load). */
   background-color: rgb(var(--kt-c-bg, 255 255 255));
   border-radius: 1rem;
   overflow: hidden;
@@ -262,12 +235,6 @@
 }
 
 .kt-drag-carousel__item:focus-visible {
-  /* R-focus-ring-clip — Item has `overflow: hidden` for the rounded
-     image crop and sits inside `.kt-drag-carousel` (overflow:hidden)
-     with no horizontal padding. A positive outline-offset gets
-     clipped horizontally when the focused tile sits at the section
-     edge during scroll-snap. Inset outline keeps the indicator
-     visible inside the rounded edge. WCAG 2.4.7. */
   outline: 2px solid var(--kt-dc-text);
   outline-offset: -2px;
 }
@@ -280,7 +247,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* R232.50 — scheme-aware placeholder backdrop. */
   background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
 }
 
@@ -295,14 +261,6 @@
   user-select: none;
 }
 
-/* Hover image zoom — gated by `@media (hover: hover) and (pointer:
-   fine)` so touch devices (iPad in landscape >=750px where the
-   carousel renders) don't have the scale stuck on after a tap.
-   Without the gate, tapping a card on iPad triggers :hover, the
-   image scales to 1.05, and stays there until the customer taps
-   elsewhere — reviewer-visible touch-UX bug. `:focus-visible`
-   stays outside the media query so keyboard users still see the
-   zoom on focus. */
 @media (hover: hover) and (pointer: fine) {
   .kt-drag-carousel__item:hover .kt-drag-carousel__image {
     transform: scale(1.05);
@@ -330,7 +288,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* R232.50 — scheme-aware placeholder panel. */
   background-color: rgba(var(--kt-c-fg, 245 245 244), 0.06);
 }
 
@@ -338,7 +295,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* R232.50 — scheme-aware placeholder fill. */
   fill: rgba(var(--kt-c-fg, 211 211 211), 0.22);
 }
 

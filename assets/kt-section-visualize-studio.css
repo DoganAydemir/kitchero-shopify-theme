@@ -1,26 +1,12 @@
-/* Visualize Studio — "Lumina Visual Studio" pro upgrade section.
-   Birebir from showroom/[id]/page.tsx immersive CTA section.
-   py-32 md:py-48, bg-stone-900, overflow-hidden */
 
-/* R232.50 — scheme-aware inner colors. Heading, italic accent, desc
-   and form copy now opacity-grade against --kt-c-fg. Submit CTA uses
-   --kt-c-action / --kt-c-action-text. Background photo + overlay
-   gradients are intentional dark and stay hardcoded; the amber
-   accent stays as the brand decoration color. The form card glass
-   surface stays white@10 — it's the chrome that sits over the
-   photo, not the section surface. */
 
 .kt-visualize-studio {
   position: relative;
   width: 100%;
   padding: 8rem 0;
   overflow: hidden;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-900 / white;
-     dark immersive default preserved via fallback. Bg-image overlay
-     layer (.kt-visualize-studio__bg) sits above this. */
   background-color: rgb(28 25 23);
   color: rgb(255 255 255);
-  /* R232.50 — scheme-aware top rule (was stone-800). */
   border-top: 1px solid rgba(41, 37, 36, 0.15);
 }
 
@@ -119,13 +105,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* R-SS6 — accent decoration (eyebrow + rule) reads from the
-   section-level `accent_color` setting via the
-   `--kt-visualize-accent` custom property (set inline on the
-   section root). Defaults to white to match the cinematic dark
-   background; merchants can pick any accent in the editor. The
-   former hardcoded `var(--kt-amber-500)` clashed with merchants
-   whose theme primary wasn't amber. */
 .kt-visualize-studio__rule {
   display: block;
   width: 3rem;
@@ -173,16 +152,6 @@
   font-style: italic;
 }
 
-/* description — R271: was `color: stone-300` (#d6d3d1, ~80%
-   luminance on the dark kitchen backdrop) + 1.125rem mobile /
-   1.25rem desktop. Reporter said the description read as too
-   close to the headline weight in the dark hero — wanted it
-   more muted ("silik") and a notch smaller. Drop to
-   `rgba(255,255,255,0.6)` so the text reads as soft secondary
-   copy rather than primary white, and downsize to 0.9375rem
-   mobile / 1.0625rem desktop to match the rest of the editorial
-   description scale (ecosystem feature desc, article excerpt
-   after the R269 sweep). */
 .kt-visualize-studio__desc {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.875rem;
@@ -279,15 +248,6 @@
   color: var(--kt-stone-500);
 }
 
-/* R-SS6-followup — Focus border was hardcoded to `--kt-amber-500`,
-   producing the orange ring the merchant flagged on the showroom's
-   "Book a studio visit" form ("input focus border link alakasız").
-   The amber was a holdover from the Next.js source palette; pre-
-   SS6 refresh it sat alongside the amber eyebrow / rule. With the
-   accent now driven by the merchant's `accent_color` setting (see
-   --kt-visualize-accent), inputs should follow the same token so
-   the entire form interactive language stays coherent. Defaults
-   to white when the merchant hasn't overridden the accent. */
 .kt-visualize-studio__field input:focus,
 .kt-visualize-studio__field input:focus-visible {
   outline: none;
@@ -308,11 +268,9 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding: 0.85rem 1.75rem;
-  /* R232.50 — action-themed CTA (was white-on-dark). */
   background-color: rgb(255 255 255);
   color: rgb(28 25 23);
   font-family: inherit;
-  /* R-btn-case-normalize — Theme-wide natural-case convention. */
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -339,8 +297,6 @@
   /* Final values — the rule was duplicated with earlier stone-100
      / scale(0.98) variants that got overridden silently. Merging
      into a single declaration eliminates the specificity shadow. */
-  /* R232.50 — opacity hover so the action color shifts cleanly
-     regardless of merchant brand. */
   opacity: 0.88;
   transform: translateY(-1px);
 }
@@ -350,29 +306,12 @@
 }
 
 .kt-visualize-studio__submit:focus-visible {
-  /* R-SS6-followup — Submit focus outline follows the accent
-     token instead of the legacy amber, so the keyboard cue
-     reads as the same colour as the input focus borders above. */
   outline: 2px solid var(--kt-visualize-accent, #ffffff);
   outline-offset: 2px;
 }
 
-/* R-followup — Privacy-note paragraph + inline anchor. The
-   translated `privacy_note_html` emits a bare `<a>` without a
-   class, so the link inherited UA default styling (heavy blue
-   underline on dark bg) which the merchant flagged as "patlamış"
-   on mobile. Style the paragraph as muted body copy and the
-   anchor as a clean editorial underline that contrasts the
-   surrounding text without competing with the primary CTA. */
 .kt-visualize-studio__privacy {
   margin: 0.75rem 0 0;
-  /* R-visualize-privacy-fineprint — 13px → 11px. Privacy
-     disclosure is legally-required microcopy; should read as
-     fine-print footnote, not body copy. 11px stays above the
-     10px Lighthouse legibility floor (same threshold used in
-     pullquote __author-title). Alpha lowered 0.6 → 0.5 to
-     pair with the smaller size — visibly secondary against
-     the 100% form heading + 0.6 subheading. */
   font-size: 11px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.5);

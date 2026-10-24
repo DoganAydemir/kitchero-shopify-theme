@@ -1,17 +1,8 @@
-/* Newsletter Popup Modal
- * Ported from src/app/newsletter/page.tsx
- * Full-screen modal overlay with left image / right content panes.
- */
 
 /* ---------- Overlay root ---------- */
 .kt-newsletter-popup {
   position: fixed;
   inset: 0;
-  /* R113 — popover tier (above drawers, below lightbox). The
-     newsletter popup is auto-opened on session entry; placing it
-     in the popover layer keeps it above the sticky header but
-     below product-gallery lightboxes (so a customer who opened
-     a lightbox first never sees the popup paint over it). */
   z-index: var(--kt-z-popover);
   display: flex;
   align-items: center;
@@ -302,25 +293,11 @@
 
 .kt-newsletter-popup__input {
   width: 100%;
-  /* R268 — was `padding: 1rem 1rem 1rem 3rem`. Tighten the
-     top/bottom + right paddings to 0.75rem so the input height
-     matches the global `.field__input` baseline; the left-3rem
-     is preserved to clear the absolute-positioned email icon
-     painted by `.kt-newsletter-popup__field-icon`. */
   padding: 0.75rem 1rem 0.75rem 3rem;
   background: var(--kt-stone-50);
-  /* R268 — was `border: 1px solid var(--kt-stone-500)` (~3.7:1
-     on stone-50). User reported the dark hairline read as heavy
-     against the soft popup chrome. Drop to stone-300 (#d6d3d1)
-     which is ~1.4:1 — below WCAG 1.4.11 3:1 but acceptable for
-     the popup's single-email-field surface (low-stakes input,
-     no destructive action); the `:focus` ring below restores
-     full contrast for the active state, and the placeholder
-     stays AA at stone-500. */
   border: 1px solid var(--kt-stone-300);
   border-radius: 0;
   color: var(--kt-stone-900);
-  /* R104 — 1rem (16px) prevents iOS Safari zoom-on-focus. */
   font-size: 1rem;
   font-family: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -464,7 +441,6 @@
   border: 0;
 }
 
-/* R122 — GDPR consent checkbox row inside popup form */
 .kt-newsletter-popup__consent {
   margin: 0.875rem 0 0;
   display: flex;

@@ -2,44 +2,6 @@
   Complementary products block (Search & Discovery) for main-product.
   Accepts: block, product
 {%- endcomment -%}
-{%- comment -%}
-  R121 — Complementary products block. Shows manually-
-  curated complementary items inside the PDP info
-  column (separate from the algorithmic "related-
-  products" section that sits below the layout).
-
-  Data source: the
-  `shopify--discovery--product_recommendation.related_products`
-  metafield, populated via Shopify's Search &
-  Discovery app. Synchronous render — no async fetch
-  — because the metafield is available at PDP
-  render time.
-
-  Compact inline card markup (image + title + price)
-  rather than the full card-product snippet, because
-  the PDP info column is narrow (~360px on desktop)
-  and the full card's hover/swap/quote-button
-  affordances would feel cramped.
-
-  Empty-state matrix:
-    - Metafield populated → renders compact list.
-    - Metafield empty + design_mode → editor hint
-      pointing at Search & Discovery app.
-    - Metafield empty + live → block emits NOTHING.
-{%- endcomment -%}
-{%- comment -%}
-  R149 COMPLEMENTARY-METAFIELD-1: read the
-  `complementary_products` metafield, not
-  `related_products`. Search & Discovery stores
-  curated complementary picks at
-  `shopify--discovery--product_recommendation.complementary_products`
-  — this block is named "complementary" so it must
-  read that key. Reading `related_products` was a
-  data mismatch (the same key as the related-products
-  section), so the "Pairs well with" block surfaced
-  related-not-complementary picks → reviewer flag
-  for misleading feature wiring.
-{%- endcomment -%}
 {%- assign comp_products = product.metafields.shopify--discovery--product_recommendation.complementary_products.value -%}
 {%- if comp_products and comp_products.size > 0 -%}
   <div class="kt-pdp__complementary" {{ block.shopify_attributes }}>
@@ -68,11 +30,6 @@
             </div>
             <div class="kt-pdp__complementary-text">
               <p class="kt-pdp__complementary-title">{{ comp_product.title | escape }}</p>
-              {%- comment -%}
-                R86 SUB-05 — pre-format money before
-                t-interpolation so `| money` lands on
-                price_min, not on the t output.
-              {%- endcomment -%}
               {%- if comp_product.price_varies -%}
                 {%- assign comp_price_money = comp_product.price_min | money -%}
                 <p class="kt-pdp__complementary-price">{{ 'kt.product.from_price_label' | t }} {{ comp_price_money }}</p>

@@ -1,29 +1,5 @@
 {{ 'kt-section-parallax-cta.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  Parallax CTA — Large editorial headline with image showing
-  THROUGH the text glyphs (CSS `background-clip: text`), and an
-  optional pill button below.
-
-  Effect: the merchant uploads an image; the section paints it as
-  the heading's background, then uses `-webkit-background-clip:
-  text` + `color: transparent` to make the text act as a window
-  onto the image. The scroll-linked reveal (image pans inside the
-  glyphs as the section moves through the viewport) is driven by
-  `assets/kt-section-parallax-cta.js`, which shifts the heading's
-  `background-position` on scroll. We deliberately do NOT use
-  `background-attachment: fixed` for this — Chrome shears the
-  trailing glyphs with `clip:text` + `fixed`, and iOS Safari
-  ignores `fixed` entirely (see R-parallax-fill in the CSS). The
-  JS approach reproduces the motion safely on every browser.
-
-  Used to live inside `sections/testimonials.liquid` as a built-
-  in CTA block tied to the testimonials surface (gated by
-  `show_cta_block`). Split out per merchant request so the CTA
-  can be dropped on any page, not just under a testimonials
-  band. The visual treatment is identical to the original.
-{%- endcomment -%}
-
 {%- liquid
   assign heading_line1_default = 'kt.section.parallax_cta.heading_line1_default' | t
   assign heading_line2_default = 'kt.section.parallax_cta.heading_line2_default' | t
@@ -69,15 +45,6 @@
       </div>
     {%- endif -%}
 
-    {%- comment -%}
-      R295 — Editor-only hint when the merchant hasn't picked a
-      background image yet. The headline still renders (with the CSS
-      fallback gradient) so the section never looks empty on the
-      live storefront, but a merchant adding the section for the
-      first time may not realise the parallax effect only kicks in
-      after they upload an image. Shown ONLY inside `request.design_mode`
-      so the live storefront is unaffected.
-    {%- endcomment -%}
     {%- if request.design_mode and section.settings.background_image == blank -%}
       <p class="kt-parallax-cta__editor-hint" aria-live="polite">
         {{ 'kt.section.parallax_cta.editor_hint_no_image' | t | default: "Pick a background image in this section's settings to enable the headline parallax effect. The headline currently falls back to a gradient." }}

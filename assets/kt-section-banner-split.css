@@ -8,7 +8,6 @@
   --kt-banner-split-radius: 1rem;
   --kt-banner-split-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
-  /* R-density — section padding via merchant settings */
   margin-top: var(--kt-banner-split-pad-top, 0);
   margin-bottom: var(--kt-banner-split-pad-bottom, 0);
   padding: 3rem 1.5rem;
@@ -78,7 +77,6 @@
   display: block;
   margin-bottom: 1.5rem;
   color: var(--kt-banner-split-eyebrow);
-  /* R153 EYEBROW-FONT-1: bump 10px → 11px for iPhone SE legibility. */
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.4em;
@@ -90,11 +88,6 @@
   margin: 0 0 1.5rem;
   font-family: var(--kt-f-accent-family, 'Playfair Display', Georgia, 'Times New Roman', serif);
   font-weight: 400;
-  /* R153 HEADING-CLAMP-1: clamp() so long translations stay
-     within the split layout's narrow column.
-     R269 — `overflow-wrap` switched from break-word to normal so
-     editorial headings keep every word whole (see global heading
-     rule in base.css for rationale). */
   font-size: calc(var(--kt-f-heading-scale, 1) * (clamp(1.875rem, 3.5vw + 1rem, 3rem)));
 
   line-height: 1.1;
@@ -148,8 +141,6 @@
 }
 
 .kt-banner-split__cta:hover {
-  /* R232.50 — opacity hover so action color shifts cleanly across
-     merchant brand variants. */
   background-color: var(--kt-banner-split-btn-hover-bg);
   color: var(--kt-banner-split-btn-fg);
   opacity: 0.88;
@@ -174,7 +165,6 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  /* R232.50 — scheme-aware fallback behind the image. */
   background-color: rgba(var(--kt-c-fg, 231 229 228), 0.15);
 }
 

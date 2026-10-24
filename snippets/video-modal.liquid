@@ -1,14 +1,3 @@
-{%- comment -%}
-  Shared video modal — iframe-based lightbox for YouTube / Vimeo.
-  Used by video-split-modal and video-poster-modal sections.
-
-  Accepts:
-  - modal_id: {String} unique DOM id (e.g. 'VideoModal-<section.id>')
-
-  The iframe src is set by assets/video-modal.js when the user clicks
-  an element with `[data-modal-video-open]`. Closing clears the src so
-  playback stops. Escape, backdrop click, and close button all close.
-{%- endcomment -%}
 
 <div
   class="kt-video-modal"
@@ -35,14 +24,6 @@
 
     <div class="kt-video-modal__frame-wrap">
       {%- comment -%}
-        Explicit width/height attrs so Lighthouse's "image elements
-        have explicit width and height" audit (which also checks
-        <iframe> + <video>) doesn't flag CLS risk. The 16:9 aspect is
-        re-enforced by CSS on the wrapper; the numeric attrs are
-        effectively a ratio hint — browsers use them to reserve space
-        before the frame src is set.
-      {%- endcomment -%}
-      {%- comment -%}
         Sandbox attribute — restricts what the embedded YouTube/Vimeo
         frame can do. We allow the minimum set needed for video playback
         to work: script execution (required by player APIs), same-origin
@@ -52,17 +33,6 @@
         the top window or run drive-by scripts on modal dismiss; this
         closes the OWASP-flagged "unsandboxed third-party iframe" gap.
       {%- endcomment -%}
-        {%- comment -%}
-          R88 — sandbox attribute tightening. `allow-scripts +
-          allow-same-origin` together is the OWASP-flagged "sandbox
-          escape" combination: the embedded YouTube/Vimeo frame can
-          theoretically remove its own sandbox by editing its parent
-          via window.parent. Dropped `allow-same-origin` because
-          modern Vimeo/YouTube embeds work without it (cookies still
-          flow via the embed's own domain). `allow-presentation`
-          retained for Cast support; `allow-popups` retained for
-          "open on YouTube" affordance.
-        {%- endcomment -%}
       <iframe
         class="kt-video-modal__frame"
         data-video-modal-frame

@@ -1,10 +1,3 @@
-/* Showroom PDP — birebir from showroom/[id]/page.tsx
-   Left 73% alternating gallery + Right 27% sticky info
-
-   Top padding: 20px on mobile (verified by the user in DevTools —
-   closes the thin gap between the header and the gallery on mobile
-   without adding too much whitespace), 48px on desktop to match the
-   Next.js source's `md:pt-32 - navbar height` visible gap. */
 
 .kt-showroom {
   background-color: var(--kt-white);
@@ -86,15 +79,6 @@
 }
 
 .kt-showroom__gallery-full {
-  /* R93 — gallery slide is now a native <button> for proper a11y
-     semantics (was `<div tabindex="0" role="button">`). Native button
-     ships with user-agent chrome (background, border, padding, font)
-     that we reset here so the visual stays identical. The same
-     reset applies to .kt-showroom__gallery-half and
-     .kt-showroom__gallery-mobile-slide via the comma-separated
-     :focus-visible rule at line 148+ already, so add the reset
-     declarations across all three classes via the shared
-     selector below. */
   appearance: none;
   -webkit-appearance: none;
   background: var(--kt-stone-100);
@@ -116,14 +100,6 @@
 }
 
 .kt-showroom__gallery-half {
-  /* R232.41 — `.kt-showroom__gallery-half` renders as a native
-     <button> (see sections/main-product-showroom.liquid line 104-
-     130) so the user-agent button chrome (border, padding, font,
-     bg) shows through unless explicitly reset. The user reported
-     "Showroom prd type fotolarda neden border var" — the visible
-     hairline was the UA button border on Chromium/Safari. Mirror
-     the reset the comma-paired `.kt-showroom__gallery-full` already
-     ships above. */
   appearance: none;
   -webkit-appearance: none;
   border: 0;
@@ -171,11 +147,6 @@
 }
 
 .kt-showroom__gallery-mobile-slide {
-  /* R232.41 — same UA-button reset as `.kt-showroom__gallery-half`
-     above. The mobile slide is a native <button> for tap-to-zoom
-     semantics (see sections/main-product-showroom.liquid line
-     232-241), and without the reset the UA chrome adds a thin
-     hairline border around every image in the swiper. */
   appearance: none;
   -webkit-appearance: none;
   border: 0;
@@ -224,24 +195,6 @@
   z-index: 3;
 }
 
-/* R-SS5-showroom — Per-slide loader for the showroom gallery.
-   Non-first images carry `loading="lazy"` so the initial payload
-   stays light; once the customer swipes / drags to the next
-   slide on mobile (native scroll-snap, no JS-driven goTo) or
-   scrolls the desktop grid into view, the lazy image starts
-   downloading and the slide briefly paints as an empty stone-100
-   panel while the bytes arrive. The merchant flagged the white
-   gap on the e-commerce gallery (R-SS5 in commit 0731113) and
-   wants the same loading affordance on the showroom template.
-
-   The spinner is an `::after` pseudo-element on every slide. The
-   image inside paints on z-index 2 (above the spinner) so the
-   moment the bytes land the spinner is visually covered without
-   any JS intervention. `[data-image-loaded]` is a belt-and-
-   suspenders attribute the JS in product-gallery.js sets when
-   the image's `load` event fires — when present, it hard-hides
-   the spinner so cached images don't keep paying the animation
-   tick. */
 .kt-showroom__gallery-full::after,
 .kt-showroom__gallery-half::after,
 .kt-showroom__gallery-mobile-slide::after {
@@ -568,13 +521,6 @@
   background-color: var(--kt-black);
 }
 
-/* R232.33 — Secondary CTA is now FILLED in the same accent color
-   the PDP "Buy it now" button uses (the previous outlined / border-
-   only treatment looked inconsistent with the PDP pair where both
-   buttons are filled — one dark, one accent). Shares the
-   `--kt-buy-now-*` tokens with the PDP so a single Theme Settings
-   color tunes BOTH surfaces — the showroom CTA pair (dark + accent
-   filled) now matches the PDP cluster (dark + accent filled). */
 .kt-showroom__cta--secondary {
   background-color: var(--kt-buy-now-bg, #5fe8b6);
   color: var(--kt-buy-now-fg, #0c0a09);
@@ -694,10 +640,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* R-sample-header-light — was a hard dark stone-900 bar; softened to a
-     light-grey header so the sample card reads as a calm secondary
-     surface (the showroom is lead-gen, not a commerce CTA). The card
-     body stays white; a hairline divider separates the two. */
   background-color: var(--kt-stone-50);
   border-bottom: 1px solid var(--kt-stone-200);
   padding: 0.75rem 1.25rem;
@@ -876,12 +818,6 @@
   border-color: var(--kt-stone-900);
 }
 
-/* ============================================================
-   R-pdp-completeness — Standalone Description block
-   Independent of the accordion fallback path; renders the full
-   product description inline in the info column.
-   ============================================================ */
-
 .kt-showroom__desc-block {
   margin: 1rem 0 1.5rem;
   font-size: 0.9375rem;
@@ -891,13 +827,6 @@
 
 .kt-showroom__desc-block > *:first-child { margin-top: 0; }
 .kt-showroom__desc-block > *:last-child { margin-bottom: 0; }
-
-/* ============================================================
-   R-pdp-completeness — Single Metafield row
-   Mirrors `.kt-pdp__metafield` from the standard product template,
-   scoped to showroom typography so the row sits comfortably inside
-   the editorial info column.
-   ============================================================ */
 
 .kt-showroom__metafield {
   margin: 0.875rem 0;
@@ -929,12 +858,6 @@
   color: rgba(var(--kt-c-fg, 122 122 122), 0.7);
   font-style: italic;
 }
-
-/* ============================================================
-   R-pdp-completeness — Specifications table
-   Same dl/dt/dd structure as `.kt-pdp__specs` but inside the
-   showroom's editorial info column.
-   ============================================================ */
 
 .kt-showroom__specs {
   margin: 1.5rem 0;
@@ -991,18 +914,10 @@
   font-style: italic;
 }
 
-/* ============================================================
-   R-pdp-audit — Custom Liquid block (parity with main-product)
-   Bare wrapper; merchant Liquid markup paints inside untouched.
-   ============================================================ */
 .kt-showroom__custom-liquid {
   margin: 1rem 0;
 }
 
-/* ============================================================
-   R-pdp-audit — Trust badges (parity with main-product)
-   3-up grid of small bordered chips with icon + uppercase label.
-   ============================================================ */
 .kt-showroom__trust-badges {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1033,12 +948,6 @@
   letter-spacing: 0.05em;
 }
 
-/* ============================================================
-   R-pdp-audit — Complementary products (parity with main-product)
-   Compact list of curated picks from Search & Discovery's
-   `complementary_products` metafield. Empty state hint inside
-   theme editor only.
-   ============================================================ */
 .kt-showroom__complementary {
   margin-top: 1.5rem;
   padding-top: 1.5rem;

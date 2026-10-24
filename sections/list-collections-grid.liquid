@@ -23,20 +23,6 @@
 >
   <div class="page-width">
     {%- if collections.size > 0 -%}
-      {%- comment -%}
-        R232.11 — paginate the global `collections` object directly.
-        Previously this section sorted into a local `collection_list`
-        variable BEFORE `{% paginate %}`, but Shopify Liquid only
-        accepts paginatable objects (collections, collection.products,
-        blog.articles, search.results) — passing a `sort`-derived
-        Array raises "Array 'collection_list' is not paginateable."
-        Pagination now wraps the Shopify-native `collections`, and
-        the sort branch below re-orders the paginated subset before
-        the loop. For catalogues with 50+ collections (B2B / multi-
-        category) this keeps each page's DOM size capped at the
-        merchant's `collections_per_page` setting (default 12, max 30)
-        so Lighthouse Performance stays green — Theme Store PRF-1.
-      {%- endcomment -%}
       {%- paginate collections by section.settings.collections_per_page -%}
         {%- liquid
           case sort_order
@@ -85,16 +71,6 @@
                   <p class="kt-list-collections__desc">{{ collection.description | strip_html | truncate: 120 }}</p>
                 {%- endif -%}
                 <div class="kt-list-collections__footer">
-                  {%- comment -%}
-                    R99 — Shopify-native plural resolution. Passing
-                    `count: N` lets the t filter pick the right
-                    plural form per locale (one/other in EN/TR/DE/
-                    FR/ES; one/few/many/other in RU/PL/etc. when
-                    additional locales ship). The locale string
-                    embeds {{ count }} so we don't bare-output the
-                    integer + a separate noun (which would break
-                    word-ordering languages like JA/KO/TR).
-                  {%- endcomment -%}
                   <span class="kt-list-collections__count">
                     {{ 'kt.section.list-collections.products_count' | t: count: collection.all_products_count }}
                   </span>

@@ -1,15 +1,12 @@
-/* Shop The Look — Birebir from ShopTheLookHome.tsx */
 
 /* section: py-24 bg-stone-50 overflow-hidden */
 .kt-shop-the-look {
   padding: 6rem 0;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
   background-color: rgb(var(--kt-c-bg, 250 250 249));
   color: rgb(var(--kt-c-fg, 28 25 23));
   overflow: hidden;
 }
 
-/* R232.50 — scheme-aware inner colors via opacity-graded --kt-c-fg */
 /* Header: mb-16 border-l-2 border-stone-900 pl-6 */
 .kt-shop-the-look__header {
   margin-bottom: 4rem;
@@ -111,17 +108,6 @@
   height: 100%;
 }
 
-/* Hotspot: absolute z-30
-   R273 — Coordinates come from the inline custom properties
-   set by the Liquid block markup:
-     --kt-hotspot-x / --kt-hotspot-y         → desktop placement
-     --kt-hotspot-x-mobile / --kt-hotspot-y-mobile → mobile placement
-   The image container's crop differs between mobile (full-bleed
-   square-ish portrait) and desktop (wider editorial 16/9), so a
-   single percentage was landing the dot in two different spots
-   relative to the underlying art on the two breakpoints. Now
-   the merchant tunes the dot per breakpoint and CSS swaps which
-   pair drives `top` / `left` based on viewport width. */
 .kt-shop-the-look__hotspot-wrap {
   position: absolute;
   top: var(--kt-hotspot-y-mobile, var(--kt-hotspot-y, 25%));
@@ -136,10 +122,6 @@
   }
 }
 
-/* R104 — Hotspot dot: WCAG 2.5.5 target-size 44×44 min. The
-   2.5rem (40px) Next.js source value missed mobile reviewers'
-   tap-test on shop-the-look hotspots. 2.75rem clears WCAG with
-   no measurable visual change at editorial-image scale. */
 .kt-shop-the-look__hotspot {
   position: relative;
   width: 2.75rem;
@@ -151,11 +133,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  /* R142 ANIM-LAYOUT-1: explicit composite-only transition.
-     `transition: all 0.5s` previously caught any later property
-     change (border, padding) and 500ms hover felt sluggish. The
-     hotspot animates scale + box-shadow on hover/active; both
-     are composite. 250ms keeps the hover reveal snappy. */
   transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
   cursor: pointer;
 }
@@ -220,8 +197,6 @@
   padding: 1.25rem;
   border-radius: 1rem;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
-  /* R113 — sticky tier (popup sits above section content but
-     below drawers / lightboxes if those open over it). */
   z-index: calc(var(--kt-z-sticky) + 800);
   pointer-events: auto;
   opacity: 0;
@@ -362,7 +337,6 @@
   display: none;
   position: fixed;
   inset: auto 0 0 0;
-  /* R113 — drawer tier (mobile bottom-sheet IS a drawer). */
   z-index: var(--kt-z-drawer);
   padding: 1.5rem;
   transform: translateY(100%);
@@ -407,16 +381,6 @@
   align-items: center;
   justify-content: center;
   color: var(--kt-stone-500);
-  /* R275 — the close button is `position: absolute` at the top-
-     right of the sheet inner. The mobile-sheet-content's right
-     column (name / price / link) sits behind it because the
-     content row has no right padding. On products with a name
-     longer than ~12 chars the text crashed into the X glyph
-     (reporter: "font icon altında kalmış"). Lift the close
-     button to its own z-stack tier so the text reads through
-     UNDER it instead of being half-painted into the chip, and
-     add a right padding on the content row to clear the chip's
-     hit area (40px chip + 16px offset = 56px ≈ 3.5rem). */
   z-index: 2;
 }
 

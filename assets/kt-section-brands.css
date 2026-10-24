@@ -1,18 +1,5 @@
-/* Brands — Infinite marquee logo strip
-   Birebir from Brands.tsx */
 
-/* R232.49 — scheme-aware bg + text. Was hardcoded var(--kt-stone-50);
-   falls back to 250 250 249 so default look unchanged. Fade-left /
-   fade-right gradients further down also patched to the scheme bg
-   so the marquee edges blend into the current scheme. */
 .kt-brands {
-  /* R196 — section made into a flex container so the track is
-     vertically centred by the layout, not by padding math.
-     Padding defaults still drive the merchant range setting (so
-     the editor toggle keeps working). align-items: center
-     guarantees the track sits at the geometric centre of the
-     section regardless of any internal content asymmetry (svg
-     viewBox padding, glyph half-leading, etc). */
   display: flex;
   align-items: center;
   padding-top: var(--kt-brands-pad-top, 40px);
@@ -29,44 +16,23 @@
   animation: kt-marquee 30s linear infinite;
 }
 
-/* R298 — Pause on hover OR keyboard focus-within (parallel-experience
-   for keyboard users tabbing through brand links). WCAG 2.2.2 still
-   requires a user-controllable pause — the `prefers-reduced-motion`
-   block at the bottom of this file disables motion globally for
-   sensitive users; keyboard parity here gives Tab-into-marquee users
-   the same reading window pointer users get. */
 .kt-brands:hover .kt-brands__track,
 .kt-brands:focus-within .kt-brands__track {
   animation-play-state: paused;
 }
 
-/* R-wcag-pause — explicit `--paused` modifier toggled by the in-
-   section play/pause control. Touch and screen-reader users have no
-   hover/focus equivalent, so WCAG 2.2.2 still requires a persistent
-   on-page pause control; the JS toggle flips this modifier. */
 .kt-brands--paused .kt-brands__track {
   animation-play-state: paused;
 }
 
-/* R232.50 — scheme-aware inner colors. Brand item text-fallback +
-   placeholder name now opacity-grade against --kt-c-fg so the
-   marquee tracks the active scheme. The hover state lifts to full
-   --kt-c-fg opacity. */
 .kt-brands__item {
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 2rem;
   width: 10rem;
-  /* R196 — back to a fixed height now that section-level flex
-     centring (R196) handles the macro vertical alignment. Fixed
-     item height keeps the marquee track row uniform regardless of
-     which fallback path each block takes (image vs placeholder vs
-     plain text), so adjacent items don't render at different
-     heights and create a wavy baseline. */
   height: 4rem;
   flex-shrink: 0;
-  /* R232.50 — scheme-aware muted (was stone-500). */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
   user-select: none;
   transition: color 0.3s ease;
@@ -80,7 +46,6 @@
 }
 
 .kt-brands__item:hover {
-  /* R232.50 — scheme-aware hover (was stone-900). */
   color: rgb(var(--kt-c-fg, 28 25 23));
 }
 
@@ -89,17 +54,6 @@
   max-width: 100%;
   width: auto;
   height: auto;
-  /* R274 — Was hardcoded `opacity: 0.4` + no filter. Now both
-     come from inline CSS custom properties set on the section
-     root from merchant settings:
-       --kt-brands-logo-opacity  (0.20 – 1.00, default 0.40)
-       --kt-brands-logo-filter   (`none` | `grayscale(100%)`,
-                                  default `grayscale(100%)`)
-     Hover reveals the logo to full opacity AND drops the
-     grayscale filter so the merchant gets a free "B&W → color
-     on hover" effect when the resting state is grayscale.
-     Fallbacks preserve previous behavior on browsers that fail
-     to apply the inline style for any reason. */
   opacity: var(--kt-brands-logo-opacity, 0.4);
   filter: var(--kt-brands-logo-filter, grayscale(100%));
   -webkit-filter: var(--kt-brands-logo-filter, grayscale(100%));
@@ -121,19 +75,12 @@
   white-space: nowrap;
 }
 
-/* R197 — Placeholder name (text-only fallback when no logo image
-   uploaded). Previous svg-and-name placeholder column was dropped;
-   .kt-brands__placeholder wrapper div is no longer rendered, the
-   <span> sits directly inside .kt-brands__item which centres it.
-   Explicit line-height: 1 collapses default-normal half-leading so
-   the text's geometric box matches its visual ink. */
 .kt-brands__placeholder-name {
   font-size: 0.625rem;
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-500). */
   color: rgba(var(--kt-c-fg, 122 122 122), 0.6);
 }
 
@@ -148,9 +95,6 @@
   pointer-events: none;
 }
 
-/* R232.49 — fade edges patched from hardcoded var(--kt-stone-50)
-   to scheme bg so the marquee horizon blends into whichever scheme
-   the section is painting under. */
 .kt-brands__fade-left {
   left: 0;
   background: linear-gradient(to right, rgb(var(--kt-c-bg, 250 250 249)), transparent);
@@ -176,11 +120,6 @@
   }
 }
 
-/* R-user — pause/play toggle removed per user request; the marquee
-   still pauses on hover/focus and is disabled under
-   prefers-reduced-motion (see rules above). Kept position: relative
-   on the host so any future absolutely-positioned child still anchors
-   here. */
 .kt-brands {
   position: relative;
 }
