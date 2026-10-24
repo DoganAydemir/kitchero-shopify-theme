@@ -1,0 +1,94 @@
+{%- comment -%}
+  Complementary products block (Search & Discovery) for main-product.
+  Accepts: block, product
+{%- endcomment -%}
+{%- comment -%}
+  R121 — Complementary products block. Shows manually-
+  curated complementary items inside the PDP info
+  column (separate from the algorithmic "related-
+  products" section that sits below the layout).
+
+  Data source: the
+  `shopify--discovery--product_recommendation.related_products`
+  metafield, populated via Shopify's Search &
+  Discovery app. Synchronous render — no async fetch
+  — because the metafield is available at PDP
+  render time.
+
+  Compact inline card markup (image + title + price)
+  rather than the full card-product snippet, because
+  the PDP info column is narrow (~360px on desktop)
+  and the full card's hover/swap/quote-button
+  affordances would feel cramped.
+
+  Empty-state matrix:
+    - Metafield populated → renders compact list.
+    - Metafield empty + design_mode → editor hint
+      pointing at Search & Discovery app.
+    - Metafield empty + live → block emits NOTHING.
+{%- endcomment -%}
+{%- comment -%}
+  R149 COMPLEMENTARY-METAFIELD-1: read the
+  `complementary_products` metafield, not
+  `related_products`. Search & Discovery stores
+  curated complementary picks at
+  `shopify--discovery--product_recommendation.complementary_products`
+  — this block is named "complementary" so it must
+  read that key. Reading `related_products` was a
+  data mismatch (the same key as the related-products
+  section), so the "Pairs well with" block surfaced
+  related-not-complementary picks → reviewer flag
+  for misleading feature wiring.
+{%- endcomment -%}
+{%- assign comp_products = product.metafields.shopify--discovery--product_recommendation.complementary_products.value -%}
+{%- if comp_products and comp_products.size > 0 -%}
+  <div class="kt-pdp__complementary" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      {%- assign complementary_heading_tag = block.settings.heading_tag | default: 'h3' -%}
+      <{{ complementary_heading_tag }} class="kt-pdp__complementary-heading">{{ block.settings.heading | escape }}</{{ complementary_heading_tag }}>
+    {%- endif -%}
+    <ul class="kt-pdp__complementary-list" role="list">
+      {%- for comp_product in comp_products limit: block.settings.products_count -%}
+        <li class="kt-pdp__complementary-item">
+          <a class="kt-pdp__complementary-link" href="{{ comp_product.url }}">
+            <div class="kt-pdp__complementary-media">
+              {%- if comp_product.featured_media != blank -%}
+                {%- assign image_alt_text = comp_product.featured_media.alt | default: comp_product.title | strip_html -%}
+                {{ comp_product.featured_media.preview_image | image_url: width: 200 | image_tag:
+                    loading: 'lazy',
+                    widths: '100, 200, 300',
+                    sizes: '100px',
+                    width: 100,
+                    height: 100,
+                    class: 'kt-pdp__complementary-image',
+                    alt: image_alt_text }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'kt-pdp__complementary-image kt-pdp__complementary-image--placeholder' }}
+              {%- endif -%}
+            </div>
+            <div class="kt-pdp__complementary-text">
+              <p class="kt-pdp__complementary-title">{{ comp_product.title | escape }}</p>
+              {%- comment -%}
+                R86 SUB-05 — pre-format money before
+                t-interpolation so `| money` lands on
+                price_min, not on the t output.
+              {%- endcomment -%}
+              {%- if comp_product.price_varies -%}
+                {%- assign comp_price_money = comp_product.price_min | money -%}
+                <p class="kt-pdp__complementary-price">{{ 'kt.product.from_price_label' | t }} {{ comp_price_money }}</p>
+              {%- else -%}
+                <p class="kt-pdp__complementary-price">{{ comp_product.price | money }}</p>
+              {%- endif -%}
+            </div>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="kt-pdp__complementary kt-pdp__complementary--empty" {{ block.shopify_attributes }}>
+    <p class="kt-pdp__complementary-hint">
+      {{ 'kt.product.complementary.editor_hint' | t | default: 'Install the Shopify Search & Discovery app and pick complementary products for this product to populate this block.' }}
+    </p>
+  </div>
+{%- endif -%}

@@ -1,0 +1,83 @@
+{%- comment -%}
+  Sample box block for main-product-showroom: a separate low-cost sample product with its own Add to cart.
+  Accepts: block, product, section
+{%- endcomment -%}
+{%- comment -%}
+  The sample is a SEPARATE, low-cost product (e.g. a door
+  swatch) linked via the block's Sample product picker —
+  NOT the showroom product itself. No fallback to the
+  current product: a $1,000 cabinet must never become the
+  "sample" added to cart. When nothing is linked the box
+  does not render on the storefront (an editor hint shows
+  in the theme editor instead).
+{%- endcomment -%}
+{%- assign sample_product = block.settings.sample_product -%}
+{%- if sample_product != blank -%}
+  {%- assign sample_variant = sample_product.selected_or_first_available_variant -%}
+  {%- assign sample_header_default = 'kt.section.product_showroom.sample_header_default' | t -%}
+  <div class="kt-showroom__sample-box" {{ block.shopify_attributes }}>
+    <div class="kt-showroom__sample-header">
+      <span class="kt-showroom__sample-header-title">
+        {{ block.settings.header_title | default: sample_header_default }}
+      </span>
+      {%- if block.settings.ships_badge != blank -%}
+        <span class="kt-showroom__sample-ships-badge">{{ block.settings.ships_badge }}</span>
+      {%- endif -%}
+    </div>
+    <div class="kt-showroom__sample-body">
+      <div class="kt-showroom__sample-top">
+        <div class="kt-showroom__sample-thumb">
+          {%- comment -%} Just the linked sample product's own featured image — no metafield/setting indirection. Placeholder if the product has no image. {%- endcomment -%}
+          {%- assign sample_cover = sample_product.featured_image -%}
+          {%- if sample_cover != blank -%}
+            {%- comment -%} Width-only request (no crop) so the photo keeps full resolution; CSS object-fit:cover frames it in the left thumb. Requested well wider than the 96×128 box (500px) so the cover crop stays crisp on retina. {%- endcomment -%}
+            {%- assign image_alt_text = sample_cover.alt | default: sample_product.title | strip_html -%}
+            {{ sample_cover | image_url: width: 500 | image_tag: loading: 'lazy', width: 96, height: 128, alt: image_alt_text }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </div>
+        <div class="kt-showroom__sample-info">
+          <h2 class="kt-showroom__sample-title">{{ sample_product.title }}</h2>
+          <div class="kt-showroom__sample-price-row">
+            <span class="kt-showroom__sample-price">{{ sample_variant.price | money }}</span>
+            {%- if block.settings.refundable -%}
+              <span class="kt-showroom__sample-refundable">
+                {{ 'kt.product.sample.refundable' | t | default: 'Refundable' }}
+              </span>
+            {%- endif -%}
+          </div>
+          {%- if block.settings.description != blank -%}
+            <p class="kt-showroom__sample-desc">{{ block.settings.description | escape }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+      {%- if block.settings.meta != blank -%}
+        <div class="kt-showroom__sample-meta">{{ block.settings.meta }}</div>
+      {%- endif -%}
+      {%- form 'product', sample_product, id: 'DoorSampleForm', class: 'kt-showroom__sample-form' -%}
+        <input type="hidden" name="id" value="{{ sample_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="kt-showroom__sample-btn" {% unless sample_variant.available %}disabled{% endunless %}>
+          {%- if sample_variant.available -%}
+            {{ 'kt.product.sample.add_to_cart' | t | default: 'Add sample to cart' }}
+          {%- else -%}
+            {{ 'kt.product.sold_out' | t }}
+          {%- endif -%}
+        </button>
+        {%- comment -%}
+          No dynamic checkout here on purpose: the sample is a
+          secondary purchase. The buy_buttons block carries the
+          product's Add to cart and dynamic checkout buttons.
+        {%- endcomment -%}
+      {%- endform -%}
+    </div>
+  </div>
+{%- elsif request.design_mode -%}
+  {%- comment -%} Editor-only prompt so the merchant links a sample product (the box stays hidden on the live storefront until one is chosen). {%- endcomment -%}
+  <div class="kt-showroom__sample-box kt-showroom__sample-box--empty" {{ block.shopify_attributes }}>
+    <p class="kt-showroom__sample-empty-hint">
+      {{ 'kt.section.product_showroom.sample_empty_hint' | t }}
+    </p>
+  </div>
+{%- endif -%}
