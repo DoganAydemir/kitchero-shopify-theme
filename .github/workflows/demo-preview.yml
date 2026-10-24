@@ -50,6 +50,7 @@ jobs:
           shopify theme pull --theme "${{ inputs.source_theme }}" --path . \
             --only 'templates/*.json' --only 'sections/*-group.json' --only 'config/settings_data.json'
           python3 .github/scripts/migrate_content.py .
+          python3 .github/scripts/demo_content.py .
 
       - name: Push unpublished preview theme
         env:
