@@ -18,8 +18,18 @@
                        When OFF, only the small underlined text link
                        renders.
   - index: {Number} Zero-based index of card in grid; first 3 get eager loading for LCP (default: 99)
+  - columns_desktop: {Number} grid columns at 990px+, used for image sizes (default: 4)
+  - columns_mobile: {Number} grid columns below 750px, used for image sizes (default: 2)
 {%- endcomment -%}
 
+{%- liquid
+  assign card_cols_d = columns_desktop | default: 4 | at_least: 1
+  assign card_cols_m = columns_mobile | default: 2 | at_least: 1
+  assign card_vw_d = 100 | divided_by: card_cols_d
+  assign card_vw_m = 100 | divided_by: card_cols_m
+  assign card_px_d = 1500 | divided_by: card_cols_d
+-%}
+{%- capture card_image_sizes -%}(min-width: 1500px) {{ card_px_d }}px, (min-width: 990px) {{ card_vw_d }}vw, (min-width: 750px) 50vw, {{ card_vw_m }}vw{%- endcapture -%}
 {%- liquid
   assign show_vendor = show_vendor | default: true
   assign show_secondary_image = show_secondary_image | default: true
@@ -144,7 +154,7 @@
           loading: primary_loading,
           fetchpriority: primary_fetchpriority,
           widths: '275, 375, 550, 750, 1100',
-          sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+          sizes: card_image_sizes,
           width: product.featured_image.width,
           height: product.featured_image.height,
           style: card_image_style,
@@ -173,7 +183,7 @@
           class: 'kt-card-product__image-secondary',
           loading: 'lazy',
           widths: '275, 375, 550, 750, 1100',
-          sizes: '(min-width: 1400px) 25vw, (min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+          sizes: card_image_sizes,
           width: secondary_image.width,
           height: secondary_image.height,
           alt: secondary_image_alt
