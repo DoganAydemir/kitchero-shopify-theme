@@ -1,0 +1,62 @@
+name: Demo store preview
+
+# Builds an unpublished preview theme on the demo store from `main` code and
+# the live demo theme's content (templates, section groups, theme settings).
+# Run it manually from the Actions tab. The live theme is not changed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_theme:
+        description: Theme ID to copy content from (live demo theme)
+        default: '161253130454'
+        required: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Get access token
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+        run: |
+          token=$(curl -sS -f -X POST "https://kitchero-kitchen.myshopify.com/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          echo "SHOPIFY_CLI_THEME_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Copy content from the live demo theme
+        env:
+          SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+          SHOPIFY_CLI_TTY: '0'
+          CI: '1'
+        run: |
+          rm -f .shopifyignore
+          shopify theme pull --theme "${{ inputs.source_theme }}" --path . \
+            --only 'templates/*.json' --only 'sections/*-group.json' --only 'config/settings_data.json'
+          python3 .github/scripts/migrate_content.py .
+
+      - name: Push unpublished preview theme
+        env:
+          SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+          SHOPIFY_CLI_TTY: '0'
+          CI: '1'
+        run: |
+          name="Kitchero preview $(date -u +%Y-%m-%d) ${GITHUB_SHA::7}"
+          shopify theme push --unpublished --theme "$name" --path . --json > push.json
+          jq -r '.theme | "Theme: \(.name) (#\(.id))\nPreview: \(.preview_url)\nEditor: \(.editor_url)"' push.json | tee -a "$GITHUB_STEP_SUMMARY"
