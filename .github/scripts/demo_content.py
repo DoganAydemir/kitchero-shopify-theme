@@ -72,6 +72,17 @@ EDITS = [
     ('templates/index.json', 'testimonials', 't2', {'name': 'James Wilson', 'role': 'Renovation client'}),
     ('templates/index.json', 'testimonials', 't3', {'name': 'Sophia Martin', 'role': 'Homeowner'}),
 
+    # Logos: five distinct fictional brands (uploaded to Admin > Files)
+    ('templates/index.json', 'brands', 'b1', {'image': 'shopify://shop_images/logo-varenholt.png', 'alt': 'Varenholt'}),
+    ('templates/index.json', 'brands', 'b2', {'image': 'shopify://shop_images/logo-quillstone.png', 'alt': 'Quillstone'}),
+    ('templates/index.json', 'brands', 'b3', {'image': 'shopify://shop_images/logo-alder-pine.png', 'alt': 'Alder & Pine'}),
+    ('templates/index.json', 'brands', 'b4', {'image': 'shopify://shop_images/logo-marrowick.png', 'alt': 'Marrowick'}),
+    ('templates/index.json', 'brands', 'b5', {'image': 'shopify://shop_images/logo-tessaline.png', 'alt': 'Tessaline'}),
+    ('templates/page.financing.json', 'partners', 'p1', {'name': 'Corvan Pay',
+        'logo_image': 'shopify://shop_images/partner-corvan-pay.png'}),
+    ('templates/page.financing.json', 'partners', 'p2', {'name': 'Fernlight Credit',
+        'logo_image': 'shopify://shop_images/partner-fernlight-credit.png'}),
+
     # Blog and cart
     ('templates/blog.json', 'main', None, {'description':
         'Planning guides, finish ideas, and care tips for kitchens that work as well as they look.'}),
@@ -262,6 +273,14 @@ if entry:
         if 'door_sample' in order and 'ctas' in order:
             order.remove('door_sample')
             order.insert(order.index('ctas') + 1, 'door_sample')
+        entry[2] = True
+
+# Favicon (audit E13)
+entry = doc('config/settings_data.json')
+if entry and isinstance(entry[1].get('current'), dict):
+    current = entry[1]['current']
+    if not current.get('kt_favicon'):
+        current['kt_favicon'] = 'shopify://shop_images/favicon-kitchero.png'
         entry[2] = True
 
 for rel, entry in cache.items():
