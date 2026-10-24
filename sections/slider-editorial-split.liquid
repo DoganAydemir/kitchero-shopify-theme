@@ -9,12 +9,12 @@
 {%- capture total_padded -%}{%- if total_slides < 10 -%}0{{ total_slides }}{%- else -%}{{ total_slides }}{%- endif -%}{%- endcapture -%}
 
 <section
-  class="kt-slider-editorial color-{{ section.settings.color_scheme | default: 'scheme-4' }} kt-slider-editorial--image-{{ image_position }}{% if show_progress %} kt-slider-editorial--progress{% endif %}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-slider-editorial color-{{ section.settings.color_scheme | default: 'scheme-4' }} kt-slider-editorial--image-{{ image_position }}{% if show_progress %} kt-slider-editorial--progress{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="slider-editorial-split"
   data-autoplay-interval="{{ autoplay_interval }}"
   data-total-slides="{{ total_slides }}"
-  style="--kt-editorial-interval: {{ autoplay_interval }}s;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-editorial-interval: {{ autoplay_interval }}s;"
   aria-roledescription="carousel"
   aria-label="{{ 'kt.section.slider_editorial_split.aria_label' | t }}"
 >
@@ -262,8 +262,14 @@
       "id": "image_position",
       "label": "t:sections.slider_editorial_split.settings.image_position.label",
       "options": [
-        { "value": "right", "label": "t:sections.slider_editorial_split.settings.image_position.options.right" },
-        { "value": "left", "label": "t:sections.slider_editorial_split.settings.image_position.options.left" }
+        {
+          "value": "right",
+          "label": "t:sections.slider_editorial_split.settings.image_position.options.right"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.slider_editorial_split.settings.image_position.options.left"
+        }
       ],
       "default": "right"
     },
@@ -272,32 +278,21 @@
       "id": "heading_tag",
       "label": "t:sections.slider_editorial_split.settings.heading_tag.label",
       "options": [
-        { "value": "h1", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h1" },
-        { "value": "h2", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h2" },
-        { "value": "h3", "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h3" }
+        {
+          "value": "h1",
+          "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h1"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h2"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.slider_editorial_split.settings.heading_tag.options.h3"
+        }
       ],
       "default": "h2"
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
@@ -351,11 +346,16 @@
         }
       ]
     },
-    { "type": "@app" }
+    {
+      "type": "@app"
+    }
   ],
   "max_blocks": 8,
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

@@ -85,10 +85,10 @@
 {%- capture header_style_attr -%}
   --kt-header-padding-top: {{ header_pad_top }}px;
   --kt-header-padding-bottom: {{ header_pad_bot }}px;
-  {%- if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank -%}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{%- endif -%}
+  
 {%- endcapture -%}
 <header
-  class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-header color-{{ section.settings.color_scheme | default: 'scheme-4' }}"
   data-section-id="{{ section.id }}"
   data-section-type="header"
   data-header-style="{{ header_style }}"
@@ -958,7 +958,9 @@
   "name": "t:sections.header.name",
   "class": "section-header",
   "enabled_on": {
-    "groups": ["header"]
+    "groups": [
+      "header"
+    ]
   },
   "settings": [
     {
@@ -971,9 +973,18 @@
       "label": "t:sections.header.settings.header_style.label",
       "info": "t:sections.header.settings.header_style.info",
       "options": [
-        { "value": "auto", "label": "t:sections.header.settings.header_style.options__auto.label" },
-        { "value": "transparent", "label": "t:sections.header.settings.header_style.options__transparent.label" },
-        { "value": "solid", "label": "t:sections.header.settings.header_style.options__solid.label" }
+        {
+          "value": "auto",
+          "label": "t:sections.header.settings.header_style.options__auto.label"
+        },
+        {
+          "value": "transparent",
+          "label": "t:sections.header.settings.header_style.options__transparent.label"
+        },
+        {
+          "value": "solid",
+          "label": "t:sections.header.settings.header_style.options__solid.label"
+        }
       ],
       "default": "auto"
     },
@@ -1012,8 +1023,14 @@
       "id": "logo_position",
       "label": "t:sections.header.settings.logo_position.label",
       "options": [
-        { "value": "left", "label": "t:sections.header.settings.logo_position.options__left.label" },
-        { "value": "center", "label": "t:sections.header.settings.logo_position.options__center.label" }
+        {
+          "value": "left",
+          "label": "t:sections.header.settings.logo_position.options__left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.logo_position.options__center.label"
+        }
       ],
       "default": "left"
     },
@@ -1023,8 +1040,14 @@
       "label": "t:sections.header.settings.desktop_nav_alignment.label",
       "info": "t:sections.header.settings.desktop_nav_alignment.info",
       "options": [
-        { "value": "center", "label": "t:sections.header.settings.desktop_nav_alignment.options__center.label" },
-        { "value": "right", "label": "t:sections.header.settings.desktop_nav_alignment.options__right.label" }
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.desktop_nav_alignment.options__center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.header.settings.desktop_nav_alignment.options__right.label"
+        }
       ],
       "default": "center"
     },
@@ -1071,26 +1094,6 @@
       "info": "t:sections.header.settings.show_cart_icon.info",
       "default": true
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        { "value": "auto", "label": "t:sections.shared.bg_color.options__auto.label" },
-        { "value": "white", "label": "t:sections.shared.bg_color.options__white.label" },
-        { "value": "stone_50", "label": "t:sections.shared.bg_color.options__stone_50.label" },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

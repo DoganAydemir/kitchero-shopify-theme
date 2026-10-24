@@ -1,7 +1,7 @@
 /* ==========================================================================
    Announcement Banner — single centered message, optional inline link
    BEM: .kt-announcement-banner
-   Theming via [data-color-theme]; alignment via [data-alignment].
+   Colors via the section color scheme; alignment via [data-alignment].
    ==========================================================================
 
    The previous version stacked a badge, primary copy, secondary copy, and
@@ -138,40 +138,14 @@
 }
 
 /* ==========================================================================
-   Theme: dark — default. Stone-950 ground, white type.
+   Colors come from the section's color scheme (default: scheme-4, dark).
+   Copy uses the scheme's muted text so it reads as utility chrome below
+   the header; the muted tone is computed to stay above 4.5:1.
    ========================================================================== */
-.kt-announcement-banner[data-color-theme="dark"] {
-  background-color: var(--kt-stone-950);
-  /* R192 — pushed text from stone-300 to stone-400 (a noticeably
-     greyer warm grey). At stone-300 the announcement copy sat at the
-     same visual weight as the header menu links (which already render
-     in a stone-300-equivalent), so the two surfaces collapsed into one
-     band again. stone-400 (#a8a29e) over stone-950 (#0c0a09) yields
-     ~7.5:1 contrast — comfortably above the 4.5:1 WCAG AA minimum for
-     body text — while reading clearly as utility chrome below the
-     bold white logo and menu. */
-  color: var(--kt-stone-400);
-}
-
-/* ==========================================================================
-   Theme: light — inverted for stores running a dark header below.
-   Stone-100 ground, stone-900 type. Hairline border darker for
-   visibility on white-ish backgrounds.
-   ========================================================================== */
-.kt-announcement-banner[data-color-theme="light"] {
-  background-color: var(--kt-stone-100);
-  color: var(--kt-stone-900);
-  border-bottom-color: rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================================================
-   Theme: accent — emerald, the brand secondary. Use when the strip is
-   carrying a campaign message that should pop ("Spring sale ends Sunday").
-   ========================================================================== */
-.kt-announcement-banner[data-color-theme="accent"] {
-  background-color: var(--kt-emerald-700);
-  color: var(--kt-white);
-  border-bottom-color: rgba(255, 255, 255, 0.15);
+.kt-announcement-banner {
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg-muted));
+  border-bottom-color: rgba(var(--kt-c-fg), 0.08);
 }
 
 /* ==========================================================================

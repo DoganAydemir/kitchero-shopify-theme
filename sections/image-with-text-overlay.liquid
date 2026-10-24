@@ -15,11 +15,11 @@
 {%- assign padding_bottom = section.settings.padding_bottom | default: 0 -%}
 
 <section
-  class="kt-iwt-overlay color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-iwt-overlay color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   data-section-type="image-with-text-overlay"
   data-corner="{{ card_corner }}"
-  style="--kt-iwt-padding: {{ vertical_padding }}px; --kt-iwt-aspect: {{ image_aspect }}; --kt-iwt-pad-top: {{ padding_top }}px; --kt-iwt-pad-bottom: {{ padding_bottom }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-iwt-padding: {{ vertical_padding }}px; --kt-iwt-aspect: {{ image_aspect }}; --kt-iwt-pad-top: {{ padding_top }}px; --kt-iwt-pad-bottom: {{ padding_bottom }}px;"
 >
   <div class="kt-iwt-overlay__inner">
     <div class="kt-iwt-overlay__stage">
@@ -238,41 +238,6 @@
       "default": 0
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        {
-          "value": "stone_100",
-          "label": "t:sections.shared.bg_color.options__stone_100.label"
-        },
-        {
-          "value": "custom",
-          "label": "t:sections.shared.bg_color.options__custom.label"
-        }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-    {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -284,7 +249,10 @@
     }
   ],
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "presets": [
     {

@@ -1587,64 +1587,6 @@ html:not(.js) .kt-loader {
 }
 
 /* ============================================================
-   Per-section background override modifiers
-   ============================================================
-   Plain-background section schemas ship an optional `bg_color`
-   select setting (Auto / White / Stone-50 / Stone-100). When the
-   merchant picks one, the section's root element gets the
-   matching `kt-section-bg--*` modifier appended to its class
-   list, and these rules force-paint the surface regardless of
-   whatever ships in the section's own CSS.
-
-   Default `auto` does NOT add the modifier — the section falls
-   back to its own original background (transparent, stone-50,
-   white, image, etc.), so existing storefronts don't change
-   appearance unless the merchant actively picks an override.
-
-   Banner / hero / image-driven sections deliberately omit this
-   setting from their schema (full-bleed imagery means a colour
-   override would be invisible or wrong), so the modifier never
-   gets added there even if the class accidentally landed.
-
-   `!important` is the trade-off — section CSS routinely declares
-   `background-color: stone-50` (or transparent) on the root, and
-   without the bump the override would lose to its own per-section
-   selector. Scoped to the explicit modifier classes only, so this
-   is a controlled override surface, not a sweeping one.
-
-   R290 — Added stone-100 as a third visible option. The merchant
-   wanted a "one notch darker" grey for surfaces that benefit
-   from a slightly stronger separation from the neighbouring
-   sections without going all the way to a dark scheme. Stone-100
-   sits between stone-50 ("light grey") and the dark scheme
-   tokens, giving merchants a useful mid-grey on light themes.
-*/
-.kt-section-bg--white {
-  background-color: var(--kt-white) !important;
-}
-
-.kt-section-bg--stone-50 {
-  background-color: var(--kt-stone-50) !important;
-}
-
-.kt-section-bg--stone-100 {
-  background-color: var(--kt-stone-100) !important;
-}
-
-/* R232.38 — Custom background option. Each section that exposes
-   the bg_color setting now also exposes a paired `bg_color_custom`
-   color picker; when the merchant selects "Custom color" the Liquid
-   wrapper emits `style="--kt-section-bg-custom: <hex>;"` on the
-   section root. Class rule reads the variable so the bg flips
-   without any per-section CSS. Falls back to transparent if the
-   variable is unset (shouldn't happen in practice — Liquid only
-   emits the style when both the dropdown value AND the color
-   picker are populated). */
-[style*="--kt-section-bg-custom"] {
-  background-color: var(--kt-section-bg-custom, transparent) !important;
-}
-
-/* ============================================================
    Mobile description / subtitle / body-copy size reduction.
 
    On phones the editorial layout reads cramped because most

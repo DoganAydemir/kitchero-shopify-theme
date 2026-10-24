@@ -32,10 +32,10 @@
 -%}
 
 <section
-  class="kt-parallax-cta color-{{ section.settings.color_scheme | default: 'scheme-2' }}{% if section.settings.bg_color and section.settings.bg_color != 'auto' %} kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
+  class="kt-parallax-cta color-{{ section.settings.color_scheme | default: 'scheme-2' }}"
   data-section-id="{{ section.id }}"
   data-section-type="parallax-cta"
-  style="--kt-section-padding-top: {{ section.settings.padding_top | default: 128 }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom | default: 128 }}px;{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %} --kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  style="--kt-section-padding-top: {{ section.settings.padding_top | default: 128 }}px; --kt-section-padding-bottom: {{ section.settings.padding_bottom | default: 128 }}px;"
 >
   <div class="page-width kt-parallax-cta__inner">
     {%- comment -%}
@@ -94,7 +94,10 @@
   "tag": "div",
   "class": "section",
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "settings": [
     {
@@ -178,41 +181,6 @@
       "label": "t:sections.parallax-cta.settings.padding_bottom.label",
       "default": 128
     },
-    {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        {
-          "value": "stone_100",
-          "label": "t:sections.shared.bg_color.options__stone_100.label"
-        },
-        {
-          "value": "custom",
-          "label": "t:sections.shared.bg_color.options__custom.label"
-        }
-      ],
-      "default": "auto"
-    },
-    {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
     {
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"

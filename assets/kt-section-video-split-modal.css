@@ -3,19 +3,14 @@
    Two-column layout with looping video + modal play trigger.
    ============================================================ */
 
-/* R232.50 — scheme-aware inner colors. Content pane (eyebrow,
-   heading, description, play btn) sits on the section's scheme
-   surface and now opacity-grades against --kt-c-fg. Play button bg
-   routes through --kt-c-action. Inner __inner panel background
-   becomes scheme-aware so the elevated card matches the active
-   palette. Video pause-toggle stays hardcoded — it sits on top of
-   the video itself. */
+/* Section, card and content colors come from the section's color
+   scheme. The video pause toggle keeps fixed colors because it sits
+   on top of the video. */
 
 .kt-video-split {
   padding: 3rem 0;
-  /* R232.49 — scheme-aware bg + text. Was hardcoded stone-50; falls back unchanged. */
-  background-color: rgb(250 250 249);
-  color: rgb(28 25 23);
+  background-color: rgb(var(--kt-c-bg));
+  color: rgb(var(--kt-c-fg));
 }
 
 @media screen and (min-width: 750px) {
@@ -30,8 +25,8 @@
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.25);
-  /* R232.50 — scheme-aware card surface (was white). */
-  background-color: rgb(255 255 255);
+  background-color: rgb(var(--kt-c-bg));
+  border: 1px solid rgba(var(--kt-c-fg), 0.08);
 }
 
 @media screen and (min-width: 750px) {
@@ -103,8 +98,7 @@
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  /* R232.50 — scheme-aware muted (was stone-500). */
-  color: rgba(122, 122, 122, 0.6);
+  color: rgb(var(--kt-c-fg-muted));
 }
 
 .kt-video-split__heading {
@@ -113,8 +107,7 @@
 
   line-height: 1.15;
   letter-spacing: -0.015em;
-  /* R232.50 — scheme-aware (was stone-900). */
-  color: rgb(28 25 23);
+  color: rgb(var(--kt-c-fg));
   margin: 0.25rem 0 0 0;
 }
 
@@ -135,13 +128,7 @@
 .kt-video-split__description {
   font-size: 0.9375rem;
   line-height: 1.7;
-  /* R281c — earlier comment claimed scheme-aware but the value was
-     still a hardcoded stone-600 rgba. Wire to the live --kt-c-fg
-     token at 0.7 alpha so the description tracks any merchant
-     scheme flip and stays subordinate to the heading (which uses
-     full --kt-c-fg). Matches the muted-body treatment across
-     featured-collection / rich-text / iwt-* descriptions. */
-  color: rgba(var(--kt-c-fg, 87 83 78), 0.55);
+  color: rgb(var(--kt-c-fg-muted));
   margin: 0.25rem 0 0 0;
   max-width: 32rem;
 }
@@ -158,8 +145,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  /* R232.50 — scheme-aware label. */
-  color: rgb(28 25 23);
+  color: rgb(var(--kt-c-fg));
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
@@ -169,8 +155,7 @@
 }
 
 .kt-video-split__play:focus-visible {
-  /* R232.50 — scheme-aware focus ring. */
-  outline: 2px solid rgb(28 25 23);
+  outline: 2px solid rgb(var(--kt-c-fg));
   outline-offset: 3px;
   border-radius: 9999px;
 }
@@ -182,9 +167,8 @@
   width: 3rem;
   height: 3rem;
   border-radius: 9999px;
-  /* R232.50 — action-themed play pill (was stone-900 + white). */
-  background-color: rgb(28 25 23);
-  color: rgb(255 255 255);
+  background-color: rgb(var(--kt-c-action));
+  color: rgb(var(--kt-c-action-text));
   flex-shrink: 0;
   transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
 }

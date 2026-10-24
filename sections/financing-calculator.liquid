@@ -15,8 +15,8 @@
 {%- assign financing_disclaimer_default = 'kt.section.financing-calculator.disclaimer_default' | t -%}
 
 <section
-  class="kt-financing-calculator color-{{ section.settings.color_scheme | default: 'scheme-1' }} {% if section.settings.bg_color and section.settings.bg_color != 'auto' %}kt-section-bg--{{ section.settings.bg_color | replace: '_', '-' }}{% endif %}"
-  style="{% if section.settings.bg_color == 'custom' and section.settings.bg_color_custom != blank %}--kt-section-bg-custom: {{ section.settings.bg_color_custom }};{% endif %}"
+  class="kt-financing-calculator color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+  style=""
   data-section-id="{{ section.id }}"
   data-section-type="financing-calculator"
   data-default-amount="{{ section.settings.default_amount | default: 8000 }}"
@@ -102,7 +102,6 @@
                     data-calc-term
                     data-months="{{ block.settings.months }}"
                     data-apr="{{ block.settings.apr }}"
-                    data-accent="{{ block.settings.accent_color | default: 'neutral' }}"
                     aria-pressed="{% if is_default %}true{% else %}false{% endif %}"
                     {{ block.shopify_attributes }}
                   >
@@ -128,7 +127,7 @@
                       <span class="kt-financing-calculator__term-per">{{ 'kt.product.price.per_month_short' | t }}</span>
                     </span>
                     <span
-                      class="kt-financing-calculator__term-apr kt-financing-calculator__term-apr--{{ block.settings.accent_color | default: 'neutral' }}"
+                      class="kt-financing-calculator__term-apr{% if block.settings.highlight_apr %} kt-financing-calculator__term-apr--highlight{% endif %}"
                     >
                       {%- comment -%}
                         When the merchant fills `apr_label`, display it verbatim
@@ -296,35 +295,6 @@
       "default": "<p>Disclaimer</p>"
     },
     {
-      "type": "select",
-      "id": "bg_color",
-      "label": "t:sections.shared.bg_color.label",
-      "options": [
-        {
-          "value": "auto",
-          "label": "t:sections.shared.bg_color.options__auto.label"
-        },
-        {
-          "value": "white",
-          "label": "t:sections.shared.bg_color.options__white.label"
-        },
-        {
-          "value": "stone_50",
-          "label": "t:sections.shared.bg_color.options__stone_50.label"
-        },
-        { "value": "stone_100", "label": "t:sections.shared.bg_color.options__stone_100.label" },
-        { "value": "custom", "label": "t:sections.shared.bg_color.options__custom.label" }
-      ],
-      "default": "auto"
-    },
-        {
-      "type": "color",
-      "id": "bg_color_custom",
-      "label": "t:sections.shared.bg_color_custom.label",
-      "info": "t:sections.shared.bg_color_custom.info",
-      "default": "#ffffff",
-      "visible_if": "{{ section.settings.bg_color == 'custom' }}"},
-{
       "type": "header",
       "content": "t:sections.shared.color_scheme.header"
     },
@@ -361,20 +331,10 @@
           "default": "Label"
         },
         {
-          "type": "select",
-          "id": "accent_color",
-          "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.label",
-          "options": [
-            {
-              "value": "emerald",
-              "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.options__emerald.label"
-            },
-            {
-              "value": "neutral",
-              "label": "t:sections.financing-calculator.blocks.term.settings.accent_color.options__neutral.label"
-            }
-          ],
-          "default": "emerald"
+          "type": "checkbox",
+          "id": "highlight_apr",
+          "label": "t:sections.financing-calculator.blocks.term.settings.highlight_apr.label",
+          "default": false
         }
       ]
     }
@@ -389,7 +349,7 @@
           "settings": {
             "months": 12,
             "apr": 0,
-            "accent_color": "emerald"
+            "highlight_apr": true
           }
         },
         {
@@ -397,7 +357,7 @@
           "settings": {
             "months": 24,
             "apr": 0,
-            "accent_color": "neutral"
+            "highlight_apr": false
           }
         },
         {
@@ -405,7 +365,7 @@
           "settings": {
             "months": 36,
             "apr": 0,
-            "accent_color": "neutral"
+            "highlight_apr": false
           }
         }
       ]
