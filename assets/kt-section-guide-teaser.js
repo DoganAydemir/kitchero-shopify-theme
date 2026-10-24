@@ -30,8 +30,10 @@
   }
 
   var instances = {};
-  document.querySelectorAll('[data-section-type="guide-teaser"]').forEach(function (el) {
-    instances[el.dataset.sectionId] = init(el.closest('.shopify-section') || el);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="guide-teaser"]').forEach(function (el) {
+      instances[el.dataset.sectionId] = init(el.closest('.shopify-section') || el);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {

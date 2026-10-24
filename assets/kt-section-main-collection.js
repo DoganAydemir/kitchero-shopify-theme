@@ -110,59 +110,61 @@
     }
 
     var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!IN_THEME_EDITOR && !prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
+    (window.ktWhenMotion || function (cb) { cb(); })(function () {
+      if (!IN_THEME_EDITOR && !prefersReducedMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
 
-      var hero = section.querySelector('[data-collection-hero]');
-      if (!hero) return;
+        var hero = section.querySelector('[data-collection-hero]');
+        if (!hero) return;
 
-      state.ctx = gsap.context(function () {
-        gsap.fromTo(
-          '.kt-collection__label, .kt-collection__title, .kt-collection__desc, .kt-collection__count',
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out' }
-        );
-
-        var dots = section.querySelector('[data-parallax-dots]');
-        if (dots) {
-          gsap.to(dots, {
-            y: '20%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: hero,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
-        }
-
-        var markers = section.querySelector('[data-parallax-markers]');
-        if (markers) {
-          gsap.to(markers, {
-            y: '35%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: hero,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
-        }
-
-        var cards = section.querySelectorAll('.kt-card-product');
-        if (cards.length > 0) {
-          gsap.fromTo(cards,
-            { opacity: 0, y: 50 },
-            {
-              opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
-              scrollTrigger: { trigger: cards[0], start: 'top 85%', once: true }
-            }
+        state.ctx = gsap.context(function () {
+          gsap.fromTo(
+            '.kt-collection__label, .kt-collection__title, .kt-collection__desc, .kt-collection__count',
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out' }
           );
-        }
-      }, section);
-    }
+
+          var dots = section.querySelector('[data-parallax-dots]');
+          if (dots) {
+            gsap.to(dots, {
+              y: '20%',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: hero,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+              }
+            });
+          }
+
+          var markers = section.querySelector('[data-parallax-markers]');
+          if (markers) {
+            gsap.to(markers, {
+              y: '35%',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: hero,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+              }
+            });
+          }
+
+          var cards = section.querySelectorAll('.kt-card-product');
+          if (cards.length > 0) {
+            gsap.fromTo(cards,
+              { opacity: 0, y: 50 },
+              {
+                opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
+                scrollTrigger: { trigger: cards[0], start: 'top 85%', once: true }
+              }
+            );
+          }
+        }, section);
+      }
+    });
   }
 
   document.querySelectorAll('[data-section-type="main-collection"]').forEach(function (el) {

@@ -53,7 +53,13 @@
 
   KitcheroHero.prototype.initGSAP = function () {
     if (this.prefersReducedMotion) return;
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      if (window.ktMotionPending) {
+        var self = this;
+        document.addEventListener('kt:motion-ready', function () { self.initGSAP(); }, { once: true });
+      }
+      return;
+    }
     gsap.registerPlugin(ScrollTrigger);
     var section = this.section;
 

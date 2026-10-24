@@ -41,9 +41,9 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { initPdpAnim(); });
+    document.addEventListener('DOMContentLoaded', function () { (window.ktWhenMotion || function (cb) { cb(); })(initPdpAnim); });
   } else {
-    initPdpAnim();
+    (window.ktWhenMotion || function (cb) { cb(); })(initPdpAnim);
   }
 
   document.addEventListener('shopify:section:load', function (e) {

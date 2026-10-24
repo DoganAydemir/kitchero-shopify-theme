@@ -72,7 +72,7 @@
     }
   }
 
-  initAll();
+  (window.ktWhenMotion || function (cb) { cb(); })(initAll);
 
   document.addEventListener('shopify:section:load', function (e) {
     initAll(e.target);

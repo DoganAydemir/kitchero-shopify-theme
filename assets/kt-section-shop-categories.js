@@ -39,9 +39,11 @@
     return mm;
   }
 
-  document.querySelectorAll('[data-section-type="shop-categories"]').forEach(function (el) {
-    var id = el.dataset.sectionId;
-    instances[id] = initShopCategories(el.closest('.shopify-section') || el);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="shop-categories"]').forEach(function (el) {
+      var id = el.dataset.sectionId;
+      instances[id] = initShopCategories(el.closest('.shopify-section') || el);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {

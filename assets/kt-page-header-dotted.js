@@ -139,9 +139,9 @@ if (!window.__kitcheroDottedHeaderLoaded) {
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initAll);
+      document.addEventListener('DOMContentLoaded', function () { (window.ktWhenMotion || function (cb) { cb(); })(initAll); });
     } else {
-      initAll();
+      (window.ktWhenMotion || function (cb) { cb(); })(initAll);
     }
 
     document.addEventListener('shopify:section:load', function (e) {

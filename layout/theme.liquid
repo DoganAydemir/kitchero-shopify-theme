@@ -326,14 +326,52 @@
         assign load_motion = false
       endif
     -%}
-    {%- if load_motion -%}
-      {%- comment %}theme-check-disable AssetSizeJavaScript{% endcomment -%}
-      <script src="{{ 'vendor-gsap.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'vendor-scrolltrigger.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'vendor-lenis.js' | asset_url }}" defer="defer"></script>
-      <script src="{{ 'smooth-scroll.js' | asset_url }}" defer="defer"></script>
-      {%- comment %}theme-check-enable AssetSizeJavaScript{% endcomment -%}
-    {%- endif -%}
+    {%- comment -%}
+      Scroll animation libraries load only on screens 750px and wider
+      when the visitor hasn't asked for reduced motion. Section scripts
+      wait for `kt:motion-ready` through window.ktWhenMotion; on phones
+      and with reduced motion they run right away without animation.
+    {%- endcomment -%}
+    <script>
+      (function () {
+        var mq = window.matchMedia;
+        var wanted = {{ load_motion | json }} && !!mq && mq('(min-width: 750px)').matches && !mq('(prefers-reduced-motion: reduce)').matches;
+        var done = false;
+        window.ktMotionPending = wanted;
+        function ready() {
+          if (done) return;
+          done = true;
+          window.ktMotionPending = false;
+          document.dispatchEvent(new CustomEvent('kt:motion-ready'));
+        }
+        window.ktWhenMotion = function (cb) {
+          if (window.ktMotionPending) {
+            document.addEventListener('kt:motion-ready', function () { cb(); }, { once: true });
+          } else {
+            cb();
+          }
+        };
+        if (!wanted) return;
+        var urls = [
+          {{ 'vendor-gsap.js' | asset_url | json }},
+          {{ 'vendor-scrolltrigger.js' | asset_url | json }},
+          {{ 'vendor-lenis.js' | asset_url | json }},
+          {{ 'smooth-scroll.js' | asset_url | json }}
+        ];
+        var left = urls.length;
+        urls.forEach(function (url) {
+          var script = document.createElement('script');
+          script.src = url;
+          script.async = false;
+          script.onload = script.onerror = function () {
+            left -= 1;
+            if (left === 0) ready();
+          };
+          document.head.appendChild(script);
+        });
+        setTimeout(ready, 8000);
+      })();
+    </script>
 
     {%- render 'kt-css-variables' -%}
 
@@ -834,7 +872,28 @@
     {%- endif -%}
 
     {%- if settings.kt_search_predictive -%}
-      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+      {%- comment -%} Predictive search loads when a shopper first opens or focuses search. {%- endcomment -%}
+      <script>
+        (function () {
+          var loaded = false;
+          function load(event) {
+            var target = event.target;
+            if (loaded || !target || !target.closest || !target.closest('[data-search-input], [data-search-open]')) return;
+            loaded = true;
+            var script = document.createElement('script');
+            script.src = {{ 'predictive-search.js' | asset_url | json }};
+            script.onload = function () {
+              document.querySelectorAll('[data-search-input]').forEach(function (input) {
+                if (input.value) input.dispatchEvent(new Event('input', { bubbles: true }));
+              });
+            };
+            document.head.appendChild(script);
+          }
+          ['pointerdown', 'focusin', 'keydown'].forEach(function (type) {
+            document.addEventListener(type, load, true);
+          });
+        })();
+      </script>
     {%- endif -%}
   </body>
 </html>

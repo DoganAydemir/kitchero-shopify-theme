@@ -68,10 +68,12 @@
     return (wrapper && wrapper.id) || null;
   }
 
-  document.querySelectorAll('[data-section-type="trust-bar"]').forEach(function (el) {
-    var wrapper = el.closest('.shopify-section') || el;
-    var id = wrapper.id;
-    if (id) ctxBySection[id] = initTrustBar(wrapper);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="trust-bar"]').forEach(function (el) {
+      var wrapper = el.closest('.shopify-section') || el;
+      var id = wrapper.id;
+      if (id) ctxBySection[id] = initTrustBar(wrapper);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {

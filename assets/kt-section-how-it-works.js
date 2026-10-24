@@ -36,8 +36,10 @@
   }
 
   var instances = {};
-  document.querySelectorAll('[data-section-type="how-it-works"]').forEach(function (el) {
-    instances[el.dataset.sectionId] = initHowItWorks(el.closest('.shopify-section') || el);
+  (window.ktWhenMotion || function (cb) { cb(); })(function () {
+    document.querySelectorAll('[data-section-type="how-it-works"]').forEach(function (el) {
+      instances[el.dataset.sectionId] = initHowItWorks(el.closest('.shopify-section') || el);
+    });
   });
 
   document.addEventListener('shopify:section:load', function (e) {
