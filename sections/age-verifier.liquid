@@ -47,6 +47,7 @@
     <div class="kt-age-verifier__panel" role="document">
       {%- if section.settings.image != blank -%}
         <div class="kt-age-verifier__image">
+          {%- assign image_alt_text = section.settings.image.alt | default: shop.name | strip_html -%}
           {{
             section.settings.image
             | image_url: width: 800
@@ -56,7 +57,7 @@
               sizes: '(min-width: 750px) 400px, 100vw',
               width: section.settings.image.width,
               height: section.settings.image.height,
-              alt: section.settings.image.alt | default: shop.name
+              alt: image_alt_text
           }}
         </div>
       {%- elsif section.settings.icon != blank -%}

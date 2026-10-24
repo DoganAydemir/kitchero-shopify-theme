@@ -50,6 +50,7 @@
                   aria-label="{{ product.title | escape }}"
                 >
                   {%- if product.featured_media != blank -%}
+                    {%- assign image_alt_text = product.featured_media.alt | default: product.title | strip_html -%}
                     {{
                       product.featured_media
                       | image_url: width: 120
@@ -60,7 +61,7 @@
                           width: 60,
                           height: 60,
                           class: 'kt-predictive-search__thumb',
-                          alt: product.featured_media.alt | default: product.title
+                          alt: image_alt_text
                     }}
                   {%- else -%}
                     <span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true">

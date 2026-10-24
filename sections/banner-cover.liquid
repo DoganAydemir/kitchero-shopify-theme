@@ -79,6 +79,7 @@
         producing "wrong number of arguments (given 3, expected 2)".
       {%- endcomment -%}
       {%- assign cover_image_style = 'object-position: ' | append: cover_focal -%}
+      {%- assign image_alt_text = section.settings.image.alt | default: section.settings.heading | strip_html -%}
       {{
         section.settings.image
         | image_url: width: 2400
@@ -91,7 +92,7 @@
           width: section.settings.image.width,
           height: section.settings.image.height,
           style: cover_image_style,
-          alt: section.settings.image.alt | default: section.settings.heading
+          alt: image_alt_text
       }}
     {%- else -%}
       {%- comment -%}

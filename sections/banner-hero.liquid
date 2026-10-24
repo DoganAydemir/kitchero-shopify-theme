@@ -33,6 +33,7 @@
         first paint; browser decides priority.
       {%- endcomment -%}
       {%- if section.settings.hero_image != blank -%}
+        {%- assign image_alt_text = section.settings.hero_image.alt | default: section.settings.heading_line1 | default: shop.name | strip_html -%}
         {{
           section.settings.hero_image
           | image_url: width: 2000
@@ -44,7 +45,7 @@
             sizes: '(min-width: 990px) 1400px, 100vw',
             width: section.settings.hero_image.width,
             height: section.settings.hero_image.height,
-            alt: section.settings.hero_image.alt | default: section.settings.heading_line1 | default: shop.name
+            alt: image_alt_text
         }}
       {%- else -%}
         {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-banner-hero__image' }}

@@ -115,6 +115,7 @@
         Lighthouse's "Preload LCP image" hint goes amber but the
         metric itself stays well within budget.
       {%- endcomment -%}
+      {%- assign image_alt_text = article.image.alt | default: article.title -%}
       {{
         article.image
         | image_url: width: 2400
@@ -126,7 +127,7 @@
           sizes: '100vw',
           width: article.image.width,
           height: article.image.height,
-          alt: article.image.alt | default: article.title | escape
+          alt: image_alt_text
       }}
     {%- else -%}
       {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-article__hero-img' }}

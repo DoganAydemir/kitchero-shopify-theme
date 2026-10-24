@@ -76,6 +76,7 @@
       {%- comment -%} LEFT pane: image with offer badge {%- endcomment -%}
       <div class="kt-newsletter-popup__media">
         {%- if section.settings.image != blank -%}
+          {%- assign image_alt_text = section.settings.image.alt | default: section.settings.heading_part1 | strip_html -%}
           {{
             section.settings.image
             | image_url: width: 1200
@@ -86,7 +87,7 @@
               sizes: '(min-width: 750px) 450px, 100vw',
               width: section.settings.image.width,
               height: section.settings.image.height,
-              alt: section.settings.image.alt | default: section.settings.heading_part1
+              alt: image_alt_text
           }}
         {%- else -%}
           {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg kt-newsletter-popup__image' }}

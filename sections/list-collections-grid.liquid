@@ -60,6 +60,7 @@
               <div class="kt-list-collections__media">
                 {%- assign card_image = collection.featured_image -%}
                 {%- if card_image != blank -%}
+                  {%- assign image_alt_text = card_image.alt | default: collection.title | strip_html -%}
                   {{
                     card_image
                     | image_url: width: 1200
@@ -70,7 +71,7 @@
                       sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
                       width: card_image.width,
                       height: card_image.height,
-                      alt: card_image.alt | default: collection.title
+                      alt: image_alt_text
                   }}
                 {%- else -%}
                   {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg kt-list-collections__image' }}

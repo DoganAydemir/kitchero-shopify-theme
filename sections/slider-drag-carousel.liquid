@@ -89,6 +89,7 @@
             <div class="kt-drag-carousel__media">
               {%- if block.settings.image != blank -%}
                 {%- if is_eager -%}
+                  {%- assign image_alt_text = block.settings.caption_title | default: '' | strip_html -%}
                   {{ block.settings.image
                     | image_url: width: 960
                     | image_tag:
@@ -100,9 +101,10 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       draggable: 'false',
-                      alt: block.settings.caption_title | default: ''
+                      alt: image_alt_text
                   }}
                 {%- else -%}
+                  {%- assign image_alt_text = block.settings.caption_title | default: '' | strip_html -%}
                   {{ block.settings.image
                     | image_url: width: 960
                     | image_tag:
@@ -113,7 +115,7 @@
                       width: block.settings.image.width,
                       height: block.settings.image.height,
                       draggable: 'false',
-                      alt: block.settings.caption_title | default: ''
+                      alt: image_alt_text
                   }}
                 {%- endif -%}
               {%- else -%}

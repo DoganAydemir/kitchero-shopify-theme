@@ -112,6 +112,7 @@
               2)".
             {%- endcomment -%}
             {%- assign hero_image_style = 'object-position: ' | append: hero_focal -%}
+            {%- assign hero_slide_alt = block.settings.image.alt | default: block.settings.subtitle | default: shop.name | strip_html -%}
             {{
               block.settings.image
               | image_url: width: 2000
@@ -124,7 +125,7 @@
                 width: block.settings.image.width,
                 height: block.settings.image.height,
                 style: hero_image_style,
-                alt: block.settings.subtitle | default: shop.name
+                alt: hero_slide_alt
             }}
           {%- else -%}
             {%- comment -%}

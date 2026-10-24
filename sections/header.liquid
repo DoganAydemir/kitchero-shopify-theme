@@ -284,6 +284,7 @@
                       {%- if block.type == 'mega_menu_featured' and block.settings.menu_title == link.title -%}
                         <div class="kt-header__mega-featured" {{ block.shopify_attributes }}>
                           {%- if block.settings.image != blank -%}
+                            {%- assign mega_featured_alt = block.settings.image.alt | default: block.settings.heading | strip_html -%}
                             {{
                               block.settings.image
                               | image_url: width: 400
@@ -292,7 +293,7 @@
                                 loading: 'lazy',
                                 width: 400,
                                 height: 300,
-                                alt: block.settings.heading | default: ''
+                                alt: mega_featured_alt
                             }}
                           {%- else -%}
                             {{ 'collection-1' | placeholder_svg_tag: 'kt-header__mega-featured-image placeholder-svg' }}

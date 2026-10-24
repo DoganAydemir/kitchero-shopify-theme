@@ -70,6 +70,7 @@
                     endcase
                   -%}
                   <div class="kt-multicolumn__media" style="aspect-ratio: {{ ratio_value }};">
+                    {%- assign image_alt_text = block.settings.image.alt | default: block.settings.heading | default: '' | strip_html -%}
                     {{ block.settings.image | image_url: width: 1000 | image_tag:
                         loading: 'lazy',
                         widths: '375, 550, 750, 1000, 1500',
@@ -77,7 +78,7 @@
                         width: block.settings.image.width,
                         height: block.settings.image.height,
                         class: 'kt-multicolumn__image',
-                        alt: block.settings.image.alt | default: block.settings.heading | default: '' }}
+                        alt: image_alt_text }}
                   </div>
                 {%- elsif block.settings.icon_image != blank -%}
                   {%- comment -%}

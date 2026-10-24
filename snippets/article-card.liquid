@@ -33,6 +33,7 @@
 <a href="{{ article.url }}" class="kt-article-card">
   <div class="kt-article-card__image-wrap">
     {%- if article.image -%}
+      {%- assign image_alt_text = article.image.alt | default: article.title | strip_html -%}
       {{
         article.image
         | image_url: width: 1200
@@ -44,7 +45,7 @@
           sizes: '(min-width: 750px) 50vw, 100vw',
           width: article.image.width,
           height: article.image.height,
-          alt: article.image.alt | default: article.title
+          alt: image_alt_text
       }}
     {%- else -%}
       {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-article-card__image' }}
