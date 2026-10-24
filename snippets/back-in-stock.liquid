@@ -86,7 +86,7 @@
     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
     <polyline points="22,6 12,13 2,6"></polyline>
   </svg>
-  <span>{{ 'kt.product.back_in_stock.notify_me' | t | default: 'Notify me when available' }}</span>
+  <span>{{ 'kt.product.back_in_stock.notify_me' | t | default: 'Ask about availability' }}</span>
 </button>
 {%- endif -%}
 
@@ -134,14 +134,14 @@
         {%- if heading != blank -%}
           {{ heading | escape }}
         {%- else -%}
-          {{ 'kt.product.back_in_stock.heading' | t | default: 'Notify me when back in stock' }}
+          {{ 'kt.product.back_in_stock.heading' | t | default: 'Ask about this item' }}
         {%- endif -%}
       </h2>
       {%- if description != blank -%}
         <div class="kt-back-in-stock__description rte">{{ description }}</div>
       {%- else -%}
         <p class="kt-back-in-stock__description">
-          {{ 'kt.product.back_in_stock.description' | t | default: 'Drop your email and we will let you know the moment this item is available again.' }}
+          {{ 'kt.product.back_in_stock.description' | t | default: 'This item is currently sold out. Send us your details and our team will get back to you about availability.' }}
         </p>
       {%- endif -%}
     </header>
@@ -198,7 +198,7 @@
 
       {%- if form.posted_successfully? -%}
         <div class="kt-back-in-stock__alert kt-back-in-stock__alert--success" role="status" data-back-in-stock-success>
-          {{ 'kt.product.back_in_stock.success' | t | default: 'Thanks — we will email you the moment this item is back.' }}
+          {{ 'kt.product.back_in_stock.success' | t | default: "Thanks — your request has been sent. We'll be in touch." }}
         </div>
       {%- endif -%}
 
@@ -254,7 +254,7 @@
         without leaving the modal.
       {%- endcomment -%}
       <textarea
-        name="contact[{{ 'kt.product.back_in_stock.message_label' | t | default: 'Restock request' }}]"
+        name="contact[{{ 'kt.product.back_in_stock.message_label' | t | default: 'Availability request' }}]"
         class="kt-back-in-stock__hidden-message"
         data-back-in-stock-message
         hidden
@@ -268,7 +268,7 @@
       </textarea>
 
       <button type="submit" class="kt-back-in-stock__submit">
-        {{ 'kt.product.back_in_stock.submit' | t | default: 'Notify me' }}
+        {{ 'kt.product.back_in_stock.submit' | t | default: 'Send request' }}
       </button>
 
       {%- comment -%}
