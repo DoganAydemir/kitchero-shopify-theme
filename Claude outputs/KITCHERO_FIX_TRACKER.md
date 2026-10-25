@@ -11,7 +11,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
 > 25.10: freemannyc.com'daki Contact Form 7 formlarında tema demosundan kalan yabancı gönderici adresleri (wabidullahsharif@gmail.com, wordpress@themexriver.com) `info@freemannyc.com` ile değiştirildi; kullanılmayan "Kitchero Support" formu silindi.
-> Live tema 25.10 itibarıyla **Kitchero #189332226262** (PR #56'ya kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
+> Live tema 25.10 itibarıyla **Kitchero #189333012694** (PR #59'a kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
 
 ---
 
@@ -152,6 +152,8 @@ Bağımlılık kuralları:
 | E23 | Theme Store şartı 16: her background renk ayarının foreground karşılığı olmalı. Deal tier badge'inde sadece arka plan rengi vardı; reviewer notu "section'larda renk seçici yok" diyordu (yanlış) | `deals-grid` bloğuna opsiyonel `badge_text_color` (boşsa otomatik beyaz/koyu), 5 dil; review notu kalan içerik renklerini listeliyor | ☑ 25.10 (PR #52) |
 | E24 | Theme Store şartı 4: featured product section'ı rich media (video, YouTube/Vimeo, 3D) desteklemiyordu, sadece görsel basıyordu | `featured-product.liquid`: media_type'a göre `video_tag`, `external_video_tag`, `model_viewer_tag` (+ product-model yükleyici) | ☑ 25.10 (PR #54), smoke + W3C temiz |
 | E25 | Şartlar sayfası (shopify.dev Theme Store requirements, 1–21) madde madde kodla karşılaştırıldı | Follow on Shop, shopify-account (masaüstü + mobil), ülke/dil seçici, gift card (Apple Wallet, QR, send_on), arama object_type + filtreler, makale yorum sayfalama + published_at, cart note, accelerated checkout varsayılan açık, link_list varsayılanları, font_modify, payment_type_svg_tag, Shopify linklerinde nofollow, designer credit yok, robots.txt.liquid yok, markets.json yok: hepsi mevcut. Eksik çıkanlar E23 ve E24'te düzeltildi | ☑ 25.10 |
+| E26 | Şart 7 (swatch.color / swatch.image): swatch'lar yalnızca seçenek adı Color/Colour/Renk/Finish ise çıkıyordu; native Shopify swatch'ı olan farklı isimli seçenekler düz buton görünüyordu | `product-variant-picker` ve `product-swatches`: native swatch'ı olan her seçenek + ortak renk adı listesi (color, colour, finish, couleur, farbe, renk) | ☑ 25.10 (PR #58), smoke + W3C temiz, canlıda |
+| E27 | Şart 21: dokümantasyon tema ayarlarıyla tutarlı olmalı. themes.freemannyc.com/kitchero/docs eski bilgiler içeriyordu (80+ section, olmayan quick add/image ratio ayarları, sabit `custom.*` metafield'ları, showroom'da sepete ekleme yok, swatch kuralı) | `DoganAydemir/kitchero-docs-shopify` güncellendi (PR #1): Product data paneli, gerçek ayarlar, 65 section ve güncel adları, showroom satın alma butonları, swatch kuralı, metafield/dynamic source anlatımı, danışmanlık ve stok talebi SSS'i | ◐ 25.10: repo güncel; site Hostinger'da elle yükleniyor (Git bağlı değil). Yüklenecek dosya: `Claude outputs/docs-site/index.html` → `public_html/kitchero/docs/index.html` |
 
 ## Faz 2 — Demo mağaza (`demo` branch + Admin), Faz 1'den sonra
 
@@ -217,6 +219,7 @@ Bu maddeler açık kalıyor; son aşamada birlikte değerlendirilecek:
 | #66-#71 canlı veri testleri | Kod tarafı doğrulandı; Shopify Payments test mode, local pickup lokasyonu, video/3D medya, gift card ürünü, unit price verisi demo'ya eklenmedi |
 | #78 niş temalarla karşılaştırma | Dawn/Horizon karşılaştırması var; ücretli niş temalar yapılmadı |
 | Boş mağaza placeholder boyutu | Boş kurulumda ana sayfa HTML'i 1.1 MB (0.98 MB Shopify placeholder SVG'leri, 35 adet) |
+| Dokümantasyon sitesini yükleme (E27) | Claude in Chrome'un Hostinger File Manager alan adına (h5g6-fm.hstgr.io) izni yok; dosya elle yüklenebilir ya da izin verilirse ben yüklerim |
 | Gerçek cihaz testi | Samsung Internet, Edge, Instagram/Facebook/Pinterest in-app tarayıcıları otomatik testte yok |
 
 ## Faz 5 — Final gate (submit öncesi)
