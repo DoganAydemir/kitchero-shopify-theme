@@ -1,0 +1,52 @@
+name: Visual diff
+
+# Compares the live demo theme with an unpublished preview theme page by page
+# (full-page screenshots, desktop and mobile). Run before publishing a
+# preview that changes shared layout or CSS. Images go to the `visual-diff`
+# branch.
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_theme:
+        description: Preview theme ID
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  diff:
+    runs-on: ubuntu-24.04  # Playwright 1.48 has no system packages for Ubuntu 26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          pip install playwright==1.48.0 pillow==11.0.0
+          python -m playwright install --with-deps chromium
+
+      - name: Compare
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          PREVIEW_THEME: ${{ inputs.preview_theme }}
+        run: python .github/scripts/visual_diff.py shots | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit images to visual-diff
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/keep && cp -r shots/. /tmp/keep/ 2>/dev/null || exit 0
+          git checkout --orphan visual-diff-tmp
+          git rm -rf --cached . >/dev/null
+          git clean -fdx -q
+          mkdir -p diff && cp -r /tmp/keep/. diff/
+          git add diff
+          git commit -q -m "Visual diff ${{ inputs.preview_theme }}"
+          git push -f origin HEAD:visual-diff
