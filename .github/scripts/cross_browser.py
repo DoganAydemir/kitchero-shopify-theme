@@ -1,0 +1,133 @@
+"""Cross-browser check of the demo store (audit #73).
+
+Loads the main templates in Chromium, Firefox and WebKit (desktop), plus
+WebKit on an iPhone and Chromium on an Android phone. Reports JavaScript
+errors, failed theme assets and whether the core interactions work: search
+overlay, mobile menu, add to cart. Screenshots go to <out dir>.
+
+Usage: STORE_URL=... PASSWORD=... python3 cross_browser.py <out dir>
+"""
+import json
+import os
+import sys
+
+from playwright.sync_api import sync_playwright
+
+STORE = os.environ['STORE_URL'].rstrip('/')
+PASSWORD = os.environ['PASSWORD']
+OUT = sys.argv[1]
+os.makedirs(OUT, exist_ok=True)
+
+PAGES = ['/', '/collections/all', '/products/premium-pull-down-kitchen-faucet',
+         '/products/elegant-kitchen-cabinet-system', '/cart', '/search?q=sink', '/blogs/journal',
+         '/pages/contact']
+PRODUCT = '/products/premium-pull-down-kitchen-faucet'
+# Errors from Shopify's own scripts (analytics, checkout widgets) are not theme errors.
+IGNORE = ('monorail', 'shopifycloud', 'web-pixels', 'trekkie', 'shop.app', 'shopify-perf-kit',
+          'captcha', 'Content Security Policy')
+
+TARGETS = [
+    ('chromium', 'Chrome desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
+    ('firefox', 'Firefox desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
+    ('webkit', 'Safari desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
+    ('webkit', 'Safari iPhone', 'iPhone 13', True),
+    ('chromium', 'Chrome Android', 'Pixel 7', True),
+]
+
+
+def login(context):
+    page = context.new_page()
+    page.goto(f'{STORE}/password', wait_until='domcontentloaded')
+    if page.locator('input[type="password"]').count():
+        page.fill('input[type="password"]', PASSWORD)
+        page.locator('input[type="password"]').press('Enter')
+        page.wait_for_load_state('networkidle')
+    page.close()
+
+
+def theme_error(text):
+    return not any(word in text for word in IGNORE)
+
+
+results = []
+with sync_playwright() as p:
+    for engine, label, options, mobile in TARGETS:
+        browser = getattr(p, engine).launch()
+        if isinstance(options, str):
+            options = dict(p.devices[options])
+            if engine == 'firefox':
+                options.pop('is_mobile', None)
+        context = browser.new_context(**options)
+        login(context)
+        row = {'browser': label, 'errors': [], 'checks': {}}
+        page = context.new_page()
+        page.on('pageerror', lambda e, r=row: r['errors'].append(f'{page.url}: {e}'))
+        page.on('console', lambda m, r=row: m.type == 'error' and theme_error(m.text)
+                and r['errors'].append(f'{page.url}: console: {m.text[:200]}'))
+        page.on('response', lambda res, r=row: res.status >= 400 and '/cdn/shop/t/' in res.url
+                and r['errors'].append(f'{res.status} {res.url[:160]}'))
+        slug = label.lower().replace(' ', '-')
+        for path in PAGES:
+            try:
+                page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+                page.wait_for_timeout(1200)
+                name = path.strip('/').replace('/', '-').replace('?', '-').replace('=', '-') or 'home'
+                page.screenshot(path=os.path.join(OUT, f'{slug}--{name}.png'))
+            except Exception as error:  # noqa: BLE001 - report and continue
+                row['errors'].append(f'{path}: load failed: {str(error)[:160]}')
+
+        # Search overlay
+        page.goto(f'{STORE}/', wait_until='networkidle')
+        try:
+            page.locator('[data-search-open]').first.click(timeout=5000)
+            page.wait_for_timeout(800)
+            row['checks']['search'] = page.locator('#search-overlay').get_attribute('aria-hidden') == 'false'
+        except Exception:  # noqa: BLE001
+            row['checks']['search'] = False
+        page.keyboard.press('Escape')
+
+        # Mobile menu
+        if mobile:
+            page.goto(f'{STORE}/', wait_until='networkidle')
+            try:
+                toggle = page.locator('.kt-header__menu-toggle').first
+                toggle.click(timeout=5000)
+                page.wait_for_timeout(800)
+                row['checks']['menu'] = toggle.get_attribute('aria-expanded') == 'true'
+            except Exception:  # noqa: BLE001
+                row['checks']['menu'] = False
+
+        # Add to cart
+        page.goto(f'{STORE}{PRODUCT}', wait_until='networkidle')
+        try:
+            page.locator('.kt-product-form__atc').first.click(timeout=5000)
+            page.wait_for_timeout(2500)
+            count = page.evaluate("fetch('/cart.js').then(r => r.json()).then(c => c.item_count)")
+            row['checks']['add_to_cart'] = count > 0
+            row['checks']['cart_drawer'] = page.locator('cart-drawer.kt-cart-drawer--open').count() > 0
+            page.screenshot(path=os.path.join(OUT, f'{slug}--added-to-cart.png'))
+        except Exception:  # noqa: BLE001
+            row['checks']['add_to_cart'] = False
+        results.append(row)
+        browser.close()
+
+with open(os.path.join(OUT, 'results.json'), 'w') as fh:
+    json.dump(results, fh, indent=2)
+
+failed = False
+print('## Cross-browser check\n')
+print('| Browser | JS / asset errors | Search | Mobile menu | Add to cart | Cart drawer |')
+print('|---|---:|---|---|---|---|')
+for r in results:
+    c = r['checks']
+    mark = lambda k: '—' if k not in c else ('pass' if c[k] else 'FAIL')
+    print(f"| {r['browser']} | {len(r['errors'])} | {mark('search')} | {mark('menu')} | "
+          f"{mark('add_to_cart')} | {mark('cart_drawer')} |")
+    if r['errors'] or not all(v for k, v in c.items() if k != 'cart_drawer'):
+        failed = True
+for r in results:
+    if r['errors']:
+        print(f"\n### {r['browser']}\n")
+        for e in sorted(set(r['errors']))[:30]:
+            print(f'- `{e}`')
+sys.exit(1 if failed else 0)
