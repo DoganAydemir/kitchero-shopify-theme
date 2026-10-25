@@ -1,18 +1,14 @@
 {%- doc -%}
-  Kitchero inline CSS variables.
+  Inlined CSS variables, rendered first in `layout/theme.liquid` and
+  `layout/password.liquid`.
 
-  Emits @font-face declarations, per-scheme design tokens, and global tokens
-  (typography, layout, spacing, buttons, inputs, cards, media, drawer, badge)
-  as a single `{% style %}` block rendered from `layout/theme.liquid`.
-
-  Token naming convention: all custom properties use the `--kt-*` prefix
-  and are grouped by concern (`--kt-c-*` color, `--kt-f-*` font,
-  `--kt-btn-*`, `--kt-pcard-*`, etc.). Scheme selectors use the attribute
-  form `[data-kt-scheme="<id>"]` applied on `<body>`.
-
-  Consumers: `assets/base.css`, every `assets/kt-*.css` file, and
-  every `assets/section-*.css` / `assets/template-*.css` file. When
-  renaming a token, update every `var(--kt-*)` consumer in lockstep.
+  Based on Shopify's Skeleton theme (`snippets/css-variables.liquid`):
+  font faces loaded with `font_display: 'swap'` and the Skeleton root
+  variables (`--font-primary--*`, `--page-width`, `--page-margin`,
+  `--color-background`, `--color-foreground`,
+  `--style-border-radius-inputs`) used by `assets/critical.css`.
+  Kitchero adds per-scheme tokens (`[data-kt-scheme]`, `.color-<scheme>`)
+  and its `--kt-*` design tokens.
 {%- enddoc -%}
 {%- liquid
   assign body_font = settings.kt_body_font
@@ -27,8 +23,13 @@
   assign accent_font_italic = accent_font | font_modify: 'style', 'italic'
   assign accent_font_bold = accent_font | font_modify: 'weight', 'bold'
   assign accent_font_bold_italic = accent_font_bold | font_modify: 'style', 'italic'
+  for scheme in settings.kt_schemes
+    assign primary_scheme = scheme
+    break
+  endfor
 -%}
 {% style %}
+  {% # Loads all font variantions with display: swap %}
   {{ body_font | font_face: font_display: 'swap' }}
   {{ body_font_bold | font_face: font_display: 'swap' }}
   {{ body_font_italic | font_face: font_display: 'swap' }}
@@ -112,6 +113,15 @@
   }
 
   :root {
+    --font-primary--family: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --font-primary--style: {{ body_font.style }};
+    --font-primary--weight: {{ body_font.weight }};
+    --page-width: {% if settings.kt_page_width_use_default %}1500px{% else %}{{ settings.kt_page_width }}px{% endif %};
+    --page-margin: 24px;
+    --color-background: {{ primary_scheme.settings.surface }};
+    --color-foreground: {{ primary_scheme.settings.text_primary }};
+    --style-border-radius-inputs: {{ settings.kt_input_radius }}px;
+
     color-scheme: light;
 
 
@@ -268,36 +278,5 @@
     --kt-drawer-border-op: {{ settings.kt_drawer_border_op | divided_by: 100.0 }};
   }
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: inherit;
-  }
-
-  html {
-    box-sizing: border-box;
-    font-size: calc(var(--kt-f-body-scale) * 100%);
-    height: 100%;
-  }
-
-  body {
-    display: grid;
-    grid-template-rows: auto auto 1fr auto;
-    grid-template-columns: 100%;
-    min-height: 100%;
-    margin: 0;
-    font-size: 0.9375rem;
-    letter-spacing: 0.02rem;
-    line-height: 1.6;
-    font-family: var(--kt-f-body-family);
-    font-style: var(--kt-f-body-style);
-    font-weight: var(--kt-f-body-weight);
-  }
-
-  @media screen and (min-width: 750px) {
-    body {
-      font-size: 1rem;
-    }
-  }
 {% endstyle %}
 {%- comment -%} Expose the active scheme id for the body tag in theme.liquid. {%- endcomment -%}
