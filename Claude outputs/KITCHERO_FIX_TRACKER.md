@@ -11,7 +11,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
 > 25.10: freemannyc.com'daki Contact Form 7 formlarında tema demosundan kalan yabancı gönderici adresleri (wabidullahsharif@gmail.com, wordpress@themexriver.com) `info@freemannyc.com` ile değiştirildi; kullanılmayan "Kitchero Support" formu silindi.
-> Live tema 25.10 itibarıyla **Kitchero #189330751702** (PR #49'a kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
+> Live tema 25.10 itibarıyla **Kitchero #189332226262** (PR #56'ya kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
 
 ---
 
@@ -147,6 +147,11 @@ Bağımlılık kuralları:
 | E18 | GitHub CI kırık (koddan bağımsız): Theme Check workflow'u Node 20 kullanıyor, Shopify CLI bunu desteklemiyor (`enableCompileCache` hatası). Lighthouse CI'daki `SHOP_STORE`/`SHOP_ACCESS_TOKEN` secret'ları geçersiz (404) | `.github/workflows/theme-check.yml` → Node 22. Lighthouse secret'ları kitchero-kitchen + geçerli token ile güncellenecek (kullanıcı, GitHub Settings > Secrets) | ☑ 24.10 Lighthouse CI yeşil (main 6d90621, run 40115085611). App "Kitchero Lighthouse CI" kuruldu, SHOP_CLIENT_SECRET eklendi |
 | E19 | "Ask about availability" butonu stokta olan varyantlarda da görünüyordu (CSS `display:inline-flex` `[hidden]`'ı eziyordu); preview kontrolünde bulundu | `.kt-back-in-stock__trigger[hidden]{display:none}` | ☑ 25.10 (PR #11) |
 | E20 | Demo mağazada ödeme sağlayıcı yoktu; Theme Store şartı: Bogus Gateway veya Shopify Payments test mode açık, diğer checkout seçenekleri kapalı | Settings > Payments > Test payment gateway activate | ☑ 25.10 (Faz 3 #66 testleri için de gerekli) |
+| E21 | Lighthouse CI "A shop may only have 100 development themes" hatasıyla kırıldı; action geliştirme temasını silmiyor | `lighthouse.yml` her çalışmada 30 dk'dan eski development temalarını Admin API ile siliyor; `demo-cleanup.yml` development temalarını da siliyor | ☑ 25.10 (PR #55); sonraki Lighthouse koşuları yeşil |
+| E22 | Boş mağaza kurulumunda ana sayfa trust bar'ı "10+ Years in business" ve "30 Countries we ship to" diyordu (E9/E15 kapsamında kalmış iddia) | `templates/index.json` + `listings/kitchero/templates/index.json`: istatistikler sadece katalogu anlatıyor (products, collections, product categories, finishes and colors) | ☑ 25.10 (PR #52) |
+| E23 | Theme Store şartı 16: her background renk ayarının foreground karşılığı olmalı. Deal tier badge'inde sadece arka plan rengi vardı; reviewer notu "section'larda renk seçici yok" diyordu (yanlış) | `deals-grid` bloğuna opsiyonel `badge_text_color` (boşsa otomatik beyaz/koyu), 5 dil; review notu kalan içerik renklerini listeliyor | ☑ 25.10 (PR #52) |
+| E24 | Theme Store şartı 4: featured product section'ı rich media (video, YouTube/Vimeo, 3D) desteklemiyordu, sadece görsel basıyordu | `featured-product.liquid`: media_type'a göre `video_tag`, `external_video_tag`, `model_viewer_tag` (+ product-model yükleyici) | ☑ 25.10 (PR #54), smoke + W3C temiz |
+| E25 | Şartlar sayfası (shopify.dev Theme Store requirements, 1–21) madde madde kodla karşılaştırıldı | Follow on Shop, shopify-account (masaüstü + mobil), ülke/dil seçici, gift card (Apple Wallet, QR, send_on), arama object_type + filtreler, makale yorum sayfalama + published_at, cart note, accelerated checkout varsayılan açık, link_list varsayılanları, font_modify, payment_type_svg_tag, Shopify linklerinde nofollow, designer credit yok, robots.txt.liquid yok, markets.json yok: hepsi mevcut. Eksik çıkanlar E23 ve E24'te düzeltildi | ☑ 25.10 |
 
 ## Faz 2 — Demo mağaza (`demo` branch + Admin), Faz 1'den sonra
 
@@ -198,13 +203,29 @@ Bağımlılık kuralları:
 | 83 | Listing screenshot'ları, tagline ve key feature'lar | `docs/THEME-STORE-LISTING.md` + `docs/PREVIEW-IMAGES.md` baz alınarak üretilecek | ◐ 25.10: Listing dokümanı güncel form alanlarına göre yeniden yazıldı (tagline 51 karakter, metadata description, Home, Some (11-100+), 3 key highlight, alt text). `listing-shots.yml` 5 görseli doğru boyutlarda `listing-assets` branch'ine üretiyor (PR #29, #30); desktop düzende yeniden çekim yapıldı · ☑ 25.10: 5 görsel son haliyle `Claude outputs/listing/final/` klasöründe; submission'da yüklenecek |
 | 80, 81, 65, 64, 77 | Haklar, exclusivity, isim, destek formu (Zoho Desk), fiyat | Yönetici kararları | ⊘ 25.10: açık karar listesinde; destek formu (e-posta zorunlu, otomatik yanıt, portal metinleri) Zoho Desk erişimiyle sonra ele alınacak |
 
+## En sona bırakılanlar (kullanıcı kararı, 25.10)
+
+Bu maddeler açık kalıyor; son aşamada birlikte değerlendirilecek:
+
+| Konu | Durum / not |
+|---|---|
+| #65 Tema adı (Kitchery, Kitchor benzerliği) | Karar bekliyor |
+| #80 Demo görsellerinin hakları | Tarama (CSV + Files export, metadata, reverse image search) yapılmadı |
+| Fiyat | Listing'de "Freeman New York belirleyecek" yazıyor |
+| #64 / #77 Destek formu (Zoho Desk, support.freemannyc.com) | E-posta zorunlu değil, Shopify Plan alanı gereksiz, otomatik yanıt yok, portal metinleri ("supportfreemannyccommgrxfruddg", "Shopify Theme Support2"). Shopify'ın form rehberi: ad, e-posta, store URL (örnek URL ile), açıklama (textarea), dosya yükleme, auto-responder, tema adı. Zoho Desk girişi gerekiyor |
+| #58 JS boyutu refactor'u | theme-check:all'da 8 AssetSizeJavaScript uyarısı (product-form, product-gallery, main-cart, header, gallery-stack). Standart kural setinde hata yok, Lighthouse perf 77-90. Gerekirse sonra değerlendirilecek |
+| #66-#71 canlı veri testleri | Kod tarafı doğrulandı; Shopify Payments test mode, local pickup lokasyonu, video/3D medya, gift card ürünü, unit price verisi demo'ya eklenmedi |
+| #78 niş temalarla karşılaştırma | Dawn/Horizon karşılaştırması var; ücretli niş temalar yapılmadı |
+| Boş mağaza placeholder boyutu | Boş kurulumda ana sayfa HTML'i 1.1 MB (0.98 MB Shopify placeholder SVG'leri, 35 adet) |
+| Gerçek cihaz testi | Samsung Internet, Edge, Instagram/Facebook/Pinterest in-app tarayıcıları otomatik testte yok |
+
 ## Faz 5 — Final gate (submit öncesi)
 
 1. 83 maddenin + E1–E6'nın hepsi ☑ ya da gerekçeli ⊘.
 2. Güncel `@shopify/theme-check-node` → 0 error, 0 warning.
 3. W3C validation: 12 template tipinde 0 error.
 4. Lighthouse mobile + desktop (home, PDP, collection): a11y ≥ 95, perf hedefi.
-5. axe taraması: 0 kontrast ve 0 ARIA ihlali. ☑ 25.10: `axe.yml` (PR #47) 12 şablonda masaüstü + mobil WCAG 2.1 A/AA taraması; ilk turda 3 bulgu (duyuru slaytında role eksik, 404 rakamı ve gallery focus eyebrow kontrastı) düzeltildi (PR #48), live temada tekrar: tema ihlali 0.
+5. axe taraması: 0 kontrast ve 0 ARIA ihlali. ☑ 25.10: `axe.yml` (PR #47, WCAG 2.2 AA + 24px dokunma hedefi PR #53) 12 şablonda masaüstü + mobil WCAG 2.1 A/AA taraması; ilk turda 3 bulgu (duyuru slaytında role eksik, 404 rakamı ve gallery focus eyebrow kontrastı) düzeltildi (PR #48), live temada tekrar: tema ihlali 0.
 6. Yeni dev store'a zip kur → demo ile görsel karşılaştırma.
 7. Faz 3 testleri ☑.
 8. Raporu yeniden madde madde yürü (aynı audit metodolojisiyle).
