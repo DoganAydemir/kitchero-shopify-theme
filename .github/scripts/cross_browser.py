@@ -28,7 +28,8 @@ PAGES = ['/', '/collections/all', '/products/premium-pull-down-kitchen-faucet',
 PRODUCT = '/products/premium-pull-down-kitchen-faucet'
 # Errors from Shopify's own scripts (analytics, checkout widgets) are not theme errors.
 IGNORE = ('monorail', 'shopifycloud', 'web-pixels', 'trekkie', 'shop.app', 'shopify-perf-kit',
-          'captcha', 'Content Security Policy', 'Clear-Site-Data', 'has been rejected for invalid domain')
+          'captcha', 'Content Security Policy', 'Clear-Site-Data', 'has been rejected for invalid domain',
+          'storefront/web-components')
 
 TARGETS = [
     ('chromium', 'Chrome desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
