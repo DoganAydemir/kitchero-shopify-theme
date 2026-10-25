@@ -190,6 +190,10 @@ EDITS = [
         "Tell us about your space and timeline, and we'll help you plan the next step."}),
 
     # Showroom product page
+    # Dynamic-source accordions: no <p> wrapper (description/metafield HTML
+    # already contains block elements, so the wrapper produced nested <p>).
+    ('templates/product.showroom.json', 'main', 'acc1', {'content': '{{ product.description }}'}),
+    ('templates/product.showroom.json', 'main', 'acc4', {'content': '{{ product.metafields.custom.delivery | metafield_tag }}'}),
     ('templates/product.showroom.json', 'main', 'ctas', {'primary_cta_text': 'Book an appointment',
         'secondary_cta_text': 'Contact us', 'secondary_cta_link': 'shopify://pages/contact', 'secondary_icon': 'mail'}),
 ]

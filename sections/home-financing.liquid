@@ -72,7 +72,7 @@
             {%- for block in partner_blocks -%}
               {%- if block.settings.logo_image != blank -%}
                 {%- assign logo_width = block.settings.logo_image.width | times: 24 | divided_by: block.settings.logo_image.height -%}
-                {{ block.settings.logo_image | image_url: height: 48 | image_tag: class: 'kt-home-financing__partner-logo-img', loading: 'lazy', width: logo_width, height: 24, alt: block.settings.name }}
+                {{ block.settings.logo_image | image_url: height: 48 | image_tag: sizes: '160px', class: 'kt-home-financing__partner-logo-img', loading: 'lazy', width: logo_width, height: 24, alt: block.settings.name }}
               {%- else -%}
                 <span>{{ block.settings.name | escape }}</span>
               {%- endif -%}
