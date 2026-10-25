@@ -183,6 +183,15 @@ Before submission, the demo store must have:
 Kitchero is original Online Store 2.0 code: Liquid, plain CSS and vanilla JS
 (no build step). Demo store: kitchero-kitchen.myshopify.com.
 
+Code history: the repository was started in April 2026 from a small scaffold
+that followed Dawn's file layout (theme.liquid, password.liquid, meta-tags,
+pagination, base.css, global.js). Every one of those files has since been
+rewritten; today 0-9% of their lines match any Dawn file, all of them
+platform idioms such as the canonical link or block loops. All sections,
+snippets, styles and scripts were written for Kitchero. The line-by-line
+comparison and the script that produces it are in docs/CODE-LINEAGE.md, and
+we can share the repository on request.
+
 Notes:
 - Colors come only from color schemes; sections have no separate color pickers.
 - Product data features (countdown, rating, features, origin, dimensions,
