@@ -42,7 +42,7 @@ EDITS = [
     ('sections/header-group.json', 'announcement-banner', 'announcement-1',
         {'text': 'New cabinet finishes for fall — explore the color library'}),
     ('sections/header-group.json', 'announcement-banner', 'announcement_PBAwCp',
-        {'text': 'Plan your kitchen with our design team — book a studio visit'}),
+        {'text': 'Plan your kitchen with our design team — request a consultation'}),
     ('sections/header-group.json', 'header', None, {'mobile_cta_text': 'Request a quote'}),
     ('sections/header-group.json', 'header', 'menu_link_badge_YxnfCJ', {'badge_text': 'Sale'}),
     ('sections/footer-group.json', 'footer', 'link_list_r7bk7C', {'heading': 'Shop'}),
@@ -194,7 +194,7 @@ EDITS = [
     # already contains block elements, so the wrapper produced nested <p>).
     ('templates/product.showroom.json', 'main', 'acc1', {'content': '{{ product.description }}'}),
     ('templates/product.showroom.json', 'main', 'acc4', {'content': '{{ product.metafields.custom.delivery | metafield_tag }}'}),
-    ('templates/product.showroom.json', 'main', 'ctas', {'primary_cta_text': 'Book an appointment',
+    ('templates/product.showroom.json', 'main', 'ctas', {'primary_cta_text': 'Request a consultation',
         'secondary_cta_text': 'Contact us', 'secondary_cta_link': 'shopify://pages/contact', 'secondary_icon': 'mail'}),
 ]
 

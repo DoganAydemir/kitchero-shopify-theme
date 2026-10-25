@@ -38,7 +38,8 @@
     {%- for i in (1..2) -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'logo' -%}
-          <div class="kt-brands__item" {{ block.shopify_attributes }}>
+          {%- comment -%} The second pass only fills the loop: hidden from screen readers and the editor. {%- endcomment -%}
+          <div class="kt-brands__item"{% if i == 1 %} {{ block.shopify_attributes }}{% else %} aria-hidden="true"{% endif %}>
             {%- comment -%}
               Alt fallback — pre-resolve the localized string into a
               variable so `| default:` sees a translated value. The
@@ -65,7 +66,7 @@
               {{ block.settings.image | image_url: height: 80 | image_tag: class: 'kt-brands__logo', loading: 'lazy', widths: brand_logo_widths, sizes: brand_logo_sizes, width: brand_logo_width, height: 40, alt: brand_logo_alt }}
             {%- else -%}
               {%- if block.settings.alt != blank -%}
-                <span class="kt-brands__placeholder-name">{{ block.settings.alt }}</span>
+                <span class="kt-brands__placeholder-name">{{ block.settings.alt | escape }}</span>
               {%- endif -%}
             {%- endif -%}
           </div>
