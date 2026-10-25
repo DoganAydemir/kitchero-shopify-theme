@@ -135,7 +135,7 @@ Bağımlılık kuralları:
 | E8 | Dokümanlarda yanlış iddialar var ("Theme Check 0 errors", "160 rule compliant", "motion off by default", "fully translated", Showroom'da "CTA'lar ATC'nin yerini alıyor") | README, docs/THEME_STORE_FIXES, docs/THEME-STORE-LISTING (review notes), THEME_STORE_RULES_OFFICIAL, release-notes → fix'lerden sonra güncellenecek | ☑ 25.10 (f59482e, PR #6): release-notes, SETUP, README, listing, fixes doc gerçekle eşitlendi |
 | E9 | Konumlandırma: tema kitchen ve ev ürünleri satan merchant'lar için (kullanıcı kararı, 20.10) | Listing ve demo mağaza niche kalacak. `main` default'ları niche'e uygun ama nötr olacak: gerçek marka yok, sahte vaat/istatistik/kişi yok, "KITCHERO" yok; mobilya/dekor merchant'ında da anlamlı olmalı. Kitchen'a özel özellikler opsiyonel olacak ve gerçek Shopify akışlarıyla çalışacak. REJECT_RULES C6 bu çerçeveye göre güncellenecek | ☑ karar alındı |
 | E10 | Submission demo mağazası: **kitchero-kitchen.myshopify.com** (kullanıcı teyidi, 20.10). Audit bu mağaza üzerinden yapılmış ve bulguları geçerli. `kitchero-4zilkgr1` AI_HANDOFF'taki eski/test kaydı | Tüm demo fix'leri ve Faz 3 testleri kitchero-kitchen'da yapılacak; `shopify.theme.toml` env ve AI_HANDOFF güncellenecek | ☑ |
-| E11 | Packaging prosedürü | `.shopifyignore`'daki content pattern'leri geçici aç + `release-notes.md`'yi dahil et (#82) + temiz zip + doğrula + geri al | ☐ |
+| E11 | Packaging prosedürü | `.shopifyignore`'daki content pattern'leri geçici aç + `release-notes.md`'yi dahil et (#82) + temiz zip + doğrula + geri al | ☑ 25.10: `package.yml` content satırlarını geçici çıkarıp `shopify theme package` çalıştırıyor, ardından `check_package.py` (zorunlu dosyalar, md/dev dosyası yok, JSON geçerli, mağazaya özel referans yok). Sonuç: geçti |
 | E12 | Kodda okunan ama SETUP.md'de dokümante olmayan metafield'lar (`custom.features`, dimensions, `country_of_origin`) | #28 çözümüyle birlikte SETUP.md güncellenecek | ☑ 25.10 (f59482e, PR #6): release-notes, SETUP, README, listing, fixes doc gerçekle eşitlendi |
 | E13 | Favicon yok (kullanıcı tespiti, 20.10) | **Demo:** `kt_favicon` ayarı demo mağazada boş → Theme settings > Brand'den favicon yüklenecek (Faz 2). **Kod:** `templates/gift_card.liquid` favicon render etmiyor → eklenecek. `theme.liquid:174` `mask-icon` PNG veriyor (Safari SVG bekler) → satır kaldırılacak. Fresh install'da favicon olmaması normal (Shopify default'u devreye girer) | ◐ kod ☑ 21.10 · favicon yükleme Faz 2 · ☑ 25.10 demo: favicon üretildi, Files'a yüklendi, `kt_favicon` script ile set ediliyor (preview'da doğrulandı) |
 | E14 | de/fr/es çevirilerinde kalite sorunları (ör. es "Listo para empezar?" `¿` eksik, de "Beginnen Sie Reise.") | Native-speaker review; en azından storefront default'ları gözden geçirilecek | ☑ 24.10 (b35b862): storefront de/fr/es/tr 153 düzeltme (de Sie, fr vous + boşluk, es tú, tr siz, bölünmüş başlıklar, eksik çeviriler) |
@@ -172,15 +172,15 @@ Bağımlılık kuralları:
 
 | # | Test | Hazırlık | Durum |
 |---|---|---|---|
-| 66 | Accelerated checkout butonları | Shopify Payments test mode / Bogus Gateway | ☐ |
-| 67 | Shop Pay Installments banner | Shopify Payments + `payment_terms` | ☐ |
+| 66 | Accelerated checkout butonları | Shopify Payments test mode / Bogus Gateway | ◐ 25.10: kod tarafı tamam: `{{ form \| payment_button }}` iki ürün şablonunda ve featured product'ta, `content_for_additional_checkout_buttons` cart sayfası ve drawer'da. Showroom'da Buy it now etiketi iki satıra bölünüyordu; butonlar alt alta alındı (PR #32). Bogus Gateway'de Shop Pay/Apple Pay görünmez; tam test Shopify Payments test mode ister |
+| 67 | Shop Pay Installments banner | Shopify Payments + `payment_terms` | ◐ 25.10: `{{ form \| payment_terms }}` product-form, featured product, cart ve drawer'da var. Banner yalnızca Shopify Payments + Shop Pay Installments açık mağazada görünür; demo'da Bogus Gateway olduğu için canlı test yapılamıyor |
 | 68 | Pickup availability | Location + local pickup aktif | ☐ |
 | 69 | Video, 3D, AR media | Bir ürüne video + GLB model | ☐ |
 | 70 | Subscriptions, gift card, recipient | Subscription app + gift card ürünü | ☐ |
-| 71 | Unit price, tax-inclusive, automatic discounts | Market/tax ayarları + otomatik indirim | ☐ |
+| 71 | Unit price, tax-inclusive, automatic discounts | Market/tax ayarları + otomatik indirim | ◐ 25.10: Showroom fiyat snippet'inde unit price yoktu; `snippets/product-unit-price.liquid` çıkarıldı, iki fiyat snippet'i de kullanıyor, varyant değişiminde JS güncelliyor (PR #31). Tax-included notu iki şablonda, cart ve drawer'da var. Otomatik indirim satırları cart/drawer'da `discount_allocations` ile gösteriliyor; Admin'de test verisi girilmedi |
 | 72 | Lighthouse (Shopify reference store) | Shopify reference data ile skor | ☐ |
-| 73 | Safari, Firefox, Edge, Samsung Internet, in-app browser'lar | Cihaz/BrowserStack matrisi | ☐ |
-| 74 | Editor'da section ekleme, silme, sıralama | Tüm 91 section | ☐ |
+| 73 | Safari, Firefox, Edge, Samsung Internet, in-app browser'lar | Cihaz/BrowserStack matrisi | ◐ 25.10: `cross-browser.yml` (PR #34, #36): Chromium, Firefox, WebKit masaüstü + iPhone Safari ve Android Chrome emülasyonu; tema JS hataları, eksik asset, arama, mobil menü, sepete ekleme. Gerçek cihaz (Samsung Internet, in-app) testi yok |
+| 74 | Editor'da section ekleme, silme, sıralama | Tüm 91 section | ☑ 25.10: `theme-smoke.yml` preset'i olan her section'ı geçici temada render ediyor; Liquid hatası 0, eksik çeviri 0, W3C tema hatası 0 (PR #25). Bulunan tek hata admin içeriğiydi (koleksiyon açıklamasında `<meta charset>`), Admin'de temizlendi |
 | 75 | Boş mağazaya kurulum | Yeni dev store'a zip kurulumu | ☐ |
 | 76 | Test mode / Bogus Gateway | Demo'da aktif et | ☑ 25.10: Test payment gateway (Bogus) aktif (E20) | |
 | 77 | Support formu auto-reply | Support altyapısı | ☐ |
@@ -189,11 +189,11 @@ Bağımlılık kuralları:
 
 | # | Konu | Yapılacak | Durum |
 |---|---|---|---|
-| 78 | Header, product card ve collection'ların yayındaki temalardan farkı | Yan yana karşılaştırma dokümanı (Dawn, Horizon + benzer niş temalar) | ☐ |
-| 79 | Kod kökeni: Dawn/Horizon izi yok ama kanıt yok | Skeleton lineage notu + grep raporu | ☐ |
+| 78 | Header, product card ve collection'ların yayındaki temalardan farkı | Yan yana karşılaştırma dokümanı (Dawn, Horizon + benzer niş temalar) | ◐ 25.10: `docs/ORIGINALITY.md` (Dawn ile header, kart, koleksiyon tablosu; Horizon mimari farkı). Not: 3 filtre yerleşimi (yatay/drawer/sidebar) Dawn'da da var; listing'de özellik olarak sunulmuyor. Ücretli niş temalarla karşılaştırma yapılmadı |
+| 79 | Kod kökeni: Dawn/Horizon izi yok ama kanıt yok | Skeleton lineage notu + grep raporu | ◐ 25.10: `docs/CODE-LINEAGE.md` + `lineage_report.py` (PR #28). İlk commit (91e1db1) Dawn düzeninde bir iskeletle başlamış (theme.liquid %95, meta-tags %100 Dawn ile ortak); bugün ortak satır %0–9, hepsi platform kalıbı. Dawn'a özgü isimler değiştirildi (`kt-skip-link`, `kt-field__input`, `kt-localization-form.js`). Tema Skeleton üzerine kurulmamış; README, release notes ve listing'deki "Built on Skeleton" ifadeleri "original code" olarak düzeltildi (PR #30). **Yönetici kararı:** başlangıç iskeleti riski |
 | 64 | Support formu Shopify plan bilgisini istiyor ama e-postayı zorunlu tutmuyor | Support sitesindeki formda e-posta required | ☐ |
-| 82 | `release-notes.md` export'ta yok | `.shopifyignore`'daki `*.md` istisnası + zip komutuna ekle | ◐ 21.10 `.shopifyignore` düzeltildi; paketlemede doğrulanacak (E11) |
-| 83 | Listing screenshot'ları, tagline ve key feature'lar | `docs/THEME-STORE-LISTING.md` + `docs/PREVIEW-IMAGES.md` baz alınarak üretilecek | ☐ |
+| 82 | `release-notes.md` export'ta yok | `.shopifyignore`'daki `*.md` istisnası + zip komutuna ekle | ☑ 25.10: `package.yml` zip'i üretiyor; `check_package.py` release-notes.md'nin zip'te olduğunu doğruluyor (Kitchero-1.0.0.zip, 365 dosya; PR #26, #27) |
+| 83 | Listing screenshot'ları, tagline ve key feature'lar | `docs/THEME-STORE-LISTING.md` + `docs/PREVIEW-IMAGES.md` baz alınarak üretilecek | ◐ 25.10: Listing dokümanı güncel form alanlarına göre yeniden yazıldı (tagline 51 karakter, metadata description, Home, Some (11-100+), 3 key highlight, alt text). `listing-shots.yml` 5 görseli doğru boyutlarda `listing-assets` branch'ine üretiyor (PR #29, #30); desktop düzende yeniden çekim yapıldı |
 | 80, 81, 65 | Haklar, exclusivity, isim | Faz 0 kararları | ⊘ |
 
 ## Faz 5 — Final gate (submit öncesi)
