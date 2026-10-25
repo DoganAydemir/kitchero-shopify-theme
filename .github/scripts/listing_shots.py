@@ -43,14 +43,20 @@ def settle(page):
     time.sleep(2.5)
 
 
-def shot(context, path, name, scroll_to=None, before=None):
+# Key highlight images show one feature, so the fixed header is hidden there.
+NO_HEADER = '.shopify-section-group-header-group { display: none !important; }'
+
+
+def shot(context, path, name, scroll_to=None, before=None, hide_header=False):
     page = context.new_page()
     page.goto(f'{STORE}{path}', wait_until='networkidle')
     settle(page)
+    if hide_header:
+        page.add_style_tag(content=NO_HEADER)
     if scroll_to:
         page.evaluate("""(sel) => {
             const el = document.querySelector(sel);
-            if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY);
+            if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 24);
         }""", scroll_to)
         time.sleep(2.5)
     if before:
@@ -62,14 +68,30 @@ def shot(context, path, name, scroll_to=None, before=None):
 
 
 def open_hotspot(page):
-    btn = page.locator('.kt-shop-the-look__hotspot').first
-    if btn.count():
-        btn.click()
+    # Center the hotspot closest to the middle of the screen, then open it.
+    index = page.evaluate("""() => {
+        const spots = [...document.querySelectorAll('.kt-shop-the-look__hotspot')];
+        let best = -1, dist = Infinity;
+        spots.forEach((s, i) => {
+            const r = s.getBoundingClientRect();
+            if (!r.width) return;
+            const d = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+            if (d < dist) { dist = d; best = i; }
+        });
+        if (best > -1) {
+            const r = spots[best].getBoundingClientRect();
+            window.scrollBy(0, r.top + r.height / 2 - innerHeight * 0.45);
+        }
+        return best;
+    }""")
+    time.sleep(1.5)
+    if index > -1:
+        page.locator('.kt-shop-the-look__hotspot').nth(index).click()
 
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
-    desktop = browser.new_context(viewport={'width': 1000, 'height': 1248}, device_scale_factor=2)
+    desktop = browser.new_context(viewport={'width': 1250, 'height': 1560}, device_scale_factor=1.6)
     login(desktop)
     shot(desktop, '/', 'kitchero-home-desktop-2000x2496.png')
 
@@ -80,10 +102,12 @@ with sync_playwright() as p:
     login(mobile)
     shot(mobile, '/', 'kitchero-home-mobile-750x1334.png')
 
-    wide = browser.new_context(viewport={'width': 800, 'height': 600}, device_scale_factor=2)
+    wide = browser.new_context(viewport={'width': 1200, 'height': 900}, device_scale_factor=4 / 3)
     login(wide)
     shot(wide, '/', 'kitchero-highlight-1-shop-the-look-1600x1200.png',
-         scroll_to='.kt-shop-the-look', before=open_hotspot)
-    shot(wide, '/', 'kitchero-highlight-2-shop-by-color-1600x1200.png', scroll_to='[data-section-type="shop-color"]')
-    shot(wide, '/products/elegant-kitchen-cabinet-system', 'kitchero-highlight-3-showroom-1600x1200.png')
+         scroll_to='.kt-shop-the-look__image-container', before=open_hotspot, hide_header=True)
+    shot(wide, '/', 'kitchero-highlight-2-shop-by-color-1600x1200.png',
+         scroll_to='[data-section-type="shop-color"] .kt-shop-color__layout', hide_header=True)
+    shot(wide, '/products/elegant-kitchen-cabinet-system', 'kitchero-highlight-3-showroom-1600x1200.png',
+         hide_header=True)
     browser.close()

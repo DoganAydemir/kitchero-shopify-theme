@@ -1,5 +1,5 @@
-Kitchero 1.0.0 — initial Theme Store release. Built on Shopify
-Skeleton with Online Store 2.0 architecture, translations for
+Kitchero 1.0.0 — initial Theme Store release. Original Online Store
+2.0 theme code (Liquid, CSS and JavaScript), translations for
 English, Turkish, German, French and Spanish, and app block support
 on the product page, featured product, header, footer and cart page.
 

@@ -7,11 +7,12 @@
 > (160-rule master checklist) and [`REJECT_RULES.md`](../REJECT_RULES.md)
 > (the active reject-vector sweep ruleset).
 >
-> **Architecture statement:** The theme is built on Shopify Skeleton —
-> the only approved baseline for new Theme Store submissions. No Dawn
-> or Horizon code, markup, CSS classes, comment text, or naming
-> conventions are referenced anywhere in the codebase (verified across
-> R110–R117 reject-vector sweeps, all clean).
+> **Architecture statement:** The theme code is original (Online Store
+> 2.0, Liquid, plain CSS, vanilla JS). The first commit was a scaffold
+> modeled on Dawn's file layout; every file from it has since been
+> rewritten and today's overlap with Dawn is limited to platform idioms
+> (0–9% of lines per file). Details and a reproducible check:
+> [`CODE-LINEAGE.md`](./CODE-LINEAGE.md).
 
 ---
 
