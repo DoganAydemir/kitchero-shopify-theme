@@ -75,8 +75,12 @@ rows = []
 with sync_playwright() as p:
     browser = p.chromium.launch()
     for label, viewport in (('desktop', {'width': 1280, 'height': 900}), ('mobile', {'width': 390, 'height': 844})):
+        # Separate contexts: visiting ?preview_theme_id sets a preview cookie,
+        # which would otherwise make every later "live" shot show the preview.
         context = browser.new_context(viewport=viewport, reduced_motion='reduce')
+        preview_context = browser.new_context(viewport=viewport, reduced_motion='reduce')
         login(context)
+        login(preview_context)
         for path in PAGES:
             name = f"{label}--{path.strip('/').replace('/', '-').replace('?', '-').replace('=', '-') or 'home'}"
             joiner = '&' if '?' in path else '?'
@@ -84,7 +88,7 @@ with sync_playwright() as p:
             prev = os.path.join(OUT, f'{name}--preview.png')
             try:
                 shoot(context, f'{STORE}{path}', live)
-                shoot(context, f'{STORE}{path}{joiner}preview_theme_id={PREVIEW}', prev)
+                shoot(preview_context, f'{STORE}{path}{joiner}preview_theme_id={PREVIEW}', prev)
                 changed, h_live, h_prev = compare(live, prev, os.path.join(OUT, f'{name}--compare.png'))
                 rows.append((label, path, changed, h_live, h_prev))
             except Exception as error:  # noqa: BLE001
@@ -94,6 +98,7 @@ with sync_playwright() as p:
                 if os.path.exists(f):
                     os.remove(f)
         context.close()
+        preview_context.close()
     browser.close()
 
 print('## Visual diff: live vs preview\n')
