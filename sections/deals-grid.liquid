@@ -13,12 +13,15 @@
           {%- assign badge_bg = block.settings.badge_color | default: '#10b981' -%}
           {%- liquid
             comment
-              Text color follows the badge background so any picked color stays readable.
+              Text color follows the badge background unless the merchant sets one.
             endcomment
             assign badge_brightness = badge_bg | color_brightness
             assign badge_fg = '#ffffff'
             if badge_brightness > 125
               assign badge_fg = '#1c1917'
+            endif
+            if block.settings.badge_text_color != blank
+              assign badge_fg = block.settings.badge_text_color
             endif
           -%}
 
@@ -298,6 +301,12 @@
           "id": "badge_color",
           "label": "t:sections.deals-grid.blocks.deal.settings.badge_color.label",
           "default": "#10b981"
+        },
+        {
+          "type": "color",
+          "id": "badge_text_color",
+          "label": "t:sections.deals-grid.blocks.deal.settings.badge_text_color.label",
+          "info": "t:sections.deals-grid.blocks.deal.settings.badge_text_color.info"
         },
         {
           "type": "checkbox",
