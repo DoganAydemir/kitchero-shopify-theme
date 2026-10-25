@@ -1,0 +1,107 @@
+name: Section smoke test
+
+# Renders every section of the theme from its first preset (what a merchant
+# gets from "Add section" in the editor) on an unpublished theme in the demo
+# store, then checks the output for Liquid errors, missing translations and
+# W3C errors. The temporary theme is deleted at the end. Run manually.
+
+on:
+  workflow_dispatch:
+
+env:
+  SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+  SHOPIFY_CLI_TTY: '0'
+  CI: '1'
+  STORE_URL: https://kitchero-kitchen.myshopify.com
+  LIVE_THEME: '189322330326'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install tools
+        run: npm install -g @shopify/cli@latest && npm install --no-save vnu-jar@latest
+
+      - name: Get access token
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+        run: |
+          token=$(curl -sS -f -X POST "$STORE_URL/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          echo "SHOPIFY_CLI_THEME_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Build smoke theme
+        run: |
+          rm -f .shopifyignore
+          shopify theme pull --theme "$LIVE_THEME" --path . \
+            --only 'templates/*.json' --only 'sections/*-group.json' --only 'config/settings_data.json'
+          python3 .github/scripts/smoke_templates.py . about-us premium-pull-down-kitchen-faucet kitchen-cabinets
+
+      - name: Push unpublished theme
+        run: |
+          shopify theme push --unpublished --theme "Kitchero smoke ${GITHUB_SHA::7}" --path . --json > push.json
+          echo "SMOKE_THEME=$(jq -r '.theme.id' push.json)" >> "$GITHUB_ENV"
+
+      - name: Render and check
+        env:
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+        run: |
+          mkdir -p out
+          curl -sS -c jar -b jar -o /dev/null "$STORE_URL/password"
+          curl -sS -c jar -b jar -o /dev/null -X POST "$STORE_URL/password" \
+            --data-urlencode "form_type=storefront_password" --data-urlencode "utf8=✓" \
+            --data-urlencode "password=$PASSWORD"
+          status=0
+          while read -r path; do
+            [ -z "$path" ] && continue
+            name=$(echo "$path" | sed 's#[/?=&]#_#g; s#^_##')
+            code=$(curl -sS -c jar -b jar -L -o "out/$name.html" -w '%{http_code}' "$STORE_URL$path&preview_theme_id=$SMOKE_THEME")
+            errors=$(grep -o -E 'Liquid (syntax )?error[^<]{0,160}|translation missing[^<"]{0,120}' "out/$name.html" | sort -u)
+            echo "### $path — HTTP $code" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$code" != "200" ] || [ -n "$errors" ]; then
+              status=1
+              echo '```' >> "$GITHUB_STEP_SUMMARY"; echo "$errors" >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "No Liquid errors or missing translations." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done < smoke-urls.txt
+          java -jar node_modules/vnu-jar/build/dist/vnu.jar --errors-only --format json out/*.html 2> report.json || true
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, re
+          platform = re.compile(
+              r'charset” attribute on a “meta”|“version” not allowed on element “link”'
+              r'|“type=module” must not have a “defer”|“payment” not allowed'
+              r'|“disabled” not allowed on element “div”')
+          theme = {}
+          for m in json.load(open('report.json')).get('messages', []):
+              if m.get('type') != 'error' or platform.search(m['message']):
+                  continue
+              if 'alt” attribute' in m['message'] and 'preview_images' in m.get('extract', ''):
+                  continue
+              key = m['message'][:120] + '  `' + re.sub(r'\s+', ' ', m.get('extract', ''))[:90].replace('`', "'") + '`'
+              theme.setdefault(key, set()).add(m.get('url', '').rsplit('/', 1)[-1])
+          print(f'\n## W3C (theme-side): {len(theme)} distinct\n')
+          for key, pages in sorted(theme.items()):
+              print(f'- {key} — {", ".join(sorted(pages))}')
+          EOF
+          exit $status
+
+      - name: Delete smoke theme
+        if: always() && env.SMOKE_THEME != ''
+        run: shopify theme delete --theme "$SMOKE_THEME" --force
