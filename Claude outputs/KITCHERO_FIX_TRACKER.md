@@ -10,7 +10,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 1: `demo` branch, `main`'deki son code fix'lerin gerisinde. Demo mağaza daha eski kodla çalışıyor. Her code fix sonrası `main → demo` merge edilip demo mağazaya push edilmeli.
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
-> Live tema 25.10 itibarıyla **Kitchero #189328359638** (PR #41'e kadar `main`). Eski live temalar "Kitchero previous 2026-10-25" ve "… b" adıyla taslakta duruyor.
+> Live tema 25.10 itibarıyla **Kitchero #189328359638** (PR #41'e kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
 
 ---
 
@@ -182,17 +182,17 @@ Bağımlılık kuralları:
 | 72 | Lighthouse (Shopify reference store) | Shopify reference data ile skor | ☐ |
 | 73 | Safari, Firefox, Edge, Samsung Internet, in-app browser'lar | Cihaz/BrowserStack matrisi | ☑ 25.10 (otomatik): `cross-browser.yml` (PR #34, #36, #37, #40) live temada: Chrome, Firefox, Safari masaüstü + iPhone Safari ve Android Chrome emülasyonu; 5/5 tarayıcıda tema JS hatası 0, eksik asset 0, arama, mobil menü, sepete ekleme ve cart drawer geçti. Bu test cart drawer'da varyant listesindeki madde işareti hatasını buldu (PR #39). Not: Linux WebKit AVIF/JXL çözemediği için WebKit ekran görüntülerinde bazı görseller boş; gerçek Safari'de sorun değil. Gerçek cihaz (Samsung Internet, in-app) testi yapılmadı |
 | 74 | Editor'da section ekleme, silme, sıralama | Tüm 91 section | ☑ 25.10: `theme-smoke.yml` preset'i olan her section'ı geçici temada render ediyor; Liquid hatası 0, eksik çeviri 0, W3C tema hatası 0 (PR #25). Bulunan tek hata admin içeriğiydi (koleksiyon açıklamasında `<meta charset>`), Admin'de temizlendi |
-| 75 | Boş mağazaya kurulum | Yeni dev store'a zip kurulumu | ☐ |
+| 75 | Boş mağazaya kurulum | Yeni dev store'a zip kurulumu | ☑ 25.10: Boş dev store `kitchero-install-test` açıldı (test verisi yok). `install-test.yml` (PR #45) Theme Store dosya setini (365 dosya) yükleyip yayınladı. 11 sayfada (home, koleksiyonlar, arama, sepet, blog, contact, 404, policy, password) Liquid hatası 0, eksik çeviri 0; boş durum mesajları ve placeholder görseller düzgün. Not: boş mağazada ana sayfa HTML'i 1.1 MB, bunun 0.98 MB'ı Shopify'ın inline placeholder SVG'leri (35 adet) |
 | 76 | Test mode / Bogus Gateway | Demo'da aktif et | ☑ 25.10: Test payment gateway (Bogus) aktif (E20) | |
-| 77 | Support formu auto-reply | Support altyapısı | ☐ |
+| 77 | Support formu auto-reply | Support altyapısı | ⊘ 25.10: Zoho Desk'te yeni ticket için otomatik yanıt (acknowledgment) ayarlanacak; Zoho Desk girişi bekleniyor |
 
 ## Faz 4 — Originality ve submission paketi
 
 | # | Konu | Yapılacak | Durum |
 |---|---|---|---|
 | 78 | Header, product card ve collection'ların yayındaki temalardan farkı | Yan yana karşılaştırma dokümanı (Dawn, Horizon + benzer niş temalar) | ◐ 25.10: `docs/ORIGINALITY.md` (Dawn ile header, kart, koleksiyon tablosu; Horizon mimari farkı). Not: 3 filtre yerleşimi (yatay/drawer/sidebar) Dawn'da da var; listing'de özellik olarak sunulmuyor. Ücretli niş temalarla karşılaştırma yapılmadı |
-| 79 | Kod kökeni: Dawn/Horizon izi yok ama kanıt yok | Skeleton lineage notu + grep raporu | ◐ 25.10: `docs/CODE-LINEAGE.md` + `lineage_report.py` (PR #28). İlk commit (91e1db1) Dawn düzeninde bir iskeletle başlamış (theme.liquid %95, meta-tags %100 Dawn ile ortak); bugün ortak satır %0–9, hepsi platform kalıbı. Dawn'a özgü isimler değiştirildi (`kt-skip-link`, `kt-field__input`, `kt-localization-form.js`). Tema Skeleton üzerine kurulmamış; README, release notes ve listing'deki "Built on Skeleton" ifadeleri "original code" olarak düzeltildi (PR #30). **Yönetici kararı:** başlangıç iskeleti riski |
-| 64 | Support formu Shopify plan bilgisini istiyor ama e-postayı zorunlu tutmuyor | Support sitesindeki formda e-posta required | ☐ |
+| 79 | Kod kökeni: Dawn/Horizon izi yok ama kanıt yok | Skeleton lineage notu + grep raporu | ☑ 25.10: `docs/CODE-LINEAGE.md` + `lineage_report.py` (PR #28); Dawn'a özgü isimler değiştirildi; "Built on Skeleton" ifadeleri düzeltildi (PR #30). Yönetici kararı: şeffaf kalınacak; review notuna ilk iskeletin geçmişi ve CODE-LINEAGE.md referansı eklendi (PR #44) |
+| 64 | Support formu Shopify plan bilgisini istiyor ama e-postayı zorunlu tutmuyor | Support sitesindeki formda e-posta required | ⊘ 25.10: Form support.freemannyc.com'daki Zoho Desk portalında (Submit a ticket): Email alanı zorunlu değil, Shopify Plan alanı var. Ayrıca portal karşılama metni "Welcome to supportfreemannyccommgrxfruddg Portal" ve breadcrumb'da "Shopify Theme Support2" görünüyor. Zoho Desk'e Chrome'da oturum açık değil; giriş yapılınca düzeltilecek |
 | 82 | `release-notes.md` export'ta yok | `.shopifyignore`'daki `*.md` istisnası + zip komutuna ekle | ☑ 25.10: `package.yml` zip'i üretiyor; `check_package.py` release-notes.md'nin zip'te olduğunu doğruluyor (Kitchero-1.0.0.zip, 365 dosya; PR #26, #27) |
 | 83 | Listing screenshot'ları, tagline ve key feature'lar | `docs/THEME-STORE-LISTING.md` + `docs/PREVIEW-IMAGES.md` baz alınarak üretilecek | ◐ 25.10: Listing dokümanı güncel form alanlarına göre yeniden yazıldı (tagline 51 karakter, metadata description, Home, Some (11-100+), 3 key highlight, alt text). `listing-shots.yml` 5 görseli doğru boyutlarda `listing-assets` branch'ine üretiyor (PR #29, #30); desktop düzende yeniden çekim yapıldı |
 | 80, 81, 65 | Haklar, exclusivity, isim | Faz 0 kararları | ⊘ |
