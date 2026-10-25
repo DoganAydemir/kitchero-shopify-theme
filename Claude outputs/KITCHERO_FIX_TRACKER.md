@@ -10,7 +10,8 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 1: `demo` branch, `main`'deki son code fix'lerin gerisinde. Demo mağaza daha eski kodla çalışıyor. Her code fix sonrası `main → demo` merge edilip demo mağazaya push edilmeli.
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
-> Live tema 25.10 itibarıyla **Kitchero #189328359638** (PR #41'e kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
+> 25.10: freemannyc.com'daki Contact Form 7 formlarında tema demosundan kalan yabancı gönderici adresleri (wabidullahsharif@gmail.com, wordpress@themexriver.com) `info@freemannyc.com` ile değiştirildi; kullanılmayan "Kitchero Support" formu silindi.
+> Live tema 25.10 itibarıyla **Kitchero #189330751702** (PR #49'a kadar `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
 
 ---
 
@@ -195,7 +196,7 @@ Bağımlılık kuralları:
 | 64 | Support formu Shopify plan bilgisini istiyor ama e-postayı zorunlu tutmuyor | Support sitesindeki formda e-posta required | ⊘ 25.10: Form support.freemannyc.com'daki Zoho Desk portalında (Submit a ticket): Email alanı zorunlu değil, Shopify Plan alanı var. Ayrıca portal karşılama metni "Welcome to supportfreemannyccommgrxfruddg Portal" ve breadcrumb'da "Shopify Theme Support2" görünüyor. Zoho Desk'e Chrome'da oturum açık değil; giriş yapılınca düzeltilecek |
 | 82 | `release-notes.md` export'ta yok | `.shopifyignore`'daki `*.md` istisnası + zip komutuna ekle | ☑ 25.10: `package.yml` zip'i üretiyor; `check_package.py` release-notes.md'nin zip'te olduğunu doğruluyor (Kitchero-1.0.0.zip, 365 dosya; PR #26, #27) |
 | 83 | Listing screenshot'ları, tagline ve key feature'lar | `docs/THEME-STORE-LISTING.md` + `docs/PREVIEW-IMAGES.md` baz alınarak üretilecek | ◐ 25.10: Listing dokümanı güncel form alanlarına göre yeniden yazıldı (tagline 51 karakter, metadata description, Home, Some (11-100+), 3 key highlight, alt text). `listing-shots.yml` 5 görseli doğru boyutlarda `listing-assets` branch'ine üretiyor (PR #29, #30); desktop düzende yeniden çekim yapıldı |
-| 80, 81, 65 | Haklar, exclusivity, isim | Faz 0 kararları | ⊘ |
+| 80, 81, 65, 64, 77 | Haklar, exclusivity, isim, destek formu (Zoho Desk), fiyat | Yönetici kararları | ⊘ 25.10: açık karar listesinde; destek formu (e-posta zorunlu, otomatik yanıt, portal metinleri) Zoho Desk erişimiyle sonra ele alınacak |
 
 ## Faz 5 — Final gate (submit öncesi)
 
@@ -203,7 +204,7 @@ Bağımlılık kuralları:
 2. Güncel `@shopify/theme-check-node` → 0 error, 0 warning.
 3. W3C validation: 12 template tipinde 0 error.
 4. Lighthouse mobile + desktop (home, PDP, collection): a11y ≥ 95, perf hedefi.
-5. axe taraması: 0 kontrast ve 0 ARIA ihlali.
+5. axe taraması: 0 kontrast ve 0 ARIA ihlali. ☑ 25.10: `axe.yml` (PR #47) 12 şablonda masaüstü + mobil WCAG 2.1 A/AA taraması; ilk turda 3 bulgu (duyuru slaytında role eksik, 404 rakamı ve gallery focus eyebrow kontrastı) düzeltildi (PR #48), live temada tekrar: tema ihlali 0.
 6. Yeni dev store'a zip kur → demo ile görsel karşılaştırma.
 7. Faz 3 testleri ☑.
 8. Raporu yeniden madde madde yürü (aynı audit metodolojisiyle).
