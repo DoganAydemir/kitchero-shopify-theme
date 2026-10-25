@@ -23,7 +23,8 @@ for item in required:
     if item not in files:
         problems.append(f'missing {item}')
 
-allowed_top = {'assets', 'blocks', 'config', 'layout', 'locales', 'sections', 'snippets', 'templates',
+# listings/<preset>/ holds per-preset templates and settings (Theme Store presets).
+allowed_top = {'assets', 'blocks', 'config', 'layout', 'listings', 'locales', 'sections', 'snippets', 'templates',
                'release-notes.md'}
 for item in sorted(top - allowed_top):
     problems.append(f'unexpected top-level entry {item}')
@@ -42,7 +43,7 @@ for item in files:
             json.loads(text)
         except ValueError as error:
             problems.append(f'invalid JSON {item}: {error}')
-    if item.startswith('templates/') and item.endswith('.json'):
+    if re.match(r'(listings/[^/]+/)?templates/', item) and item.endswith('.json'):
         # Bare routes like shopify://collections are portable; handles and files are not.
         ref = re.search(r'shopify://(shop_images|files)/|shopify://(products|collections|pages|blogs|articles)/[^"]+',
                         zf.read(item).decode('utf-8'))

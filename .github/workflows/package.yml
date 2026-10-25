@@ -30,7 +30,9 @@ jobs:
           ls -la *.zip
 
       - name: Check zip contents
-        run: python3 .github/scripts/check_package.py *.zip | tee -a "$GITHUB_STEP_SUMMARY"
+        run: |
+          set -o pipefail
+          python3 .github/scripts/check_package.py *.zip | tee -a "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
