@@ -11,6 +11,10 @@ on:
       preview_theme:
         description: Preview theme ID
         required: true
+      base_theme:
+        description: Theme ID to compare against (empty = live theme)
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -35,6 +39,7 @@ jobs:
           STORE_URL: https://kitchero-kitchen.myshopify.com
           PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
           PREVIEW_THEME: ${{ inputs.preview_theme }}
+          BASE_THEME: ${{ inputs.base_theme }}
         run: python .github/scripts/visual_diff.py shots | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Commit images to visual-diff

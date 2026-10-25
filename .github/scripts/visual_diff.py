@@ -16,6 +16,8 @@ from playwright.sync_api import sync_playwright
 STORE = os.environ['STORE_URL'].rstrip('/')
 PASSWORD = os.environ['PASSWORD']
 PREVIEW = os.environ['PREVIEW_THEME']
+# Optional: compare against another unpublished theme instead of the live one.
+BASE = os.environ.get('BASE_THEME', '').strip()
 OUT = sys.argv[1]
 os.makedirs(OUT, exist_ok=True)
 
@@ -87,7 +89,8 @@ with sync_playwright() as p:
             live = os.path.join(OUT, f'{name}--live.png')
             prev = os.path.join(OUT, f'{name}--preview.png')
             try:
-                shoot(context, f'{STORE}{path}', live)
+                base_url = f'{STORE}{path}{joiner}preview_theme_id={BASE}' if BASE else f'{STORE}{path}'
+                shoot(context, base_url, live)
                 shoot(preview_context, f'{STORE}{path}{joiner}preview_theme_id={PREVIEW}', prev)
                 changed, h_live, h_prev = compare(live, prev, os.path.join(OUT, f'{name}--compare.png'))
                 rows.append((label, path, changed, h_live, h_prev))
@@ -102,7 +105,7 @@ with sync_playwright() as p:
     browser.close()
 
 print('## Visual diff: live vs preview\n')
-print(f'Preview theme #{PREVIEW}. Pixels that differ (full page, reduced motion).\n')
+print(f'Preview theme #{PREVIEW} against {"theme #" + BASE if BASE else "the live theme"}. Pixels that differ (full page, reduced motion).\n')
 print('| Viewport | Page | Changed pixels | Height live / preview |')
 print('|---|---|---:|---|')
 for label, path, changed, h_live, h_prev in rows:
