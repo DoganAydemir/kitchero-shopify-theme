@@ -1,0 +1,52 @@
+name: Review screenshots
+
+# Full-page desktop (1440 px) and phone (390 px) screenshots of every main
+# template for a manual design review. Images go to the `review-shots`
+# branch. Run manually; leave theme empty for the live theme.
+
+on:
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: Theme ID to preview (empty = live theme)
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-24.04  # Playwright 1.48 has no system packages for Ubuntu 26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+
+      - name: Take screenshots
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          THEME: ${{ inputs.theme }}
+        run: python .github/scripts/review_shots.py shots
+
+      - name: Commit screenshots to review-shots
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/keep && cp -r shots/. /tmp/keep/ 2>/dev/null || exit 0
+          git checkout --orphan review-shots-tmp
+          git rm -rf --cached . >/dev/null
+          git clean -fdx -q
+          mkdir -p review && cp -r /tmp/keep/. review/
+          git add review
+          git commit -q -m "Review screenshots ${GITHUB_SHA::7}"
+          git push -f origin HEAD:review-shots
