@@ -1,0 +1,87 @@
+name: HTML validation
+
+# Runs the W3C Nu HTML Checker (vnu.jar) against rendered demo store pages.
+# Errors that come from Shopify-injected markup (preview bar meta, ucp link,
+# shop-js module script, dynamic checkout button, video_tag fallback image)
+# are listed separately so theme-side errors stand out.
+# Run it manually from the Actions tab.
+
+on:
+  workflow_dispatch:
+    inputs:
+      theme_id:
+        description: Theme ID to render (empty = live theme)
+        required: false
+        default: ''
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install the Nu HTML Checker
+        run: npm install --no-save vnu-jar@latest
+
+      - name: Fetch pages
+        env:
+          STORE: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          THEME_ID: ${{ inputs.theme_id }}
+        run: |
+          mkdir -p pages
+          curl -sS -c jar -b jar -o /dev/null "$STORE/password"
+          curl -sS -c jar -b jar -o /dev/null -X POST "$STORE/password" \
+            --data-urlencode "form_type=storefront_password" \
+            --data-urlencode "utf8=✓" \
+            --data-urlencode "password=$PASSWORD"
+          suffix=""
+          if [ -n "$THEME_ID" ]; then suffix="preview_theme_id=$THEME_ID"; fi
+          for path in / /collections/all /collections/kitchen-cabinets /collections \
+              /products/premium-pull-down-kitchen-faucet /products/elegant-kitchen-cabinet-system \
+              "/search?q=sink" /cart /blogs/journal /pages/about-us /pages/contact /pages/deals \
+              /pages/financing /pages/galleries /pages/heroes-banners /pages/image-with-text \
+              /pages/sliders /pages/content-faq /404-check; do
+            name=$(echo "$path" | sed 's#[/?=]#_#g; s#^_##'); name=${name:-home}
+            sep="?"; case "$path" in *\?*) sep="&";; esac
+            url="$STORE$path"; [ -n "$suffix" ] && url="$url$sep$suffix"
+            curl -sS -c jar -b jar -L "$url" -o "pages/$name.html"
+          done
+          ls -la pages
+
+      - name: Validate
+        run: |
+          java -jar node_modules/vnu-jar/build/dist/vnu.jar --errors-only --format json pages/*.html 2> report.json || true
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, re
+          platform = re.compile(
+              r'charset” attribute on a “meta”|“version” not allowed on element “link”'
+              r'|“type=module” must not have a “defer”|“payment” not allowed'
+              r'|“disabled” not allowed on element “div”')
+          data = json.load(open('report.json'))
+          theme, shopify = {}, {}
+          for m in data.get('messages', []):
+              if m.get('type') != 'error':
+                  continue
+              page = m.get('url', '').rsplit('/', 1)[-1].replace('.html', '')
+              key = m['message'][:140]
+              video_fallback = 'alt” attribute' in m['message'] and 'preview_images' in m.get('extract', '')
+              bucket = shopify if (platform.search(m['message']) or video_fallback) else theme
+              if bucket is theme:
+                  key += '  `' + re.sub(r'\s+', ' ', m.get('extract', ''))[:90].replace('`', "'") + '`'
+              bucket.setdefault(key, set()).add(page)
+          print('## HTML validation (W3C Nu)\n')
+          print(f'Theme-side errors: **{len(theme)}** distinct · Shopify platform markup: {len(shopify)} distinct\n')
+          for title, bucket in (('Theme-side', theme), ('Shopify platform', shopify)):
+              print(f'### {title}\n')
+              for key, pages in sorted(bucket.items()):
+                  print(f'- {key} — {", ".join(sorted(pages))}')
+              print()
+          EOF
