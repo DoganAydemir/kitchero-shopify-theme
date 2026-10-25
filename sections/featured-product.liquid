@@ -70,19 +70,54 @@
             {%- assign fp_loading = 'lazy' -%}
             {%- assign fp_priority = 'auto' -%}
           {%- endif -%}
-          {{
-            product.featured_media
-            | image_url: width: 1200
-            | image_tag:
-              class: 'kt-featured-product__image',
-              widths: '400, 600, 900, 1200',
-              sizes: '(min-width: 1024px) 50vw, 100vw',
-              width: 1200,
-              height: media_height,
-              alt: media_alt,
-              loading: fp_loading,
-              fetchpriority: fp_priority
-          }}
+          {%- assign featured_media = product.featured_media -%}
+          {%- case featured_media.media_type -%}
+            {%- when 'video' -%}
+              {{
+                featured_media
+                | video_tag:
+                  class: 'kt-featured-product__image kt-featured-product__video',
+                  controls: true,
+                  playsinline: 'playsinline',
+                  preload: 'metadata',
+                  image_size: '1200x',
+                  title: media_alt
+              }}
+            {%- when 'external_video' -%}
+              {{
+                featured_media
+                | external_video_tag:
+                  class: 'kt-featured-product__image kt-featured-product__video',
+                  loading: 'lazy',
+                  title: media_alt
+              }}
+            {%- when 'model' -%}
+              <product-model class="kt-featured-product__model" data-media-id="{{ featured_media.id }}">
+                {{
+                  featured_media
+                  | model_viewer_tag:
+                    image_size: '1200x',
+                    reveal: 'interaction',
+                    toggleable: true,
+                    class: 'kt-featured-product__image'
+                }}
+              </product-model>
+              <script src="{{ 'product-model.js' | asset_url }}" defer="defer"></script>
+            {%- else -%}
+              {{
+                featured_media
+                | image_url: width: 1200
+                | image_tag:
+                  class: 'kt-featured-product__image',
+                  widths: '400, 600, 900, 1200',
+                  sizes: '(min-width: 1024px) 50vw, 100vw',
+                  width: 1200,
+                  height: media_height,
+                  alt: media_alt,
+                  loading: fp_loading,
+                  fetchpriority: fp_priority
+              }}
+          {%- endcase -%}
         {%- else -%}
           {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg kt-featured-product__image' }}
         {%- endif -%}
