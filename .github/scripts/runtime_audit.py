@@ -30,7 +30,9 @@ VIEWPORTS = [('desktop', 1280, 800), ('phone', 375, 740), ('small', 320, 640), (
 # Shopify's own scripts and the browser are not theme code.
 IGNORE = ('monorail', 'shopifycloud', 'web-pixels', 'trekkie', 'shop.app', 'shopify-perf-kit',
           'captcha', 'Content Security Policy', 'Clear-Site-Data', 'invalid domain',
-          'preview_bar', 'PBarNext', 'cdn/shopifycloud', 'storefront/', 'favicon.ico')
+          'preview_bar', 'PBarNext', 'cdn/shopifycloud', 'storefront/', 'favicon.ico',
+          # Headless CI has no GPU for Shopify's model-viewer (3D media).
+          'software WebGL', 'WebGL context')
 
 PROBE = r"""
 () => {
