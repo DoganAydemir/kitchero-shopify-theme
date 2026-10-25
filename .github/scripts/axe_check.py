@@ -1,6 +1,6 @@
 """axe-core accessibility scan of the demo store (final gate, audit #34/#7).
 
-Runs axe (WCAG 2.0/2.1 A and AA rules) on the main templates at desktop and
+Runs axe (WCAG 2.0-2.2 A and AA rules, including 24px touch targets) on the main templates at desktop and
 mobile widths and fails on any violation in theme markup. Nodes inside
 Shopify's own widgets (preview bar, Shop Pay, privacy banner) are listed
 separately.
@@ -20,7 +20,7 @@ PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/pr
          '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check']
 PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
             'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms')
-OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']}}
+OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']}}
 
 axe = Axe()
 theme, platform = {}, {}
@@ -47,7 +47,7 @@ with sync_playwright() as p:
         context.close()
     browser.close()
 
-print('## axe-core scan (WCAG 2.1 A/AA)\n')
+print('## axe-core scan (WCAG 2.2 A/AA)\n')
 print(f'Theme violations: {len(theme)} · Shopify platform: {len(platform)}\n')
 for title, bucket in (('Theme', theme), ('Shopify platform', platform)):
     if bucket:
