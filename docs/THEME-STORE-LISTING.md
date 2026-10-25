@@ -193,7 +193,10 @@ comparison and the script that produces it are in docs/CODE-LINEAGE.md, and
 we can share the repository on request.
 
 Notes:
-- Colors come only from color schemes; sections have no separate color pickers.
+- Section backgrounds and text use color schemes (7 schemes). The remaining
+  color settings are content colors: the hero overlay with its text color,
+  menu and deal badges (each background has a matching text color), the
+  accent line in the visualize section and the finish swatches.
 - Product data features (countdown, rating, features, origin, dimensions,
   swatches) read metafields the merchant chooses in Theme settings > Product
   data. Nothing is shown when a metafield is empty.
