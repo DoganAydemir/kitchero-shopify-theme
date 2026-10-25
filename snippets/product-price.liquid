@@ -67,7 +67,7 @@
     checklist explicitly requires "Unit prices change dynamically on
     variant selection" — a product whose first variant has no unit
     price but a later variant DOES still needs the container in the
-    DOM so `assets/product-form.js` can populate it on variant change.
+    DOM so `assets/kt-product-form.js` can populate it on variant change.
     The container is hidden via `style="display:none"` when the first
     variant carries no measurement; the JS toggles `display` based on
     the selected variant's `unit_price_measurement` payload.
@@ -116,7 +116,7 @@
   {%- endcomment -%}
   {%- comment -%}
     `data-volume-pricing` is the JS anchor. The UL ships in the DOM
-    server-side for the initial variant; product-form.js's variant-
+    server-side for the initial variant; kt-product-form.js's variant-
     change handler rebuilds the <li> children from the matched
     variant's `quantity_price_breaks` array. When a new variant has
     no breaks (retail variant of a mixed-catalogue product), the UL

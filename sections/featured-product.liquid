@@ -43,10 +43,10 @@
     <div class="kt-featured-product__layout">
       {%- comment -%}
         Media — `data-variant-featured-image` marks the wrapper so
-        `assets/product-form.js` can swap the inner `<img>`'s src/srcset
+        `assets/kt-product-form.js` can swap the inner `<img>`'s src/srcset
         to `variant.featured_image` when the customer picks a different
         variant. featured-product is a single static image with no
-        gallery wrapper, so the gallery-dispatch path in product-form.js
+        gallery wrapper, so the gallery-dispatch path in kt-product-form.js
         (which looks for `[data-product-gallery]`) finds nothing here —
         without this hook the image silently stays on the original
         variant even as price/SKU/availability update around it (Theme
@@ -61,7 +61,7 @@
             often used as a hero replacement on homepages and is
             the LCP candidate there. Below-fold instances stay
             lazy via the index check. Mirrors the same eager/lazy
-            split card-product.liquid uses for collection cards.
+            split product-card.liquid uses for collection cards.
           {%- endcomment -%}
           {%- if section.index0 == 0 -%}
             {%- assign fp_loading = 'eager' -%}
@@ -73,16 +73,7 @@
           {%- assign featured_media = product.featured_media -%}
           {%- case featured_media.media_type -%}
             {%- when 'video' -%}
-              {{
-                featured_media
-                | video_tag:
-                  class: 'kt-featured-product__image kt-featured-product__video',
-                  controls: true,
-                  playsinline: 'playsinline',
-                  preload: 'metadata',
-                  image_size: '1200x',
-                  title: media_alt
-              }}
+              {%- render 'video-element', video: featured_media, class: 'kt-featured-product__image kt-featured-product__video', title: media_alt -%}
             {%- when 'external_video' -%}
               {{
                 featured_media
@@ -172,7 +163,7 @@
             {%- when 'buy_button' -%}
               {%- comment -%}
                 `data-product-form` on the wrapper is the hook
-                assets/product-form.js uses to find the form (it avoids
+                assets/kt-product-form.js uses to find the form (it avoids
                 hyphenated {% form %} kwargs for robustness — see
                 snippets/product-form.liquid). The hidden variant input
                 gets `data-variant-id` so the JS can rewrite it when the
@@ -202,7 +193,7 @@
                       · variants with quantity_rule (e.g. case-of-6) —
                         always sent qty=1, /cart/change.js error path
                         rejected the order
-                      · /cart/add.js errors — assets/product-form.js looks
+                      · /cart/add.js errors — assets/kt-product-form.js looks
                         for [data-product-form-error] on the form; when
                         absent, error events fire-and-forget into the
                         DOM with no surface to render on
@@ -335,14 +326,14 @@
 </section>
 
 {%- comment -%}
-  product-form.js is shared between main-product, main-product-showroom,
+  kt-product-form.js is shared between main-product, main-product-showroom,
   and featured-product (its init selector at line 1346 covers
   data-section-type="featured-product"). Without this script tag the
   variant picker UI renders but every interaction is dead — picking a
   swatch wouldn't update price, SKU, ATC state, or featured image, and
   /cart/add would silently keep submitting the initial variant.
 {%- endcomment -%}
-<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-product-form.js' | asset_url }}" defer="defer"></script>
 
 {%- comment -%}
   Selling-plan picker JS only emits when the product actually has

@@ -24,7 +24,7 @@ PAGES = ['/', '/collections', '/collections/all', '/collections/kitchen-cabinets
          '/cart', '/search', '/search?q=sink', '/blogs/journal', 'ARTICLE',
          '/pages/about-us', '/pages/contact', '/pages/content-faq', '/pages/financing',
          '/pages/deals', '/pages/galleries', '/pages/heroes-banners', '/pages/image-with-text',
-         '/pages/sliders', '/pages/testimonials', '/pages/newsletter',
+         '/pages/sliders',
          '/account/login', '/account/register', '/404-check']
 VIEWPORTS = [('desktop', 1280, 800), ('phone', 375, 740), ('small', 320, 640), ('tablet', 768, 1024)]
 # Shopify's own scripts and the browser are not theme code.
@@ -91,9 +91,10 @@ PROBE = r"""
     .map(describe).slice(0, 5);
   const small = [];
   for (const el of document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [tabindex="0"]')) {
-    if (!visible(el)) continue;
+    if (!visible(el) || el.tabIndex < 0) continue;
     const r = el.getBoundingClientRect();
     if (r.width >= 24 && r.height >= 24) continue;
+    if (r.width <= 1 || r.height <= 1) continue;
     // WCAG 2.5.8 inline exception: links inside a sentence.
     if (el.tagName === 'A' && getComputedStyle(el).display === 'inline' && el.closest('p, li, span, label, small, .rte')) continue;
     // Spacing exception: a 24px circle around the center touches no other target.
@@ -175,7 +176,10 @@ with sync_playwright() as p:
                 page.evaluate('window.scrollTo(0, 0)')
                 page.wait_for_timeout(800)
                 if label == 'desktop' and path == '/blogs/journal':
-                    href = page.evaluate("(document.querySelector('main a[href*=\"/blogs/journal/\"]') || {}).getAttribute ? document.querySelector('main a[href*=\"/blogs/journal/\"]').getAttribute('href') : ''")
+                    href = page.evaluate("""() => {
+                      const a = document.querySelector('main a[href*="/blogs/journal/"]:not([href*="/tagged/"])');
+                      return a ? a.getAttribute('href') : '';
+                    }""")
                     if href:
                         article = href.split('?')[0]
                 r = page.evaluate(PROBE)

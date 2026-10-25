@@ -11,7 +11,11 @@ if (!window.__kitcheroSampleAddLoaded) {
       if (window.Kitchero && Kitchero.routes && Kitchero.routes.cart) {
         return Kitchero.routes.cart;
       }
-      return '/cart';
+      return rootUrl() + 'cart';
+    }
+
+    function rootUrl() {
+      return (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
     }
 
     function getDrawer() {
@@ -47,7 +51,7 @@ if (!window.__kitcheroSampleAddLoaded) {
 
         var body = new FormData(form);
 
-        fetch('/cart/add.js', {
+        fetch(rootUrl() + 'cart/add.js', {
           method: 'POST',
           headers: { Accept: 'application/json' },
           body: body

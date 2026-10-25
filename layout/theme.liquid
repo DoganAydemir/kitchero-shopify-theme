@@ -26,7 +26,7 @@
 
     {% # Load and preload the critical CSS %}
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
-    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'kt-base.css' | asset_url | stylesheet_tag }}
 
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
@@ -34,7 +34,7 @@
     {{ content_for_header }}
 
 
-    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'kt-global.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'kt-page-behavior.js' | asset_url }}" defer="defer"></script>
 
     {%- if request.design_mode -%}
@@ -301,7 +301,7 @@
     </ul>
 
     <script>
-      // Bootstrap the Kitchero runtime namespace. `global.js` (loaded with
+      // Bootstrap the Kitchero runtime namespace. `kt-global.js` (loaded with
       // defer) adds focusTrap / bus / escapeCloseDetails to the same object,
       // so the `|| {}` guard lets either script run first.
       window.Kitchero = window.Kitchero || {};
@@ -347,7 +347,7 @@
           cart:             {{ routes.cart_url | json }},
           predictiveSearch: {{ routes.predictive_search_url | json }},
           {%- comment -%}
-            `search` was missing here; predictive-search.js's "press
+            `search` was missing here; kt-predictive-search.js's "press
             Enter to search anyway" path was hardcoding `/search`,
             which 404s on multi-locale storefronts where the locale
             prefix is required (e.g. `/de/search`). `routes.search_url`
@@ -407,7 +407,7 @@
           lowStockOneHtml: {{ 'kt.product.low_stock_html' | t: count: 1 | replace: '1', '[count]' | json }},
           {%- comment -%}
             Volume pricing tier label template. `[qty]` placeholder
-            is replaced by product-form.js when rebuilding the
+            is replaced by kt-product-form.js when rebuilding the
             quantity-price-break <li> rows on variant change.
             Without this template the JS would have to hardcode
             "X+ items" in English and break for FR/DE/TR/ES.
@@ -445,7 +445,7 @@
             if (state === 1) return;
             state = 1;
             var script = document.createElement('script');
-            script.src = {{ 'cart-drawer.js' | asset_url | json }};
+            script.src = {{ 'kt-cart-drawer.js' | asset_url | json }};
             script.onload = function () { state = 2; flush(); };
             document.head.appendChild(script);
           }
@@ -484,7 +484,7 @@
             if (loaded || !target || !target.closest || !target.closest('[data-search-input], [data-search-open]')) return;
             loaded = true;
             var script = document.createElement('script');
-            script.src = {{ 'predictive-search.js' | asset_url | json }};
+            script.src = {{ 'kt-predictive-search.js' | asset_url | json }};
             script.onload = function () {
               document.querySelectorAll('[data-search-input]').forEach(function (input) {
                 if (input.value) input.dispatchEvent(new Event('input', { bubbles: true }));

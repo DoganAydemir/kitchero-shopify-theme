@@ -18,7 +18,7 @@ compared at the architecture level only.
 | Mobile | Full-screen panel with nested levels and a call-to-action button; optional bottom dock (`mobile-dock` section) with shortcuts | Drawer menu |
 | Announcement | Separate section with pause control | Announcement bar with optional slides |
 
-## Product card (`snippets/card-product.liquid`)
+## Product card (`snippets/product-card.liquid`)
 
 | | Kitchero | Dawn |
 |---|---|---|

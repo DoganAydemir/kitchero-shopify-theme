@@ -53,11 +53,11 @@ for p in glob.glob(f'{dawn}/**/*', recursive=True):
 
 pairs = {
     'layout/theme.liquid': 'layout/theme.liquid', 'layout/password.liquid': 'layout/password.liquid',
-    'assets/global.js': 'assets/global.js', 'assets/base.css': 'assets/base.css',
+    'assets/kt-global.js': 'assets/global.js', 'assets/kt-base.css': 'assets/base.css',
     'snippets/meta-tags.liquid': 'snippets/meta-tags.liquid', 'snippets/pagination.liquid': 'snippets/pagination.liquid',
-    'templates/gift_card.liquid': 'templates/gift_card.liquid', 'assets/cart-drawer.js': 'assets/cart-drawer.js',
-    'assets/product-form.js': 'assets/product-form.js', 'snippets/card-product.liquid': 'snippets/card-product.liquid',
-    'sections/main-product.liquid': 'sections/main-product.liquid', 'assets/predictive-search.js': 'assets/predictive-search.js',
+    'templates/gift_card.liquid': 'templates/gift_card.liquid', 'assets/kt-cart-drawer.js': 'assets/cart-drawer.js',
+    'assets/kt-product-form.js': 'assets/product-form.js', 'snippets/product-card.liquid': 'snippets/card-product.liquid',
+    'sections/main-product.liquid': 'sections/main-product.liquid', 'assets/kt-predictive-search.js': 'assets/predictive-search.js',
     'assets/critical.css': 'assets/critical.css', 'snippets/css-variables.liquid': 'snippets/css-variables.liquid',
 }
 print(f'{"file":34} {"theme lines":>11} {"same file in " + name:>22} {"anywhere in " + name:>22}')

@@ -252,12 +252,12 @@
 
 /* The wrapper div ALSO carries the global `.rte` class so editor
    rich-text styles (lists, links, blockquotes) apply automatically.
-   But `.rte p` in base.css sets `color: var(--kt-c-fg)` (≈stone-900)
+   But `.rte p` in kt-base.css sets `color: var(--kt-c-fg)` (≈stone-900)
    with specificity 0,0,1,1 — higher than our 0,0,1,0 rule above —
    so the description was inheriting body-foreground black instead
    of stone-400. Override every direct child with the same selector
    shape (.class + element = 0,0,1,1) so we tie on specificity and
-   win on source order (this stylesheet loads after base.css). */
+   win on source order (this stylesheet loads after kt-base.css). */
 .kt-collapsible-minimal__content p,
 .kt-collapsible-minimal__content li,
 .kt-collapsible-minimal__content ul,

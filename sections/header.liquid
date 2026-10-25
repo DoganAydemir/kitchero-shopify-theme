@@ -134,6 +134,10 @@
                 - no children → SIMPLE LINK
               {%- endcomment -%}
               {%- liquid
+                assign link_is_toggle_only = false
+                if link.url == blank or link.url == '#'
+                  assign link_is_toggle_only = true
+                endif
                 assign has_grandchildren = false
                 for child in link.links
                   if child.links.size > 0
@@ -145,8 +149,11 @@
 
               {%- if has_grandchildren -%}
                 {%- comment -%} ===== MEGA MENU (3-level: By Style > Contemporary) ===== {%- endcomment -%}
-                <a
-                  href="{{ link.url }}"
+                {%- comment -%}
+                  A parent item whose menu link is `#` only opens its panel,
+                  so it renders as a button instead of an empty link.
+                {%- endcomment -%}
+                <{% if link_is_toggle_only %}button type="button"{% else %}a href="{{ link.url }}"{% endif %}
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
@@ -156,7 +163,7 @@
                 >
                   {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
-                </a>
+                </{% if link_is_toggle_only %}button{% else %}a{% endif %}>
                 {%- comment -%}
                   Previously emitted role="menu" + role="menuitem" here
                   to match the APG "application menu" pattern, but the
@@ -172,13 +179,19 @@
                 {%- endcomment -%}
                 <div class="kt-header__mega-menu" id="kt-header-mega-{{ link.handle }}">
                   {%- assign menu_parent_title = link.title | escape -%}
-                  <a href="{{ link.url }}" class="kt-header__mega-view-all">
-                    {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
-                  </a>
+                  {%- unless link_is_toggle_only -%}
+                    <a href="{{ link.url }}" class="kt-header__mega-view-all">
+                      {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
+                    </a>
+                  {%- endunless -%}
                   <div class="kt-header__mega-grid">
                     {%- for child_link in link.links -%}
                       <div class="kt-header__mega-column">
-                        <a href="{{ child_link.url }}" class="kt-header__mega-column-title">{{ child_link.title | escape }}</a>
+                        {%- if child_link.url == blank or child_link.url == '#' -%}
+                          <p class="kt-header__mega-column-title">{{ child_link.title | escape }}</p>
+                        {%- else -%}
+                          <a href="{{ child_link.url }}" class="kt-header__mega-column-title">{{ child_link.title | escape }}</a>
+                        {%- endif -%}
                         {%- if child_link.links.size > 0 -%}
                           <ul class="kt-header__mega-list list-unstyled" role="list">
                             {%- for grandchild_link in child_link.links -%}
@@ -240,8 +253,7 @@
 
               {%- elsif link.links.size > 0 -%}
                 {%- comment -%} ===== FLYOUT DROPDOWN (2-level: parent > children list) ===== {%- endcomment -%}
-                <a
-                  href="{{ link.url }}"
+                <{% if link_is_toggle_only %}button type="button"{% else %}a href="{{ link.url }}"{% endif %}
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
@@ -256,7 +268,7 @@
                 >
                   {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
-                </a>
+                </{% if link_is_toggle_only %}button{% else %}a{% endif %}>
                 {%- comment -%}
                   Same fix as the mega-menu above: drop role="menu"/
                   "menuitem" (APG pattern we don't implement) and let
@@ -265,9 +277,11 @@
                 {%- endcomment -%}
                 <div class="kt-header__flyout" id="kt-header-flyout-{{ link.handle }}">
                   {%- assign menu_parent_title = link.title | escape -%}
-                  <a href="{{ link.url }}" class="kt-header__flyout-link kt-header__flyout-link--all">
-                    {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
-                  </a>
+                  {%- unless link_is_toggle_only -%}
+                    <a href="{{ link.url }}" class="kt-header__flyout-link kt-header__flyout-link--all">
+                      {{- 'kt.header.view_all_in_html' | t: title: menu_parent_title -}}
+                    </a>
+                  {%- endunless -%}
                   {%- for child_link in link.links -%}
                     <a href="{{ child_link.url }}" class="kt-header__flyout-link">
                       {{ child_link.title | escape }}

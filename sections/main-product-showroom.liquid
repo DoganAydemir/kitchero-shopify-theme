@@ -120,17 +120,7 @@
               {%- when 'video' -%}
                 <div class="kt-showroom__gallery-full kt-showroom__gallery-full--media" data-media-type="video">
                   {%- assign video_poster_url = media.preview_image | image_url: width: 1200 -%}
-                  {{
-                    media
-                    | video_tag:
-                      class: 'kt-showroom__gallery-video',
-                      controls: true,
-                      preload: 'metadata',
-                      loop: false,
-                      image_size: '1200x',
-                      poster: video_poster_url,
-                      title: media_alt
-                  }}
+                  {%- render 'video-element', video: media, class: 'kt-showroom__gallery-video', poster: video_poster_url, title: media_alt -%}
                 </div>
               {%- when 'external_video' -%}
                 <div class="kt-showroom__gallery-full kt-showroom__gallery-full--media" data-media-type="external_video">
@@ -192,17 +182,7 @@
               {%- when 'video' -%}
                 <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="video">
                   {%- assign video_poster_url = media.preview_image | image_url: width: 800 -%}
-                  {{
-                    media
-                    | video_tag:
-                      class: 'kt-showroom__gallery-video',
-                      controls: true,
-                      preload: 'metadata',
-                      loop: false,
-                      image_size: '800x',
-                      poster: video_poster_url,
-                      title: media_alt
-                  }}
+                  {%- render 'video-element', video: media, class: 'kt-showroom__gallery-video', poster: video_poster_url, title: media_alt -%}
                   <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
                 </div>
               {%- when 'external_video' -%}
@@ -385,7 +365,7 @@
                   {%- render 'product-variant-picker', product: product, section: section -%}
                 </div>
                 {%- comment -%}
-                  product-form.js wires the variant picker (selected-option
+                  kt-product-form.js wires the variant picker (selected-option
                   label, ?variant URL, gallery sync) only when it finds a
                   [data-product-form] wrapper in the section. The buy_buttons
                   block provides it; when the merchant removes that block,
@@ -690,7 +670,7 @@
 <script src="{{ 'product-gallery.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'countdown.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'kt-section-main-product.js' | asset_url }}" defer="defer"></script>
-<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'kt-product-form.js' | asset_url }}" defer="defer"></script>
 {%- comment -%}
   Door-sample "Add to cart" → AJAX add + cart drawer (instead of a full
   page redirect to /cart). Self-contained; keyed to the sample form's own
