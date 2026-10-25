@@ -24,7 +24,7 @@ PAGES = ['/', '/collections/all', '/products/premium-pull-down-kitchen-faucet',
 PRODUCT = '/products/premium-pull-down-kitchen-faucet'
 # Errors from Shopify's own scripts (analytics, checkout widgets) are not theme errors.
 IGNORE = ('monorail', 'shopifycloud', 'web-pixels', 'trekkie', 'shop.app', 'shopify-perf-kit',
-          'captcha', 'Content Security Policy')
+          'captcha', 'Content Security Policy', 'Clear-Site-Data', 'has been rejected for invalid domain')
 
 TARGETS = [
     ('chromium', 'Chrome desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
@@ -100,14 +100,20 @@ with sync_playwright() as p:
         # Add to cart
         page.goto(f'{STORE}{PRODUCT}', wait_until='networkidle')
         try:
-            page.locator('.kt-product-form__atc').first.click(timeout=5000)
+            atc = page.locator('.kt-product-form__atc').first
+            # Center the button like a shopper scrolling to it, clear of fixed bars.
+            atc.evaluate("el => el.scrollIntoView({block: 'center'})")
+            page.wait_for_timeout(600)
+            atc.click(timeout=8000)
             page.wait_for_timeout(2500)
             count = page.evaluate("fetch('/cart.js').then(r => r.json()).then(c => c.item_count)")
             row['checks']['add_to_cart'] = count > 0
             row['checks']['cart_drawer'] = page.locator('cart-drawer.kt-cart-drawer--open').count() > 0
             page.screenshot(path=os.path.join(OUT, f'{slug}--added-to-cart.png'))
-        except Exception:  # noqa: BLE001
+        except Exception as error:  # noqa: BLE001
             row['checks']['add_to_cart'] = False
+            row['errors'].append(f'add to cart: {str(error)[:300]}')
+            page.screenshot(path=os.path.join(OUT, f'{slug}--add-to-cart-failed.png'))
         results.append(row)
         browser.close()
 
