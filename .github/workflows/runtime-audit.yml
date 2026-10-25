@@ -1,0 +1,49 @@
+name: Runtime review checks
+
+# Opens the main templates at desktop, phone, small-phone and tablet widths
+# and reports what a reviewer sees in the first minute: console errors,
+# failed requests, horizontal scroll, broken images, visible translation
+# keys, heading problems, unlabeled inputs and small touch targets
+# (RUNTIME_REJECT_CHECKLIST.md). Run manually; leave preview_theme empty
+# to check the live theme.
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_theme:
+        description: Preview theme ID (empty = live theme)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04  # Playwright 1.48 has no system packages for Ubuntu 26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+
+      - name: Run checks
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          PREVIEW_THEME: ${{ inputs.preview_theme }}
+        run: |
+          set -o pipefail
+          python .github/scripts/runtime_audit.py | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-audit
+          path: runtime-audit.json
