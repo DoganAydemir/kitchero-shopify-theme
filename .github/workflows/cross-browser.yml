@@ -1,0 +1,48 @@
+name: Cross-browser check
+
+# Loads the demo store in Chromium, Firefox and WebKit (desktop and mobile)
+# and checks for JavaScript errors and broken core interactions (audit #73).
+# Screenshots are committed to the `browser-shots` branch. Run manually.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium firefox webkit
+
+      - name: Run checks
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+        run: |
+          set -o pipefail
+          python .github/scripts/cross_browser.py shots | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit screenshots to browser-shots
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/keep && cp -r shots/. /tmp/keep/ 2>/dev/null || exit 0
+          git checkout --orphan browser-shots-tmp
+          git rm -rf --cached . >/dev/null
+          git clean -fdx -q
+          mkdir -p browser && cp -r /tmp/keep/. browser/
+          git add browser
+          git commit -q -m "Browser screenshots ${GITHUB_SHA::7}"
+          git push -f origin HEAD:browser-shots
