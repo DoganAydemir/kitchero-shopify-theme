@@ -93,7 +93,7 @@
         {%- for block in section.blocks -%}
           {%- if block.type == 'slide' -%}
             {%- capture index_padded -%}{{ forloop.index | prepend: '0' | slice: -2, 2 }}{%- endcapture -%}
-            <article
+            <div
               class="kt-slider-editorial__copy-slide{% if forloop.first %} is-active{% endif %}"
               id="{{ section.id }}-editorial-slide-{{ forloop.index0 }}"
               data-editorial-copy="{{ forloop.index0 }}"
@@ -139,7 +139,7 @@
                   </a>
                 </div>
               {%- endif -%}
-            </article>
+            </div>
           {%- endif -%}
         {%- endfor -%}
 

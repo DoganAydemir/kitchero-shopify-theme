@@ -303,9 +303,7 @@
                   </div>
                 {%- else -%}
                   {%- comment -%} Read-only quantity for bundle children. {%- endcomment -%}
-                  <span class="kt-cart-drawer__qty-readonly" aria-label="{{ 'kt.product.quantity.label' | t | default: 'Quantity' }}">
-                    × {{ item.quantity }}
-                  </span>
+                  <span class="kt-cart-drawer__qty-readonly"><span class="visually-hidden">{{ 'kt.product.quantity.label' | t | default: 'Quantity' }}</span><span aria-hidden="true">×</span> {{ item.quantity }}</span>
                 {%- endif -%}
 
                 {%- if drawer_can_remove -%}

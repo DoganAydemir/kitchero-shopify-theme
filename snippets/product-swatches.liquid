@@ -159,11 +159,9 @@
         "+N" indicator. Clicking the card itself navigates to the
         PDP where all swatches are visible — no separate link needed.
       {%- endcomment -%}
-      <span
-        class="kt-swatches__more"
-        aria-label="{{ 'kt.product.swatches.more_html' | t: count: hidden_count | default: hidden_count }}"
-      >
-        +{{ hidden_count }}
+      <span class="kt-swatches__more">
+        <span aria-hidden="true">+{{ hidden_count }}</span>
+        <span class="visually-hidden">{{ 'kt.product.swatches.more_html' | t: count: hidden_count | default: hidden_count }}</span>
       </span>
     {%- endif -%}
   </div>
