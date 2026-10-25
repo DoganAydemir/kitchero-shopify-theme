@@ -11,7 +11,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
 > 25.10: freemannyc.com'daki Contact Form 7 formlarında tema demosundan kalan yabancı gönderici adresleri (wabidullahsharif@gmail.com, wordpress@themexriver.com) `info@freemannyc.com` ile değiştirildi; kullanılmayan "Kitchero Support" formu silindi.
-> Live tema 25.10 itibarıyla **Kitchero #189346349270** (Faz 5 sonrası `main`). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
+> Live tema 25.10 itibarıyla **Kitchero #189347594454** (audit yeniden kontrolü sonrası `main`, PR #83). Eski taslak temaların hepsi `demo-cleanup.yml` ile silindi (PR #43, 14 tema).
 
 ---
 
@@ -227,6 +227,22 @@ Bu maddeler açık kalıyor; son aşamada birlikte değerlendirilecek:
 | Gerçek cihaz testi | Samsung Internet, Edge, Instagram/Facebook/Pinterest in-app tarayıcıları otomatik testte yok |
 | İsteğe bağlılar (#58, #78, #80, placeholder boyutu, gerçek cihaz, docs Skeleton notu) | 25.10: onay sürecine katkıları olmadığı için önerilmedi, yapılmadı |
 | Eski `feat/phase-*` dalları | ☑ 25.10: içerikleri `main`'deydi; GitHub'daki 4 ve yerel 7 dal silindi |
+
+## Audit PDF yeniden kontrolü (25.10, son durum)
+
+83 madde güncel canlı demo, `main` ve zip kurulumu üzerinde tekrar kontrol edildi.
+
+**Yeniden bozulmuş ya da eksik kalmış, düzeltildi (PR #83):**
+- #15 / #30 / #62: Zip'teki şablonlar hâlâ yer tutucu metin içeriyordu ("Add your announcement here", "Step title", "Add your financing partner here…", "Image caption", tekrar eden "Crafting refined kitchen spaces…" girişi). Canlı demo düzgündü ama mağazaya kurulan hali değildi. Demo metni (mağazaya özel kaynaklar olmadan) şablonlara ve listing preset'ine taşındı; boş mağaza kurulumunda yer tutucu kalmadığı doğrulandı.
+- #17: Demo içerik script'i showroom butonunu tekrar "Book an appointment" yapmıştı; "Request a consultation" olarak düzeltildi (script ve şablon).
+- #46 / logo listesi: kayan şerit için ikinci kopya ekran okuyucudan ve editörden gizlendi.
+- #59: Kodda kalan 2 iç not (W11, REJ-SEC-002) temizlendi.
+
+**Kontrol edildi, sorun yok:** #1 koleksiyon görseli (3 şablon), #2 aylık ödeme APR'li ($106,94 = 15% / 40 ay doğru), #3/#28 sabit `custom.*` metafield yok, #4 zoom açık, #5 axe 0, #6 gizlilik linki çalışıyor, #7 W3C 0, #10 İngiliz yazımı yok, #11 tek & "Search & Discovery" uygulama adı, #13 CTA/sign-up yok, #14 soru şeklinde varsayılan yok, #16 example.com/555 yok, #18–#21 (bildirim metni, showroom ATC, "Now only" yalnızca indirimde, "From" yok), #23–#25, #26 ücretsiz iade/kargo vaadi yok, #27 Theme Check, #31 KITCHERO sabiti yok, #33 lisanslar, #34 a11y, #35 galeri etiketleri, #40 "Verified customer" yok, #41 gerçek marka yok, #42 Judge.me yok, #43 mega menü linkleri farklı (filtreli), #47 indirimli ürün var, #49 Space/klavye, #50 no-JS, #51 loader kapalı, #52 "Read article" tek, #53 eyebrow ayarlanabilir, #54 "Suggested searches", #56 kart `sizes`, #57–#58 kararlı, #60 parantez yok, #61 "86+" yok, #63 tekrar eden açıklama yok, #65 ad, #66–#71 kod hazır + demo verisi, #73 5 tarayıcı, #74 section smoke, #75 boş mağaza kurulumu, #76 Bogus, #78–#81, #82 release-notes zip'te, #83 listing dosyaları.
+
+**Dış bağımlı:** #64 / #77 Zoho destek formu (ilgili kişide), #72 Shopify referans mağaza skoru (review'da ölçülür).
+
+**Not:** Demo mağazanın genel ayarlarındaki iletişim e-postası kişisel bir Gmail adresi; sayfada görünmüyor, yalnızca SEO yapısal verisinde (Organization) yer alıyor. İstenirse Settings > General'den destek adresiyle değiştirilebilir.
 
 ## Faz 5 — Final gate (submit öncesi)
 
