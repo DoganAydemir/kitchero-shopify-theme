@@ -22,7 +22,7 @@
        swatch yet. Merchants who want richer colors should configure
        the native OS 2.0 swatch in the product editor (recommended).
 
-  Renders nothing if no "Color" option exists.
+  Renders nothing if no option has native swatches or a color-like name.
 
   Accepts:
   - product: {Object} Shopify product
@@ -30,9 +30,10 @@
 
 {%- liquid
   assign color_option = nil
+  assign color_option_names = 'color,colour,renk,finish,couleur,farbe' | split: ','
   for option in product.options_with_values
     assign option_name_lower = option.name | downcase
-    if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk' or option_name_lower == 'couleur' or option_name_lower == 'farbe'
+    if color_option_names contains option_name_lower or option.values.first.swatch != blank
       assign color_option = option
       break
     endif
