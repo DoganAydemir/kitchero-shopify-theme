@@ -5,6 +5,10 @@ WebKit on an iPhone and Chromium on an Android phone. Reports JavaScript
 errors, failed theme assets and whether the core interactions work: search
 overlay, mobile menu, add to cart. Screenshots go to <out dir>.
 
+Note: Playwright's Linux WebKit build cannot decode AVIF or JPEG XL, which
+Shopify's CDN serves to it, so some product images stay blank in the WebKit
+screenshots. Safari on macOS and iOS decodes both.
+
 Usage: STORE_URL=... PASSWORD=... python3 cross_browser.py <out dir>
 """
 import json
@@ -49,71 +53,86 @@ def theme_error(text):
     return not any(word in text for word in IGNORE)
 
 
+def open_page(context, row):
+    """New tab per check, so one heavy page cannot exhaust a mobile WebKit tab."""
+    page = context.new_page()
+    page.on('pageerror', lambda e: row['errors'].append(f'{page.url}: {e}'))
+    page.on('console', lambda m: m.type == 'error' and theme_error(m.text)
+            and row['errors'].append(f'{page.url}: console: {m.text[:200]}'))
+    page.on('response', lambda res: res.status >= 400 and '/cdn/shop/t/' in res.url
+            and row['errors'].append(f'{res.status} {res.url[:160]}'))
+    return page
+
+
+def check_target(context, row, slug, mobile):
+    for path in PAGES:
+        page = open_page(context, row)
+        try:
+            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+            page.wait_for_timeout(1200)
+            name = path.strip('/').replace('/', '-').replace('?', '-').replace('=', '-') or 'home'
+            page.screenshot(path=os.path.join(OUT, f'{slug}--{name}.png'))
+        except Exception as error:  # noqa: BLE001 - report and continue
+            row['errors'].append(f'{path}: load failed: {str(error)[:160]}')
+        page.close()
+
+    # Search overlay
+    page = open_page(context, row)
+    try:
+        page.goto(f'{STORE}/', wait_until='networkidle')
+        page.locator('[data-search-open]').first.click(timeout=5000)
+        page.wait_for_timeout(800)
+        row['checks']['search'] = page.locator('#search-overlay').get_attribute('aria-hidden') == 'false'
+    except Exception:  # noqa: BLE001
+        row['checks']['search'] = False
+    page.close()
+
+    # Mobile menu
+    if mobile:
+        page = open_page(context, row)
+        try:
+            page.goto(f'{STORE}/', wait_until='networkidle')
+            toggle = page.locator('.kt-header__menu-toggle').first
+            toggle.click(timeout=5000)
+            page.wait_for_timeout(800)
+            row['checks']['menu'] = toggle.get_attribute('aria-expanded') == 'true'
+        except Exception:  # noqa: BLE001
+            row['checks']['menu'] = False
+        page.close()
+
+    # Add to cart
+    page = open_page(context, row)
+    try:
+        page.goto(f'{STORE}{PRODUCT}', wait_until='networkidle')
+        atc = page.locator('.kt-product-form__atc').first
+        # Center the button like a shopper scrolling to it, clear of fixed bars.
+        atc.evaluate("el => el.scrollIntoView({block: 'center'})")
+        page.wait_for_timeout(600)
+        atc.click(timeout=8000)
+        page.wait_for_timeout(2500)
+        count = page.evaluate("fetch('/cart.js').then(r => r.json()).then(c => c.item_count)")
+        row['checks']['add_to_cart'] = count > 0
+        row['checks']['cart_drawer'] = page.locator('cart-drawer.kt-cart-drawer--open').count() > 0
+        page.screenshot(path=os.path.join(OUT, f'{slug}--added-to-cart.png'))
+    except Exception as error:  # noqa: BLE001
+        row['checks']['add_to_cart'] = False
+        row['errors'].append(f'add to cart: {str(error)[:300]}')
+    page.close()
+
+
 results = []
 with sync_playwright() as p:
     for engine, label, options, mobile in TARGETS:
         browser = getattr(p, engine).launch()
         if isinstance(options, str):
             options = dict(p.devices[options])
-            if engine == 'firefox':
-                options.pop('is_mobile', None)
         context = browser.new_context(**options)
         login(context)
         row = {'browser': label, 'errors': [], 'checks': {}}
-        page = context.new_page()
-        page.on('pageerror', lambda e, r=row: r['errors'].append(f'{page.url}: {e}'))
-        page.on('console', lambda m, r=row: m.type == 'error' and theme_error(m.text)
-                and r['errors'].append(f'{page.url}: console: {m.text[:200]}'))
-        page.on('response', lambda res, r=row: res.status >= 400 and '/cdn/shop/t/' in res.url
-                and r['errors'].append(f'{res.status} {res.url[:160]}'))
-        slug = label.lower().replace(' ', '-')
-        for path in PAGES:
-            try:
-                page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
-                page.wait_for_timeout(1200)
-                name = path.strip('/').replace('/', '-').replace('?', '-').replace('=', '-') or 'home'
-                page.screenshot(path=os.path.join(OUT, f'{slug}--{name}.png'))
-            except Exception as error:  # noqa: BLE001 - report and continue
-                row['errors'].append(f'{path}: load failed: {str(error)[:160]}')
-
-        # Search overlay
-        page.goto(f'{STORE}/', wait_until='networkidle')
         try:
-            page.locator('[data-search-open]').first.click(timeout=5000)
-            page.wait_for_timeout(800)
-            row['checks']['search'] = page.locator('#search-overlay').get_attribute('aria-hidden') == 'false'
-        except Exception:  # noqa: BLE001
-            row['checks']['search'] = False
-        page.keyboard.press('Escape')
-
-        # Mobile menu
-        if mobile:
-            page.goto(f'{STORE}/', wait_until='networkidle')
-            try:
-                toggle = page.locator('.kt-header__menu-toggle').first
-                toggle.click(timeout=5000)
-                page.wait_for_timeout(800)
-                row['checks']['menu'] = toggle.get_attribute('aria-expanded') == 'true'
-            except Exception:  # noqa: BLE001
-                row['checks']['menu'] = False
-
-        # Add to cart
-        page.goto(f'{STORE}{PRODUCT}', wait_until='networkidle')
-        try:
-            atc = page.locator('.kt-product-form__atc').first
-            # Center the button like a shopper scrolling to it, clear of fixed bars.
-            atc.evaluate("el => el.scrollIntoView({block: 'center'})")
-            page.wait_for_timeout(600)
-            atc.click(timeout=8000)
-            page.wait_for_timeout(2500)
-            count = page.evaluate("fetch('/cart.js').then(r => r.json()).then(c => c.item_count)")
-            row['checks']['add_to_cart'] = count > 0
-            row['checks']['cart_drawer'] = page.locator('cart-drawer.kt-cart-drawer--open').count() > 0
-            page.screenshot(path=os.path.join(OUT, f'{slug}--added-to-cart.png'))
-        except Exception as error:  # noqa: BLE001
-            row['checks']['add_to_cart'] = False
-            row['errors'].append(f'add to cart: {str(error)[:300]}')
-            page.screenshot(path=os.path.join(OUT, f'{slug}--add-to-cart-failed.png'))
+            check_target(context, row, label.lower().replace(' ', '-'), mobile)
+        except Exception as error:  # noqa: BLE001 - keep the other browsers' results
+            row['errors'].append(f'browser stopped: {str(error)[:200]}')
         results.append(row)
         browser.close()
 
