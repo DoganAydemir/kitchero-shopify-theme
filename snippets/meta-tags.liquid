@@ -1,106 +1,46 @@
 {%- doc -%}
-  Kitchero document-head meta bundle.
+  Document head metadata: viewport, Open Graph, Twitter card, title,
+  canonical URL, description, structured data and icons.
 
-  Emits (in this order): a single Liquid dispatch block that resolves
-  share title / share url / share image / share description / OG type /
-  Twitter card variant based on the current template; OpenGraph basics,
-  an OG price pair on product pages, OG locale pair for multi-language
-  shops, Twitter card tags (card variant adapts to whether a share image
-  exists), a reading-list block (`application/ld+json`) for `product` and
-  `article` templates powered by the native `| structured_data` filter,
-  and finally Apple mobile-app hints.
-
-  Consumer: only `layout/theme.liquid` (one render site). Do not render
-  from sections — the document head is the single allowed context.
-
-  Architecture: single `case` dispatch over `request.page_type`, named
-  helper assigns for share values, `| structured_data` filter for JSON-LD,
-  Twitter card variant selector keyed off share-image presence, and a
-  fallback share-image pipeline that prefers page_image → shop.brand.logo.
+  Based on Shopify's Skeleton theme (`snippets/meta-tags.liquid`, see
+  assets/skeleton-theme.LICENSE.txt). Kitchero adds a default share image,
+  share-image sizing, robots rules for filtered and private pages, locale
+  tags, hreflang alternates, extra product and article tags and JSON-LD,
+  and favicon/theme-color tags. `<meta charset>` is the first tag in the
+  layouts, before this snippet.
 {%- enddoc -%}
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
 {%- liquid
-  # ── Share attributes (OG + Twitter share the same resolved values) ──
-  assign share_title = page_title | default: shop.name
-  assign share_description = page_description | default: shop.description | default: shop.name | truncate: 160
-  assign share_url = canonical_url | default: request.origin
+  assign og_title = page_title | default: shop.name
+  assign og_url = canonical_url | default: request.origin
+  assign og_type = 'website'
+  assign og_description = page_description | default: shop.description | default: shop.name | truncate: 160
+
+  if request.page_type == 'product'
+    assign og_type = 'product'
+    if product and product.selected_variant
+      assign og_url = canonical_url | append: '?variant=' | append: product.selected_variant.id
+    endif
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+  elsif request.page_type == 'password'
+    assign og_url = request.origin
+  endif
+
+  # Kitchero: the share image falls back to the theme's default share image, then the brand logo.
   assign share_image = page_image
-  # Merchant-uploaded default social-share image (1200×630 recommended).
-  # Sits between page_image (template-specific) and shop.brand.logo
-  # (usually square and ugly when cropped into a 1.91:1 social card).
-  # Home/collection/page/search links paste into Slack/FB/LinkedIn with
-  # a purpose-built preview instead of a zoomed-in logo.
   if share_image == blank and settings.kt_default_share_image != blank
     assign share_image = settings.kt_default_share_image
   endif
   if share_image == blank and shop.brand.logo != blank
     assign share_image = shop.brand.logo
   endif
-  # Video featured_media guard — product.featured_media can be a video
-  # object when the merchant's first media slot is a YouTube/Vimeo embed
-  # or uploaded .mp4. In that case share_image.width / .height resolve
-  # to 0 or nil, which breaks the og:image:width / og:image:height pair
-  # below (emits width="0" and spec validators reject the card). Fall
-  # back to the merchant default or logo so every page has a usable image.
   if share_image != blank and share_image.width == 0
-    if settings.kt_default_share_image != blank
-      assign share_image = settings.kt_default_share_image
-    elsif shop.brand.logo != blank
-      assign share_image = shop.brand.logo
-    else
-      assign share_image = blank
-    endif
+    assign share_image = settings.kt_default_share_image | default: shop.brand.logo
   endif
-
-  # ── Template dispatch (case over request.page_type; each branch sets
-  # only what differs from the website default). ──
-  assign og_type = 'website'
-  case request.page_type
-    when 'product'
-      assign og_type = 'product'
-      if product and product.selected_variant
-        assign share_url = canonical_url | append: '?variant=' | append: product.selected_variant.id
-      endif
-    when 'article'
-      assign og_type = 'article'
-    when 'password'
-      assign share_url = request.origin
-    when 'collection'
-      assign og_type = 'website'
-    when '404'
-      assign og_type = 'website'
-  endcase
-
-  # ── Twitter card variant: only upgrade to large-image when we actually
-  # have an image to show. Avoids an empty-looking large card. ──
-  if share_image != blank
-    assign twitter_card = 'summary_large_image'
-  else
-    assign twitter_card = 'summary'
-  endif
-
-  # ── Twitter handle: strip the domain from the twitter_link setting and
-  # prepend "@" so admins can paste the full profile URL. `remove_first: '@'`
-  # protects against the admin pasting a bare handle like "@yourshop" (or
-  # an X URL containing "@") — without it the prepend would double to "@@".
-  assign twitter_handle = ''
-  if settings.kt_social_twitter != blank
-    assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | split: 'x.com/' | last | remove: '/' | remove_first: '@' | prepend: '@'
-  endif
-
-  # ── Share-image sizing ─────────────────────────────────────────────
-  # Facebook/LinkedIn/Slack all score and lay out share cards against a
-  # 1200 px-wide reference (the official OG recommendation is 1200×630).
-  # Previously we emitted the raw source URL with whatever dimensions
-  # the merchant happened to upload, which on tiny logo images looks
-  # like a broken thumbnail and on huge product hero shots forces every
-  # scraper to pull several MB. We cap the request at 1200 via
-  # `image_url: width: 1200` so Shopify's CDN resizes on our behalf,
-  # then compute a matching height so og:image:width/height stay
-  # consistent with the pixels the scraper actually downloads. For
-  # source images narrower than 1200 we pass the native width through
-  # unchanged — `image_url` never upscales, so lying about the width
-  # would mismatch the scraper's actual download.
   if share_image != blank
     if share_image.width >= 1200
       assign og_image_width = 1200
@@ -109,53 +49,20 @@
       assign og_image_width = share_image.width
       assign og_image_height = share_image.height
     endif
+    assign twitter_card = 'summary_large_image'
+  else
+    assign twitter_card = 'summary'
+  endif
+
+  assign twitter_handle = ''
+  if settings.kt_social_twitter != blank
+    assign twitter_handle = settings.kt_social_twitter | split: 'twitter.com/' | last | split: 'x.com/' | last | remove: '/' | remove_first: '@' | prepend: '@'
   endif
 -%}
 
-{%- comment -%}
-  ─── Robots ───
-  Search results, 404s, and every customer-account page are not
-  meant to be indexed by Google. Shopify's default robots.txt covers
-  /account + /search at the path level, but Search Console can still
-  surface these URLs if they're linked from elsewhere — the meta tag
-  belt-and-braces the robots exclusion at the document level so bots
-  that honour meta-robots (Googlebot, Bingbot, etc.) drop the page
-  from the index regardless of path.
-
-  We match on `request.page_type` rather than `template.name`
-  because page_type is stable across template suffixes
-  (customers/login.suffix vs customers/login).
-{%- endcomment -%}
-{%- comment -%}
-  Extended list:
-  - `captcha` — Shopify's robot-challenge interstitial. Never user
-    content, always noindex.
-  - `gift_card` — the issued-gift-card landing page URLs
-    (/gift_cards/<id>/<code>) contain the redemption code in the
-    path. Google must NEVER index these — a leaked URL becomes an
-    open redemption exposure. MUST noindex.
-  - Other customer/* pages + search + 404 carried over from the
-    previous list.
-{%- endcomment -%}
 {%- assign hidden_page_types = 'search,404,captcha,gift_card,password,cart,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
-{%- comment -%}
-  Faceted collection / search URLs (`?filter.v.option.color=red`,
-  `?filter.p.tag=...`, `?sort_by=price-ascending`, `?q=` on
-  collections) generate a high-cardinality URL space — without
-  `noindex,follow` Google indexes thousands of filter / sort
-  permutations, dilutes the parent collection's link equity, and
-  Search Console shows the parent dropping out of the top results.
-  `follow` keeps the linked products themselves crawlable so the
-  discovery path stays intact. Sort permutations
-  (`?sort_by=created-descending`, `?sort_by=best-selling`, …) get
-  the same noindex treatment as filters because each sort just
-  re-orders the same product set and is therefore a duplicate-
-  content candidate per Google's faceted-navigation guidance.
-  Mirrors what premium peer themes (and the Shopify Online Store
-  team) recommend.
-{%- endcomment -%}
 {%- elsif request.path contains '/collections/' and request.query_string contains 'filter.' -%}
   <meta name="robots" content="noindex,follow">
 {%- elsif request.path contains '/collections/' and request.query_string contains 'sort_by=' -%}
@@ -183,13 +90,31 @@
       endif
   endcase
 -%}
-<meta property="og:site_name" content="{{ shop.name | escape }}">
-<meta property="og:title" content="{{ share_title | escape }}">
-<meta property="og:description" content="{{ share_description | escape }}">
-<meta property="og:url" content="{{ share_url | escape }}">
-<meta property="og:type" content="{{ og_type }}">
-<meta property="og:locale" content="{{ og_locale }}">
 
+<meta
+  property="og:site_name"
+  content="{{ shop.name | escape }}"
+>
+<meta
+  property="og:url"
+  content="{{ og_url | escape }}"
+>
+<meta
+  property="og:title"
+  content="{{ og_title | escape }}"
+>
+<meta
+  property="og:type"
+  content="{{ og_type }}"
+>
+<meta
+  property="og:description"
+  content="{{ og_description | escape }}"
+>
+<meta
+  property="og:locale"
+  content="{{ og_locale }}"
+>
 {%- if shop.published_locales.size > 1 -%}
   {%- for locale in shop.published_locales -%}
     {%- unless locale.iso_code == request.locale.iso_code -%}
@@ -220,22 +145,33 @@
 {%- endif -%}
 
 {%- if share_image != blank -%}
-  {%- comment -%}
-    Emit both og:image and og:image:secure_url as https. Old Facebook
-    scrapers preferred protocol-relative http:, but modern scrapers
-    (FB/LinkedIn/Slack/Twitter/Discord) all honour https: and a handful
-    now reject mixed-content references from https origins. Having
-    og:image itself be http caused "not secure" warnings in Slack's
-    link preview renderer.
-  {%- endcomment -%}
-  <meta property="og:image" content="https:{{ share_image | image_url: width: og_image_width }}">
-  <meta property="og:image:secure_url" content="https:{{ share_image | image_url: width: og_image_width }}">
-  <meta property="og:image:width" content="{{ og_image_width }}">
-  <meta property="og:image:height" content="{{ og_image_height }}">
-  <meta property="og:image:alt" content="{{ share_title | escape }}">
+  <meta
+    property="og:image"
+    content="https:{{ share_image | image_url: width: og_image_width }}"
+  >
+  <meta
+    property="og:image:secure_url"
+    content="https:{{ share_image | image_url: width: og_image_width }}"
+  >
+  <meta
+    property="og:image:width"
+    content="{{ og_image_width }}"
+  >
+  <meta
+    property="og:image:height"
+    content="{{ og_image_height }}"
+  >
+  <meta
+    property="og:image:alt"
+    content="{{ og_title | escape }}"
+  >
 {%- endif -%}
 
 {%- if request.page_type == 'product' and product -%}
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+
   {%- comment -%}
     FB Commerce Catalog ingests `product:price:amount` as a dotted
     decimal. `money_without_currency` renders locale-specific
@@ -315,24 +251,73 @@
   {%- endfor -%}
 {%- endif -%}
 
-{%- comment -%} ─── Twitter ─── {%- endcomment -%}
-<meta name="twitter:card" content="{{ twitter_card }}">
-<meta name="twitter:title" content="{{ share_title | escape }}">
-<meta name="twitter:description" content="{{ share_description | escape }}">
+<meta
+  name="twitter:card"
+  content="{{ twitter_card }}"
+>
+<meta
+  name="twitter:title"
+  content="{{ og_title | escape }}"
+>
+<meta
+  name="twitter:description"
+  content="{{ og_description | escape }}"
+>
 {%- if twitter_handle != blank -%}
   <meta name="twitter:site" content="{{ twitter_handle }}">
   <meta name="twitter:creator" content="{{ twitter_handle }}">
 {%- endif -%}
 {%- if share_image != blank -%}
   <meta name="twitter:image" content="https:{{ share_image | image_url: width: og_image_width }}">
-  <meta name="twitter:image:width" content="{{ og_image_width }}">
-  <meta name="twitter:image:height" content="{{ og_image_height }}">
-  <meta name="twitter:image:alt" content="{{ share_title | escape }}">
+  <meta name="twitter:image:alt" content="{{ og_title | escape }}">
 {%- endif -%}
 
-{%- comment -%} ─── Structured data (product + article) via native filter ─── {%- endcomment -%}
+<title>
+  {{- page_title | escape -}}
+  {%- if current_tags -%}
+    {%- assign safe_tags = current_tags | join: ', ' | escape -%}
+    &ndash; {{ 'kt.meta.tags' | t: tags: safe_tags }}
+  {%- endif -%}
+  {%- if current_page != 1 %} &ndash; {{ 'kt.meta.page' | t: page: current_page }}{% endif -%}
+  {%- unless page_title contains shop.name %} &ndash; {{ shop.name | escape }}{% endunless -%}
+</title>
+
+{%- comment -%} Filtered, sorted and search result URLs point to their unfiltered page. {%- endcomment -%}
+{%- liquid
+  assign canonical = canonical_url
+  if request.path contains '/collections/' and collection
+    if request.query_string contains 'filter.' or request.query_string contains 'sort_by='
+      assign canonical = request.origin | append: collection.url
+    endif
+  elsif request.page_type == 'search' and request.query_string != ''
+    assign canonical = request.origin | append: routes.search_url
+  endif
+-%}
+<link
+  rel="canonical"
+  href="{{ canonical }}"
+>
+
+{%- if shop.published_locales.size > 1 -%}
+  {%- assign primary_root = '/' -%}
+  {%- for locale in shop.published_locales -%}
+    {%- if locale.primary -%}
+      {%- assign primary_root = locale.root_url -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign current_root = request.locale.root_url | default: '/' -%}
+  {%- for locale in shop.published_locales -%}
+    <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: current_root, locale.root_url }}">
+  {%- endfor -%}
+  <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: current_root, primary_root }}">
+{%- endif -%}
+
+<meta
+  name="description"
+  content="{{ og_description | escape }}"
+>
+
 {%- if request.page_type == 'product' and product -%}
-  <script type="application/ld+json">{{ product | structured_data }}</script>
   {%- comment -%}
     aggregateRating supplement — Shopify's native `| structured_data`
     filter emits Product with price/availability/SKU/image but does
@@ -455,14 +440,19 @@
   </script>
 {%- endif -%}
 
-{%- comment -%}
-  Mobile-app hints.
-
-  `mobile-web-app-capable` is the modern, cross-browser equivalent;
-  `apple-mobile-web-app-capable` is Safari's older form, deprecation-
-  warned by Chrome 111+. Emitting both keeps iOS home-screen saves
-  working while silencing Chrome DevTools' deprecation warning.
-{%- endcomment -%}
+{%- liquid
+  assign theme_color = '#FAFAF9'
+  for scheme in settings.kt_schemes
+    assign theme_color = scheme.settings.surface
+    break
+  endfor
+-%}
+<meta name="theme-color" content="{{ theme_color }}">
+{%- if settings.kt_favicon != blank -%}
+  <link rel="icon" type="image/png" href="{{ settings.kt_favicon | image_url: width: 32, height: 32 }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ settings.kt_favicon | image_url: width: 192, height: 192 }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.kt_favicon | image_url: width: 180, height: 180 }}">
+{%- endif -%}
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{{ shop.name | escape }}">

@@ -7,11 +7,12 @@
 > (160-rule master checklist) and [`REJECT_RULES.md`](../REJECT_RULES.md)
 > (the active reject-vector sweep ruleset).
 >
-> **Architecture statement:** The theme code is original (Online Store
-> 2.0, Liquid, plain CSS, vanilla JS). The first commit was a scaffold
-> modeled on Dawn's file layout; every file from it has since been
-> rewritten and today's overlap with Dawn is limited to platform idioms
-> (0–9% of lines per file). Details and a reproducible check:
+> **Architecture statement:** Kitchero is built on Shopify's Skeleton
+> theme: the layouts, `assets/critical.css`, `snippets/css-variables.liquid`
+> and `snippets/meta-tags.liquid` come from Skeleton (license notice in
+> `assets/skeleton-theme.LICENSE.txt`). Everything else is original Online
+> Store 2.0 code (Liquid, plain CSS, vanilla JS). No code is taken from
+> Dawn or Horizon. Details and a reproducible check:
 > [`CODE-LINEAGE.md`](./CODE-LINEAGE.md).
 
 ---
