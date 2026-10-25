@@ -1,0 +1,37 @@
+{%- comment -%}
+  Unit price for the selected variant (e.g. $3.99 / 100 g). Rendered when any
+  variant has a unit price measurement; hidden for variants without one.
+  assets/product-form.js updates [data-unit-price] on variant change.
+
+  Accepts:
+  - product: {Object}
+  - variant: {Object} selected variant
+{%- endcomment -%}
+  {%- assign has_any_unit_price = false -%}
+  {%- for v in product.variants -%}
+    {%- if v.unit_price_measurement -%}
+      {%- assign has_any_unit_price = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if has_any_unit_price -%}
+    {%- assign upm = variant.unit_price_measurement -%}
+    {%- assign unit_qty_template = 'kt.product.unit_price_per_html' | t: quantity_value: '{quantity_value}', quantity_unit: '{quantity_unit}', reference_value: '{reference_value}', reference_unit: '{reference_unit}' -%}
+    <span class="kt-product-price__unit" data-unit-price{% unless upm %} style="display: none;"{% endunless %}>
+      <span class="kt-product-price__unit-value">{% if upm %}{{ variant.unit_price | money }}{% endif %}</span>
+      <span class="kt-product-price__unit-separator" aria-hidden="true">/</span>
+      <span class="kt-product-price__unit-ref">
+        {%- if upm -%}
+          {%- if upm.reference_value != 1 -%}
+            {{ upm.reference_value }}&nbsp;
+          {%- endif -%}
+          {{ upm.reference_unit }}
+        {%- endif -%}
+      </span>
+      <span class="kt-product-price__unit-qty" data-template="{{ unit_qty_template | escape }}"{% if upm == nil or upm.quantity_value == upm.reference_value %} style="display: none;"{% endif %}>
+        {%- if upm and upm.quantity_value != upm.reference_value -%}
+          ({{ 'kt.product.unit_price_per_html' | t: quantity_value: upm.quantity_value, quantity_unit: upm.quantity_unit, reference_value: upm.reference_value, reference_unit: upm.reference_unit }})
+        {%- endif -%}
+      </span>
+    </span>
+  {%- endif -%}
