@@ -10,6 +10,7 @@ Her madde repoda tek tek kontrol edildi; kök neden ve dosya yolu yazıldı. Baz
 > Kritik not 1: `demo` branch, `main`'deki son code fix'lerin gerisinde. Demo mağaza daha eski kodla çalışıyor. Her code fix sonrası `main → demo` merge edilip demo mağazaya push edilmeli.
 > Kritik not 2: Bazı "demo" maddeleri `main` default'larında da var (#15, #16, #40, #47, #62). Bunlar iki tarafta da düzeltilecek.
 > Tema içindeki tüm metinler American English olacak.
+> Live tema 25.10 itibarıyla **Kitchero #189328359638** (PR #41'e kadar `main`). Eski live temalar "Kitchero previous 2026-10-25" ve "… b" adıyla taslakta duruyor.
 
 ---
 
@@ -174,12 +175,12 @@ Bağımlılık kuralları:
 |---|---|---|---|
 | 66 | Accelerated checkout butonları | Shopify Payments test mode / Bogus Gateway | ◐ 25.10: kod tarafı tamam: `{{ form \| payment_button }}` iki ürün şablonunda ve featured product'ta, `content_for_additional_checkout_buttons` cart sayfası ve drawer'da. Showroom'da Buy it now etiketi iki satıra bölünüyordu; butonlar alt alta alındı (PR #32). Bogus Gateway'de Shop Pay/Apple Pay görünmez; tam test Shopify Payments test mode ister |
 | 67 | Shop Pay Installments banner | Shopify Payments + `payment_terms` | ◐ 25.10: `{{ form \| payment_terms }}` product-form, featured product, cart ve drawer'da var. Banner yalnızca Shopify Payments + Shop Pay Installments açık mağazada görünür; demo'da Bogus Gateway olduğu için canlı test yapılamıyor |
-| 68 | Pickup availability | Location + local pickup aktif | ☐ |
-| 69 | Video, 3D, AR media | Bir ürüne video + GLB model | ☐ |
-| 70 | Subscriptions, gift card, recipient | Subscription app + gift card ürünü | ☐ |
+| 68 | Pickup availability | Location + local pickup aktif | ◐ 25.10: kod tarafı doğrulandı: `snippets/pickup-availability.liquid` iki ürün şablonunda (main-product blok ayarı, showroom bloğu) ve `sections/pickup-availability` ile render ediliyor. Demo'da local pickup lokasyonu açılmadı (Theme Store demo için zorunlu değil) |
+| 69 | Video, 3D, AR media | Bir ürüne video + GLB model | ◐ 25.10: kod tarafı doğrulandı: iki ürün şablonu `video_tag`, `external_video_tag` ve `model_viewer_tag` ile `media_type == 'model'` dalını içeriyor. Demo ürünlerine video/GLB eklenmedi |
+| 70 | Subscriptions, gift card, recipient | Subscription app + gift card ürünü | ◐ 25.10: kod tarafı doğrulandı: `product-selling-plans` (selling plan grupları), `gift-card-recipient-form` (product.gift_card?), `templates/gift_card.liquid`, cart/drawer/order'da selling plan satırları. Demo'da subscription app yok (app kuralı); gift card ürünü eklenmedi |
 | 71 | Unit price, tax-inclusive, automatic discounts | Market/tax ayarları + otomatik indirim | ◐ 25.10: Showroom fiyat snippet'inde unit price yoktu; `snippets/product-unit-price.liquid` çıkarıldı, iki fiyat snippet'i de kullanıyor, varyant değişiminde JS güncelliyor (PR #31). Tax-included notu iki şablonda, cart ve drawer'da var. Otomatik indirim satırları cart/drawer'da `discount_allocations` ile gösteriliyor; Admin'de test verisi girilmedi |
 | 72 | Lighthouse (Shopify reference store) | Shopify reference data ile skor | ☐ |
-| 73 | Safari, Firefox, Edge, Samsung Internet, in-app browser'lar | Cihaz/BrowserStack matrisi | ◐ 25.10: `cross-browser.yml` (PR #34, #36): Chromium, Firefox, WebKit masaüstü + iPhone Safari ve Android Chrome emülasyonu; tema JS hataları, eksik asset, arama, mobil menü, sepete ekleme. Gerçek cihaz (Samsung Internet, in-app) testi yok |
+| 73 | Safari, Firefox, Edge, Samsung Internet, in-app browser'lar | Cihaz/BrowserStack matrisi | ☑ 25.10 (otomatik): `cross-browser.yml` (PR #34, #36, #37, #40) live temada: Chrome, Firefox, Safari masaüstü + iPhone Safari ve Android Chrome emülasyonu; 5/5 tarayıcıda tema JS hatası 0, eksik asset 0, arama, mobil menü, sepete ekleme ve cart drawer geçti. Bu test cart drawer'da varyant listesindeki madde işareti hatasını buldu (PR #39). Not: Linux WebKit AVIF/JXL çözemediği için WebKit ekran görüntülerinde bazı görseller boş; gerçek Safari'de sorun değil. Gerçek cihaz (Samsung Internet, in-app) testi yapılmadı |
 | 74 | Editor'da section ekleme, silme, sıralama | Tüm 91 section | ☑ 25.10: `theme-smoke.yml` preset'i olan her section'ı geçici temada render ediyor; Liquid hatası 0, eksik çeviri 0, W3C tema hatası 0 (PR #25). Bulunan tek hata admin içeriğiydi (koleksiyon açıklamasında `<meta charset>`), Admin'de temizlendi |
 | 75 | Boş mağazaya kurulum | Yeni dev store'a zip kurulumu | ☐ |
 | 76 | Test mode / Bogus Gateway | Demo'da aktif et | ☑ 25.10: Test payment gateway (Bogus) aktif (E20) | |
