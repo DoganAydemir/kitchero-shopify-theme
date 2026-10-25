@@ -1,0 +1,49 @@
+name: Demo store cleanup
+
+# Deletes every unpublished theme on the demo store (old previews and backups).
+# The live theme is never touched. Type "delete" to confirm.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type "delete" to remove all unpublished themes
+        required: true
+
+jobs:
+  cleanup:
+    if: inputs.confirm == 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Get access token
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+        run: |
+          token=$(curl -sS -f -X POST "https://kitchero-kitchen.myshopify.com/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          echo "SHOPIFY_CLI_THEME_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Delete unpublished themes
+        env:
+          SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+          SHOPIFY_CLI_TTY: '0'
+          CI: '1'
+        run: |
+          shopify theme list --role unpublished --json > themes.json
+          jq -r '.[] | "\(.id)\t\(.name)"' themes.json | while IFS=$'\t' read -r id name; do
+            shopify theme delete --theme "$id" --force
+            echo "- Deleted #$id $name" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+          shopify theme list | tee -a "$GITHUB_STEP_SUMMARY"
