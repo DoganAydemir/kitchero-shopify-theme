@@ -1,0 +1,46 @@
+name: Listing screenshots
+
+# Captures the Theme Store listing images from the live demo store (audit #83)
+# and commits them to the `listing-assets` branch (kept out of `main` and the
+# theme zip). Run manually.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+
+      - name: Capture
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+        run: python .github/scripts/listing_shots.py shots
+
+      - name: Commit to listing-assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin listing-assets || true
+          git checkout --orphan listing-shots-tmp
+          git rm -rf --cached . >/dev/null
+          mkdir -p /tmp/keep && cp shots/*.png /tmp/keep/
+          git clean -fdx -q
+          mkdir -p listing && cp /tmp/keep/*.png listing/
+          git add listing
+          git commit -q -m "Listing screenshots ${GITHUB_SHA::7}"
+          git push -f origin HEAD:listing-assets
