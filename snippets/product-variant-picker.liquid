@@ -9,7 +9,12 @@
     {%- for option in product.options_with_values -%}
       {%- assign option_name_lower = option.name | downcase -%}
       {%- assign is_color = false -%}
-      {%- if option_name_lower == 'color' or option_name_lower == 'colour' or option_name_lower == 'renk' or option_name_lower == 'finish' -%}
+      {%- comment -%}
+        Swatches show for any option whose values carry a native Shopify
+        swatch (color or image), and for options named like a color.
+      {%- endcomment -%}
+      {%- assign color_option_names = 'color,colour,renk,finish,couleur,farbe' | split: ',' -%}
+      {%- if color_option_names contains option_name_lower or option.values.first.swatch != blank -%}
         {%- assign is_color = true -%}
       {%- endif -%}
 
