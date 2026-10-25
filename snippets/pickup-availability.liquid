@@ -69,14 +69,16 @@
                   read between the lines of the pickup-time copy.
                 {%- endcomment -%}
                 {%- if availability.available -%}
-                  <span class="kt-pickup__stock kt-pickup__stock--in" aria-label="{{ 'kt.product.pickup.in_stock_aria' | t | default: 'In stock for pickup' }}">
+                  <span class="kt-pickup__stock kt-pickup__stock--in">
                     <span class="kt-pickup__stock-dot" aria-hidden="true"></span>
-                    {{ 'kt.product.pickup.in_stock' | t | default: 'In stock' }}
+                    <span aria-hidden="true">{{ 'kt.product.pickup.in_stock' | t | default: 'In stock' }}</span>
+                    <span class="visually-hidden">{{ 'kt.product.pickup.in_stock_aria' | t | default: 'In stock for pickup' }}</span>
                   </span>
                 {%- else -%}
-                  <span class="kt-pickup__stock kt-pickup__stock--out" aria-label="{{ 'kt.product.pickup.out_of_stock_aria' | t | default: 'Unavailable for pickup at this location' }}">
+                  <span class="kt-pickup__stock kt-pickup__stock--out">
                     <span class="kt-pickup__stock-dot" aria-hidden="true"></span>
-                    {{ 'kt.product.pickup.out_of_stock' | t | default: 'Unavailable' }}
+                    <span aria-hidden="true">{{ 'kt.product.pickup.out_of_stock' | t | default: 'Unavailable' }}</span>
+                    <span class="visually-hidden">{{ 'kt.product.pickup.out_of_stock_aria' | t | default: 'Unavailable for pickup at this location' }}</span>
                   </span>
                 {%- endif -%}
               </div>
