@@ -1,0 +1,38 @@
+name: Theme package
+
+# Builds the Theme Store submission zip from `main` (audit E11 / #82).
+# `shopify theme package` honours .shopifyignore, which skips merchant content
+# (templates/*.json, settings_data.json, section groups) for safe pushes. The
+# zip needs those files, so the workflow drops the three content lines before
+# packaging and then checks the zip contents. Run manually; the zip is kept
+# as a workflow artifact.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Package
+        run: |
+          sed -i -E '/^(templates\/\*\.json|config\/settings_data\.json|sections\/\*-group\.json)$/d' .shopifyignore
+          shopify theme package --path .
+          ls -la *.zip
+
+      - name: Check zip contents
+        run: python3 .github/scripts/check_package.py *.zip | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kitchero-theme-zip
+          path: '*.zip'
