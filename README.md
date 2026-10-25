@@ -1,6 +1,6 @@
 # Kitchero — Premium Shopify Theme
 
-A Theme-Store-ready Shopify OS 2.0 theme designed for luxury kitchen, cabinetry, and home-design brands. Original Online Store 2.0 code with a completely custom visual design (see [`docs/CODE-LINEAGE.md`](docs/CODE-LINEAGE.md)).
+A Theme-Store-ready Shopify OS 2.0 theme designed for luxury kitchen, cabinetry, and home-design brands. Built on Shopify's Skeleton theme, with original sections, snippets, styles and scripts and a completely custom visual design (see [`docs/CODE-LINEAGE.md`](docs/CODE-LINEAGE.md)).
 
 ![Theme Check](https://img.shields.io/badge/theme%20check-0%20errors-brightgreen)
 ![Shopify OS 2.0](https://img.shields.io/badge/Shopify-OS%202.0-96bf48)
@@ -279,7 +279,7 @@ Commercial theme. See `LICENSE` for terms.
 
 ## Credits
 
-- **Code origin:** original code; see [`docs/CODE-LINEAGE.md`](docs/CODE-LINEAGE.md)
+- **Foundation:** [Shopify Skeleton theme](https://github.com/Shopify/skeleton-theme) (layouts, critical CSS, CSS variables, meta tags); see [`docs/CODE-LINEAGE.md`](docs/CODE-LINEAGE.md) and `assets/skeleton-theme.LICENSE.txt`
 - **Animations:** [GSAP](https://greensock.com/gsap/) + [ScrollTrigger](https://greensock.com/scrolltrigger/) (self-hosted, standard license)
 - **Smooth scroll:** [Lenis](https://github.com/darkroomengineering/lenis) (self-hosted, MIT)
 - **Fonts:** [Inter](https://rsms.me/inter/) + [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) (Google Fonts, OFL)

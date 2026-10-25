@@ -72,7 +72,7 @@ Kitchero is a premium OS 2.0 theme crafted for merchants who sell the kinds of
 products that deserve a magazine spread, not a grid cell — luxury kitchen
 cabinetry, countertops, bespoke furniture, and high-end home goods.
 
-Written from original code with every piece of UI custom-designed, Kitchero gives you the scroll-triggered animations, cinematic
+Built on Shopify's Skeleton theme with every section and piece of UI custom-designed, Kitchero gives you the scroll-triggered animations, cinematic
 galleries, and layered typography of a hand-coded agency build — all fully
 editable from the theme editor, with no developer required.
 
@@ -180,17 +180,12 @@ Before submission, the demo store must have:
 ## Review notes (short note to Shopify reviewers — optional but helpful)
 
 ```
-Kitchero is original Online Store 2.0 code: Liquid, plain CSS and vanilla JS
-(no build step). Demo store: kitchero-kitchen.myshopify.com.
-
-Code history: the repository was started in April 2026 from a small scaffold
-that followed Dawn's file layout (theme.liquid, password.liquid, meta-tags,
-pagination, base.css, global.js). Every one of those files has since been
-rewritten; today 0-9% of their lines match any Dawn file, all of them
-platform idioms such as the canonical link or block loops. All sections,
-snippets, styles and scripts were written for Kitchero. The line-by-line
-comparison and the script that produces it are in docs/CODE-LINEAGE.md, and
-we can share the repository on request.
+Kitchero is built on Shopify's Skeleton theme. The layouts, critical.css,
+the css-variables snippet and the meta-tags snippet come from Skeleton and
+are extended for Kitchero (license notice: assets/skeleton-theme.LICENSE.txt).
+All sections, blocks, other snippets, styles and scripts are original
+Kitchero code: Liquid, plain CSS and vanilla JS, no build step. No code is
+taken from Dawn or Horizon. Demo store: kitchero-kitchen.myshopify.com.
 
 Notes:
 - Section backgrounds and text use color schemes (7 schemes). The remaining
