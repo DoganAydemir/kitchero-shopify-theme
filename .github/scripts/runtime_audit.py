@@ -164,6 +164,7 @@ with sync_playwright() as p:
             page = context.new_page()
             page.on('pageerror', lambda e, w=where: add('JS error (uncaught)', w, str(e)[:200]))
             page.on('console', lambda m, w=where: m.type in ('error', 'warning') and theme_text(m.text)
+                    and not (w.endswith('/404-check') and 'status of 404' in m.text)
                     and add(f'Console {m.type}', w, m.text[:200]))
             page.on('response', lambda r, w=where: r.status >= 400 and theme_text(r.url) and r.url.split('?')[0] != url_for(w.split(' ', 1)[1]).split('?')[0]
                     and add('Failed request', w, f'{r.status} {r.url[:150]}'))
@@ -182,6 +183,10 @@ with sync_playwright() as p:
                     }""")
                     if href:
                         article = href.split('?')[0]
+                if not page.url.startswith(STORE):
+                    # New customer accounts live on shopify.com: platform pages, not theme pages.
+                    page.close()
+                    continue
                 r = page.evaluate(PROBE)
             except Exception as error:  # noqa: BLE001 - report and continue
                 add('Page load failed', where, str(error)[:200])
