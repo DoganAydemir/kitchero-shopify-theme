@@ -45,13 +45,12 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <div class="kt-collapsible-minimal__grid" role="list">
+      <div class="kt-collapsible-minimal__grid">
         {%- for block in section.blocks -%}
           {%- case block.type -%}
             {%- when 'item' -%}
               <details
                 class="kt-collapsible-minimal__item"
-                role="listitem"
                 {% if block.settings.open %}open{% endif %}
                 {{ block.shopify_attributes }}
               >
