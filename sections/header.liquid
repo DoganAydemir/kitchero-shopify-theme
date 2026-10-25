@@ -206,7 +206,7 @@
                             {{
                               block.settings.image
                               | image_url: width: 400
-                              | image_tag:
+                              | image_tag: sizes: '400px',
                                 class: 'kt-header__mega-featured-image',
                                 loading: 'lazy',
                                 width: 400,
@@ -245,11 +245,11 @@
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
-                  {%- comment -%}
+                  {% comment -%}
                     Same ARIA 1.2 disclosure pairing as the mega-menu
                     trigger above — aria-expanded needs aria-controls
                     + aria-haspopup so SR users know what region opens.
-                  {%- endcomment -%}
+                  {%- endcomment %}
                   aria-haspopup="true"
                   aria-controls="kt-header-flyout-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
@@ -382,15 +382,16 @@
         <shopify-account
           menu="customer-account-main-menu"
           class="kt-header__account"
-          aria-label="{{ account_label }}"
         >
           <span slot="signed-out-avatar" class="kt-header__icon">
+            <span class="visually-hidden">{{ account_label }}</span>
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </span>
           <span slot="signed-in-avatar" class="kt-header__icon">
+            <span class="visually-hidden">{{ account_label }}</span>
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
@@ -562,6 +563,8 @@
 <div
   id="kt-mobile-panel-{{ section.id }}"
   class="kt-header__mobile-panel color-{{ mobile_menu_scheme }}"
+  role="dialog"
+  aria-modal="true"
   aria-label="{{ 'kt.a11y.navigation' | t }}"
 >
   <div class="kt-header__mobile-panel-header">

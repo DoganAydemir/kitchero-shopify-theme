@@ -23,10 +23,10 @@
       no inline style needed.
     {%- endcomment -%}
     <{{ heading_tag }} class="kt-parallax-cta__title"
-      {%- if section.settings.background_image != blank -%}
+      {% if section.settings.background_image != blank %}
         data-parallax-bg
         style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}');"
-      {%- endif -%}
+      {% endif %}
     >
       {{ section.settings.heading_line1 | default: heading_line1_default }}<br>{{ section.settings.heading_line2 | default: heading_line2_default }}
     </{{ heading_tag }}>

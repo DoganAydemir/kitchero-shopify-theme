@@ -32,7 +32,7 @@
           {%- if sample_cover != blank -%}
             {%- comment -%} Width-only request (no crop) so the photo keeps full resolution; CSS object-fit:cover frames it in the left thumb. Requested well wider than the 96×128 box (500px) so the cover crop stays crisp on retina. {%- endcomment -%}
             {%- assign image_alt_text = sample_cover.alt | default: sample_product.title | strip_html -%}
-            {{ sample_cover | image_url: width: 500 | image_tag: loading: 'lazy', width: 96, height: 128, alt: image_alt_text }}
+            {{ sample_cover | image_url: width: 500 | image_tag: sizes: '96px', loading: 'lazy', width: 96, height: 128, alt: image_alt_text }}
           {%- else -%}
             {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
           {%- endif -%}

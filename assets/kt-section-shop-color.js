@@ -72,9 +72,11 @@
           a.setAttribute('href', link);
           a.setAttribute('aria-label', name + (cat ? ' — ' + cat : ''));
           a.style.pointerEvents = '';
+          a.hidden = false;
         } else {
           a.removeAttribute('href');
           a.style.pointerEvents = 'none';
+          a.hidden = true;
         }
       });
 

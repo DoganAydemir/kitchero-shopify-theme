@@ -57,7 +57,7 @@
             </div>
 
             {%- comment -%} Overlay link → the active finish's product. JS sets href + aria-label on finish change (data-finish-link on each finish button). {%- endcomment -%}
-            <a class="kt-shop-color__image-link" data-finish-link-target></a>
+            <a class="kt-shop-color__image-link" data-finish-link-target hidden></a>
           </div>
 
           <p class="kt-shop-color__image-desc">
@@ -125,7 +125,7 @@
                     <div class="kt-shop-color__palette-bottom" style="background-color: {{ block.settings.finish_1_color2 | default: '#E8E6DF' }};"></div>
                   </div>
                   {%- comment -%} Overlay link → active finish's product (per category). JS sets href on finish change. {%- endcomment -%}
-                  <a class="kt-shop-color__mobile-image-link" data-mobile-finish-link-target></a>
+                  <a class="kt-shop-color__mobile-image-link" data-mobile-finish-link-target{% if block.settings.finish_1_link != blank %} href="{{ block.settings.finish_1_link }}" aria-label="{{ block.settings.finish_1_name | escape }} — {{ block.settings.title | escape }}"{% else %} hidden{% endif %}></a>
                 </div>
 
                 {%- comment -%} Finish buttons — each has its own image/colors {%- endcomment -%}

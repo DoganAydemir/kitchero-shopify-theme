@@ -26,10 +26,10 @@
   data-section-type="testimonials-pullquote"
   data-autoplay-interval="{{ section.settings.autoplay_interval | default: 0 }}"
   style="--kt-pullquote-padding: {{ vertical_padding }}px;"
-  {%- if quote_blocks.size > 1 -%}
+  {% if quote_blocks.size > 1 %}
     aria-roledescription="{{ 'kt.a11y.carousel' | t | default: 'carousel' }}"
     aria-label="{{ 'kt.a11y.testimonials_carousel' | t | default: 'Testimonials carousel' }}"
-  {%- endif -%}
+  {% endif %}
 >
   <div class="page-width kt-testimonials-pullquote__inner">
     <div class="kt-testimonials-pullquote__icon" aria-hidden="true">
@@ -42,7 +42,7 @@
     {%- if quote_blocks.size > 0 -%}
       <div class="kt-testimonials-pullquote__track" data-pullquote-track>
         {%- for block in quote_blocks -%}
-          <article
+          <div
             class="kt-testimonials-pullquote__slide{% if forloop.first %} kt-testimonials-pullquote__slide--active{% endif %}"
             id="{{ section.id }}-pullquote-slide-{{ forloop.index0 }}"
             data-pullquote-slide="{{ forloop.index0 }}"
@@ -73,7 +73,7 @@
                 {%- endif -%}
               </div>
             {%- endif -%}
-          </article>
+          </div>
         {%- endfor -%}
       </div>
 

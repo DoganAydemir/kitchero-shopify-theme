@@ -135,12 +135,12 @@
                       enterkeyhint="send"
                       autocomplete="email"
                       value="{{ form.email | escape }}"
-                      {%- if form.errors -%}
+                      {% if form.errors %}
                         aria-invalid="true"
                         aria-describedby="FooterNewsletter-error-{{ block.id }}"
-                      {%- else -%}
+                      {% else %}
                         aria-invalid="false"
-                      {%- endif -%}
+                      {% endif %}
                     >
                     {%- comment -%}
                       Honeypot — invisible to humans, populated by naive bots.
@@ -220,7 +220,7 @@
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.image != blank -%}
                 {%- assign image_alt_text = block.settings.image.alt | default: '' | strip_html -%}
-                {{ block.settings.image | image_url: width: 400 | image_tag: class: 'kt-footer__block-image', loading: 'lazy', width: block.settings.image.width, height: block.settings.image.height, alt: image_alt_text }}
+                {{ block.settings.image | image_url: width: 400 | image_tag: sizes: '400px', class: 'kt-footer__block-image', loading: 'lazy', width: block.settings.image.width, height: block.settings.image.height, alt: image_alt_text }}
               {%- else -%}
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg kt-footer__block-image' }}
               {%- endif -%}
