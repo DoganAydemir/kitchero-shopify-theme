@@ -1,0 +1,60 @@
+"""axe-core accessibility scan of the demo store (final gate, audit #34/#7).
+
+Runs axe (WCAG 2.0/2.1 A and AA rules) on the main templates at desktop and
+mobile widths and fails on any violation in theme markup. Nodes inside
+Shopify's own widgets (preview bar, Shop Pay, privacy banner) are listed
+separately.
+
+Usage: STORE_URL=... PASSWORD=... python3 axe_check.py
+"""
+import os
+import sys
+
+from axe_playwright_python.sync_playwright import Axe
+from playwright.sync_api import sync_playwright
+
+STORE = os.environ['STORE_URL'].rstrip('/')
+PASSWORD = os.environ['PASSWORD']
+PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/premium-pull-down-kitchen-faucet',
+         '/products/elegant-kitchen-cabinet-system', '/cart', '/search?q=sink', '/blogs/journal',
+         '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check']
+PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
+            'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms')
+OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']}}
+
+axe = Axe()
+theme, platform = {}, {}
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    for label, viewport in (('desktop', {'width': 1280, 'height': 800}), ('mobile', {'width': 390, 'height': 844})):
+        context = browser.new_context(viewport=viewport)
+        page = context.new_page()
+        page.goto(f'{STORE}/password', wait_until='domcontentloaded')
+        if page.locator('input[type="password"]').count():
+            page.fill('input[type="password"]', PASSWORD)
+            page.locator('input[type="password"]').press('Enter')
+            page.wait_for_load_state('networkidle')
+        for path in PAGES:
+            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+            page.wait_for_timeout(1500)
+            result = axe.run(page, options=OPTIONS).response
+            for violation in result['violations']:
+                for node in violation['nodes']:
+                    target = ' '.join(str(t) for t in node['target'])
+                    bucket = platform if any(word in target or word in node['html'] for word in PLATFORM) else theme
+                    key = (violation['id'], violation['impact'], target[:120])
+                    bucket.setdefault(key, set()).add(f'{label} {path}')
+        context.close()
+    browser.close()
+
+print('## axe-core scan (WCAG 2.1 A/AA)\n')
+print(f'Theme violations: {len(theme)} · Shopify platform: {len(platform)}\n')
+for title, bucket in (('Theme', theme), ('Shopify platform', platform)):
+    if bucket:
+        print(f'### {title}\n')
+        print('| Rule | Impact | Element | Pages |')
+        print('|---|---|---|---|')
+        for (rule, impact, target), pages in sorted(bucket.items()):
+            print(f"| {rule} | {impact} | `{target}` | {', '.join(sorted(pages))[:200]} |")
+        print()
+sys.exit(1 if theme else 0)

@@ -1,0 +1,30 @@
+name: Accessibility scan
+
+# axe-core WCAG 2.1 A/AA scan of the demo store at desktop and mobile widths.
+# Fails on violations in theme markup. Run manually.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  axe:
+    runs-on: ubuntu-24.04  # Playwright 1.48 has no system packages for Ubuntu 26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          pip install playwright==1.48.0 axe-playwright-python==0.1.4
+          python -m playwright install --with-deps chromium
+
+      - name: Scan
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+        run: |
+          set -o pipefail
+          python .github/scripts/axe_check.py | tee -a "$GITHUB_STEP_SUMMARY"
