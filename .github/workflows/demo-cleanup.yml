@@ -1,13 +1,14 @@
 name: Demo store cleanup
 
-# Deletes every unpublished theme on the demo store (old previews and backups).
-# The live theme is never touched. Type "delete" to confirm.
+# Deletes every unpublished theme (old previews and backups) and every
+# development theme (left behind by Lighthouse CI runs; a store allows 100)
+# on the demo store. The live theme is never touched. Type "delete" to confirm.
 
 on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: Type "delete" to remove all unpublished themes
+        description: Type "delete" to remove all unpublished and development themes
         required: true
 
 jobs:
@@ -41,7 +42,10 @@ jobs:
           SHOPIFY_CLI_TTY: '0'
           CI: '1'
         run: |
-          shopify theme list --role unpublished --json > themes.json
+          for role in unpublished development; do
+            shopify theme list --role "$role" --json
+          done | jq -s 'add // []' > themes.json
+          echo "Themes to delete: $(jq length themes.json)" | tee -a "$GITHUB_STEP_SUMMARY"
           jq -r '.[] | "\(.id)\t\(.name)"' themes.json | while IFS=$'\t' read -r id name; do
             shopify theme delete --theme "$id" --force
             echo "- Deleted #$id $name" | tee -a "$GITHUB_STEP_SUMMARY"

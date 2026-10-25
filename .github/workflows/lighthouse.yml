@@ -42,3 +42,31 @@ jobs:
           # Theme Store thresholds (performance 60, accessibility 90).
           lhci_min_score_performance: 0.60
           lhci_min_score_accessibility: 0.90
+
+      # The action leaves its development theme behind, and a store allows
+      # only 100. Delete development themes older than 30 minutes (newer ones
+      # may belong to a run that is still going).
+      - name: Delete old development themes
+        if: always()
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+          STORE: kitchero-kitchen.myshopify.com
+        run: |
+          token=$(curl -sS -f -X POST "https://$STORE/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          gql() {
+            curl -sS -X POST "https://$STORE/admin/api/2025-10/graphql.json" \
+              -H "Content-Type: application/json" -H "X-Shopify-Access-Token: $token" -d "$1"
+          }
+          cutoff=$(date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          gql '{"query":"{ themes(first: 250, roles: [DEVELOPMENT]) { nodes { id name createdAt } } }"}' \
+            | jq -r --arg cutoff "$cutoff" '.data.themes.nodes[] | select(.createdAt < $cutoff) | .id' \
+            | while read -r id; do
+                gql "{\"query\":\"mutation { themeDelete(id: \\\"$id\\\") { deletedThemeId userErrors { message } } }\"}" \
+                  | jq -c '.data.themeDelete'
+              done
