@@ -61,7 +61,7 @@
     <div class="kt-related__grid" role="list" aria-busy="{% if recommendations.performed %}false{% else %}true{% endif %}">
       {%- if recommendations.performed and recommendations.products_count > 0 -%}
         {%- for recommended_product in recommendations.products limit: related_limit -%}
-          {%- render 'card-product', product: recommended_product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
+          {%- render 'product-card', product: recommended_product, show_vendor: true, show_secondary_image: true, show_quote_button: false -%}
         {%- endfor -%}
       {%- elsif recommendations.performed == false -%}
         {%- comment -%}

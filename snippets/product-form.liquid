@@ -14,7 +14,7 @@
 
 {%- comment -%}
   Wrapping div carries the `data-product-form` selector hook and the
-  product id so product-form.js can find the form without relying on
+  product id so kt-product-form.js can find the form without relying on
   hyphenated kwargs inside the `{% form %}` tag — Liquid's kwarg parser
   accepts `data-*: value` via a Shopify-specific extension, but passing
   empty strings (`data-product-form: ''`) is brittle and some linters
@@ -147,7 +147,7 @@
     {%- if show_dynamic_checkout -%}
       {%- comment -%}
         `data-payment-button-wrapper` is the JS hook that
-        product-form.js uses to disable Shop Pay / Apple Pay /
+        kt-product-form.js uses to disable Shop Pay / Apple Pay /
         Google Pay / Buy It Now in lockstep with the ATC button
         when the customer selects a sold-out variant. Shopify's
         custom checkout elements live in shadow DOM and don't
@@ -182,7 +182,7 @@
   </p>
 
   {%- comment -%}
-    Error sentinel — populated by product-form.js when /cart/add.js
+    Error sentinel — populated by kt-product-form.js when /cart/add.js
     responds with an error (out of stock, quantity limit, network).
     Hidden by default; JS toggles [hidden] and fills textContent.
   {%- endcomment -%}

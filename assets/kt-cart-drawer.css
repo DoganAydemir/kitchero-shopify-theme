@@ -35,7 +35,7 @@ html.no-js .kt-cart-drawer {
   z-index: calc(var(--kt-z-drawer) + 900);
   opacity: 0;
   /* Same global-cascade defense as the panel rule above — without
-   * !important, base.css's `* { transition-duration: 0.01ms }` under
+   * !important, kt-base.css's `* { transition-duration: 0.01ms }` under
    * reduce-motion collapses this fade to 0ms. */
   transition: opacity 0.5s ease !important;
   cursor: pointer;
@@ -95,7 +95,7 @@ html.no-js .kt-cart-drawer {
 }
 
 /* Slide-out animation — applied via the --closing class added by
- * cart-drawer.js close(). Class is removed after the animation
+ * kt-cart-drawer.js close(). Class is removed after the animation
  * settles (handled in JS via setTimeout matching the duration),
  * at which point the panel reverts to the default closed state
  * (translateX(100%) on .kt-cart-drawer__panel). */
@@ -117,7 +117,7 @@ html.no-js .kt-cart-drawer {
  * A lateral 220ms slide is vestibular-safe (Apple Mail, iOS Safari
  * tab switcher all keep slide motion under reduce-motion). The
  * universal-selector `* { animation-duration: 0.01ms !important }`
- * in base.css's reduce-motion block would otherwise collapse this
+ * in kt-base.css's reduce-motion block would otherwise collapse this
  * to a snap; explicit !important on the panel rule wins specificity. */
 @media (prefers-reduced-motion: reduce) {
   .kt-cart-drawer[aria-hidden="false"] .kt-cart-drawer__panel,
@@ -721,7 +721,7 @@ html.no-js .kt-cart-drawer {
   background-color: rgba(5, 150, 105, 0.15);
 }
 
-/* User-visible cart update error region. cart-drawer.js paints
+/* User-visible cart update error region. kt-cart-drawer.js paints
    into this on /cart/change.js 422 / network failure, then auto-
    clears after 6s. role="alert" + hidden-by-default gives SR users
    the same announcement and sighted users a visible message. */
@@ -846,10 +846,10 @@ html.no-js .kt-cart-drawer {
 }
 
 /* `button.kt-cart-drawer__checkout` (specificity 0,0,1,1) is required
-   because base.css:196 has a global `button[type="submit"]` rule with
+   because kt-base.css:196 has a global `button[type="submit"]` rule with
    the same specificity that otherwise wins source-order arbitrarily.
    Qualifying our selector with the `button` tag ties specificity, and
-   since this file loads AFTER base.css our rule wins. Without this,
+   since this file loads AFTER kt-base.css our rule wins. Without this,
    the checkout button inherited the scheme's --kt-c-action color
    (light on stone-950-ink schemes) and the dark stone-900 background
    we want was invisible. */
@@ -923,7 +923,7 @@ button.kt-cart-drawer__continue:focus-visible {
  * Earlier revisions of this rule replaced the 500ms slide with a
  * 0.2s opacity fade for prefers-reduced-motion users — strictly
  * vestibular-safe but it produced exactly the snap-open feel the
- * user complained about, because base.css's global reduce-motion
+ * user complained about, because kt-base.css's global reduce-motion
  * clamp (`transition-duration: 0.01ms !important`) drowns out
  * unscoped 0.2s rules, leaving only an instantaneous opacity flip.
  *

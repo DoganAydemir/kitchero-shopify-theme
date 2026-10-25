@@ -41,35 +41,20 @@
         for content with sound and need merchant-supplied caption
         tracks (handled by Vimeo/YouTube on the embed side).
       {%- endcomment -%}
-      {%- if section.settings.poster_image != blank -%}
-        {%- assign poster_url = section.settings.poster_image | image_url: width: 2000 -%}
-        {{
-          section.settings.video_file
-          | video_tag:
-            image_size: '2000x',
-            loop: true,
-            autoplay: true,
-            muted: true,
-            playsinline: 'playsinline',
-            controls: false,
-            preload: 'metadata',
-            class: 'kt-video-bg-hero__video',
-            poster: poster_url
-        }}
-      {%- else -%}
-        {{
-          section.settings.video_file
-          | video_tag:
-            image_size: '2000x',
-            loop: true,
-            autoplay: true,
-            muted: true,
-            playsinline: 'playsinline',
-            controls: false,
-            preload: 'metadata',
-            class: 'kt-video-bg-hero__video'
-        }}
-      {%- endif -%}
+      {%- liquid
+        assign poster_url = ''
+        if section.settings.poster_image != blank
+          assign poster_url = section.settings.poster_image | image_url: width: 2000
+        endif
+      -%}
+      {%- render 'video-element',
+        video: section.settings.video_file,
+        class: 'kt-video-bg-hero__video',
+        background: true,
+        max_height: 1080,
+        poster: poster_url,
+        poster_width: 2000
+      -%}
 
       {%- if section.settings.poster_image != blank -%}
         {{

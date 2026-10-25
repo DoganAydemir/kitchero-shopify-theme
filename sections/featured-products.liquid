@@ -1,6 +1,5 @@
 {{ 'kt-section-featured-products.css' | asset_url | stylesheet_tag }}
 {{ 'kt-card-product.css' | asset_url | stylesheet_tag }}
-<script src="{{ 'kt-section-featured-products.js' | asset_url }}" defer="defer"></script>
 
 {%- liquid
   assign cols_desktop = section.settings.columns_desktop | default: 4
@@ -74,7 +73,7 @@
             {%- when 'product' -%}
               {%- if block.settings.product != blank -%}
                 <div class="kt-featured-products__item" {{ block.shopify_attributes }}>
-                  {%- render 'card-product',
+                  {%- render 'product-card',
                       product: block.settings.product,
                       show_vendor: settings.kt_pdp_show_vendor,
                       show_secondary_image: section.settings.show_secondary_image,

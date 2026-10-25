@@ -1,0 +1,55 @@
+{%- doc -%}
+  Renders a Shopify-hosted video as a plain `<video>` element with one MP4
+  source, so the markup has no fallback `<img>` without alt text.
+
+  @param {object} video - Video setting value or product media of type `video`
+  @param {string} class - CSS class for the `<video>` element
+  @param {boolean} [background] - Autoplay, muted, looped and inline, without controls
+  @param {number} [max_height] - Tallest MP4 rendition to use (default 1080)
+  @param {string} [poster] - Poster URL (default: the video's preview image)
+  @param {number} [poster_width] - Width for the default poster (default 1200)
+  @param {string} [title] - Accessible name for a video with controls
+{%- enddoc -%}
+{%- liquid
+  assign max_h = max_height | default: 1080
+  assign chosen_url = ''
+  assign chosen_type = 'video/mp4'
+  assign chosen_h = 0
+  assign smallest_url = ''
+  assign smallest_h = 100000
+  for source in video.sources
+    if source.format != 'mp4'
+      continue
+    endif
+    if source.height <= max_h and source.height > chosen_h
+      assign chosen_url = source.url
+      assign chosen_type = source.mime_type
+      assign chosen_h = source.height
+    endif
+    if source.height < smallest_h
+      assign smallest_url = source.url
+      assign smallest_h = source.height
+    endif
+  endfor
+  if chosen_url == ''
+    assign chosen_url = smallest_url
+  endif
+
+  assign poster_url = poster
+  if poster_url == blank and video.preview_image
+    assign p_width = poster_width | default: 1200
+    assign poster_url = video.preview_image | image_url: width: p_width
+  endif
+-%}
+<video
+  class="{{ class }}"
+  preload="metadata"
+  {%- if poster_url != blank %} poster="{{ poster_url }}"{% endif %}
+  {%- if video.preview_image %} width="{{ video.preview_image.width }}" height="{{ video.preview_image.height }}"{% endif %}
+  {%- if background %} autoplay muted loop playsinline{% else %} controls playsinline{% endif %}
+  {%- if title != blank and background != true %} title="{{ title | escape }}"{% endif %}
+>
+  {%- if chosen_url != blank -%}
+    <source src="{{ chosen_url }}" type="{{ chosen_type }}">
+  {%- endif -%}
+</video>

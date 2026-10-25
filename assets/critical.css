@@ -21,6 +21,8 @@ html:has(dialog[scroll-lock][open], details[scroll-lock][open]) {
   overflow: hidden;
 }
 
+/* Media keep the height from their width/height attributes unless a
+   component sets one (no `height: auto` here, unlike Skeleton). */
 img,
 picture,
 video,
@@ -28,7 +30,6 @@ canvas,
 svg {
   display: block;
   max-width: 100%;
-  height: auto;
 }
 
 input,
@@ -67,17 +68,18 @@ h6 {
   overflow-wrap: break-word;
 }
 
-p:empty {
+/* Zero specificity (`:where`), so component classes keep their margins. */
+:where(p:empty) {
   display: none;
 }
 
-:is(p, h1, h2, h3, h4, h5, h6):first-child,
-:empty:first-child + :where(p, h1, h2, h3, h4, h5, h6) {
+:where(p, h1, h2, h3, h4, h5, h6):where(:first-child),
+:where(:empty:first-child + :where(p, h1, h2, h3, h4, h5, h6)) {
   margin-block-start: 0;
 }
 
-:is(p, h1, h2, h3, h4, h5, h6):last-child,
-:where(p, h1, h2, h3, h4, h5, h6) + :has(+ :empty:last-child) {
+:where(p, h1, h2, h3, h4, h5, h6):where(:last-child),
+:where(:where(p, h1, h2, h3, h4, h5, h6) + :has(+ :empty:last-child)) {
   margin-block-end: 0;
 }
 

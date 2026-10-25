@@ -61,35 +61,19 @@
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           </button>
-          {%- if section.settings.loop_poster != blank -%}
-            {%- assign poster_url = section.settings.loop_poster | image_url: width: 1200 -%}
-            {{
-              section.settings.loop_video
-              | video_tag:
-                image_size: '1200x',
-                loop: true,
-                autoplay: true,
-                muted: true,
-                playsinline: 'playsinline',
-                controls: false,
-                preload: 'metadata',
-                class: 'kt-video-split__video',
-                poster: poster_url
-            }}
-          {%- else -%}
-            {{
-              section.settings.loop_video
-              | video_tag:
-                image_size: '1200x',
-                loop: true,
-                autoplay: true,
-                muted: true,
-                playsinline: 'playsinline',
-                controls: false,
-                preload: 'metadata',
-                class: 'kt-video-split__video'
-            }}
-          {%- endif -%}
+          {%- liquid
+            assign poster_url = ''
+            if section.settings.loop_poster != blank
+              assign poster_url = section.settings.loop_poster | image_url: width: 1200
+            endif
+          -%}
+          {%- render 'video-element',
+            video: section.settings.loop_video,
+            class: 'kt-video-split__video',
+            background: true,
+            max_height: 720,
+            poster: poster_url
+          -%}
         {%- elsif section.settings.loop_poster != blank -%}
           {%- assign loop_poster_alt = section.settings.loop_poster.alt | default: section.settings.heading | default: shop.name -%}
           {{

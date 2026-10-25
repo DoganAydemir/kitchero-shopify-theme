@@ -84,7 +84,7 @@
   {%- comment -%}
     Main media column. Dispatches on media_type:
       image          — existing eager/lazy image path
-      video          — native Shopify-hosted video (video_tag filter)
+      video          — native Shopify-hosted video (video-element snippet)
       external_video — YouTube/Vimeo embed (external_video_tag filter)
       model          — 3D product model (model_viewer_tag filter,
                        wrapped in <product-model> custom element so
@@ -168,17 +168,7 @@
           {%- when 'video' -%}
             {%- assign video_poster_url = media.preview_image | image_url: width: 1200 -%}
             {%- assign video_a11y_title = media_alt | default: product.title -%}
-            {{
-              media
-              | video_tag:
-                class: 'kt-gallery__video',
-                controls: true,
-                preload: 'metadata',
-                loop: false,
-                image_size: '1200x',
-                poster: video_poster_url,
-                title: video_a11y_title
-            }}
+            {%- render 'video-element', video: media, class: 'kt-gallery__video', poster: video_poster_url, title: video_a11y_title -%}
           {%- when 'external_video' -%}
             {%- comment -%}
               External video provider needs its iframe wrapped so we can

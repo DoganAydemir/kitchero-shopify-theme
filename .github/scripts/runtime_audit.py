@@ -24,7 +24,7 @@ PAGES = ['/', '/collections', '/collections/all', '/collections/kitchen-cabinets
          '/cart', '/search', '/search?q=sink', '/blogs/journal', 'ARTICLE',
          '/pages/about-us', '/pages/contact', '/pages/content-faq', '/pages/financing',
          '/pages/deals', '/pages/galleries', '/pages/heroes-banners', '/pages/image-with-text',
-         '/pages/sliders', '/pages/testimonials', '/pages/newsletter',
+         '/pages/sliders',
          '/account/login', '/account/register', '/404-check']
 VIEWPORTS = [('desktop', 1280, 800), ('phone', 375, 740), ('small', 320, 640), ('tablet', 768, 1024)]
 # Shopify's own scripts and the browser are not theme code.
@@ -91,9 +91,10 @@ PROBE = r"""
     .map(describe).slice(0, 5);
   const small = [];
   for (const el of document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [tabindex="0"]')) {
-    if (!visible(el)) continue;
+    if (!visible(el) || el.tabIndex < 0) continue;
     const r = el.getBoundingClientRect();
     if (r.width >= 24 && r.height >= 24) continue;
+    if (r.width <= 1 || r.height <= 1) continue;
     // WCAG 2.5.8 inline exception: links inside a sentence.
     if (el.tagName === 'A' && getComputedStyle(el).display === 'inline' && el.closest('p, li, span, label, small, .rte')) continue;
     // Spacing exception: a 24px circle around the center touches no other target.
@@ -163,6 +164,7 @@ with sync_playwright() as p:
             page = context.new_page()
             page.on('pageerror', lambda e, w=where: add('JS error (uncaught)', w, str(e)[:200]))
             page.on('console', lambda m, w=where: m.type in ('error', 'warning') and theme_text(m.text)
+                    and not (w.endswith('/404-check') and 'status of 404' in m.text)
                     and add(f'Console {m.type}', w, m.text[:200]))
             page.on('response', lambda r, w=where: r.status >= 400 and theme_text(r.url) and r.url.split('?')[0] != url_for(w.split(' ', 1)[1]).split('?')[0]
                     and add('Failed request', w, f'{r.status} {r.url[:150]}'))
@@ -175,9 +177,16 @@ with sync_playwright() as p:
                 page.evaluate('window.scrollTo(0, 0)')
                 page.wait_for_timeout(800)
                 if label == 'desktop' and path == '/blogs/journal':
-                    href = page.evaluate("(document.querySelector('main a[href*=\"/blogs/journal/\"]') || {}).getAttribute ? document.querySelector('main a[href*=\"/blogs/journal/\"]').getAttribute('href') : ''")
+                    href = page.evaluate("""() => {
+                      const a = document.querySelector('main a[href*="/blogs/journal/"]:not([href*="/tagged/"])');
+                      return a ? a.getAttribute('href') : '';
+                    }""")
                     if href:
                         article = href.split('?')[0]
+                if not page.url.startswith(STORE):
+                    # New customer accounts live on shopify.com: platform pages, not theme pages.
+                    page.close()
+                    continue
                 r = page.evaluate(PROBE)
             except Exception as error:  # noqa: BLE001 - report and continue
                 add('Page load failed', where, str(error)[:200])

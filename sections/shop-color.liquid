@@ -125,7 +125,7 @@
                     <div class="kt-shop-color__palette-bottom" style="background-color: {{ block.settings.finish_1_color2 | default: '#E8E6DF' }};"></div>
                   </div>
                   {%- comment -%} Overlay link → active finish's product (per category). JS sets href on finish change. {%- endcomment -%}
-                  <a class="kt-shop-color__mobile-image-link" data-mobile-finish-link-target{% if block.settings.finish_1_link != blank %} href="{{ block.settings.finish_1_link }}" aria-label="{{ block.settings.finish_1_name | escape }} — {{ block.settings.title | escape }}"{% else %} hidden{% endif %}></a>
+                  <a class="kt-shop-color__mobile-image-link" data-mobile-finish-link-target{% if block.settings.finish_1_link != blank %} href="{{ block.settings.finish_1_link | escape }}" aria-label="{{ block.settings.finish_1_name | escape }} — {{ block.settings.title | escape }}"{% else %} hidden{% endif %}></a>
                 </div>
 
                 {%- comment -%} Finish buttons — each has its own image/colors {%- endcomment -%}
@@ -141,7 +141,7 @@
                       data-finish-cat="{{ block.settings.title | escape }}"
                       data-finish-color1="{{ block.settings.finish_1_color1 | default: '#F5F0EB' }}"
                       data-finish-color2="{{ block.settings.finish_1_color2 | default: '#E8E6DF' }}"
-                      data-finish-link="{{ block.settings.finish_1_link }}"
+                      data-finish-link="{{ block.settings.finish_1_link | escape }}"
                     >
                       {{ block.settings.finish_1_name }}
                     </button>
@@ -157,7 +157,7 @@
                       data-finish-cat="{{ block.settings.title | escape }}"
                       data-finish-color1="{{ block.settings.finish_2_color1 | default: '#F5F0EB' }}"
                       data-finish-color2="{{ block.settings.finish_2_color2 | default: '#E8E6DF' }}"
-                      data-finish-link="{{ block.settings.finish_2_link }}"
+                      data-finish-link="{{ block.settings.finish_2_link | escape }}"
                     >
                       {{ block.settings.finish_2_name }}
                     </button>
@@ -173,7 +173,7 @@
                       data-finish-cat="{{ block.settings.title | escape }}"
                       data-finish-color1="{{ block.settings.finish_3_color1 | default: '#F5F0EB' }}"
                       data-finish-color2="{{ block.settings.finish_3_color2 | default: '#E8E6DF' }}"
-                      data-finish-link="{{ block.settings.finish_3_link }}"
+                      data-finish-link="{{ block.settings.finish_3_link | escape }}"
                     >
                       {{ block.settings.finish_3_name }}
                     </button>

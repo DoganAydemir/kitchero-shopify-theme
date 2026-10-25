@@ -97,7 +97,7 @@ summary,
    snaps out and everything below it jumps up.
    Measured impact on a product page: CLS 1.817 (target ≤0.1),
    dominated by <main> reflow + appointment-drawer reflow.
-   Duplicate these two rules here (base.css IS render-blocking)
+   Duplicate these two rules here (kt-base.css IS render-blocking)
    so the drawers never take layout space before their full
    stylesheet arrives. The async stylesheets still win for
    visual styling (colour, spacing, transitions) — they only
@@ -149,7 +149,7 @@ summary,
    remove them without inheriting an empty band from a wrapper they
    can't control. If a page ever needs extra air before the footer,
    the last section should be configured with more internal padding —
-   not patched in base.css. */
+   not patched in kt-base.css. */
 
 /* ============================================================
    Typography
@@ -964,7 +964,7 @@ select:-webkit-autofill {
    The .kt-form__field-error rule is defined per-scope in
    kt-section-customer-forms.css (rich styling for the
    customer pages); the utilities below are the broader
-   defaults loaded everywhere via base.css so they apply
+   defaults loaded everywhere via kt-base.css so they apply
    on marketing forms (appointment drawer, newsletter
    popup, visualize-studio contact, etc.) without each
    section having to re-declare them. */
@@ -1216,7 +1216,7 @@ html:not(.js) .kt-loader {
    Theme-editor block-select pulse.
    --------------------------------------------------------------
    When a merchant clicks a block in the theme-editor sidebar,
-   global.js adds .kt-editor-block-selected for ~1.2s so the
+   kt-global.js adds .kt-editor-block-selected for ~1.2s so the
    block is easy to spot in the preview pane. Outline-only (does
    not affect layout) and emerald-tinted to read against any
    color scheme. Production-render unaffected — the class is

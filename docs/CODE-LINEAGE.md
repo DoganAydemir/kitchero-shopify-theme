@@ -13,7 +13,7 @@ Skeleton and are extended for Kitchero:
 
 | File | From Skeleton | Kitchero additions |
 |---|---|---|
-| `layout/theme.liquid` | Head order: inlined CSS variables, font preconnect and preload, preloaded `critical.css`, `base.css`, `meta-tags`, `content_for_header` | Section groups, cart drawer, search overlay, consultation drawer, loader, motion loader, structured data |
+| `layout/theme.liquid` | Head order: inlined CSS variables, font preconnect and preload, preloaded `critical.css`, `kt-base.css`, `meta-tags`, `content_for_header` | Section groups, cart drawer, search overlay, consultation drawer, loader, motion loader, structured data |
 | `layout/password.liquid` | Same head order and body structure | Skip link, accessibility strings |
 | `assets/critical.css` | The whole file: reset, body flex layout, media defaults, form and dialog colors, text wrapping, block container utilities | Body font, font scale, sticky footer for `main` |
 | `snippets/css-variables.liquid` | Inlined `{% style %}` with `font_face` declarations and the root variables used by `critical.css` (`--font-primary--*`, `--page-width`, `--page-margin`, `--color-background`, `--color-foreground`, `--style-border-radius-inputs`) | Color scheme tokens and `--kt-*` design tokens |
@@ -44,14 +44,14 @@ normalized) that also appear in [Shopify/dawn](https://github.com/Shopify/dawn):
 | layout/password.liquid | 16 | 12% | 12% |
 | snippets/meta-tags.liquid | 257 | 3% | 5% |
 | snippets/pagination.liquid | 111 | 3% | 3% |
-| assets/base.css | 591 | 4% | 4% |
-| assets/global.js | 154 | 0% | 0% |
+| assets/kt-base.css | 591 | 4% | 4% |
+| assets/kt-global.js | 154 | 0% | 0% |
 | templates/gift_card.liquid | 137 | 2% | 3% |
 | sections/main-product.liquid | 510 | 5% | 6% |
-| snippets/card-product.liquid | 209 | 0% | 0% |
-| assets/product-form.js | 599 | 0% | 0% |
-| assets/cart-drawer.js | 235 | 0% | 1% |
-| assets/predictive-search.js | 215 | 0% | 0% |
+| snippets/product-card.liquid | 209 | 0% | 0% |
+| assets/kt-product-form.js | 599 | 0% | 0% |
+| assets/kt-cart-drawer.js | 235 | 0% | 1% |
+| assets/kt-predictive-search.js | 215 | 0% | 0% |
 
 The matching lines are platform idioms any Shopify theme writes the same
 way, for example `{{ content_for_header }}`, the `fonts.shopifycdn.com`
@@ -73,7 +73,10 @@ Horizon is built on, and none of its file or class names.
 - **October 25, 2026:** the foundation was moved onto Skeleton's own files
   (this document's first table), and the last Dawn-specific identifiers
   were renamed (`skip-to-content-link`, `field__input`,
-  `localization-form.js`).
+  `localization-form.js`). File names shared with Dawn were changed too:
+  `card-product` is now `product-card`, and `base.css`, `global.js`,
+  `cart-drawer.js`, `product-form.js` and `predictive-search.js` carry the
+  theme's `kt-` prefix like the rest of its assets.
 
 ## Third-party code
 
