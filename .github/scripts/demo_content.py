@@ -124,7 +124,7 @@ EDITS = [
     ('templates/page.financing.json', 'panel_1', None, {'floating_eyebrow': 'Plan lengths', 'floating_value': '12–36 months'}),
     ('templates/page.financing.json', 'panel_2', None, {'floating_eyebrow': 'At checkout', 'floating_value': 'One simple step',
         'floating_description': "Choose financing as your payment method and follow the lender's short application."}),
-    ('templates/page.financing.json', 'calculator', None, {'disclaimer':
+    ('templates/page.financing.json', 'calculator', None, {'cta_link': 'shopify://pages/contact', 'disclaimer':
         '<p>For illustration only. Rates, terms, and eligibility are set by the lender and subject to credit approval.</p>'}),
     ('templates/page.financing.json', 'calculator', 't1', {'apr': 0, 'apr_label': ''}),
     ('templates/page.financing.json', 'calculator', 't2', {'apr': 7.99, 'apr_label': ''}),
