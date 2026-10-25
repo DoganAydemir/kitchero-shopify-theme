@@ -68,23 +68,19 @@ def shot(context, path, name, scroll_to=None, before=None, hide_header=False):
 
 
 def open_hotspot(page):
-    # Center the hotspot closest to the middle of the screen, then open it.
+    # Open the visible hotspot closest to the middle of the screen. The page
+    # is not scrolled again, so the image stays aligned to the top edge.
     index = page.evaluate("""() => {
         const spots = [...document.querySelectorAll('.kt-shop-the-look__hotspot')];
         let best = -1, dist = Infinity;
         spots.forEach((s, i) => {
             const r = s.getBoundingClientRect();
-            if (!r.width) return;
-            const d = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+            if (!r.width || r.top < 0 || r.bottom > innerHeight * 0.6) return;
+            const d = Math.abs(r.left + r.width / 2 - innerWidth / 2) + Math.abs(r.top - innerHeight * 0.35);
             if (d < dist) { dist = d; best = i; }
         });
-        if (best > -1) {
-            const r = spots[best].getBoundingClientRect();
-            window.scrollBy(0, r.top + r.height / 2 - innerHeight * 0.45);
-        }
         return best;
     }""")
-    time.sleep(1.5)
     if index > -1:
         page.locator('.kt-shop-the-look__hotspot').nth(index).click()
 
