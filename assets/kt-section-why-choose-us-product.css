@@ -71,14 +71,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Vertically centre the card's contents so an icon-only card
-     (no title/desc filled in by the merchant) doesn't lean to
-     the top with the icon's mb-6 leaving empty bottom space —
-     which made the top/bottom padding look unequal even though
-     the box-padding itself was symmetric. With justify-content:
-     center, whichever subset of children is present (icon-only,
-     icon+title, icon+title+desc) is centred inside the card. */
-  justify-content: center;
+  /* Top-aligned so icons and titles line up across a row when the
+     descriptions have different lengths. */
+  justify-content: flex-start;
   text-align: center;
   padding: 1.5rem;
   /* Cards sit on the pure scheme bg (white on light schemes) — brighter

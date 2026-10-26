@@ -15,6 +15,7 @@
       collection itself; renders as a pill pointing at the collection page)
 {%- endcomment -%}
 
+{%- if section.blocks.size > 0 or request.design_mode -%}
 <section class="kt-search-page__popular" aria-labelledby="SearchPopularHeading">
   <h2 id="SearchPopularHeading" class="kt-search-page__popular-heading">
     {%- comment -%}
@@ -85,3 +86,4 @@
     <p class="kt-search-page__popular-hint">{{ 'kt.search.popular_empty_section' | t }}</p>
   {%- endif -%}
 </section>
+{%- endif -%}

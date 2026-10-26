@@ -148,7 +148,10 @@
     products.forEach(function (p) {
       var img = p.featured_image && p.featured_image.url ? p.featured_image.url : '';
       var alt = (p.featured_image && p.featured_image.alt) || p.title || '';
-      var price = p.price ? formatMoney(p.price, p.currency) : '';
+      // /search/suggest.json returns prices as decimal strings ("122.00");
+      // formatMoney works in cents like the rest of the theme.
+      var priceCents = typeof p.price === 'string' ? Math.round(parseFloat(p.price) * 100) : p.price;
+      var price = priceCents ? formatMoney(priceCents, p.currency) : '';
       html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
       html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
       if (img) {

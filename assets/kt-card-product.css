@@ -301,8 +301,15 @@
 
 .kt-card-product__content {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+/* Keep the card buttons on one line across a row, whether or not a card
+   shows swatches, a rating or a unit price. */
+.kt-card-product__cta {
+  margin-top: auto;
 }
 
 .kt-card-product__info {
@@ -549,9 +556,28 @@
 }
 
 .kt-card-product__compare-price {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--kt-stone-500);
   text-decoration: line-through;
+}
+
+/* "From" label and unit price sit at the price's size (they inherited the
+   larger body size and outweighed the price itself). */
+.kt-card-product__price-from,
+.kt-card-product__unit-price {
+  font-size: 0.75rem;
+  color: rgb(var(--kt-c-fg-muted));
+}
+
+.kt-card-product__unit-price {
+  margin: -0.5rem 0 0.75rem;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-card-product__compare-price,
+  .kt-card-product__price-from {
+    font-size: 0.875rem;
+  }
 }
 
 .kt-card-product__view-link {
