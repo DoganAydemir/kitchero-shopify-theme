@@ -89,7 +89,7 @@ EDITS = [
     ('templates/blog.json', 'main', None, {'description':
         'Planning guides, finish ideas, and care tips for kitchens that work as well as they look.'}),
     ('templates/cart.json', 'main', None, {
-        'description': 'Review your items, add a note for our team, and check out securely.',
+        'description': 'Review your items and check out securely.',
         'trust_shipping_text': 'Shipping calculated at checkout',
         'trust_returns_text': 'Returns accepted on unused items'}),
 
@@ -108,7 +108,7 @@ EDITS = [
     ('templates/page.content-faq.json', 'collapsible_visual_wiwbcq', 'feature_J7fFFM', {'content':
         'Solid cabinet boxes, durable finishes, and hardware made for everyday use.'}),
     ('templates/page.content-faq.json', 'collapsible_visual_wiwbcq', 'feature_KbwdEJ', {'content':
-        'Every order is covered by our quality guarantee. See the warranty policy for details.'}),
+        'Warranty terms are listed in the warranty policy.'}),
 
     # Deals: prices match the linked products; compare-at prices are set on those products in Admin
     ('templates/page.deals.json', 'main', None, {'bottom_description':
@@ -281,6 +281,18 @@ if entry:
             order.insert(order.index('ctas') + 1, 'door_sample')
         entry[2] = True
 
+# Search: suggested searches in both empty states (an empty panel looked broken)
+entry = doc('templates/search.json')
+if entry:
+    main = entry[1]['sections'].get('main')
+    if main is not None and not main.get('blocks'):
+        suggestions = [('Kitchen cabinets', 'cabinet'), ('Faucets', 'faucet'), ('Sinks', 'sink'),
+                       ('Range hoods', 'range hood'), ('Cabinet hardware', 'knobs')]
+        main['blocks'] = {f'q{i}': {'type': 'query', 'settings': {'label': label, 'query': query}}
+                          for i, (label, query) in enumerate(suggestions, 1)}
+        main['block_order'] = [f'q{i}' for i in range(1, len(suggestions) + 1)]
+        entry[2] = True
+
 # Demo stores must not use apps (Theme Store requirements): drop app embeds
 # left behind by uninstalled apps (Judge.me, Wishlist Plus).
 entry = doc('config/settings_data.json')
@@ -297,6 +309,85 @@ if entry and isinstance(entry[1].get('current'), dict):
     if not current.get('kt_favicon'):
         current['kt_favicon'] = 'shopify://shop_images/favicon-kitchero.png'
         entry[2] = True
+
+# Copy fixes that are found by text rather than by section id (the live
+# template ids differ from main): American spelling (audit #10), statement
+# headings instead of questions (#14), the cart note line while order notes
+# are off, and no imposed "The Archives" eyebrow (#53).
+PHRASES = [
+    ('Need a Custom Quote?', 'Request a custom quote'),
+    ('Review your items, add a note for our team, and check out securely.',
+     'Review your items and check out securely.'),
+    ('Real feedback from homeowners who use their kitchens every day',
+     'Kitchens planned around everyday routines'),
+    ('Each piece is crafted with care and protected by our quality guarantee.',
+     'See the warranty policy for what is covered and for how long.'),
+    ('Every order is covered by our quality guarantee. See the warranty policy for details.',
+     'Warranty terms are listed in the warranty policy.'),
+]
+EXACT = {'Catalogue': 'Catalog', 'Why Choose Us?': 'Why choose us',
+         'Backed by our guarantee': 'Warranty information', 'Quality warranty': 'Warranty'}
+EYEBROWS = {'blog': 'Journal', 'article': 'Journal', 'collection': 'Collection'}
+
+
+def fix_text(node, rel, entry):
+    if isinstance(node, dict):
+        items = node.items()
+    elif isinstance(node, list):
+        items = enumerate(node)
+    else:
+        return
+    for key, value in list(items):
+        if isinstance(value, str):
+            new = EXACT.get(value, value)
+            for old, repl in PHRASES:
+                new = new.replace(old, repl)
+            if new == 'The Archives':
+                kind = rel.split('/')[-1].split('.')[0]
+                new = EYEBROWS.get(kind, '')
+            if new != value:
+                node[key] = new
+                entry[2] = True
+        else:
+            fix_text(value, rel, entry)
+
+
+import glob
+import os
+for path in sorted(glob.glob(f'{root}/templates/*.json') + glob.glob(f'{root}/sections/*.json')):
+    rel = os.path.relpath(path, root)
+    entry = doc(rel)
+    if entry:
+        fix_text(entry[1], rel, entry)
+
+# Product page "why choose us" cards: no unverifiable delivery or price claims
+FEATURES = [
+    ('Considered materials', 'Finishes and materials chosen for everyday use in busy family kitchens.'),
+    ('Clear pricing', 'Prices are shown up front, and shipping is calculated at checkout.'),
+    ('Pieces that work together', 'Cabinets, hardware, and fixtures chosen to match across the kitchen.'),
+    ('Compare at your own pace', 'Filter by finish, size, and price, and come back to your cart anytime.'),
+    ('Secure checkout', 'Pay with the checkout methods you already use.'),
+    ('Design help', 'Our team can help with layouts, finishes, and hardware choices.'),
+]
+for rel in ('templates/product.json', 'templates/product.showroom.json'):
+    entry = doc(rel)
+    if not entry:
+        continue
+    for section_id, section in entry[1].get('sections', {}).items():
+        if section.get('type') != 'why-choose-us-product':
+            continue
+        for block_id, (title, description) in zip(section.get('block_order', []), FEATURES):
+            apply(rel, section_id, block_id, {'title': title, 'description': description})
+
+# Default collection page shows the collection description (audit #22)
+entry = doc('templates/collection.json')
+if entry:
+    for section in entry[1].get('sections', {}).values():
+        if section.get('type', '').startswith('main-collection'):
+            settings = section.setdefault('settings', {})
+            if settings.get('show_collection_description') is False:
+                settings['show_collection_description'] = True
+                entry[2] = True
 
 for rel, entry in cache.items():
     if entry and entry[2]:

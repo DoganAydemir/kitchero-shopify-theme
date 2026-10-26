@@ -340,11 +340,16 @@
   z-index: var(--kt-z-drawer);
   padding: 1.5rem;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Hidden (not just moved off-screen) while closed, so it never shows
+     in full-page captures or when the browser chrome resizes. */
+  visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.4s;
 }
 
 .kt-shop-the-look__mobile-sheet--visible {
   transform: translateY(0);
+  visibility: visible;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media screen and (max-width: 749px) {
