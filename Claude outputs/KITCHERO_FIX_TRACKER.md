@@ -261,3 +261,17 @@ Bu maddeler açık kalıyor; son aşamada birlikte değerlendirilecek:
 
 ### Kapsam kontrolü
 Raporun 1–83 numaralı maddelerinin tamamı bu dosyada en az bir kez yer alıyor (script ile doğrulandı). Birden fazla fazı ilgilendiren maddeler (#15, #16, #29, #30, #40, #47, #62, #63) her ilgili fazda ayrıca listelendi.
+
+## 26.10 bağımsız yeniden kontrol (Aside, başka hesap)
+
+Audit PDF'i canlı demo, `main` ve kurulum durumu üzerinde yeniden yürütüldü. Önceki turun çoğu doğru; şu açıklar bulundu ve kapatıldı:
+- #30: `presets.Kitchero` 4 ayarda demodan farklıydı (badge/kart radius, input border, vendor). `current` bu anahtarları yazmadığı için gözden kaçmış. Eşitlendi (PR #87).
+- #15/#30 kurulum: `product.json` ve `product.showroom.json`'da 6 "Feature title / Add a short description…", ana sayfa + listing preset + about + testimonials'ta "Add a customer testimonial here" / "Customer name" duruyordu (boş mağaza testi ürün sayfası açmadığı için görülmemiş). Demo metinleriyle değiştirildi (PR #87).
+- Ürün sayfası: içeriği boş sekmeler (boş metafield, temiz kurulumdaki Specifications/Shipping) artık editör dışında gizli (PR #87).
+- #44: 31 ürünün hepsinde Specifications = "Dark walnut … custom kitchen cabinet set", Delivery = "custom kitchen product". `demo-products.yml` + `demo_products.py` ile ürüne özel metinler yazıldı. Ice White Shaker (showroom kapak numunesi) tür/etiket/açıklama düzeltildi. Musluk varyantlarına görsel atandı. "Matte Black Kitchen Sink" → "Hammered Apron-Front Sink", siyah varyant ve görsel ilk sırada (PR #87, #90). Uygulama yetkisi: Kitchero Lighthouse CI → write_products (sürüm kitchero-lighthouse-ci-2).
+- #43: Theme Features › Product Pages › Showroom linki 404'tü (draft ürün) → Ivory Shaker Island Kitchen.
+- #10 "Catalogue", #13 4 "Modal" etiketi (5 dil), #14 "Need a Custom Quote?"/"Why Choose Us?", #22 varsayılan koleksiyonda açıklama kapalı, #40 "Real feedback from homeowners" (uydurma yorum), #50 no-JS masaüstünde mobil menü, #53 blog "The Archives", sepet notu metni, demo trust badge vaatleri (PR #87, #88).
+- Yarım kalan review-pass düzeltmeleri (anlık aramada $122 → $1.22 fiyat hatası dahil) commit'lendi (PR #87).
+Yayın: önizleme #189391864022 → canlı "Kitchero"; eski canlı "Kitchero backup 2026-10-25" (#189347594454) draft. CI ID'leri PR #89.
+Canlı son ölçüm: axe 0, W3C tema hatası 0, runtime 0 bulgu, 5 tarayıcı temiz, Theme Check + Lighthouse geçti.
+Açık: mağaza iletişim e-postası merihfindik@gmail.com (JSON-LD'de görünüyor), Ice White Shaker ilk görseli "Bristol-Satin-Sleet-Aqua-Kitchen-…webp" (bayi dosyası olabilir, #80), #64/#77 Zoho, #6 gizlilik tercihleri bölgeye bağlı (Türkiye'den banner API yok; link gizlilik politikasına gidiyor), Sliders/Galleries sayfalarında 3 ortak caption, By Finish linkleri aynı 12 ürünü döndürüyor.
