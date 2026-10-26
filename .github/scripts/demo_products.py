@@ -68,8 +68,8 @@ SPECS = {
         ('Corners', 'Tight radius')],
     'stainless-steel-workstation-sink': [('Material', 'Stainless steel'), ('Finish', 'Brushed'),
         ('Feature', 'Built-in ledge for sliding accessories')],
-    'matte-black-kitchen-sink': [('Type', 'Single bowl'), ('Finish', 'Matte black'),
-        ('Drain finish', 'Gold, brown, or black')],
+    'matte-black-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'Matte black, gold, or brown'),
+        ('Texture', 'Hammered')],
     'double-bowl-kitchen-sink': [('Type', 'Double bowl, equal basins'), ('Divider', 'Low')],
     'pull-out-cabinet-organizer': [('Type', 'Pull-out basket'), ('Fits', '18", 24", 30", 36" base cabinets')],
     'drawer-cabinet-organizer': [('Type', 'Drawer insert with fixed compartments'),
@@ -100,6 +100,20 @@ DOOR_SAMPLE = {
         '<p>A full-size Ice White shaker cabinet door. Check the color, profile, and finish in your '
         'own light before you order a complete kitchen.</p>'
         '<p>The door matches the Ivory Shaker Island Kitchen and other light shaker sets in the catalog.</p>'),
+}
+
+# Products whose title/description contradicted their photos and variants.
+# The sink is a hammered apron-front sink sold in three finishes; its first
+# photo and default variant were copper while the title said matte black.
+PRODUCT_COPY = {
+    'matte-black-kitchen-sink': {
+        'title': 'Hammered Apron-Front Sink',
+        'descriptionHtml': (
+            '<p>A hammered apron-front sink with a deep single basin and a textured front panel. '
+            'Choose a matte black, gold, or brown finish to match your faucet and hardware.</p>'
+            '<p>The deep basin fits large pots and sheet pans.</p>'),
+        'first_option_value': 'Black',
+    },
 }
 
 # Products whose detail tabs should be empty (the theme hides empty tabs).
@@ -161,7 +175,45 @@ if product and (product['productType'] != DOOR_SAMPLE['productType'] or sorted(p
                     'descriptionHtml': DOOR_SAMPLE['descriptionHtml']})
     print(f'update {DOOR_SAMPLE["handle"]}: type, tags, description')
 
-print(f'{len(sets)} metafields to set, {len(deletes)} to delete, {len(updates)} products to update')
+# Variant images: a variant without its own image takes the image of a
+# variant with the same color, so the gallery and cart show the right finish.
+detail = gql('''{ products(first: 100) { nodes { id handle title descriptionHtml
+  media(first: 50) { nodes { id ... on MediaImage { image { url } } } }
+  variants(first: 100) { nodes { id position selectedOptions { name value } media(first: 1) { nodes { id } } } } } } }''')
+variant_media, reorders = [], []
+COLOR_NAMES = ('color', 'colour', 'finish')
+for p in detail['products']['nodes']:
+    variants = p['variants']['nodes']
+    by_color = {}
+    for v in variants:
+        color = next((o['value'] for o in v['selectedOptions'] if o['name'].lower() in COLOR_NAMES), None)
+        media = v['media']['nodes']
+        if color and media and color not in by_color:
+            by_color[color] = media[0]['id']
+    fills = []
+    for v in variants:
+        color = next((o['value'] for o in v['selectedOptions'] if o['name'].lower() in COLOR_NAMES), None)
+        if color and not v['media']['nodes'] and color in by_color:
+            fills.append({'id': v['id'], 'mediaId': by_color[color]})
+    if fills:
+        variant_media.append((p['id'], fills))
+        print(f'variant images {p["handle"]}: {len(fills)}')
+
+    copy = PRODUCT_COPY.get(p['handle'])
+    if copy:
+        if p['title'] != copy['title']:
+            updates.append({'id': p['id'], 'title': copy['title'], 'descriptionHtml': copy['descriptionHtml']})
+            print(f'update {p["handle"]}: title, description')
+        first = copy['first_option_value']
+        ordered = sorted(variants, key=lambda v: (not any(o['value'] == first for o in v['selectedOptions']), v['position']))
+        if [v['id'] for v in ordered] != [v['id'] for v in sorted(variants, key=lambda v: v['position'])]:
+            target = next((v for v in ordered if v['media']['nodes']), None)
+            reorders.append((p['id'], [{'id': v['id'], 'position': i + 1} for i, v in enumerate(ordered)],
+                             target['media']['nodes'][0]['id'] if target else None))
+            print(f'reorder {p["handle"]}: {first} variant and its image first')
+
+print(f'{len(sets)} metafields to set, {len(deletes)} to delete, {len(updates)} products to update, '
+      f'{len(variant_media)} products with variant images, {len(reorders)} reorders')
 if not APPLY:
     print('Dry run. Re-run with --apply to write.')
     sys.exit(0)
@@ -182,4 +234,19 @@ for item in updates:
         userErrors { field message } } }''', {'p': item})
     if result['productUpdate']['userErrors']:
         raise SystemExit(f'productUpdate: {result["productUpdate"]["userErrors"]}')
+for product_id, fills in variant_media:
+    result = gql('''mutation($p: ID!, $v: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $p, variants: $v) {
+        userErrors { field message } } }''', {'p': product_id, 'v': fills})
+    if result['productVariantsBulkUpdate']['userErrors']:
+        raise SystemExit(f'productVariantsBulkUpdate: {result["productVariantsBulkUpdate"]["userErrors"]}')
+for product_id, positions, media_id in reorders:
+    result = gql('''mutation($p: ID!, $v: [ProductVariantPositionInput!]!) { productVariantsBulkReorder(productId: $p, positions: $v) {
+        userErrors { field message } } }''', {'p': product_id, 'v': positions})
+    if result['productVariantsBulkReorder']['userErrors']:
+        raise SystemExit(f'productVariantsBulkReorder: {result["productVariantsBulkReorder"]["userErrors"]}')
+    if media_id:
+        result = gql('''mutation($p: ID!, $m: [MoveInput!]!) { productReorderMedia(id: $p, moves: $m) {
+            mediaUserErrors { field message } } }''', {'p': product_id, 'm': [{'id': media_id, 'newPosition': '0'}]})
+        if result['productReorderMedia']['mediaUserErrors']:
+            raise SystemExit(f'productReorderMedia: {result["productReorderMedia"]["mediaUserErrors"]}')
 print('Applied.')
