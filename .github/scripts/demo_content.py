@@ -326,7 +326,11 @@ PHRASES = [
      'Warranty terms are listed in the warranty policy.'),
 ]
 EXACT = {'Catalogue': 'Catalog', 'Why Choose Us?': 'Why choose us',
-         'Backed by our guarantee': 'Warranty information', 'Quality warranty': 'Warranty'}
+         'Backed by our guarantee': 'Warranty information', 'Quality warranty': 'Warranty',
+         # product trust badges: point to checkout and policies instead of promises
+         'Reliable shipping': 'Shipping options at checkout', 'Reliable Shipping': 'Shipping options at checkout',
+         'Easy returns': 'See our return policy', 'Easy Returns': 'See our return policy',
+         'Quality guarantee': 'Warranty information available', 'Quality Guarantee': 'Warranty information available'}
 EYEBROWS = {'blog': 'Journal', 'article': 'Journal', 'collection': 'Collection'}
 
 
