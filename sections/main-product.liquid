@@ -523,53 +523,57 @@
       heading, so all content stays accessible. Blocks keep their order +
       shopify_attributes so the editor still selects/reorders them.
     {%- endcomment -%}
-    {%- assign kt_has_accordion = false -%}
+    {%- comment -%} Tabs with no content (for example an empty metafield) are skipped outside the editor. {%- endcomment -%}
+    {%- assign kt_ti = 0 -%}
+    {%- capture kt_tab_nav -%}{%- endcapture -%}
+    {%- capture kt_tab_panels -%}{%- endcapture -%}
     {%- for block in section.blocks -%}
-      {%- if block.type == 'accordion' -%}{%- assign kt_has_accordion = true -%}{%- break -%}{%- endif -%}
+      {%- if block.type == 'accordion' -%}
+        {%- capture accordion_content -%}
+          {%- if block.settings.page != blank -%}
+            {{ block.settings.page.content }}
+          {%- else -%}
+            {{ block.settings.content }}
+          {%- endif -%}
+        {%- endcapture -%}
+        {%- if accordion_content == blank and request.design_mode == false -%}
+          {%- continue -%}
+        {%- endif -%}
+        {%- capture kt_tab_nav -%}
+          {{- kt_tab_nav -}}
+          <button
+            type="button"
+            role="tab"
+            id="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
+            class="kt-pdp__tab"
+            aria-controls="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
+            aria-selected="{% if kt_ti == 0 %}true{% else %}false{% endif %}"
+            tabindex="{% if kt_ti == 0 %}0{% else %}-1{% endif %}"
+            {{ block.shopify_attributes }}
+          >{{ block.settings.title | escape }}</button>
+        {%- endcapture -%}
+        {%- capture kt_tab_panels -%}
+          {{- kt_tab_panels -}}
+          <div
+            role="tabpanel"
+            id="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
+            class="kt-pdp__tab-panel"
+            aria-labelledby="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
+            {% if kt_ti != 0 %}hidden{% endif %}
+          >
+            <h3 class="kt-pdp__tab-panel-title">{{ block.settings.title | escape }}</h3>
+            <div class="kt-pdp__tab-panel-content rte">{{ accordion_content }}</div>
+          </div>
+        {%- endcapture -%}
+        {%- assign kt_ti = kt_ti | plus: 1 -%}
+      {%- endif -%}
     {%- endfor -%}
-    {%- if kt_has_accordion -%}
+    {%- if kt_ti > 0 -%}
       <div class="kt-pdp__tabs" data-kt-pdp-tabs>
         <div class="kt-pdp__tabs-nav" role="tablist" aria-label="{{ 'kt.product.details.tabs_label' | t }}">
-          {%- assign kt_ti = 0 -%}
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'accordion' -%}
-              <button
-                type="button"
-                role="tab"
-                id="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
-                class="kt-pdp__tab"
-                aria-controls="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
-                aria-selected="{% if kt_ti == 0 %}true{% else %}false{% endif %}"
-                tabindex="{% if kt_ti == 0 %}0{% else %}-1{% endif %}"
-                {{ block.shopify_attributes }}
-              >{{ block.settings.title | escape }}</button>
-              {%- assign kt_ti = kt_ti | plus: 1 -%}
-            {%- endif -%}
-          {%- endfor -%}
+          {{- kt_tab_nav -}}
         </div>
-        {%- assign kt_ti = 0 -%}
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'accordion' -%}
-            {%- capture accordion_content -%}
-              {%- if block.settings.page != blank -%}
-                {{ block.settings.page.content }}
-              {%- else -%}
-                {{ block.settings.content }}
-              {%- endif -%}
-            {%- endcapture -%}
-            <div
-              role="tabpanel"
-              id="kt-pdp-panel-{{ section.id }}-{{ block.id }}"
-              class="kt-pdp__tab-panel"
-              aria-labelledby="kt-pdp-tab-{{ section.id }}-{{ block.id }}"
-              {% if kt_ti != 0 %}hidden{% endif %}
-            >
-              <h3 class="kt-pdp__tab-panel-title">{{ block.settings.title | escape }}</h3>
-              <div class="kt-pdp__tab-panel-content rte">{{ accordion_content }}</div>
-            </div>
-            {%- assign kt_ti = kt_ti | plus: 1 -%}
-          {%- endif -%}
-        {%- endfor -%}
+        {{- kt_tab_panels -}}
       </div>
     {%- endif -%}
   </div>
