@@ -116,6 +116,22 @@ PRODUCT_COPY = {
     },
 }
 
+# Smart collections for the Cabinets mega menu "By Style" group (audit #43:
+# the old "By Finish" links all returned the same 12 sets, because every set
+# comes with all three hardware finishes).
+# handle: (title, description, title keyword, product whose photo is the collection image)
+COLLECTIONS = {
+    'island-kitchens': ('Island Kitchens',
+        'Cabinet sets planned around a central island, with seating, storage, and room to prep.',
+        'Island', 'designer-kitchen-cabinet-collection'),
+    'built-in-kitchens': ('Built-In Kitchens',
+        'Wall-to-wall built-in cabinetry with tall pantry units and integrated range hoods.',
+        'Built-In', 'signature-built-in-kitchen-set'),
+    'shaker-kitchens': ('Shaker Kitchens',
+        'Classic five-piece shaker doors in painted finishes, from cream to deep navy.',
+        'Shaker', 'custom-kitchen-storage-collection'),
+}
+
 # Products whose detail tabs should be empty (the theme hides empty tabs).
 CLEAR = {'gift-card'}
 
@@ -212,8 +228,25 @@ for p in detail['products']['nodes']:
                              target['media']['nodes'][0]['id'] if target else None))
             print(f'reorder {p["handle"]}: {first} variant and its image first')
 
+existing = {c['handle'] for c in gql('{ collections(first: 100) { nodes { handle } } }')['collections']['nodes']}
+images = {p['handle']: p for p in gql('''{ products(first: 100) { nodes { handle featuredMedia { preview { image { url } } } } } }''')['products']['nodes']}
+new_collections = []
+for handle, (title, description, keyword, image_product) in COLLECTIONS.items():
+    if handle in existing:
+        continue
+    image = ((images.get(image_product) or {}).get('featuredMedia') or {}).get('preview', {}).get('image', {}).get('url')
+    new_collections.append({
+        'handle': handle, 'title': title, 'descriptionHtml': f'<p>{description}</p>',
+        'ruleSet': {'appliedDisjunctively': False, 'rules': [
+            {'column': 'TITLE', 'relation': 'CONTAINS', 'condition': keyword},
+            {'column': 'TYPE', 'relation': 'EQUALS', 'condition': 'Kitchen Cabinets'}]},
+        **({'image': {'src': image, 'altText': title}} if image else {}),
+    })
+    print(f'create collection {handle}')
+
 print(f'{len(sets)} metafields to set, {len(deletes)} to delete, {len(updates)} products to update, '
-      f'{len(variant_media)} products with variant images, {len(reorders)} reorders')
+      f'{len(variant_media)} products with variant images, {len(reorders)} reorders, '
+      f'{len(new_collections)} collections to create')
 if not APPLY:
     print('Dry run. Re-run with --apply to write.')
     sys.exit(0)
@@ -249,4 +282,17 @@ for product_id, positions, media_id in reorders:
             mediaUserErrors { field message } } }''', {'p': product_id, 'm': [{'id': media_id, 'newPosition': '0'}]})
         if result['productReorderMedia']['mediaUserErrors']:
             raise SystemExit(f'productReorderMedia: {result["productReorderMedia"]["mediaUserErrors"]}')
+if new_collections:
+    online_store = next(p['id'] for p in gql('{ publications(first: 20) { nodes { id name } } }')['publications']['nodes']
+                        if p['name'] == 'Online Store')
+    for item in new_collections:
+        result = gql('''mutation($c: CollectionInput!) { collectionCreate(input: $c) {
+            collection { id } userErrors { field message } } }''', {'c': item})
+        if result['collectionCreate']['userErrors']:
+            raise SystemExit(f'collectionCreate: {result["collectionCreate"]["userErrors"]}')
+        cid = result['collectionCreate']['collection']['id']
+        result = gql('''mutation($id: ID!, $p: [PublicationInput!]!) { publishablePublish(id: $id, input: $p) {
+            userErrors { field message } } }''', {'id': cid, 'p': [{'publicationId': online_store}]})
+        if result['publishablePublish']['userErrors']:
+            raise SystemExit(f'publishablePublish: {result["publishablePublish"]["userErrors"]}')
 print('Applied.')
