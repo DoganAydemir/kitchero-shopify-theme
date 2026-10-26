@@ -364,6 +364,44 @@ for path in sorted(glob.glob(f'{root}/templates/*.json') + glob.glob(f'{root}/se
     if entry:
         fix_text(entry[1], rel, entry)
 
+# Galleries and Sliders shared the same three captions (audit #62): the
+# gallery gets its own captions, the second slider its own copy.
+CAPTION_E = ('Explore refined kitchen spaces with warm wood tones, clean cabinetry, premium fixtures, '
+             'and soft natural light designed for everyday living.')
+CAPTION_D = ('Discover faucets, sinks, cabinet hardware, organizers, and finishing touches that bring '
+             'function and style together in one cohesive kitchen.')
+CAPTION_F = ('From cooking zones to storage areas, every detail is selected to support a cleaner, more '
+             'practical, and more enjoyable kitchen routine.')
+FILE_PHRASES = {
+    # file: (replace from the Nth occurrence on, {old: new})
+    'templates/page.galleries.json': (1, {
+        CAPTION_E: 'A warm wood island and painted perimeter cabinets, photographed in afternoon light.',
+        CAPTION_D: 'Brushed brass fixtures and cabinet pulls chosen to match across the room.',
+        CAPTION_F: 'Deep drawers and a pull-out pantry keep the prep zone clear.'}),
+    'templates/page.sliders.json': (2, {
+        CAPTION_F: 'Plan the cooking zone first: range, hood, and the drawers you reach for most.',
+        CAPTION_E: 'Light shaker fronts and marble tops for a kitchen that stays bright all day.',
+        CAPTION_D: 'Mix hardware finishes across cabinets, faucet, and lighting for a layered look.'}),
+}
+
+
+def replace_occurrences(node, start, mapping, seen, entry):
+    items = node.items() if isinstance(node, dict) else enumerate(node) if isinstance(node, list) else []
+    for key, value in list(items):
+        if isinstance(value, str) and value in mapping:
+            seen[value] = seen.get(value, 0) + 1
+            if seen[value] >= start:
+                node[key] = mapping[value]
+                entry[2] = True
+        elif isinstance(value, (dict, list)):
+            replace_occurrences(value, start, mapping, seen, entry)
+
+
+for rel, (start, mapping) in FILE_PHRASES.items():
+    entry = doc(rel)
+    if entry:
+        replace_occurrences(entry[1], start, mapping, {}, entry)
+
 # Product page "why choose us" cards: no unverifiable delivery or price claims
 FEATURES = [
     ('Considered materials', 'Finishes and materials chosen for everyday use in busy family kitchens.'),
