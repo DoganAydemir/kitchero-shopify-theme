@@ -386,7 +386,8 @@
               </li>
             {%- endfor -%}
             {%- if section.settings.show_privacy_choices -%}
-              {%- assign privacy_choices_url = pages['your-privacy-choices'].url | default: shop.privacy_policy.url | default: routes.root_url -%}
+              {%- comment -%} Shopify creates the "Your Privacy Choices" page at /pages/data-sharing-opt-out when the data sharing opt-out page is on. {%- endcomment -%}
+              {%- assign privacy_choices_url = pages['data-sharing-opt-out'].url | default: pages['your-privacy-choices'].url | default: shop.privacy_policy.url | default: routes.root_url -%}
               <li>
                 <a
                   href="{{ privacy_choices_url }}"
