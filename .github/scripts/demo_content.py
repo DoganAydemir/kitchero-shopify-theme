@@ -324,8 +324,11 @@ PHRASES = [
      'See the warranty policy for what is covered and for how long.'),
     ('Every order is covered by our quality guarantee. See the warranty policy for details.',
      'Warranty terms are listed in the warranty policy.'),
+    # Consultation wording instead of booking (audit #17)
+    ('Book a one-to-one studio visit.', 'Request a one-to-one consultation.'),
+    ('Bring measurements, sketches, mood boards', 'Share measurements, sketches, or mood boards'),
 ]
-EXACT = {'Catalogue': 'Catalog', 'Why Choose Us?': 'Why choose us',
+EXACT = {'Catalogue': 'Catalog', 'Why Choose Us?': 'Why choose us', 'Book a studio visit': 'Request a consultation',
          'Backed by our guarantee': 'Warranty information', 'Quality warranty': 'Warranty',
          # product trust badges: point to checkout and policies instead of promises
          'Reliable shipping': 'Shipping options at checkout', 'Reliable Shipping': 'Shipping options at checkout',

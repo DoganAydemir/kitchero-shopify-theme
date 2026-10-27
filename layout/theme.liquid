@@ -416,7 +416,7 @@
         },
         lowStockThreshold: {% if settings.kt_show_low_stock %}{{ settings.kt_low_stock_threshold | default: 0 }}{% else %}0{% endif %},
         a11yStrings: {
-          imageAvailable: {{ 'kt.product.media.image_available' | t: index: '[index]' | json }},
+          imageAvailable: {{ 'kt.product.media.image_available' | t: index: '[index]', total: '[total]' | json }},
           shareSuccess:   {{ 'kt.share.success_message' | t | json }},
         }
       });
