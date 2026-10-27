@@ -292,3 +292,8 @@ Açık: mağaza iletişim e-postası merihfindik@gmail.com (JSON-LD'de görünü
 - #9/#8, #25, #55, #56, #32, #69, #76, #65, #78, #79, #81: kontrol edildi, sorun yok.
 - #58: theme-check:recommended 0; theme-check:all 8 AssetSizeJavaScript (ham boyut >10 KB: kt-product-form 47 KB, product-gallery 20 KB, header/main-cart/gallery-stack 10.8–11.4 KB). Bilinçli olarak refactor yapılmadı.
 - Listing görselleri yeniden çekildi ("Book an appointment" eski haliydi). Not: kullanıcı submit için kendi hazırladığı listing görsellerini kullanıyor.
+
+### 27.10 son tur (PDF'e göre 83 madde baştan)
+- Yeni bulunan ve düzeltilen: #35 `layout/theme.liquid` görsel etiket metni `total` verilmeden çağrılıyordu → sayfa kaynağında "I18n Error: Missing interpolation value" (PR #100; tüm çeviri çağrıları tarandı, başka yok). #17 showroom "Studio" bölümünde "Book a studio visit" / "Book a one-to-one studio visit" → danışmanlık dili (demo_content.py, PR #100).
+- Canlı: #189451698390 "Kitchero". axe 0, W3C tema hatası 0, runtime 0, 5 tarayıcı temiz, theme-check recommended 0 (all: 8 AssetSizeJavaScript, bilinçli). Artık smoke teması silindi.
+- Açık: yalnız #77 Zoho DNS (Nedim).
