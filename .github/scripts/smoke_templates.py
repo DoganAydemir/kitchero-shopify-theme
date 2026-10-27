@@ -2,7 +2,7 @@
 using each section's first preset (what a merchant gets from "Add section").
 
 Writes:
-  templates/page.kt-smoke.json          general sections + page-only sections
+  templates/page.kt-smoke-<n>.json      general sections + page-only sections (25 per template)
   templates/product.kt-smoke.json       main-product + product-only sections
   templates/product.kt-smoke-showroom.json
   templates/collection.kt-smoke-<n>.json one per collection main section
@@ -79,8 +79,12 @@ def write(rel, sections):
 
 
 urls = []
-write('page.kt-smoke.json', page_only + general)
-urls.append(f'/pages/{page_handle}?view=kt-smoke')
+# Shopify allows at most 25 sections per JSON template.
+page_sections = page_only + general
+for i in range(0, len(page_sections), 25):
+    suffix = f'kt-smoke-{i // 25}'
+    write(f'page.{suffix}.json', page_sections[i:i + 25])
+    urls.append(f'/pages/{page_handle}?view={suffix}')
 main_product = [s for s in product_only if s[0] == 'main-product']
 showroom = [s for s in product_only if s[0] == 'main-product-showroom']
 others = [s for s in product_only if s[0] not in ('main-product', 'main-product-showroom')]
