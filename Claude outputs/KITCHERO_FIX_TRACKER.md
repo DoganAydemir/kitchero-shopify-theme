@@ -283,3 +283,12 @@ Açık: mağaza iletişim e-postası merihfindik@gmail.com (JSON-LD'de görünü
 - #43: "By Finish" (aynı 12 ürün) → "By Style": Island / Built-In / Shaker Kitchens akıllı koleksiyonları (demo_products.py, PR #92). Uygulama yetkisi write_publications eklendi (kitchero-lighthouse-ci-3).
 - #62: Galleries ve Sliders'ın ortak 3 caption'ı ayrıştırıldı (main + demo_content.py, PR #92).
 - Yayın: #189443801302 "Kitchero"; yedekler "Kitchero backup 2026-10-26" (#189391864022), "Kitchero backup 2026-10-25" (#189347594454). Eski önizleme cd95890 silindi. CI ID'leri PR #93.
+
+### 27.10 akşam: önceki oturuma güvenilen maddelerin bağımsız kontrolü
+- #6: gerçekten açıktı. Footer linki olmayan `your-privacy-choices` sayfasını arıyordu; Shopify'ın sayfası `/pages/data-sharing-opt-out`. Düzeltildi, yayında (PR #95).
+- #15/#30 (kurulum): ürün şablonundaki 3 sekme temiz kurulumda bloğun varsayılan "Use this space to share details…" metnini gösteriyordu (Description dahil). Description → `{{ product.description }}`, diğer ikisi boş/gizli (PR #98). Sistemli tarama: başka varsayılan yer tutucu yok.
+- #74: section smoke test Shopify'ın şablon başına 25 bölüm sınırına takılıyordu (test aracı hatası); 25'lik gruplara bölündü (PR #97), 91 bölüm hatasız.
+- #75: install test yeniden çalıştırıldı; boş mağazada 11 sayfa + deneme ürünüyle ürün/showroom sayfası temiz (Liquid hatası, eksik çeviri, yer tutucu yok; tek h1).
+- #9/#8, #25, #55, #56, #32, #69, #76, #65, #78, #79, #81: kontrol edildi, sorun yok.
+- #58: theme-check:recommended 0; theme-check:all 8 AssetSizeJavaScript (ham boyut >10 KB: kt-product-form 47 KB, product-gallery 20 KB, header/main-cart/gallery-stack 10.8–11.4 KB). Bilinçli olarak refactor yapılmadı.
+- Listing görselleri yeniden çekildi ("Book an appointment" eski haliydi). Not: kullanıcı submit için kendi hazırladığı listing görsellerini kullanıyor.
