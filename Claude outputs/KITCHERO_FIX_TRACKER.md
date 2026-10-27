@@ -275,3 +275,11 @@ Audit PDF'i canlı demo, `main` ve kurulum durumu üzerinde yeniden yürütüld�
 Yayın: önizleme #189391864022 → canlı "Kitchero"; eski canlı "Kitchero backup 2026-10-25" (#189347594454) draft. CI ID'leri PR #89.
 Canlı son ölçüm: axe 0, W3C tema hatası 0, runtime 0 bulgu, 5 tarayıcı temiz, Theme Check + Lighthouse geçti.
 Açık: mağaza iletişim e-postası merihfindik@gmail.com (JSON-LD'de görünüyor), Ice White Shaker ilk görseli "Bristol-Satin-Sleet-Aqua-Kitchen-…webp" (bayi dosyası olabilir, #80), #64/#77 Zoho, #6 gizlilik tercihleri bölgeye bağlı (Türkiye'den banner API yok; link gizlilik politikasına gidiyor), Sliders/Galleries sayfalarında 3 ortak caption, By Finish linkleri aynı 12 ürünü döndürüyor.
+
+### 27.10 devam
+- Mağaza iletişim e-postası `support@freemannyc.com` (JSON-LD'de doğrulandı; bildirim gönderen adresi zaten buydu).
+- #80: Ice White Shaker'ın bayi dosyası (Bristol-Satin-Sleet-Aqua-Kitchen-….webp) üründen ve Files'tan silindi; yerine AI ile üretilmiş düz panelli beyaz shaker kapak (`ice-white-shaker-door.png`) ilk görsel. Kategori: Cabinet Doors.
+- #64/#77: Zoho formu kontrol edildi (Kitchero varsayılan, Store URL + Email zorunlu, Plan/Priority yok, portal adı ve departman düzeltilmiş). Test talebi #2327 ile otomatik yanıt doğrulandı ("2 business days"), ancak Gmail'de spama düştü: freemannyc.com SPF kaydında `include:zoho.com` `~all`'dan sonra (geçersiz), Zoho Desk DKIM yok, DMARC p=quarantine. DNS düzeltmesi bekliyor.
+- #43: "By Finish" (aynı 12 ürün) → "By Style": Island / Built-In / Shaker Kitchens akıllı koleksiyonları (demo_products.py, PR #92). Uygulama yetkisi write_publications eklendi (kitchero-lighthouse-ci-3).
+- #62: Galleries ve Sliders'ın ortak 3 caption'ı ayrıştırıldı (main + demo_content.py, PR #92).
+- Yayın: #189443801302 "Kitchero"; yedekler "Kitchero backup 2026-10-26" (#189391864022), "Kitchero backup 2026-10-25" (#189347594454). Eski önizleme cd95890 silindi. CI ID'leri PR #93.
