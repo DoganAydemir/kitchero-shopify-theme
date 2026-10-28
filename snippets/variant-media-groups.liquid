@@ -1,0 +1,61 @@
+{%- comment -%}
+  variant-media-groups: which product media to show for the selected
+  variant. Each variant's featured media starts a group; the media after
+  it, up to the next variant's featured media, belong to that group.
+  Media placed before the first variant image are shared and always
+  shown. When the selected variant has no featured media, or `enabled`
+  is false, every media item is shown.
+
+  Output: "<visible indexes>|<visible image indexes>", 0-based indexes
+  into product.media, comma separated. Capture it and split.
+
+  @param product {product} - Product
+  @param enabled {boolean} - Grouping on/off
+{%- endcomment -%}
+{%- liquid
+  assign kt_sel_variant = product.selected_or_first_available_variant
+  assign kt_anchor_list = ''
+  if enabled
+    for kt_v in product.variants
+      if kt_v.featured_media
+        assign kt_anchor_key = kt_v.featured_media.position | prepend: '0000' | slice: -4, 4
+        assign kt_anchor_list = kt_anchor_list | append: kt_anchor_key | append: ','
+      endif
+    endfor
+  endif
+  assign kt_anchors = kt_anchor_list | split: ',' | uniq | sort
+  assign kt_first_anchor = 0
+  assign kt_sel_start = 0
+  assign kt_sel_end = 0
+  if kt_anchors.size > 0 and kt_sel_variant.featured_media
+    assign kt_first_anchor = kt_anchors.first | plus: 0
+    assign kt_sel_start = kt_sel_variant.featured_media.position
+    assign kt_sel_end = product.media.size
+    for kt_a in kt_anchors
+      assign kt_a_num = kt_a | plus: 0
+      if kt_a_num > kt_sel_start
+        assign kt_sel_end = kt_a_num | minus: 1
+        break
+      endif
+    endfor
+  endif
+  assign kt_visible_list = ''
+  assign kt_image_list = ''
+  for media in product.media
+    assign kt_show = true
+    if kt_sel_start > 0 and media.position >= kt_first_anchor
+      if media.position < kt_sel_start or media.position > kt_sel_end
+        assign kt_show = false
+      endif
+    endif
+    if kt_show
+      assign kt_visible_list = kt_visible_list | append: forloop.index0 | append: ','
+      if media.media_type == 'image'
+        assign kt_image_list = kt_image_list | append: forloop.index0 | append: ','
+      endif
+    endif
+  endfor
+  echo kt_visible_list
+  echo '|'
+  echo kt_image_list
+-%}
