@@ -186,6 +186,9 @@
     if (e.key !== ' ' && e.key !== 'Spacebar') return;
     var trigger = e.target && e.target.closest && e.target.closest('.kt-header__menu-item > [data-flyout-trigger]');
     if (!trigger) return;
+    // A <button> already turns Space into a click (handled above); toggling
+    // here as well opened and immediately closed the menu.
+    if (trigger.tagName === 'BUTTON') return;
     var item = trigger.closest('.kt-header__menu-item');
     if (!item || !item.querySelector('.kt-header__mega-menu, .kt-header__flyout')) return;
     e.preventDefault();
