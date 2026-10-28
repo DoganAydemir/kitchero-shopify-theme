@@ -49,9 +49,9 @@ jobs:
         run: |
           for role in unpublished development; do
             shopify theme list --role "$role" --json
-          done | jq -s 'add // []' > themes.json
+          done | jq -s '[flatten[] | select(type == "object")]' > themes.json
           if [ -n "$NAME_PREFIX" ]; then
-            jq --arg p "$NAME_PREFIX" '[.[] | select(.role == "unpublished" and (.name | startswith($p)))]' themes.json > filtered.json
+            jq --arg p "$NAME_PREFIX" '[flatten[] | select(type == "object" and .role == "unpublished" and (.name | startswith($p)))]' themes.json > filtered.json
             mv filtered.json themes.json
           fi
           echo "Themes to delete: $(jq length themes.json)" | tee -a "$GITHUB_STEP_SUMMARY"
