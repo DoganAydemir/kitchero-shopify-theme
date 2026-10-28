@@ -32,7 +32,7 @@ for item in files:
     if item.endswith('.md') and item != 'release-notes.md':
         problems.append(f'markdown file {item}')
     if re.search(r'(^|/)\.|\.zip$|node_modules|\.map$', item):
-        problems.append(f'dev artefact {item}')
+        problems.append(f'dev artifact {item}')
 
 zf = zipfile.ZipFile(path)
 for item in files:
