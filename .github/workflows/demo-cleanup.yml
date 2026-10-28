@@ -60,11 +60,10 @@ jobs:
             mv filtered.json themes.json
           fi
           if [ -n "$THEME_IDS" ]; then
-            shopify theme list --role unpublished > unpublished.txt
+            live=$(shopify theme list --role live --json | jq -r '[.. | objects | select(has("id")) | .id] | .[]' | head -1)
             : > themes.tsv
             for id in $THEME_IDS; do
-              line=$(grep -E "#$id\b" unpublished.txt || true)
-              if [ -n "$line" ]; then printf '%s\t%s\n' "$id" "$(echo "$line" | sed 's/│//g; s/ \[unpublished\].*//; s/^ *//')" >> themes.tsv; else echo "skip $id (not an unpublished theme)"; fi
+              if [ "$id" = "$live" ]; then echo "skip $id (live)"; else printf '%s\t%s\n' "$id" "requested" >> themes.tsv; fi
             done
             echo "Themes to delete: $(wc -l < themes.tsv)" | tee -a "$GITHUB_STEP_SUMMARY"
             while IFS=$'\t' read -r id name; do
