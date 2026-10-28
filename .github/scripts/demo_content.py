@@ -424,6 +424,26 @@ for rel in ('templates/product.json', 'templates/product.showroom.json'):
         for block_id, (title, description) in zip(section.get('block_order', []), FEATURES):
             apply(rel, section_id, block_id, {'title': title, 'description': description})
 
+# The description shows once (audit #63): when the product section has a
+# description block, drop collapsible tabs whose content is the description.
+for rel in ('templates/product.json', 'templates/product.showroom.json'):
+    entry = doc(rel)
+    if not entry:
+        continue
+    for section in entry[1].get('sections', {}).values():
+        if section.get('type') not in ('main-product', 'main-product-showroom'):
+            continue
+        blocks = section.get('blocks', {})
+        if not any(b.get('type') == 'description' and not b.get('disabled') for b in blocks.values()):
+            continue
+        dupes = [bid for bid, b in blocks.items() if b.get('type') == 'accordion'
+                 and 'product.description' in str(b.get('settings', {}).get('content', ''))]
+        for bid in dupes:
+            blocks.pop(bid)
+            section['block_order'] = [x for x in section.get('block_order', []) if x != bid]
+            entry[2] = True
+            print('removed duplicate description tab', rel, bid)
+
 # Default collection page shows the collection description (audit #22)
 entry = doc('templates/collection.json')
 if entry:
