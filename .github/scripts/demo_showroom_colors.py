@@ -23,6 +23,8 @@ CABINET_SETS = ['custom-kitchen-cabinet-set', 'luxury-kitchen-cabinet-design', '
                 'designer-kitchen-cabinet-collection', 'built-in-kitchen-cabinet-set', 'signature-built-in-kitchen-set',
                 'elegant-custom-kitchen-cabinets', 'contemporary-cabinet-kitchen-set', 'designer-built-in-cabinet-set',
                 'custom-kitchen-storage-collection', 'designer-kitchen-cabinet-set', DEMO]
+ALT = 'Shaker island kitchen with {color} cabinets, view {i}'
+OLD_ALT_PREFIX = 'Ivory Shaker Island Kitchen in '
 OLD_SENTENCE = 'Choose black, beige, or bronze hardware.'
 NEW_SENTENCE = 'Choose ivory, navy, or charcoal cabinets with black, beige, or bronze hardware.'
 
@@ -83,6 +85,17 @@ if 'Color' not in names or not APPLY:
 
 # media groups: own photos first (Ivory), then each source product's images
 p = product(DEMO) if APPLY else p
+renames = []
+for m in p['media']['nodes']:
+    if (m['alt'] or '').startswith(OLD_ALT_PREFIX):
+        color, view = m['alt'][len(OLD_ALT_PREFIX):].split(', view ')
+        renames.append({'id': m['id'], 'alt': ALT.format(color=color, i=view)})
+print(f'- photo alt texts to fix: {len(renames)}')
+if APPLY and renames:
+    r = gql('''mutation($p: ID!, $m: [UpdateMediaInput!]!) { productUpdateMedia(productId: $p, media: $m) {
+        mediaUserErrors { field message } } }''', {'p': p['id'], 'm': renames})
+    errors(r, 'productUpdateMedia', 'mediaUserErrors')
+    p = product(DEMO)
 own_alts = {m['alt'] for m in p['media']['nodes']}
 to_add = []
 for color, source in COLORS:
@@ -90,7 +103,7 @@ for color, source in COLORS:
         continue
     src = product(source)
     for i, m in enumerate([m for m in src['media']['nodes'] if m['mediaContentType'] == 'IMAGE'], 1):
-        alt = f'{p["title"]} in {color.lower()}, view {i}'
+        alt = ALT.format(color=color.lower(), i=i)
         if alt not in own_alts:
             to_add.append({'originalSource': m['image']['url'], 'alt': alt, 'mediaContentType': 'IMAGE'})
 print(f'- photos to add: {len(to_add)}')
@@ -112,7 +125,7 @@ for color, source in COLORS:
     if source is None:
         first_for[color] = media[0]['id'] if media else None
     else:
-        m = next((m for m in media if m['alt'] == f'{p["title"]} in {color.lower()}, view 1'), None)
+        m = next((m for m in media if m['alt'] == ALT.format(color=color.lower(), i=1)), None)
         first_for[color] = m['id'] if m else None
 fills = []
 for v in p['variants']['nodes']:
