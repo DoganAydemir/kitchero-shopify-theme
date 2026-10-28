@@ -30,91 +30,96 @@
     <div class="kt-showroom__layout">
 
       {%- comment -%} LEFT: Gallery — alternating full + pair pattern (73%) {%- endcomment -%}
-      <div class="kt-showroom__gallery-col" data-product-gallery>
-        {%- comment -%} Desktop: alternating layout (full, pair, full, pair...) {%- endcomment -%}
-        <div class="kt-showroom__gallery-desktop">
-          {%- for media in product.media -%}
-            {%- if media.media_type == 'image' -%}
-              {%- assign pattern_pos = forloop.index0 | modulo: 3 -%}
-              {%- comment -%}
-                LCP eager hint: the first rendered image — whether it
-                lands in the full-width branch (pattern_pos 0) or the
-                pair branch (pattern_pos 1, e.g. when image 0 was a
-                video) — must load eagerly with `fetchpriority: 'high'`
-                so PDP LCP scores. All other images stay lazy.
-              {%- endcomment -%}
-              {%- if forloop.first -%}
-                {%- assign img_loading = 'eager' -%}
-                {%- assign img_fetchpriority = 'high' -%}
-              {%- else -%}
-                {%- assign img_loading = 'lazy' -%}
-                {%- assign img_fetchpriority = 'auto' -%}
-              {%- endif -%}
-              {%- if pattern_pos == 0 -%}
-                {%- comment -%}
-                  Full width image. `data-media-type="image"` is the
-                  signal `assets/product-gallery.js` uses to gate the
-                  click → lightbox handler (video / 3D-model slides
-                  skip the lightbox because the lightbox only knows
-                  how to render an `<img>`). Without this attribute
-                  the click handler short-circuits with the dataset
-                  check at line 208 of product-gallery.js and the
-                  showroom slides silently no-op on click.
+        {%- comment -%}
+          Variant media groups ("Show selected variant's media" setting),
+          see snippets/variant-media-groups.liquid.
+        {%- endcomment -%}
+        {%- capture kt_media_groups -%}{%- render 'variant-media-groups', product: product, enabled: section.settings.group_variant_media -%}{%- endcapture -%}
+        {%- liquid
+          assign kt_sel_variant = product.selected_or_first_available_variant
+          assign kt_media_parts = kt_media_groups | strip | split: '|'
+          assign kt_visible_idx = kt_media_parts[0] | split: ','
+          assign kt_image_idx = kt_media_parts[1] | split: ','
+        -%}
 
-                  `tabindex="0"` + `role="button"` give keyboard users
-                  an Enter / Space activation path matching the click
-                  behavior. The shared keydown listener checks both
-                  attributes when firing `openFromSlide`.
-                {%- endcomment -%}
+      <div class="kt-showroom__gallery-col" data-product-gallery{% if section.settings.group_variant_media %} data-variant-media-groups data-selected-media="{{ kt_sel_variant.featured_media.id }}"{% endif %}>
+
+        {%- comment -%} Desktop: alternating layout (full, pair, full, pair...) over the visible images {%- endcomment -%}
+        <div class="kt-showroom__gallery-desktop">
+          {%- for kt_idx_str in kt_image_idx -%}
+            {%- assign kt_idx = kt_idx_str | plus: 0 -%}
+            {%- assign media = product.media[kt_idx] -%}
+            {%- assign kt_slide = forloop.index0 -%}
+            {%- assign pattern_pos = kt_slide | modulo: 3 -%}
+            {%- comment -%}
+              LCP eager hint: the first rendered image loads eagerly with
+              `fetchpriority: 'high'` so PDP LCP scores. All other images stay lazy.
+            {%- endcomment -%}
+            {%- if forloop.first -%}
+              {%- assign img_loading = 'eager' -%}
+              {%- assign img_fetchpriority = 'high' -%}
+            {%- else -%}
+              {%- assign img_loading = 'lazy' -%}
+              {%- assign img_fetchpriority = 'auto' -%}
+            {%- endif -%}
+            {%- if pattern_pos == 0 -%}
+              {%- comment -%}
+                Full width image. `data-media-type="image"` is the signal
+                `assets/product-gallery.js` uses to gate the click → lightbox
+                handler. `tabindex`/button semantics give keyboard users an
+                Enter / Space activation path.
+              {%- endcomment -%}
+              <button
+                type="button"
+                class="kt-showroom__gallery-full"
+                data-gallery-slide="{{ kt_slide }}"
+                data-media-id="{{ media.id }}"
+                data-media-type="image"
+                aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
+              >
+                {%- assign media_alt = media.alt | default: product.title -%}
+                {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
+              </button>
+            {%- elsif pattern_pos == 1 -%}
+              {%- comment -%} Left of pair {%- endcomment -%}
+              <div class="kt-showroom__gallery-pair">
                 <button
                   type="button"
-                  class="kt-showroom__gallery-full"
-                  data-gallery-slide="{{ forloop.index0 }}"
+                  class="kt-showroom__gallery-half"
+                  data-gallery-slide="{{ kt_slide }}"
                   data-media-id="{{ media.id }}"
                   data-media-type="image"
                   aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
                 >
                   {%- assign media_alt = media.alt | default: product.title -%}
-                  {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
+                  {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
                 </button>
-              {%- elsif pattern_pos == 1 -%}
-                {%- comment -%} Left of pair {%- endcomment -%}
-                <div class="kt-showroom__gallery-pair">
+                {%- comment -%} Right of pair (next visible image) {%- endcomment -%}
+                {%- assign kt_next_slide = forloop.index -%}
+                {%- if kt_image_idx[kt_next_slide] -%}
+                  {%- assign kt_next_idx = kt_image_idx[kt_next_slide] | plus: 0 -%}
+                  {%- assign next_media = product.media[kt_next_idx] -%}
+                  {%- assign next_image_number = kt_next_slide | plus: 1 -%}
                   <button
                     type="button"
                     class="kt-showroom__gallery-half"
-                    data-gallery-slide="{{ forloop.index0 }}"
-                    data-media-id="{{ media.id }}"
+                    data-gallery-slide="{{ kt_next_slide }}"
+                    data-media-id="{{ next_media.id }}"
                     data-media-type="image"
-                    aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
+                    aria-label="{{ 'kt.product.media.image_larger' | t: index: next_image_number }}"
                   >
-                    {%- assign media_alt = media.alt | default: product.title -%}
-                    {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '375, 550, 800', sizes: '36vw', width: media.width, height: media.height, alt: media_alt }}
+                    {%- assign next_alt = next_media.alt | default: product.title -%}
+                    {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
                   </button>
-                  {%- comment -%} Right of pair (next image) {%- endcomment -%}
-                  {%- assign next_index = forloop.index -%}
-                  {%- if product.media[next_index] and product.media[next_index].media_type == 'image' -%}
-                    {%- assign next_media = product.media[next_index] -%}
-                    {%- assign next_image_number = next_index | plus: 1 -%}
-                    <button
-                      type="button"
-                      class="kt-showroom__gallery-half"
-                      data-gallery-slide="{{ next_index }}"
-                      data-media-id="{{ next_media.id }}"
-                      data-media-type="image"
-                      aria-label="{{ 'kt.product.media.image_larger' | t: index: next_image_number }}"
-                    >
-                      {%- assign next_alt = next_media.alt | default: product.title -%}
-                      {{ next_media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: 'lazy', widths: '375, 550, 800', sizes: '36vw', width: next_media.width, height: next_media.height, alt: next_alt }}
-                    </button>
-                  {%- endif -%}
-                </div>
-              {%- endif -%}
-              {%- comment -%} pattern_pos == 2 is handled as right side of pair above {%- endcomment -%}
+                {%- endif -%}
+              </div>
             {%- endif -%}
+            {%- comment -%} pattern_pos == 2 is rendered as the right side of the pair above {%- endcomment -%}
           {%- endfor -%}
 
-          {%- for media in product.media -%}
+          {%- for kt_idx_str in kt_visible_idx -%}
+            {%- assign kt_idx = kt_idx_str | plus: 0 -%}
+            {%- assign media = product.media[kt_idx] -%}
             {%- assign media_alt = media.alt | default: product.title -%}
             {%- case media.media_type -%}
               {%- when 'video' -%}
@@ -158,7 +163,10 @@
         {%- comment -%} Mobile: horizontal scroll carousel — slides also tag
           data-gallery-slide so the shared product-gallery.js lightbox works. {%- endcomment -%}
         <div class="kt-showroom__gallery-mobile">
-          {%- for media in product.media -%}
+          {%- assign kt_mob_slide = 0 -%}
+          {%- for kt_idx_str in kt_visible_idx -%}
+            {%- assign kt_idx = kt_idx_str | plus: 0 -%}
+            {%- assign media = product.media[kt_idx] -%}
             {%- if forloop.first -%}
               {%- assign mob_loading = 'eager' -%}
               {%- assign mob_fetchpriority = 'auto' -%}
@@ -172,18 +180,19 @@
                 <button
                   type="button"
                   class="kt-showroom__gallery-mobile-slide"
-                  data-gallery-slide="{{ forloop.index0 }}"
+                  data-gallery-slide="{{ kt_mob_slide }}"
                   data-media-type="image"
                   aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
                 >
                   {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
-                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ kt_visible_idx.size }}</span>
                 </button>
+                {%- assign kt_mob_slide = kt_mob_slide | plus: 1 -%}
               {%- when 'video' -%}
                 <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="video">
                   {%- assign video_poster_url = media.preview_image | image_url: width: 800 -%}
                   {%- render 'video-element', video: media, class: 'kt-showroom__gallery-video', poster: video_poster_url, title: media_alt -%}
-                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ kt_visible_idx.size }}</span>
                 </div>
               {%- when 'external_video' -%}
                 <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="external_video">
@@ -194,7 +203,7 @@
                       loading: 'lazy',
                       title: media_alt
                   }}
-                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ kt_visible_idx.size }}</span>
                 </div>
               {%- when 'model' -%}
                 <div class="kt-showroom__gallery-mobile-slide kt-showroom__gallery-mobile-slide--media" data-media-type="model">
@@ -208,7 +217,7 @@
                         class: 'kt-showroom__gallery-model-viewer'
                     }}
                   </product-model>
-                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ product.media.size }}</span>
+                  <span class="kt-showroom__gallery-counter">{{ forloop.index }} / {{ kt_visible_idx.size }}</span>
                 </div>
             {%- endcase -%}
           {%- endfor -%}
@@ -698,6 +707,9 @@
 {%- endif -%}
 
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
+{%- if section.settings.group_variant_media -%}
+  <script src="{{ 'kt-showroom-variant-media.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {%- assign has_3d_model = false -%}
 {%- for media in product.media -%}
@@ -719,6 +731,13 @@
     {
       "type": "paragraph",
       "content": "t:sections.main-product-showroom.settings.paragraph__door_sample.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "group_variant_media",
+      "label": "t:sections.main-product-showroom.settings.group_variant_media.label",
+      "info": "t:sections.main-product-showroom.settings.group_variant_media.info",
+      "default": true
     }
   ],
   "blocks": [

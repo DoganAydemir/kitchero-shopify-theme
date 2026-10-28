@@ -541,6 +541,14 @@
     destroyers[id] = initGallery(e.target);
   });
 
+  // Fired after a gallery is re-rendered in place (for example the
+  // showroom variant media groups).
+  document.addEventListener('kt:gallery:refresh', function (e) {
+    var id = e.target.id || 'gallery';
+    if (destroyers[id]) destroyers[id]();
+    destroyers[id] = initGallery(e.target);
+  });
+
   document.addEventListener('shopify:section:unload', function (e) {
     var id = e.target.id;
     if (destroyers[id]) destroyers[id]();
