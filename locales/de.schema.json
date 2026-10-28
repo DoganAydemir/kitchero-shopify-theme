@@ -436,7 +436,7 @@
       "name": "Produktdaten",
       "settings": {
         "intro": {
-          "content": "Verbinden Sie optionale Produktfunktionen mit Ihren eigenen Metafeldern. Geben Sie Namespace und Schlüssel ein, z. B. custom.deal_ends_at. Leer lassen, um die Funktion auszuschalten."
+          "content": "Produktkarten, Kollektionsseiten und Suchergebnisse lesen diese Metafelder. Gib einen Namespace und Schlüssel wie custom.deal_ends_at ein oder lass ein Feld leer, um die Funktion auszuschalten. Auf der Produktseite verbindest du Metafelder direkt in den Blöcken Countdown, Tags und Produktdetails über die Schaltfläche für dynamische Quellen."
         },
         "kt_mf_deal_end": {
           "label": "Metafeld für Angebotsende",
@@ -659,23 +659,43 @@
           "label": "Farbschema des Mobilmenüs",
           "info": "Farbschema für die mobile Menü-Schublade. Standard ist ein dunkles Schema für einen filmischen Look."
         },
-        "header__layout": { "content": "Layout" },
+        "header__layout": {
+          "content": "Layout"
+        },
         "logo_position": {
           "label": "Logo-Position",
-          "options__left": { "label": "Links" },
-          "options__center": { "label": "Mitte" }
+          "options__left": {
+            "label": "Links"
+          },
+          "options__center": {
+            "label": "Mitte"
+          }
         },
         "desktop_nav_alignment": {
           "label": "Desktop-Navigationsausrichtung",
           "info": "Mobil behält das Standard-Layout Logo links bei.",
-          "options__center": { "label": "Mitte" },
-          "options__right": { "label": "Rechts" }
+          "options__center": {
+            "label": "Mitte"
+          },
+          "options__right": {
+            "label": "Rechts"
+          }
         },
-        "padding_top": { "label": "Padding oben" },
-        "padding_bottom": { "label": "Padding unten" },
-        "header__icons": { "content": "Aktions-Icons" },
-        "show_search_icon": { "label": "Suchsymbol anzeigen" },
-        "show_account_icon": { "label": "Konto-Symbol anzeigen" },
+        "padding_top": {
+          "label": "Padding oben"
+        },
+        "padding_bottom": {
+          "label": "Padding unten"
+        },
+        "header__icons": {
+          "content": "Aktions-Icons"
+        },
+        "show_search_icon": {
+          "label": "Suchsymbol anzeigen"
+        },
+        "show_account_icon": {
+          "label": "Konto-Symbol anzeigen"
+        },
         "show_cart_icon": {
           "label": "Warenkorb-Symbol anzeigen",
           "info": "Blenden Sie den Warenkorb nur aus, wenn Ihr Shop keine Onlinebestellungen annimmt."
@@ -1927,9 +1947,15 @@
         "bottom_heading_tag": {
           "label": "Tag der Überschrift",
           "info": "H1 nur verwenden, wenn die Seite kein anderes H1 hat.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "bottom_description": {
           "label": "Beschreibung"
@@ -2086,9 +2112,15 @@
         "showrooms_heading_tag": {
           "label": "Tag der Standorte-Überschrift",
           "info": "H1 nur verwenden, wenn die Seite kein anderes H1 hat.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "header__contact_form": {
           "content": "Kontaktformular"
@@ -2105,9 +2137,15 @@
         "form_heading_tag": {
           "label": "Tag der Formular-Überschrift",
           "info": "H1 nur verwenden, wenn die Seite kein anderes H1 hat.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "form_description": {
           "label": "Formular-Beschreibung"
@@ -2271,7 +2309,7 @@
         },
         "countdown": {
           "name": "Countdown",
-          "info": "Wird nur angezeigt, wenn das Produkt ein Enddatum gesetzt hat.",
+          "info": "Wird angezeigt, wenn ein Angebotsende festgelegt ist, entweder in diesem Block oder unter Theme-Einstellungen > Produktdaten.",
           "settings": {
             "label": {
               "label": "Label über dem Timer"
@@ -2281,6 +2319,10 @@
             },
             "ending_label": {
               "label": "Ende-Label"
+            },
+            "ends_at": {
+              "label": "Angebotsende",
+              "info": "Verbinde ein Datum-und-Uhrzeit-Metafeld über die Schaltfläche für dynamische Quellen. Wenn leer, gelten die Theme-Einstellungen > Produktdaten."
             }
           }
         },
@@ -2357,20 +2399,59 @@
             "info": "Zeigt Produktdaten aus dem Shopify-Admin wie SKU, Barcode, Gewicht, Anbieter und Typ. Leere Felder werden ausgeblendet.",
             "header_fields": "Anzuzeigende Felder",
             "header_layout": "Anzeige",
-            "show_sku": { "label": "SKU", "info": "Wird aus dem SKU-Feld der ausgewählten Variante gezogen." },
-            "show_barcode": { "label": "Barcode", "info": "Wird aus dem Barcode-Feld der Variante gezogen (ISBN, UPC, GTIN usw.)." },
-            "show_weight": { "label": "Gewicht", "info": "Wird aus dem Gewichtsfeld der Variante gezogen. Verborgen bei 0 oder leer. Respektiert die Gewichtseinheit des Shops (kg / g / lb / oz)." },
-            "show_dimensions": { "label": "Paketabmessungen", "info": "Nutzt die unter Theme-Einstellungen > Produktdaten gewählten Metafelder für Länge, Breite, Höhe und Einheit." },
-            "show_vendor": { "label": "Marke / Anbieter" },
-            "show_type": { "label": "Produkttyp" },
-            "show_origin": { "label": "Herkunftsland", "info": "Nutzt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für das Herkunftsland." },
-            "show_tags": { "label": "Tags", "info": "Tags, die mit _ beginnen, werden ausgeblendet." },
+            "show_sku": {
+              "label": "SKU",
+              "info": "Wird aus dem SKU-Feld der ausgewählten Variante gezogen."
+            },
+            "show_barcode": {
+              "label": "Barcode",
+              "info": "Wird aus dem Barcode-Feld der Variante gezogen (ISBN, UPC, GTIN usw.)."
+            },
+            "show_weight": {
+              "label": "Gewicht",
+              "info": "Wird aus dem Gewichtsfeld der Variante gezogen. Verborgen bei 0 oder leer. Respektiert die Gewichtseinheit des Shops (kg / g / lb / oz)."
+            },
+            "show_dimensions": {
+              "label": "Paketabmessungen",
+              "info": "Nutzt Länge, Breite, Höhe und Einheit aus den Datenquellen unten oder aus Theme-Einstellungen > Produktdaten."
+            },
+            "show_vendor": {
+              "label": "Marke / Anbieter"
+            },
+            "show_type": {
+              "label": "Produkttyp"
+            },
+            "show_origin": {
+              "label": "Herkunftsland",
+              "info": "Nutzt das Herkunftsland aus den Datenquellen unten oder aus Theme-Einstellungen > Produktdaten."
+            },
+            "show_tags": {
+              "label": "Tags",
+              "info": "Tags, die mit _ beginnen, werden ausgeblendet."
+            },
             "layout": {
               "label": "Layout",
               "options": {
                 "inline": "Inline (Label links, Wert rechts)",
                 "stack": "Gestapelt (Label über Wert)"
               }
+            },
+            "header_sources": "Datenquellen",
+            "sources_info": "Verbinde Metafelder über die Schaltfläche für dynamische Quellen. Leere Felder nutzen die Theme-Einstellungen > Produktdaten.",
+            "origin": {
+              "label": "Herkunftsland"
+            },
+            "length": {
+              "label": "Länge"
+            },
+            "width": {
+              "label": "Breite"
+            },
+            "height": {
+              "label": "Höhe"
+            },
+            "dimension_unit": {
+              "label": "Maßeinheit"
             }
           }
         },
@@ -2396,7 +2477,11 @@
         "tags": {
           "name": "Tags",
           "settings": {
-            "info": "Zeigt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für Merkmale. Sonst werden die Produkt-Tags angezeigt."
+            "info": "Zeigt das unter Theme-Einstellungen > Produktdaten gewählte Metafeld für Merkmale. Sonst werden die Produkt-Tags angezeigt.",
+            "features": {
+              "label": "Merkmalsliste",
+              "info": "Verbinde ein Metafeld vom Typ Liste einzeiliger Text oder gib Merkmale durch Kommas getrennt ein. Wenn leer, gelten die Theme-Einstellungen > Produktdaten, danach die Produkt-Tags."
+            }
           }
         },
         "trust_badges": {
@@ -2676,19 +2761,43 @@
         "trust_badges": {
           "name": "Vertrauens-Badges",
           "settings": {
-            "badge_1_icon": { "label": "Badge 1 — Icon" },
-            "badge_1_text": { "label": "Badge 1 — Text" },
-            "badge_2_icon": { "label": "Badge 2 — Icon" },
-            "badge_2_text": { "label": "Badge 2 — Text" },
-            "badge_3_icon": { "label": "Badge 3 — Icon" },
-            "badge_3_text": { "label": "Badge 3 — Text" },
-            "badge_4_icon": { "label": "Badge 4 — Icon" },
-            "badge_4_text": { "label": "Badge 4 — Text" },
+            "badge_1_icon": {
+              "label": "Badge 1 — Icon"
+            },
+            "badge_1_text": {
+              "label": "Badge 1 — Text"
+            },
+            "badge_2_icon": {
+              "label": "Badge 2 — Icon"
+            },
+            "badge_2_text": {
+              "label": "Badge 2 — Text"
+            },
+            "badge_3_icon": {
+              "label": "Badge 3 — Icon"
+            },
+            "badge_3_text": {
+              "label": "Badge 3 — Text"
+            },
+            "badge_4_icon": {
+              "label": "Badge 4 — Icon"
+            },
+            "badge_4_text": {
+              "label": "Badge 4 — Text"
+            },
             "badge_icon": {
-              "options__1": { "label": "Versand" },
-              "options__2": { "label": "Rücksendungen" },
-              "options__3": { "label": "Garantie" },
-              "options__4": { "label": "Paket" }
+              "options__1": {
+                "label": "Versand"
+              },
+              "options__2": {
+                "label": "Rücksendungen"
+              },
+              "options__3": {
+                "label": "Garantie"
+              },
+              "options__4": {
+                "label": "Paket"
+              }
             }
           }
         },
@@ -2698,7 +2807,9 @@
             "paragraph": {
               "content": "Zeigt ergänzende Produkte aus der App Shopify Search & Discovery. Ohne Treffer ausgeblendet."
             },
-            "heading": { "label": "Überschrift" },
+            "heading": {
+              "label": "Überschrift"
+            },
             "products_count": {
               "label": "Maximale anzuzeigende Produkte",
               "info": "Kompaktes Kartenlayout fasst 1–4 Produkte in die PDP-Infospalte, ohne überzulaufen."
@@ -2716,8 +2827,12 @@
             },
             "primary_cta_action": {
               "label": "Aktion des primären Buttons",
-              "options__1": { "label": "Lead-Formular öffnen (Beratungs-Drawer)" },
-              "options__2": { "label": "Zu einer eigenen URL gehen" }
+              "options__1": {
+                "label": "Lead-Formular öffnen (Beratungs-Drawer)"
+              },
+              "options__2": {
+                "label": "Zu einer eigenen URL gehen"
+              }
             },
             "primary_cta_link": {
               "label": "URL des primären Buttons",
@@ -2739,14 +2854,30 @@
               "label": "Symbol"
             },
             "icon": {
-              "options__1": { "label": "Kalender" },
-              "options__2": { "label": "Uhr" },
-              "options__3": { "label": "Telefon" },
-              "options__4": { "label": "E-Mail" },
-              "options__5": { "label": "Chat" },
-              "options__6": { "label": "Pfeil" },
-              "options__7": { "label": "Häkchen" },
-              "options__8": { "label": "Funkeln" }
+              "options__1": {
+                "label": "Kalender"
+              },
+              "options__2": {
+                "label": "Uhr"
+              },
+              "options__3": {
+                "label": "Telefon"
+              },
+              "options__4": {
+                "label": "E-Mail"
+              },
+              "options__5": {
+                "label": "Chat"
+              },
+              "options__6": {
+                "label": "Pfeil"
+              },
+              "options__7": {
+                "label": "Häkchen"
+              },
+              "options__8": {
+                "label": "Funkeln"
+              }
             },
             "secondary_cta_text": {
               "label": "Sekundärer Button-Text"
@@ -3066,37 +3197,89 @@
     "main-collection-drawer": {
       "name": "Kollektion — Schublade",
       "settings": {
-        "products_per_page": { "label": "Produkte pro Seite" },
-        "header__grid": { "content": "Raster" },
-        "cols_desktop": { "label": "Spalten auf Desktop" },
-        "cols_mobile": { "label": "Spalten auf Mobil" },
-        "show_secondary_image": { "label": "Zweites Bild beim Hover zeigen" },
-        "show_quote_button": { "label": "\"Details ansehen\"-Button anzeigen" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Kollektionsbeschreibung anzeigen" },
-        "header__spacing": { "content": "Abstand" },
-        "padding_top": { "label": "Padding oben" },
-        "padding_bottom": { "label": "Padding unten" },
-        "header__color": { "content": "Farbe" },
-        "color_scheme": { "label": "Farbschema" }
+        "products_per_page": {
+          "label": "Produkte pro Seite"
+        },
+        "header__grid": {
+          "content": "Raster"
+        },
+        "cols_desktop": {
+          "label": "Spalten auf Desktop"
+        },
+        "cols_mobile": {
+          "label": "Spalten auf Mobil"
+        },
+        "show_secondary_image": {
+          "label": "Zweites Bild beim Hover zeigen"
+        },
+        "show_quote_button": {
+          "label": "\"Details ansehen\"-Button anzeigen"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Kollektionsbeschreibung anzeigen"
+        },
+        "header__spacing": {
+          "content": "Abstand"
+        },
+        "padding_top": {
+          "label": "Padding oben"
+        },
+        "padding_bottom": {
+          "label": "Padding unten"
+        },
+        "header__color": {
+          "content": "Farbe"
+        },
+        "color_scheme": {
+          "label": "Farbschema"
+        }
       }
     },
     "main-collection-vertical": {
       "name": "Kollektion — Seitenleiste",
       "settings": {
-        "products_per_page": { "label": "Produkte pro Seite" },
-        "header__grid": { "content": "Raster" },
-        "cols_desktop": { "label": "Spalten auf Desktop" },
-        "cols_mobile": { "label": "Spalten auf Mobil" },
-        "show_secondary_image": { "label": "Zweites Bild beim Hover zeigen" },
-        "show_quote_button": { "label": "\"Details ansehen\"-Button anzeigen" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Kollektionsbeschreibung anzeigen" },
-        "header__spacing": { "content": "Abstand" },
-        "padding_top": { "label": "Padding oben" },
-        "padding_bottom": { "label": "Padding unten" },
-        "header__color": { "content": "Farbe" },
-        "color_scheme": { "label": "Farbschema" }
+        "products_per_page": {
+          "label": "Produkte pro Seite"
+        },
+        "header__grid": {
+          "content": "Raster"
+        },
+        "cols_desktop": {
+          "label": "Spalten auf Desktop"
+        },
+        "cols_mobile": {
+          "label": "Spalten auf Mobil"
+        },
+        "show_secondary_image": {
+          "label": "Zweites Bild beim Hover zeigen"
+        },
+        "show_quote_button": {
+          "label": "\"Details ansehen\"-Button anzeigen"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Kollektionsbeschreibung anzeigen"
+        },
+        "header__spacing": {
+          "content": "Abstand"
+        },
+        "padding_top": {
+          "label": "Padding oben"
+        },
+        "padding_bottom": {
+          "label": "Padding unten"
+        },
+        "header__color": {
+          "content": "Farbe"
+        },
+        "color_scheme": {
+          "label": "Farbschema"
+        }
       }
     },
     "main-article": {
@@ -4405,8 +4588,12 @@
           "label": "Erinnern für",
           "info": "Anzahl Tage, bevor die Altersprüfung für denselben Besucher erneut erscheint."
         },
-        "header__content": { "content": "Inhalt" },
-        "image": { "label": "Hintergrundbild" },
+        "header__content": {
+          "content": "Inhalt"
+        },
+        "image": {
+          "label": "Hintergrundbild"
+        },
         "icon": {
           "label": "Icon-SVG",
           "info": "Fügen Sie SVG-Code für ein mittig angezeigtes Symbol ein. Nur ohne Hintergrundbild."
@@ -4415,15 +4602,25 @@
           "label": "Mindestalter",
           "info": "Wird in der Standardüberschrift und -beschreibung verwendet, z. B. „Sind Sie 21 oder älter?“"
         },
-        "heading": { "label": "Überschrift (Überschreibung)" },
-        "description": { "label": "Beschreibung (Überschreibung)" },
-        "accept_label": { "label": "Beschriftung des Akzeptieren-Buttons" },
-        "decline_label": { "label": "Beschriftung des Ablehnen-Links" },
+        "heading": {
+          "label": "Überschrift (Überschreibung)"
+        },
+        "description": {
+          "label": "Beschreibung (Überschreibung)"
+        },
+        "accept_label": {
+          "label": "Beschriftung des Akzeptieren-Buttons"
+        },
+        "decline_label": {
+          "label": "Beschriftung des Ablehnen-Links"
+        },
         "decline_url": {
           "label": "Ziel-URL bei Ablehnung",
           "info": "Wohin Kunden geleitet werden, die ablehnen. Bei leerem Feld wird eine generische externe Seite genutzt."
         },
-        "disclaimer": { "label": "Rechtlicher Hinweis (Kleingedrucktes)" }
+        "disclaimer": {
+          "label": "Rechtlicher Hinweis (Kleingedrucktes)"
+        }
       }
     },
     "mobile-dock": {
@@ -4433,34 +4630,72 @@
         "hide_above": {
           "label": "Ausblenden ab Breite",
           "info": "Auf breiteren Bildschirmen ausgeblendet.",
-          "options__600": { "label": "Nur Telefon (unter 600px)" },
-          "options__750": { "label": "Telefon + Tablet Hochformat (unter 750px)" },
-          "options__990": { "label": "Telefon + Tablet (unter 990px)" }
+          "options__600": {
+            "label": "Nur Telefon (unter 600px)"
+          },
+          "options__750": {
+            "label": "Telefon + Tablet Hochformat (unter 750px)"
+          },
+          "options__990": {
+            "label": "Telefon + Tablet (unter 990px)"
+          }
         },
-        "show_border": { "label": "Oberen Rahmen anzeigen" },
-        "rounded": { "label": "Abgerundete obere Ecken" }
+        "show_border": {
+          "label": "Oberen Rahmen anzeigen"
+        },
+        "rounded": {
+          "label": "Abgerundete obere Ecken"
+        }
       },
       "blocks": {
-        "common": { "title_label": "Beschriftung" },
-        "home": { "name": "Startseite" },
-        "search": { "name": "Suche" },
-        "menu": { "name": "Menü" },
-        "cart": { "name": "Warenkorb" },
-        "account": { "name": "Konto" },
+        "common": {
+          "title_label": "Beschriftung"
+        },
+        "home": {
+          "name": "Startseite"
+        },
+        "search": {
+          "name": "Suche"
+        },
+        "menu": {
+          "name": "Menü"
+        },
+        "cart": {
+          "name": "Warenkorb"
+        },
+        "account": {
+          "name": "Konto"
+        },
         "link": {
           "name": "Benutzerdefinierter Link",
           "settings": {
-            "link": { "label": "Link-URL" },
+            "link": {
+              "label": "Link-URL"
+            },
             "icon": {
               "label": "Symbol",
-              "options__grid": { "label": "Raster" },
-              "options__star": { "label": "Stern" },
-              "options__heart": { "label": "Herz" },
-              "options__tag": { "label": "Etikett" },
-              "options__phone": { "label": "Telefon" },
-              "options__message": { "label": "Nachricht" }
+              "options__grid": {
+                "label": "Raster"
+              },
+              "options__star": {
+                "label": "Stern"
+              },
+              "options__heart": {
+                "label": "Herz"
+              },
+              "options__tag": {
+                "label": "Etikett"
+              },
+              "options__phone": {
+                "label": "Telefon"
+              },
+              "options__message": {
+                "label": "Nachricht"
+              }
             },
-            "open_in_new_tab": { "label": "In neuem Tab öffnen" }
+            "open_in_new_tab": {
+              "label": "In neuem Tab öffnen"
+            }
           }
         }
       }
@@ -5912,12 +6147,24 @@
     "spacer": {
       "name": "Abstandhalter",
       "settings": {
-        "height_desktop": { "label": "Höhe auf Desktop" },
-        "height_mobile": { "label": "Höhe auf Mobilgerät" },
-        "header__divider": { "content": "Trennlinie" },
-        "show_divider": { "label": "Trennlinie anzeigen" },
-        "divider_thickness": { "label": "Linienstärke" },
-        "divider_width": { "label": "Linienbreite" }
+        "height_desktop": {
+          "label": "Höhe auf Desktop"
+        },
+        "height_mobile": {
+          "label": "Höhe auf Mobilgerät"
+        },
+        "header__divider": {
+          "content": "Trennlinie"
+        },
+        "show_divider": {
+          "label": "Trennlinie anzeigen"
+        },
+        "divider_thickness": {
+          "label": "Linienstärke"
+        },
+        "divider_width": {
+          "label": "Linienbreite"
+        }
       }
     },
     "shared": {

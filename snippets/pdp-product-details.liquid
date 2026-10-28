@@ -71,9 +71,12 @@
     assign pd_render_type = true
   endif
   assign pd_origin = blank
-  assign mf_path = settings.kt_mf_origin | strip | split: '.'
-  if mf_path.size == 2
-    assign pd_origin = product.metafields[mf_path[0]][mf_path[1]].value
+  assign pd_origin = block.settings.origin
+  if pd_origin == blank
+    assign mf_path = settings.kt_mf_origin | strip | split: '.'
+    if mf_path.size == 2
+      assign pd_origin = product.metafields[mf_path[0]][mf_path[1]].value
+    endif
   endif
   assign pd_render_origin = false
   if block.settings.show_origin and pd_origin != blank
@@ -93,24 +96,36 @@
   assign pd_render_dimensions = false
   if block.settings.show_dimensions
     assign pd_dim_l = blank
-    assign mf_path = settings.kt_mf_length | strip | split: '.'
-    if mf_path.size == 2
-      assign pd_dim_l = product.metafields[mf_path[0]][mf_path[1]].value
+    assign pd_dim_l = block.settings.length
+    if pd_dim_l == blank
+      assign mf_path = settings.kt_mf_length | strip | split: '.'
+      if mf_path.size == 2
+        assign pd_dim_l = product.metafields[mf_path[0]][mf_path[1]].value
+      endif
     endif
     assign pd_dim_w = blank
-    assign mf_path = settings.kt_mf_width | strip | split: '.'
-    if mf_path.size == 2
-      assign pd_dim_w = product.metafields[mf_path[0]][mf_path[1]].value
+    assign pd_dim_w = block.settings.width
+    if pd_dim_w == blank
+      assign mf_path = settings.kt_mf_width | strip | split: '.'
+      if mf_path.size == 2
+        assign pd_dim_w = product.metafields[mf_path[0]][mf_path[1]].value
+      endif
     endif
     assign pd_dim_h = blank
-    assign mf_path = settings.kt_mf_height | strip | split: '.'
-    if mf_path.size == 2
-      assign pd_dim_h = product.metafields[mf_path[0]][mf_path[1]].value
+    assign pd_dim_h = block.settings.height
+    if pd_dim_h == blank
+      assign mf_path = settings.kt_mf_height | strip | split: '.'
+      if mf_path.size == 2
+        assign pd_dim_h = product.metafields[mf_path[0]][mf_path[1]].value
+      endif
     endif
     assign pd_dim_unit = blank
-    assign mf_path = settings.kt_mf_dim_unit | strip | split: '.'
-    if mf_path.size == 2
-      assign pd_dim_unit = product.metafields[mf_path[0]][mf_path[1]].value
+    assign pd_dim_unit = block.settings.dimension_unit
+    if pd_dim_unit == blank
+      assign mf_path = settings.kt_mf_dim_unit | strip | split: '.'
+      if mf_path.size == 2
+        assign pd_dim_unit = product.metafields[mf_path[0]][mf_path[1]].value
+      endif
     endif
     assign pd_dim_unit = pd_dim_unit | default: 'cm'
     if pd_dim_l != blank or pd_dim_w != blank or pd_dim_h != blank
