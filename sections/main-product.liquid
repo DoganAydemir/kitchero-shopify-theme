@@ -104,10 +104,14 @@
 
               {%- when 'countdown' -%}
                 {%- liquid
-                  assign deal_ends_at = blank
-                  assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
-                  if mf_path.size == 2
-                    assign deal_ends_at = product.metafields[mf_path[0]][mf_path[1]].value
+                  # Block setting first (connect a date and time metafield as a
+                  # dynamic source), then Theme settings > Product data.
+                  assign deal_ends_at = block.settings.ends_at
+                  if deal_ends_at == blank
+                    assign mf_path = settings.kt_mf_deal_end | strip | split: '.'
+                    if mf_path.size == 2
+                      assign deal_ends_at = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
                   endif
                 -%}
                 {%- if deal_ends_at == blank and request.design_mode -%}
@@ -457,10 +461,22 @@
                      content is added.
                 {%- endcomment -%}
                 {%- liquid
+                  # Block setting first (connect a list of single line text
+                  # metafield as a dynamic source, or type comma-separated
+                  # values), then Theme settings > Product data.
                   assign pdp_metafield_features = blank
-                  assign mf_path = settings.kt_mf_features | strip | split: '.'
-                  if mf_path.size == 2
-                    assign pdp_metafield_features = product.metafields[mf_path[0]][mf_path[1]].value
+                  assign pdp_block_features = block.settings.features
+                  if pdp_block_features != blank
+                    if pdp_block_features.first != blank
+                      assign pdp_metafield_features = pdp_block_features
+                    else
+                      assign pdp_metafield_features = pdp_block_features | split: ','
+                    endif
+                  else
+                    assign mf_path = settings.kt_mf_features | strip | split: '.'
+                    if mf_path.size == 2
+                      assign pdp_metafield_features = product.metafields[mf_path[0]][mf_path[1]].value
+                    endif
                   endif
                 -%}
                 {%- assign pdp_has_metafield_features = false -%}
@@ -470,6 +486,8 @@
                 {%- if pdp_has_metafield_features -%}
                   <ul class="kt-pdp__tags" {{ block.shopify_attributes }} aria-label="{{ 'kt.product.tags_label' | t | default: 'Tags' }}">
                     {%- for feature_text in pdp_metafield_features -%}
+                      {%- assign feature_text = feature_text | strip -%}
+                      {%- if feature_text == blank -%}{%- continue -%}{%- endif -%}
                       <li class="kt-pdp__tag">{{ feature_text | escape }}</li>
                     {%- endfor -%}
                   </ul>
@@ -698,6 +716,12 @@
         {
           "type": "paragraph",
           "content": "t:sections.main-product.blocks.countdown.info"
+        },
+        {
+          "type": "text",
+          "id": "ends_at",
+          "label": "t:sections.main-product.blocks.countdown.settings.ends_at.label",
+          "info": "t:sections.main-product.blocks.countdown.settings.ends_at.info"
         },
         {
           "type": "text",
@@ -982,8 +1006,14 @@
           "id": "heading_tag",
           "label": "t:sections.main-product.blocks.concierge_box.settings.heading_tag.label",
           "options": [
-            { "value": "h2", "label": "H2" },
-            { "value": "h3", "label": "H3" }
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            }
           ],
           "default": "h2"
         },
@@ -1054,26 +1084,87 @@
           "id": "heading_tag",
           "label": "t:sections.main-product.blocks.specifications.settings.heading_tag.label",
           "options": [
-            { "value": "h2", "label": "H2" },
-            { "value": "h3", "label": "H3" }
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            }
           ],
           "default": "h2"
         },
-        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_1" },
-        { "type": "text", "id": "label_1", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
-        { "type": "text", "id": "value_1", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
-        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_2" },
-        { "type": "text", "id": "label_2", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
-        { "type": "text", "id": "value_2", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
-        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_3" },
-        { "type": "text", "id": "label_3", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
-        { "type": "text", "id": "value_3", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
-        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_4" },
-        { "type": "text", "id": "label_4", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
-        { "type": "text", "id": "value_4", "label": "t:sections.main-product.blocks.specifications.settings.row_value" },
-        { "type": "header", "content": "t:sections.main-product.blocks.specifications.settings.row_5" },
-        { "type": "text", "id": "label_5", "label": "t:sections.main-product.blocks.specifications.settings.row_label" },
-        { "type": "text", "id": "value_5", "label": "t:sections.main-product.blocks.specifications.settings.row_value" }
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.specifications.settings.row_1"
+        },
+        {
+          "type": "text",
+          "id": "label_1",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_label"
+        },
+        {
+          "type": "text",
+          "id": "value_1",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_value"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.specifications.settings.row_2"
+        },
+        {
+          "type": "text",
+          "id": "label_2",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_label"
+        },
+        {
+          "type": "text",
+          "id": "value_2",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_value"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.specifications.settings.row_3"
+        },
+        {
+          "type": "text",
+          "id": "label_3",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_label"
+        },
+        {
+          "type": "text",
+          "id": "value_3",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_value"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.specifications.settings.row_4"
+        },
+        {
+          "type": "text",
+          "id": "label_4",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_label"
+        },
+        {
+          "type": "text",
+          "id": "value_4",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_value"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.specifications.settings.row_5"
+        },
+        {
+          "type": "text",
+          "id": "label_5",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_label"
+        },
+        {
+          "type": "text",
+          "id": "value_5",
+          "label": "t:sections.main-product.blocks.specifications.settings.row_value"
+        }
       ]
     },
     {
@@ -1085,7 +1176,10 @@
           "type": "paragraph",
           "content": "t:sections.main-product.blocks.product_details.settings.info"
         },
-        { "type": "header", "content": "t:sections.main-product.blocks.product_details.settings.header_fields" },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.product_details.settings.header_fields"
+        },
         {
           "type": "checkbox",
           "id": "show_sku",
@@ -1140,14 +1234,56 @@
           "info": "t:sections.main-product.blocks.product_details.settings.show_tags.info",
           "default": false
         },
-        { "type": "header", "content": "t:sections.main-product.blocks.product_details.settings.header_layout" },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.product_details.settings.header_sources"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.product_details.settings.sources_info"
+        },
+        {
+          "type": "text",
+          "id": "origin",
+          "label": "t:sections.main-product.blocks.product_details.settings.origin.label"
+        },
+        {
+          "type": "text",
+          "id": "length",
+          "label": "t:sections.main-product.blocks.product_details.settings.length.label"
+        },
+        {
+          "type": "text",
+          "id": "width",
+          "label": "t:sections.main-product.blocks.product_details.settings.width.label"
+        },
+        {
+          "type": "text",
+          "id": "height",
+          "label": "t:sections.main-product.blocks.product_details.settings.height.label"
+        },
+        {
+          "type": "text",
+          "id": "dimension_unit",
+          "label": "t:sections.main-product.blocks.product_details.settings.dimension_unit.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.main-product.blocks.product_details.settings.header_layout"
+        },
         {
           "type": "select",
           "id": "layout",
           "label": "t:sections.main-product.blocks.product_details.settings.layout.label",
           "options": [
-            { "value": "inline", "label": "t:sections.main-product.blocks.product_details.settings.layout.options.inline" },
-            { "value": "stack", "label": "t:sections.main-product.blocks.product_details.settings.layout.options.stack" }
+            {
+              "value": "inline",
+              "label": "t:sections.main-product.blocks.product_details.settings.layout.options.inline"
+            },
+            {
+              "value": "stack",
+              "label": "t:sections.main-product.blocks.product_details.settings.layout.options.stack"
+            }
           ],
           "default": "inline"
         }
@@ -1161,6 +1297,12 @@
         {
           "type": "paragraph",
           "content": "t:sections.main-product.blocks.tags.settings.info"
+        },
+        {
+          "type": "text",
+          "id": "features",
+          "label": "t:sections.main-product.blocks.tags.settings.features.label",
+          "info": "t:sections.main-product.blocks.tags.settings.features.info"
         }
       ]
     },
@@ -1202,8 +1344,14 @@
           "id": "heading_tag",
           "label": "t:sections.main-product.blocks.complementary_products.settings.heading_tag.label",
           "options": [
-            { "value": "h2", "label": "H2" },
-            { "value": "h3", "label": "H3" }
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            }
           ],
           "default": "h3"
         },

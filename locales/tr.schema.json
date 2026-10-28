@@ -436,7 +436,7 @@
       "name": "Ürün verileri",
       "settings": {
         "intro": {
-          "content": "İsteğe bağlı ürün özelliklerini kendi metafield'larınıza bağlayın. custom.deal_ends_at gibi bir namespace ve anahtar girin. Özelliği kapatmak için alanı boş bırakın."
+          "content": "Ürün kartları, koleksiyon sayfaları ve arama sonuçları bu metafield'ları okur. custom.deal_ends_at gibi bir namespace ve key girin ya da özelliği kapatmak için alanı boş bırakın. Ürün sayfasında metafield'ları doğrudan Geri sayım, Etiketler ve Ürün detayları bloklarında dinamik kaynak düğmesiyle bağlayın."
         },
         "kt_mf_deal_end": {
           "label": "Kampanya bitiş tarihi metafield'ı",
@@ -659,23 +659,43 @@
           "label": "Mobil menü renk şeması",
           "info": "Mobil menü çekmecesinin renk şeması. Sinematik görünüm için varsayılan koyu şemadır."
         },
-        "header__layout": { "content": "Düzen" },
+        "header__layout": {
+          "content": "Düzen"
+        },
         "logo_position": {
           "label": "Logo konumu",
-          "options__left": { "label": "Sol" },
-          "options__center": { "label": "Orta" }
+          "options__left": {
+            "label": "Sol"
+          },
+          "options__center": {
+            "label": "Orta"
+          }
         },
         "desktop_nav_alignment": {
           "label": "Masaüstü navigasyon hizalama",
           "info": "Mobil her durumda standart logo-sol düzenini korur.",
-          "options__center": { "label": "Orta" },
-          "options__right": { "label": "Sağ" }
+          "options__center": {
+            "label": "Orta"
+          },
+          "options__right": {
+            "label": "Sağ"
+          }
         },
-        "padding_top": { "label": "Üst padding" },
-        "padding_bottom": { "label": "Alt padding" },
-        "header__icons": { "content": "Aksiyon ikonları" },
-        "show_search_icon": { "label": "Arama ikonunu göster" },
-        "show_account_icon": { "label": "Hesap ikonunu göster" },
+        "padding_top": {
+          "label": "Üst padding"
+        },
+        "padding_bottom": {
+          "label": "Alt padding"
+        },
+        "header__icons": {
+          "content": "Aksiyon ikonları"
+        },
+        "show_search_icon": {
+          "label": "Arama ikonunu göster"
+        },
+        "show_account_icon": {
+          "label": "Hesap ikonunu göster"
+        },
         "show_cart_icon": {
           "label": "Sepet ikonunu göster",
           "info": "Sepeti yalnızca mağazanız online sipariş almıyorsa gizleyin."
@@ -1927,9 +1947,15 @@
         "bottom_heading_tag": {
           "label": "Başlık etiketi",
           "info": "Yalnızca sayfada başka bir H1 yoksa H1 kullanın.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "bottom_description": {
           "label": "Açıklama"
@@ -2086,9 +2112,15 @@
         "showrooms_heading_tag": {
           "label": "Konum başlık etiketi",
           "info": "Yalnızca sayfada başka bir H1 yoksa H1 kullanın.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "header__contact_form": {
           "content": "İletişim formu"
@@ -2105,9 +2137,15 @@
         "form_heading_tag": {
           "label": "Form başlık etiketi",
           "info": "Yalnızca sayfada başka bir H1 yoksa H1 kullanın.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "form_description": {
           "label": "Form açıklaması"
@@ -2271,7 +2309,7 @@
         },
         "countdown": {
           "name": "Geri sayım",
-          "info": "Yalnızca ürünün bitiş tarihi ayarlıysa görünür.",
+          "info": "Bu blokta ya da Tema ayarları > Ürün verileri'nde bir kampanya bitiş tarihi ayarlandığında görünür.",
           "settings": {
             "label": {
               "label": "Sayaç üstü etiket"
@@ -2281,6 +2319,10 @@
             },
             "ending_label": {
               "label": "Bitiş etiketi"
+            },
+            "ends_at": {
+              "label": "Kampanya bitiş tarihi",
+              "info": "Dinamik kaynak düğmesiyle bir tarih ve saat metafield'ı bağlayın. Boşsa Tema ayarları > Ürün verileri kullanılır."
             }
           }
         },
@@ -2357,20 +2399,59 @@
             "info": "Shopify yönetimindeki ürün bilgilerini gösterir: SKU, barkod, ağırlık, satıcı, tür gibi. Boş alanlar gizlenir.",
             "header_fields": "Gösterilecek alanlar",
             "header_layout": "Görünüm",
-            "show_sku": { "label": "SKU", "info": "Seçili varyantın SKU alanından çekilir." },
-            "show_barcode": { "label": "Barkod", "info": "Seçili varyantın barkod alanından (ISBN, UPC, GTIN vb.) çekilir." },
-            "show_weight": { "label": "Ağırlık", "info": "Varyantın ağırlık alanından çekilir. 0 veya boş ise gizlenir. Mağaza ağırlık birimini (kg / g / lb / oz) kullanır." },
-            "show_dimensions": { "label": "Paket boyutları", "info": "Tema ayarları > Ürün verileri'nde seçilen uzunluk, genişlik, yükseklik ve birim metafield'larını kullanır." },
-            "show_vendor": { "label": "Marka / satıcı" },
-            "show_type": { "label": "Ürün türü" },
-            "show_origin": { "label": "Menşe ülkesi", "info": "Tema ayarları > Ürün verileri'nde seçilen menşe ülke metafield'ını kullanır." },
-            "show_tags": { "label": "Etiketler", "info": "_ ile başlayan etiketler gizlenir." },
+            "show_sku": {
+              "label": "SKU",
+              "info": "Seçili varyantın SKU alanından çekilir."
+            },
+            "show_barcode": {
+              "label": "Barkod",
+              "info": "Seçili varyantın barkod alanından (ISBN, UPC, GTIN vb.) çekilir."
+            },
+            "show_weight": {
+              "label": "Ağırlık",
+              "info": "Varyantın ağırlık alanından çekilir. 0 veya boş ise gizlenir. Mağaza ağırlık birimini (kg / g / lb / oz) kullanır."
+            },
+            "show_dimensions": {
+              "label": "Paket boyutları",
+              "info": "Aşağıdaki Veri kaynakları'ndaki ya da Tema ayarları > Ürün verileri'ndeki uzunluk, genişlik, yükseklik ve birimi kullanır."
+            },
+            "show_vendor": {
+              "label": "Marka / satıcı"
+            },
+            "show_type": {
+              "label": "Ürün türü"
+            },
+            "show_origin": {
+              "label": "Menşe ülkesi",
+              "info": "Aşağıdaki Veri kaynakları'ndaki ya da Tema ayarları > Ürün verileri'ndeki menşe ülkeyi kullanır."
+            },
+            "show_tags": {
+              "label": "Etiketler",
+              "info": "_ ile başlayan etiketler gizlenir."
+            },
             "layout": {
               "label": "Düzen",
               "options": {
                 "inline": "Yatay (etiket sol, değer sağ)",
                 "stack": "Üst üste (etiket üstte, değer altta)"
               }
+            },
+            "header_sources": "Veri kaynakları",
+            "sources_info": "Metafield'ları dinamik kaynak düğmesiyle bağlayın. Boş alanlarda Tema ayarları > Ürün verileri kullanılır.",
+            "origin": {
+              "label": "Menşe ülke"
+            },
+            "length": {
+              "label": "Uzunluk"
+            },
+            "width": {
+              "label": "Genişlik"
+            },
+            "height": {
+              "label": "Yükseklik"
+            },
+            "dimension_unit": {
+              "label": "Ölçü birimi"
             }
           }
         },
@@ -2396,7 +2477,11 @@
         "tags": {
           "name": "Etiketler",
           "settings": {
-            "info": "Tema ayarları > Ürün verileri'nde seçilen özellik listesi metafield'ını gösterir. Yoksa ürün etiketlerini gösterir."
+            "info": "Tema ayarları > Ürün verileri'nde seçilen özellik listesi metafield'ını gösterir. Yoksa ürün etiketlerini gösterir.",
+            "features": {
+              "label": "Özellik listesi",
+              "info": "Tek satırlık metin listesi türünde bir metafield bağlayın ya da özellikleri virgülle ayırarak yazın. Boşsa Tema ayarları > Ürün verileri, ardından ürün etiketleri kullanılır."
+            }
           }
         },
         "trust_badges": {
@@ -2676,19 +2761,43 @@
         "trust_badges": {
           "name": "Güven rozetleri",
           "settings": {
-            "badge_1_icon": { "label": "Rozet 1 — ikon" },
-            "badge_1_text": { "label": "Rozet 1 — metin" },
-            "badge_2_icon": { "label": "Rozet 2 — ikon" },
-            "badge_2_text": { "label": "Rozet 2 — metin" },
-            "badge_3_icon": { "label": "Rozet 3 — ikon" },
-            "badge_3_text": { "label": "Rozet 3 — metin" },
-            "badge_4_icon": { "label": "Rozet 4 — ikon" },
-            "badge_4_text": { "label": "Rozet 4 — metin" },
+            "badge_1_icon": {
+              "label": "Rozet 1 — ikon"
+            },
+            "badge_1_text": {
+              "label": "Rozet 1 — metin"
+            },
+            "badge_2_icon": {
+              "label": "Rozet 2 — ikon"
+            },
+            "badge_2_text": {
+              "label": "Rozet 2 — metin"
+            },
+            "badge_3_icon": {
+              "label": "Rozet 3 — ikon"
+            },
+            "badge_3_text": {
+              "label": "Rozet 3 — metin"
+            },
+            "badge_4_icon": {
+              "label": "Rozet 4 — ikon"
+            },
+            "badge_4_text": {
+              "label": "Rozet 4 — metin"
+            },
             "badge_icon": {
-              "options__1": { "label": "Kargo" },
-              "options__2": { "label": "İade" },
-              "options__3": { "label": "Garanti" },
-              "options__4": { "label": "Paket" }
+              "options__1": {
+                "label": "Kargo"
+              },
+              "options__2": {
+                "label": "İade"
+              },
+              "options__3": {
+                "label": "Garanti"
+              },
+              "options__4": {
+                "label": "Paket"
+              }
             }
           }
         },
@@ -2698,7 +2807,9 @@
             "paragraph": {
               "content": "Bu ürün için Shopify Search & Discovery uygulamasında ayarlanan tamamlayıcı ürünleri gösterir. Yoksa gizlenir."
             },
-            "heading": { "label": "Başlık" },
+            "heading": {
+              "label": "Başlık"
+            },
             "products_count": {
               "label": "Gösterilecek maks. ürün sayısı",
               "info": "Kompakt kart düzeni PDP info kolonuna 1–4 ürünü taşırmadan sığdırır."
@@ -2716,8 +2827,12 @@
             },
             "primary_cta_action": {
               "label": "Birincil buton eylemi",
-              "options__1": { "label": "Lead formunu aç (danışma çekmecesi)" },
-              "options__2": { "label": "Özel bir URL'ye git" }
+              "options__1": {
+                "label": "Lead formunu aç (danışma çekmecesi)"
+              },
+              "options__2": {
+                "label": "Özel bir URL'ye git"
+              }
             },
             "primary_cta_link": {
               "label": "Birincil buton URL'si",
@@ -2739,14 +2854,30 @@
               "label": "İkon"
             },
             "icon": {
-              "options__1": { "label": "Takvim" },
-              "options__2": { "label": "Saat" },
-              "options__3": { "label": "Telefon" },
-              "options__4": { "label": "E-posta" },
-              "options__5": { "label": "Sohbet" },
-              "options__6": { "label": "Ok" },
-              "options__7": { "label": "Onay" },
-              "options__8": { "label": "Parıltı" }
+              "options__1": {
+                "label": "Takvim"
+              },
+              "options__2": {
+                "label": "Saat"
+              },
+              "options__3": {
+                "label": "Telefon"
+              },
+              "options__4": {
+                "label": "E-posta"
+              },
+              "options__5": {
+                "label": "Sohbet"
+              },
+              "options__6": {
+                "label": "Ok"
+              },
+              "options__7": {
+                "label": "Onay"
+              },
+              "options__8": {
+                "label": "Parıltı"
+              }
             },
             "secondary_cta_text": {
               "label": "İkincil buton metni"
@@ -3066,37 +3197,89 @@
     "main-collection-drawer": {
       "name": "Koleksiyon — çekmece",
       "settings": {
-        "products_per_page": { "label": "Sayfa başına ürün" },
-        "header__grid": { "content": "Grid" },
-        "cols_desktop": { "label": "Masaüstü sütun sayısı" },
-        "cols_mobile": { "label": "Mobil sütun sayısı" },
-        "show_secondary_image": { "label": "Hover'da ikinci görsel" },
-        "show_quote_button": { "label": "\"Detayları gör\" düğmesi" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Koleksiyon açıklamasını göster" },
-        "header__spacing": { "content": "Boşluk" },
-        "padding_top": { "label": "Üst padding" },
-        "padding_bottom": { "label": "Alt padding" },
-        "header__color": { "content": "Renk" },
-        "color_scheme": { "label": "Renk şeması" }
+        "products_per_page": {
+          "label": "Sayfa başına ürün"
+        },
+        "header__grid": {
+          "content": "Grid"
+        },
+        "cols_desktop": {
+          "label": "Masaüstü sütun sayısı"
+        },
+        "cols_mobile": {
+          "label": "Mobil sütun sayısı"
+        },
+        "show_secondary_image": {
+          "label": "Hover'da ikinci görsel"
+        },
+        "show_quote_button": {
+          "label": "\"Detayları gör\" düğmesi"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Koleksiyon açıklamasını göster"
+        },
+        "header__spacing": {
+          "content": "Boşluk"
+        },
+        "padding_top": {
+          "label": "Üst padding"
+        },
+        "padding_bottom": {
+          "label": "Alt padding"
+        },
+        "header__color": {
+          "content": "Renk"
+        },
+        "color_scheme": {
+          "label": "Renk şeması"
+        }
       }
     },
     "main-collection-vertical": {
       "name": "Koleksiyon — kenar çubuğu",
       "settings": {
-        "products_per_page": { "label": "Sayfa başına ürün" },
-        "header__grid": { "content": "Grid" },
-        "cols_desktop": { "label": "Masaüstü sütun sayısı" },
-        "cols_mobile": { "label": "Mobil sütun sayısı" },
-        "show_secondary_image": { "label": "Hover'da ikinci görsel" },
-        "show_quote_button": { "label": "\"Detayları gör\" düğmesi" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Koleksiyon açıklamasını göster" },
-        "header__spacing": { "content": "Boşluk" },
-        "padding_top": { "label": "Üst padding" },
-        "padding_bottom": { "label": "Alt padding" },
-        "header__color": { "content": "Renk" },
-        "color_scheme": { "label": "Renk şeması" }
+        "products_per_page": {
+          "label": "Sayfa başına ürün"
+        },
+        "header__grid": {
+          "content": "Grid"
+        },
+        "cols_desktop": {
+          "label": "Masaüstü sütun sayısı"
+        },
+        "cols_mobile": {
+          "label": "Mobil sütun sayısı"
+        },
+        "show_secondary_image": {
+          "label": "Hover'da ikinci görsel"
+        },
+        "show_quote_button": {
+          "label": "\"Detayları gör\" düğmesi"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Koleksiyon açıklamasını göster"
+        },
+        "header__spacing": {
+          "content": "Boşluk"
+        },
+        "padding_top": {
+          "label": "Üst padding"
+        },
+        "padding_bottom": {
+          "label": "Alt padding"
+        },
+        "header__color": {
+          "content": "Renk"
+        },
+        "color_scheme": {
+          "label": "Renk şeması"
+        }
       }
     },
     "main-article": {
@@ -4405,8 +4588,12 @@
           "label": "Şu kadar gün hatırla",
           "info": "Yaş doğrulamasının aynı ziyaretçiye tekrar gösterilmesinden önceki gün sayısı."
         },
-        "header__content": { "content": "İçerik" },
-        "image": { "label": "Arka plan görseli" },
+        "header__content": {
+          "content": "İçerik"
+        },
+        "image": {
+          "label": "Arka plan görseli"
+        },
         "icon": {
           "label": "İkon SVG",
           "info": "Ortada gösterilecek bir ikon için SVG kodunu yapıştırın. Yalnızca arka plan görseli yoksa kullanılır."
@@ -4415,15 +4602,25 @@
           "label": "Minimum yaş",
           "info": "Varsayılan başlık ve açıklamada kullanılır, örneğin \"21 yaşında veya daha büyük müsünüz?\""
         },
-        "heading": { "label": "Başlık (geçersiz kılma)" },
-        "description": { "label": "Açıklama (geçersiz kılma)" },
-        "accept_label": { "label": "Kabul butonu etiketi" },
-        "decline_label": { "label": "Reddet linki etiketi" },
+        "heading": {
+          "label": "Başlık (geçersiz kılma)"
+        },
+        "description": {
+          "label": "Açıklama (geçersiz kılma)"
+        },
+        "accept_label": {
+          "label": "Kabul butonu etiketi"
+        },
+        "decline_label": {
+          "label": "Reddet linki etiketi"
+        },
         "decline_url": {
           "label": "Reddet hedef URL'si",
           "info": "Reddeden müşterilerin yönlendirileceği yer. Boş bırakılırsa varsayılan harici bir sayfaya gider."
         },
-        "disclaimer": { "label": "Yasal uyarı (ince yazı)" }
+        "disclaimer": {
+          "label": "Yasal uyarı (ince yazı)"
+        }
       }
     },
     "mobile-dock": {
@@ -4433,34 +4630,72 @@
         "hide_above": {
           "label": "Hangi genişlikten sonra gizlensin",
           "info": "Bu genişlikten büyük ekranlarda gizlenir.",
-          "options__600": { "label": "Sadece telefon (600px altı)" },
-          "options__750": { "label": "Telefon + tablet dikey (750px altı)" },
-          "options__990": { "label": "Telefon + tablet (990px altı)" }
+          "options__600": {
+            "label": "Sadece telefon (600px altı)"
+          },
+          "options__750": {
+            "label": "Telefon + tablet dikey (750px altı)"
+          },
+          "options__990": {
+            "label": "Telefon + tablet (990px altı)"
+          }
         },
-        "show_border": { "label": "Üst kenarlık göster" },
-        "rounded": { "label": "Yuvarlatılmış üst köşeler" }
+        "show_border": {
+          "label": "Üst kenarlık göster"
+        },
+        "rounded": {
+          "label": "Yuvarlatılmış üst köşeler"
+        }
       },
       "blocks": {
-        "common": { "title_label": "Etiket" },
-        "home": { "name": "Anasayfa" },
-        "search": { "name": "Arama" },
-        "menu": { "name": "Menü" },
-        "cart": { "name": "Sepet" },
-        "account": { "name": "Hesap" },
+        "common": {
+          "title_label": "Etiket"
+        },
+        "home": {
+          "name": "Anasayfa"
+        },
+        "search": {
+          "name": "Arama"
+        },
+        "menu": {
+          "name": "Menü"
+        },
+        "cart": {
+          "name": "Sepet"
+        },
+        "account": {
+          "name": "Hesap"
+        },
         "link": {
           "name": "Özel bağlantı",
           "settings": {
-            "link": { "label": "Bağlantı URL" },
+            "link": {
+              "label": "Bağlantı URL"
+            },
             "icon": {
               "label": "İkon",
-              "options__grid": { "label": "Izgara" },
-              "options__star": { "label": "Yıldız" },
-              "options__heart": { "label": "Kalp" },
-              "options__tag": { "label": "Etiket" },
-              "options__phone": { "label": "Telefon" },
-              "options__message": { "label": "Mesaj" }
+              "options__grid": {
+                "label": "Izgara"
+              },
+              "options__star": {
+                "label": "Yıldız"
+              },
+              "options__heart": {
+                "label": "Kalp"
+              },
+              "options__tag": {
+                "label": "Etiket"
+              },
+              "options__phone": {
+                "label": "Telefon"
+              },
+              "options__message": {
+                "label": "Mesaj"
+              }
             },
-            "open_in_new_tab": { "label": "Yeni sekmede aç" }
+            "open_in_new_tab": {
+              "label": "Yeni sekmede aç"
+            }
           }
         }
       }
@@ -5912,12 +6147,24 @@
     "spacer": {
       "name": "Boşluk",
       "settings": {
-        "height_desktop": { "label": "Masaüstü yüksekliği" },
-        "height_mobile": { "label": "Mobil yükseklik" },
-        "header__divider": { "content": "Ayraç" },
-        "show_divider": { "label": "Ayraç çizgisini göster" },
-        "divider_thickness": { "label": "Ayraç kalınlığı" },
-        "divider_width": { "label": "Ayraç genişliği" }
+        "height_desktop": {
+          "label": "Masaüstü yüksekliği"
+        },
+        "height_mobile": {
+          "label": "Mobil yükseklik"
+        },
+        "header__divider": {
+          "content": "Ayraç"
+        },
+        "show_divider": {
+          "label": "Ayraç çizgisini göster"
+        },
+        "divider_thickness": {
+          "label": "Ayraç kalınlığı"
+        },
+        "divider_width": {
+          "label": "Ayraç genişliği"
+        }
       }
     },
     "shared": {

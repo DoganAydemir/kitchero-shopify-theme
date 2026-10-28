@@ -436,7 +436,7 @@
       "name": "Product data",
       "settings": {
         "intro": {
-          "content": "Connect optional product features to your own metafields. Enter a namespace and key such as custom.deal_ends_at. Leave a field blank to turn that feature off."
+          "content": "Product cards, collection pages and search results read these metafields. Enter a namespace and key such as custom.deal_ends_at, or leave a field blank to turn that feature off. On the product page, connect metafields directly in the Countdown, Tags and Product details blocks with the dynamic source button."
         },
         "kt_mf_deal_end": {
           "label": "Deal end date metafield",
@@ -659,23 +659,43 @@
           "label": "Mobile menu color scheme",
           "info": "Color scheme for the mobile menu drawer. Defaults to a dark scheme for a cinematic look."
         },
-        "header__layout": { "content": "Layout" },
+        "header__layout": {
+          "content": "Layout"
+        },
         "logo_position": {
           "label": "Logo position",
-          "options__left": { "label": "Left" },
-          "options__center": { "label": "Center" }
+          "options__left": {
+            "label": "Left"
+          },
+          "options__center": {
+            "label": "Center"
+          }
         },
         "desktop_nav_alignment": {
           "label": "Desktop navigation alignment",
           "info": "Mobile keeps the standard logo-left layout regardless.",
-          "options__center": { "label": "Center" },
-          "options__right": { "label": "Right" }
+          "options__center": {
+            "label": "Center"
+          },
+          "options__right": {
+            "label": "Right"
+          }
         },
-        "padding_top": { "label": "Padding top" },
-        "padding_bottom": { "label": "Padding bottom" },
-        "header__icons": { "content": "Action icons" },
-        "show_search_icon": { "label": "Show search icon" },
-        "show_account_icon": { "label": "Show account icon" },
+        "padding_top": {
+          "label": "Padding top"
+        },
+        "padding_bottom": {
+          "label": "Padding bottom"
+        },
+        "header__icons": {
+          "content": "Action icons"
+        },
+        "show_search_icon": {
+          "label": "Show search icon"
+        },
+        "show_account_icon": {
+          "label": "Show account icon"
+        },
         "show_cart_icon": {
           "label": "Show cart icon",
           "info": "Hide the cart only if your store doesn't take online orders."
@@ -1927,9 +1947,15 @@
         "bottom_heading_tag": {
           "label": "Heading tag",
           "info": "Use H1 only if the page has no other H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "bottom_description": {
           "label": "Description"
@@ -2086,9 +2112,15 @@
         "showrooms_heading_tag": {
           "label": "Locations heading tag",
           "info": "Use H1 only if the page has no other H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "header__contact_form": {
           "content": "Contact form"
@@ -2105,9 +2137,15 @@
         "form_heading_tag": {
           "label": "Form heading tag",
           "info": "Use H1 only if the page has no other H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "form_description": {
           "label": "Form description"
@@ -2271,7 +2309,7 @@
         },
         "countdown": {
           "name": "Countdown",
-          "info": "Shows only when the product has a deal end date set.",
+          "info": "Shows when a deal end date is set, either in this block or in Theme settings > Product data.",
           "settings": {
             "label": {
               "label": "Label above timer"
@@ -2281,6 +2319,10 @@
             },
             "ending_label": {
               "label": "Ending label"
+            },
+            "ends_at": {
+              "label": "Deal end date",
+              "info": "Connect a date and time metafield with the dynamic source button. When empty, Theme settings > Product data is used."
             }
           }
         },
@@ -2390,7 +2432,7 @@
             },
             "show_dimensions": {
               "label": "Package dimensions",
-              "info": "Uses the length, width, height, and unit metafields chosen in Theme settings > Product data."
+              "info": "Uses the length, width, height and unit set under Data sources below, or in Theme settings > Product data."
             },
             "show_vendor": {
               "label": "Brand / vendor"
@@ -2400,7 +2442,7 @@
             },
             "show_origin": {
               "label": "Country of origin",
-              "info": "Uses the country of origin metafield chosen in Theme settings > Product data."
+              "info": "Uses the country of origin set under Data sources below, or in Theme settings > Product data."
             },
             "show_tags": {
               "label": "Tags",
@@ -2412,13 +2454,34 @@
                 "inline": "Inline (label left, value right)",
                 "stack": "Stacked (label above value)"
               }
+            },
+            "header_sources": "Data sources",
+            "sources_info": "Connect metafields with the dynamic source button. Empty fields fall back to Theme settings > Product data.",
+            "origin": {
+              "label": "Country of origin"
+            },
+            "length": {
+              "label": "Length"
+            },
+            "width": {
+              "label": "Width"
+            },
+            "height": {
+              "label": "Height"
+            },
+            "dimension_unit": {
+              "label": "Dimension unit"
             }
           }
         },
         "tags": {
           "name": "Tags",
           "settings": {
-            "info": "Shows the feature list metafield chosen in Theme settings > Product data. Otherwise shows the product's tags."
+            "info": "Shows the feature list metafield chosen in Theme settings > Product data. Otherwise shows the product's tags.",
+            "features": {
+              "label": "Feature list",
+              "info": "Connect a list of single line text metafield, or enter comma-separated features. When empty, Theme settings > Product data is used, then product tags."
+            }
           }
         },
         "trust_badges": {
@@ -2698,19 +2761,43 @@
         "trust_badges": {
           "name": "Trust badges",
           "settings": {
-            "badge_1_icon": { "label": "Badge 1 — icon" },
-            "badge_1_text": { "label": "Badge 1 — text" },
-            "badge_2_icon": { "label": "Badge 2 — icon" },
-            "badge_2_text": { "label": "Badge 2 — text" },
-            "badge_3_icon": { "label": "Badge 3 — icon" },
-            "badge_3_text": { "label": "Badge 3 — text" },
-            "badge_4_icon": { "label": "Badge 4 — icon" },
-            "badge_4_text": { "label": "Badge 4 — text" },
+            "badge_1_icon": {
+              "label": "Badge 1 — icon"
+            },
+            "badge_1_text": {
+              "label": "Badge 1 — text"
+            },
+            "badge_2_icon": {
+              "label": "Badge 2 — icon"
+            },
+            "badge_2_text": {
+              "label": "Badge 2 — text"
+            },
+            "badge_3_icon": {
+              "label": "Badge 3 — icon"
+            },
+            "badge_3_text": {
+              "label": "Badge 3 — text"
+            },
+            "badge_4_icon": {
+              "label": "Badge 4 — icon"
+            },
+            "badge_4_text": {
+              "label": "Badge 4 — text"
+            },
             "badge_icon": {
-              "options__1": { "label": "Shipping" },
-              "options__2": { "label": "Returns" },
-              "options__3": { "label": "Warranty" },
-              "options__4": { "label": "Package" }
+              "options__1": {
+                "label": "Shipping"
+              },
+              "options__2": {
+                "label": "Returns"
+              },
+              "options__3": {
+                "label": "Warranty"
+              },
+              "options__4": {
+                "label": "Package"
+              }
             }
           }
         },
@@ -2720,7 +2807,9 @@
             "paragraph": {
               "content": "Shows complementary products set up for this product in the Shopify Search & Discovery app. Hidden when there are none."
             },
-            "heading": { "label": "Heading" },
+            "heading": {
+              "label": "Heading"
+            },
             "products_count": {
               "label": "Maximum products to show",
               "info": "Compact card layout fits 1–4 products in the PDP info column without overflowing."
@@ -2738,8 +2827,12 @@
             },
             "primary_cta_action": {
               "label": "Primary button action",
-              "options__1": { "label": "Open lead form (consultation drawer)" },
-              "options__2": { "label": "Go to a custom URL" }
+              "options__1": {
+                "label": "Open lead form (consultation drawer)"
+              },
+              "options__2": {
+                "label": "Go to a custom URL"
+              }
             },
             "primary_cta_link": {
               "label": "Primary button URL",
@@ -2761,14 +2854,30 @@
               "label": "Icon"
             },
             "icon": {
-              "options__1": { "label": "Calendar" },
-              "options__2": { "label": "Clock" },
-              "options__3": { "label": "Phone" },
-              "options__4": { "label": "Email" },
-              "options__5": { "label": "Chat" },
-              "options__6": { "label": "Arrow" },
-              "options__7": { "label": "Check" },
-              "options__8": { "label": "Sparkle" }
+              "options__1": {
+                "label": "Calendar"
+              },
+              "options__2": {
+                "label": "Clock"
+              },
+              "options__3": {
+                "label": "Phone"
+              },
+              "options__4": {
+                "label": "Email"
+              },
+              "options__5": {
+                "label": "Chat"
+              },
+              "options__6": {
+                "label": "Arrow"
+              },
+              "options__7": {
+                "label": "Check"
+              },
+              "options__8": {
+                "label": "Sparkle"
+              }
             },
             "secondary_cta_text": {
               "label": "Secondary button text"
@@ -3088,37 +3197,89 @@
     "main-collection-drawer": {
       "name": "Collection — drawer",
       "settings": {
-        "products_per_page": { "label": "Products per page" },
-        "header__grid": { "content": "Grid" },
-        "cols_desktop": { "label": "Columns on desktop" },
-        "cols_mobile": { "label": "Columns on mobile" },
-        "show_secondary_image": { "label": "Show second image on hover" },
-        "show_quote_button": { "label": "Show \"View details\" button" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Show collection description" },
-        "header__spacing": { "content": "Spacing" },
-        "padding_top": { "label": "Padding top" },
-        "padding_bottom": { "label": "Padding bottom" },
-        "header__color": { "content": "Color" },
-        "color_scheme": { "label": "Color scheme" }
+        "products_per_page": {
+          "label": "Products per page"
+        },
+        "header__grid": {
+          "content": "Grid"
+        },
+        "cols_desktop": {
+          "label": "Columns on desktop"
+        },
+        "cols_mobile": {
+          "label": "Columns on mobile"
+        },
+        "show_secondary_image": {
+          "label": "Show second image on hover"
+        },
+        "show_quote_button": {
+          "label": "Show \"View details\" button"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Show collection description"
+        },
+        "header__spacing": {
+          "content": "Spacing"
+        },
+        "padding_top": {
+          "label": "Padding top"
+        },
+        "padding_bottom": {
+          "label": "Padding bottom"
+        },
+        "header__color": {
+          "content": "Color"
+        },
+        "color_scheme": {
+          "label": "Color scheme"
+        }
       }
     },
     "main-collection-vertical": {
       "name": "Collection — sidebar",
       "settings": {
-        "products_per_page": { "label": "Products per page" },
-        "header__grid": { "content": "Grid" },
-        "cols_desktop": { "label": "Columns on desktop" },
-        "cols_mobile": { "label": "Columns on mobile" },
-        "show_secondary_image": { "label": "Show second image on hover" },
-        "show_quote_button": { "label": "Show \"View details\" button" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Show collection description" },
-        "header__spacing": { "content": "Spacing" },
-        "padding_top": { "label": "Padding top" },
-        "padding_bottom": { "label": "Padding bottom" },
-        "header__color": { "content": "Color" },
-        "color_scheme": { "label": "Color scheme" }
+        "products_per_page": {
+          "label": "Products per page"
+        },
+        "header__grid": {
+          "content": "Grid"
+        },
+        "cols_desktop": {
+          "label": "Columns on desktop"
+        },
+        "cols_mobile": {
+          "label": "Columns on mobile"
+        },
+        "show_secondary_image": {
+          "label": "Show second image on hover"
+        },
+        "show_quote_button": {
+          "label": "Show \"View details\" button"
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Show collection description"
+        },
+        "header__spacing": {
+          "content": "Spacing"
+        },
+        "padding_top": {
+          "label": "Padding top"
+        },
+        "padding_bottom": {
+          "label": "Padding bottom"
+        },
+        "header__color": {
+          "content": "Color"
+        },
+        "color_scheme": {
+          "label": "Color scheme"
+        }
       }
     },
     "main-article": {
@@ -4427,8 +4588,12 @@
           "label": "Remember for",
           "info": "Number of days before the age check appears again for the same visitor."
         },
-        "header__content": { "content": "Content" },
-        "image": { "label": "Background image" },
+        "header__content": {
+          "content": "Content"
+        },
+        "image": {
+          "label": "Background image"
+        },
         "icon": {
           "label": "Icon SVG",
           "info": "Paste SVG code for an icon shown in the center. Used only when no background image is set."
@@ -4437,15 +4602,25 @@
           "label": "Minimum age",
           "info": "Used in the default heading and description, for example \"Are you 21 or older?\""
         },
-        "heading": { "label": "Heading override" },
-        "description": { "label": "Description override" },
-        "accept_label": { "label": "Accept button label" },
-        "decline_label": { "label": "Decline link label" },
+        "heading": {
+          "label": "Heading override"
+        },
+        "description": {
+          "label": "Description override"
+        },
+        "accept_label": {
+          "label": "Accept button label"
+        },
+        "decline_label": {
+          "label": "Decline link label"
+        },
         "decline_url": {
           "label": "Decline destination URL",
           "info": "Where customers who decline are sent. Defaults to a generic external page when blank."
         },
-        "disclaimer": { "label": "Legal disclaimer (small print)" }
+        "disclaimer": {
+          "label": "Legal disclaimer (small print)"
+        }
       }
     },
     "mobile-dock": {
@@ -4455,34 +4630,72 @@
         "hide_above": {
           "label": "Hide above width",
           "info": "The dock is hidden on screens wider than this.",
-          "options__600": { "label": "Phone only (under 600px)" },
-          "options__750": { "label": "Phone + tablet portrait (under 750px)" },
-          "options__990": { "label": "Phone + tablet (under 990px)" }
+          "options__600": {
+            "label": "Phone only (under 600px)"
+          },
+          "options__750": {
+            "label": "Phone + tablet portrait (under 750px)"
+          },
+          "options__990": {
+            "label": "Phone + tablet (under 990px)"
+          }
         },
-        "show_border": { "label": "Show top border" },
-        "rounded": { "label": "Rounded top corners" }
+        "show_border": {
+          "label": "Show top border"
+        },
+        "rounded": {
+          "label": "Rounded top corners"
+        }
       },
       "blocks": {
-        "common": { "title_label": "Label" },
-        "home": { "name": "Home" },
-        "search": { "name": "Search" },
-        "menu": { "name": "Menu" },
-        "cart": { "name": "Cart" },
-        "account": { "name": "Account" },
+        "common": {
+          "title_label": "Label"
+        },
+        "home": {
+          "name": "Home"
+        },
+        "search": {
+          "name": "Search"
+        },
+        "menu": {
+          "name": "Menu"
+        },
+        "cart": {
+          "name": "Cart"
+        },
+        "account": {
+          "name": "Account"
+        },
         "link": {
           "name": "Custom link",
           "settings": {
-            "link": { "label": "Link URL" },
+            "link": {
+              "label": "Link URL"
+            },
             "icon": {
               "label": "Icon",
-              "options__grid": { "label": "Grid" },
-              "options__star": { "label": "Star" },
-              "options__heart": { "label": "Heart" },
-              "options__tag": { "label": "Tag" },
-              "options__phone": { "label": "Phone" },
-              "options__message": { "label": "Message" }
+              "options__grid": {
+                "label": "Grid"
+              },
+              "options__star": {
+                "label": "Star"
+              },
+              "options__heart": {
+                "label": "Heart"
+              },
+              "options__tag": {
+                "label": "Tag"
+              },
+              "options__phone": {
+                "label": "Phone"
+              },
+              "options__message": {
+                "label": "Message"
+              }
             },
-            "open_in_new_tab": { "label": "Open in new tab" }
+            "open_in_new_tab": {
+              "label": "Open in new tab"
+            }
           }
         }
       }
@@ -5934,12 +6147,24 @@
     "spacer": {
       "name": "Spacer",
       "settings": {
-        "height_desktop": { "label": "Height on desktop" },
-        "height_mobile": { "label": "Height on mobile" },
-        "header__divider": { "content": "Divider" },
-        "show_divider": { "label": "Show divider line" },
-        "divider_thickness": { "label": "Divider thickness" },
-        "divider_width": { "label": "Divider width" }
+        "height_desktop": {
+          "label": "Height on desktop"
+        },
+        "height_mobile": {
+          "label": "Height on mobile"
+        },
+        "header__divider": {
+          "content": "Divider"
+        },
+        "show_divider": {
+          "label": "Show divider line"
+        },
+        "divider_thickness": {
+          "label": "Divider thickness"
+        },
+        "divider_width": {
+          "label": "Divider width"
+        }
       }
     },
     "shared": {

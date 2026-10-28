@@ -436,7 +436,7 @@
       "name": "Datos del producto",
       "settings": {
         "intro": {
-          "content": "Conecta funciones opcionales del producto con tus propios metacampos. Escribe un espacio de nombres y una clave, por ejemplo custom.deal_ends_at. Déjalo en blanco para desactivar la función."
+          "content": "Las tarjetas de producto, las páginas de colección y los resultados de búsqueda leen estos metacampos. Introduce un espacio de nombres y una clave como custom.deal_ends_at, o deja un campo vacío para desactivar la función. En la página de producto, conecta los metacampos directamente en los bloques Cuenta regresiva, Etiquetas y Detalles del producto con el botón de fuente dinámica."
         },
         "kt_mf_deal_end": {
           "label": "Metacampo de fin de oferta",
@@ -659,23 +659,43 @@
           "label": "Esquema de color del menú móvil",
           "info": "Esquema de color del cajón de menú móvil. El valor predeterminado es un esquema oscuro para un aspecto cinematográfico."
         },
-        "header__layout": { "content": "Diseño" },
+        "header__layout": {
+          "content": "Diseño"
+        },
         "logo_position": {
           "label": "Posición del logotipo",
-          "options__left": { "label": "Izquierda" },
-          "options__center": { "label": "Centro" }
+          "options__left": {
+            "label": "Izquierda"
+          },
+          "options__center": {
+            "label": "Centro"
+          }
         },
         "desktop_nav_alignment": {
           "label": "Alineación de navegación de escritorio",
           "info": "Móvil mantiene el diseño estándar con logotipo a la izquierda.",
-          "options__center": { "label": "Centro" },
-          "options__right": { "label": "Derecha" }
+          "options__center": {
+            "label": "Centro"
+          },
+          "options__right": {
+            "label": "Derecha"
+          }
         },
-        "padding_top": { "label": "Padding superior" },
-        "padding_bottom": { "label": "Padding inferior" },
-        "header__icons": { "content": "Iconos de acción" },
-        "show_search_icon": { "label": "Mostrar icono de búsqueda" },
-        "show_account_icon": { "label": "Mostrar icono de cuenta" },
+        "padding_top": {
+          "label": "Padding superior"
+        },
+        "padding_bottom": {
+          "label": "Padding inferior"
+        },
+        "header__icons": {
+          "content": "Iconos de acción"
+        },
+        "show_search_icon": {
+          "label": "Mostrar icono de búsqueda"
+        },
+        "show_account_icon": {
+          "label": "Mostrar icono de cuenta"
+        },
         "show_cart_icon": {
           "label": "Mostrar icono del carrito",
           "info": "Oculta el carrito solo si tu tienda no acepta pedidos en línea."
@@ -1927,9 +1947,15 @@
         "bottom_heading_tag": {
           "label": "Nivel del encabezado",
           "info": "Usa H1 solo si la página no tiene otro H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "bottom_description": {
           "label": "Descripción"
@@ -2086,9 +2112,15 @@
         "showrooms_heading_tag": {
           "label": "Nivel del título de ubicaciones",
           "info": "Usa H1 solo si la página no tiene otro H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "header__contact_form": {
           "content": "Formulario de contacto"
@@ -2105,9 +2137,15 @@
         "form_heading_tag": {
           "label": "Nivel del título del formulario",
           "info": "Usa H1 solo si la página no tiene otro H1.",
-          "options__h1": { "label": "H1" },
-          "options__h2": { "label": "H2" },
-          "options__h3": { "label": "H3" }
+          "options__h1": {
+            "label": "H1"
+          },
+          "options__h2": {
+            "label": "H2"
+          },
+          "options__h3": {
+            "label": "H3"
+          }
         },
         "form_description": {
           "label": "Descripción del formulario"
@@ -2271,7 +2309,7 @@
         },
         "countdown": {
           "name": "Cuenta atrás",
-          "info": "Solo se muestra si el producto tiene una fecha de finalización configurada.",
+          "info": "Se muestra cuando hay una fecha de fin de oferta, en este bloque o en Configuración del tema > Datos de producto.",
           "settings": {
             "label": {
               "label": "Etiqueta encima del temporizador"
@@ -2281,6 +2319,10 @@
             },
             "ending_label": {
               "label": "Etiqueta de finalización"
+            },
+            "ends_at": {
+              "label": "Fecha de fin de la oferta",
+              "info": "Conecta un metacampo de fecha y hora con el botón de fuente dinámica. Si está vacío, se usa Configuración del tema > Datos de producto."
             }
           }
         },
@@ -2357,20 +2399,59 @@
             "info": "Muestra datos del producto en el panel de Shopify, como SKU, código de barras, peso, proveedor y tipo. Los campos vacíos se ocultan.",
             "header_fields": "Campos a mostrar",
             "header_layout": "Visualización",
-            "show_sku": { "label": "SKU", "info": "Se obtiene del campo SKU de la variante seleccionada." },
-            "show_barcode": { "label": "Código de barras", "info": "Se obtiene del campo código de barras de la variante (ISBN, UPC, GTIN, etc.)." },
-            "show_weight": { "label": "Peso", "info": "Se obtiene del campo peso de la variante. Oculto si es 0 o vacío. Respeta la unidad de peso de la tienda (kg / g / lb / oz)." },
-            "show_dimensions": { "label": "Dimensiones del paquete", "info": "Usa los metacampos de longitud, anchura, altura y unidad elegidos en Configuración del tema > Datos del producto." },
-            "show_vendor": { "label": "Marca / proveedor" },
-            "show_type": { "label": "Tipo de producto" },
-            "show_origin": { "label": "País de origen", "info": "Usa el metacampo de país de origen elegido en Configuración del tema > Datos del producto." },
-            "show_tags": { "label": "Etiquetas", "info": "Las etiquetas que empiezan con _ se ocultan." },
+            "show_sku": {
+              "label": "SKU",
+              "info": "Se obtiene del campo SKU de la variante seleccionada."
+            },
+            "show_barcode": {
+              "label": "Código de barras",
+              "info": "Se obtiene del campo código de barras de la variante (ISBN, UPC, GTIN, etc.)."
+            },
+            "show_weight": {
+              "label": "Peso",
+              "info": "Se obtiene del campo peso de la variante. Oculto si es 0 o vacío. Respeta la unidad de peso de la tienda (kg / g / lb / oz)."
+            },
+            "show_dimensions": {
+              "label": "Dimensiones del paquete",
+              "info": "Usa el largo, ancho, alto y unidad de Fuentes de datos más abajo, o de Configuración del tema > Datos de producto."
+            },
+            "show_vendor": {
+              "label": "Marca / proveedor"
+            },
+            "show_type": {
+              "label": "Tipo de producto"
+            },
+            "show_origin": {
+              "label": "País de origen",
+              "info": "Usa el país de origen de Fuentes de datos más abajo, o de Configuración del tema > Datos de producto."
+            },
+            "show_tags": {
+              "label": "Etiquetas",
+              "info": "Las etiquetas que empiezan con _ se ocultan."
+            },
             "layout": {
               "label": "Diseño",
               "options": {
                 "inline": "En línea (etiqueta izquierda, valor derecha)",
                 "stack": "Apilado (etiqueta encima del valor)"
               }
+            },
+            "header_sources": "Fuentes de datos",
+            "sources_info": "Conecta metacampos con el botón de fuente dinámica. Los campos vacíos usan Configuración del tema > Datos de producto.",
+            "origin": {
+              "label": "País de origen"
+            },
+            "length": {
+              "label": "Largo"
+            },
+            "width": {
+              "label": "Ancho"
+            },
+            "height": {
+              "label": "Alto"
+            },
+            "dimension_unit": {
+              "label": "Unidad de medida"
             }
           }
         },
@@ -2396,7 +2477,11 @@
         "tags": {
           "name": "Etiquetas",
           "settings": {
-            "info": "Muestra el metacampo de características elegido en Configuración del tema > Datos del producto. Si no, muestra las etiquetas del producto."
+            "info": "Muestra el metacampo de características elegido en Configuración del tema > Datos del producto. Si no, muestra las etiquetas del producto.",
+            "features": {
+              "label": "Lista de características",
+              "info": "Conecta un metacampo de lista de texto de una línea o escribe características separadas por comas. Si está vacío, se usa Configuración del tema > Datos de producto y luego las etiquetas del producto."
+            }
           }
         },
         "trust_badges": {
@@ -2676,19 +2761,43 @@
         "trust_badges": {
           "name": "Insignias de confianza",
           "settings": {
-            "badge_1_icon": { "label": "Insignia 1 — icono" },
-            "badge_1_text": { "label": "Insignia 1 — texto" },
-            "badge_2_icon": { "label": "Insignia 2 — icono" },
-            "badge_2_text": { "label": "Insignia 2 — texto" },
-            "badge_3_icon": { "label": "Insignia 3 — icono" },
-            "badge_3_text": { "label": "Insignia 3 — texto" },
-            "badge_4_icon": { "label": "Insignia 4 — icono" },
-            "badge_4_text": { "label": "Insignia 4 — texto" },
+            "badge_1_icon": {
+              "label": "Insignia 1 — icono"
+            },
+            "badge_1_text": {
+              "label": "Insignia 1 — texto"
+            },
+            "badge_2_icon": {
+              "label": "Insignia 2 — icono"
+            },
+            "badge_2_text": {
+              "label": "Insignia 2 — texto"
+            },
+            "badge_3_icon": {
+              "label": "Insignia 3 — icono"
+            },
+            "badge_3_text": {
+              "label": "Insignia 3 — texto"
+            },
+            "badge_4_icon": {
+              "label": "Insignia 4 — icono"
+            },
+            "badge_4_text": {
+              "label": "Insignia 4 — texto"
+            },
             "badge_icon": {
-              "options__1": { "label": "Envío" },
-              "options__2": { "label": "Devoluciones" },
-              "options__3": { "label": "Garantía" },
-              "options__4": { "label": "Paquete" }
+              "options__1": {
+                "label": "Envío"
+              },
+              "options__2": {
+                "label": "Devoluciones"
+              },
+              "options__3": {
+                "label": "Garantía"
+              },
+              "options__4": {
+                "label": "Paquete"
+              }
             }
           }
         },
@@ -2698,7 +2807,9 @@
             "paragraph": {
               "content": "Muestra los productos complementarios configurados en la app Shopify Search & Discovery. Se oculta si no hay."
             },
-            "heading": { "label": "Título" },
+            "heading": {
+              "label": "Título"
+            },
             "products_count": {
               "label": "Máximo de productos a mostrar",
               "info": "Diseño compacto que acomoda 1–4 productos en la columna de info del PDP sin desbordarse."
@@ -2716,8 +2827,12 @@
             },
             "primary_cta_action": {
               "label": "Acción del botón principal",
-              "options__1": { "label": "Abrir formulario (panel de consulta)" },
-              "options__2": { "label": "Ir a una URL personalizada" }
+              "options__1": {
+                "label": "Abrir formulario (panel de consulta)"
+              },
+              "options__2": {
+                "label": "Ir a una URL personalizada"
+              }
             },
             "primary_cta_link": {
               "label": "URL del botón principal",
@@ -2739,14 +2854,30 @@
               "label": "Icono"
             },
             "icon": {
-              "options__1": { "label": "Calendario" },
-              "options__2": { "label": "Reloj" },
-              "options__3": { "label": "Teléfono" },
-              "options__4": { "label": "Correo" },
-              "options__5": { "label": "Chat" },
-              "options__6": { "label": "Flecha" },
-              "options__7": { "label": "Marca" },
-              "options__8": { "label": "Destello" }
+              "options__1": {
+                "label": "Calendario"
+              },
+              "options__2": {
+                "label": "Reloj"
+              },
+              "options__3": {
+                "label": "Teléfono"
+              },
+              "options__4": {
+                "label": "Correo"
+              },
+              "options__5": {
+                "label": "Chat"
+              },
+              "options__6": {
+                "label": "Flecha"
+              },
+              "options__7": {
+                "label": "Marca"
+              },
+              "options__8": {
+                "label": "Destello"
+              }
             },
             "secondary_cta_text": {
               "label": "Texto del botón secundario"
@@ -3066,37 +3197,89 @@
     "main-collection-drawer": {
       "name": "Colección — cajón",
       "settings": {
-        "products_per_page": { "label": "Productos por página" },
-        "header__grid": { "content": "Cuadrícula" },
-        "cols_desktop": { "label": "Columnas en escritorio" },
-        "cols_mobile": { "label": "Columnas en móvil" },
-        "show_secondary_image": { "label": "Mostrar segunda imagen al pasar el cursor" },
-        "show_quote_button": { "label": "Mostrar botón \"Ver detalles\"" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Mostrar descripción de la colección" },
-        "header__spacing": { "content": "Espaciado" },
-        "padding_top": { "label": "Padding superior" },
-        "padding_bottom": { "label": "Padding inferior" },
-        "header__color": { "content": "Color" },
-        "color_scheme": { "label": "Esquema de color" }
+        "products_per_page": {
+          "label": "Productos por página"
+        },
+        "header__grid": {
+          "content": "Cuadrícula"
+        },
+        "cols_desktop": {
+          "label": "Columnas en escritorio"
+        },
+        "cols_mobile": {
+          "label": "Columnas en móvil"
+        },
+        "show_secondary_image": {
+          "label": "Mostrar segunda imagen al pasar el cursor"
+        },
+        "show_quote_button": {
+          "label": "Mostrar botón \"Ver detalles\""
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Mostrar descripción de la colección"
+        },
+        "header__spacing": {
+          "content": "Espaciado"
+        },
+        "padding_top": {
+          "label": "Padding superior"
+        },
+        "padding_bottom": {
+          "label": "Padding inferior"
+        },
+        "header__color": {
+          "content": "Color"
+        },
+        "color_scheme": {
+          "label": "Esquema de color"
+        }
       }
     },
     "main-collection-vertical": {
       "name": "Colección — barra lateral",
       "settings": {
-        "products_per_page": { "label": "Productos por página" },
-        "header__grid": { "content": "Cuadrícula" },
-        "cols_desktop": { "label": "Columnas en escritorio" },
-        "cols_mobile": { "label": "Columnas en móvil" },
-        "show_secondary_image": { "label": "Mostrar segunda imagen al pasar el cursor" },
-        "show_quote_button": { "label": "Mostrar botón \"Ver detalles\"" },
-        "header__hero": { "content": "Hero" },
-        "show_collection_description": { "label": "Mostrar descripción de la colección" },
-        "header__spacing": { "content": "Espaciado" },
-        "padding_top": { "label": "Padding superior" },
-        "padding_bottom": { "label": "Padding inferior" },
-        "header__color": { "content": "Color" },
-        "color_scheme": { "label": "Esquema de color" }
+        "products_per_page": {
+          "label": "Productos por página"
+        },
+        "header__grid": {
+          "content": "Cuadrícula"
+        },
+        "cols_desktop": {
+          "label": "Columnas en escritorio"
+        },
+        "cols_mobile": {
+          "label": "Columnas en móvil"
+        },
+        "show_secondary_image": {
+          "label": "Mostrar segunda imagen al pasar el cursor"
+        },
+        "show_quote_button": {
+          "label": "Mostrar botón \"Ver detalles\""
+        },
+        "header__hero": {
+          "content": "Hero"
+        },
+        "show_collection_description": {
+          "label": "Mostrar descripción de la colección"
+        },
+        "header__spacing": {
+          "content": "Espaciado"
+        },
+        "padding_top": {
+          "label": "Padding superior"
+        },
+        "padding_bottom": {
+          "label": "Padding inferior"
+        },
+        "header__color": {
+          "content": "Color"
+        },
+        "color_scheme": {
+          "label": "Esquema de color"
+        }
       }
     },
     "main-article": {
@@ -4405,8 +4588,12 @@
           "label": "Recordar durante",
           "info": "Días antes de que la verificación vuelva a aparecer para el mismo visitante."
         },
-        "header__content": { "content": "Contenido" },
-        "image": { "label": "Imagen de fondo" },
+        "header__content": {
+          "content": "Contenido"
+        },
+        "image": {
+          "label": "Imagen de fondo"
+        },
         "icon": {
           "label": "SVG del icono",
           "info": "Pega el código SVG de un icono centrado. Solo se usa sin imagen de fondo."
@@ -4415,15 +4602,25 @@
           "label": "Edad mínima",
           "info": "Se usa en el encabezado y la descripción predeterminados, por ejemplo «¿Tienes 21 años o más?»"
         },
-        "heading": { "label": "Encabezado (anulación)" },
-        "description": { "label": "Descripción (anulación)" },
-        "accept_label": { "label": "Texto del botón de aceptar" },
-        "decline_label": { "label": "Texto del enlace de rechazar" },
+        "heading": {
+          "label": "Encabezado (anulación)"
+        },
+        "description": {
+          "label": "Descripción (anulación)"
+        },
+        "accept_label": {
+          "label": "Texto del botón de aceptar"
+        },
+        "decline_label": {
+          "label": "Texto del enlace de rechazar"
+        },
         "decline_url": {
           "label": "URL de destino al rechazar",
           "info": "A dónde se envía a los clientes que rechazan. Si se deja vacío, se usa una página externa genérica."
         },
-        "disclaimer": { "label": "Aviso legal (letra pequeña)" }
+        "disclaimer": {
+          "label": "Aviso legal (letra pequeña)"
+        }
       }
     },
     "mobile-dock": {
@@ -4433,34 +4630,72 @@
         "hide_above": {
           "label": "Ocultar por encima del ancho",
           "info": "Se oculta en pantallas más anchas.",
-          "options__600": { "label": "Solo teléfono (menos de 600px)" },
-          "options__750": { "label": "Teléfono + tableta vertical (menos de 750px)" },
-          "options__990": { "label": "Teléfono + tableta (menos de 990px)" }
+          "options__600": {
+            "label": "Solo teléfono (menos de 600px)"
+          },
+          "options__750": {
+            "label": "Teléfono + tableta vertical (menos de 750px)"
+          },
+          "options__990": {
+            "label": "Teléfono + tableta (menos de 990px)"
+          }
         },
-        "show_border": { "label": "Mostrar borde superior" },
-        "rounded": { "label": "Esquinas superiores redondeadas" }
+        "show_border": {
+          "label": "Mostrar borde superior"
+        },
+        "rounded": {
+          "label": "Esquinas superiores redondeadas"
+        }
       },
       "blocks": {
-        "common": { "title_label": "Etiqueta" },
-        "home": { "name": "Inicio" },
-        "search": { "name": "Búsqueda" },
-        "menu": { "name": "Menú" },
-        "cart": { "name": "Carrito" },
-        "account": { "name": "Cuenta" },
+        "common": {
+          "title_label": "Etiqueta"
+        },
+        "home": {
+          "name": "Inicio"
+        },
+        "search": {
+          "name": "Búsqueda"
+        },
+        "menu": {
+          "name": "Menú"
+        },
+        "cart": {
+          "name": "Carrito"
+        },
+        "account": {
+          "name": "Cuenta"
+        },
         "link": {
           "name": "Enlace personalizado",
           "settings": {
-            "link": { "label": "URL del enlace" },
+            "link": {
+              "label": "URL del enlace"
+            },
             "icon": {
               "label": "Icono",
-              "options__grid": { "label": "Cuadrícula" },
-              "options__star": { "label": "Estrella" },
-              "options__heart": { "label": "Corazón" },
-              "options__tag": { "label": "Etiqueta" },
-              "options__phone": { "label": "Teléfono" },
-              "options__message": { "label": "Mensaje" }
+              "options__grid": {
+                "label": "Cuadrícula"
+              },
+              "options__star": {
+                "label": "Estrella"
+              },
+              "options__heart": {
+                "label": "Corazón"
+              },
+              "options__tag": {
+                "label": "Etiqueta"
+              },
+              "options__phone": {
+                "label": "Teléfono"
+              },
+              "options__message": {
+                "label": "Mensaje"
+              }
             },
-            "open_in_new_tab": { "label": "Abrir en nueva pestaña" }
+            "open_in_new_tab": {
+              "label": "Abrir en nueva pestaña"
+            }
           }
         }
       }
@@ -5912,12 +6147,24 @@
     "spacer": {
       "name": "Espaciador",
       "settings": {
-        "height_desktop": { "label": "Altura en escritorio" },
-        "height_mobile": { "label": "Altura en móvil" },
-        "header__divider": { "content": "Separador" },
-        "show_divider": { "label": "Mostrar línea separadora" },
-        "divider_thickness": { "label": "Grosor del separador" },
-        "divider_width": { "label": "Ancho del separador" }
+        "height_desktop": {
+          "label": "Altura en escritorio"
+        },
+        "height_mobile": {
+          "label": "Altura en móvil"
+        },
+        "header__divider": {
+          "content": "Separador"
+        },
+        "show_divider": {
+          "label": "Mostrar línea separadora"
+        },
+        "divider_thickness": {
+          "label": "Grosor del separador"
+        },
+        "divider_width": {
+          "label": "Ancho del separador"
+        }
       }
     },
     "shared": {
