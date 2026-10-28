@@ -10,6 +10,10 @@ on:
       confirm:
         description: Type "delete" to remove all unpublished and development themes
         required: true
+      theme_ids:
+        description: Only delete these unpublished theme IDs (space separated). Overrides the other filters.
+        required: false
+        default: ''
       name_prefix:
         description: Only delete unpublished themes whose name starts with this (empty = all unpublished and development themes)
         required: false
@@ -43,6 +47,7 @@ jobs:
       - name: Delete unpublished themes
         env:
           NAME_PREFIX: ${{ inputs.name_prefix }}
+          THEME_IDS: ${{ inputs.theme_ids }}
           SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
           SHOPIFY_CLI_TTY: '0'
           CI: '1'
@@ -53,6 +58,21 @@ jobs:
           if [ -n "$NAME_PREFIX" ]; then
             jq --arg p "$NAME_PREFIX" '[flatten[] | select(type == "object" and .role == "unpublished" and (.name | startswith($p)))]' themes.json > filtered.json
             mv filtered.json themes.json
+          fi
+          if [ -n "$THEME_IDS" ]; then
+            shopify theme list --role unpublished > unpublished.txt
+            : > themes.tsv
+            for id in $THEME_IDS; do
+              line=$(grep -E "#$id\b" unpublished.txt || true)
+              if [ -n "$line" ]; then printf '%s\t%s\n' "$id" "$(echo "$line" | sed 's/│//g; s/ \[unpublished\].*//; s/^ *//')" >> themes.tsv; else echo "skip $id (not an unpublished theme)"; fi
+            done
+            echo "Themes to delete: $(wc -l < themes.tsv)" | tee -a "$GITHUB_STEP_SUMMARY"
+            while IFS=$'\t' read -r id name; do
+              shopify theme delete --theme "$id" --force
+              echo "- Deleted #$id $name" | tee -a "$GITHUB_STEP_SUMMARY"
+            done < themes.tsv
+            shopify theme list | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
           echo "Themes to delete: $(jq length themes.json)" | tee -a "$GITHUB_STEP_SUMMARY"
           jq -r '.[] | "\(.id)\t\(.name)"' themes.json | while IFS=$'\t' read -r id name; do
