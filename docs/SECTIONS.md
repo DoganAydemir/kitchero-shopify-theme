@@ -1,6 +1,6 @@
-# Sections catalogue
+# Sections catalog
 
-Curated catalogue of the headline merchant-droppable sections in Kitchero,
+Curated catalog of the headline merchant-droppable sections in Kitchero,
 grouped by intent. All sections support presets, theme-editor live editing,
 translatable labels (5 languages: EN, TR, DE, FR, ES), and WCAG AA
 accessibility.
@@ -9,7 +9,7 @@ Template-bound sections (`main-*.liquid`) are not listed here — they only
 render on their associated template (product, collection, cart, etc.).
 Some smaller utility / page-specific sections (rich-text, multicolumn,
 financing-* family, recently-viewed-products, etc.) ship in the repo but
-are not given dedicated catalogue entries below; their schemas describe
+are not given dedicated catalog entries below; their schemas describe
 them in the theme editor when merchants browse the section picker.
 
 ---

@@ -61,7 +61,7 @@ shopify theme push --theme "kitchero-v3" --allow-live   # if live store is the p
 ```bash
 git checkout demo
 git merge main                # pull latest theme code in
-# … customise via Theme Editor on the demo store, or edit templates/*.json …
+# … customize via Theme Editor on the demo store, or edit templates/*.json …
 git commit -m "demo: … (NOT submit-safe)"
 git push origin demo
 shopify theme push --theme "kitchero-demo" --store=kitchero-demo.myshopify.com
@@ -139,7 +139,7 @@ real content on the `demo` branch only.
 ## Cherry-picking from `demo` back to `main`
 
 Occasionally a code fix happens while you're on `demo` (you spot a CSS
-bug while customising a section). Move that commit to `main`:
+bug while customizing a section). Move that commit to `main`:
 
 ```bash
 git log --oneline demo ^main                    # see what's only on demo

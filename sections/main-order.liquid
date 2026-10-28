@@ -42,24 +42,24 @@
         </header>
 
     {%- comment -%}
-      Cancelled-order banner. `order.cancelled_at` is set when the
+      Canceled-order banner. `order.cancelled_at` is set when the
       merchant (or customer-support agent) cancels the order.
-      `cancel_reason_label` is localised by Shopify. Without this
-      banner the only visual cue a cancelled order gives is the
+      `cancel_reason_label` is localized by Shopify. Without this
+      banner the only visual cue a canceled order gives is the
       financial_status pill reading "Refunded" — not enough to
-      distinguish "shipped and refunded" from "cancelled before
+      distinguish "shipped and refunded" from "canceled before
       fulfillment". Surfacing the cancellation date + reason here
       prevents the "why hasn't my order shipped" support ticket.
     {%- endcomment -%}
     {%- if order.cancelled_at != blank -%}
-      {%- assign cancelled_date = order.cancelled_at | date: format: 'date' -%}
-      <div class="kt-order__cancelled" role="note">
-        <p class="kt-order__cancelled-heading">
-          {{ 'kt.customer.order.cancelled_heading' | t: date: cancelled_date }}
+      {%- assign canceled_date = order.cancelled_at | date: format: 'date' -%}
+      <div class="kt-order__canceled" role="note">
+        <p class="kt-order__canceled-heading">
+          {{ 'kt.customer.order.canceled_heading' | t: date: canceled_date }}
         </p>
         {%- if order.cancel_reason_label != blank -%}
-          <p class="kt-order__cancelled-reason">
-            {{ 'kt.customer.order.cancelled_reason' | t: reason: order.cancel_reason_label }}
+          <p class="kt-order__canceled-reason">
+            {{ 'kt.customer.order.canceled_reason' | t: reason: order.cancel_reason_label }}
           </p>
         {%- endif -%}
       </div>
@@ -103,7 +103,7 @@
       customers like tracking info was missing rather than pending.
       This note fills the gap with a reassuring "we'll update you"
       copy, suppressed once a fulfillment exists or the order is
-      cancelled (cancellation note above already explains THAT state).
+      canceled (cancellation note above already explains THAT state).
     {%- endcomment -%}
     {%- if fulfillment_count == 0 and order.cancelled_at == blank -%}
       <div class="kt-order__pending" role="note">
@@ -312,7 +312,7 @@
           "Discount: -$X" line; customers filing disputes or cross-
           checking promotional emails had no way to see which codes
           actually applied. `order.cart_level_discount_applications`
-          lists each applied code with its localised title and saved
+          lists each applied code with its localized title and saved
           amount. Fall back to the aggregate row when no code-level
           attributions exist (e.g., an automatic discount that the
           API doesn't attribute to an individual code).
@@ -334,7 +334,7 @@
         {%- for shipping_method in order.shipping_methods -%}
           <div class="kt-order__totals-row">
             {%- comment -%}
-              Defence-in-depth `| escape` on shipping_method.title.
+              Defense-in-depth `| escape` on shipping_method.title.
               Carrier-rate titles are merchant-configured strings
               (manual shipping rates, third-party shipping app
               labels, B2B custom shipping rate names). Matches the
@@ -349,7 +349,7 @@
         {%- for tax_line in order.tax_lines -%}
           <div class="kt-order__totals-row">
             {%- comment -%}
-              Defence-in-depth `| escape` on tax_line.title. Tax
+              Defense-in-depth `| escape` on tax_line.title. Tax
               labels typically come from Shopify Tax / third-party
               tax apps; custom-tax merchants can rename them via
               admin so user-controlled content is possible.
@@ -444,7 +444,7 @@
       merchant-defined OR B2B buyer-populated key/value pairs).
       Common uses:
         - B2B purchase-order number (`attributes['PO Number']`)
-        - B2B cost centre / project code
+        - B2B cost center / project code
         - Gift-recipient shipping scheduling date ("Deliver on")
         - Custom engraving text on multi-line orders
       Without this block, a B2B buyer reviewing their order page

@@ -245,7 +245,7 @@ plus `header` and `footer`) and **63 merchant-droppable sections** grouped into
 10 categories (heroes + banners, sliders, video, galleries, testimonials,
 image + text, collapsibles, commerce + marketing, PDP-adjacent, newsletter + forms).
 
-See [`docs/SECTIONS.md`](./docs/SECTIONS.md) for the full catalogue, organized
+See [`docs/SECTIONS.md`](./docs/SECTIONS.md) for the full catalog, organized
 by intent, with use-when guidance for each section.
 
 ---
@@ -256,7 +256,7 @@ by intent, with use-when guidance for each section.
 |---|---|
 | [`README.md`](./README.md) | This file — overview + install |
 | [`SETUP.md`](./SETUP.md) | Per-page setup walkthrough for merchants |
-| [`docs/SECTIONS.md`](./docs/SECTIONS.md) | Full sections catalogue |
+| [`docs/SECTIONS.md`](./docs/SECTIONS.md) | Full sections catalog |
 | [`docs/THEME-STORE-LISTING.md`](./docs/THEME-STORE-LISTING.md) | Copy-paste Theme Store submission content |
 | [`docs/PREVIEW-IMAGES.md`](./docs/PREVIEW-IMAGES.md) | Spec for preview images required by Shopify |
 | [`PORT_PLAN.md`](./PORT_PLAN.md) | Engineering plan + phase history |
