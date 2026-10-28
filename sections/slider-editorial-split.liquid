@@ -105,7 +105,7 @@
               tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
               {{ block.shopify_attributes }}
             >
-              <span class="kt-slider-editorial__index" aria-hidden="true">{{ index_padded }}</span>
+              <span class="kt-slider-editorial__index" aria-hidden="true" data-index="{{ index_padded }}"></span>
 
               {%- if block.settings.eyebrow != blank -%}
                 <span class="kt-slider-editorial__eyebrow" data-editorial-anim data-delay="120">
@@ -145,7 +145,7 @@
 
         {%- if total_slides == 0 -%}
           <article class="kt-slider-editorial__copy-slide is-active">
-            <span class="kt-slider-editorial__index" aria-hidden="true">01</span>
+            <span class="kt-slider-editorial__index" aria-hidden="true" data-index="01"></span>
             <span class="kt-slider-editorial__eyebrow">{{ 'kt.section.slider_editorial_split.placeholder.eyebrow' | t }}</span>
             <{{ heading_tag }} class="kt-slider-editorial__heading">{{ 'kt.section.slider_editorial_split.placeholder.heading' | t }}</{{ heading_tag }}>
             <p class="kt-slider-editorial__description">{{ 'kt.section.slider_editorial_split.placeholder.description' | t }}</p>
