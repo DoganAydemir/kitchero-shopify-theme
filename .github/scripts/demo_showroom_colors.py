@@ -139,38 +139,25 @@ if OLD_SENTENCE in (p['descriptionHtml'] or ''):
                 {'p': {'id': p['id'], 'descriptionHtml': p['descriptionHtml'].replace(OLD_SENTENCE, NEW_SENTENCE)}})
         errors(r, 'productUpdate')
 
-# new color variants start with no stock: copy stock and policy from the Ivory variant with the same hardware
-inv = gql('''query($h: String!) { productByHandle(handle: $h) { variants(first: 100) { nodes { id
-  selectedOptions { name value } inventoryPolicy inventoryQuantity
-  inventoryItem { id tracked inventoryLevels(first: 5) { nodes { location { id } quantities(names: ["available"]) { quantity } } } } } } } }''', {'h': DEMO})
-nodes = inv['productByHandle']['variants']['nodes']
-def opt(v, n):
-    return next((o['value'] for o in v['selectedOptions'] if o['name'] == n), None)
-ref = {opt(v, 'Hardware finish'): v for v in nodes if opt(v, 'Color') == 'Ivory'}
-qty_changes, policy = [], []
-for v in nodes:
-    r = ref.get(opt(v, 'Hardware finish'))
-    if not r or r['id'] == v['id']:
-        continue
-    if v['inventoryPolicy'] != r['inventoryPolicy']:
-        policy.append({'id': v['id'], 'inventoryPolicy': r['inventoryPolicy']})
-    if r['inventoryItem']['tracked']:
-        for lvl in r['inventoryItem']['inventoryLevels']['nodes']:
-            want = lvl['quantities'][0]['quantity'] if lvl['quantities'] else 0
-            have = next((l['quantities'][0]['quantity'] for l in v['inventoryItem']['inventoryLevels']['nodes']
-                         if l['location']['id'] == lvl['location']['id'] and l['quantities']), 0)
-            if want != have:
-                qty_changes.append({'inventoryItemId': v['inventoryItem']['id'], 'locationId': lvl['location']['id'], 'quantity': want})
-print(f'- stock to copy: {len(qty_changes)} levels, {len(policy)} policies')
-if APPLY and policy:
-    r = gql('''mutation($p: ID!, $v: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $p, variants: $v) {
-        userErrors { field message } } }''', {'p': p['id'], 'v': policy})
-    errors(r, 'productVariantsBulkUpdate')
-if APPLY and qty_changes:
-    r = gql('''mutation($i: InventorySetQuantitiesInput!) { inventorySetQuantities(input: $i) {
-        userErrors { field message } } }''', {'i': {'name': 'available', 'reason': 'correction', 'ignoreCompareQuantity': True,
-        'quantities': qty_changes}})
-    errors(r, 'inventorySetQuantities')
+# New color variants start with no stock (the demo app has no inventory
+# scope), so they are made available the way demo variants are: stock not
+# tracked. Falls back to "continue selling when out of stock".
+inv = gql('''query($h: String!) { productByHandle(handle: $h) { variants(first: 100) { nodes { id availableForSale
+  selectedOptions { name value } } } } }''', {'h': DEMO})
+todo = [v['id'] for v in inv['productByHandle']['variants']['nodes']
+        if not v['availableForSale'] and any(o['name'] == 'Color' and o['value'] != 'Ivory' for o in v['selectedOptions'])]
+print(f'- unavailable color variants to open: {len(todo)}')
+if APPLY and todo:
+    try:
+        r = gql('''mutation($p: ID!, $v: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $p, variants: $v) {
+            userErrors { field message } } }''', {'p': p['id'], 'v': [{'id': i, 'inventoryItem': {'tracked': False}} for i in todo]})
+        errors(r, 'productVariantsBulkUpdate')
+        print('- stock tracking turned off')
+    except SystemExit as e:
+        print(f'- tracked=false failed ({e}); using inventory policy CONTINUE')
+        r = gql('''mutation($p: ID!, $v: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $p, variants: $v) {
+            userErrors { field message } } }''', {'p': p['id'], 'v': [{'id': i, 'inventoryPolicy': 'CONTINUE'} for i in todo]})
+        errors(r, 'productVariantsBulkUpdate')
 
 if APPLY:
     p = product(DEMO)
