@@ -153,17 +153,23 @@
                   A parent item whose menu link is `#` only opens its panel,
                   so it renders as a button instead of an empty link.
                 {%- endcomment -%}
-                <{% if link_is_toggle_only %}button type="button"{% else %}a href="{{ link.url }}"{% endif %}
+                {%- capture kt_trigger_attrs -%}
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
                   aria-haspopup="true"
                   aria-controls="kt-header-mega-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
-                >
+                {%- endcapture -%}
+                {%- capture kt_trigger_label -%}
                   {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
-                </{% if link_is_toggle_only %}button{% else %}a{% endif %}>
+                {%- endcapture -%}
+                {%- if link_is_toggle_only -%}
+                  <button type="button" {{ kt_trigger_attrs }}>{{ kt_trigger_label }}</button>
+                {%- else -%}
+                  <a href="{{ link.url }}" {{ kt_trigger_attrs }}>{{ kt_trigger_label }}</a>
+                {%- endif -%}
                 {%- comment -%}
                   Previously emitted role="menu" + role="menuitem" here
                   to match the APG "application menu" pattern, but the
@@ -253,22 +259,28 @@
 
               {%- elsif link.links.size > 0 -%}
                 {%- comment -%} ===== FLYOUT DROPDOWN (2-level: parent > children list) ===== {%- endcomment -%}
-                <{% if link_is_toggle_only %}button type="button"{% else %}a href="{{ link.url }}"{% endif %}
+                {%- comment -%}
+                  Same ARIA 1.2 disclosure pairing as the mega-menu trigger
+                  above: aria-expanded needs aria-controls + aria-haspopup so
+                  SR users know what region opens.
+                {%- endcomment -%}
+                {%- capture kt_trigger_attrs -%}
                   class="kt-header__menu-link"
                   data-flyout-trigger
                   aria-expanded="false"
-                  {% comment -%}
-                    Same ARIA 1.2 disclosure pairing as the mega-menu
-                    trigger above — aria-expanded needs aria-controls
-                    + aria-haspopup so SR users know what region opens.
-                  {%- endcomment %}
                   aria-haspopup="true"
                   aria-controls="kt-header-flyout-{{ link.handle }}"
                   {% if link.current %}aria-current="page"{% endif %}
-                >
+                {%- endcapture -%}
+                {%- capture kt_trigger_label -%}
                   {{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
-                </{% if link_is_toggle_only %}button{% else %}a{% endif %}>
+                {%- endcapture -%}
+                {%- if link_is_toggle_only -%}
+                  <button type="button" {{ kt_trigger_attrs }}>{{ kt_trigger_label }}</button>
+                {%- else -%}
+                  <a href="{{ link.url }}" {{ kt_trigger_attrs }}>{{ kt_trigger_label }}</a>
+                {%- endif -%}
                 {%- comment -%}
                   Same fix as the mega-menu above: drop role="menu"/
                   "menuitem" (APG pattern we don't implement) and let
