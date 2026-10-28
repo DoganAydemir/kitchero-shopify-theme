@@ -56,6 +56,28 @@ button:disabled,
    scrollbar on narrow viewports. `clip` is preferred over `hidden`
    because `clip` doesn't form a scroll container, so position:sticky
    descendants (sticky header, sticky PDP info column) keep working. */
+/* Lenis smooth scroll (desktop only). Lenis measures the page through
+   the <html> element; with `height: 100%` that element never grows, so
+   the scroll limit stayed at the height measured on first paint and
+   some pages could not be scrolled until a reload. Rules from the
+   Lenis docs. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis body {
+  min-height: 100vh;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
 html,
 body {
   overflow-x: clip;
