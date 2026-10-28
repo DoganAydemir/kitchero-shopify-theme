@@ -66,7 +66,12 @@
 
         {%- if description != blank -%}
           <div class="kt-page-header-dotted__desc-wrap">
-            <p class="kt-page-header-dotted__desc" data-dotted-anim>{{ description }}</p>
+            {%- comment -%} Rich text (for example article.excerpt) already carries its own <p> tags. {%- endcomment -%}
+            {%- if description contains '<p' -%}
+              <div class="kt-page-header-dotted__desc rte" data-dotted-anim>{{ description }}</div>
+            {%- else -%}
+              <p class="kt-page-header-dotted__desc" data-dotted-anim>{{ description }}</p>
+            {%- endif -%}
           </div>
         {%- endif -%}
       </div>
