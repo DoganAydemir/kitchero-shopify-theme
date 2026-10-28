@@ -19,6 +19,14 @@
 
     this.prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Other slides render once the page has loaded (see kt-section-hero.css).
+    var markReady = function () { section.classList.add('kt-hero--ready'); };
+    if (document.readyState === 'complete' || (window.Shopify && window.Shopify.designMode)) {
+      markReady();
+    } else {
+      window.addEventListener('load', markReady, { once: true });
+    }
+
     if (this.total > 0) {
       this.bindEvents();
       this.animateText(0);
@@ -161,6 +169,7 @@
   };
 
   KitcheroHero.prototype.goTo = function (index) {
+    this.section.classList.add('kt-hero--ready');
     if (index === this.current) return;
 
     this.slides[this.current].classList.remove('kt-hero__slide--active');

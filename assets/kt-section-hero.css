@@ -49,6 +49,13 @@
   z-index: 0;
 }
 
+/* Until the page has loaded, only the first slide is rendered, so the
+   other slide images (stacked in the viewport) do not download with
+   high priority and compete with the first image (LCP). */
+.kt-hero:not(.kt-hero--ready) .kt-hero__slide:not(.kt-hero__slide--active) {
+  display: none;
+}
+
 .kt-hero__slide--active {
   opacity: 1;
   z-index: 1;
