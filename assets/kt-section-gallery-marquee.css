@@ -210,7 +210,7 @@
 
 .kt-gallery-marquee__caption-eyebrow {
   display: block;
-  font-size: 0.625rem; /* 10px */
+  font-size: 0.6875rem; /* 10px */
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -304,4 +304,11 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .kt-gallery-marquee__pause-toggle { display: none; }
+}
+
+/* Fallback background behind text that sits on an image or video:
+   if the media does not load (or a contrast checker cannot read it),
+   the light text still has a dark backdrop. The media covers it. */
+.kt-gallery-marquee__item {
+  background-color: rgb(var(--kt-media-fallback, 28 25 23));
 }
