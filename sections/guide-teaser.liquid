@@ -11,6 +11,15 @@
   {%- assign has_live_articles = true -%}
 {%- endif -%}
 {%- assign article_blocks = section.blocks | where: 'type', 'article' -%}
+{%- comment -%}
+  With no published articles and no manual cards, the section is hidden on
+  the storefront; the placeholder cards only show in the theme editor.
+{%- endcomment -%}
+{%- assign guide_teaser_render = true -%}
+{%- unless has_live_articles or article_blocks.size > 0 or request.design_mode -%}
+  {%- assign guide_teaser_render = false -%}
+{%- endunless -%}
+{%- if guide_teaser_render -%}
 
 <section class="kt-guide-teaser color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="" data-section-id="{{ section.id }}" data-section-type="guide-teaser">
@@ -148,6 +157,7 @@
     </div>
   </div>
 </section>
+{%- endif -%}
 
 <script src="{{ 'kt-section-guide-teaser.js' | asset_url }}" defer="defer"></script>
 
