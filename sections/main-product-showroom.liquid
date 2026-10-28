@@ -58,9 +58,11 @@
             {%- if forloop.first -%}
               {%- assign img_loading = 'eager' -%}
               {%- assign img_fetchpriority = 'high' -%}
+              {%- assign img_preload = true -%}
             {%- else -%}
               {%- assign img_loading = 'lazy' -%}
               {%- assign img_fetchpriority = 'auto' -%}
+              {%- assign img_preload = false -%}
             {%- endif -%}
             {%- if pattern_pos == 0 -%}
               {%- comment -%}
@@ -78,7 +80,7 @@
                 aria-label="{{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
               >
                 {%- assign media_alt = media.alt | default: product.title -%}
-                {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
+                {{ media | image_url: width: 1200 | image_tag: class: 'kt-showroom__gallery-image', loading: img_loading, fetchpriority: img_fetchpriority, preload: img_preload, widths: '550, 750, 1100', sizes: '73vw', width: media.width, height: media.height, alt: media_alt }}
               </button>
             {%- elsif pattern_pos == 1 -%}
               {%- comment -%} Left of pair {%- endcomment -%}
