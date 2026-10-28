@@ -52,7 +52,7 @@ SPECS = {
         HARDWARE, SIZING],
     'designer-kitchen-cabinet-set': [('Base cabinets', 'Soft blue'), ('Upper cabinets', 'White'),
         ('Island', 'Wood top'), ('Features', 'Open shelving, plaster-style hood'), HARDWARE, SIZING],
-    'elegant-kitchen-cabinet-system': [('Cabinet color', 'Cream'), ('Door style', 'Shaker'),
+    'elegant-kitchen-cabinet-system': [('Cabinet color', 'Ivory, navy, or charcoal'), ('Door style', 'Shaker'),
         ('Island', 'Marble top, seats four, deep drawers'), ('Features', 'Glass-front uppers, brass pendants, paneled hood'),
         HARDWARE, SIZING],
     'ice-white-shaker': [('Type', 'Cabinet door sample'), ('Door style', 'Shaker'), ('Finish', 'Ice white'),
