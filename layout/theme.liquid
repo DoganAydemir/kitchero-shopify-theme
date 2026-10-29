@@ -1,3 +1,8 @@
+{%- comment -%}
+  Header group rendered first so its stylesheets can be linked in <head>
+  (snippets/head-section-css); printed in place further down.
+{%- endcomment -%}
+{%- capture kt_header_group -%}{% sections 'header-group' %}{%- endcapture -%}
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
@@ -142,6 +147,10 @@
 
     <link rel="stylesheet" href="{{ 'kt-section-header.css' | asset_url }}" media="all">
 
+    {%- comment -%} Section stylesheets of this page, linked in <head> so Safari doesn't paint unstyled content first. {%- endcomment -%}
+    {%- render 'head-section-css', html: kt_header_group -%}
+    {%- render 'head-section-css', html: content_for_layout -%}
+
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
         Localization stylesheet was previously preloaded — counted
@@ -260,7 +269,7 @@
     {%- endcomment -%}
     <script src="{{ 'kt-form-scope.js' | asset_url }}" defer="defer"></script>
 
-    {% sections 'header-group' %}
+    {{ kt_header_group }}
 
     {%- comment -%}
       Breadcrumb is NOT rendered at the top of `<main>` anymore.
