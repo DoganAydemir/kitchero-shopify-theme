@@ -337,7 +337,7 @@
                     <{{ concierge_heading_tag }} class="kt-pdp__concierge-heading">{{ block.settings.heading | escape }}</{{ concierge_heading_tag }}>
                   {%- endif -%}
                   {%- if block.settings.body != blank -%}
-                    <p class="kt-pdp__concierge-body">{{ block.settings.body | escape | newline_to_br }}</p>
+                    <p class="kt-pdp__concierge-body">{{ block.settings.body | escape | newline_to_br | replace: '<br />', '<br>' }}</p>
                   {%- endif -%}
                   {%- if block.settings.cta_text != blank and concierge_cta_url != blank -%}
                     <a href="{{ concierge_cta_url | escape }}" class="kt-pdp__concierge-cta">

@@ -272,7 +272,7 @@
                         expects. comment.author is already escaped
                         on line 261; this finishes the pair.
                       {%- endcomment -%}
-                      <div class="kt-article__comment-content rte">{{ comment.content | escape | newline_to_br }}</div>
+                      <div class="kt-article__comment-content rte">{{ comment.content | escape | newline_to_br | replace: '<br />', '<br>' }}</div>
                     </div>
                   </li>
                 {%- endfor -%}

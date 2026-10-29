@@ -109,7 +109,7 @@
                 >
                   <span class="kt-collapsible-visual__content">
                     {%- if block.settings.content != blank -%}
-                      {{ block.settings.content | escape | newline_to_br }}
+                      {{ block.settings.content | escape | newline_to_br | replace: '<br />', '<br>' }}
                     {%- else -%}
                       {{ 'kt.section.collapsible_visual.feature_content_default' | t }}
                     {%- endif -%}

@@ -434,7 +434,7 @@
     {%- if order.note != blank -%}
       <div class="kt-order__note">
         <h2 class="kt-order__note-title">{{ 'kt.customer.order.note_heading' | t | default: 'Order note' }}</h2>
-        <p class="kt-order__note-body">{{ order.note | escape | newline_to_br }}</p>
+        <p class="kt-order__note-body">{{ order.note | escape | newline_to_br | replace: '<br />', '<br>' }}</p>
       </div>
     {%- endif -%}
 

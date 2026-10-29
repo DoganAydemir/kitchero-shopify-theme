@@ -70,7 +70,7 @@
                   {%- if block.settings.hours != blank -%}
                     <p class="kt-contact__showroom-meta kt-contact__showroom-meta--hours">
                       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>
-                      <span>{{ block.settings.hours | escape | newline_to_br }}</span>
+                      <span>{{ block.settings.hours | escape | newline_to_br | replace: '<br />', '<br>' }}</span>
                     </p>
                   {%- endif -%}
                 </div>
