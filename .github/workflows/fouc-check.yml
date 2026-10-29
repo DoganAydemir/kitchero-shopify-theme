@@ -1,0 +1,49 @@
+name: Safari unstyled-paint check
+
+# Playwright WebKit with theme stylesheets delayed: shows whether the page
+# paints before its CSS has loaded (flash of unstyled content). Run manually.
+
+on:
+  workflow_dispatch:
+    inputs:
+      themes:
+        description: 'Space-separated theme IDs to compare ("live" = published theme)'
+        required: true
+        default: 'live'
+      delay:
+        description: Stylesheet delay in ms
+        required: false
+        default: '1500'
+
+jobs:
+  fouc:
+    runs-on: ubuntu-24.04  # Playwright 1.48 has no system packages for Ubuntu 26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.48.0 pillow
+          python -m playwright install --with-deps webkit
+
+      - name: Run check
+        env:
+          STORE_URL: https://kitchero-kitchen.myshopify.com
+          PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          THEMES: ${{ inputs.themes }}
+          DELAY: ${{ inputs.delay }}
+        run: |
+          set -o pipefail
+          python .github/scripts/fouc_check.py shots | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fouc-shots
+          path: shots
+          retention-days: 7
