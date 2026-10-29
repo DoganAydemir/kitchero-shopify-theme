@@ -11,6 +11,7 @@ Without --apply it only prints what would change.
 """
 import json
 import os
+import re
 import sys
 import urllib.request
 
@@ -61,16 +62,17 @@ SPECS = {
         ('Finish', 'Brown, black, or beige'), ('Controls', 'One handle for temperature and flow')],
     'modern-single-handle-kitchen-faucet': [('Type', 'Single-lever'), ('Installation', 'One-hole'),
         ('Spray options', 'Standard, pull-down, pull-out'), ('Finish', 'Black, gold, or brown')],
-    'luxury-bridge-style-kitchen-faucet': [('Type', 'Two-handle bridge'), ('Spout', 'High arch'),
-        ('Handles', 'Cross'), ('Finish', 'Gray, brown, or black')],
+    'luxury-bridge-style-kitchen-faucet': [('Type', 'Single-lever, pull-down'), ('Spout', 'High arch'),
+        ('Lever', 'Side-mounted'), ('Finish', 'Gray, brown, or black')],
     'premium-farmhouse-kitchen-sink': [('Type', 'Apron-front, single basin'), ('Widths', '27", 30", 33", 36"')],
-    'modern-undermount-kitchen-sink': [('Type', 'Undermount, single bowl'), ('Widths', '27", 30", 33", 36"'),
-        ('Corners', 'Tight radius')],
+    'modern-undermount-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'White, glazed'),
+        ('Widths', '27", 30", 33", 36"')],
     'stainless-steel-workstation-sink': [('Material', 'Stainless steel'), ('Finish', 'Brushed'),
         ('Feature', 'Built-in ledge for sliding accessories')],
     'matte-black-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'Matte black, gold, or brown'),
         ('Texture', 'Hammered')],
-    'double-bowl-kitchen-sink': [('Type', 'Double bowl, equal basins'), ('Divider', 'Low')],
+    'double-bowl-kitchen-sink': [('Type', 'Integrated, single basin'), ('Material', 'Stone, matched to the countertop'),
+        ('Edge', 'Seamless, no rim')],
     'pull-out-cabinet-organizer': [('Type', 'Pull-out basket'), ('Fits', '18", 24", 30", 36" base cabinets')],
     'drawer-cabinet-organizer': [('Type', 'Drawer insert with fixed compartments'),
         ('Fits', '18", 24", 30", 36" base cabinets'), ('Corners', 'Rounded inside corners')],
@@ -113,6 +115,38 @@ PRODUCT_COPY = {
             'Choose a matte black, gold, or brown finish to match your faucet and hardware.</p>'
             '<p>The deep basin fits large pots and sheet pans.</p>'),
         'first_option_value': 'Black',
+    },
+    # Photos show a single-lever pull-down faucet, not a two-handle bridge faucet.
+    'luxury-bridge-style-kitchen-faucet': {
+        'title': 'Arched Pull-Down Kitchen Faucet',
+        'descriptionHtml': (
+            '<p>A tall arched spout with a pull-down spray head and a slim lever on the side of the body. '
+            'Choose gray, brown, or black to match your sink and cabinet hardware.</p>'
+            '<p>The spray head pulls down to rinse the whole basin and returns to the spout when you let go.</p>'),
+    },
+    # Photos show a white apron-front sink, not an undermount sink.
+    'modern-undermount-kitchen-sink': {
+        'title': 'White Apron-Front Kitchen Sink',
+        'descriptionHtml': (
+            '<p>A white apron-front sink with a deep single basin and a smooth glazed finish that wipes clean easily. '
+            'The exposed front panel becomes the focal point of the sink cabinet.</p>'
+            '<p>Available in 27, 30, 33, and 36 inch widths.</p>'),
+    },
+    # Photos show one basin built into a stone countertop, not two bowls.
+    'double-bowl-kitchen-sink': {
+        'title': 'Integrated Stone Kitchen Sink',
+        'descriptionHtml': (
+            '<p>A single basin built into the stone countertop, with no rim or seam where the sink meets the counter. '
+            'Gently sloped sides guide water toward the drain.</p>'
+            '<p>Crumbs wipe straight from the counter into the basin, which suits minimal kitchens with stone counters.</p>'),
+    },
+    # The description listed two spray options; the product has three (Standard, Pull-Down, Pull-Out).
+    'premium-pull-down-kitchen-faucet': {
+        'title': 'Premium Pull-Down Kitchen Faucet',
+        'descriptionHtml': (
+            '<p>A high-arc pull-down faucet with a spray head that docks back into place. '
+            'Choose brown, black, or beige, with a standard, pull-down, or pull-out spray.</p>'
+            '<p>The tall spout clears large pots, and the single handle adjusts temperature and flow with one hand.</p>'),
     },
 }
 
@@ -217,10 +251,11 @@ for p in detail['products']['nodes']:
 
     copy = PRODUCT_COPY.get(p['handle'])
     if copy:
-        if p['title'] != copy['title']:
+        plain = lambda html: ' '.join(re.sub(r'<[^>]+>', ' ', html or '').split())
+        if p['title'] != copy['title'] or plain(p['descriptionHtml']) != plain(copy['descriptionHtml']):
             updates.append({'id': p['id'], 'title': copy['title'], 'descriptionHtml': copy['descriptionHtml']})
             print(f'update {p["handle"]}: title, description')
-        first = copy['first_option_value']
+        first = copy.get('first_option_value')
         ordered = sorted(variants, key=lambda v: (not any(o['value'] == first for o in v['selectedOptions']), v['position']))
         if [v['id'] for v in ordered] != [v['id'] for v in sorted(variants, key=lambda v: v['position'])]:
             target = next((v for v in ordered if v['media']['nodes']), None)
