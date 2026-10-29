@@ -1,4 +1,4 @@
-{{ 'kt-section-slider-editorial-split.css' | asset_url | stylesheet_tag }}
+<link rel="stylesheet" href="{{ 'kt-section-slider-editorial-split.css' | asset_url }}" media="all">
 
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 {%- assign autoplay_interval = section.settings.autoplay_interval | default: 6 -%}
@@ -121,7 +121,7 @@
 
               {%- if block.settings.description != blank -%}
                 <p class="kt-slider-editorial__description" data-editorial-anim data-delay="360">
-                  {{ block.settings.description | escape | newline_to_br }}
+                  {{ block.settings.description | escape | newline_to_br | replace: '<br />', '<br>' }}
                 </p>
               {%- endif -%}
 

@@ -1,5 +1,5 @@
 
-{{ 'kt-section-financing-cta.css' | asset_url | stylesheet_tag }}
+<link rel="stylesheet" href="{{ 'kt-section-financing-cta.css' | asset_url }}" media="all">
 
 {%- assign heading_tag = section.settings.heading_tag | default: 'h2' -%}
 
@@ -20,7 +20,7 @@
     </{{ heading_tag }}>
 
     {%- if section.settings.description != blank -%}
-      <p class="kt-financing-cta__desc">{{ section.settings.description | escape | newline_to_br }}</p>
+      <p class="kt-financing-cta__desc">{{ section.settings.description | escape | newline_to_br | replace: '<br />', '<br>' }}</p>
     {%- endif -%}
 
     {%- comment -%}

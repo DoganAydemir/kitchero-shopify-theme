@@ -1,4 +1,4 @@
-{{ 'kt-section-main-article.css' | asset_url | stylesheet_tag }}
+<link rel="stylesheet" href="{{ 'kt-section-main-article.css' | asset_url }}" media="all">
 
 <div class="kt-article" data-section-id="{{ section.id }}" data-section-type="main-article">
   {%- comment -%}
@@ -272,7 +272,7 @@
                         expects. comment.author is already escaped
                         on line 261; this finishes the pair.
                       {%- endcomment -%}
-                      <div class="kt-article__comment-content rte">{{ comment.content | escape | newline_to_br }}</div>
+                      <div class="kt-article__comment-content rte">{{ comment.content | escape | newline_to_br | replace: '<br />', '<br>' }}</div>
                     </div>
                   </li>
                 {%- endfor -%}
