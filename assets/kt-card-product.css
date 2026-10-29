@@ -113,6 +113,17 @@
   height: auto;
   block-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
   inline-size: calc(100% - 2 * var(--kt-pcard-img-pad, 0px));
+  /* Light lines on a dark tile, like the before/after slider placeholders. */
+  fill: rgba(250, 250, 249, 0.1);
+  background-color: rgba(250, 250, 249, 0.04);
+}
+
+/* No product image yet: the image area gets the same dark backdrop as the
+   other image areas, so the card gradient and the badges sit on it the
+   way they sit on a photo. The tile is on the link, not the SVG, so the
+   sold-out fade dims the drawing but not the tile. */
+.kt-card-product__image-link:has(.placeholder-svg) {
+  background-color: rgb(var(--kt-media-fallback, 28 25 23));
 }
 
 /* Badge: refined pill — was reading too heavy on mobile (chunky
