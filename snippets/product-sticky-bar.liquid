@@ -28,7 +28,7 @@
 {%- enddoc -%}
 
 {%- if section.settings.show_sticky_atc and product != blank and product.variants.size > 0 -%}
-  {{ 'kt-product-sticky-bar.css' | asset_url | stylesheet_tag }}
+  <link rel="stylesheet" href="{{ 'kt-product-sticky-bar.css' | asset_url }}" media="all">
 
   {%- assign sticky_variant = product.selected_or_first_available_variant -%}
   {%- assign sticky_image = product.featured_media | default: product.featured_image -%}

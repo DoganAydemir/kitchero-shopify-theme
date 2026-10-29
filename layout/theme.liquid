@@ -25,8 +25,9 @@
     {% endunless %}
 
     {% # Load and preload the critical CSS %}
-    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
-    {{ 'kt-base.css' | asset_url | stylesheet_tag }}
+    <link rel="preload" href="{{ 'critical.css' | asset_url }}" as="style">
+    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="all">
+    <link rel="stylesheet" href="{{ 'kt-base.css' | asset_url }}" media="all">
 
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
@@ -115,7 +116,7 @@
       own `loaderEnabled` check below).
     {%- endcomment -%}
     {%- if settings.kt_loader_enable -%}
-      {{ 'kt-loader.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'kt-loader.css' | asset_url }}" media="all">
     {%- endif -%}
 
     {%- comment -%}
@@ -130,17 +131,17 @@
       panel. <head>-loaded `stylesheet_tag` guarantees application.
     {%- endcomment -%}
     {%- if settings.kt_cart_type == 'drawer' -%}
-      {{ 'kt-cart-drawer.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}" media="all">
     {%- endif -%}
 
     {%- if settings.kt_search_overlay_enabled == nil or settings.kt_search_overlay_enabled -%}
-      {{ 'kt-search-overlay.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'kt-search-overlay.css' | asset_url }}" media="all">
     {%- endif -%}
     {%- if settings.kt_appointment_enabled -%}
-      {{ 'kt-appointment-drawer.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'kt-appointment-drawer.css' | asset_url }}" media="all">
     {%- endif -%}
 
-    {{ 'kt-section-header.css' | asset_url | stylesheet_tag }}
+    <link rel="stylesheet" href="{{ 'kt-section-header.css' | asset_url }}" media="all">
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
@@ -151,7 +152,7 @@
         the footer (mobile drawer is opened on demand) so async
         load is acceptable.
       {%- endcomment -%}
-      {{ 'kt-localization-form.css' | asset_url | stylesheet_tag }}
+      <link rel="stylesheet" href="{{ 'kt-localization-form.css' | asset_url }}" media="all">
       <script src="{{ 'kt-localization-form.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 

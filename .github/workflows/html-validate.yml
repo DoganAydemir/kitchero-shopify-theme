@@ -71,32 +71,40 @@ jobs:
         run: |
           java -jar node_modules/vnu-jar/build/dist/vnu.jar --format json pages/*.html 2> report.json || true
           python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
-          import json, re
+          import json, re, glob, os
+          # Markup Shopify adds to every storefront (content_for_header, {% form %},
+          # payment button, preview bar). Everything else counts as theme-side.
           platform = re.compile(
               r'charset” attribute on a “meta”|“version” not allowed on element “link”'
               r'|“type=module” must not have a “defer”|“payment” not allowed'
-              r'|“disabled” not allowed on element “div”'
-              r'|preview-bar|Trailing slash on void elements')
+              r'|“disabled” not allowed on element “div”')
+          shopify_extract = re.compile(r'shopifycloud|shopify-payment-button|name="form_type"|name="utf8"|preview-bar')
           data = json.load(open('report.json'))
-          theme, shopify = {}, {}
+          pages = sorted(os.path.basename(f)[:-5] for f in glob.glob('pages/*.html'))
+          per = {pg: {'theme': [0, 0, 0], 'shopify': [0, 0, 0]} for pg in pages}
+          theme = {}
           for m in data.get('messages', []):
-              kind = 'error' if m.get('type') == 'error' else ('warning' if m.get('subType') == 'warning' else 'info')
-              if kind == 'info' and 'Trailing slash' not in m['message']:
-                  pass
-              m['message'] = f"[{kind}] " + m['message']
               page = m.get('url', '').rsplit('/', 1)[-1].replace('.html', '')
-              key = m['message'][:140]
-              video_fallback = 'alt” attribute' in m['message'] and 'preview_images' in m.get('extract', '')
-              blob = m['message'] + ' ' + m.get('extract', '')
-              bucket = shopify if (platform.search(blob) or video_fallback) else theme
-              if bucket is theme:
-                  key += '  `' + re.sub(r'\s+', ' ', m.get('extract', ''))[:90].replace('`', "'") + '`'
-              bucket.setdefault(key, set()).add(page)
-          print('## HTML validation (W3C Nu)\n')
-          print(f'Theme-side errors and warnings: **{len(theme)}** distinct · Shopify platform markup: {len(shopify)} distinct\n')
-          for title, bucket in (('Theme-side', theme), ('Shopify platform', shopify)):
-              print(f'### {title}\n')
-              for key, pages in sorted(bucket.items()):
-                  print(f'- {key} — {", ".join(sorted(pages))}')
-              print()
+              kind = 0 if m.get('type') == 'error' else (1 if m.get('subType') == 'warning' else 2)
+              extract = re.sub(r'\s+', ' ', m.get('extract', ''))
+              video_fallback = 'alt” attribute' in m['message'] and 'preview_images' in extract
+              # /pages/data-sharing-opt-out: Shopify injects the privacy form body itself.
+              privacy_body = page == 'pages_data-sharing-opt-out' and ('privacy-banner' in extract or '<p>As' in extract)
+              is_shopify = bool(platform.search(m['message']) or shopify_extract.search(extract) or video_fallback or privacy_body)
+              per.setdefault(page, {'theme': [0, 0, 0], 'shopify': [0, 0, 0]})['shopify' if is_shopify else 'theme'][kind] += 1
+              if not is_shopify:
+                  key = ['error', 'warning', 'info'][kind] + ': ' + m['message'][:120] + '  `' + extract[:90].replace('`', "'") + '`'
+                  theme.setdefault(key, set()).add(page)
+          print('## HTML validation (W3C Nu), errors + warnings + info\n')
+          print(f'Pages checked: **{len(pages)}** · theme-side messages: **{sum(sum(v["theme"]) for v in per.values())}**\n')
+          print('| Page | Theme errors | Theme warnings | Theme info | Shopify errors | Shopify warnings | Shopify info |')
+          print('|---|---|---|---|---|---|---|')
+          for pg in pages:
+              t, sh = per[pg]['theme'], per[pg]['shopify']
+              print(f'| {pg} | {t[0]} | {t[1]} | {t[2]} | {sh[0]} | {sh[1]} | {sh[2]} |')
+          print('\n### Theme-side messages\n')
+          for key, pg in sorted(theme.items()):
+              print(f'- {key} — {", ".join(sorted(pg))}')
+          if not theme:
+              print('None.')
           EOF
