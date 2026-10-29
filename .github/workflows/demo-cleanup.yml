@@ -14,6 +14,10 @@ on:
         description: Only delete these unpublished theme IDs (space separated). Overrides the other filters.
         required: false
         default: ''
+      store:
+        description: Store domain
+        required: false
+        default: kitchero-kitchen.myshopify.com
       name_prefix:
         description: Only delete unpublished themes whose name starts with this (empty = all unpublished and development themes)
         required: false
@@ -36,7 +40,7 @@ jobs:
           CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
           CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
         run: |
-          token=$(curl -sS -f -X POST "https://kitchero-kitchen.myshopify.com/admin/oauth/access_token" \
+          token=$(curl -sS -f -X POST "https://${{ inputs.store }}/admin/oauth/access_token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             --data-urlencode "grant_type=client_credentials" \
             --data-urlencode "client_id=$CLIENT_ID" \
@@ -48,7 +52,7 @@ jobs:
         env:
           NAME_PREFIX: ${{ inputs.name_prefix }}
           THEME_IDS: ${{ inputs.theme_ids }}
-          SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+          SHOPIFY_FLAG_STORE: ${{ inputs.store }}
           SHOPIFY_CLI_TTY: '0'
           CI: '1'
         run: |
