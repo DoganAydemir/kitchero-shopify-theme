@@ -35,7 +35,7 @@ jobs:
           STORE_URL: https://kitchero-kitchen.myshopify.com
           PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
           THEME: ${{ inputs.theme }}
-        run: python .github/scripts/review_shots.py shots
+        run: python .github/scripts/phone_states.py shots/phone-states && python .github/scripts/review_shots.py shots
 
       - name: Commit screenshots to review-shots
         if: always()
