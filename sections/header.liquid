@@ -624,13 +624,20 @@
                 category page — CSS below hides the <a> when JS is on
                 and hides the <button> when JS is off.
               {%- endcomment -%}
-              <a
-                href="{{ link.url }}"
-                class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
-                {% if link.current %}aria-current="page"{% endif %}
-              >
-                <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
-              </a>
+              {%- if link.url == '#' or link.url == blank -%}
+                {%- comment -%} A "#" menu item has no page of its own: show it as a label above its children. {%- endcomment -%}
+                <span class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback">
+                  <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
+                </span>
+              {%- else -%}
+                <a
+                  href="{{ link.url }}"
+                  class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >
+                  <span class="kt-header__mobile-link-label">{{ link.title | escape }}{%- render 'menu-link-badge', link: link, section: section -%}</span>
+                </a>
+              {%- endif -%}
               <button
                 type="button"
                 class="kt-header__mobile-link kt-header__mobile-link--parent"
@@ -697,12 +704,18 @@
                     to the mid-level category page, plus the <button>
                     that slides the Level-3 panel in for JS-on users.
                   {%- endcomment -%}
-                  <a
-                    href="{{ child.url }}"
-                    class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
-                  >
-                    <span class="kt-header__mobile-link-label">{{ child.title }}</span>
-                  </a>
+                  {%- if child.url == '#' or child.url == blank -%}
+                    <span class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback">
+                      <span class="kt-header__mobile-link-label">{{ child.title | escape }}</span>
+                    </span>
+                  {%- else -%}
+                    <a
+                      href="{{ child.url }}"
+                      class="kt-header__mobile-link kt-header__mobile-link--nojs-fallback"
+                    >
+                      <span class="kt-header__mobile-link-label">{{ child.title | escape }}</span>
+                    </a>
+                  {%- endif -%}
                   <button
                     type="button"
                     class="kt-header__mobile-link kt-header__mobile-link--parent"

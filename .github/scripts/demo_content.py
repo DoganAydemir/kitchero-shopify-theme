@@ -38,6 +38,8 @@ SHOWCASE_PAGES = {
 
 # (file, section id, block id or None, {setting: value})
 EDITS = [
+    # No warranty badge: the store has no warranty policy to point to (29.10).
+    ('templates/product.json', 'main', 'trust_badges', {'badge_3_text': ''}),
     # Header and footer
     ('sections/header-group.json', 'announcement-banner', 'announcement-1',
         {'text': 'New cabinet finishes for fall — explore the color library'}),
@@ -257,6 +259,21 @@ for rel, (eyebrow, description) in SHOWCASE_PAGES.items():
 
 for rel, section_id, block_id, values in EDITS:
     apply(rel, section_id, block_id, values)
+
+# Blocks removed from the demo. The showroom warranty box pointed to a
+# warranty policy the store does not have (29.10).
+REMOVE_BLOCKS = [('templates/product.showroom.json', 'main', 'warranty')]
+for rel, section_id, block_id in REMOVE_BLOCKS:
+    entry = doc(rel)
+    if not entry:
+        continue
+    section = entry[1].get('sections', {}).get(section_id)
+    if not section or block_id not in section.get('blocks', {}):
+        continue
+    del section['blocks'][block_id]
+    if block_id in section.get('block_order', []):
+        section['block_order'].remove(block_id)
+    entry[2] = True
 
 entry = doc('templates/page.galleries.json')
 if entry:

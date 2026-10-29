@@ -1,0 +1,27 @@
+{%- comment -%}
+  Text of one trust badge on the product page.
+  Shipping and returns badges link to the store's shipping and refund
+  policies when the merchant has set them up (Settings > Policies);
+  otherwise the text is shown on its own.
+
+  Accepts:
+  - icon {String}: badge icon ('shipping', 'returns', 'warranty', 'package')
+  - text {String}: badge text
+  - class_prefix {String}: 'kt-pdp' or 'kt-showroom'
+
+  Usage:
+  {% render 'trust-badge-text', icon: icon_val, text: text_val, class_prefix: 'kt-pdp' %}
+{%- endcomment -%}
+{%- liquid
+  assign badge_url = blank
+  if icon == 'shipping' and shop.shipping_policy != blank
+    assign badge_url = shop.shipping_policy.url
+  elsif icon == 'returns' and shop.refund_policy != blank
+    assign badge_url = shop.refund_policy.url
+  endif
+-%}
+{%- if badge_url != blank -%}
+  <a href="{{ badge_url }}" class="{{ class_prefix }}__trust-badge-text {{ class_prefix }}__trust-badge-link">{{ text | escape }}</a>
+{%- else -%}
+  <span class="{{ class_prefix }}__trust-badge-text">{{ text | escape }}</span>
+{%- endif -%}
