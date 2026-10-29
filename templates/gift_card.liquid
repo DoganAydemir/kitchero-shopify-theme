@@ -194,9 +194,13 @@
               Same filter-precedence pattern fixed in main-password
               and main-order.
             {%- endcomment -%}
-            {%- assign gift_expiry_formatted = gift_card.expires_on | date: format: 'date' -%}
             <span class="kt-gift-card__pill kt-gift-card__pill--active">
-              {{ 'kt.giftcard.issued.active' | t: expiry: gift_expiry_formatted }}
+              {%- if gift_card.expires_on != blank -%}
+                {%- assign gift_expiry_formatted = gift_card.expires_on | date: format: 'date' -%}
+                {{ 'kt.giftcard.issued.active' | t: expiry: gift_expiry_formatted }}
+              {%- else -%}
+                {{ 'kt.giftcard.issued.active_no_expiry' | t }}
+              {%- endif -%}
             </span>
           {%- endif -%}
         </div>
