@@ -21,15 +21,12 @@
     try {
       var reason = event && event.reason;
 
-      if (reason && (reason.name === 'AbortError' || reason.name === 'TypeError' && /Failed to fetch/.test(reason.message || ''))) {
+      // Only cancelled requests (AbortError, e.g. a newer search replacing an
+      // older one) are expected and kept out of the console. Every other
+      // rejection is left to the browser so it is logged with its stack.
+      if (reason && reason.name === 'AbortError') {
         event.preventDefault();
-        return;
       }
-
-      if (global.console && console.warn) {
-        console.warn('[Kitchero] unhandled promise rejection:', reason && (reason.message || reason));
-      }
-      event.preventDefault();
     } catch (e) {  }
   });
 
@@ -69,14 +66,33 @@
     });
   };
 
-  var GUARD_ENDPOINTS_RE = /(\/contact$|\/contact\?|\/cart(\?|$|\/add|\/update|\/clear)|\/account\/(login|recover|register)|\/password$|\/password\?)/;
+  // Matched against the action's path only (query and #fragment removed), so
+  // Shopify's "/contact#ContactForm-..." and locale-prefixed actions such as
+  // "/fr/contact" or "/fr-ca/cart/add" are covered.
+  var GUARD_PATH_RE = /\/(contact|cart|cart\/(add|update|change|clear)|account\/(login|recover|register)|password)$/;
 
   function shouldGuardForm(form) {
     if (!form || form.tagName !== 'FORM') return false;
     if (form.hasAttribute('data-skip-double-submit-guard')) return false;
     if (form.hasAttribute('data-double-submit-guard')) return true;
-    var action = form.getAttribute('action') || '';
-    return GUARD_ENDPOINTS_RE.test(action);
+    var action = (form.getAttribute('action') || '').split('#')[0].split('?')[0].replace(/\/+$/, '');
+    return GUARD_PATH_RE.test(action);
+  }
+
+  function releaseForm(form) {
+    form._kitcheroSubmitting = false;
+    if (form._kitcheroReleaseTimer) {
+      clearTimeout(form._kitcheroReleaseTimer);
+      form._kitcheroReleaseTimer = null;
+    }
+    if (form.getAttribute('aria-busy') !== 'true') return;
+    form.removeAttribute('aria-busy');
+    form.querySelectorAll(
+      'button[type="submit"][disabled][aria-busy="true"], input[type="submit"][disabled][aria-busy="true"]'
+    ).forEach(function (btn) {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+    });
   }
 
   document.addEventListener('submit', function (event) {
@@ -88,13 +104,22 @@
     }
     form._kitcheroSubmitting = true;
 
-    Promise.resolve().then(function () {
+    // Checked after the event has reached every listener (this one runs in the
+    // capture phase, before the form's own submit handlers).
+    setTimeout(function () {
+      // Submitted with JavaScript (AJAX cart, etc.): that script owns the
+      // button state, so release the guard right away.
       if (event.defaultPrevented) {
-        setTimeout(function () {
-          form._kitcheroSubmitting = false;
-        }, 8000);
+        form._kitcheroSubmitting = false;
         return;
       }
+
+      // Normal page submit. If the page is still here after 10 seconds (the
+      // request failed, was stopped, or the response was a download), give
+      // the button back so the shopper can try again.
+      form._kitcheroReleaseTimer = setTimeout(function () {
+        releaseForm(form);
+      }, 10000);
 
       form.setAttribute('aria-busy', 'true');
       var submitButtons = form.querySelectorAll(
@@ -104,21 +129,13 @@
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
       });
-    });
+    }, 0);
   }, true );
 
+  // Back button (page restored from the back/forward cache).
   global.addEventListener('pageshow', function (event) {
     if (!event.persisted) return;
-    document.querySelectorAll('form[aria-busy="true"]').forEach(function (form) {
-      form._kitcheroSubmitting = false;
-      form.removeAttribute('aria-busy');
-      form.querySelectorAll(
-        'button[type="submit"][disabled][aria-busy="true"], input[type="submit"][disabled][aria-busy="true"]'
-      ).forEach(function (btn) {
-        btn.disabled = false;
-        btn.removeAttribute('aria-busy');
-      });
-    });
+    document.querySelectorAll('form[aria-busy="true"]').forEach(releaseForm);
   });
 })(window);
 

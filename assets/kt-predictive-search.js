@@ -37,8 +37,23 @@
     }
   }
 
+  // Cancels the request in flight so a late response can't re-render old results.
+  function cancelPending(resultsContainer) {
+    if (abortCtl) {
+      try { abortCtl.abort(); } catch (e) {  }
+      abortCtl = null;
+    }
+    if (resultsContainer) resultsContainer.removeAttribute('aria-busy');
+  }
+
+  // True when the response still belongs to what is in the search field.
+  function isCurrentQuery(input, query, ctl) {
+    return ctl === abortCtl && !ctl.signal.aborted && input.value.trim() === query;
+  }
+
   function fetchResults(input, resultsContainer, query) {
     if (query.length < 2) {
+      cancelPending(resultsContainer);
       resultsContainer.innerHTML = '';
       setExpanded(input, false);
       return;
@@ -91,7 +106,7 @@
     fetch(url, { signal: localAbortCtl.signal })
       .then(function (response) {
         clearTimeout(timeoutId);
-        resultsContainer.removeAttribute('aria-busy');
+        if (isCurrentQuery(input, query, localAbortCtl)) resultsContainer.removeAttribute('aria-busy');
         if (response.status === 429) {
           predictiveSearchRateLimitedUntil = Date.now() + 5000;
           throw new Error('Search rate-limited');
@@ -100,6 +115,7 @@
         return response.json();
       })
       .then(function (data) {
+        if (!isCurrentQuery(input, query, localAbortCtl)) return;
         var resources = (data && data.resources && data.resources.results) || {};
         var products = resources.products || [];
         var collections = resources.collections || [];
@@ -126,9 +142,10 @@
         setExpanded(input, true);
       })
       .catch(function (err) {
-        resultsContainer.removeAttribute('aria-busy');
-
+        clearTimeout(timeoutId);
         if (err && err.name === 'AbortError') return;
+        if (!isCurrentQuery(input, query, localAbortCtl)) return;
+        resultsContainer.removeAttribute('aria-busy');
 
         var errKind = (err && err.message === 'Search rate-limited') ? 'rate_limited' : 'generic';
         resultsContainer.innerHTML = renderError(errKind);

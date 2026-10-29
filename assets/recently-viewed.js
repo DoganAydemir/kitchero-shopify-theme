@@ -72,11 +72,19 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
       var link = document.createElement('a');
       link.className = 'kt-recently-viewed__link';
 
+      // product.url from Shopify's product .js is already a root-relative path
+      // and may already include the locale/market root (/fr/products/...).
+      // Only add the root when it is missing, so it is never doubled.
       var linkRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
-      var linkPath = product.url
-        ? product.url.replace(/^\//, '')
-        : 'products/' + product.handle;
-      link.href = linkRoot + linkPath;
+      var linkPath = product.url || ('products/' + product.handle);
+      if (linkPath.charAt(0) === '/') {
+        if (linkRoot !== '/' && linkPath.indexOf(linkRoot) !== 0) {
+          linkPath = linkRoot + linkPath.replace(/^\//, '');
+        }
+      } else {
+        linkPath = linkRoot + linkPath;
+      }
+      link.href = linkPath;
 
       var media = document.createElement('div');
       media.className = 'kt-recently-viewed__media';
