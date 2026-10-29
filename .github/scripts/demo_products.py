@@ -100,7 +100,7 @@ DOOR_SAMPLE = {
     'tags': ['door sample', 'shaker', 'white kitchen cabinets', 'kitchen remodel'],
     'descriptionHtml': (
         '<p>A full-size Ice White shaker cabinet door. Check the color, profile, and finish in your '
-        'own light before you order a complete kitchen.</p>'
+        'own light before you order a complete kitchen.</p>\n'
         '<p>The door matches the Ivory Shaker Island Kitchen and other light shaker sets in the catalog.</p>'),
 }
 
@@ -108,6 +108,8 @@ DOOR_SAMPLE = {
 # The sink is a hammered apron-front sink sold in three finishes; its first
 # photo and default variant were copper while the title said matte black.
 PRODUCT_COPY = {
+    # Same copy as DOOR_SAMPLE; listed here so a paragraph-break fix is written even when type and tags match.
+    'ice-white-shaker': {'title': 'Ice White Shaker', 'descriptionHtml': DOOR_SAMPLE['descriptionHtml']},
     'matte-black-kitchen-sink': {
         'title': 'Hammered Apron-Front Sink',
         'descriptionHtml': (
