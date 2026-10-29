@@ -88,11 +88,24 @@
 
 /* ── Tier badge (top-left) ──────────────────────────────── */
 
-.kt-deals__card-tier {
+/* Tier and Most popular badges share one row and wrap onto a second
+   line on narrow cards instead of overlapping. */
+.kt-deals__card-badges {
   position: absolute;
   top: 1.25rem;
   left: 1.25rem;
+  right: 1.25rem;
   z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.kt-deals__card-tier {
+  position: relative;
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1rem;
@@ -116,10 +129,8 @@
 /* ── Popular badge (top-right) ──────────────────────────── */
 
 .kt-deals__card-popular {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  z-index: 2;
+  position: relative;
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -474,4 +485,11 @@
    the light text still has a dark backdrop. The media covers it. */
 .kt-deals__card-media {
   background-color: rgb(var(--kt-media-fallback, 28 25 23));
+}
+
+@media screen and (max-width: 749px) {
+  .kt-deals__card-tier,
+  .kt-deals__card-popular {
+    letter-spacing: 0.12em;
+  }
 }

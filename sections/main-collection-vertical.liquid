@@ -106,10 +106,10 @@
             {%- endfor -%}
             {%- if filter.type == 'price_range' -%}
               {%- if filter.min_value.value != blank -%}
-                <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}">
+                <input type="hidden" name="{{ filter.min_value.param_name }}" value="{%- if filter.min_value.value -%}{{ filter.min_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
               {%- endif -%}
               {%- if filter.max_value.value != blank -%}
-                <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}">
+                <input type="hidden" name="{{ filter.max_value.param_name }}" value="{%- if filter.max_value.value -%}{{ filter.max_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
               {%- endif -%}
             {%- endif -%}
           {%- endfor -%}

@@ -713,25 +713,25 @@
 @media screen and (max-width: 749px) {
   .kt-card-product__sample {
     width: clamp(1.75rem, 12%, 3.5rem);
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0.5rem;
+    right: 0.5rem;
     bottom: auto;
   }
 
   [dir="rtl"] .kt-card-product__sample {
     right: auto;
-    left: 0.75rem;
+    left: 0.5rem;
   }
 
   .kt-card-product__image-link--has-sample .kt-countdown {
-    top: 0.75rem;
+    top: 0.5rem;
     right: auto;
-    left: 0.75rem;
+    left: 0.5rem;
   }
 
   [dir="rtl"] .kt-card-product__image-link--has-sample .kt-countdown {
     left: auto;
-    right: 0.75rem;
+    right: 0.5rem;
   }
 }
 
@@ -748,14 +748,47 @@
    its tone so it stays subordinate to the product imagery. Desktop keeps
    the larger, fully-legible pill from the base rules. */
 @media screen and (max-width: 749px) {
-  .kt-card-product__badge--type {
-    bottom: 0.75rem;
-    left: 0.75rem;
+  /* Phones: every badge sits close to the corner. */
+  .kt-card-product__badge,
+  .kt-card-product__badge--corner-bl {
+    bottom: 0.5rem;
+    left: 0.5rem;
     padding: 0.1875rem 0.5rem;
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     letter-spacing: 0.06em;
-    background: rgba(255, 255, 255, 0.82);
-    color: var(--kt-stone-600);
+  }
+
+  [dir="rtl"] .kt-card-product__badge {
+    left: auto;
+    right: 0.5rem;
+  }
+
+  /* The category badge is a quiet dark chip instead of the grey pill. */
+  .kt-card-product__badge--type {
+    background: rgba(28, 25, 23, 0.55);
+    border-color: transparent;
+    color: var(--kt-white);
+  }
+
+  /* Less space between the image and the title than between cards. */
+  .kt-card-product__image-link {
+    margin-bottom: 0.875rem;
+  }
+
+  .kt-card-product__price-row {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Touch screens: no vendor overlay. It only appeared after a tap (focus)
+   and stayed on the photo when coming back to the page. */
+@media (hover: none) {
+  .kt-card-product__hover-info {
+    display: none;
+  }
+
+  .kt-card-product:focus-within .kt-card-product__badge {
+    opacity: 1;
   }
 }
 

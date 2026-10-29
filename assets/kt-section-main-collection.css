@@ -14,8 +14,8 @@
 }
 
 .kt-collection__hero {
-  padding-top: 4rem;
-  padding-bottom: 3rem;
+  padding-top: 2.25rem;
+  padding-bottom: 2.25rem;
   background-color: var(--kt-stone-50);
   border-bottom: 1px solid var(--kt-stone-200);
   position: relative;
@@ -26,7 +26,7 @@
 .kt-collection__dots-base {
   position: absolute;
   inset: 0;
-  opacity: 0.18;
+  opacity: 0.08;
   pointer-events: none;
   z-index: 0;
   background-image: radial-gradient(circle, var(--kt-black) 1.2px, transparent 1.2px);
@@ -39,7 +39,7 @@
   inset: 0;
   height: 150%;
   top: -25%;
-  opacity: 0.22;
+  opacity: 0.1;
   pointer-events: none;
   z-index: 0;
   background-image: radial-gradient(circle, var(--kt-black) 2px, transparent 2px);
@@ -63,7 +63,7 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.15;
 }
 
 .kt-collection__marker {
@@ -81,6 +81,13 @@
 .kt-collection__hero .page-width {
   position: relative;
   z-index: 1;
+}
+
+@media screen and (min-width: 750px) {
+  .kt-collection__hero {
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+  }
 }
 
 .kt-collection__hero-inner {
@@ -542,8 +549,9 @@
 .kt-collection__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem 1.5rem;
-  align-items: start;
+  gap: 3.5rem 1.5rem;
+  /* Cards in a row share one height, so their buttons line up. */
+  align-items: stretch;
   margin-top: 4rem;
   transition: gap 0.7s ease-in-out;
   width: 100%;
@@ -556,7 +564,8 @@
 
 .kt-collection__grid--cols-m-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2.5rem 1rem;
+  /* More space between rows than inside a card (image > title > button). */
+  gap: 3.5rem 1rem;
 }
 
 /* Tablet: 2 columns */

@@ -215,10 +215,10 @@
                           {%- endfor -%}
                           {%- if other_filter.type == 'price_range' -%}
                             {%- if other_filter.min_value.value != blank -%}
-                              <input type="hidden" name="{{ other_filter.min_value.param_name }}" value="{{ other_filter.min_value.value }}">
+                              <input type="hidden" name="{{ other_filter.min_value.param_name }}" value="{%- if other_filter.min_value.value -%}{{ other_filter.min_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
                             {%- endif -%}
                             {%- if other_filter.max_value.value != blank -%}
-                              <input type="hidden" name="{{ other_filter.max_value.param_name }}" value="{{ other_filter.max_value.value }}">
+                              <input type="hidden" name="{{ other_filter.max_value.param_name }}" value="{%- if other_filter.max_value.value -%}{{ other_filter.max_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
                             {%- endif -%}
                           {%- endif -%}
                         {%- endif -%}
@@ -272,10 +272,10 @@
                             type="number"
                             id="Bar-{{ filter.min_value.param_name }}"
                             name="{{ filter.min_value.param_name }}"
-                            value="{{ filter.min_value.value}}"
+                            value="{%- if filter.min_value.value -%}{{ filter.min_value.value | money_without_currency | remove: ',' }}{%- endif -%}"
                             placeholder="0"
                             min="0"
-                            max="{{ filter.range_max}}"
+                            max="{{ filter.range_max | money_without_currency | remove: ',' }}"
                             inputmode="decimal"
                             {% if kt_zero_decimal_currencies contains cart.currency.iso_code %}
                             step="1"
@@ -294,10 +294,10 @@
                             type="number"
                             id="Bar-{{ filter.max_value.param_name }}"
                             name="{{ filter.max_value.param_name }}"
-                            value="{{ filter.max_value.value}}"
-                            placeholder="{{ filter.range_max}}"
+                            value="{%- if filter.max_value.value -%}{{ filter.max_value.value | money_without_currency | remove: ',' }}{%- endif -%}"
+                            placeholder="{{ filter.range_max | money_without_currency | remove: ',' }}"
                             min="0"
-                            max="{{ filter.range_max}}"
+                            max="{{ filter.range_max | money_without_currency | remove: ',' }}"
                             inputmode="decimal"
                             {% if kt_zero_decimal_currencies contains cart.currency.iso_code %}
                             step="1"
@@ -373,10 +373,10 @@
               {%- endfor -%}
               {%- if filter.type == 'price_range' -%}
                 {%- if filter.min_value.value != blank -%}
-                  <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}">
+                  <input type="hidden" name="{{ filter.min_value.param_name }}" value="{%- if filter.min_value.value -%}{{ filter.min_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
                 {%- endif -%}
                 {%- if filter.max_value.value != blank -%}
-                  <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}">
+                  <input type="hidden" name="{{ filter.max_value.param_name }}" value="{%- if filter.max_value.value -%}{{ filter.max_value.value | money_without_currency | remove: ',' }}{%- endif -%}">
                 {%- endif -%}
               {%- endif -%}
             {%- endfor -%}
@@ -597,10 +597,10 @@
                       type="number"
                       id="FilterDrawer-{{ filter.min_value.param_name }}"
                       name="{{ filter.min_value.param_name }}"
-                      value="{{ filter.min_value.value}}"
+                      value="{%- if filter.min_value.value -%}{{ filter.min_value.value | money_without_currency | remove: ',' }}{%- endif -%}"
                       placeholder="{{ 'kt.section.collection.price_min' | t | default: 'Min' }}"
                       min="0"
-                      max="{{ filter.range_max}}"
+                      max="{{ filter.range_max | money_without_currency | remove: ',' }}"
                       inputmode="decimal"
                       {% if kt_zero_decimal_currencies contains cart.currency.iso_code %}
                       step="1"
@@ -617,10 +617,10 @@
                       type="number"
                       id="FilterDrawer-{{ filter.max_value.param_name }}"
                       name="{{ filter.max_value.param_name }}"
-                      value="{{ filter.max_value.value}}"
+                      value="{%- if filter.max_value.value -%}{{ filter.max_value.value | money_without_currency | remove: ',' }}{%- endif -%}"
                       placeholder="{{ 'kt.section.collection.price_max' | t | default: 'Max' }}"
                       min="0"
-                      max="{{ filter.range_max}}"
+                      max="{{ filter.range_max | money_without_currency | remove: ',' }}"
                       inputmode="decimal"
                       {% if kt_zero_decimal_currencies contains cart.currency.iso_code %}
                       step="1"
