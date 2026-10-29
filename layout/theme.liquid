@@ -1,8 +1,10 @@
 {%- comment -%}
-  Header group rendered first so its stylesheets can be linked in <head>
+  Section groups rendered first so their stylesheets can be linked in <head>
   (snippets/head-section-css); printed in place further down.
 {%- endcomment -%}
 {%- capture kt_header_group -%}{% sections 'header-group' %}{%- endcapture -%}
+{%- capture kt_footer_group -%}{% sections 'footer-group' %}{%- endcapture -%}
+{%- capture kt_overlay_group -%}{% sections 'overlay-group' %}{%- endcapture -%}
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
@@ -150,6 +152,8 @@
     {%- comment -%} Section stylesheets of this page, linked in <head> so Safari doesn't paint unstyled content first. {%- endcomment -%}
     {%- render 'head-section-css', html: kt_header_group -%}
     {%- render 'head-section-css', html: content_for_layout -%}
+    {%- render 'head-section-css', html: kt_footer_group -%}
+    {%- render 'head-section-css', html: kt_overlay_group -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
@@ -297,9 +301,9 @@
       {{ content_for_layout }}
     </main>
 
-    {% sections 'footer-group' %}
+    {{ kt_footer_group }}
 
-    {% sections 'overlay-group' %}
+    {{ kt_overlay_group }}
 
     {%- comment -%} Structured Data (JSON-LD) {%- endcomment -%}
     {%- render 'structured-data' -%}
