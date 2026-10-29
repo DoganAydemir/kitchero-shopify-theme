@@ -88,9 +88,14 @@
                     <li>
                       {%- if field == 'form' -%}
                         {{ form.errors.translated_messages[field] }}
-                      {%- elsif field == 'name' or field == 'email' -%}
-                        {%- assign vs_field_id = 'VisualizeStudioName' -%}
-                        {%- if field == 'email' -%}{%- assign vs_field_id = 'VisualizeStudioEmail' -%}{%- endif -%}
+                      {%- elsif field == 'first_name' or field == 'last_name' or field == 'email' or field == 'phone' or field == 'body' -%}
+                        {%- case field -%}
+                          {%- when 'first_name' -%}{%- assign vs_field_id = 'VisualizeStudioFirstName' -%}
+                          {%- when 'last_name' -%}{%- assign vs_field_id = 'VisualizeStudioLastName' -%}
+                          {%- when 'email' -%}{%- assign vs_field_id = 'VisualizeStudioEmail' -%}
+                          {%- when 'phone' -%}{%- assign vs_field_id = 'VisualizeStudioPhone' -%}
+                          {%- else -%}{%- assign vs_field_id = 'VisualizeStudioMessage' -%}
+                        {%- endcase -%}
                         <a href="#{{ vs_field_id }}-{{ section.id }}">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}</a>
                       {%- else -%}
                         {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.translated_messages[field] }}
@@ -101,28 +106,64 @@
               </div>
             {%- endif -%}
 
-            <div class="kt-visualize-studio__field">
-              <label for="VisualizeStudioName-{{ section.id }}" class="visually-hidden">
-                {{ 'kt.contact.form.name' | t | default: 'Name' }}
-              </label>
-              <input
-                type="text"
-                id="VisualizeStudioName-{{ section.id }}"
-                name="contact[name]"
-                placeholder="{{ 'kt.contact.form.name_placeholder' | t | default: 'Your Name' }}"
-                autocomplete="name"
-                required
-                aria-required="true"
-                {% if form.errors contains 'name' %}aria-invalid="true" aria-describedby="VisualizeStudioName-{{ section.id }}-error"{% endif %}
-              >
-              {%- assign vs_name_error_id = 'VisualizeStudioName-' | append: section.id | append: '-error' -%}
-              {%- render 'form-field-error', form: form, field: 'name', describedby_id: vs_name_error_id -%}
+            {%- comment -%}
+              Same fields as the consultation drawer
+              (snippets/appointment-drawer.liquid), so both consultation
+              forms on the product page collect the same details. Hidden
+              fields tell the merchant which form and product the request
+              came from.
+            {%- endcomment -%}
+            {%- assign visualize_subject_default = 'kt.section.visualize_studio.subject_default' | t -%}
+            {%- capture vs_request_type -%}
+              {{ visualize_subject_default }}{% if section.settings.form_heading != blank %}: {{ section.settings.form_heading }}{% endif %}
+            {%- endcapture -%}
+            <input type="hidden" name="contact[Request type]" value="{{ vs_request_type | strip | escape }}">
+            {%- if product -%}
+              <input type="hidden" name="contact[Product]" value="{{ product.title | escape }}: {{ request.origin }}{{ product.url }}">
+            {%- endif -%}
+
+            {%- assign vs_first_label = 'kt.section.appointment.first_name' | t -%}
+            {%- assign vs_last_label = 'kt.section.appointment.last_name' | t -%}
+            {%- assign vs_email_label = 'kt.section.appointment.email' | t -%}
+            {%- assign vs_phone_label = 'kt.section.appointment.phone' | t -%}
+            {%- assign vs_message_label = 'kt.section.appointment.message' | t -%}
+
+            <div class="kt-visualize-studio__row">
+              <div class="kt-visualize-studio__field">
+                <label for="VisualizeStudioFirstName-{{ section.id }}" class="visually-hidden">{{ vs_first_label }}</label>
+                <input
+                  type="text"
+                  id="VisualizeStudioFirstName-{{ section.id }}"
+                  name="contact[first_name]"
+                  placeholder="{{ vs_first_label | escape }}"
+                  autocomplete="given-name"
+                  required
+                  aria-required="true"
+                  {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="VisualizeStudioFirstName-{{ section.id }}-error"{% endif %}
+                >
+                {%- assign vs_first_error_id = 'VisualizeStudioFirstName-' | append: section.id | append: '-error' -%}
+                {%- render 'form-field-error', form: form, field: 'first_name', describedby_id: vs_first_error_id -%}
+              </div>
+
+              <div class="kt-visualize-studio__field">
+                <label for="VisualizeStudioLastName-{{ section.id }}" class="visually-hidden">{{ vs_last_label }}</label>
+                <input
+                  type="text"
+                  id="VisualizeStudioLastName-{{ section.id }}"
+                  name="contact[last_name]"
+                  placeholder="{{ vs_last_label | escape }}"
+                  autocomplete="family-name"
+                  required
+                  aria-required="true"
+                  {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="VisualizeStudioLastName-{{ section.id }}-error"{% endif %}
+                >
+                {%- assign vs_last_error_id = 'VisualizeStudioLastName-' | append: section.id | append: '-error' -%}
+                {%- render 'form-field-error', form: form, field: 'last_name', describedby_id: vs_last_error_id -%}
+              </div>
             </div>
 
             <div class="kt-visualize-studio__field">
-              <label for="VisualizeStudioEmail-{{ section.id }}" class="visually-hidden">
-                {{ 'kt.contact.form.email' | t | default: 'Email' }}
-              </label>
+              <label for="VisualizeStudioEmail-{{ section.id }}" class="visually-hidden">{{ vs_email_label }}</label>
               <input
                 type="email"
                 autocapitalize="off"
@@ -130,7 +171,7 @@
                 spellcheck="false"
                 id="VisualizeStudioEmail-{{ section.id }}"
                 name="contact[email]"
-                placeholder="{{ 'kt.contact.form.email_placeholder' | t | default: 'Your Email' }}"
+                placeholder="{{ vs_email_label | escape }}"
                 inputmode="email"
                 autocomplete="email"
                 required
@@ -141,35 +182,38 @@
               {%- render 'form-field-error', form: form, field: 'email', describedby_id: vs_email_error_id -%}
             </div>
 
+            <div class="kt-visualize-studio__field">
+              <label for="VisualizeStudioPhone-{{ section.id }}" class="visually-hidden">{{ vs_phone_label }}</label>
+              <input
+                type="tel"
+                id="VisualizeStudioPhone-{{ section.id }}"
+                name="contact[phone]"
+                placeholder="{{ vs_phone_label | escape }}"
+                inputmode="tel"
+                autocomplete="tel"
+                required
+                aria-required="true"
+                {% if form.errors contains 'phone' %}aria-invalid="true" aria-describedby="VisualizeStudioPhone-{{ section.id }}-error"{% endif %}
+              >
+              {%- assign vs_phone_error_id = 'VisualizeStudioPhone-' | append: section.id | append: '-error' -%}
+              {%- render 'form-field-error', form: form, field: 'phone', describedby_id: vs_phone_error_id -%}
+            </div>
+
+            <div class="kt-visualize-studio__field">
+              <label for="VisualizeStudioMessage-{{ section.id }}" class="visually-hidden">{{ vs_message_label }}</label>
+              <textarea
+                id="VisualizeStudioMessage-{{ section.id }}"
+                name="contact[body]"
+                placeholder="{{ vs_message_label | escape }}"
+                rows="4"
+                maxlength="2000"
+              ></textarea>
+            </div>
+
             <p class="kt-form__honeypot" aria-hidden="true" inert>
               <label for="VisualizeStudioWebsiteTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
               <input type="text" id="VisualizeStudioWebsiteTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
             </p>
-
-            {%- comment -%}
-              `contact[body]` is the message field of Shopify's contact
-              form. Without it, submissions deliver to the merchant
-              inbox with an empty message — a lead with only name +
-              email and no context. Hidden value carries the form
-              intent (section heading) so merchants can route /
-              auto-reply based on the source.
-            {%- endcomment -%}
-            {%- comment -%}
-              Form context for merchant inbox triage — pulls from the
-              section's existing heading_line1 setting (which is the
-              actual visible section heading) rather than referencing
-              an undefined `heading` setting that would silently
-              resolve to nil.
-            {%- endcomment -%}
-            {%- assign visualize_subject_default = 'kt.section.visualize_studio.subject_default' | t -%}
-            {%- capture visualize_body_message -%}
-              Visualize Studio consultation request — section: {{ section.settings.heading_line1 | default: visualize_subject_default }}
-            {%- endcapture -%}
-            <input
-              type="hidden"
-              name="contact[body]"
-              value="{{ visualize_body_message | strip | escape }}"
-            >
 
             {%- if shop.privacy_policy != blank -%}
               <p class="kt-visualize-studio__privacy">
