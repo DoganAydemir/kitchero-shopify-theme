@@ -485,7 +485,12 @@ select:-webkit-autofill {
    ============================================================ */
 
 .list-unstyled {
+  /* An empty marker string instead of `none`: no bullet, and Safari keeps
+     announcing the element as a list (it drops list semantics for
+     list-style: none), so the lists no longer need role="list", which
+     the W3C validator reports as redundant. */
   list-style: none;
+  list-style-type: "";
   padding: 0;
   margin: 0;
 }

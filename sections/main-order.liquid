@@ -116,7 +116,7 @@
     {%- if fulfillment_count > 0 -%}
       <div class="kt-order__tracking" role="region" aria-label="{{ 'kt.customer.order.tracking_heading' | t }}">
         <h2 class="kt-order__tracking-heading">{{ 'kt.customer.order.tracking_heading' | t }}</h2>
-        <ul class="kt-order__tracking-list" role="list">
+        <ul class="kt-order__tracking-list">
           {%- assign rendered_fulfillment_keys = '' -%}
           {%- for line_item in order.line_items -%}
             {%- if line_item.fulfillment -%}
@@ -151,7 +151,7 @@
 
     <div class="kt-order__layout">
       {%- comment -%} Line items {%- endcomment -%}
-      <ul class="kt-order__items" role="list" aria-label="{{ 'kt.customer.order.product' | t }}">
+      <ul class="kt-order__items" aria-label="{{ 'kt.customer.order.product' | t }}">
         {%- for line_item in order.line_items -%}
           <li class="kt-order__item{% if line_item.refunded_quantity > 0 and line_item.refunded_quantity == line_item.quantity %} kt-order__item--refunded{% endif %}">
             {%- if line_item.image -%}
@@ -229,7 +229,7 @@
                 {%- endif -%}
               {%- endfor -%}
               {%- if visible_properties -%}
-                <ul class="kt-order__item-properties" role="list">
+                <ul class="kt-order__item-properties">
                   {%- for property in line_item.properties -%}
                     {%- assign first_char = property.first | slice: 0 -%}
                     {%- if property.last == blank or first_char == '_' -%}{% continue %}{%- endif -%}
@@ -288,7 +288,7 @@
               {%- endif -%}
               {{ line_item.final_line_price | money_with_currency }}
               {%- if line_item.line_level_discount_allocations.size > 0 -%}
-                <ul class="kt-order__item-discounts" role="list">
+                <ul class="kt-order__item-discounts">
                   {%- for discount in line_item.line_level_discount_allocations -%}
                     <li>– {{ discount.discount_application.title | escape }} ({{ discount.amount | money_with_currency }})</li>
                   {%- endfor -%}
