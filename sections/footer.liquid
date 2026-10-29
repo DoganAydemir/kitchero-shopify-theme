@@ -384,17 +384,27 @@
               </li>
             {%- endfor -%}
             {%- if section.settings.show_privacy_choices -%}
-              {%- comment -%} Shopify creates the "Your Privacy Choices" page at /pages/data-sharing-opt-out when the data sharing opt-out page is on. {%- endcomment -%}
-              {%- assign privacy_choices_url = pages['data-sharing-opt-out'].url | default: pages['your-privacy-choices'].url | default: shop.privacy_policy.url | default: routes.root_url -%}
-              <li>
-                <a
-                  href="{{ privacy_choices_url }}"
-                  class="kt-footer__policy-link"
-                  data-privacy-choices
-                >
-                  {{ 'kt.cookie_banner.privacy_choices' | t | default: 'Your Privacy Choices' }}
-                </a>
-              </li>
+              {%- comment -%}
+                Shopify creates the "Your Privacy Choices" page at /pages/data-sharing-opt-out
+                when the data sharing opt-out page is on. Without that page the link is a
+                button that opens the cookie banner's preferences; it stays hidden unless
+                the cookie banner is on the page (assets/cookie-banner.js shows it). It never
+                falls back to the privacy policy or the home page.
+              {%- endcomment -%}
+              {%- assign privacy_choices_url = pages['data-sharing-opt-out'].url | default: pages['your-privacy-choices'].url -%}
+              {%- if privacy_choices_url != blank -%}
+                <li>
+                  <a href="{{ privacy_choices_url }}" class="kt-footer__policy-link" data-privacy-choices>
+                    {{ 'kt.cookie_banner.privacy_choices' | t | default: 'Your Privacy Choices' }}
+                  </a>
+                </li>
+              {%- else -%}
+                <li hidden data-privacy-choices-item>
+                  <button type="button" class="kt-footer__policy-link kt-footer__policy-button" data-privacy-choices>
+                    {{ 'kt.cookie_banner.privacy_choices' | t | default: 'Your Privacy Choices' }}
+                  </button>
+                </li>
+              {%- endif -%}
             {%- endif -%}
           </ul>
         </nav>

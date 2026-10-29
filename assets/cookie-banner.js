@@ -123,6 +123,12 @@ if (!window.__kitcheroCookieBannerLoaded) {
       var banner = getBanner();
       if (!banner) return;
 
+      // Footer "Your Privacy Choices" without an opt-out page is a button that
+      // opens these preferences, so it is only shown when the banner exists.
+      document.querySelectorAll('[data-privacy-choices-item]').forEach(function (item) {
+        item.hidden = false;
+      });
+
       if (window.Shopify && window.Shopify.designMode) {
         return;
       }

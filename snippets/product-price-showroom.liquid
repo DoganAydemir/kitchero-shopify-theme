@@ -87,7 +87,18 @@
         data-apr="{{ financing_apr }}"
       >
         {%- if financing_label != blank -%}
-          {{ financing_label | escape }}
+          {%- comment -%}
+            Custom text. "[amount]" is replaced by the calculated monthly payment
+            and kept in sync on variant change (kt-showroom-price.js); text
+            without it stays the same for every variant.
+          {%- endcomment -%}
+          {%- assign financing_label_html = financing_label | escape -%}
+          {%- if financing_label_html contains '[amount]' -%}
+            {%- capture financing_amount_html -%}<span data-showroom-monthly>{{ monthly | money }}</span>{%- endcapture -%}
+            {{ financing_label_html | replace: '[amount]', financing_amount_html }}
+          {%- else -%}
+            {{ financing_label_html }}
+          {%- endif -%}
         {%- else -%}
           <span data-showroom-monthly>{{ monthly | money }}</span> {{ 'kt.product.price.per_month' | t }}
           {%- if financing_apr > 0 -%}
