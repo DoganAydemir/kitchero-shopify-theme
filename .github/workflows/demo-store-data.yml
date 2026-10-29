@@ -1,0 +1,46 @@
+name: Demo store data
+
+# Review metafield leftovers, door sample photo and sample product links
+# (.github/scripts/demo_store_data.py). Dry run unless apply = "apply".
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Type "apply" to write the changes (anything else = dry run)
+        required: false
+        default: ''
+      door_image_url:
+        description: Padded door sample photo URL (blank = leave the photo as is)
+        required: false
+        default: ''
+
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get access token
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+        run: |
+          token=$(curl -sS -f -X POST "https://kitchero-kitchen.myshopify.com/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          echo "TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Update store data
+        env:
+          SHOP: kitchero-kitchen.myshopify.com
+          DOOR_IMAGE_URL: ${{ inputs.door_image_url }}
+        run: |
+          if [ "${{ inputs.apply }}" = "apply" ]; then
+            python3 .github/scripts/demo_store_data.py --apply | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            python3 .github/scripts/demo_store_data.py | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
