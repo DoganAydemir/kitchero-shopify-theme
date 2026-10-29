@@ -219,6 +219,12 @@
                   {%- form 'product', product, id: featured_form_id -%}
                     <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
+                    {%- comment -%} Same gift card recipient fields as the main product form (snippets/product-form.liquid). {%- endcomment -%}
+                    {%- if product.gift_card? -%}
+                      {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+                      <script src="{{ 'gift-card-recipient.js' | asset_url }}" defer="defer"></script>
+                    {%- endif -%}
+
                     {%- if product.selling_plan_groups.size > 0 -%}
                       {%- render 'product-selling-plans', product: product, current_variant: current_variant, section: section -%}
                     {%- endif -%}

@@ -627,9 +627,7 @@
           qtyInput.removeAttribute('max');
           delete qtyInput.dataset.qtyMax;
         }
-        var currentVal = parseInt(qtyInput.value, 10) || 1;
-        if (currentVal < newMin) qtyInput.value = newMin;
-        if (newMax != null && currentVal > newMax) qtyInput.value = newMax;
+        qtyInput.value = alignQuantity(parseInt(qtyInput.value, 10) || newMin, newMin, newStep, newMax);
       }
 
       try {
@@ -909,6 +907,22 @@
       }).format(cents / 100);
     }
   }
+
+  // Snaps a quantity onto the variant's rule: min + n * increment, within max.
+  // Rounds up to the next valid amount, or down to the highest valid one
+  // when that would pass the maximum.
+  function alignQuantity(value, min, step, max) {
+    min = Math.max(1, parseInt(min, 10) || 1);
+    step = Math.max(1, parseInt(step, 10) || 1);
+    var hasMax = max != null && max !== '' && !isNaN(parseInt(max, 10));
+    var top = hasMax ? min + Math.floor((parseInt(max, 10) - min) / step) * step : null;
+    if (hasMax && top < min) top = min;
+    var v = Math.max(value, min);
+    v = min + Math.ceil((v - min) / step) * step;
+    if (top != null && v > top) v = top;
+    return v;
+  }
+  if (window.Kitchero) window.Kitchero.alignQuantity = alignQuantity;
 
   function renderPriceForVariant(container, variant, sellingPlanId) {
     if (!container || !variant) return;
