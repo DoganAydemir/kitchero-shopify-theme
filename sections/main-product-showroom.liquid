@@ -345,7 +345,7 @@
                     {%- if desc_word_count > showroom_word_limit_safe -%}
                       {%- assign needs_toggle = true -%}
                     {%- endif -%}
-                    <div class="kt-showroom__desc-block kt-desc-truncate" data-desc-truncate {{ block.shopify_attributes }}>
+                    <div class="kt-showroom__desc-block kt-desc-truncate{% if needs_toggle %} kt-desc-truncate--toggle{% endif %}" data-desc-truncate {{ block.shopify_attributes }}>
                       <div class="kt-desc-truncate__short" data-desc-short>
                         {{ desc_stripped | truncatewords: showroom_word_limit_safe }}
                       </div>

@@ -49,7 +49,7 @@
       financial_status pill reading "Refunded" — not enough to
       distinguish "shipped and refunded" from "canceled before
       fulfillment". Surfacing the cancellation date + reason here
-      prevents the "why hasn't my order shipped" support ticket.
+      answers the "why hasn't my order shipped" question up front.
     {%- endcomment -%}
     {%- if order.cancelled_at != blank -%}
       {%- assign canceled_date = order.cancelled_at | date: format: 'date' -%}
@@ -427,8 +427,8 @@
     {%- comment -%}
       Customer-facing order note. The `cart.note` the customer wrote
       on checkout lands on `order.note`. Before this block the note
-      was invisible on the account order page — a known support-ticket
-      driver ("Did you see my delivery instructions?"). Rendered
+      was invisible on the account order page — a common customer
+      question ("Did you see my delivery instructions?"). Rendered
       read-only; customers edit via contacting support, not here.
     {%- endcomment -%}
     {%- if order.note != blank -%}
