@@ -60,6 +60,9 @@
                 "Premium", "Tier 1 Package", or just "Pro" gets exactly
                 that — and no surprise word appended on render.
               {%- endcomment -%}
+              {%- if tier_text != blank or block.settings.is_popular -%}
+              <div class="kt-deals__card-badges">
+              {%- endif -%}
               {%- if tier_text != blank -%}
                 <span
                   class="kt-deals__card-tier"
@@ -77,6 +80,9 @@
                   </svg>
                   {{ 'kt.section.deals.most_popular' | t | default: 'Most Popular' }}
                 </span>
+              {%- endif -%}
+              {%- if tier_text != blank or block.settings.is_popular -%}
+              </div>
               {%- endif -%}
 
               {%- comment -%} Price + includes overlay (bottom-left) {%- endcomment -%}
