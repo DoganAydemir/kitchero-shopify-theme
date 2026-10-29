@@ -16,7 +16,7 @@ from playwright.sync_api import sync_playwright
 STORE = os.environ['STORE_URL'].rstrip('/')
 PASSWORD = os.environ['PASSWORD']
 PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/premium-pull-down-kitchen-faucet',
-         '/products/elegant-kitchen-cabinet-system', '/cart', '/search?q=sink', '/blogs/journal',
+         '/products/elegant-kitchen-cabinet-system', '/products/signature-built-in-kitchen-set', '/cart', '/search?q=sink', '/blogs/journal',
          '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check']
 PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
             'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms')
