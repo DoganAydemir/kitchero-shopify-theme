@@ -697,30 +697,7 @@
         });
       } catch (e) {  }
 
-      var activePlanInput = form.querySelector('input[name="selling_plan"]:checked');
-      var activePlanId = activePlanInput ? activePlanInput.value : null;
-
-      if (activePlanId && matchedVariant.selling_plan_allocations) {
-        var planStillValid = false;
-        for (var pi = 0; pi < matchedVariant.selling_plan_allocations.length; pi++) {
-          var alloc = matchedVariant.selling_plan_allocations[pi];
-          if (alloc && String(alloc.selling_plan_id) === String(activePlanId)) {
-            planStillValid = true;
-            break;
-          }
-        }
-        if (!planStillValid) {
-          if (activePlanInput) activePlanInput.checked = false;
-          activePlanId = null;
-
-          if (window.Kitchero && typeof Kitchero.announce === 'function' && Kitchero.variantStrings && Kitchero.variantStrings.subscriptionUnavailable) {
-            Kitchero.announce(Kitchero.variantStrings.subscriptionUnavailable);
-          }
-        }
-      } else if (activePlanId && !matchedVariant.selling_plan_allocations) {
-        if (activePlanInput) activePlanInput.checked = false;
-        activePlanId = null;
-      }
+      var activePlanId = syncSellingPlans(form, matchedVariant);
 
       renderPriceForVariant(container, matchedVariant, activePlanId);
 
@@ -907,6 +884,45 @@
       }).format(cents / 100);
     }
   }
+
+  // Keeps the purchase options valid for the selected variant: plans the
+  // variant can't be bought with are disabled, and when the checked option
+  // is no longer valid the first valid one is checked (one-time purchase
+  // when offered, otherwise the first available plan). Returns the checked
+  // plan id, or null for one-time purchase.
+  function syncSellingPlans(form, variant) {
+    var radios = form ? form.querySelectorAll('input[name="selling_plan"]') : [];
+    if (!radios.length || !variant) return null;
+    var allowed = {};
+    var allocs = variant.selling_plan_allocations || [];
+    for (var a = 0; a < allocs.length; a++) {
+      if (allocs[a]) allowed[String(allocs[a].selling_plan_id)] = true;
+    }
+    var checked = null;
+    var firstValid = null;
+    for (var r = 0; r < radios.length; r++) {
+      var radio = radios[r];
+      var valid = radio.value === '' || !!allowed[radio.value];
+      radio.disabled = !valid;
+      var option = radio.closest('.kt-selling-plan__option');
+      if (option) option.classList.toggle('is-unavailable', !valid);
+      if (valid && !firstValid) firstValid = radio;
+      if (radio.checked) checked = radio;
+    }
+    if (!checked || checked.disabled) {
+      if (checked) checked.checked = false;
+      if (firstValid) {
+        firstValid.checked = true;
+        if (checked && window.Kitchero && typeof Kitchero.announce === 'function' && Kitchero.variantStrings && Kitchero.variantStrings.subscriptionUnavailable) {
+          Kitchero.announce(Kitchero.variantStrings.subscriptionUnavailable);
+        }
+        firstValid.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      checked = firstValid;
+    }
+    return checked && checked.value ? checked.value : null;
+  }
+  if (window.Kitchero) window.Kitchero.syncSellingPlans = syncSellingPlans;
 
   // Snaps a quantity onto the variant's rule: min + n * increment, within max.
   // Rounds up to the next valid amount, or down to the highest valid one
