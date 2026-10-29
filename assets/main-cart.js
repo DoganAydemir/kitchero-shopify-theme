@@ -135,21 +135,24 @@ if (!window.__kitcheroMainCartLoaded) {
               var qtyAction = activeEl.getAttribute('data-qty-action');
               var isQtyInput = activeEl.matches && activeEl.matches('input[data-cart-qty-input], input[name^="updates["]');
               var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove]');
-              if (lineKey && qtyAction) {
-                // Find the same control by its role (decrease / increase): data-qty
-                // holds the next quantity and changes after every update.
+              var roleSelector = qtyAction
+                ? '[data-qty-action="' + qtyAction + '"]'
+                : (isQtyInput ? 'input[data-cart-qty-input]' : (isRemove ? '[data-cart-remove]' : null));
+              if (roleSelector) {
+                // Return focus to the same control on the same row, matched by
+                // position: the line key can change when the quantity changes
+                // (for example when a discount allocation changes), and data-qty
+                // holds the next quantity.
+                var rowIndex = Array.prototype.slice
+                  .call(current.querySelectorAll(roleSelector))
+                  .indexOf(activeEl);
                 restoreFocus = function (panel) {
-                  var line = '[data-line-key="' + lineKey + '"]';
-                  return panel.querySelector(line + '[data-qty-action="' + qtyAction + '"]:not([disabled])') ||
-                    panel.querySelector('input' + line + '[data-cart-qty-input]');
-                };
-              } else if (lineKey && isQtyInput) {
-                restoreFocus = function (panel) {
-                  return panel.querySelector('[data-line-key="' + lineKey + '"] input[data-cart-qty-input]');
-                };
-              } else if (lineKey && isRemove) {
-                restoreFocus = function (panel) {
-                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-cart-remove]');
+                  var pick = function (selector) {
+                    var list = panel.querySelectorAll(selector);
+                    var el = rowIndex < 0 ? null : list[Math.min(rowIndex, list.length - 1)];
+                    return el && !el.disabled ? el : null;
+                  };
+                  return pick(roleSelector) || pick('input[data-cart-qty-input]');
                 };
               } else if (activeEl.id) {
                 var savedId = activeEl.id;

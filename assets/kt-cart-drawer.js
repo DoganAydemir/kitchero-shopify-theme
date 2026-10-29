@@ -355,14 +355,23 @@
               var qtyAction = activeEl.getAttribute('data-qty-action');
               var isQtyInput = activeEl.matches && activeEl.matches('input[name="updates[]"], input[data-qty-input]');
               var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove], [data-line-remove]');
-              if (lineKey && qtyAction) {
-                // Find the same control by its role (decrease / increase / remove).
-                // data-qty holds the next quantity and changes after every update,
-                // so it can't identify the button that was pressed.
+              if (qtyAction) {
+                // Return focus to the same control (decrease / increase / remove)
+                // on the same row. Rows are matched by position: Shopify can issue
+                // a new line key when the quantity changes (for example when a
+                // discount allocation changes), and data-qty holds the next
+                // quantity, so neither identifies the row after the update.
+                var rowIndex = Array.prototype.slice
+                  .call(currentPanel.querySelectorAll('[data-qty-action="' + qtyAction + '"]'))
+                  .indexOf(activeEl);
                 restoreFocus = function (panel) {
-                  var line = '[data-line-key="' + lineKey + '"]';
-                  return panel.querySelector(line + '[data-qty-action="' + qtyAction + '"]:not([disabled])') ||
-                    panel.querySelector(line + '[data-qty-action]:not([disabled])') ||
+                  var pick = function (role) {
+                    var list = panel.querySelectorAll('[data-qty-action="' + role + '"]');
+                    var el = rowIndex < 0 ? null : list[Math.min(rowIndex, list.length - 1)];
+                    return el && !el.disabled ? el : null;
+                  };
+                  return pick(qtyAction) ||
+                    pick(qtyAction === 'increase' ? 'decrease' : 'increase') ||
                     panel.querySelector('.kt-cart-drawer__body a[href]') ||
                     panel.querySelector('a[href]');
                 };
