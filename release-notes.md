@@ -32,6 +32,12 @@ on the product page, featured product, header, footer and cart page.
   (list of products) to show a different list on each product.
 - Countdown, rating, features, origin, dimensions and swatch data
   read from metafields you choose in Theme settings > Product data.
+- Optional sample photo on product cards: a small image of a linked
+  sample product (for example a door sample) in the corner of the
+  card image, read from the product reference metafield you choose
+  in Theme settings > Product data.
+- Contact page locations show phone, email and opening hours; phone
+  numbers and email addresses are tappable links.
 - Seven color schemes; every section picks its scheme in its own
   settings.
 - Theme settings for logo, favicon, page width, spacing, motion,
