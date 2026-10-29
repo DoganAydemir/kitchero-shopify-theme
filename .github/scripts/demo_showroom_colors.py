@@ -11,11 +11,12 @@
   Kitchen through the custom.linked_products metafield (list of products).
   The theme's Linked products block shows them as "Other colors" and opens
   the chosen kitchen's own page.
-- Descriptions: drop the sentences that offered hardware or cabinet colors.
+- Descriptions: drop the sentences that offered hardware or cabinet colors,
+  including the Kitchen Cabinets collection description.
 
 Idempotent. Dry run by default; pass --apply to write.
 """
-import json, os, sys, urllib.request
+import json, os, re, sys, urllib.request
 
 SHOP = os.environ['SHOP']
 TOKEN = os.environ['TOKEN']
@@ -140,6 +141,23 @@ for handle in CABINET_SETS:
     if 'hardware' in new.lower():
         i = new.lower().index('hardware')
         print(f'  still mentions hardware: ...{new[max(0, i - 80):i + 40]}...')
+
+print('## Collection description')
+COLLECTION = 'kitchen-cabinets'
+c = gql('''query($h: String!) { collectionByHandle(handle: $h) { id descriptionHtml } }''', {'h': COLLECTION})['collectionByHandle']
+html = (c or {}).get('descriptionHtml') or ''
+new = re.sub(r'Every set comes in black, beige, or bronze hardware and can be combined', 'Every set can be combined', html)
+if new != html:
+    i = new.find('Every set can be combined')
+    print(f'- {COLLECTION}: "...{new[max(0, i - 60):i + 90]}..."')
+    if APPLY:
+        r = gql('''mutation($c: CollectionInput!) { collectionUpdate(input: $c) { userErrors { field message } } }''',
+                {'c': {'id': c['id'], 'descriptionHtml': new}})
+        check(r, 'collectionUpdate')
+elif re.search(r'bronze hardware|hardware finish', html, re.I):
+    print(f'- {COLLECTION}: still mentions hardware, pattern not found: {html[:300]}')
+else:
+    print(f'- {COLLECTION}: no hardware sentence')
 
 print('## Metafield definition')
 defs = gql('''{ metafieldDefinitions(first: 100, ownerType: PRODUCT, namespace: "custom") { nodes { id key type { name } } } }''')
