@@ -706,15 +706,29 @@
   left: 1.5rem;
 }
 
+/* Phones: the bottom row is taken by the badge on narrow cards, so the
+   sample moves to the top right; a card countdown moves to the top left. */
 @media screen and (max-width: 749px) {
   .kt-card-product__sample {
+    top: 0.75rem;
     right: 0.75rem;
-    bottom: 0.75rem;
+    bottom: auto;
   }
 
   [dir="rtl"] .kt-card-product__sample {
     right: auto;
     left: 0.75rem;
+  }
+
+  .kt-card-product__image-link--has-sample .kt-countdown {
+    top: 0.75rem;
+    right: auto;
+    left: 0.75rem;
+  }
+
+  [dir="rtl"] .kt-card-product__image-link--has-sample .kt-countdown {
+    left: auto;
+    right: 0.75rem;
   }
 }
 
