@@ -167,7 +167,7 @@
                 {%- if product.description != blank -%}
                   {%- if block.settings.truncate -%}
                     {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
-                    {%- assign desc_stripped = product.description | strip_html -%}
+                    {%- assign desc_stripped = product.description | replace: '><', '> <' | replace: '<br', ' <br' | strip_html -%}
                     {%- assign desc_word_count = desc_stripped | split: ' ' | size -%}
                     {%- assign needs_toggle = false -%}
                     {%- if desc_word_count > word_limit_safe -%}

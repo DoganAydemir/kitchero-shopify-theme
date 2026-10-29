@@ -68,7 +68,7 @@
               <div class="kt-list-collections__body">
                 <h2 class="kt-list-collections__title">{{ collection.title | escape }}</h2>
                 {%- if collection.description != blank -%}
-                  <p class="kt-list-collections__desc">{{ collection.description | strip_html | truncate: 120 }}</p>
+                  <p class="kt-list-collections__desc">{{ collection.description | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | strip | truncate: 120 }}</p>
                 {%- endif -%}
                 <div class="kt-list-collections__footer">
                   <span class="kt-list-collections__count">

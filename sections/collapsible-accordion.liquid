@@ -138,7 +138,7 @@
               "name": {{ block.settings.title | default: faq_question_default | strip_html | json }},
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": {{ block.settings.content | default: faq_answer_default | strip_html | json }}
+                "text": {{ block.settings.content | default: faq_answer_default | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | strip | json }}
               }
             }{% if faq_item_index < faq_items_total %},{% endif %}
           {%- endif -%}

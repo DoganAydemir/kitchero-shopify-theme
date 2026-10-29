@@ -400,7 +400,7 @@
     SERP snippet under Google's 160-character display cap with
     buffer for word boundaries.
   {%- endcomment -%}
-  {%- assign article_description = article.excerpt | default: article.content | strip_html | strip | truncate: 200, '…' -%}
+  {%- assign article_description = article.excerpt | default: article.content | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | strip | truncate: 200, '…' -%}
   {%- comment -%}
     Logo dimensions — Google's Article publisher.logo schema
     requires width + height numerics on the ImageObject. Pin

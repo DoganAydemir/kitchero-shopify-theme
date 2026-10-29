@@ -287,7 +287,7 @@
       "name": {{ collection.title | json }},
       "url": {{ request.origin | append: collection.url | json }},
       {%- if collection.description != blank -%}
-        "description": {{ collection.description | strip_html | json }},
+        "description": {{ collection.description | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | strip | json }},
       {%- endif -%}
       "mainEntity": {
         "@type": "ItemList",
