@@ -130,7 +130,7 @@
                     </span>
                   {%- endif -%}
                   {%- if item.line_level_discount_allocations.size > 0 -%}
-                    <ul class="kt-cart-drawer__item-discounts" role="list">
+                    <ul class="kt-cart-drawer__item-discounts">
                       {%- for discount in item.line_level_discount_allocations -%}
                         <li>– {{ discount.discount_application.title | escape }} ({{ discount.amount | money }})</li>
                       {%- endfor -%}
@@ -140,7 +140,7 @@
               </div>
 
               {%- if item.product and item.product.has_only_default_variant == false -%}
-                <ul class="kt-cart-drawer__item-variant" role="list">
+                <ul class="kt-cart-drawer__item-variant">
                   {%- for option in item.options_with_values -%}
                     <li><span>{{ option.name | escape }}:</span> {{ option.value | escape }}</li>
                   {%- endfor -%}
@@ -187,7 +187,7 @@
                 (title + qty only) keeps drawer density manageable.
               {%- endcomment -%}
               {%- if item.item_components.size > 0 -%}
-                <ul class="kt-cart-drawer__item-components" role="list">
+                <ul class="kt-cart-drawer__item-components">
                   {%- for component in item.item_components -%}
                     <li>
                       {%- if component.quantity > 1 -%}<span>{{ component.quantity }}&times;</span> {% endif -%}
@@ -198,7 +198,7 @@
               {%- endif -%}
 
               {%- if item.properties != blank -%}
-                <ul class="kt-cart-drawer__item-properties" role="list">
+                <ul class="kt-cart-drawer__item-properties">
                   {%- for property in item.properties -%}
                     {%- assign first = property.first | downcase -%}
                     {%- unless first.first == '_' or property.last == blank -%}
@@ -362,7 +362,7 @@
           <h2 class="kt-cart-drawer__recommendations-heading">
             {{- section.settings.recommendations_heading | default: cart_drawer_recommendations_default | escape -}}
           </h2>
-          <ul class="kt-cart-drawer__recommendations-list" role="list">
+          <ul class="kt-cart-drawer__recommendations-list">
             {%- for rec_product in cart_recs limit: section.settings.recommendations_count -%}
               {%- comment -%}
                 Skip products already in the cart — recommending an
@@ -436,7 +436,7 @@
           opens the drawer can't see what they saved.
         {%- endcomment -%}
         {%- if cart.cart_level_discount_applications.size > 0 -%}
-          <ul class="kt-cart-drawer__discounts" role="list">
+          <ul class="kt-cart-drawer__discounts">
             {%- for discount in cart.cart_level_discount_applications -%}
               <li class="kt-cart-drawer__discount">
                 <span class="kt-cart-drawer__discount-label">{{ discount.title | escape }}</span>
@@ -474,7 +474,7 @@
               </button>
             </div>
             {%- if drawer_applied_codes.size > 0 -%}
-              <ul class="kt-cart-drawer__discount-applied" role="list">
+              <ul class="kt-cart-drawer__discount-applied">
                 {%- for applied_discount in drawer_applied_codes -%}
                   {%- assign safe_discount_code = applied_discount.title | escape -%}
                   <li class="kt-cart-drawer__discount-chip">

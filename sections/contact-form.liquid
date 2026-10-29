@@ -201,7 +201,6 @@
                     name="contact[first_name]"
                     class="kt-contact__form-input"
                     required
-                    aria-required="true"
                     autocomplete="given-name"
                     value="{% if form.first_name %}{{ form.first_name | escape }}{% elsif customer %}{{ customer.first_name | escape }}{% endif %}"
                     {% if form.errors contains 'first_name' %}aria-invalid="true" aria-describedby="{{ contact_id_first }}-error"{% endif %}
@@ -216,7 +215,6 @@
                     name="contact[last_name]"
                     class="kt-contact__form-input"
                     required
-                    aria-required="true"
                     autocomplete="family-name"
                     value="{% if form.last_name %}{{ form.last_name | escape }}{% elsif customer %}{{ customer.last_name | escape }}{% endif %}"
                     {% if form.errors contains 'last_name' %}aria-invalid="true" aria-describedby="{{ contact_id_last }}-error"{% endif %}
@@ -236,7 +234,6 @@
                     name="contact[email]"
                     class="kt-contact__form-input"
                     required
-                    aria-required="true"
                     inputmode="email"
                     autocomplete="email"
                     value="{% if form.email %}{{ form.email | escape }}{% elsif customer %}{{ customer.email | escape }}{% endif %}"
@@ -267,7 +264,6 @@
                   class="kt-contact__form-textarea"
                   rows="4"
                   required
-                  aria-required="true"
                   maxlength="2000"
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="{{ contact_id_message }}-error"{% endif %}
                 >{% if form.body %}{{ form.body | escape }}{% endif %}</textarea>

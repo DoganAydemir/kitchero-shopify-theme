@@ -69,27 +69,31 @@ jobs:
 
       - name: Validate
         run: |
-          java -jar node_modules/vnu-jar/build/dist/vnu.jar --errors-only --format json pages/*.html 2> report.json || true
+          java -jar node_modules/vnu-jar/build/dist/vnu.jar --format json pages/*.html 2> report.json || true
           python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
           import json, re
           platform = re.compile(
               r'charset” attribute on a “meta”|“version” not allowed on element “link”'
               r'|“type=module” must not have a “defer”|“payment” not allowed'
-              r'|“disabled” not allowed on element “div”')
+              r'|“disabled” not allowed on element “div”'
+              r'|preview-bar|Trailing slash on void elements')
           data = json.load(open('report.json'))
           theme, shopify = {}, {}
           for m in data.get('messages', []):
-              if m.get('type') != 'error':
-                  continue
+              kind = 'error' if m.get('type') == 'error' else ('warning' if m.get('subType') == 'warning' else 'info')
+              if kind == 'info' and 'Trailing slash' not in m['message']:
+                  pass
+              m['message'] = f"[{kind}] " + m['message']
               page = m.get('url', '').rsplit('/', 1)[-1].replace('.html', '')
               key = m['message'][:140]
               video_fallback = 'alt” attribute' in m['message'] and 'preview_images' in m.get('extract', '')
-              bucket = shopify if (platform.search(m['message']) or video_fallback) else theme
+              blob = m['message'] + ' ' + m.get('extract', '')
+              bucket = shopify if (platform.search(blob) or video_fallback) else theme
               if bucket is theme:
                   key += '  `' + re.sub(r'\s+', ' ', m.get('extract', ''))[:90].replace('`', "'") + '`'
               bucket.setdefault(key, set()).add(page)
           print('## HTML validation (W3C Nu)\n')
-          print(f'Theme-side errors: **{len(theme)}** distinct · Shopify platform markup: {len(shopify)} distinct\n')
+          print(f'Theme-side errors and warnings: **{len(theme)}** distinct · Shopify platform markup: {len(shopify)} distinct\n')
           for title, bucket in (('Theme-side', theme), ('Shopify platform', shopify)):
               print(f'### {title}\n')
               for key, pages in sorted(bucket.items()):

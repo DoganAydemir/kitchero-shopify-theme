@@ -58,7 +58,7 @@
                 {{ block.settings.heading | default: block.settings.menu.title }}
               </h2>
               {%- if block.settings.menu != blank and block.settings.menu.links.size > 0 -%}
-                <ul class="kt-footer__link-list list-unstyled" role="list">
+                <ul class="kt-footer__link-list list-unstyled">
                   {%- for link in block.settings.menu.links -%}
                     <li>
                       <a
@@ -129,7 +129,6 @@
                       class="kt-field__input kt-footer__newsletter-input"
                       placeholder="{{ 'kt.newsletter.label' | t }}"
                       required
-                      aria-required="true"
                       maxlength="254"
                       inputmode="email"
                       enterkeyhint="send"
@@ -179,7 +178,6 @@
                         name="contact[accepts_marketing]"
                         value="true"
                         required
-                        aria-required="true"
                       >
                       <label for="footer-newsletter-consent-{{ block.id }}" class="kt-footer__newsletter-consent-label">
                         {{- footer_consent_html -}}
@@ -240,7 +238,7 @@
               {%- if block.settings.heading != blank -%}
                 <h2 class="kt-footer__heading">{{ block.settings.heading | escape }}</h2>
               {%- endif -%}
-              <ul class="kt-footer__contact list-unstyled" role="list">
+              <ul class="kt-footer__contact list-unstyled">
                 {%- if block.settings.show_address and shop.address.street != blank -%}
                   <li class="kt-footer__contact-item">
                     <address class="kt-footer__contact-address">{{ shop.address | format_address }}</address>
@@ -355,7 +353,7 @@
         {%- comment -%} Payment Icons (Shopify native) {%- endcomment -%}
         {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
           <div class="kt-footer__payment">
-            <ul class="kt-footer__payment-list list-unstyled" role="list" aria-label="{{ 'kt.general.footer.payment_methods' | t | escape }}">
+            <ul class="kt-footer__payment-list list-unstyled" aria-label="{{ 'kt.general.footer.payment_methods' | t | escape }}">
               {%- for type in shop.enabled_payment_types -%}
                 <li>
                   {{- type | payment_type_svg_tag: class: 'kt-footer__payment-icon' -}}
@@ -377,7 +375,7 @@
       {%- endcomment -%}
       {%- if section.settings.show_policy_links and shop.policies.size > 0 -%}
         <nav class="kt-footer__policies" aria-label="{{ 'kt.general.footer.policies' | t | default: 'Legal' }}">
-          <ul class="kt-footer__policies-list list-unstyled" role="list">
+          <ul class="kt-footer__policies-list list-unstyled">
             {%- for policy in shop.policies -%}
               <li>
                 <a href="{{ policy.url }}" class="kt-footer__policy-link">

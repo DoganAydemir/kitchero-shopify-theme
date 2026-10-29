@@ -224,7 +224,7 @@
                 </div>
 
               {%- when 'trust_badges' -%}
-                <ul class="kt-pdp__trust-badges" role="list" {{ block.shopify_attributes }}>
+                <ul class="kt-pdp__trust-badges" {{ block.shopify_attributes }}>
                   {%- for i in (1..4) -%}
                     {%- assign icon_key = 'badge_' | append: i | append: '_icon' -%}
                     {%- assign text_key = 'badge_' | append: i | append: '_text' -%}
@@ -359,7 +359,7 @@
                     <p class="kt-pdp__payment-icons-heading">{{ block.settings.heading | escape }}</p>
                   {%- endif -%}
                   {%- if shop.enabled_payment_types.size > 0 -%}
-                    <ul class="kt-pdp__payment-icons-list" role="list" aria-label="{{ 'kt.product.payment_icons.aria_label' | t | default: 'Accepted payment methods' }}">
+                    <ul class="kt-pdp__payment-icons-list" aria-label="{{ 'kt.product.payment_icons.aria_label' | t | default: 'Accepted payment methods' }}">
                       {%- for type in shop.enabled_payment_types -%}
                         <li class="kt-pdp__payment-icon">
                           {{ type | payment_type_svg_tag: class: 'kt-pdp__payment-icon-svg' }}

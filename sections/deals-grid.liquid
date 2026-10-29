@@ -1,7 +1,7 @@
 {{ 'kt-section-deals-grid.css' | asset_url | stylesheet_tag }}
 
 {%- assign deals_cta_default = 'kt.section.deals_grid.cta_default' | t -%}
-<section class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
+<div class="kt-deals color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="" data-section-id="{{ section.id }}">
   <div class="page-width">
     <div class="kt-deals__grid">
@@ -108,7 +108,7 @@
                 {%- endif -%}
 
                 {%- if block.settings.includes != blank -%}
-                  <ul class="kt-deals__card-includes" role="list">
+                  <ul class="kt-deals__card-includes">
                     {%- for line in includes_list limit: 3 -%}
                       {%- assign clean = line | strip_html | strip -%}
                       {%- if clean != blank -%}
@@ -156,7 +156,7 @@
       {%- endfor -%}
     </div>
   </div>
-</section>
+</div>
 
 {%- comment -%} Bottom CTA section {%- endcomment -%}
 {%- if section.settings.show_bottom_cta -%}

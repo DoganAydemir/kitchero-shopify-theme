@@ -1,6 +1,6 @@
 {{ 'kt-section-main-article.css' | asset_url | stylesheet_tag }}
 
-<article class="kt-article" data-section-id="{{ section.id }}" data-section-type="main-article">
+<div class="kt-article" data-section-id="{{ section.id }}" data-section-type="main-article">
   {%- comment -%}
     Visible breadcrumb that mirrors the BreadcrumbList JSON-LD from
     structured-data.liquid. Rendered above the article hero so
@@ -121,7 +121,7 @@
         {%- unless tfc == '_' -%}{%- assign kt_has_tags = true -%}{%- endunless -%}
       {%- endfor -%}
       {%- if kt_has_tags -%}
-        <ul class="kt-article__tags" role="list">
+        <ul class="kt-article__tags">
           {%- for tag in article.tags -%}
             {%- assign tfc = tag | slice: 0 -%}
             {%- unless tfc == '_' -%}
@@ -245,7 +245,7 @@
 
           {%- if article.comments.size > 0 -%}
             {%- paginate article.comments by 10 -%}
-              <ol class="kt-article__comments-list" role="list">
+              <ol class="kt-article__comments-list">
                 {%- for comment in article.comments -%}
                   <li class="kt-article__comment">
                     <div class="kt-article__comment-avatar" aria-hidden="true">
@@ -322,7 +322,6 @@
                     class="kt-article__comment-input"
                     value="{{ form.author | default: '' | escape }}"
                     required
-                    aria-required="true"
                     autocomplete="name"
                     placeholder=" "
                     {% if form.errors contains 'author' %}aria-invalid="true" aria-describedby="comment-author-error"{% endif %}
@@ -343,7 +342,6 @@
                     class="kt-article__comment-input"
                     value="{{ form.email | default: '' | escape }}"
                     required
-                    aria-required="true"
                     inputmode="email"
                     autocomplete="email"
                     placeholder=" "
@@ -363,7 +361,6 @@
                   class="kt-article__comment-textarea"
                   rows="4"
                   required
-                  aria-required="true"
                   maxlength="1000"
                   placeholder=" "
                   {% if form.errors contains 'body' %}aria-invalid="true" aria-describedby="comment-body-error"{% endif %}
@@ -408,12 +405,12 @@
       </a>
     </div>
   </div>
-</article>
+</div>
 
 {% schema %}
 {
   "name": "t:sections.main-article.name",
-  "tag": "section",
+  "tag": "div",
   "class": "section",
   "enabled_on": {
     "templates": ["article"]
