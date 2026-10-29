@@ -129,7 +129,7 @@
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ article.title | escape }}</span>
                     {%- if article.excerpt != blank -%}
-                      <span class="kt-predictive-search__excerpt">{{ article.excerpt | strip_html | truncate: 80 }}</span>
+                      <span class="kt-predictive-search__excerpt">{{ article.excerpt | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | strip | truncate: 80 }}</span>
                     {%- endif -%}
                   </span>
                 </a>

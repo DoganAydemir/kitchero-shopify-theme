@@ -82,7 +82,7 @@
 
     {%- if show_excerpt and article.excerpt_or_content != blank -%}
       <p class="kt-article-card__excerpt">
-        {{ article.excerpt_or_content | strip_html | truncatewords: 28 }}
+        {{ article.excerpt_or_content | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | truncatewords: 28 }}
       </p>
     {%- endif -%}
 

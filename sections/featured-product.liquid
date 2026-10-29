@@ -149,7 +149,7 @@
               <div class="kt-featured-product__description rte" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
                   {%- assign word_limit_safe = block.settings.word_limit | default: 40 -%}
-                  {{ product.description | strip_html | truncatewords: word_limit_safe }}
+                  {{ product.description | replace: '><', '> <' | replace: '<br', ' <br' | strip_html | truncatewords: word_limit_safe }}
                 {%- else -%}
                   {{ 'kt.onboarding.product_description' | t | default: 'Example product description goes here.' }}
                 {%- endif -%}
