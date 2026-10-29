@@ -312,7 +312,12 @@
                   }
                 {%- endif -%}
                 ,"offers": {
-                  "@type": "Offer",
+                  {%- comment -%}
+                    Price range -> AggregateOffer (lowPrice/highPrice/offerCount);
+                    single price -> Offer (price). lowPrice/highPrice are not
+                    Offer properties.
+                  {%- endcomment -%}
+                  "@type": {% if product.price_varies %}"AggregateOffer"{% else %}"Offer"{% endif %},
                   "priceCurrency": {{ cart.currency.iso_code | json }},
                   {%- comment -%}
                     Schema.org Offer requires plain-decimal price
@@ -327,6 +332,7 @@
                   {%- if product.price_varies -%}
                     "lowPrice": {{ product.price_min | divided_by: 100.0 | round: 2 | json }},
                     "highPrice": {{ product.price_max | divided_by: 100.0 | round: 2 | json }},
+                    "offerCount": {{ product.variants.size | json }},
                   {%- else -%}
                     "price": {{ product.price | divided_by: 100.0 | round: 2 | json }},
                   {%- endif -%}

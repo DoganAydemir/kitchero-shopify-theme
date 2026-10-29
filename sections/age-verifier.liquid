@@ -3,7 +3,11 @@
   <link rel="stylesheet" href="{{ 'kt-section-age-verifier.css' | asset_url }}" media="all">
   <script src="{{ 'kt-section-age-verifier.js' | asset_url }}" defer="defer"></script>
 
-  {%- assign decline_url = section.settings.decline_url | default: 'https://www.google.com' -%}
+  {%- comment -%}
+    No decline URL set: the decline button keeps the shopper on the gate and shows
+    a message instead of sending them to an unrelated external site.
+  {%- endcomment -%}
+  {%- assign decline_url = section.settings.decline_url -%}
   {%- assign session_days = section.settings.session_days | default: 30 -%}
 
   <div
@@ -71,19 +75,47 @@
               {{ 'kt.age_verifier.accept' | t | default: 'Yes, I am of legal age' }}
             {%- endif -%}
           </button>
-          <a
-            class="kt-age-verifier__decline"
-            href="{{ decline_url }}"
-            rel="noopener noreferrer"
-            data-age-verifier-decline
-          >
+          {%- capture decline_text -%}
             {%- if section.settings.decline_label != blank -%}
               {{ section.settings.decline_label | escape }}
-            {%- else -%}
+            {%- elsif decline_url != blank -%}
               {{ 'kt.age_verifier.decline' | t | default: 'No, take me elsewhere' }}
+            {%- else -%}
+              {{ 'kt.age_verifier.decline_stay' | t | default: 'No, I am not' }}
             {%- endif -%}
-          </a>
+          {%- endcapture -%}
+          {%- if decline_url != blank -%}
+            <a
+              class="kt-age-verifier__decline"
+              href="{{ decline_url }}"
+              rel="noopener noreferrer"
+              data-age-verifier-decline
+            >
+              {{- decline_text -}}
+            </a>
+          {%- else -%}
+            <button
+              type="button"
+              class="kt-age-verifier__decline"
+              data-age-verifier-decline
+              aria-controls="AgeVerifierDenied-{{ section.id }}"
+            >
+              {{- decline_text -}}
+            </button>
+          {%- endif -%}
         </div>
+
+        {%- if decline_url == blank -%}
+          <p
+            id="AgeVerifierDenied-{{ section.id }}"
+            class="kt-age-verifier__denied"
+            role="status"
+            data-age-verifier-denied
+            hidden
+          >
+            {{ 'kt.age_verifier.denied' | t: age: section.settings.minimum_age }}
+          </p>
+        {%- endif -%}
 
         {%- if section.settings.disclaimer != blank -%}
           <div class="kt-age-verifier__disclaimer">{{ section.settings.disclaimer }}</div>
