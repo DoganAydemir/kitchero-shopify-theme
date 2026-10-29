@@ -58,7 +58,7 @@ pairs = {
     'templates/gift_card.liquid': 'templates/gift_card.liquid', 'assets/kt-cart-drawer.js': 'assets/cart-drawer.js',
     'assets/kt-product-form.js': 'assets/product-form.js', 'snippets/product-card.liquid': 'snippets/card-product.liquid',
     'sections/main-product.liquid': 'sections/main-product.liquid', 'assets/kt-predictive-search.js': 'assets/predictive-search.js',
-    'assets/critical.css': 'assets/critical.css', 'snippets/css-variables.liquid': 'snippets/css-variables.liquid',
+    'snippets/critical-css.liquid': 'assets/critical.css', 'snippets/css-variables.liquid': 'snippets/css-variables.liquid',
 }
 print(f'{"file":34} {"theme lines":>11} {"same file in " + name:>22} {"anywhere in " + name:>22}')
 for t_rel, d_rel in pairs.items():
@@ -77,7 +77,7 @@ if '--kept' in sys.argv:
     def short_lines(text):
         return [re.sub(r'\s+', ' ', l).strip() for l in text.splitlines() if len(re.sub(r'\s+', ' ', l).strip()) >= 12]
     print(f'\n{"foundation file":34} {name + " lines kept in theme":>28}')
-    for rel in ('layout/theme.liquid', 'layout/password.liquid', 'assets/critical.css',
+    for rel in ('layout/theme.liquid', 'layout/password.liquid', 'snippets/critical-css.liquid',
                 'snippets/css-variables.liquid', 'snippets/meta-tags.liquid'):
         ref_path = os.path.join(dawn, rel)
         if not os.path.exists(ref_path):
