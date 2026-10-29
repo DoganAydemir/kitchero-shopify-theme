@@ -5,7 +5,7 @@
   Based on Shopify's Skeleton theme (`snippets/meta-tags.liquid`, see
   assets/skeleton-theme.LICENSE.txt). Kitchero adds a default share image,
   share-image sizing, robots rules for filtered and private pages, locale
-  tags, hreflang alternates, extra product and article tags and JSON-LD,
+  tags, extra product and article tags and JSON-LD,
   and favicon/theme-color tags. `<meta charset>` is the first tag in the
   layouts, before this snippet.
 {%- enddoc -%}
@@ -60,12 +60,30 @@
   endif
 -%}
 
+{%- comment -%}
+  Sorted or filtered collection views are detected with documented Liquid
+  (collection.sort_by is the sort_by URL parameter or nil; a filter is active
+  when it has active values or a price bound). The request object has no
+  query string property.
+{%- endcomment -%}
+{%- liquid
+  assign collection_param_view = false
+  if request.page_type == 'collection' and collection
+    if collection.sort_by != blank
+      assign collection_param_view = true
+    endif
+    for filter in collection.filters
+      if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil
+        assign collection_param_view = true
+        break
+      endif
+    endfor
+  endif
+-%}
 {%- assign hidden_page_types = 'search,404,captcha,gift_card,password,cart,customers/login,customers/register,customers/account,customers/addresses,customers/order,customers/reset_password,customers/activate_account' | split: ',' -%}
 {%- if hidden_page_types contains request.page_type -%}
   <meta name="robots" content="noindex">
-{%- elsif request.path contains '/collections/' and request.query_string contains 'filter.' -%}
-  <meta name="robots" content="noindex,follow">
-{%- elsif request.path contains '/collections/' and request.query_string contains 'sort_by=' -%}
+{%- elsif collection_param_view -%}
   <meta name="robots" content="noindex,follow">
 {%- endif -%}
 
@@ -285,11 +303,9 @@
 {%- comment -%} Filtered, sorted and search result URLs point to their unfiltered page. {%- endcomment -%}
 {%- liquid
   assign canonical = canonical_url
-  if request.path contains '/collections/' and collection
-    if request.query_string contains 'filter.' or request.query_string contains 'sort_by='
-      assign canonical = request.origin | append: collection.url
-    endif
-  elsif request.page_type == 'search' and request.query_string != ''
+  if collection_param_view
+    assign canonical = request.origin | append: collection.url
+  elsif request.page_type == 'search'
     assign canonical = request.origin | append: routes.search_url
   endif
 -%}
@@ -298,19 +314,11 @@
   href="{{ canonical }}"
 >
 
-{%- if shop.published_locales.size > 1 -%}
-  {%- assign primary_root = '/' -%}
-  {%- for locale in shop.published_locales -%}
-    {%- if locale.primary -%}
-      {%- assign primary_root = locale.root_url -%}
-    {%- endif -%}
-  {%- endfor -%}
-  {%- assign current_root = request.locale.root_url | default: '/' -%}
-  {%- for locale in shop.published_locales -%}
-    <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ canonical_url | replace_first: current_root, locale.root_url }}">
-  {%- endfor -%}
-  <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace_first: current_root, primary_root }}">
-{%- endif -%}
+{%- comment -%}
+  No hreflang tags here: Shopify adds them for every published language and
+  market through content_for_header (layout/theme.liquid), and adding a
+  second set creates duplicate or conflicting annotations.
+{%- endcomment -%}
 
 <meta
   name="description"

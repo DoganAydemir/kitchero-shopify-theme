@@ -470,7 +470,6 @@
           <div class="kt-header__locale-popover" role="group" aria-label="{{ 'kt.locale.selector_label' | t | default: 'Country and language' }}">
             {%- if show_locale_select -%}
               {%- form 'localization', id: 'HeaderLanguageForm', class: 'kt-header__locale-form' -%}
-                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.language_label' | t | default: 'Language' }}</label>
                 <select name="language_code" id="HeaderLanguageSelector-{{ section.id }}" class="kt-header__locale-form-select">
                   {%- for language in localization.available_languages -%}
@@ -487,7 +486,6 @@
 
             {%- if show_country_select -%}
               {%- form 'localization', id: 'HeaderCountryForm', class: 'kt-header__locale-form' -%}
-                <input type="hidden" name="return_to" value="{{ request.path | escape }}">
                 <label for="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-label">{{ 'kt.locale.country_label' | t | default: 'Country/region' }}</label>
                 <select name="country_code" id="HeaderCountrySelector-{{ section.id }}" class="kt-header__locale-form-select">
                   {%- for country in localization.available_countries -%}
