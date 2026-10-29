@@ -25,8 +25,7 @@
     {% endunless %}
 
     {% # Load and preload the critical CSS %}
-    <link rel="preload" href="{{ 'critical.css' | asset_url }}" as="style">
-    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="all">
+    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
     <link rel="stylesheet" href="{{ 'kt-base.css' | asset_url }}" media="all">
 
     {% # Social, title, etc. %}

@@ -78,7 +78,9 @@ jobs:
               r'charset” attribute on a “meta”|“version” not allowed on element “link”'
               r'|“type=module” must not have a “defer”|“payment” not allowed'
               r'|“disabled” not allowed on element “div”')
-          shopify_extract = re.compile(r'shopifycloud|shopify-payment-button|name="form_type"|name="utf8"|preview-bar')
+          # critical.css: Theme Check (AssetPreload) requires stylesheet_tag with preload,
+          # and that Shopify filter writes the trailing slash.
+          shopify_extract = re.compile(r'critical\.css|shopifycloud|shopify-payment-button|name="form_type"|name="utf8"|preview-bar')
           data = json.load(open('report.json'))
           pages = sorted(os.path.basename(f)[:-5] for f in glob.glob('pages/*.html'))
           per = {pg: {'theme': [0, 0, 0], 'shopify': [0, 0, 0]} for pg in pages}
