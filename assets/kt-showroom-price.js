@@ -16,6 +16,17 @@
     return (cents / 100).toFixed(2);
   }
 
+  // "Save [amount]" / "Was [amount]" come from the locale via data-template.
+  function setAmount(el, show, cents) {
+    if (!el) return;
+    el.hidden = !show;
+    if (!show) return;
+    var tpl = el.getAttribute('data-template') || '[amount]';
+    var holder = document.createElement('span');
+    holder.innerHTML = tpl;
+    el.textContent = (holder.textContent || '').replace('[amount]', formatMoney(cents));
+  }
+
   function update(root, variant) {
     if (!root || !variant) return;
     var price = Number(variant.price) || 0;
@@ -25,6 +36,12 @@
     root.classList.toggle('kt-showroom-price--sale', onSale);
     var label = root.querySelector('[data-showroom-sale-label]');
     if (label) label.hidden = !onSale;
+
+    var current = root.querySelector('.kt-showroom-price__current');
+    if (current) current.textContent = price > 0 ? formatMoney(price) : current.getAttribute('data-free-text') || formatMoney(0);
+
+    setAmount(root.querySelector('[data-showroom-save]'), onSale, compare - price);
+    setAmount(root.querySelector('[data-showroom-was]'), onSale, compare);
 
     var pill = root.querySelector('[data-showroom-financing]');
     var monthlyEl = root.querySelector('[data-showroom-monthly]');

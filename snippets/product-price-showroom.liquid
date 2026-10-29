@@ -25,27 +25,43 @@
   <span class="kt-showroom-price__label" data-showroom-sale-label{% unless on_sale %} hidden{% endunless %}>{{ 'kt.product.price.now_only' | t }}</span>
 
   <div class="kt-showroom-price__row">
-    <span class="kt-showroom-price__current kt-product-price__current">
+    <span class="kt-showroom-price__current kt-product-price__current" data-free-text="{{ 'kt.cart.free' | t | default: 'Free' | escape }}">
       {%- if is_free -%}
         {{ 'kt.cart.free' | t | default: 'Free' }}
       {%- else -%}
         {{ current_price | money }}
       {%- endif -%}
     </span>
-    {%- if on_sale -%}
-      {%- assign savings_money = savings | money -%}
-      <span class="kt-showroom-price__save kt-product-price__discount">
-        {{ 'kt.product.price.save_html' | t: amount: savings_money }}
-      </span>
-    {%- endif -%}
+    {%- comment -%}
+      Save / Was are always rendered (hidden when not on sale) and use their own
+      data hooks, not the generic .kt-product-price__compare/__discount classes,
+      so kt-showroom-price.js keeps their "Save $X" / "Was $X" wording in sync
+      when the shopper picks a variant with a different sale state.
+    {%- endcomment -%}
+    {%- assign savings_money = savings | money -%}
+    <span
+      class="kt-showroom-price__save"
+      data-showroom-save
+      data-template="{{ 'kt.product.price.save_html' | t: amount: '[amount]' | escape }}"
+      {% unless on_sale %}
+        hidden
+      {% endunless %}
+    >
+      {%- if on_sale -%}{{ 'kt.product.price.save_html' | t: amount: savings_money }}{%- endif -%}
+    </span>
   </div>
 
-  {%- if on_sale -%}
-    {%- assign compare_price_money = compare_price | money -%}
-    <span class="kt-showroom-price__was kt-product-price__compare">
-      {{ 'kt.product.price.was_html' | t: amount: compare_price_money }}
-    </span>
-  {%- endif -%}
+  {%- assign compare_price_money = compare_price | money -%}
+  <span
+    class="kt-showroom-price__was"
+    data-showroom-was
+    data-template="{{ 'kt.product.price.was_html' | t: amount: '[amount]' | escape }}"
+    {% unless on_sale %}
+      hidden
+    {% endunless %}
+  >
+    {%- if on_sale -%}{{ 'kt.product.price.was_html' | t: amount: compare_price_money }}{%- endif -%}
+  </span>
 
   {%- render 'product-unit-price', product: product, variant: variant -%}
 
