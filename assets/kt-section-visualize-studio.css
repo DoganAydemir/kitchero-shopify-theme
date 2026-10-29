@@ -227,7 +227,23 @@
   gap: 1rem;
 }
 
-.kt-visualize-studio__field input {
+/* First and last name share a row where the card is wide enough:
+   large phones held sideways (480-749px, full-width card) and desktop. */
+.kt-visualize-studio__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 480px) and (max-width: 749px), screen and (min-width: 990px) {
+  .kt-visualize-studio__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kt-visualize-studio__field input,
+.kt-visualize-studio__field textarea {
+  display: block;
   width: 100%;
   background-color: rgba(28, 25, 23, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -244,12 +260,21 @@
   transition: border-color 0.2s ease;
 }
 
-.kt-visualize-studio__field input::placeholder {
+.kt-visualize-studio__field textarea {
+  min-height: 7.5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.kt-visualize-studio__field input::placeholder,
+.kt-visualize-studio__field textarea::placeholder {
   color: var(--kt-stone-500);
 }
 
 .kt-visualize-studio__field input:focus,
-.kt-visualize-studio__field input:focus-visible {
+.kt-visualize-studio__field input:focus-visible,
+.kt-visualize-studio__field textarea:focus,
+.kt-visualize-studio__field textarea:focus-visible {
   outline: none;
   border-color: var(--kt-visualize-accent, #ffffff);
 }
