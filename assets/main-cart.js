@@ -132,12 +132,16 @@ if (!window.__kitcheroMainCartLoaded) {
             if (activeEl) {
               var lineEl = activeEl.closest('[data-line-key]');
               var lineKey = lineEl ? lineEl.getAttribute('data-line-key') : null;
-              var qtyDir = activeEl.getAttribute('data-qty');
+              var qtyAction = activeEl.getAttribute('data-qty-action');
               var isQtyInput = activeEl.matches && activeEl.matches('input[data-cart-qty-input], input[name^="updates["]');
               var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove]');
-              if (lineKey && qtyDir) {
+              if (lineKey && qtyAction) {
+                // Find the same control by its role (decrease / increase): data-qty
+                // holds the next quantity and changes after every update.
                 restoreFocus = function (panel) {
-                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-cart-qty-change][data-qty="' + qtyDir + '"]');
+                  var line = '[data-line-key="' + lineKey + '"]';
+                  return panel.querySelector(line + '[data-qty-action="' + qtyAction + '"]:not([disabled])') ||
+                    panel.querySelector('input' + line + '[data-cart-qty-input]');
                 };
               } else if (lineKey && isQtyInput) {
                 restoreFocus = function (panel) {

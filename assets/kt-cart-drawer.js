@@ -352,12 +352,19 @@
             if (activeEl) {
               var lineEl = activeEl.closest('[data-line-key]');
               var lineKey = lineEl ? lineEl.getAttribute('data-line-key') : null;
-              var qtyDir = activeEl.getAttribute('data-qty');
+              var qtyAction = activeEl.getAttribute('data-qty-action');
               var isQtyInput = activeEl.matches && activeEl.matches('input[name="updates[]"], input[data-qty-input]');
               var isRemove = activeEl.matches && activeEl.matches('[data-cart-remove], [data-line-remove]');
-              if (lineKey && qtyDir) {
+              if (lineKey && qtyAction) {
+                // Find the same control by its role (decrease / increase / remove).
+                // data-qty holds the next quantity and changes after every update,
+                // so it can't identify the button that was pressed.
                 restoreFocus = function (panel) {
-                  return panel.querySelector('[data-line-key="' + lineKey + '"] [data-qty-change][data-qty="' + qtyDir + '"]');
+                  var line = '[data-line-key="' + lineKey + '"]';
+                  return panel.querySelector(line + '[data-qty-action="' + qtyAction + '"]:not([disabled])') ||
+                    panel.querySelector(line + '[data-qty-action]:not([disabled])') ||
+                    panel.querySelector('.kt-cart-drawer__body a[href]') ||
+                    panel.querySelector('a[href]');
                 };
               } else if (lineKey && isQtyInput) {
                 restoreFocus = function (panel) {
