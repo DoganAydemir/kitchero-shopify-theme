@@ -1,0 +1,47 @@
+name: Theme rename
+
+# Renames a demo store theme (for example the previous live theme to "Kitchero backup <date>").
+on:
+  workflow_dispatch:
+    inputs:
+      theme_id:
+        description: Theme ID to rename
+        required: true
+      name:
+        description: New theme name
+        required: true
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Get access token
+        env:
+          CLIENT_ID: f17f43c0543c78ace662dc5c8939fa86
+          CLIENT_SECRET: ${{ secrets.SHOP_CLIENT_SECRET }}
+        run: |
+          token=$(curl -sS -f -X POST "https://kitchero-kitchen.myshopify.com/admin/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+          echo "::add-mask::$token"
+          echo "SHOPIFY_CLI_THEME_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Rename theme
+        env:
+          SHOPIFY_FLAG_STORE: kitchero-kitchen.myshopify.com
+          SHOPIFY_CLI_TTY: '0'
+          CI: '1'
+          THEME_ID: ${{ inputs.theme_id }}
+          THEME_NAME: ${{ inputs.name }}
+        run: |
+          shopify theme rename --theme "$THEME_ID" --name "$THEME_NAME"
+          shopify theme list | tee -a "$GITHUB_STEP_SUMMARY"
