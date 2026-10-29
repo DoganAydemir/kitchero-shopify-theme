@@ -53,7 +53,7 @@ EDITS = [
     ('templates/index.json', 'trust_bar', 'stat_1', {'value': '30', 'prefix': '', 'label': 'Products in the catalog'}),
     ('templates/index.json', 'trust_bar', 'stat_2', {'value': '6', 'prefix': '', 'label': 'Product categories'}),
     ('templates/index.json', 'trust_bar', 'stat_3', {'value': '2', 'prefix': '', 'label': 'Design studios in New York'}),
-    ('templates/index.json', 'trust_bar', 'stat_4', {'value': '3', 'prefix': '', 'label': 'Hardware finishes'}),
+    ('templates/index.json', 'trust_bar', 'stat_4', {'value': '12', 'prefix': '', 'label': 'Kitchen sets'}),
     ('templates/index.json', 'ecosystem', 'feat_1', {'description':
         'Cabinet layouts planned around your room, your appliances, and the way you cook, from galley kitchens to open-plan islands.'}),
     ('templates/index.json', 'ecosystem', 'feat_2', {'description':
@@ -283,6 +283,28 @@ if entry:
             continue
         for block_id, (title, sub) in zip(section.get('block_order', []), captions):
             apply('templates/page.galleries.json', section_id, block_id, {title_key: title, sub_key: sub})
+
+# Showroom: "Other colors" photo swatches that open the other kitchens
+# (Linked products block), placed before the variant picker. The product
+# list comes from each product's custom.linked_products metafield, set by
+# demo_showroom_colors.py. Demo store only: the theme package ships the
+# block without a metafield.
+LINKED_BLOCK = {'type': 'linked_products',
+                'settings': {'heading': 'Other colors',
+                             'products': '{{ product.metafields.custom.linked_products.value }}'}}
+entry = doc('templates/product.showroom.json')
+if entry:
+    main = entry[1]['sections'].get('main')
+    if main is not None:
+        blocks = main.setdefault('blocks', {})
+        order = main.setdefault('block_order', [])
+        if blocks.get('linked_products') != LINKED_BLOCK or 'linked_products' not in order:
+            blocks['linked_products'] = LINKED_BLOCK
+            if 'linked_products' in order:
+                order.remove('linked_products')
+            position = order.index('variant_picker') if 'variant_picker' in order else len(order)
+            order.insert(position, 'linked_products')
+            entry[2] = True
 
 # Showroom: visible buy buttons (audit #19), placed after the variant picker
 entry = doc('templates/product.showroom.json')

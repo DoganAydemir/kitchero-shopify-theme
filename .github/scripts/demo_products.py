@@ -20,7 +20,6 @@ TOKEN = os.environ['TOKEN']
 APPLY = '--apply' in sys.argv
 API = f'https://{SHOP}/admin/api/2025-01/graphql.json'
 
-HARDWARE = ('Hardware finish', 'Black, beige, or bronze')
 UNITS = ('Unit options', 'Base 24", 30", 36" · Wall 30", 36" · Tall 84"')
 SIZING = ('Sizing', 'Planned to your room measurements')
 
@@ -30,32 +29,32 @@ PARCEL_DELIVERY = 'Ships in parcel packaging. Shipping options and rates are sho
 
 SPECS = {
     'custom-kitchen-cabinet-set': [('Cabinet color', 'Navy'), ('Island', 'Marble-clad, with seating'),
-        ('Features', 'Lit display niches, tall pantry units, round dining area'), HARDWARE, UNITS, SIZING],
+        ('Features', 'Lit display niches, tall pantry units, round dining area'), UNITS, SIZING],
     'luxury-kitchen-cabinet-design': [('Cabinet color', 'Plum'), ('Island', 'Marble, with an attached dining table for six'),
-        ('Features', 'Glass-front uppers, brass pendants'), HARDWARE, UNITS, SIZING],
+        ('Features', 'Glass-front uppers, brass pendants'), UNITS, SIZING],
     'contemporary-kitchen-cabinet-system': [('Cabinet color', 'Espresso'), ('Door style', 'Slab'),
         ('Island', 'Long island with a breakfast bar'), ('Features', 'Lit open shelving, wood wall paneling'),
-        HARDWARE, UNITS, SIZING],
+        UNITS, SIZING],
     'designer-kitchen-cabinet-collection': [('Cabinet color', 'Charcoal'), ('Island', 'Waterfall marble, seats four'),
-        ('Features', 'Glass display cabinets, globe pendants'), HARDWARE, UNITS, SIZING],
+        ('Features', 'Glass display cabinets, globe pendants'), UNITS, SIZING],
     'built-in-kitchen-cabinet-set': [('Cabinet finish', 'Dark walnut'), ('Island', 'Integrated lighting'),
-        ('Features', 'Vented hood, tall pantry units, deep drawers'), HARDWARE, UNITS, SIZING],
+        ('Features', 'Vented hood, tall pantry units, deep drawers'), UNITS, SIZING],
     'signature-built-in-kitchen-set': [('Cabinet color', 'Emerald'), ('Backsplash', 'Marble'),
-        ('Features', 'Under-cabinet lighting, wood-wrapped hood, tall units beside the range'), HARDWARE, SIZING],
+        ('Features', 'Under-cabinet lighting, wood-wrapped hood, tall units beside the range'), SIZING],
     'elegant-custom-kitchen-cabinets': [('Cabinet color', 'Forest green'), ('Island', 'Walnut'),
-        ('Features', 'Black canopy hood, glass-front uppers, open shelving'), HARDWARE, SIZING],
+        ('Features', 'Black canopy hood, glass-front uppers, open shelving'), SIZING],
     'contemporary-cabinet-kitchen-set': [('Cabinet color', 'Sage green'), ('Shelving', 'Oak, with under-shelf lighting'),
-        ('Island', 'Stone top, seats three'), HARDWARE, SIZING],
+        ('Island', 'Stone top, seats three'), SIZING],
     'designer-built-in-cabinet-set': [('Cabinet color', 'Slate gray'), ('Layout', 'Galley and U-shaped kitchens'),
-        ('Features', 'Farmhouse sink base, matching range hood'), HARDWARE, SIZING],
+        ('Features', 'Farmhouse sink base, matching range hood'), SIZING],
     'custom-kitchen-storage-collection': [('Cabinet color', 'Deep navy'), ('Door style', 'Shaker'),
         ('Island', 'Wood top'), ('Features', 'Floor-to-ceiling storage, pull-out pantry units, deep drawers'),
-        HARDWARE, SIZING],
+        SIZING],
     'designer-kitchen-cabinet-set': [('Base cabinets', 'Soft blue'), ('Upper cabinets', 'White'),
-        ('Island', 'Wood top'), ('Features', 'Open shelving, plaster-style hood'), HARDWARE, SIZING],
-    'elegant-kitchen-cabinet-system': [('Cabinet color', 'Ivory, navy, or charcoal'), ('Door style', 'Shaker'),
+        ('Island', 'Wood top'), ('Features', 'Open shelving, plaster-style hood'), SIZING],
+    'elegant-kitchen-cabinet-system': [('Cabinet color', 'Ivory'), ('Door style', 'Shaker'),
         ('Island', 'Marble top, seats four, deep drawers'), ('Features', 'Glass-front uppers, brass pendants, paneled hood'),
-        HARDWARE, SIZING],
+        SIZING],
     'ice-white-shaker': [('Type', 'Cabinet door sample'), ('Door style', 'Shaker'), ('Finish', 'Ice white'),
         ('Use', 'Check the color and profile in your own light before ordering')],
     'premium-pull-down-kitchen-faucet': [('Type', 'Single-handle, high-arc'), ('Spray options', 'Standard, pull-down, pull-out'),
@@ -153,8 +152,7 @@ PRODUCT_COPY = {
 }
 
 # Smart collections for the Cabinets mega menu "By Style" group (audit #43:
-# the old "By Finish" links all returned the same 12 sets, because every set
-# comes with all three hardware finishes).
+# the old "By Finish" links all returned the same 12 sets).
 # handle: (title, description, title keyword, product whose photo is the collection image)
 COLLECTIONS = {
     'island-kitchens': ('Island Kitchens',

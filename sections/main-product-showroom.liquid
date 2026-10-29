@@ -390,6 +390,9 @@
                   </div>
                 {%- endif -%}
 
+              {%- when 'linked_products' -%}
+                {%- render 'linked-products', block: block, product: product -%}
+
               {%- when 'buy_buttons' -%}
                 <div class="kt-showroom__buy-controls" {{ block.shopify_attributes }}>
                   {%- render 'product-form', product: product, section: section, show_quantity: block.settings.show_quantity -%}
@@ -802,6 +805,30 @@
       "name": "t:sections.main-product-showroom.blocks.variant_picker.name",
       "limit": 1,
       "settings": []
+    },
+    {
+      "type": "linked_products",
+      "name": "t:sections.main-product-showroom.blocks.linked_products.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product-showroom.blocks.linked_products.settings.paragraph.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.main-product-showroom.blocks.linked_products.settings.heading.label",
+          "default": "Other colors"
+        },
+        {
+          "type": "product_list",
+          "id": "products",
+          "label": "t:sections.main-product-showroom.blocks.linked_products.settings.products.label",
+          "info": "t:sections.main-product-showroom.blocks.linked_products.settings.products.info",
+          "limit": 12
+        }
+      ]
     },
     {
       "type": "buy_buttons",
