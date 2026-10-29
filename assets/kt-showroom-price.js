@@ -45,6 +45,10 @@
 
     var pill = root.querySelector('[data-showroom-financing]');
     var monthlyEl = root.querySelector('[data-showroom-monthly]');
+    var financing = pill ? pill.closest('.kt-showroom-price__financing') : null;
+    var financingNote = root.querySelector('.kt-showroom-price__financing-note');
+    if (financing) financing.hidden = price <= 0;
+    if (financingNote) financingNote.hidden = price <= 0;
     if (pill && monthlyEl) {
       var months = parseInt(pill.getAttribute('data-months'), 10) || 0;
       var apr = parseFloat(pill.getAttribute('data-apr')) || 0;
