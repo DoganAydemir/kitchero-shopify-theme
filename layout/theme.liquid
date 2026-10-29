@@ -321,6 +321,10 @@
           assign search_types = search_types | append: 'collection,'
         endif
         assign search_types = search_types | split: ',' | join: ','
+        # Products, pages and articles all off: suggest all three (same rule as the search page).
+        unless settings.kt_search_inc_products or settings.kt_search_inc_pages or settings.kt_search_inc_articles
+          assign search_types = search_types | prepend: 'product,page,article,' | split: ',' | join: ','
+        endunless
       -%}
       {%- comment -%}
         Every value interpolated into this JS blob is emitted via

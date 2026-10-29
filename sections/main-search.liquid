@@ -23,26 +23,38 @@
 <link rel="stylesheet" href="{{ 'kt-collection-filters.css' | asset_url }}" media="all">
 
 {%- liquid
+  # Shopify's search results page returns products, pages and articles only
+  # (collections appear in search suggestions, see layout/theme.liquid).
+  # With all three content types off, all three are searched, as described
+  # in the theme setting, so the page never falls back to products alone.
   assign search_type = ''
+  assign show_product_tab = false
+  assign show_article_tab = false
+  assign show_page_tab = false
   if settings.kt_search_inc_products
     assign search_type = search_type | append: 'product,'
-  endif
-  if settings.kt_search_inc_collections
-    assign search_type = search_type | append: 'collection,'
+    assign show_product_tab = true
   endif
   if settings.kt_search_inc_articles
     assign search_type = search_type | append: 'article,'
+    assign show_article_tab = true
   endif
   if settings.kt_search_inc_pages
     assign search_type = search_type | append: 'page,'
+    assign show_page_tab = true
   endif
   assign search_type = search_type | split: ',' | join: ','
   if search_type == blank
-    assign search_type = 'product'
+    assign search_type = 'product,article,page'
+    assign show_product_tab = true
+    assign show_article_tab = true
+    assign show_page_tab = true
   endif
+  assign search_type_all = search_type
+  assign enabled_type_count = search_type | split: ',' | size
 
   assign active_scope = 'all'
-  if search.performed and search.types.size == 1
+  if search.performed and search.types.size == 1 and enabled_type_count > 1
     assign only_type = search.types | first
     if only_type == 'product'
       assign active_scope = 'product'
@@ -126,29 +138,36 @@
       aria-live="polite"
     ></div>
 
-    {%- if search.performed -%}
+    {%- comment -%} Tabs only for enabled content types, and only when there is more than one. {%- endcomment -%}
+    {%- if search.performed and enabled_type_count > 1 -%}
       <nav class="kt-search-page__tabs" aria-label="{{ 'kt.search.scope_aria' | t }}">
         {%- assign terms_param = search.terms | url_encode -%}
         <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=product,article,page"
+          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type={{ search_type_all | url_encode }}"
           class="kt-search-page__tab{% if active_scope == 'all' %} kt-search-page__tab--active{% endif %}"
           {% if active_scope == 'all' %}aria-current="page"{% endif %}
         >{{ 'kt.search.scope_all' | t }}</a>
-        <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=product"
-          class="kt-search-page__tab{% if active_scope == 'product' %} kt-search-page__tab--active{% endif %}"
-          {% if active_scope == 'product' %}aria-current="page"{% endif %}
-        >{{ 'kt.search.scope_products' | t }}</a>
-        <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=article"
-          class="kt-search-page__tab{% if active_scope == 'article' %} kt-search-page__tab--active{% endif %}"
-          {% if active_scope == 'article' %}aria-current="page"{% endif %}
-        >{{ 'kt.search.scope_articles' | t }}</a>
-        <a
-          href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=page"
-          class="kt-search-page__tab{% if active_scope == 'page' %} kt-search-page__tab--active{% endif %}"
-          {% if active_scope == 'page' %}aria-current="page"{% endif %}
-        >{{ 'kt.search.scope_pages' | t }}</a>
+        {%- if show_product_tab -%}
+          <a
+            href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=product"
+            class="kt-search-page__tab{% if active_scope == 'product' %} kt-search-page__tab--active{% endif %}"
+            {% if active_scope == 'product' %}aria-current="page"{% endif %}
+          >{{ 'kt.search.scope_products' | t }}</a>
+        {%- endif -%}
+        {%- if show_article_tab -%}
+          <a
+            href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=article"
+            class="kt-search-page__tab{% if active_scope == 'article' %} kt-search-page__tab--active{% endif %}"
+            {% if active_scope == 'article' %}aria-current="page"{% endif %}
+          >{{ 'kt.search.scope_articles' | t }}</a>
+        {%- endif -%}
+        {%- if show_page_tab -%}
+          <a
+            href="{{ routes.search_url }}?q={{ terms_param }}&amp;type=page"
+            class="kt-search-page__tab{% if active_scope == 'page' %} kt-search-page__tab--active{% endif %}"
+            {% if active_scope == 'page' %}aria-current="page"{% endif %}
+          >{{ 'kt.search.scope_pages' | t }}</a>
+        {%- endif -%}
       </nav>
     {%- endif -%}
 

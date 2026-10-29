@@ -51,12 +51,10 @@
             data-search-input
           >
           {%- liquid
+            # Search results page types (products, articles, pages); same rule as sections/main-search.liquid.
             assign overlay_search_types = ''
             if settings.kt_search_inc_products
               assign overlay_search_types = overlay_search_types | append: 'product,'
-            endif
-            if settings.kt_search_inc_collections
-              assign overlay_search_types = overlay_search_types | append: 'collection,'
             endif
             if settings.kt_search_inc_articles
               assign overlay_search_types = overlay_search_types | append: 'article,'
@@ -66,7 +64,7 @@
             endif
             assign overlay_search_types = overlay_search_types | split: ',' | join: ','
             if overlay_search_types == blank
-              assign overlay_search_types = 'product'
+              assign overlay_search_types = 'product,article,page'
             endif
           -%}
           <input type="hidden" name="type" value="{{ overlay_search_types }}">
