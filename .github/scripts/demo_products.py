@@ -112,7 +112,7 @@ PRODUCT_COPY = {
         'title': 'Hammered Apron-Front Sink',
         'descriptionHtml': (
             '<p>A hammered apron-front sink with a deep single basin and a textured front panel. '
-            'Choose a matte black, gold, or brown finish to match your faucet and hardware.</p>'
+            'Choose a matte black, gold, or brown finish to match your faucet and hardware.</p>\n'
             '<p>The deep basin fits large pots and sheet pans.</p>'),
         'first_option_value': 'Black',
     },
@@ -121,7 +121,7 @@ PRODUCT_COPY = {
         'title': 'Arched Pull-Down Kitchen Faucet',
         'descriptionHtml': (
             '<p>A tall arched spout with a pull-down spray head and a slim lever on the side of the body. '
-            'Choose gray, brown, or black to match your sink and cabinet hardware.</p>'
+            'Choose gray, brown, or black to match your sink and cabinet hardware.</p>\n'
             '<p>The spray head pulls down to rinse the whole basin and returns to the spout when you let go.</p>'),
     },
     # Photos show a white apron-front sink, not an undermount sink.
@@ -129,7 +129,7 @@ PRODUCT_COPY = {
         'title': 'White Apron-Front Kitchen Sink',
         'descriptionHtml': (
             '<p>A white apron-front sink with a deep single basin and a smooth glazed finish that wipes clean easily. '
-            'The exposed front panel becomes the focal point of the sink cabinet.</p>'
+            'The exposed front panel becomes the focal point of the sink cabinet.</p>\n'
             '<p>Available in 27, 30, 33, and 36 inch widths.</p>'),
     },
     # Photos show one basin built into a stone countertop, not two bowls.
@@ -137,7 +137,7 @@ PRODUCT_COPY = {
         'title': 'Integrated Stone Kitchen Sink',
         'descriptionHtml': (
             '<p>A single basin built into the stone countertop, with no rim or seam where the sink meets the counter. '
-            'Gently sloped sides guide water toward the drain.</p>'
+            'Gently sloped sides guide water toward the drain.</p>\n'
             '<p>Crumbs wipe straight from the counter into the basin, which suits minimal kitchens with stone counters.</p>'),
     },
     # The description listed two spray options; the product has three (Standard, Pull-Down, Pull-Out).
@@ -145,7 +145,7 @@ PRODUCT_COPY = {
         'title': 'Premium Pull-Down Kitchen Faucet',
         'descriptionHtml': (
             '<p>A high-arc pull-down faucet with a spray head that docks back into place. '
-            'Choose brown, black, or beige, with a standard, pull-down, or pull-out spray.</p>'
+            'Choose brown, black, or beige, with a standard, pull-down, or pull-out spray.</p>\n'
             '<p>The tall spout clears large pots, and the single handle adjusts temperature and flow with one hand.</p>'),
     },
 }
@@ -251,8 +251,9 @@ for p in detail['products']['nodes']:
 
     copy = PRODUCT_COPY.get(p['handle'])
     if copy:
-        plain = lambda html: ' '.join(re.sub(r'<[^>]+>', ' ', html or '').split())
-        if p['title'] != copy['title'] or plain(p['descriptionHtml']) != plain(copy['descriptionHtml']):
+        # Compare the saved HTML (not just its text) so paragraph breaks are written too:
+        # Shopify's meta description joins paragraphs without a space when there is no newline.
+        if p['title'] != copy['title'] or (p['descriptionHtml'] or '').strip() != copy['descriptionHtml'].strip():
             updates.append({'id': p['id'], 'title': copy['title'], 'descriptionHtml': copy['descriptionHtml']})
             print(f'update {p["handle"]}: title, description')
         first = copy.get('first_option_value')
