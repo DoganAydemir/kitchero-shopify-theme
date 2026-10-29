@@ -1,6 +1,15 @@
 (function () {
   'use strict';
 
+  // Shopify's localization form returns to the current path; add the current
+  // query string (filters, sort, search terms) so the shopper keeps their view.
+  function keepQuery(form) {
+    var field = form.querySelector('input[name="return_to"]');
+    if (!field || !window.location.search) return;
+    var path = (field.value || window.location.pathname).split('?')[0];
+    field.value = path + window.location.search;
+  }
+
   function bindLocaleAutoSubmit(root) {
     var forms = (root || document).querySelectorAll(
       '.kt-header__locale-form, .kt-header__mobile-locale-form, .kt-footer__localization-form'
@@ -10,7 +19,9 @@
       form.dataset.kktAutoSubmit = 'true';
       var select = form.querySelector('select[name="country_code"], select[name="language_code"]');
       if (!select) return;
+      form.addEventListener('submit', function () { keepQuery(form); });
       select.addEventListener('change', function () {
+        keepQuery(form);
         if (typeof form.requestSubmit === 'function') {
           form.requestSubmit();
         } else {
