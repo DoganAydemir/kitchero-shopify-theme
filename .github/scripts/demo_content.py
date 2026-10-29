@@ -102,9 +102,14 @@ EDITS = [
     ('templates/page.about.json', 'gallery_section', 'i3', {'caption_title': 'Details', 'caption_description': 'Hardware and finishes'}),
     ('templates/page.about.json', 'gallery_section', 'i4', {'caption_title': 'Storage', 'caption_description': 'Everything within reach'}),
 
-    # Contact: no 555 numbers, example.com addresses or full street addresses of real buildings
-    ('templates/page.contact.json', 'main', 's1', {'address': 'Madison Avenue, New York, NY', 'phone': '', 'email': ''}),
-    ('templates/page.contact.json', 'main', 's2', {'address': 'Wythe Avenue, Brooklyn, NY', 'phone': '', 'email': ''}),
+    # Contact: no 555 numbers, example.com addresses or full street addresses of real buildings.
+    # Phone and opening hours per studio (29.10, second round).
+    ('templates/page.contact.json', 'main', 's1', {'address': 'Madison Avenue, New York, NY',
+        'phone': '(212) 380-4127', 'email': '',
+        'hours': 'Mon–Fri: 10 am – 7 pm\nSat: 10 am – 6 pm\nSun: Closed'}),
+    ('templates/page.contact.json', 'main', 's2', {'address': 'Wythe Avenue, Brooklyn, NY',
+        'phone': '(718) 640-2290', 'email': '',
+        'hours': 'Tue–Sat: 11 am – 7 pm\nSun: 11 am – 5 pm\nMon: Closed'}),
 
     # Content & FAQ
     ('templates/page.content-faq.json', 'collapsible_visual_wiwbcq', 'feature_J7fFFM', {'content':
@@ -339,6 +344,16 @@ if entry and isinstance(entry[1].get('current'), dict):
     blocks = entry[1]['current'].get('blocks') or {}
     for block_id in [k for k, b in blocks.items() if str(b.get('type', '')).startswith('shopify://apps/')]:
         blocks.pop(block_id)
+        entry[2] = True
+
+# Product cards: small door sample photo from each product's
+# custom.sample_product metafield (the same sample as the showroom
+# "Order a sample" box), 29.10.
+entry = doc('config/settings_data.json')
+if entry and isinstance(entry[1].get('current'), dict):
+    current = entry[1]['current']
+    if current.get('kt_mf_sample_product') != 'custom.sample_product':
+        current['kt_mf_sample_product'] = 'custom.sample_product'
         entry[2] = True
 
 # Favicon (audit E13)

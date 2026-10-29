@@ -41,22 +41,29 @@
       <span class="kt-collection__marker kt-collection__marker--4" aria-hidden="true">+</span>
     </div>
     <div class="page-width">
-      <div class="kt-collection__hero-inner">
-        <div>
+      {%- comment -%} Title on the left, description on the right from 990px up (stacked below that). {%- endcomment -%}
+      {%- liquid
+        assign hero_has_desc = false
+        if section.settings.show_collection_description and collection.description != blank
+          assign hero_has_desc = true
+        endif
+      -%}
+      <div class="kt-collection__hero-inner{% if hero_has_desc %} kt-collection__hero-inner--split{% endif %}">
+        <div class="kt-collection__hero-heading">
           {%- if section.settings.eyebrow != blank -%}
             <p class="kt-collection__label">{{ section.settings.eyebrow | escape }}</p>
           {%- endif -%}
           <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
-          {%- if section.settings.show_collection_description -%}
-            {%- if collection.description != blank -%}
-              {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> dropped the desc styling. {%- endcomment -%}
-              <div class="kt-collection__desc rte">{{ collection.description }}</div>
-            {%- endif -%}
-          {%- endif -%}
         </div>
-        <span class="kt-collection__count">
-          {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
-        </span>
+        <div class="kt-collection__hero-aside">
+          {%- if hero_has_desc -%}
+            {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> dropped the desc styling. {%- endcomment -%}
+            <div class="kt-collection__desc rte">{{ collection.description }}</div>
+          {%- endif -%}
+          <span class="kt-collection__count">
+            {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
+          </span>
+        </div>
       </div>
     </div>
     {%- if section.settings.show_collection_image and collection.image != blank -%}

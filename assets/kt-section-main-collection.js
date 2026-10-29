@@ -11,7 +11,7 @@
     if (section.dataset.mainCollectionBound === 'true') return;
     section.dataset.mainCollectionBound = 'true';
 
-    var state = { onScroll: null, onKeydown: null, ctx: null };
+    var state = { onScroll: null, onKeydown: null, onDocPointerDown: null, ctx: null };
     sectionState.set(section, state);
 
     var sortSelect = section.querySelector('[data-collection-sort]');
@@ -59,6 +59,110 @@
         btn.setAttribute('aria-pressed', 'true');
       });
     });
+
+    // Desktop filter bar dropdowns. One panel open at a time: it opens on
+    // hover (short delay, so sweeping the pointer across the bar does not
+    // flash panels), on tap, or from the keyboard, and it closes as soon as
+    // the pointer leaves, focus moves elsewhere or Escape is pressed. A
+    // mouse click on the trigger keeps the hover behavior instead of
+    // pinning the panel open (the old :focus-within rule did that).
+    var dropdowns = Array.prototype.slice.call(section.querySelectorAll('[data-filter-dropdown]'));
+    if (dropdowns.length) {
+      var lastPointer = 'mouse';
+      var timers = new WeakMap();
+
+      var clearTimer = function (dd) {
+        var t = timers.get(dd);
+        if (t) {
+          window.clearTimeout(t);
+          timers.delete(dd);
+        }
+      };
+
+      var setOpen = function (dd, open) {
+        clearTimer(dd);
+        var trigger = dd.querySelector('.kt-filter-bar__trigger');
+        if (!open && trigger && dd.contains(document.activeElement) && document.activeElement !== trigger) {
+          // The panel is about to be hidden: keep focus on its trigger
+          // instead of losing it to the page.
+          trigger.focus({ preventScroll: true });
+        }
+        dd.classList.toggle('is-open', open);
+        if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+
+      var closeOthers = function (except) {
+        dropdowns.forEach(function (d) {
+          if (d !== except && (d.classList.contains('is-open') || timers.has(d))) setOpen(d, false);
+        });
+      };
+
+      dropdowns.forEach(function (dd) {
+        var trigger = dd.querySelector('.kt-filter-bar__trigger');
+
+        dd.addEventListener('pointerenter', function (e) {
+          lastPointer = e.pointerType || 'mouse';
+          if (e.pointerType === 'touch') return;
+          clearTimer(dd);
+          if (dd.classList.contains('is-open')) return;
+          timers.set(dd, window.setTimeout(function () {
+            timers.delete(dd);
+            closeOthers(dd);
+            setOpen(dd, true);
+          }, 90));
+        });
+
+        dd.addEventListener('pointerleave', function (e) {
+          if (e.pointerType === 'touch') return;
+          clearTimer(dd);
+          if (!dd.classList.contains('is-open')) return;
+          timers.set(dd, window.setTimeout(function () {
+            timers.delete(dd);
+            setOpen(dd, false);
+          }, 120));
+        });
+
+        dd.addEventListener('pointerdown', function (e) {
+          lastPointer = e.pointerType || 'mouse';
+        });
+
+        if (trigger) {
+          trigger.addEventListener('click', function (e) {
+            var fromKeyboard = e.detail === 0;
+            if (!fromKeyboard && lastPointer !== 'touch') {
+              closeOthers(dd);
+              setOpen(dd, true);
+              return;
+            }
+            var willOpen = !dd.classList.contains('is-open');
+            closeOthers(dd);
+            setOpen(dd, willOpen);
+          });
+        }
+
+        dd.addEventListener('keydown', function (e) {
+          if ((e.key !== 'Escape' && e.key !== 'Esc') || !dd.classList.contains('is-open')) return;
+          e.stopPropagation();
+          setOpen(dd, false);
+          if (trigger) trigger.focus();
+        });
+
+        dd.addEventListener('focusout', function (e) {
+          if (!dd.classList.contains('is-open')) return;
+          var next = e.relatedTarget;
+          if (next && dd.contains(next)) return;
+          if (lastPointer !== 'touch' && dd.matches(':hover')) return;
+          setOpen(dd, false);
+        });
+      });
+
+      var onDocPointerDown = function (e) {
+        if (e.target && e.target.closest && e.target.closest('[data-filter-dropdown]')) return;
+        closeOthers(null);
+      };
+      document.addEventListener('pointerdown', onDocPointerDown);
+      state.onDocPointerDown = onDocPointerDown;
+    }
 
     var drawer = section.querySelector('[data-filter-drawer]');
     var openBtn = section.querySelector('[data-open-filter-drawer]');
@@ -183,6 +287,7 @@
     if (!state) return;
     if (state.onScroll) window.removeEventListener('scroll', state.onScroll);
     if (state.onKeydown) document.removeEventListener('keydown', state.onKeydown);
+    if (state.onDocPointerDown) document.removeEventListener('pointerdown', state.onDocPointerDown);
 
     if (state.ctx && typeof state.ctx.revert === 'function') state.ctx.revert();
 

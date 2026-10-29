@@ -109,6 +109,7 @@ if (window.__kitcheroCollectionFiltersLoaded) {
       .then(function (html) {
         var parser = new DOMParser();
         var doc = parser.parseFromString(html, 'text/html');
+        var activeId = document.activeElement && document.activeElement.id;
 
         var newGrid = doc.querySelector('[data-product-grid]');
         var oldGrid = document.querySelector('[data-product-grid]');
@@ -164,6 +165,32 @@ if (window.__kitcheroCollectionFiltersLoaded) {
             stale.innerHTML = fresh.innerHTML;
           }
         });
+
+        // Desktop filter bar: refresh every dropdown's trigger (active
+        // count) and panel (selected count, Reset link, values) in place.
+        // The dropdown elements stay, so an open panel stays open. A price
+        // field that is being typed in is left alone.
+        var freshDropdowns = doc.querySelectorAll('[data-filter-dropdown]');
+        var staleDropdowns = document.querySelectorAll('[data-filter-dropdown]');
+        if (freshDropdowns.length && freshDropdowns.length === staleDropdowns.length) {
+          Array.prototype.forEach.call(staleDropdowns, function (stale, i) {
+            var fresh = freshDropdowns[i];
+            var staleTrigger = stale.querySelector('.kt-filter-bar__trigger');
+            var freshTrigger = fresh.querySelector('.kt-filter-bar__trigger');
+            if (staleTrigger && freshTrigger && staleTrigger.getAttribute('aria-controls') === freshTrigger.getAttribute('aria-controls')) {
+              staleTrigger.innerHTML = freshTrigger.innerHTML;
+            }
+            var typing = document.activeElement && stale.contains(document.activeElement) &&
+              document.activeElement.matches('input[type="number"], input[type="text"]');
+            var stalePart = stale.querySelector(typing ? '.kt-filter-bar__panel-header' : '.kt-filter-bar__panel-inner');
+            var freshPart = fresh.querySelector(typing ? '.kt-filter-bar__panel-header' : '.kt-filter-bar__panel-inner');
+            if (stalePart && freshPart) stalePart.innerHTML = freshPart.innerHTML;
+          });
+          if (activeId && (!document.activeElement || document.activeElement.id !== activeId)) {
+            var again = document.getElementById(activeId);
+            if (again) again.focus({ preventScroll: true });
+          }
+        }
 
         window.history.pushState({}, '', newUrl);
 
