@@ -684,7 +684,9 @@
   right: 1.5rem;
   bottom: 1.5rem;
   z-index: 22;
-  width: clamp(1.75rem, 12%, 3.5rem);
+  /* 12% of the card image: larger on wide two-column cards, never below
+     44 px on desktop (four-column rows such as You may also like). */
+  width: clamp(2.75rem, 12%, 5rem);
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border: 2px solid var(--kt-white, #ffffff);
@@ -710,6 +712,7 @@
    sample moves to the top right; a card countdown moves to the top left. */
 @media screen and (max-width: 749px) {
   .kt-card-product__sample {
+    width: clamp(1.75rem, 12%, 3.5rem);
     top: 0.75rem;
     right: 0.75rem;
     bottom: auto;
