@@ -1,0 +1,29 @@
+{%- doc -%}
+  Repeats, in <head>, the theme stylesheets that sections link from inside
+  the page body.
+
+  Sections load their own CSS with <link rel="stylesheet"> next to their
+  markup. Chrome waits for those files before painting, Safari does not:
+  it paints the content with only the head CSS and restyles it a moment
+  later (oversized images, unstyled layout for a split second). Shopify
+  renders sections before the layout, so their HTML is available here;
+  every theme stylesheet found in it is linked once in <head>, where all
+  browsers wait for it. The body links stay for the theme editor and
+  Section Rendering API responses; the browser reuses the same file.
+
+  @param {string} html - Rendered HTML to scan (the first template sections, a captured section group).
+{%- enddoc -%}
+
+{%- liquid
+  assign kt_css_parts = html | split: 'rel="stylesheet" href="'
+  assign kt_css_seen = ''
+  for part in kt_css_parts offset: 1
+    assign kt_css_href = part | split: '"' | first
+    if kt_css_href contains '/assets/' and kt_css_href contains '.css'
+      unless kt_css_seen contains kt_css_href
+        assign kt_css_seen = kt_css_seen | append: kt_css_href | append: ' '
+        echo '<link rel="stylesheet" href="' | append: kt_css_href | append: '" media="all">'
+      endunless
+    endif
+  endfor
+-%}

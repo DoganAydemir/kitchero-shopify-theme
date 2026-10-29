@@ -1,3 +1,9 @@
+{%- comment -%}
+  Header and overlay groups rendered first so their stylesheets can be linked in <head>
+  (snippets/head-section-css); printed in place further down.
+{%- endcomment -%}
+{%- capture kt_header_group -%}{% sections 'header-group' %}{%- endcapture -%}
+{%- capture kt_overlay_group -%}{% sections 'overlay-group' %}{%- endcapture -%}
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ request.locale.direction | default: 'ltr' }}">
   <head>
@@ -142,6 +148,23 @@
 
     <link rel="stylesheet" href="{{ 'kt-section-header.css' | asset_url }}" media="all">
 
+    {%- comment -%} Section stylesheets of this page, linked in <head> so Safari doesn't paint unstyled content first. {%- endcomment -%}
+    {%- render 'head-section-css', html: kt_header_group -%}
+    {%- comment -%}
+      Only the first three template sections (what is on screen first); CSS
+      for sections further down arrives before the shopper scrolls to them,
+      and keeping it out of <head> keeps the first paint fast.
+    {%- endcomment -%}
+    {%- liquid
+      assign kt_template_parts = content_for_layout | split: 'id="shopify-section-'
+      assign kt_template_top = ''
+      for kt_part in kt_template_parts limit: 4
+        assign kt_template_top = kt_template_top | append: kt_part
+      endfor
+    -%}
+    {%- render 'head-section-css', html: kt_template_top -%}
+    {%- render 'head-section-css', html: kt_overlay_group -%}
+
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
         Localization stylesheet was previously preloaded — counted
@@ -260,7 +283,7 @@
     {%- endcomment -%}
     <script src="{{ 'kt-form-scope.js' | asset_url }}" defer="defer"></script>
 
-    {% sections 'header-group' %}
+    {{ kt_header_group }}
 
     {%- comment -%}
       Breadcrumb is NOT rendered at the top of `<main>` anymore.
@@ -290,7 +313,7 @@
 
     {% sections 'footer-group' %}
 
-    {% sections 'overlay-group' %}
+    {{ kt_overlay_group }}
 
     {%- comment -%} Structured Data (JSON-LD) {%- endcomment -%}
     {%- render 'structured-data' -%}
