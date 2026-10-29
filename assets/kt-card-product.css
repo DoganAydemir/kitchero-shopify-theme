@@ -676,6 +676,54 @@
   left: 1.5rem;
 }
 
+/* Sample thumbnail (Theme settings > Product data > Sample product
+   metafield): small portrait chip in the bottom-right corner, across
+   from the bottom-left badge. Stays visible on hover. */
+.kt-card-product__sample {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 22;
+  width: clamp(1.75rem, 12%, 3.5rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 2px solid var(--kt-white, #ffffff);
+  border-radius: 4px;
+  background: var(--kt-white, #ffffff);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.kt-card-product__sample-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+[dir="rtl"] .kt-card-product__sample {
+  right: auto;
+  left: 1.5rem;
+}
+
+@media screen and (max-width: 749px) {
+  .kt-card-product__sample {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  [dir="rtl"] .kt-card-product__sample {
+    right: auto;
+    left: 0.75rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .kt-card-product__sample {
+    border-color: CanvasText;
+  }
+}
+
 /* On mobile the category (type) badge — e.g. "KITCHEN CABINETS" — felt
    oversized and floated too far from the corner, reading like a primary
    stamp rather than a quiet category tag. On small screens only, shrink

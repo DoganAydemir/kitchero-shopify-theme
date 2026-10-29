@@ -292,15 +292,51 @@
               transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.kt-filter-bar__dropdown:hover .kt-filter-bar__panel,
-.kt-filter-bar__dropdown:focus-within .kt-filter-bar__panel {
+/* With JavaScript the open state is a class set by
+   kt-section-main-collection.js (hover, click/tap, keyboard), so a
+   clicked trigger no longer keeps its panel open through :focus-within
+   and only one panel is open at a time. Closed panels are hidden from
+   the tab order; they fade out quickly. */
+.js .kt-filter-bar__panel {
+  visibility: hidden;
+  transition: opacity 0.18s ease,
+              transform 0.18s ease,
+              visibility 0s linear 0.18s;
+}
+
+.js .kt-filter-bar__dropdown.is-open .kt-filter-bar__panel {
+  opacity: 1;
+  transform: scaleY(1);
+  pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0s linear 0s;
+}
+
+.js .kt-filter-bar__dropdown.is-open .kt-filter-bar__trigger svg {
+  transform: rotate(180deg);
+}
+
+/* Without JavaScript: plain hover and focus. */
+.no-js .kt-filter-bar__dropdown:hover .kt-filter-bar__panel,
+.no-js .kt-filter-bar__dropdown:focus-within .kt-filter-bar__panel {
   opacity: 1;
   transform: scaleY(1);
   pointer-events: auto;
 }
 
-.kt-filter-bar__dropdown:hover .kt-filter-bar__trigger svg {
+.no-js .kt-filter-bar__dropdown:hover .kt-filter-bar__trigger svg {
   transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-filter-bar__panel,
+  .js .kt-filter-bar__panel,
+  .js .kt-filter-bar__dropdown.is-open .kt-filter-bar__panel {
+    transform: none;
+    transition: none;
+  }
 }
 
 .kt-filter-bar__panel-inner {

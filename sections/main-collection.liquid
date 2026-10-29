@@ -48,24 +48,33 @@
       <span class="kt-collection__marker kt-collection__marker--4" aria-hidden="true">+</span>
     </div>
     <div class="page-width">
-      <div class="kt-collection__hero-inner">
-        <div>
+      {%- comment -%} Title on the left, description on the right from 990px up (stacked below that). {%- endcomment -%}
+      {%- liquid
+        assign hero_has_desc = false
+        if section.settings.show_collection_description and collection.description != blank
+          assign hero_has_desc = true
+        endif
+      -%}
+      <div class="kt-collection__hero-inner{% if hero_has_desc %} kt-collection__hero-inner--split{% endif %}">
+        <div class="kt-collection__hero-heading">
           {%- if section.settings.eyebrow != blank -%}
             <p class="kt-collection__label">{{ section.settings.eyebrow | escape }}</p>
           {%- endif -%}
           {%- comment -%} The collection title is the page's only h1. {%- endcomment -%}
           <h1 class="kt-collection__title">{{ collection.title | escape }}</h1>
-          {%- if section.settings.show_collection_description -%}
-            {%- if collection.description != blank -%}
+        </div>
+        {%- if hero_has_desc or section.settings.show_collection_count -%}
+          <div class="kt-collection__hero-aside">
+            {%- if hero_has_desc -%}
               {%- comment -%} <div>, not <p>: collection.description is rich HTML (its own <p> tags). Nesting <p> in <p> made the browser auto-close the styled wrapper, dropping the desc styling — the text escaped as bare sibling <p>. {%- endcomment -%}
               <div class="kt-collection__desc rte">{{ collection.description }}</div>
             {%- endif -%}
-          {%- endif -%}
-        </div>
-        {%- if section.settings.show_collection_count -%}
-          <span class="kt-collection__count">
-            {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
-          </span>
+            {%- if section.settings.show_collection_count -%}
+              <span class="kt-collection__count">
+                {{ 'kt.section.collection.products_count' | t: count: collection.products_count }}
+              </span>
+            {%- endif -%}
+          </div>
         {%- endif -%}
       </div>
     </div>
@@ -125,15 +134,15 @@
               collection template's pill bar it silently disappeared.
             {%- endcomment -%}
             {%- if filter.type == 'list' or filter.type == 'boolean' -%}
-              <div class="kt-filter-bar__dropdown">
-                <button class="kt-filter-bar__trigger" type="button">
+              <div class="kt-filter-bar__dropdown" data-filter-dropdown>
+                <button class="kt-filter-bar__trigger" type="button" aria-expanded="false" aria-controls="FilterBarPanel-{{ section.id }}-{{ forloop.index }}">
                   <span>{{ filter.label | escape }}</span>
                   {%- if filter.active_values.size > 0 -%}
                     <span class="kt-filter__count">{{ filter.active_values.size }}</span>
                   {%- endif -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </button>
-                <div class="kt-filter-bar__panel">
+                <div class="kt-filter-bar__panel" id="FilterBarPanel-{{ section.id }}-{{ forloop.index }}">
                   <div class="kt-filter-bar__panel-inner">
                     <div class="kt-filter-bar__panel-header">
                       <span class="kt-filter-bar__panel-count">{{ filter.active_values.size }} {{ 'kt.section.collection.selected' | t | default: 'selected' }}</span>
@@ -238,15 +247,15 @@
               {%- if filter.min_value.value or filter.max_value.value -%}
                 {%- assign has_price_active = true -%}
               {%- endif -%}
-              <div class="kt-filter-bar__dropdown">
-                <button class="kt-filter-bar__trigger" type="button">
+              <div class="kt-filter-bar__dropdown" data-filter-dropdown>
+                <button class="kt-filter-bar__trigger" type="button" aria-expanded="false" aria-controls="FilterBarPanel-{{ section.id }}-{{ forloop.index }}">
                   <span>{{ filter.label | escape }}</span>
                   {%- if has_price_active -%}
                     <span class="kt-filter__count" aria-hidden="true">•</span><span class="visually-hidden">{{ 'kt.section.collection.selected' | t | default: 'selected' }}</span>
                   {%- endif -%}
                   {% render 'icon-chevron-down', width: 14, height: 14 %}
                 </button>
-                <div class="kt-filter-bar__panel">
+                <div class="kt-filter-bar__panel" id="FilterBarPanel-{{ section.id }}-{{ forloop.index }}">
                   <div class="kt-filter-bar__panel-inner">
                     <div class="kt-filter-bar__panel-header">
                       <span class="kt-filter-bar__panel-count">{{ filter.label | escape }}</span>

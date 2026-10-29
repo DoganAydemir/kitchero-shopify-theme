@@ -216,6 +216,32 @@
       {%- render 'countdown', product: product -%}
     {%- endif -%}
 
+    {%- comment -%}
+      Sample thumbnail: a small photo of the product's linked sample
+      (for example a door sample) in the bottom corner of the image.
+      Reads the product reference (or image file) metafield named in
+      Theme settings > Product data > Sample product metafield; blank
+      setting or no linked sample = nothing renders. Decorative only:
+      the card link already names the product.
+    {%- endcomment -%}
+    {%- liquid
+      assign card_sample_image = blank
+      assign sample_mf_path = settings.kt_mf_sample_product | strip | split: '.'
+      if sample_mf_path.size == 2
+        assign card_sample_ref = product.metafields[sample_mf_path[0]][sample_mf_path[1]].value
+        if card_sample_ref.featured_image != blank and card_sample_ref.id != product.id
+          assign card_sample_image = card_sample_ref.featured_image
+        elsif card_sample_ref.preview_image != blank
+          assign card_sample_image = card_sample_ref.preview_image
+        endif
+      endif
+    -%}
+    {%- if card_sample_image != blank -%}
+      <span class="kt-card-product__sample" aria-hidden="true">
+        {{- card_sample_image | image_url: width: 200 | image_tag: class: 'kt-card-product__sample-image', loading: 'lazy', sizes: '64px', widths: '120, 200', width: card_sample_image.width, height: card_sample_image.height, alt: '' -}}
+      </span>
+    {%- endif -%}
+
     {%- comment -%} Hover info (vendor + material) {%- endcomment -%}
     {%- if show_vendor and product.vendor != blank -%}
       <div class="kt-card-product__hover-info">

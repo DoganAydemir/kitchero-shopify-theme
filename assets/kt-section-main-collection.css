@@ -97,6 +97,60 @@
   }
 }
 
+/* Description + product count column. Without a description the count
+   pill keeps its old spot at the top right. */
+.kt-collection__hero-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  align-self: flex-start;
+}
+
+/* Title left, description right (990px and up). Narrower screens keep
+   the stacked layout: title, then description, then count. */
+.kt-collection__hero-inner--split {
+  gap: 0;
+}
+
+.kt-collection__hero-inner--split .kt-collection__hero-aside {
+  align-self: stretch;
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .kt-collection__hero-inner--split {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-collection__hero-inner--split {
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+
+  .kt-collection__hero-inner--split .kt-collection__hero-heading {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .kt-collection__hero-inner--split .kt-collection__title {
+    margin-bottom: 0;
+  }
+
+  .kt-collection__hero-inner--split .kt-collection__hero-aside {
+    flex: 0 1 34rem;
+    min-width: 18rem;
+    align-self: flex-end;
+  }
+
+  /* Description column: the last line sits level with the title's baseline. */
+  .kt-collection__hero-inner--split .kt-collection__desc {
+    max-width: none;
+    padding-bottom: 0.35rem;
+  }
+}
+
 /* Label: text-[10px] font-bold tracking-[0.3em] uppercase text-stone-400 */
 .kt-collection__label {
   font-size: 0.75rem;
