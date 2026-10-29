@@ -1,0 +1,60 @@
+{%- doc -%}
+  Outputs the URL of one page of a `{% paginate %}` block, keeping every
+  active filter, sort and search parameter.
+
+  1. Uses Shopify's own link for that page from `paginate.parts` when the
+     part is listed (titles are compared as numbers).
+  2. Otherwise takes a Shopify-built page link (next, previous, or any
+     linked part, all of which carry the active parameters) and replaces
+     only the value of its `page` parameter.
+
+  @param {object} paginate - The paginate object.
+  @param {number} page - The page number to link to.
+{%- enddoc -%}
+
+{%- liquid
+  assign target = page | plus: 0
+  assign found_url = ''
+  for part in paginate.parts
+    if part.is_link
+      assign part_number = part.title | plus: 0
+      if part_number == target
+        assign found_url = part.url
+        break
+      endif
+    endif
+  endfor
+
+  if found_url == ''
+    assign template_url = paginate.next.url | default: paginate.previous.url
+    if template_url == blank
+      for part in paginate.parts
+        if part.is_link
+          assign template_url = part.url
+          break
+        endif
+      endfor
+    endif
+
+    if template_url contains '?page='
+      assign separator = '?page='
+    elsif template_url contains '&page='
+      assign separator = '&page='
+    else
+      assign separator = ''
+    endif
+
+    if separator != ''
+      assign url_head = template_url | split: separator | first
+      assign url_rest = template_url | remove_first: url_head | remove_first: separator
+      assign old_number = url_rest | split: '&' | first
+      assign url_tail = url_rest | remove_first: old_number
+      assign found_url = url_head | append: separator | append: target | append: url_tail
+    elsif template_url contains '?'
+      assign found_url = template_url | append: '&page=' | append: target
+    else
+      assign found_url = template_url | default: request.path | append: '?page=' | append: target
+    endif
+  endif
+-%}
+{{- found_url -}}

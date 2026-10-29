@@ -14,7 +14,8 @@
 
   Architecture: `<nav><ol>` with no wrapper div, iteration strategy uses
   a self-computed numeric window over `paginate.pages` (not `paginate.parts`),
-  first/last jump affordances, and `rel=prev/next` hints for SEO.
+  first/last jump affordances, and `rel=prev/next` hints for SEO. Page URLs
+  come from snippets/pagination-url (keeps filter, sort and search params).
 
   @param {object} paginate - The paginate object exposed inside a `{% paginate %}` tag.
   @param {string} [anchor] - Optional fragment appended to every URL (e.g. `#comments`).
@@ -66,9 +67,10 @@
 
       {%- comment -%} ── First page (only when outside the numeric window) ── {%- endcomment -%}
       {%- if window_start > 1 -%}
+        {%- capture first_url -%}{%- render 'pagination-url', paginate: paginate, page: 1 -%}{%- endcapture -%}
         <li class="kt-pagination__cell">
           <a
-            href="{{ paginate.parts.first.url }}{{ anchor }}"
+            href="{{ first_url }}{{ anchor }}"
             class="kt-pagination__link"
             aria-label="{{ 'kt.pagination.page' | t: number: 1 }}"
           >1</a>
@@ -90,41 +92,11 @@
             >{{ page_number }}</span>
           {%- else -%}
             {%- comment -%}
-              Prefer a matching `paginate.parts[i].url` — Shopify
-              constructs those with every active sort / filter param
-              intact, so jumping to a middle page on a filtered +
-              sorted collection preserves the merchant's in-progress
-              browse state. Fall back to a reconstructed `?page=N`
-              only when parts doesn't enumerate this far (rare: very
-              deep collections when the window is > Shopify's own
-              window). In that fallback case `paginate.next.url` is a
-              safer URL template than `request.path` because it
-              already carries all active params — replace just the
-              `page=` segment and keep the rest.
+              Shopify's own link for this page when listed in paginate.parts,
+              otherwise a Shopify page link with only `page` changed, so
+              filters, sort and search terms are kept (snippets/pagination-url).
             {%- endcomment -%}
-            {%- assign page_url = '' -%}
-            {%- for part in paginate.parts -%}
-              {%- if part.is_link and part.title == page_number -%}
-                {%- assign page_url = part.url -%}
-                {%- break -%}
-              {%- endif -%}
-            {%- endfor -%}
-            {%- if page_url == '' -%}
-              {%- assign template_url = paginate.next.url | default: paginate.previous.url -%}
-              {%- if template_url != blank and template_url contains 'page=' -%}
-                {%- assign url_head = template_url | split: 'page=' | first -%}
-                {%- assign url_tail_raw = template_url | split: 'page=' | last -%}
-                {%- assign url_tail_parts = url_tail_raw | split: '&' -%}
-                {%- if url_tail_parts.size > 1 -%}
-                  {%- assign url_tail = url_tail_raw | replace_first: url_tail_parts[0], '' -%}
-                {%- else -%}
-                  {%- assign url_tail = '' -%}
-                {%- endif -%}
-                {%- capture page_url -%}{{ url_head }}page={{ page_number }}{{ url_tail }}{%- endcapture -%}
-              {%- else -%}
-                {%- assign page_url = request.path | append: '?page=' | append: page_number -%}
-              {%- endif -%}
-            {%- endif -%}
+            {%- capture page_url -%}{%- render 'pagination-url', paginate: paginate, page: page_number -%}{%- endcapture -%}
             <a
               href="{{ page_url }}{{ anchor }}"
               class="kt-pagination__link"
@@ -142,29 +114,7 @@
           </li>
         {%- endif -%}
         <li class="kt-pagination__cell">
-          {%- comment -%}
-            Same strategy as the numeric-window branch: prefer
-            paginate.parts.last.url (Shopify-built, sort/filter-aware),
-            fall back to replacing `page=N` in next/previous, last
-            resort is raw request.path reconstruction.
-          {%- endcomment -%}
-          {%- assign last_url = paginate.parts.last.url -%}
-          {%- if last_url == blank -%}
-            {%- assign template_url = paginate.next.url | default: paginate.previous.url -%}
-            {%- if template_url != blank and template_url contains 'page=' -%}
-              {%- assign url_head = template_url | split: 'page=' | first -%}
-              {%- assign url_tail_raw = template_url | split: 'page=' | last -%}
-              {%- assign url_tail_parts = url_tail_raw | split: '&' -%}
-              {%- if url_tail_parts.size > 1 -%}
-                {%- assign url_tail = url_tail_raw | replace_first: url_tail_parts[0], '' -%}
-              {%- else -%}
-                {%- assign url_tail = '' -%}
-              {%- endif -%}
-              {%- capture last_url -%}{{ url_head }}page={{ total }}{{ url_tail }}{%- endcapture -%}
-            {%- else -%}
-              {%- assign last_url = request.path | append: '?page=' | append: total -%}
-            {%- endif -%}
-          {%- endif -%}
+          {%- capture last_url -%}{%- render 'pagination-url', paginate: paginate, page: total -%}{%- endcapture -%}
           <a
             href="{{ last_url }}{{ anchor }}"
             class="kt-pagination__link"
