@@ -83,13 +83,14 @@
         listbox-inside-listbox nesting (W3C valid only when the
         outer is role="tree" or similar).
 
-        Kept aria-live="polite" so SR announces result-set changes
-        on mass-DOM replacement (debounced fetch responses).
+        Not a live region: kt-predictive-search.js announces the result
+        count, the no-results message and errors through Kitchero.announce.
+        As a live region this container made screen readers read every
+        result again on each keystroke.
       {%- endcomment -%}
       <div
         class="kt-search-overlay__results"
         id="predictive-search-results"
-        aria-live="polite"
       ></div>
 
       {%- comment -%} Popular search term pills (from theme settings) {%- endcomment -%}
