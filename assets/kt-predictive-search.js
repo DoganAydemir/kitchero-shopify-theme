@@ -22,6 +22,15 @@
     Kitchero.announce(msg);
   }
 
+  // Announces the message currently shown in the results area (no results,
+  // offline, rate limited, failed). The results area itself is not a live
+  // region, so these messages are announced explicitly.
+  function announceMessage(container) {
+    if (!(window.Kitchero && typeof Kitchero.announce === 'function')) return;
+    var text = container.textContent.replace(/\s+/g, ' ').trim();
+    if (text) Kitchero.announce(text);
+  }
+
   function setExpanded(input, expanded) {
     if (input && input.setAttribute) {
       input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -60,12 +69,14 @@
 
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       resultsContainer.innerHTML = renderError('offline');
+      announceMessage(resultsContainer);
       setExpanded(input, true);
       return;
     }
 
     if (predictiveSearchRateLimitedUntil > Date.now()) {
       resultsContainer.innerHTML = renderError('rate_limited');
+      announceMessage(resultsContainer);
       setExpanded(input, true);
       return;
     }
@@ -99,7 +110,7 @@
 
         if (totalCount === 0) {
           resultsContainer.innerHTML = renderEmpty(query);
-          announceResultCount(0);
+          announceMessage(resultsContainer);
 
           setExpanded(input, false);
           return;
@@ -121,6 +132,7 @@
 
         var errKind = (err && err.message === 'Search rate-limited') ? 'rate_limited' : 'generic';
         resultsContainer.innerHTML = renderError(errKind);
+        announceMessage(resultsContainer);
         setExpanded(input, true);
       });
   }
@@ -233,7 +245,7 @@
     var s = strings();
     var tpl = s.noResults || 'No results found for "[terms]".';
     var msg = tpl.replace('[terms]', query);
-    return '<p class="kt-predictive-search__empty" role="status">' + escapeHtml(msg) + '</p>';
+    return '<p class="kt-predictive-search__empty">' + escapeHtml(msg) + '</p>';
   }
 
   function renderSkeleton() {
@@ -263,7 +275,7 @@
       default:
         key = s.genericError || 'Search failed. Please try again.';
     }
-    return '<p class="kt-predictive-search__error" role="status">' + escapeHtml(key) + '</p>';
+    return '<p class="kt-predictive-search__error">' + escapeHtml(key) + '</p>';
   }
 
   function formatMoney(cents, currency) {

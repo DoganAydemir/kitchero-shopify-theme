@@ -24,6 +24,8 @@ on the product page, featured product, header, footer and cart page.
   addresses, activate account and reset password.
 - Low stock message on product pages and cards, shown only when
   inventory tracked by Shopify is at or below the threshold you set.
+- Shipping and returns badges on the product page link to your
+  store's shipping and refund policies when you have set them up.
 - Countdown, rating, features, origin, dimensions and swatch data
   read from metafields you choose in Theme settings > Product data.
 - Seven color schemes; every section picks its scheme in its own
