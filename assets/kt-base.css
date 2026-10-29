@@ -1475,9 +1475,42 @@ html:not(.js) .kt-loader {
    ============================================================ */
 html.no-js .kt-hero__anim,
 html.no-js .kt-hero__anim--scale,
+html.no-js .kt-hero__anim-slide,
 html.no-js .kt-slider-editorial__copy-slide.is-active [data-editorial-anim] {
   opacity: 1;
   transform: none;
+}
+
+/* The search button opens an overlay through JavaScript; the
+   <noscript> link to the search page takes its place. */
+html.no-js .kt-header__icon[data-search-open] {
+  display: none;
+}
+
+/* Panels opened by a scripted toggle are shown open. */
+html.no-js .kt-collapsible-visual__panel {
+  max-height: none;
+  opacity: 1;
+}
+
+/* Long product descriptions: show the full text instead of the
+   shortened text and its "Read more" button. */
+html.no-js .kt-desc-truncate--toggle .kt-desc-truncate__short,
+html.no-js .kt-desc-truncate--toggle .kt-desc-truncate__toggle {
+  display: none;
+}
+
+html.no-js .kt-desc-truncate--toggle .kt-desc-truncate__full[hidden] {
+  display: block;
+}
+
+/* On large screens the category row moves with the page scroll
+   through JavaScript. Without it, the row scrolls sideways. */
+@media screen and (min-width: 750px) {
+  html.no-js .kt-shop-categories__scroll {
+    width: auto;
+    overflow-x: auto;
+  }
 }
 
 html.no-js .kt-loader {
