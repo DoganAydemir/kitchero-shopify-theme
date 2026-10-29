@@ -1,0 +1,42 @@
+{%- comment -%}
+  One swatch of the linked products block: a link to another product
+  with its featured image. The link text is the product title, so screen
+  readers announce which product opens.
+
+  Accepts:
+  - item: {Object} The product to link to
+  - product: {Object} The current product
+
+  Usage:
+  {% render 'linked-products-swatch', item: lp_item, product: product %}
+{%- endcomment -%}
+<li class="kt-linked-products__item">
+  <a
+    href="{{ item.url }}"
+    class="kt-linked-products__link"
+    title="{{ item.title | escape }}"
+    {% if item.id == product.id %}
+      aria-current="page"
+    {% endif %}
+  >
+    <span class="kt-linked-products__swatch">
+      {%- if item.featured_media != blank -%}
+        {{
+          item.featured_media.preview_image
+          | image_url: width: 160
+          | image_tag:
+            loading: 'lazy',
+            widths: '80, 160',
+            sizes: '80px',
+            width: 80,
+            height: 80,
+            alt: '',
+            class: 'kt-linked-products__image'
+        }}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'kt-linked-products__image' }}
+      {%- endif -%}
+    </span>
+    <span class="visually-hidden">{{ item.title | escape }}</span>
+  </a>
+</li>

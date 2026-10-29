@@ -1,0 +1,57 @@
+{%- comment -%}
+  Linked products: photo swatches that open other products, for example
+  the same look in other colors sold as separate products. Unlike
+  variant swatches, choosing one goes to that product's page.
+
+  The list comes from the block's Products setting. Connect it to a
+  product metafield (list of products) to show a different list on each
+  product. The current product is marked with aria-current; when it is
+  missing from the list it is shown first.
+
+  Accepts:
+  - block: {Object} The linked_products block
+  - product: {Object} The current product
+
+  Usage:
+  {% render 'linked-products', block: block, product: product %}
+{%- endcomment -%}
+{%- liquid
+  assign lp_list = block.settings.products
+  assign lp_has_self = false
+  assign lp_has_other = false
+  for lp_item in lp_list
+    if lp_item.id == product.id
+      assign lp_has_self = true
+    else
+      assign lp_has_other = true
+    endif
+  endfor
+  assign lp_heading_id = 'LinkedProducts-' | append: block.id
+-%}
+{%- if lp_has_other -%}
+  <div class="kt-linked-products" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      <p class="kt-variant-picker__label kt-linked-products__heading" id="{{ lp_heading_id }}">
+        {{- block.settings.heading | escape -}}
+      </p>
+    {%- endif -%}
+    <ul
+      class="kt-linked-products__list"
+      role="list"
+      {% if block.settings.heading != blank %}
+        aria-labelledby="{{ lp_heading_id }}"
+      {% endif %}
+    >
+      {%- unless lp_has_self -%}
+        {%- render 'linked-products-swatch', item: product, product: product -%}
+      {%- endunless -%}
+      {%- for lp_item in lp_list -%}
+        {%- render 'linked-products-swatch', item: lp_item, product: product -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="kt-linked-products kt-linked-products--empty" {{ block.shopify_attributes }}>
+    <p class="kt-linked-products__hint">{{ 'kt.product.linked_products.editor_hint' | t }}</p>
+  </div>
+{%- endif -%}

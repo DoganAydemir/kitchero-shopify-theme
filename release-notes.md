@@ -26,6 +26,10 @@ on the product page, featured product, header, footer and cart page.
   inventory tracked by Shopify is at or below the threshold you set.
 - Shipping and returns badges on the product page link to your
   store's shipping and refund policies when you have set them up.
+- Linked products block on both product page layouts: photo swatches
+  that open other products, for example the same look in other
+  colors sold as separate products. Connect a product metafield
+  (list of products) to show a different list on each product.
 - Countdown, rating, features, origin, dimensions and swatch data
   read from metafields you choose in Theme settings > Product data.
 - Seven color schemes; every section picks its scheme in its own
