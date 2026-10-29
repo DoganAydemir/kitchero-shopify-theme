@@ -101,6 +101,13 @@
       if (inDesignMode()) {
         e.preventDefault();
         close();
+        return;
+      }
+      // No decline URL (button): stay on the gate and show the message.
+      if (!declineBtn.hasAttribute('href')) {
+        e.preventDefault();
+        var denied = modal.querySelector('[data-age-verifier-denied]');
+        if (denied) denied.hidden = false;
       }
     }
 
