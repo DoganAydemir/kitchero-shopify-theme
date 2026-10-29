@@ -31,14 +31,45 @@
     if (text) Kitchero.announce(text);
   }
 
+  // The results area is one listbox (groups inside are role="group") only
+  // while it shows results; skeleton, empty and error messages are plain text.
+  function setListbox(container, input, on) {
+    if (on) {
+      container.setAttribute('role', 'listbox');
+      var label = (input && input.getAttribute('aria-label'))
+        || (window.Kitchero && Kitchero.searchSettings && Kitchero.searchSettings.resultsLabel)
+        || 'Search results';
+      container.setAttribute('aria-label', label);
+    } else {
+      container.removeAttribute('role');
+      container.removeAttribute('aria-label');
+    }
+  }
+
   function setExpanded(input, expanded) {
     if (input && input.setAttribute) {
       input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     }
   }
 
+  // Cancels the request in flight so a late response can't re-render old results.
+  function cancelPending(resultsContainer) {
+    if (abortCtl) {
+      try { abortCtl.abort(); } catch (e) {  }
+      abortCtl = null;
+    }
+    if (resultsContainer) resultsContainer.removeAttribute('aria-busy');
+  }
+
+  // True when the response still belongs to what is in the search field.
+  function isCurrentQuery(input, query, ctl) {
+    return ctl === abortCtl && !ctl.signal.aborted && input.value.trim() === query;
+  }
+
   function fetchResults(input, resultsContainer, query) {
     if (query.length < 2) {
+      cancelPending(resultsContainer);
+      setListbox(resultsContainer, input, false);
       resultsContainer.innerHTML = '';
       setExpanded(input, false);
       return;
@@ -46,6 +77,7 @@
 
     var types = (window.Kitchero && Kitchero.searchSettings && Kitchero.searchSettings.types) || 'product,collection,article,page';
     if (!types) {
+      setListbox(resultsContainer, input, false);
       resultsContainer.innerHTML = '';
       return;
     }
@@ -68,6 +100,7 @@
     var localAbortCtl = abortCtl;
 
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setListbox(resultsContainer, input, false);
       resultsContainer.innerHTML = renderError('offline');
       announceMessage(resultsContainer);
       setExpanded(input, true);
@@ -75,6 +108,7 @@
     }
 
     if (predictiveSearchRateLimitedUntil > Date.now()) {
+      setListbox(resultsContainer, input, false);
       resultsContainer.innerHTML = renderError('rate_limited');
       announceMessage(resultsContainer);
       setExpanded(input, true);
@@ -86,12 +120,13 @@
     }, 8000);
 
     resultsContainer.setAttribute('aria-busy', 'true');
+    setListbox(resultsContainer, input, false);
     resultsContainer.innerHTML = renderSkeleton();
 
     fetch(url, { signal: localAbortCtl.signal })
       .then(function (response) {
         clearTimeout(timeoutId);
-        resultsContainer.removeAttribute('aria-busy');
+        if (isCurrentQuery(input, query, localAbortCtl)) resultsContainer.removeAttribute('aria-busy');
         if (response.status === 429) {
           predictiveSearchRateLimitedUntil = Date.now() + 5000;
           throw new Error('Search rate-limited');
@@ -100,6 +135,7 @@
         return response.json();
       })
       .then(function (data) {
+        if (!isCurrentQuery(input, query, localAbortCtl)) return;
         var resources = (data && data.resources && data.resources.results) || {};
         var products = resources.products || [];
         var collections = resources.collections || [];
@@ -109,6 +145,7 @@
         var totalCount = products.length + collections.length + articles.length + pages.length;
 
         if (totalCount === 0) {
+          setListbox(resultsContainer, input, false);
           resultsContainer.innerHTML = renderEmpty(query);
           announceMessage(resultsContainer);
 
@@ -116,6 +153,7 @@
           return;
         }
 
+        setListbox(resultsContainer, input, true);
         resultsContainer.innerHTML =
           (products.length    ? renderProductGroup(products)       : '') +
           (collections.length ? renderCollectionGroup(collections) : '') +
@@ -126,11 +164,13 @@
         setExpanded(input, true);
       })
       .catch(function (err) {
+        clearTimeout(timeoutId);
+        if (err && err.name === 'AbortError') return;
+        if (!isCurrentQuery(input, query, localAbortCtl)) return;
         resultsContainer.removeAttribute('aria-busy');
 
-        if (err && err.name === 'AbortError') return;
-
         var errKind = (err && err.message === 'Search rate-limited') ? 'rate_limited' : 'generic';
+        setListbox(resultsContainer, input, false);
         resultsContainer.innerHTML = renderError(errKind);
         announceMessage(resultsContainer);
         setExpanded(input, true);
@@ -154,9 +194,9 @@
   function renderProductGroup(products) {
     var s = strings();
     var heading = s.groupProducts || 'Products';
-    var html = '<div class="kt-predictive-search__group" data-group="products">';
-    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-products-heading">';
+    var html = '<div class="kt-predictive-search__group" data-group="products" role="group" aria-labelledby="kt-predictive-search-products-heading">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="none">';
     products.forEach(function (p) {
       var img = p.featured_image && p.featured_image.url ? p.featured_image.url : '';
       var alt = (p.featured_image && p.featured_image.alt) || p.title || '';
@@ -184,9 +224,9 @@
   function renderCollectionGroup(collections) {
     var s = strings();
     var heading = s.groupCollections || 'Collections';
-    var html = '<div class="kt-predictive-search__group" data-group="collections">';
-    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-collections-heading">';
+    var html = '<div class="kt-predictive-search__group" data-group="collections" role="group" aria-labelledby="kt-predictive-search-collections-heading">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="none">';
     collections.forEach(function (c) {
       html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
       html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link">';
@@ -200,9 +240,9 @@
   function renderArticleGroup(articles) {
     var s = strings();
     var heading = s.groupArticles || 'Journal';
-    var html = '<div class="kt-predictive-search__group" data-group="articles">';
-    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-articles-heading">';
+    var html = '<div class="kt-predictive-search__group" data-group="articles" role="group" aria-labelledby="kt-predictive-search-articles-heading">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="none">';
     articles.forEach(function (a) {
       html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
       html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link">';
@@ -216,9 +256,9 @@
   function renderPageGroup(pages) {
     var s = strings();
     var heading = s.groupPages || 'Pages';
-    var html = '<div class="kt-predictive-search__group" data-group="pages">';
-    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading">' + escapeHtml(heading) + '</h2>';
-    html += '<ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-pages-heading">';
+    var html = '<div class="kt-predictive-search__group" data-group="pages" role="group" aria-labelledby="kt-predictive-search-pages-heading">';
+    html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
+    html += '<ul class="kt-predictive-search__list" role="none">';
     pages.forEach(function (p) {
       html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
       html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
@@ -236,8 +276,8 @@
 
     var fallbackRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
     var searchUrl = (routes && routes.search) ? routes.search : (fallbackRoot + 'search');
-    return '<div class="kt-predictive-search__footer">' +
-      '<a href="' + escapeHtml(searchUrl) + '?q=' + encodeURIComponent(query) + '" class="kt-predictive-search__view-all">' +
+    return '<div class="kt-predictive-search__footer" role="none">' +
+      '<a href="' + escapeHtml(searchUrl) + '?q=' + encodeURIComponent(query) + '" class="kt-predictive-search__view-all" role="option">' +
       escapeHtml(label) + '</a></div>';
   }
 
@@ -313,7 +353,7 @@
     });
 
     input.addEventListener('keydown', function (event) {
-      var options = resultsContainer.querySelectorAll('.kt-predictive-search__item');
+      var options = resultsContainer.querySelectorAll('[role="option"]');
       if (!options.length) return;
 
       for (var idx = 0; idx < options.length; idx++) {
@@ -342,7 +382,8 @@
         setActive(options, prev, input);
       } else if (event.key === 'Enter' && currentIndex >= 0) {
         event.preventDefault();
-        var anchor = options[currentIndex].querySelector('.kt-predictive-search__link');
+        var current = options[currentIndex];
+        var anchor = current.tagName === 'A' ? current : current.querySelector('a');
         if (anchor) anchor.click();
       } else if (event.key === 'Escape') {
         clearActive(options, input);

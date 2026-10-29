@@ -22,26 +22,33 @@
   sections with at least one preset.
 {%- endcomment -%}
 
-<div class="kt-predictive-search" data-predictive-search-root data-section-id="{{ section.id }}">
+<div
+  class="kt-predictive-search"
+  data-predictive-search-root
+  data-section-id="{{ section.id }}"
+  {% if predictive_search.performed and predictive_search.resources.results_count > 0 %}
+    role="listbox" aria-label="{{ 'kt.search.search' | t | escape }}"
+  {% endif %}
+>
   {%- if predictive_search.performed -%}
     {%- assign results_count = predictive_search.resources.results_count -%}
 
     {%- if results_count > 0 -%}
       {%- comment -%}
         Products group. Per WAI-ARIA combobox + multi-listbox pattern
-        the group <ul> carries role="listbox" + aria-labelledby
-        pointing to the group <h2> id; each result <li> carries
+        the results wrapper is one role="listbox"; each group is a
+        role="group" labelled by its <h2> id; each result <li> carries
         role="option" (NOT the inner <a>). This matches the example
         markup in Shopify's predictive-search docs and lets a
         screen-reader's combobox navigation announce the option
         landmark + group label, not the bare anchor text.
       {%- endcomment -%}
       {%- if predictive_search.resources.results.products.size > 0 -%}
-        <div class="kt-predictive-search__group" data-group="products">
-          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading">
+        <div class="kt-predictive-search__group" data-group="products" role="group" aria-labelledby="kt-predictive-search-products-heading">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-products-heading" role="presentation">
             {{ 'kt.predictive_search.products' | t | default: 'Products' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-products-heading">
+          <ul class="kt-predictive-search__list" role="none">
             {%- for product in predictive_search.resources.results.products -%}
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a
@@ -98,11 +105,11 @@
 
       {%- comment -%} Collections group — same listbox/option pattern as products. {%- endcomment -%}
       {%- if predictive_search.resources.results.collections.size > 0 -%}
-        <div class="kt-predictive-search__group" data-group="collections">
-          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading">
+        <div class="kt-predictive-search__group" data-group="collections" role="group" aria-labelledby="kt-predictive-search-collections-heading">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading" role="presentation">
             {{ 'kt.predictive_search.collections' | t | default: 'Collections' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-collections-heading">
+          <ul class="kt-predictive-search__list" role="none">
             {%- for collection in predictive_search.resources.results.collections -%}
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ collection.url }}">
@@ -118,11 +125,11 @@
 
       {%- comment -%} Articles group — same listbox/option pattern. {%- endcomment -%}
       {%- if predictive_search.resources.results.articles.size > 0 -%}
-        <div class="kt-predictive-search__group" data-group="articles">
-          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading">
+        <div class="kt-predictive-search__group" data-group="articles" role="group" aria-labelledby="kt-predictive-search-articles-heading">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading" role="presentation">
             {{ 'kt.predictive_search.articles' | t | default: 'Articles' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-articles-heading">
+          <ul class="kt-predictive-search__list" role="none">
             {%- for article in predictive_search.resources.results.articles -%}
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ article.url }}">
@@ -141,11 +148,11 @@
 
       {%- comment -%} Pages group — same listbox/option pattern. {%- endcomment -%}
       {%- if predictive_search.resources.results.pages.size > 0 -%}
-        <div class="kt-predictive-search__group" data-group="pages">
-          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading">
+        <div class="kt-predictive-search__group" data-group="pages" role="group" aria-labelledby="kt-predictive-search-pages-heading">
+          <h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading" role="presentation">
             {{ 'kt.predictive_search.pages' | t | default: 'Pages' }}
           </h2>
-          <ul class="kt-predictive-search__list" role="listbox" aria-labelledby="kt-predictive-search-pages-heading">
+          <ul class="kt-predictive-search__list" role="none">
             {%- for page in predictive_search.resources.results.pages -%}
               <li class="predictive-search__item kt-predictive-search__item" role="option">
                 <a class="kt-predictive-search__link" href="{{ page.url }}">
@@ -160,8 +167,8 @@
       {%- endif -%}
 
       {%- comment -%} View-all link {%- endcomment -%}
-      <div class="kt-predictive-search__footer">
-        <a href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}" class="kt-predictive-search__view-all">
+      <div class="kt-predictive-search__footer" role="none">
+        <a href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}" class="kt-predictive-search__view-all" role="option">
           {{ 'kt.predictive_search.view_all' | t | default: 'View all results' }}
         </a>
       </div>
