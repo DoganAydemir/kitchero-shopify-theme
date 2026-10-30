@@ -45,7 +45,7 @@ EDITS = [
         {'text': 'New cabinet finishes for fall — explore the color library'}),
     ('sections/header-group.json', 'announcement-banner', 'announcement_PBAwCp',
         {'text': 'Plan your kitchen with our design team — request a consultation'}),
-    ('sections/header-group.json', 'header', None, {'mobile_cta_text': 'Request a quote'}),
+    ('sections/header-group.json', 'header', None, {'mobile_cta_text': 'Request a quote', 'mobile_cta_link': 'shopify://pages/contact'}),
     ('sections/header-group.json', 'header', 'menu_link_badge_YxnfCJ', {'badge_text': 'Sale'}),
     ('sections/footer-group.json', 'footer', 'link_list_r7bk7C', {'heading': 'Shop'}),
 
