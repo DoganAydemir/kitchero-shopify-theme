@@ -48,13 +48,14 @@
             role="alert"
             hidden
           ></div>
-          <div class="kt-cart-page__items" role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}">
+          <div class="kt-cart-page__items">
             <div class="kt-cart-page__items-header" aria-hidden="true">
               <span>{{ 'kt.cart.headers.product' | t | default: 'Product' }}</span>
               <span>{{ 'kt.cart.headers.quantity' | t | default: 'Quantity' }}</span>
               <span>{{ 'kt.cart.headers.total' | t | default: 'Total' }}</span>
             </div>
 
+            <div class="kt-cart-page__list" role="list" aria-label="{{ 'kt.cart.items_in_cart' | t: count: cart.item_count | default: 'Items in your cart' }}">
             {%- for item in cart.items -%}
               <div class="kt-cart-page__item" data-line-key="{{ item.key }}" role="listitem">
                 {%- comment -%} Product: thumb + info {%- endcomment -%}
@@ -363,6 +364,7 @@
                 </div>
               </div>
             {%- endfor -%}
+            </div>
 
             {%- if settings.kt_cart_show_note -%}
               <div class="kt-cart-page__note">
