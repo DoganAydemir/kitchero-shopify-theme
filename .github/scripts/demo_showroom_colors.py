@@ -23,13 +23,13 @@ TOKEN = os.environ['TOKEN']
 APPLY = '--apply' in sys.argv
 API = f'https://{SHOP}/admin/api/2025-01/graphql.json'
 
-DEMO = 'elegant-kitchen-cabinet-system'
-CABINET_SETS = ['custom-kitchen-cabinet-set', 'luxury-kitchen-cabinet-design', 'contemporary-kitchen-cabinet-system',
-                'designer-kitchen-cabinet-collection', 'built-in-kitchen-cabinet-set', 'signature-built-in-kitchen-set',
-                'elegant-custom-kitchen-cabinets', 'contemporary-cabinet-kitchen-set', 'designer-built-in-cabinet-set',
-                'custom-kitchen-storage-collection', 'designer-kitchen-cabinet-set', DEMO]
+DEMO = 'ivory-shaker-island-kitchen'
+CABINET_SETS = ['navy-island-dining-kitchen', 'plum-marble-dining-kitchen', 'espresso-contemporary-kitchen',
+                'charcoal-marble-island-kitchen', 'midnight-walnut-built-in-kitchen', 'emerald-marble-built-in-kitchen',
+                'forest-green-custom-kitchen', 'sage-oak-kitchen-set', 'slate-built-in-galley-kitchen',
+                'navy-shaker-storage-kitchen', 'coastal-blue-kitchen-set', DEMO]
 # Same order on every page, so the swatches never move.
-LINKED = [DEMO, 'custom-kitchen-cabinet-set', 'designer-kitchen-cabinet-collection']
+LINKED = [DEMO, 'navy-island-dining-kitchen', 'charcoal-marble-island-kitchen']
 DEFINITION = {'name': 'Linked products', 'namespace': 'custom', 'key': 'linked_products',
               'type': 'list.product_reference', 'ownerType': 'PRODUCT',
               'description': "Other products shown as photo swatches by the theme's Linked products block."}

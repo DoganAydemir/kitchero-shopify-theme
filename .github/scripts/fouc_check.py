@@ -25,7 +25,7 @@ EARLY = int(os.environ.get('EARLY', '900'))
 os.makedirs(OUT, exist_ok=True)
 
 PAGES = ['/', '/collections/kitchen-cabinets', '/products/premium-pull-down-kitchen-faucet',
-         '/products/custom-kitchen-cabinet-set', '/pages/sliders', '/search?q=sink',
+         '/products/navy-island-dining-kitchen', '/pages/sliders', '/search?q=sink',
          '/blogs/journal', '/pages/contact', '/cart']
 TARGETS = [('Safari desktop', {'viewport': {'width': 1280, 'height': 800}}),
            ('Safari iPhone', 'iPhone 13')]

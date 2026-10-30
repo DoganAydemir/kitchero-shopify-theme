@@ -16,7 +16,7 @@ from playwright.sync_api import sync_playwright
 
 STORE = os.environ['STORE_URL'].rstrip('/')
 PASSWORD = os.environ['PASSWORD']
-TOUCH_PAGES = ['/', '/products/premium-pull-down-kitchen-faucet', '/products/elegant-kitchen-cabinet-system',
+TOUCH_PAGES = ['/', '/products/premium-pull-down-kitchen-faucet', '/products/ivory-shaker-island-kitchen',
                '/collections/kitchen-cabinets', '/cart', '/blogs/journal/smart-storage-ideas-for-a-cleaner-kitchen',
                '/pages/contact']
 

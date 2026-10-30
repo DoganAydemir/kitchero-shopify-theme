@@ -20,7 +20,7 @@ PASSWORD = os.environ['PASSWORD']
 PREVIEW = os.environ.get('PREVIEW_THEME', '').strip()
 
 PAGES = ['/', '/collections', '/collections/all', '/collections/kitchen-cabinets',
-         '/products/premium-pull-down-kitchen-faucet', '/products/elegant-kitchen-cabinet-system',
+         '/products/premium-pull-down-kitchen-faucet', '/products/ivory-shaker-island-kitchen',
          '/cart', '/search', '/search?q=sink', '/blogs/journal', 'ARTICLE',
          '/pages/about-us', '/pages/contact', '/pages/content-faq', '/pages/financing',
          '/pages/deals', '/pages/galleries', '/pages/heroes-banners', '/pages/image-with-text',
