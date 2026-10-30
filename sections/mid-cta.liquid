@@ -16,7 +16,7 @@
       <p class="kt-mid-cta__desc">{{ section.settings.description }}</p>
     {%- endif -%}
     {%- if section.settings.cta_text != blank -%}
-      <a href="{{ section.settings.cta_link | default: routes.root_url | escape }}" class="button kt-mid-cta__btn">
+      <a {% if section.settings.cta_link != blank %}href="{{ section.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="button kt-mid-cta__btn">
         {{ section.settings.cta_text }}
         {% render 'icon-arrow-right' %}
       </a>

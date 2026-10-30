@@ -36,7 +36,7 @@
     {%- if section.settings.button_text != blank -%}
       <div class="kt-parallax-cta__action">
         <a
-          href="{{ section.settings.button_link | default: '#' | escape }}"
+          {% if section.settings.button_link != blank %}href="{{ section.settings.button_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %}
           class="kt-parallax-cta__btn"
         >
           <span>{{ section.settings.button_text | default: button_text_default }}</span>

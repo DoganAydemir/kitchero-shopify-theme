@@ -93,7 +93,9 @@
                 {%- endif -%}
               </div>
               <div class="kt-shop-the-look__popup-meta">
-                <h3 class="kt-shop-the-look__popup-name">{{ hotspot_title | escape }}</h3>
+                {%- if hotspot_title != blank -%}
+                  <h3 class="kt-shop-the-look__popup-name">{{ hotspot_title | escape }}</h3>
+                {%- endif -%}
                 {%- if hotspot_price_html != blank -%}
                   <span class="kt-shop-the-look__popup-price">{{ hotspot_price_html }}</span>
                 {%- endif -%}
@@ -135,13 +137,10 @@
               Mobile sheet "View Product" link is a JS-populated template:
               kt-section-shop-the-look.js copies the active hotspot's
               product URL onto this anchor each time the sheet opens.
-              Default href points at the shop root so a premature click
-              (JS still loading, or a hotspot without product_link) lands
-              on a real page instead of scrolling to the top. JS also
-              hides this link outright when the active hotspot has no
-              product link configured.
+              The link starts hidden with no href; JS shows it only when
+              the active hotspot has a product link.
             {%- endcomment -%}
-            <a href="{{ routes.root_url }}" class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link>
+            <a class="kt-shop-the-look__mobile-sheet-link" data-mobile-sheet-link hidden>
               {{ 'kt.section.shop_the_look.view_product' | t | default: 'View Product' }}
               {% render 'icon-arrow-right', width: 14, height: 14 %}
             </a>

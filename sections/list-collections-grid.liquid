@@ -22,7 +22,16 @@
   style="--kt-list-collections-columns: {{ per_row_desktop }};"
 >
   <div class="page-width">
-    {%- if collections.size > 0 -%}
+    {%- liquid
+      comment
+        The "Home page" (frontpage) collection is not listed, so a store whose only collection is frontpage gets the empty state instead of a blank grid.
+      endcomment
+      assign kt_listable_count = collections.size
+      if collections.frontpage.id != blank
+        assign kt_listable_count = kt_listable_count | minus: 1
+      endif
+    -%}
+    {%- if kt_listable_count > 0 -%}
       {%- paginate collections by section.settings.collections_per_page -%}
         {%- liquid
           case sort_order

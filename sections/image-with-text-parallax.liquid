@@ -76,7 +76,7 @@
 
         {%- if section.settings.cta_text != blank -%}
           <a
-            href="{{ section.settings.cta_link | default: routes.root_url | escape }}"
+            {% if section.settings.cta_link != blank %}href="{{ section.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %}
             class="kt-iwt-parallax__cta"
           >
             <span class="kt-iwt-parallax__cta-label">{{ section.settings.cta_text }}</span>

@@ -187,7 +187,7 @@
 
         {%- if section.settings.cta_text != blank -%}
           <div class="kt-shop-color__cta">
-            <a href="{{ section.settings.cta_link | default: routes.root_url | escape }}" class="kt-shop-color__cta-btn">
+            <a {% if section.settings.cta_link != blank %}href="{{ section.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="kt-shop-color__cta-btn">
               {{ section.settings.cta_text }}
             </a>
           </div>
