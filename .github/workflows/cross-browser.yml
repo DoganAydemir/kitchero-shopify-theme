@@ -1,6 +1,6 @@
 name: Cross-browser check
 
-# Loads the demo store in Chromium, Firefox and WebKit (desktop and mobile)
+# Loads the demo store in Chromium, Microsoft Edge, Firefox and WebKit (desktop and mobile)
 # and checks for JavaScript errors and broken core interactions (audit #73).
 # Screenshots are committed to the `browser-shots` branch. Run manually.
 
@@ -28,7 +28,7 @@ jobs:
       - name: Install Playwright
         run: |
           pip install playwright==1.48.0
-          python -m playwright install --with-deps chromium firefox webkit
+          python -m playwright install --with-deps chromium firefox webkit msedge
 
       - name: Run checks
         env:

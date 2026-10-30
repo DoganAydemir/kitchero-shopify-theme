@@ -30,8 +30,7 @@
           class="kt-slider-cinematic__slide{% if forloop.first %} kt-slider-cinematic__slide--active{% endif %}"
           id="{{ section.id }}-slide-{{ forloop.index0 }}"
           data-slide-index="{{ forloop.index0 }}"
-          role="tabpanel"
-          aria-labelledby="{{ section.id }}-dot-{{ forloop.index0 }}"
+          {% if section.settings.show_dots %}role="tabpanel" aria-labelledby="{{ section.id }}-dot-{{ forloop.index0 }}"{% else %}role="group"{% endif %}
           aria-roledescription="slide"
           aria-label="{{ forloop.index }} / {{ section.blocks.size }}"
           aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
