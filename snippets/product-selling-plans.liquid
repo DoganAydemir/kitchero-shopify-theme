@@ -102,3 +102,10 @@
     {%- endif -%}
   </fieldset>
 {%- endif -%}
+{%- comment -%}
+  Single-variant products have no variant picker, so the variant data the
+  price update needs (selling plan allocations) is printed here.
+{%- endcomment -%}
+{%- if product.has_only_default_variant or product.variants.size == 1 -%}
+  <script type="application/json" data-variant-data>{{ product.variants | json }}</script>
+{%- endif -%}

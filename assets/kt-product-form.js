@@ -1053,7 +1053,7 @@
     }
     if (!variant) {
       var form = container.querySelector('[data-product-form] form, form[data-product-form], form[action$="/cart/add"]');
-      var select = form && form.querySelector('[data-variant-select]');
+      var select = form && (form.querySelector('[data-variant-select]') || form.querySelector('[data-variant-id]'));
       if (select && select.value) {
         var targetId = Number(select.value);
         var variants = getVariantsData(container);

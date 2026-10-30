@@ -171,9 +171,24 @@
     }
     document.addEventListener('variant:change', variantChangeHandler);
 
+    function currentVariantFromPage() {
+      var section = productForm.closest('[data-section-type]') || document;
+      var blob = section.querySelector('script[data-variant-data]');
+      var idInput = productForm.querySelector('[name="id"]');
+      if (!blob || !idInput) return null;
+      try {
+        var list = JSON.parse(blob.textContent) || [];
+        for (var i = 0; i < list.length; i++) {
+          if (String(list[i].id) === String(idInput.value)) return list[i];
+        }
+      } catch (e) {  }
+      return null;
+    }
+
     function sellingPlanChangeHandler(event) {
       var planId = event && event.detail ? event.detail.planId : null;
       latestPlanId = planId || null;
+      if (!latestVariant) latestVariant = currentVariantFromPage();
       renderStickyPrice();
     }
     document.addEventListener('selling-plan:change', sellingPlanChangeHandler);
