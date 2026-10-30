@@ -204,7 +204,7 @@ if (!window.__kitcheroRecentlyViewedLoaded) {
             renderEditorHint(
               section,
               grid,
-              'Recently viewed list has entries but none of those products could be loaded — they may have been deleted or set to draft. Visit a fresh product to refresh the rail.'
+              'Recently viewed list has entries but none of those products could be loaded. They may have been deleted or set to draft. Visit a fresh product to refresh the rail.'
             );
           }
           return;
