@@ -89,9 +89,15 @@
                   {%- assign image_alt_text = block.settings.name | default: '' | strip_html -%}
                   {{ block.settings.avatar | image_url: width: 96 | image_tag: sizes: '48px', class: 'kt-testimonials__avatar', loading: 'lazy', width: 48, height: 48, alt: image_alt_text }}
                 {%- elsif block.settings.name != blank -%}
-                  <div class="kt-testimonials__avatar kt-testimonials__avatar--placeholder" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
+                  {%- liquid
+                    assign kt_name_parts = block.settings.name | strip_html | strip | split: ' '
+                    assign kt_initials = kt_name_parts.first | slice: 0, 1 | upcase
+                    if kt_name_parts.size > 1
+                      assign kt_last_initial = kt_name_parts.last | slice: 0, 1 | upcase
+                      assign kt_initials = kt_initials | append: kt_last_initial
+                    endif
+                  -%}
+                  <div class="kt-testimonials__avatar kt-testimonials__avatar--initials" aria-hidden="true">{{ kt_initials | escape }}</div>
                 {%- endif -%}
                 {%- if block.settings.name != blank -%}
                   <div>

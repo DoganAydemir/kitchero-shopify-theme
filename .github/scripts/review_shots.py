@@ -19,7 +19,7 @@ os.makedirs(OUT, exist_ok=True)
 
 PAGES = ['/', '/collections', '/collections/all', '/collections/kitchen-cabinets',
          '/collections/kitchen-essentials',
-         '/products/premium-pull-down-kitchen-faucet', '/products/elegant-kitchen-cabinet-system',
+         '/products/premium-pull-down-kitchen-faucet', '/products/ivory-shaker-island-kitchen',
          '/products/round-cabinet-knobs', '/products/gift-card',
          '/cart', '/search?q=sink', '/search?q=zzzz', '/blogs/journal', 'ARTICLE',
          '/pages/about-us', '/pages/contact', '/pages/content-faq', '/pages/financing',

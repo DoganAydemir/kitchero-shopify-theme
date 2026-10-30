@@ -31,7 +31,7 @@ OUT = sys.argv[1]
 os.makedirs(OUT, exist_ok=True)
 
 PAGES = ['/', '/collections/all', '/products/premium-pull-down-kitchen-faucet',
-         '/products/elegant-kitchen-cabinet-system', '/cart', '/search?q=sink', '/blogs/journal',
+         '/products/ivory-shaker-island-kitchen', '/cart', '/search?q=sink', '/blogs/journal',
          '/pages/contact']
 PRODUCT = '/products/premium-pull-down-kitchen-faucet'
 # Errors from Shopify's own scripts (analytics, checkout widgets) are not theme errors.

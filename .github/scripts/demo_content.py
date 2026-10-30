@@ -120,11 +120,11 @@ EDITS = [
     # Deals: prices match the linked products; compare-at prices are set on those products in Admin
     ('templates/page.deals.json', 'main', None, {'bottom_description':
         "Planning a larger layout or a full remodel? Tell us about your space and we'll put together a quote."}),
-    ('templates/page.deals.json', 'main', 'd1', {'link': 'shopify://products/signature-built-in-kitchen-set',
+    ('templates/page.deals.json', 'main', 'd1', {'link': 'shopify://products/emerald-marble-built-in-kitchen',
         'price': '$1,780', 'original_price': '$2,095', 'accent_text': ''}),
-    ('templates/page.deals.json', 'main', 'd2', {'link': 'shopify://products/contemporary-cabinet-kitchen-set',
+    ('templates/page.deals.json', 'main', 'd2', {'link': 'shopify://products/sage-oak-kitchen-set',
         'price': '$2,100', 'original_price': '$2,480', 'accent_text': ''}),
-    ('templates/page.deals.json', 'main', 'd3', {'link': 'shopify://products/elegant-custom-kitchen-cabinets',
+    ('templates/page.deals.json', 'main', 'd3', {'link': 'shopify://products/forest-green-custom-kitchen',
         'price': '$2,750', 'original_price': '$3,240', 'accent_text': ''}),
 
     # Showroom: every accordion starts closed (30.10)
@@ -322,7 +322,7 @@ DEAL_4 = {'type': 'deal', 'settings': {
     'price': '$3,350', 'original_price': '$3,940', 'description': '',
     'includes': 'Marble-topped island for four\nGlass-front upper cabinets\nPaneled range hood',
     'accent_text': '', 'image': 'shopify://shop_images/image_af3225a1-9088-44d7-9867-140907f490bd.webp',
-    'cta_text': 'See Details', 'link': 'shopify://products/elegant-kitchen-cabinet-system'}}
+    'cta_text': 'See Details', 'link': 'shopify://products/ivory-shaker-island-kitchen'}}
 entry = doc('templates/page.deals.json')
 if entry:
     main = entry[1]['sections'].get('main')
@@ -545,6 +545,49 @@ if entry:
             if settings.get('show_collection_description') is False:
                 settings['show_collection_description'] = True
                 entry[2] = True
+
+# Product handles renamed to match the titles (demo_handles.py, 30.10):
+# product pickers and shopify://products/ links in the live theme follow.
+HANDLE_RENAMES = {
+    "custom-kitchen-cabinet-set": "navy-island-dining-kitchen",
+    "luxury-kitchen-cabinet-design": "plum-marble-dining-kitchen",
+    "contemporary-kitchen-cabinet-system": "espresso-contemporary-kitchen",
+    "designer-kitchen-cabinet-collection": "charcoal-marble-island-kitchen",
+    "built-in-kitchen-cabinet-set": "midnight-walnut-built-in-kitchen",
+    "signature-built-in-kitchen-set": "emerald-marble-built-in-kitchen",
+    "elegant-custom-kitchen-cabinets": "forest-green-custom-kitchen",
+    "contemporary-cabinet-kitchen-set": "sage-oak-kitchen-set",
+    "designer-built-in-cabinet-set": "slate-built-in-galley-kitchen",
+    "custom-kitchen-storage-collection": "navy-shaker-storage-kitchen",
+    "designer-kitchen-cabinet-set": "coastal-blue-kitchen-set",
+    "elegant-kitchen-cabinet-system": "ivory-shaker-island-kitchen",
+    "luxury-bridge-style-kitchen-faucet": "arched-pull-down-kitchen-faucet",
+    "modern-undermount-kitchen-sink": "white-apron-front-kitchen-sink",
+    "matte-black-kitchen-sink": "hammered-apron-front-sink",
+    "double-bowl-kitchen-sink": "integrated-stone-kitchen-sink"
+}
+
+
+def rename_handles(node, entry):
+    items = node.items() if isinstance(node, dict) else enumerate(node) if isinstance(node, list) else []
+    for key, value in list(items):
+        if isinstance(value, str):
+            new = HANDLE_RENAMES.get(value, value)
+            if value.startswith('shopify://products/'):
+                handle, sep, tail = value[len('shopify://products/'):].partition('?')
+                if handle in HANDLE_RENAMES:
+                    new = 'shopify://products/' + HANDLE_RENAMES[handle] + sep + tail
+            if new != value:
+                node[key] = new
+                entry[2] = True
+        else:
+            rename_handles(value, entry)
+
+
+for path in sorted(glob.glob(f'{root}/templates/*.json') + glob.glob(f'{root}/sections/*.json') + [f'{root}/config/settings_data.json']):
+    entry = doc(path[len(root) + 1:])
+    if entry:
+        rename_handles(entry[1], entry)
 
 for rel, entry in cache.items():
     if entry and entry[2]:

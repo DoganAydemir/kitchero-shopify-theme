@@ -27,28 +27,28 @@ CABINET_TYPE = 'Kitchen Cabinets'
 # style tag: product handles (titles in comments)
 STYLE_TAGS = {
     'island kitchen': [
-        'elegant-kitchen-cabinet-system',        # Ivory Shaker Island Kitchen: island seats four
-        'designer-kitchen-cabinet-collection',   # Charcoal Marble Island Kitchen: island with seating for four
-        'custom-kitchen-cabinet-set',            # Navy Island Dining Kitchen: seating at the island
-        'contemporary-cabinet-kitchen-set',      # Sage & Oak Kitchen Set: island seats three
-        'contemporary-kitchen-cabinet-system',   # Espresso Contemporary Kitchen: island doubles as a breakfast bar
-        'luxury-kitchen-cabinet-design',         # Plum & Marble Dining Kitchen: marble island with a dining table
+        'ivory-shaker-island-kitchen',        # Ivory Shaker Island Kitchen: island seats four
+        'charcoal-marble-island-kitchen',   # Charcoal Marble Island Kitchen: island with seating for four
+        'navy-island-dining-kitchen',            # Navy Island Dining Kitchen: seating at the island
+        'sage-oak-kitchen-set',      # Sage & Oak Kitchen Set: island seats three
+        'espresso-contemporary-kitchen',   # Espresso Contemporary Kitchen: island doubles as a breakfast bar
+        'plum-marble-dining-kitchen',         # Plum & Marble Dining Kitchen: marble island with a dining table
     ],
     'built-in kitchen': [
-        'designer-built-in-cabinet-set',         # Slate Built-In Galley Kitchen: built-ins wrap the room, tall units
-        'signature-built-in-kitchen-set',        # Emerald Marble Built-In Kitchen: tall units beside the range
-        'built-in-kitchen-cabinet-set',          # Midnight Walnut Built-In Kitchen: tall pantry units
-        'custom-kitchen-storage-collection',     # Navy Shaker Storage Kitchen: floor-to-ceiling storage, pantry units
-        'custom-kitchen-cabinet-set',            # Navy Island Dining Kitchen: tall pantry units
-        'designer-kitchen-cabinet-collection',   # Charcoal Marble Island Kitchen: tall display cabinets, built-in hood
+        'slate-built-in-galley-kitchen',         # Slate Built-In Galley Kitchen: built-ins wrap the room, tall units
+        'emerald-marble-built-in-kitchen',        # Emerald Marble Built-In Kitchen: tall units beside the range
+        'midnight-walnut-built-in-kitchen',          # Midnight Walnut Built-In Kitchen: tall pantry units
+        'navy-shaker-storage-kitchen',     # Navy Shaker Storage Kitchen: floor-to-ceiling storage, pantry units
+        'navy-island-dining-kitchen',            # Navy Island Dining Kitchen: tall pantry units
+        'charcoal-marble-island-kitchen',   # Charcoal Marble Island Kitchen: tall display cabinets, built-in hood
     ],
     'shaker kitchen': [
-        'elegant-kitchen-cabinet-system',        # Ivory Shaker Island Kitchen: cream shaker cabinetry
-        'custom-kitchen-storage-collection',     # Navy Shaker Storage Kitchen: deep navy shaker cabinets
-        'designer-kitchen-cabinet-set',          # Coastal Blue Kitchen Set: painted blue shaker doors
-        'designer-built-in-cabinet-set',         # Slate Built-In Galley Kitchen: painted slate shaker doors
-        'contemporary-cabinet-kitchen-set',      # Sage & Oak Kitchen Set: painted sage shaker doors
-        'elegant-custom-kitchen-cabinets',       # Forest Green Custom Kitchen: painted green shaker doors
+        'ivory-shaker-island-kitchen',        # Ivory Shaker Island Kitchen: cream shaker cabinetry
+        'navy-shaker-storage-kitchen',     # Navy Shaker Storage Kitchen: deep navy shaker cabinets
+        'coastal-blue-kitchen-set',          # Coastal Blue Kitchen Set: painted blue shaker doors
+        'slate-built-in-galley-kitchen',         # Slate Built-In Galley Kitchen: painted slate shaker doors
+        'sage-oak-kitchen-set',      # Sage & Oak Kitchen Set: painted sage shaker doors
+        'forest-green-custom-kitchen',       # Forest Green Custom Kitchen: painted green shaker doors
     ],
 }
 
@@ -70,10 +70,10 @@ NEW_COLLECTIONS = {
 
 # product handle: compare-at price for every variant (Deals page)
 COMPARE_AT = {
-    'signature-built-in-kitchen-set': '2095.00',
-    'contemporary-cabinet-kitchen-set': '2480.00',
-    'elegant-custom-kitchen-cabinets': '3240.00',
-    'elegant-kitchen-cabinet-system': '3940.00',
+    'emerald-marble-built-in-kitchen': '2095.00',
+    'sage-oak-kitchen-set': '2480.00',
+    'forest-green-custom-kitchen': '3240.00',
+    'ivory-shaker-island-kitchen': '3940.00',
 }
 
 

@@ -22,7 +22,7 @@ OUT = sys.argv[1]
 os.makedirs(OUT, exist_ok=True)
 
 PAGES = ['/', '/collections/kitchen-cabinets', '/collections/all', '/products/premium-pull-down-kitchen-faucet',
-         '/products/elegant-kitchen-cabinet-system', '/cart', '/search?q=sink', '/blogs/journal',
+         '/products/ivory-shaker-island-kitchen', '/cart', '/search?q=sink', '/blogs/journal',
          '/pages/contact', '/pages/about-us', '/pages/financing', '/pages/content-faq', '/404-check']
 HIDE = '#preview-bar-iframe, #PBarNextFrameWrapper, .kt-cookie-banner, newsletter-popup, .kt-newsletter-popup ' \
        '{ display: none !important; } *, *::before, *::after { animation-play-state: paused !important; ' \

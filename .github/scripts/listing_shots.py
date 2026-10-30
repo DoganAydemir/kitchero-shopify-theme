@@ -104,6 +104,6 @@ with sync_playwright() as p:
          scroll_to='.kt-shop-the-look__image-container', before=open_hotspot, hide_header=True)
     shot(wide, '/', 'kitchero-highlight-2-shop-by-color-1600x1200.png',
          scroll_to='[data-section-type="shop-color"] .kt-shop-color__layout', hide_header=True)
-    shot(wide, '/products/elegant-kitchen-cabinet-system', 'kitchero-highlight-3-showroom-1600x1200.png',
+    shot(wide, '/products/ivory-shaker-island-kitchen', 'kitchero-highlight-3-showroom-1600x1200.png',
          hide_header=True)
     browser.close()

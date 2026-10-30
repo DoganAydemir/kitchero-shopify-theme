@@ -28,31 +28,31 @@ CABINET_DELIVERY = ('Delivery depends on the project location, cabinet sizes, an
 PARCEL_DELIVERY = 'Ships in parcel packaging. Shipping options and rates are shown at checkout.'
 
 SPECS = {
-    'custom-kitchen-cabinet-set': [('Cabinet color', 'Navy'), ('Island', 'Marble-clad, with seating'),
+    'navy-island-dining-kitchen': [('Cabinet color', 'Navy'), ('Island', 'Marble-clad, with seating'),
         ('Features', 'Lit display niches, tall pantry units, round dining area'), UNITS, SIZING],
-    'luxury-kitchen-cabinet-design': [('Cabinet color', 'Plum'), ('Island', 'Marble, with an attached dining table for six'),
+    'plum-marble-dining-kitchen': [('Cabinet color', 'Plum'), ('Island', 'Marble, with an attached dining table for six'),
         ('Features', 'Glass-front uppers, brass pendants'), UNITS, SIZING],
-    'contemporary-kitchen-cabinet-system': [('Cabinet color', 'Espresso'), ('Door style', 'Slab'),
+    'espresso-contemporary-kitchen': [('Cabinet color', 'Espresso'), ('Door style', 'Slab'),
         ('Island', 'Long island with a breakfast bar'), ('Features', 'Lit open shelving, wood wall paneling'),
         UNITS, SIZING],
-    'designer-kitchen-cabinet-collection': [('Cabinet color', 'Charcoal'), ('Island', 'Waterfall marble, seats four'),
+    'charcoal-marble-island-kitchen': [('Cabinet color', 'Charcoal'), ('Island', 'Waterfall marble, seats four'),
         ('Features', 'Glass display cabinets, globe pendants'), UNITS, SIZING],
-    'built-in-kitchen-cabinet-set': [('Cabinet finish', 'Dark walnut'), ('Island', 'Integrated lighting'),
+    'midnight-walnut-built-in-kitchen': [('Cabinet finish', 'Dark walnut'), ('Island', 'Integrated lighting'),
         ('Features', 'Vented hood, tall pantry units, deep drawers'), UNITS, SIZING],
-    'signature-built-in-kitchen-set': [('Cabinet color', 'Emerald'), ('Backsplash', 'Marble'),
+    'emerald-marble-built-in-kitchen': [('Cabinet color', 'Emerald'), ('Backsplash', 'Marble'),
         ('Features', 'Under-cabinet lighting, wood-wrapped hood, tall units beside the range'), SIZING],
-    'elegant-custom-kitchen-cabinets': [('Cabinet color', 'Forest green'), ('Island', 'Walnut'),
+    'forest-green-custom-kitchen': [('Cabinet color', 'Forest green'), ('Island', 'Walnut'),
         ('Features', 'Black canopy hood, glass-front uppers, open shelving'), SIZING],
-    'contemporary-cabinet-kitchen-set': [('Cabinet color', 'Sage green'), ('Shelving', 'Oak, with under-shelf lighting'),
+    'sage-oak-kitchen-set': [('Cabinet color', 'Sage green'), ('Shelving', 'Oak, with under-shelf lighting'),
         ('Island', 'Stone top, seats three'), SIZING],
-    'designer-built-in-cabinet-set': [('Cabinet color', 'Slate gray'), ('Layout', 'Galley and U-shaped kitchens'),
+    'slate-built-in-galley-kitchen': [('Cabinet color', 'Slate gray'), ('Layout', 'Galley and U-shaped kitchens'),
         ('Features', 'Farmhouse sink base, matching range hood'), SIZING],
-    'custom-kitchen-storage-collection': [('Cabinet color', 'Deep navy'), ('Door style', 'Shaker'),
+    'navy-shaker-storage-kitchen': [('Cabinet color', 'Deep navy'), ('Door style', 'Shaker'),
         ('Island', 'Wood top'), ('Features', 'Floor-to-ceiling storage, pull-out pantry units, deep drawers'),
         SIZING],
-    'designer-kitchen-cabinet-set': [('Base cabinets', 'Soft blue'), ('Upper cabinets', 'White'),
+    'coastal-blue-kitchen-set': [('Base cabinets', 'Soft blue'), ('Upper cabinets', 'White'),
         ('Island', 'Wood top'), ('Features', 'Open shelving, plaster-style hood'), SIZING],
-    'elegant-kitchen-cabinet-system': [('Cabinet color', 'Ivory'), ('Door style', 'Shaker'),
+    'ivory-shaker-island-kitchen': [('Cabinet color', 'Ivory'), ('Door style', 'Shaker'),
         ('Island', 'Marble top, seats four, deep drawers'), ('Features', 'Glass-front uppers, brass pendants, paneled hood'),
         SIZING],
     'ice-white-shaker': [('Type', 'Cabinet door sample'), ('Door style', 'Shaker'), ('Finish', 'Ice white'),
@@ -61,16 +61,16 @@ SPECS = {
         ('Finish', 'Brown, black, or beige'), ('Controls', 'One handle for temperature and flow')],
     'modern-single-handle-kitchen-faucet': [('Type', 'Single-lever'), ('Installation', 'One-hole'),
         ('Spray options', 'Standard, pull-down, pull-out'), ('Finish', 'Black, gold, or brown')],
-    'luxury-bridge-style-kitchen-faucet': [('Type', 'Single-lever, pull-down'), ('Spout', 'High arch'),
+    'arched-pull-down-kitchen-faucet': [('Type', 'Single-lever, pull-down'), ('Spout', 'High arch'),
         ('Lever', 'Side-mounted'), ('Finish', 'Gray, brown, or black')],
     'premium-farmhouse-kitchen-sink': [('Type', 'Apron-front, single basin'), ('Widths', '27", 30", 33", 36"')],
-    'modern-undermount-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'White, glazed'),
+    'white-apron-front-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'White, glazed'),
         ('Widths', '27", 30", 33", 36"')],
     'stainless-steel-workstation-sink': [('Material', 'Stainless steel'), ('Finish', 'Brushed'),
         ('Feature', 'Built-in ledge for sliding accessories')],
-    'matte-black-kitchen-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'Matte black, gold, or brown'),
+    'hammered-apron-front-sink': [('Type', 'Apron-front, single bowl'), ('Finish', 'Matte black, gold, or brown'),
         ('Texture', 'Hammered')],
-    'double-bowl-kitchen-sink': [('Type', 'Integrated, single basin'), ('Material', 'Stone, matched to the countertop'),
+    'integrated-stone-kitchen-sink': [('Type', 'Integrated, single basin'), ('Material', 'Stone, matched to the countertop'),
         ('Edge', 'Seamless, no rim')],
     'pull-out-cabinet-organizer': [('Type', 'Pull-out basket'), ('Fits', '18", 24", 30", 36" base cabinets')],
     'drawer-cabinet-organizer': [('Type', 'Drawer insert with fixed compartments'),
@@ -109,7 +109,7 @@ DOOR_SAMPLE = {
 PRODUCT_COPY = {
     # Same copy as DOOR_SAMPLE; listed here so a paragraph-break fix is written even when type and tags match.
     'ice-white-shaker': {'title': 'Ice White Shaker', 'descriptionHtml': DOOR_SAMPLE['descriptionHtml']},
-    'matte-black-kitchen-sink': {
+    'hammered-apron-front-sink': {
         'title': 'Hammered Apron-Front Sink',
         'descriptionHtml': (
             '<p>A hammered apron-front sink with a deep single basin and a textured front panel. '
@@ -118,7 +118,7 @@ PRODUCT_COPY = {
         'first_option_value': 'Black',
     },
     # Photos show a single-lever pull-down faucet, not a two-handle bridge faucet.
-    'luxury-bridge-style-kitchen-faucet': {
+    'arched-pull-down-kitchen-faucet': {
         'title': 'Arched Pull-Down Kitchen Faucet',
         'descriptionHtml': (
             '<p>A tall arched spout with a pull-down spray head and a slim lever on the side of the body. '
@@ -126,7 +126,7 @@ PRODUCT_COPY = {
             '<p>The spray head pulls down to rinse the whole basin and returns to the spout when you let go.</p>'),
     },
     # Photos show a white apron-front sink, not an undermount sink.
-    'modern-undermount-kitchen-sink': {
+    'white-apron-front-kitchen-sink': {
         'title': 'White Apron-Front Kitchen Sink',
         'descriptionHtml': (
             '<p>A white apron-front sink with a deep single basin and a smooth glazed finish that wipes clean easily. '
@@ -134,7 +134,7 @@ PRODUCT_COPY = {
             '<p>Available in 27, 30, 33, and 36 inch widths.</p>'),
     },
     # Photos show one basin built into a stone countertop, not two bowls.
-    'double-bowl-kitchen-sink': {
+    'integrated-stone-kitchen-sink': {
         'title': 'Integrated Stone Kitchen Sink',
         'descriptionHtml': (
             '<p>A single basin built into the stone countertop, with no rim or seam where the sink meets the counter. '
@@ -157,13 +157,13 @@ PRODUCT_COPY = {
 COLLECTIONS = {
     'island-kitchens': ('Island Kitchens',
         'Cabinet sets planned around a central island, with seating, storage, and room to prep.',
-        'Island', 'designer-kitchen-cabinet-collection'),
+        'Island', 'charcoal-marble-island-kitchen'),
     'built-in-kitchens': ('Built-In Kitchens',
         'Wall-to-wall built-in cabinetry with tall pantry units and integrated range hoods.',
-        'Built-In', 'signature-built-in-kitchen-set'),
+        'Built-In', 'emerald-marble-built-in-kitchen'),
     'shaker-kitchens': ('Shaker Kitchens',
         'Classic five-piece shaker doors in painted finishes, from cream to deep navy.',
-        'Shaker', 'custom-kitchen-storage-collection'),
+        'Shaker', 'navy-shaker-storage-kitchen'),
 }
 
 # Products whose detail tabs should be empty (the theme hides empty tabs).
