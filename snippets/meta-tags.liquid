@@ -229,12 +229,14 @@
       {%- endunless -%}
     {%- endif -%}
   {%- endcapture -%}
+  {%- liquid
+    if sd_extra != blank
+      assign sd_close = '}'
+      assign sd_base = sd_base | remove_last: sd_close | append: sd_extra | append: sd_close
+    endif
+  -%}
   <script type="application/ld+json">
-    {%- if sd_extra != blank -%}
-      {{ sd_base | remove_last: '}' }}{{ sd_extra }}}
-    {%- else -%}
-      {{ sd_base }}
-    {%- endif -%}
+    {{ sd_base }}
   </script>
 
   {%- comment -%}
