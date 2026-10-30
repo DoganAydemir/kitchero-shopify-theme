@@ -127,6 +127,9 @@ EDITS = [
     ('templates/page.deals.json', 'main', 'd3', {'link': 'shopify://products/elegant-custom-kitchen-cabinets',
         'price': '$2,750', 'original_price': '$3,240', 'accent_text': ''}),
 
+    # Showroom: every accordion starts closed (30.10)
+    ('templates/product.showroom.json', 'main', 'acc1', {'open': False}),
+
     # Financing
     ('templates/page.financing.json', 'panel_1', None, {'floating_eyebrow': 'Plan lengths', 'floating_value': '12–36 months'}),
     ('templates/page.financing.json', 'panel_2', None, {'floating_eyebrow': 'At checkout', 'floating_value': 'One simple step',
@@ -309,6 +312,27 @@ if entry:
                 order.remove('linked_products')
             position = order.index('variant_picker') if 'variant_picker' in order else len(order)
             order.insert(position, 'linked_products')
+            entry[2] = True
+
+# Deals: a fourth set so the two-column grid has two full rows (30.10).
+# Price and compare-at price match the product (demo_collections.py);
+# the includes come from the product description.
+DEAL_4 = {'type': 'deal', 'settings': {
+    'tier': 'Luxe Series', 'badge_color': '#1c1917', 'is_popular': False,
+    'price': '$3,350', 'original_price': '$3,940', 'description': '',
+    'includes': 'Marble-topped island for four\nGlass-front upper cabinets\nPaneled range hood',
+    'accent_text': '', 'image': 'shopify://shop_images/image_af3225a1-9088-44d7-9867-140907f490bd.webp',
+    'cta_text': 'See Details', 'link': 'shopify://products/elegant-kitchen-cabinet-system'}}
+entry = doc('templates/page.deals.json')
+if entry:
+    main = entry[1]['sections'].get('main')
+    if main is not None and main.get('type') == 'deals-grid':
+        blocks = main.setdefault('blocks', {})
+        order = main.setdefault('block_order', [])
+        if blocks.get('d4') != DEAL_4 or 'd4' not in order:
+            blocks['d4'] = DEAL_4
+            if 'd4' not in order:
+                order.append('d4')
             entry[2] = True
 
 # Showroom: visible buy buttons (audit #19), placed after the variant picker

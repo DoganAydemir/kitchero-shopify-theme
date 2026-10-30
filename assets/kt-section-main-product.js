@@ -40,9 +40,32 @@
     });
   }
 
+  /* Sticky columns: each [data-kt-sticky-fit] element gets its height in
+     --kt-sticky-h, so the CSS can let a column taller than the screen
+     scroll to its end before it sticks. */
+  var stickyObserver = null;
+
+  function initStickyFit(scope) {
+    if (!('ResizeObserver' in window)) return;
+    if (!stickyObserver) {
+      stickyObserver = new ResizeObserver(function (entries) {
+        entries.forEach(function (entry) {
+          entry.target.style.setProperty('--kt-sticky-h', Math.ceil(entry.target.offsetHeight) + 'px');
+        });
+      });
+    }
+    (scope || document).querySelectorAll('[data-kt-sticky-fit]').forEach(function (el) {
+      stickyObserver.observe(el);
+    });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { (window.ktWhenMotion || function (cb) { cb(); })(initPdpAnim); });
+    document.addEventListener('DOMContentLoaded', function () {
+      initStickyFit();
+      (window.ktWhenMotion || function (cb) { cb(); })(initPdpAnim);
+    });
   } else {
+    initStickyFit();
     (window.ktWhenMotion || function (cb) { cb(); })(initPdpAnim);
   }
 
@@ -51,10 +74,15 @@
       ? e.target.querySelector('[data-section-type="main-product"]')
       : null;
     if (section) delete section.dataset.kitcheroPdpAnim;
+    initStickyFit(e.target);
     initPdpAnim(e.target);
   });
 
-  document.addEventListener('shopify:section:unload', function () {
+  document.addEventListener('shopify:section:unload', function (e) {
+    if (!stickyObserver || !e.target.querySelectorAll) return;
+    e.target.querySelectorAll('[data-kt-sticky-fit]').forEach(function (el) {
+      stickyObserver.unobserve(el);
+    });
   });
 
   document.addEventListener('shopify:block:select', function (event) {

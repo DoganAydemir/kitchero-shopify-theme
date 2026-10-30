@@ -45,7 +45,7 @@
       <div class="kt-showroom__gallery-col" data-product-gallery{% if section.settings.group_variant_media %} data-variant-media-groups data-selected-media="{{ kt_sel_variant.featured_media.id }}"{% endif %}>
 
         {%- comment -%} Desktop: alternating layout (full, pair, full, pair...) over the visible images {%- endcomment -%}
-        <div class="kt-showroom__gallery-desktop">
+        <div class="kt-showroom__gallery-desktop" data-kt-sticky-fit>
           {%- for kt_idx_str in kt_image_idx -%}
             {%- assign kt_idx = kt_idx_str | plus: 0 -%}
             {%- assign media = product.media[kt_idx] -%}
@@ -274,7 +274,7 @@
 
       {%- comment -%} RIGHT: Product Info (27%, sticky) — fully block-driven {%- endcomment -%}
       <div class="kt-showroom__info-col kt-showroom--variant-picker-big">
-        <div class="kt-showroom__info-sticky" data-kt-pdp-anim-group>
+        <div class="kt-showroom__info-sticky" data-kt-pdp-anim-group data-kt-sticky-fit>
 
           {%- comment -%}
             Render blocks in order. Tags and accordions are grouped
@@ -1282,8 +1282,7 @@
         {
           "type": "accordion",
           "settings": {
-            "title": "About this product",
-            "open": true
+            "title": "About this product"
           }
         },
         {
