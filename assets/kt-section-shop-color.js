@@ -40,7 +40,7 @@
       if (targetImg) targetImg.style.opacity = '1';
 
       if (codeEl) codeEl.textContent = code;
-      if (labelEl) labelEl.textContent = name + (cat ? ' \u2014 ' + cat : '');
+      if (labelEl) labelEl.textContent = name + (cat ? ', ' + cat : '');
 
       if (paletteTop) paletteTop.style.backgroundColor = color1;
       if (paletteBottom) paletteBottom.style.backgroundColor = color2;
