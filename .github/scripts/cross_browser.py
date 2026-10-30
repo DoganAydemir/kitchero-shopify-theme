@@ -49,6 +49,10 @@ TARGETS = [
     ('msedge', 'Edge desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
     ('webkit', 'Safari iPhone', 'iPhone 13', True),
     ('chromium', 'Chrome Android', 'Pixel 7', True),
+    # Samsung Internet is Chromium-based; no automation driver exists, so this
+    # runs Chromium with a Galaxy viewport and the Samsung Internet user agent
+    # (catches UA-dependent code paths and layout at that size, not engine lag).
+    ('chromium', 'Samsung Internet (emulated)', 'SAMSUNG', True),
 ]
 
 
@@ -140,7 +144,11 @@ with sync_playwright() as p:
             browser = p.chromium.launch(channel='msedge')  # Microsoft Edge stable (Shopify requirement 9)
         else:
             browser = getattr(p, engine).launch()
-        if isinstance(options, str):
+        if options == 'SAMSUNG':
+            options = dict(p.devices['Galaxy S9+'])
+            options['user_agent'] = ('Mozilla/5.0 (Linux; Android 14; SAMSUNG SM-S921B) AppleWebKit/537.36 '
+                                     '(KHTML, like Gecko) SamsungBrowser/27.0 Chrome/125.0.0.0 Mobile Safari/537.36')
+        elif isinstance(options, str):
             options = dict(p.devices[options])
         context = browser.new_context(**options)
         login(context)
