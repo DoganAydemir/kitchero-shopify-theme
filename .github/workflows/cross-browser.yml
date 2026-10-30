@@ -6,6 +6,11 @@ name: Cross-browser check
 
 on:
   workflow_dispatch:
+    inputs:
+      preview_theme:
+        description: Unpublished theme ID to test (empty = live theme)
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -29,6 +34,7 @@ jobs:
         env:
           STORE_URL: https://kitchero-kitchen.myshopify.com
           PASSWORD: ${{ secrets.SHOP_STORE_PASSWORD }}
+          PREVIEW_THEME: ${{ inputs.preview_theme }}
         run: |
           set -o pipefail
           python .github/scripts/cross_browser.py shots | tee -a "$GITHUB_STEP_SUMMARY"

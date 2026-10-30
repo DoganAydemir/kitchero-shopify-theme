@@ -18,6 +18,14 @@ import sys
 from playwright.sync_api import sync_playwright
 
 STORE = os.environ['STORE_URL'].rstrip('/')
+# Optional: test an unpublished theme (appends preview_theme_id to every URL).
+PREVIEW = os.environ.get('PREVIEW_THEME', '').strip()
+
+
+def url(path):
+    if not PREVIEW:
+        return f'{STORE}{path}'
+    return f"{STORE}{path}{'&' if '?' in path else '?'}preview_theme_id={PREVIEW}"
 PASSWORD = os.environ['PASSWORD']
 OUT = sys.argv[1]
 os.makedirs(OUT, exist_ok=True)
@@ -72,7 +80,7 @@ def check_target(context, row, slug, mobile):
     for path in PAGES:
         page = open_page(context, row)
         try:
-            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+            page.goto(url(path), wait_until='networkidle', timeout=60000)
             page.wait_for_timeout(1200)
             name = path.strip('/').replace('/', '-').replace('?', '-').replace('=', '-') or 'home'
             page.screenshot(path=os.path.join(OUT, f'{slug}--{name}.png'))
@@ -83,7 +91,7 @@ def check_target(context, row, slug, mobile):
     # Search overlay
     page = open_page(context, row)
     try:
-        page.goto(f'{STORE}/', wait_until='networkidle')
+        page.goto(url('/'), wait_until='networkidle')
         page.locator('[data-search-open]').first.click(timeout=5000)
         page.wait_for_timeout(800)
         row['checks']['search'] = page.locator('#search-overlay').get_attribute('aria-hidden') == 'false'
@@ -95,7 +103,7 @@ def check_target(context, row, slug, mobile):
     if mobile:
         page = open_page(context, row)
         try:
-            page.goto(f'{STORE}/', wait_until='networkidle')
+            page.goto(url('/'), wait_until='networkidle')
             toggle = page.locator('.kt-header__menu-toggle').first
             toggle.click(timeout=5000)
             page.wait_for_timeout(800)
@@ -107,7 +115,7 @@ def check_target(context, row, slug, mobile):
     # Add to cart
     page = open_page(context, row)
     try:
-        page.goto(f'{STORE}{PRODUCT}', wait_until='networkidle')
+        page.goto(url(PRODUCT), wait_until='networkidle')
         atc = page.locator('.kt-product-form__atc').first
         # Center the button like a shopper scrolling to it, clear of fixed bars.
         atc.evaluate("el => el.scrollIntoView({block: 'center'})")
