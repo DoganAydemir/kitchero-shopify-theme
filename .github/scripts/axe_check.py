@@ -23,7 +23,9 @@ PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/pr
 # Second pass with an item in the cart (cart count badge, cart page list, drawer).
 CART_PAGES = ['/', '/cart', '/products/premium-pull-down-kitchen-faucet']
 PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
-            'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms')
+            'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms',
+            # Inside the shadow DOM of Shopify's 3D viewer (model_viewer_tag); not reachable from theme markup.
+            'userInput')
 OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice', 'experimental']}}
 
 axe = Axe()
