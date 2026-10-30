@@ -18,6 +18,11 @@
 {%- for block in section.blocks -%}
   {%- if block.type == 'stat' -%}
     {%- assign stat_value = block.settings.value | default: '' -%}
+    {%- if block.settings.source == 'products' -%}
+      {%- assign stat_value = shop.products_count | append: '' -%}
+    {%- elsif block.settings.source == 'collections' -%}
+      {%- assign stat_value = shop.collections_count | append: '' -%}
+    {%- endif -%}
     {%- assign stat_label = block.settings.label | default: '' -%}
     {%- assign stat_prefix = block.settings.prefix | default: '' -%}
     {%- comment -%}
@@ -55,6 +60,11 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'stat' -%}
           {%- assign stat_value = block.settings.value | default: '' -%}
+          {%- if block.settings.source == 'products' -%}
+            {%- assign stat_value = shop.products_count | append: '' -%}
+          {%- elsif block.settings.source == 'collections' -%}
+            {%- assign stat_value = shop.collections_count | append: '' -%}
+          {%- endif -%}
           {%- assign stat_label = block.settings.label | default: '' -%}
           {%- assign stat_prefix = block.settings.prefix | default: '' -%}
           {%- assign stat_is_default = false -%}
@@ -78,9 +88,9 @@
                 <div class="kt-trust-bar__value-row">
                   <span
                     class="kt-trust-bar__number"
-                    data-count-to="{{ block.settings.value | escape }}"
+                    data-count-to="{{ stat_value | escape }}"
                   >
-                    {{ block.settings.value }}
+                    {{ stat_value | escape }}
                   </span>
                   {%- if block.settings.prefix != blank -%}
                     <span class="kt-trust-bar__prefix">{{ block.settings.prefix | escape }}</span>
@@ -123,6 +133,18 @@
       "name": "t:sections.trust-bar.blocks.stat.name",
       "limit": 4,
       "settings": [
+        {
+          "type": "select",
+          "id": "source",
+          "label": "t:sections.trust-bar.blocks.stat.settings.source.label",
+          "info": "t:sections.trust-bar.blocks.stat.settings.source.info",
+          "options": [
+            { "value": "custom", "label": "t:sections.trust-bar.blocks.stat.settings.source.options__custom.label" },
+            { "value": "products", "label": "t:sections.trust-bar.blocks.stat.settings.source.options__products.label" },
+            { "value": "collections", "label": "t:sections.trust-bar.blocks.stat.settings.source.options__collections.label" }
+          ],
+          "default": "custom"
+        },
         {
           "type": "text",
           "id": "value",

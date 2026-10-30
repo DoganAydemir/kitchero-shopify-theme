@@ -135,6 +135,9 @@ if (!window.__kitcheroCookieBannerLoaded) {
 
       function checkConsentAndShow() {
         try {
+          // Shopify's own cookie banner (Settings > Customer privacy) is on:
+          // let it handle consent so shoppers never see two banners.
+          if (shopifyBannerActive()) return;
           var cp = window.Shopify && window.Shopify.customerPrivacy;
           if (!cp) return;
 
@@ -155,7 +158,9 @@ if (!window.__kitcheroCookieBannerLoaded) {
           if (consent === 'no_interaction' || consent == null) {
             var delay = parseInt(banner.getAttribute('data-delay'), 10);
             if (isNaN(delay) || delay < 0) delay = 2;
-            setTimeout(function () { showBanner(banner); }, delay * 1000);
+            setTimeout(function () {
+              if (!shopifyBannerActive()) showBanner(banner);
+            }, delay * 1000);
           }
         } catch (e) {
         }
@@ -247,7 +252,15 @@ if (!window.__kitcheroCookieBannerLoaded) {
       }
     });
 
+    function shopifyBannerActive() {
+      return !!(window.privacyBanner && typeof window.privacyBanner.showPreferences === 'function');
+    }
+
     function openCookieBanner() {
+      if (shopifyBannerActive()) {
+        window.privacyBanner.showPreferences();
+        return 'shopify';
+      }
       var banner = document.querySelector(SELECTORS.banner);
       if (!banner) return false;
       showBanner(banner);
@@ -271,6 +284,7 @@ if (!window.__kitcheroCookieBannerLoaded) {
       var opened = openCookieBanner();
       if (!opened) return;
       event.preventDefault();
+      if (opened === 'shopify') return;
       var banner = document.querySelector(SELECTORS.banner);
       if (!banner) return;
       setCustomizePanelExpanded(banner, true);

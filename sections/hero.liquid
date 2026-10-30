@@ -152,7 +152,7 @@
 
           {%- if block.settings.cta_text != blank -%}
             <div class="kt-hero__anim" data-hero-anim data-delay="1000">
-              <a href="{{ block.settings.cta_link | default: routes.root_url | escape }}" class="kt-hero__cta">
+              <a {% if block.settings.cta_link != blank %}href="{{ block.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="kt-hero__cta">
                 {{ block.settings.cta_text }}
                 {% render 'icon-arrow-right' %}
               </a>

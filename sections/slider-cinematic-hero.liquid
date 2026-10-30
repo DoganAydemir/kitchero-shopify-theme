@@ -103,7 +103,7 @@
 
           {%- if block.settings.cta_text != blank -%}
             <a
-              href="{{ block.settings.cta_link | default: routes.root_url | escape }}"
+              {% if block.settings.cta_link != blank %}href="{{ block.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %}
               class="kt-slider-cinematic__cta"
             >
               {{ block.settings.cta_text }}

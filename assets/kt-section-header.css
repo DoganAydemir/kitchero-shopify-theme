@@ -189,6 +189,32 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   flex-shrink: 0;
 }
 
+/* Text logo (no logo image): long store names wrap instead of pushing
+   the search, account, cart and menu icons off the screen. */
+.kt-header__logo--text {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.kt-header__logo--text .kt-header__logo-text {
+  display: block;
+  overflow-wrap: anywhere;
+  line-height: 1.1;
+}
+
+@media screen and (max-width: 749px) {
+  .kt-header__logo--text .kt-header__logo-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .kt-header[data-logo-position="center"] .kt-header__logo--text {
+    max-width: 30%;
+    text-align: center;
+  }
+}
+
 .kt-header__logo-text {
   font-size: 1.5rem;
   font-weight: 600;
@@ -651,6 +677,7 @@ button.kt-header__menu-link {
 .kt-header__icons {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 0.75rem;
 }
 
@@ -993,7 +1020,12 @@ html.no-js .kt-header__mobile-view-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   padding: max(1.25rem, env(safe-area-inset-top, 0px)) 1.5rem 1.25rem;
+  flex-shrink: 0;
+}
+
+.kt-header__mobile-panel-header > button {
   flex-shrink: 0;
 }
 

@@ -160,13 +160,13 @@
         {%- endif -%}
         <div class="kt-deals-cta__buttons">
           {%- if section.settings.bottom_cta_primary_text != blank -%}
-            <a href="{{ section.settings.bottom_cta_primary_link | default: routes.root_url | escape }}" class="kt-deals-cta__btn kt-deals-cta__btn--primary">
+            <a {% if section.settings.bottom_cta_primary_link != blank %}href="{{ section.settings.bottom_cta_primary_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="kt-deals-cta__btn kt-deals-cta__btn--primary">
               {{ section.settings.bottom_cta_primary_text }}
               {% render 'icon-arrow-right', width: 14, height: 14 %}
             </a>
           {%- endif -%}
           {%- if section.settings.bottom_cta_secondary_text != blank -%}
-            <a href="{{ section.settings.bottom_cta_secondary_link | default: routes.root_url | escape }}" class="kt-deals-cta__btn kt-deals-cta__btn--secondary">
+            <a {% if section.settings.bottom_cta_secondary_link != blank %}href="{{ section.settings.bottom_cta_secondary_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="kt-deals-cta__btn kt-deals-cta__btn--secondary">
               {{ section.settings.bottom_cta_secondary_text }}
             </a>
           {%- endif -%}

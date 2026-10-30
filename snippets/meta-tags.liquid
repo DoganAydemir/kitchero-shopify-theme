@@ -186,8 +186,57 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' and product -%}
+  {%- comment -%}
+    One Product (or ProductGroup) node. Rating, GTIN and MPN are added to
+    Shopify's own structured_data object, so search engines don't see a
+    second Product without a name or offers.
+  {%- endcomment -%}
+  {%- liquid
+    assign sd_base = product | structured_data
+    assign sd_manual_rating = blank
+    assign mf_path = settings.kt_mf_rating | strip | split: '.'
+    if mf_path.size == 2
+      assign sd_manual_rating = product.metafields[mf_path[0]][mf_path[1]].value
+    endif
+    assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: sd_manual_rating
+    assign sd_rating_count = product.metafields.reviews.rating_count.value
+    assign sd_rating_scale = product.metafields.reviews.rating.value.scale_max | default: 5
+    assign sd_variant = product.selected_or_first_available_variant
+    assign sd_gtin = blank
+    if product.has_only_default_variant and sd_variant.barcode != blank
+      assign sd_barcode_clean = sd_variant.barcode | strip
+      assign sd_barcode_size = sd_barcode_clean | size
+      if sd_barcode_size == 13 or sd_barcode_size == 12 or sd_barcode_size == 8
+        assign sd_gtin = sd_barcode_clean
+      endif
+    endif
+  -%}
+  {%- capture sd_extra -%}
+    {%- if sd_rating and sd_rating_count and sd_rating_count > 0 -%}
+      {%- unless sd_base contains '"aggregateRating"' -%}
+        ,"aggregateRating":{"@type":"AggregateRating","ratingValue":{{ sd_rating | json }},"bestRating":{{ sd_rating_scale | json }},"worstRating":1,"reviewCount":{{ sd_rating_count | json }}}
+      {%- endunless -%}
+    {%- endif -%}
+    {%- if sd_gtin != blank -%}
+      {%- unless sd_base contains '"gtin' -%}
+        {%- assign sd_gtin_size = sd_gtin | size -%}
+        ,{% if sd_gtin_size == 13 %}"gtin13"{% elsif sd_gtin_size == 12 %}"gtin12"{% else %}"gtin8"{% endif %}:{{ sd_gtin | json }}
+      {%- endunless -%}
+    {%- endif -%}
+    {%- if product.has_only_default_variant and sd_variant.sku != blank -%}
+      {%- unless sd_base contains '"mpn"' or sd_base contains '"sku"' -%}
+        ,"mpn":{{ sd_variant.sku | json }}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endcapture -%}
+  {%- liquid
+    if sd_extra != blank
+      assign sd_close = '}'
+      assign sd_base = sd_base | remove_last: sd_close | append: sd_extra | append: sd_close
+    endif
+  -%}
   <script type="application/ld+json">
-    {{ product | structured_data }}
+    {{ sd_base }}
   </script>
 
   {%- comment -%}
@@ -318,77 +367,7 @@
   content="{{ og_description | escape }}"
 >
 
-{%- if request.page_type == 'product' and product -%}
-  {%- comment -%}
-    aggregateRating supplement — Shopify's native `| structured_data`
-    filter emits Product with price/availability/SKU/image but does
-    NOT automatically pull `product.metafields.reviews.rating` into
-    schema. The theme DOES render stars on the PDP reading that
-    metafield, so Google's Rich Results Test flags "Review snippets
-    not present" — visible UI, absent schema. Emit a supplementary
-    Product block with matching @id (the canonical URL Shopify uses);
-    Google merges multiple same-@id Product schemas per spec.
-    Gated on the metafield existing — new stores without reviews
-    installed get nothing extra.
-  {%- endcomment -%}
-  {%- liquid
-    assign sd_manual_rating = blank
-    assign mf_path = settings.kt_mf_rating | strip | split: '.'
-    if mf_path.size == 2
-      assign sd_manual_rating = product.metafields[mf_path[0]][mf_path[1]].value
-    endif
-  -%}
-  {%- assign sd_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: sd_manual_rating -%}
-  {%- assign sd_rating_count = product.metafields.reviews.rating_count.value -%}
-  {%- assign sd_rating_scale = product.metafields.reviews.rating.value.scale_max | default: 5 -%}
-  {%- if sd_rating and sd_rating_count and sd_rating_count > 0 -%}
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "@id": {{ canonical_url | json }},
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": {{ sd_rating | json }},
-          "bestRating": {{ sd_rating_scale | json }},
-          "worstRating": 1,
-          "reviewCount": {{ sd_rating_count | json }}
-        }
-      }
-    </script>
-  {%- endif -%}
-  {%- assign sd_variant = product.selected_or_first_available_variant -%}
-  {%- assign sd_gtin = blank -%}
-  {%- if sd_variant.barcode != blank -%}
-    {%- assign sd_barcode_clean = sd_variant.barcode | strip -%}
-    {%- assign sd_barcode_size = sd_barcode_clean | size -%}
-    {%- if sd_barcode_size == 13 or sd_barcode_size == 12 or sd_barcode_size == 8 -%}
-      {%- assign sd_gtin = sd_barcode_clean -%}
-    {%- endif -%}
-  {%- endif -%}
-  {%- if product.vendor != blank or sd_gtin != blank -%}
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "@id": {{ canonical_url | json }}
-        {%- if product.vendor != blank -%}
-        ,"brand": {
-          "@type": "Brand",
-          "name": {{ product.vendor | json }}
-        }
-        {%- endif -%}
-        {%- if sd_gtin != blank -%}
-        ,{%- assign sd_gtin_size = sd_gtin | size -%}
-        {%- if sd_gtin_size == 13 -%}"gtin13"{%- elsif sd_gtin_size == 12 -%}"gtin12"{%- else -%}"gtin8"{%- endif -%}: {{ sd_gtin | json }}
-        {%- endif -%}
-        {%- if sd_variant.sku != blank -%}
-        ,"mpn": {{ sd_variant.sku | json }}
-        {%- endif -%}
-      }
-    </script>
-  {%- endif -%}
-{%- elsif request.page_type == 'article' and article -%}
+{%- if request.page_type == 'article' and article -%}
   <script type="application/ld+json">{{ article | structured_data }}</script>
   {%- assign article_publisher_logo = settings.kt_logo | default: shop.brand.logo -%}
   {%- comment -%}

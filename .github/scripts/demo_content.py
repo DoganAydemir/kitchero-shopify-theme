@@ -51,7 +51,7 @@ EDITS = [
 
     # Home
     ('templates/index.json', 'trust_bar', 'stat_1', {'value': '30', 'prefix': '', 'label': 'Products in the catalog'}),
-    ('templates/index.json', 'trust_bar', 'stat_2', {'value': '6', 'prefix': '', 'label': 'Product categories'}),
+    ('templates/index.json', 'trust_bar', 'stat_2', {'source': 'collections', 'value': '0', 'prefix': '', 'label': 'Product categories'}),
     ('templates/index.json', 'trust_bar', 'stat_3', {'value': '2', 'prefix': '', 'label': 'Design studios in New York'}),
     ('templates/index.json', 'trust_bar', 'stat_4', {'value': '12', 'prefix': '', 'label': 'Kitchen sets'}),
     ('templates/index.json', 'ecosystem', 'feat_1', {'description':

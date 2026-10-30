@@ -60,7 +60,7 @@
 
       <div class="kt-home-financing__cta-row">
         {%- if section.settings.cta_text != blank -%}
-          <a href="{{ section.settings.cta_link | default: routes.root_url | escape }}" class="kt-home-financing__cta">
+          <a {% if section.settings.cta_link != blank %}href="{{ section.settings.cta_link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %} class="kt-home-financing__cta">
             {{ section.settings.cta_text }}
             {% render 'icon-arrow-right' %}
           </a>
