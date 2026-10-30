@@ -7,15 +7,9 @@
   Shopify exposes the results via the `predictive_search` global so this
   section has no schema-driven settings — it is purely a render target.
 
-  IMPORTANT — schema does NOT use `disabled_on: { templates: ["*"], groups:
-  ["*"] }`. An earlier revision did, on the rationale of "this isn't a
-  user-addable section, hide it from theme editor". User reproduced a
-  bug where /search?q=test returned 4 results but the predictive overlay
-  for the same query rendered "No results found" — a Shopify-side
-  symptom of the disabled_on wildcard: the Section Rendering API
-  respects the disabled_on gate and refuses to invoke the section's
-  Liquid render path, so the response payload comes back without the
-  predictive_search.performed branch ever executing.
+  The schema has no `disabled_on` wildcard: with one, the Section Rendering
+  API would refuse to render this section and the overlay would show no
+  results.
 
   Section is still effectively hidden from the editor because it has
   no `presets` array — Shopify's "Add section" picker only surfaces

@@ -40,13 +40,6 @@
         {%- if block.type == 'logo' -%}
           {%- comment -%} The second pass only fills the loop: hidden from screen readers and the editor. {%- endcomment -%}
           <div class="kt-brands__item"{% if i == 1 %} {{ block.shopify_attributes }}{% else %} aria-hidden="true"{% endif %}>
-            {%- comment -%}
-              Alt fallback — pre-resolve the localized string into a
-              variable so `| default:` sees a translated value. The
-              previous one-liner ran `| t` AFTER `| default:`, which
-              meant non-English locales got the translation-missing
-              warning instead of the fallback.
-            {%- endcomment -%}
             {%- assign brand_logo_alt = block.settings.alt | default: block.settings.image.alt | strip_html -%}
             {%- if block.settings.image != blank -%}
               {%- assign brand_logo_width = block.settings.image.width | times: 40 | divided_by: block.settings.image.height -%}

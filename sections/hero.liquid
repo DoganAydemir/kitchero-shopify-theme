@@ -84,14 +84,7 @@
     so SRs walking the accessibility tree don't see N+1 heading
     landmarks at level 1.
 
-    Earlier revision used `aria-level="1"` on inactive slides under
-    the theory that "they're `.hidden` visually anyway." That's
-    wrong: many SRs (NVDA, JAWS, VoiceOver in heading-jump mode)
-    ignore `display: none` when walking the accessibility tree, so
-    a 3-slide hero still announced 3 separate "heading level 1"s.
-    Axe-core's `landmark-unique` and Lighthouse a11y both flag it.
-
-    The fix: inactive slides become level-2 placeholders that SRs
+    Inactive slides are level-2 placeholders that SRs
     treat as non-primary landmarks, AND they're marked `aria-hidden`
     so they're skipped entirely during heading-jump navigation. The
     visible-slide `<h1>` stays the page's primary heading; rotation

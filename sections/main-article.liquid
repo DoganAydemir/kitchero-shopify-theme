@@ -371,11 +371,12 @@
                 {{ 'kt.blog.article.post_comment' | t | default: 'Post Comment' }}
               </button>
 
-              <p class="kt-article__comment-recaptcha-note rte">
+              {%- comment -%} div, not p: Shopify's disclaimer already contains its own <p>. {%- endcomment -%}
+              <div class="kt-article__comment-recaptcha-note rte">
                 {% # theme-check-disable TranslationKeyExists %}
                 {{- 'shopify.online_store.spam_detection.disclaimer_html' | t -}}
                 {% # theme-check-enable TranslationKeyExists %}
-              </p>
+              </div>
             {%- endform -%}
           </div>
         </div>
