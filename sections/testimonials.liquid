@@ -14,7 +14,7 @@
   <div
     class="kt-testimonials__bg-base{% if section.settings.background_image == blank %} kt-testimonials__bg-base--placeholder{% endif %}"
     {% if section.settings.background_image != blank %}
-      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
+      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}'); background-position: {{ section.settings.background_image.presentation.focal_point | default: 'center center' }};"
     {% endif %}
     aria-hidden="true"
   >
@@ -35,7 +35,7 @@
     class="kt-testimonials__spotlight{% if section.settings.background_image == blank %} kt-testimonials__spotlight--placeholder{% endif %}"
     data-testimonials-spotlight=""
     {% if section.settings.background_image != blank %}
-      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}');"
+      style="background-image: url('{{ section.settings.background_image | image_url: width: 1400 }}'); background-position: {{ section.settings.background_image.presentation.focal_point | default: 'center center' }};"
     {% endif %}
     aria-hidden="true"
   ></div>

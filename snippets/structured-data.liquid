@@ -12,13 +12,6 @@
 
 {%- unless request.page_type == 'product' or request.page_type == 'article' -%}
   {%- comment -%}
-    Build sameAs as a collected array then join, so we never emit a
-    trailing comma. The previous shape used `{%- unless forloop.last -%}`
-    inside a series of independent `if` blocks (no `forloop` exists in
-    that context), which meant the comma was always emitted: enabling
-    only Facebook produced `"sameAs": [url1,]` — invalid JSON that
-    Google's Rich Results Test rejects outright.
-
     Logo: Google's Organization schema strongly recommends a logo of
     at least 112×112 so the Knowledge Panel can pick up the brand
     mark. Emit the theme logo when set, otherwise Shopify's native
@@ -257,13 +250,6 @@
             "item": {{ canonical_url | json }}
           }
         {%- elsif request.page_type == 'blog' -%}
-          {%- comment -%}
-            Blog index (e.g. /blogs/news) needs its own rung; without
-            it the BreadcrumbList collapses to position 1 only and
-            Rich Results Test rejects "List must have 2+ items". Use
-            blog.title (the blog object is in scope on its own
-            template) and canonical_url for the URL.
-          {%- endcomment -%}
           ,{
             "@type": "ListItem",
             "position": 2,

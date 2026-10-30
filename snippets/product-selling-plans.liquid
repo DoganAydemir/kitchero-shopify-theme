@@ -1,18 +1,6 @@
 {%- comment -%}
   Selling-plan (subscription) picker.
 
-  Renders a radio group offering one-time purchase + each configured
-  subscription plan. The radios use `name="selling_plan"` directly
-  — which is the field name Shopify's `/cart/add` endpoint expects
-  — so JS-off visitors still submit the checked plan with their ATC.
-  Previously the radios used `name="kt-selling-plan-choice"` (a JS
-  hook) and selling-plan-picker.js hand-rolled a hidden
-  `name="selling_plan"` input at runtime; on `requires_selling_plan:
-  true` products that path broke without JS (Shopify rejected the
-  submission as missing a required field). selling-plan-picker.js
-  still dispatches the `selling-plan:change` event for live price
-  refresh, but the form-field source of truth is now the radios.
-
   Gated on product.selling_plan_groups.size so the snippet renders
   nothing for non-subscription products. When the product also has
   `requires_selling_plan: true` we hide the "One-time purchase" option

@@ -34,15 +34,6 @@
         {{ block.shopify_attributes }}
       >
         <div class="kt-hero__slide-image-wrap">
-          {%- comment -%}
-            LCP candidate is slide 0 only — the initial paint shows the
-            first slide active; subsequent slides are fade-stacked
-            behind. Previously every slide shipped eager + fetchpriority
-            high, which sent the browser 5+ "preload-as-critical" hints
-            on multi-slide heroes. Browsers coalesce but it wastes the
-            budget and pushes real critical resources down the queue.
-            Gate: only forloop.first gets eager+high; rest get lazy.
-          {%- endcomment -%}
           {%- if forloop.first -%}
             {%- assign slide_loading = 'eager' -%}
             {%- assign slide_fetchpriority = 'high' -%}

@@ -51,27 +51,6 @@
   {%- endif -%}
 
   {%- comment -%}
-    Unit pricing — mandatory in the EU for consumables sold by weight
-    or volume (e.g. \u20AC3.99 per 100 g). Shopify populates
-    `variant.unit_price` only when the merchant sets a reference value
-    on the variant, so this block renders nothing on a store that
-    doesn't need it. Format mirrors Shopify's own reference example:
-    unit price + reference unit, with the measured quantity disclosed
-    in parentheses when it differs from the reference quantity
-    (e.g. \"250 g per 1 kg\"), which is what German price-transparency
-    law requires.
-  {%- endcomment -%}
-  {%- comment -%}
-    Render the unit-price container for every product that has at least
-    one variant with a `unit_price_measurement`. Theme Store testing
-    checklist explicitly requires "Unit prices change dynamically on
-    variant selection" — a product whose first variant has no unit
-    price but a later variant DOES still needs the container in the
-    DOM so `assets/kt-product-form.js` can populate it on variant change.
-    The container is hidden via `style="display:none"` when the first
-    variant carries no measurement; the JS toggles `display` based on
-    the selected variant's `unit_price_measurement` payload.
-
     `data-template` carries the localized "X per Y" copy so the JS path
     can re-render the suffix without re-fetching the page or parsing
     the original Liquid filter at runtime.
@@ -79,14 +58,6 @@
   {%- render 'product-unit-price', product: product, variant: variant -%}
 
   {%- comment -%}
-    Tax-inclusive indicator — Theme Store mandatory: "tax-inclusive
-    indication using cart.taxes_included". When a merchant operates in
-    a jurisdiction that displays prices INCLUDING tax (most EU stores),
-    the storefront must label the displayed price as such so customers
-    aren't surprised by an unchanged total at checkout. We mirror the
-    pattern already used in main-cart.liquid + cart-drawer.liquid for
-    consistency between PDP, cart drawer, and cart page.
-
     `cart.taxes_included` is true when Shopify Admin's "All prices
     include tax" toggle is on; it's false in tax-exclusive markets
     (e.g. US default), which renders this block as nothing — no
@@ -100,15 +71,6 @@
   {%- endif -%}
 
   {%- comment -%}
-    Volume pricing (B2B catalog) — `variant.quantity_price_breaks`
-    is populated when a merchant on Shopify Plus configures
-    quantity-based pricing on a B2B catalog. Without this surface
-    a wholesale customer browsing the storefront-rendered PDP sees
-    only the base unit price and has to add to cart + check sub-
-    total to discover the volume discount tiers. Theme Store guides
-    flag the missing surface as a B2B parity gap on themes that
-    advertise wholesale support.
-
     `quantity_price_breaks_configured?` short-circuits when no
     breaks exist (the common case for non-B2B stores), so the block
     renders nothing on retail storefronts. Each break renders the

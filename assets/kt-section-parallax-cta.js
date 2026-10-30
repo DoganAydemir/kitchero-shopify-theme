@@ -14,7 +14,7 @@
       var p = (vh - r.top) / (vh + r.height);
       if (p < 0) p = 0; else if (p > 1) p = 1;
 
-      el.style.backgroundPosition = 'center ' + (p * 100).toFixed(2) + '%';
+      el.style.backgroundPosition = (el.getAttribute('data-focal-x') || 'center') + ' ' + (p * 100).toFixed(2) + '%';
     }
   }
 

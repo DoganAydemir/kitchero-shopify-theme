@@ -86,22 +86,6 @@
                     {{- block.settings.title | default: collapsible_visual_fallback -}}
                   </span>
                 </span>
-                {%- comment -%}
-                  Panel id is referenced by the parent button's
-                  aria-controls; that linkage is sufficient for AT
-                  to associate the disclosure target with its
-                  trigger. We previously set role="region" +
-                  aria-labelledby here, but the panel is nested
-                  INSIDE the <button> (the markup uses a button-
-                  with-inline-content collapsible pattern). HTML5
-                  forbids interactive-content descendants of
-                  <button>, and a labeled region landmark counts
-                  as interactive content for AT semantics — Axe /
-                  Lighthouse / NVDA all flag the orphan landmark.
-                  Drop the landmark role; the disclosure pattern
-                  is fully expressed via aria-expanded +
-                  aria-controls on the button.
-                {%- endcomment -%}
                 <span
                   class="kt-collapsible-visual__panel"
                   id="kt-visual-panel-{{ section.id }}-{{ feature_index }}"
@@ -209,7 +193,7 @@
       "type": "text",
       "id": "heading",
       "label": "t:sections.collapsible_visual.settings.heading.label",
-      "default": "Specifications & details"
+      "default": "Specifications and details"
     },
     {
       "type": "select",
@@ -265,7 +249,7 @@
           "type": "text",
           "id": "title",
           "label": "t:sections.collapsible_visual.blocks.feature.settings.title.label",
-          "default": "Materials & finishes"
+          "default": "Materials and finishes"
         },
         {
           "type": "textarea",

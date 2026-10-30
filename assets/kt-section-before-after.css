@@ -99,14 +99,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  /* Handle owns the pointer so a grab-and-drag gesture is registered
-     against the visible circle, not against the transparent slider
-     plate behind it. Previously this was `pointer-events: none` —
-     all pointer interactions slipped through to the slider and the
-     "drag from the chevron" UX never engaged (click-to-jump still
-     worked, which masked the bug). cursor: grab signals the
-     affordance; the active state below switches to grabbing for
-     the duration of the drag. */
   pointer-events: auto;
   cursor: grab;
   /* Same touch-action policy as the slider — let the browser keep

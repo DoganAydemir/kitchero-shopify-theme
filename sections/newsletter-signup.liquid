@@ -18,16 +18,6 @@
       {%- assign newsletter_form_id = 'NewsletterPageForm-' | append: section.id -%}
       {%- form 'customer', id: newsletter_form_id, class: 'kt-newsletter-page__form-wrap' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
-        {%- comment -%}
-          Removed the `contact[accepts_marketing]=true` hidden field.
-          Pre-flagging marketing consent via a server-forced default
-          violates GDPR Article 7 / ePrivacy (consent must be
-          explicit, granular, informed) and is a Theme Store reject
-          signal. Submitting this form creates the customer record;
-          the merchant's Shopify-native double-opt-in confirmation
-          email is what produces the legally-valid consent. Follows
-          Shopify's recommended GDPR-compliant marketing-consent flow.
-        {%- endcomment -%}
 
         {%- if form.posted_successfully? -%}
           <div class="kt-newsletter-page__success" role="status">
@@ -36,17 +26,6 @@
           </div>
         {%- else -%}
           <div class="kt-newsletter-page__form">
-            {%- comment -%}
-              The email field and Subscribe button must stay together
-              on one row (flex parent). The consent <p> used to be a
-              sibling of the input+button — which made it a 3rd flex
-              item that ate horizontal space and forced the long
-              "I agree to receive..." copy to wrap word-by-word,
-              squashing the button into a square. Splitting the row
-              into its own wrapper isolates the input/button flex
-              context; the consent paragraph lives one level up and
-              flows naturally on its own line BELOW the row.
-            {%- endcomment -%}
             <div class="kt-newsletter-page__form-row">
             <label for="newsletter-page-email-{{ section.id }}" class="visually-hidden">{{ 'kt.newsletter.label' | t }}</label>
             <input
@@ -72,13 +51,6 @@
               {% endif %}
             >
 
-            {%- comment -%}
-              Honeypot — invisible to humans, populated by naive bots.
-              Backend can reject submissions where contact[website] is
-              non-empty. Field uses .kt-form__honeypot positioning trick
-              (off-screen, not display:none) so determined bots that
-              skip hidden fields still trip it.
-            {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true" inert>
               <label for="newsletter-page-website-trap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
               <input type="text" id="newsletter-page-website-trap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">

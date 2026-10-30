@@ -28,15 +28,6 @@
         "shrunk" from its bottom edge, hiding the Send-request
         submit button below the visible area.
 
-     2) `top: 0; height: 100svh/100dvh` cascade — under some
-        Android Chrome + iOS Safari builds the viewport unit was
-        computed against the visible area BEFORE the panel
-        attached its containing-block context, leaving the panel
-        only as tall as its intrinsic content (just the header
-        sliver), pinned to the top of the screen. The reported
-        bug was "panel ekranın üstünde küçük/yarım açılıyor"
-        — header only, no body, half-open at top.
-
      Now we mirror the cart-drawer's proven pattern: `top: 0;
      bottom: 0` PLUS the body-scroll-lock from
      `Kitchero.scrollLock` freezes the URL-bar state at open
@@ -141,8 +132,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* WCAG 2.5.5 — 44×44 min hit target. Previously padding:0.5rem around
-     a 20px icon gave only ~32px; add min-width/min-height floor. */
   min-width: 44px;
   min-height: 44px;
   padding: 0.5rem;

@@ -19,13 +19,6 @@
   style="--kt-coll-pad-top: {{ coll_pad_top }}px; --kt-coll-pad-bottom: {{ coll_pad_bottom }}px;"
 >
   {%- comment -%}
-    Visible breadcrumb that mirrors the BreadcrumbList JSON-LD emitted
-    by snippets/structured-data.liquid. Google Search Console warns
-    when structured data declares a breadcrumb the page doesn't show;
-    this snippet closes that parity gap across collection/article/
-    blog/page templates.
-  {%- endcomment -%}
-  {%- comment -%}
     Breadcrumb moved to layout/theme.liquid (global render).
   {%- endcomment -%}
 
@@ -123,16 +116,6 @@
         <div class="kt-filter-bar">
           <span class="kt-filter-bar__label">{{ 'kt.section.collection.filter' | t | default: 'Filter:' }}</span>
           {%- for filter in collection.filters -%}
-            {%- comment -%}
-              Three filter types Shopify exposes: `list` (checkbox set),
-              `boolean` (same shape as list with yes/no values), and
-              `price_range` (min/max number inputs). The desktop pill
-              bar previously rendered only `list`; merchants who set up
-              a price filter or a boolean metafield filter saw the
-              filter on the vertical-sidebar template (which uses the
-              snippet that handles all three) but on the default
-              collection template's pill bar it silently disappeared.
-            {%- endcomment -%}
             {%- if filter.type == 'list' or filter.type == 'boolean' -%}
               <div class="kt-filter-bar__dropdown" data-filter-dropdown>
                 <button class="kt-filter-bar__trigger" type="button" aria-expanded="false" aria-controls="FilterBarPanel-{{ section.id }}-{{ forloop.index }}">

@@ -23,13 +23,6 @@
           {% render 'social-icons' %}
         </div>
 
-        {%- comment -%}
-          Follow on Shop — Theme Store paid mandatory feature (Section 4).
-          `{{ shop | login_button: action: 'follow' }}` emits Shopify's
-          native button that lets shoppers follow the store via the Shop
-          app. Renders nothing when Shop login is unavailable on the
-          merchant's plan, so it's always safe to include.
-        {%- endcomment -%}
         {%- if section.settings.show_follow_on_shop -%}
           <div class="kt-footer__follow-on-shop">
             {{ shop | login_button: action: 'follow' }}
@@ -72,14 +65,6 @@
                   {%- endfor -%}
                 </ul>
               {%- elsif request.design_mode -%}
-                {%- comment -%}
-                  Merchant hasn't picked a menu yet. Surface an onboarding
-                  hint only inside the theme editor so shoppers on the
-                  live storefront never see a broken/empty column. We
-                  intentionally do NOT emit placeholder `href="#"` links:
-                  those fail Theme Store review (deceptive navigation)
-                  and they give shoppers non-functional click targets.
-                {%- endcomment -%}
                 <p class="kt-footer__empty-notice">
                   {{ 'kt.general.footer.empty_menu_notice' | t }}
                 </p>
@@ -102,16 +87,6 @@
               {%- assign footer_newsletter_id = 'FooterNewsletter-' | append: block.id -%}
               {%- form 'customer', id: footer_newsletter_id -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
-                {%- comment -%}
-                  No `contact[accepts_marketing]=true` hidden field —
-                  pre-flagging marketing consent via a server-forced
-                  default violates GDPR Art. 7 (consent must be
-                  explicit, granular, informed) and is a Theme Store
-                  reject signal. Shopify's native double-opt-in
-                  confirmation email produces the legally-valid
-                  record. Follows Shopify's recommended GDPR-compliant
-                  marketing-consent flow.
-                {%- endcomment -%}
                 {%- if form.posted_successfully? -%}
                   <p class="kt-footer__newsletter-success" role="status">
                     {{ 'kt.section.newsletter-popup.success' | t | default: 'Thanks for subscribing.' }}
@@ -141,14 +116,6 @@
                         aria-invalid="false"
                       {% endif %}
                     >
-                    {%- comment -%}
-                      Honeypot — invisible to humans, populated by naive bots.
-                      Backend can reject submissions where contact[website] is
-                      non-empty. Field uses .kt-form__honeypot positioning trick
-                      (off-screen, not display:none) so determined bots that
-                      skip hidden fields still trip it. Matches pattern in
-                      newsletter-signup.liquid and newsletter-popup.liquid.
-                    {%- endcomment -%}
                     <p class="kt-form__honeypot" aria-hidden="true" inert>
                       <label for="footer-newsletter-website-trap-{{ block.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
                       <input type="text" id="footer-newsletter-website-trap-{{ block.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -225,15 +192,6 @@
             </div>
 
           {%- when 'contact_info' -%}
-            {%- comment -%}
-              Shop-level contact details pulled dynamically from
-              `shop.address` / `shop.email` / `shop.phone` — all of
-              which Admin → Settings → General populates. Previously
-              merchants had to repeat this info in a plain text block
-              (easy to forget, goes stale on move). Each line gated on
-              its own toggle so a merchant who doesn't want to surface
-              (e.g.) their phone publicly can hide it.
-            {%- endcomment -%}
             <div class="kt-footer__column" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
                 <h2 class="kt-footer__heading">{{ block.settings.heading | escape }}</h2>
@@ -363,14 +321,6 @@
         {%- endif -%}
       </div>
 
-      {%- comment -%}
-        Shop policies row — renders only the policies the merchant has
-        actually published in Admin → Settings → Policies. `shop.policies`
-        already filters to published ones, so the `{% for %}` silently
-        collapses to nothing on a store that has none. Keeps the legal
-        links discoverable (a Theme Store review requirement) without
-        forcing merchants to curate a separate menu.
-      {%- endcomment -%}
       {%- if section.settings.show_policy_links and shop.policies.size > 0 -%}
         <nav class="kt-footer__policies" aria-label="{{ 'kt.general.footer.policies' | t | default: 'Legal' }}">
           <ul class="kt-footer__policies-list list-unstyled">

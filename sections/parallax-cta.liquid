@@ -24,8 +24,10 @@
     {%- endcomment -%}
     <{{ heading_tag }} class="kt-parallax-cta__title"
       {% if section.settings.background_image != blank %}
+        {% assign parallax_focal = section.settings.background_image.presentation.focal_point | default: 'center center' %}
         data-parallax-bg
-        style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}');"
+        data-focal-x="{{ parallax_focal | split: ' ' | first }}"
+        style="background-image: url('{{ section.settings.background_image | image_url: width: 1600 }}'); background-position: {{ parallax_focal }};"
       {% endif %}
     >
       {{ section.settings.heading_line1 | default: heading_line1_default }}<br>{{ section.settings.heading_line2 | default: heading_line2_default }}

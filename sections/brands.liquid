@@ -49,15 +49,6 @@
             {%- endcomment -%}
             {%- assign brand_logo_alt = block.settings.alt | default: block.settings.image.alt | strip_html -%}
             {%- if block.settings.image != blank -%}
-              {%- comment -%}
-                Compute width from merchant upload's aspect ratio at
-                40px render height. Previously hardcoded `width: 120,
-                height: 40` (3:1) stretched narrow or tall logos and
-                caused a CLS flash before the `.kt-brands__logo` CSS
-                `max-height: 100%; width: auto` overrode. Using the
-                real aspect keeps width+height truthful for Theme
-                Check and prevents the reflow.
-              {%- endcomment -%}
               {%- assign brand_logo_width = block.settings.image.width | times: 40 | divided_by: block.settings.image.height -%}
               {%- assign brand_logo_width_2x = brand_logo_width | times: 2 -%}
               {%- assign brand_logo_width_3x = brand_logo_width | times: 3 -%}

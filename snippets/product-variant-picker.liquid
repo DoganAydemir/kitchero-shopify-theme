@@ -299,14 +299,6 @@
     </select>
 
     {%- comment -%}
-      Variants data blob. Previously we emitted the full variant JSON
-      on EVERY `<option>` via `data-variant-json`; for a 20-variant
-      product that's ~12KB of HTML overhead AND kt-product-form.js ran
-      `JSON.parse` once per variant on every swatch change (repeated
-      O(n) parsing). Moving to a single `<script type="application/
-      json">` block parses once on init, caches the result on the
-      container, and lets option matching iterate an in-memory array.
-
       `type="application/json"` is NOT executed by the browser — it's
       data storage with JSON-safe content. Shopify's `| json` filter
       handles all the escape/encoding so no additional `| escape`
@@ -350,13 +342,6 @@
     {%- assign nojs_qty_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1 -%}
     {%- assign nojs_qty_step = product.selected_or_first_available_variant.quantity_rule.increment | default: 1 -%}
     {%- assign nojs_qty_max = product.selected_or_first_available_variant.quantity_rule.max -%}
-    {%- comment -%}
-      Wrap in {% form 'product', product %} so Shopify auto-injects
-      authenticity_token (CSRF). A raw <form action="/cart/add"
-      method="post"> would be rejected with a 422 on stores with
-      strict CSRF middleware. The form filter also accepts
-      additional html-attributes like `class`.
-    {%- endcomment -%}
     {%- form 'product', product, class: 'kt-variant-picker__nojs' -%}
       <label for="VariantNoJs-{{ vp_uid }}" class="kt-variant-picker__nojs-label">
         {{ 'kt.product.variant' | t | default: 'Variant' }}

@@ -25,14 +25,6 @@
 {%- form 'product', product, id: product_form_id -%}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
-  {%- comment -%}
-    Gift card recipient form — only rendered when the product being
-    purchased is itself a gift card (Shopify's product.gift_card?
-    object). When set, the customer can opt in to emailing the
-    issued card directly to a recipient on a scheduled date.
-    Required for any store that sells digital gift cards — Theme
-    Store flags the absence as a missing mandatory feature.
-  {%- endcomment -%}
   {%- if product.gift_card? -%}
     {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
     <script src="{{ 'gift-card-recipient.js' | asset_url }}" defer="defer"></script>
@@ -50,12 +42,6 @@
     — all three default to sensible integers (1/nil/1) when the
     merchant hasn't configured them, so this logic is safe for every
     product.
-
-    Without respecting the rule:
-      - A case-of-6 item renders `min=1 step=1 value=1` and every
-        add-to-cart fails with "Quantity must be a multiple of 6."
-      - A max-500 bulk variant can be over-ordered; Shopify rejects
-        silently at checkout.
   {%- endcomment -%}
   {%- assign qty_min = current_variant.quantity_rule.min | default: 1 -%}
   {%- assign qty_step = current_variant.quantity_rule.increment | default: 1 -%}
@@ -213,26 +199,10 @@
     -%}
   {%- endif -%}
 
-  {%- comment -%}
-    Shop Pay Installments banner — Theme Store paid mandatory feature
-    (Section 4). `{{ form | payment_terms }}` renders Shopify's native
-    `<shopify-payment-terms>` custom element which only displays when
-    the merchant has Shop Pay Installments enabled AND the product
-    price meets the threshold; otherwise it emits nothing. Safe to
-    always include.
-  {%- endcomment -%}
   <div class="kt-product-form__installments">
     {{ form | payment_terms }}
   </div>
 
-  {%- comment -%}
-    Share — Web Share API with clipboard fallback. Privacy-safe: no
-    tracking, no external services. The Shopify Theme Store treats
-    save-for-later / favorites features as app territory (merchants
-    install their preferred wishlist app, which ships an app block
-    drop zone), so this theme deliberately exposes only the share
-    affordance here.
-  {%- endcomment -%}
   <div class="kt-product-form__actions">
     <button
       type="button"

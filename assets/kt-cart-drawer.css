@@ -296,11 +296,6 @@ html.no-js .kt-cart-drawer {
   line-height: 1.3;
   letter-spacing: -0.005em;
   transition: color 0.15s ease;
-  /* Clamp to 2 lines so long titles don't squeeze the price off-row. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -474,14 +469,6 @@ html.no-js .kt-cart-drawer {
   font-variant-numeric: tabular-nums;
 }
 
-/* Trash / remove button — chip-style affordance so it reads as
-   a button at rest, not just a floating icon. Previously the
-   button was fully transparent with just a stone-600 icon — on
-   mobile the icon read as decoration rather than a tappable
-   delete control. Adding a stone-50 backdrop + stone-200 border
-   gives it the same visual weight as the qty stepper buttons
-   next to it (which use the same chip pattern) without becoming
-   visually heavy. */
 .kt-cart-drawer__remove {
   display: inline-flex;
   align-items: center;
@@ -623,9 +610,6 @@ html.no-js .kt-cart-drawer {
   font-variant-numeric: tabular-nums;
 }
 
-/* Discount-code entry form — drawer parity with /cart page. Mirrors
-   `.kt-cart-page__discount*` styles in kt-section-main-cart.css so
-   merchants who tune one place don't have to chase divergence. */
 .kt-cart-drawer__discount-form {
   margin: 0.75rem 1rem 1rem;
 }
@@ -887,14 +871,6 @@ button.kt-cart-drawer__checkout:focus-visible {
   outline-offset: 3px;
 }
 
-/* Continue shopping — outlined secondary button so it reads as
-   a deliberate alternative action next to the primary checkout
-   button above. Previously a bare borderless text-button that
-   blended into the footer chrome; users could miss it as a
-   tappable element. Outlined stone-300 border matches the visual
-   weight of the primary CTA without competing with it; hover
-   tightens the border + darkens text for the same affordance
-   cue the checkout button uses. */
 button.kt-cart-drawer__continue {
   display: block;
   width: 100%;
@@ -1084,13 +1060,6 @@ button.kt-cart-drawer__continue:focus-visible {
   font-weight: 500;
   line-height: 1.3;
   color: var(--kt-stone-900);
-  /* 1-line clamp for the narrow drawer width — recommendations
-     are auxiliary; full title visible on hover via title attribute
-     (browser default) or on the linked product page. */
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
 }

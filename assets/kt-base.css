@@ -255,11 +255,6 @@ a {
   opacity: 0.7;
 }
 
-/* Disabled state — covers both native `disabled` attribute and the
-   ARIA-only `aria-disabled="true"` pattern used on links/divs styled
-   as buttons. Without this, an out-of-stock ATC or a submitting
-   form's button stays visually identical to its enabled state — a
-   WCAG 1.4.1 (Use of Color) and Theme Store deceptive-state issue. */
 .button:disabled,
 .button[aria-disabled='true'],
 .button.is-disabled {
@@ -299,13 +294,6 @@ a {
   resize: vertical;
 }
 
-/* Single focus ring — previously the input painted a 2px outline
-   with a 2px offset on top of its own 1px border, reading as two
-   concentric rectangles on keyboard focus. Replace with a
-   border-color shift + 1px box-shadow that sits on the border's
-   outer edge: visually a single ~2px ring, no gap. box-shadow
-   doesn't displace siblings, so the form row doesn't shift on
-   tab. Pattern mirrors kt-newsletter-page__input. */
 .kt-field__input:focus,
 .kt-field__input:focus-visible,
 .field__textarea:focus,
@@ -577,15 +565,6 @@ select:-webkit-autofill {
   height: auto;
 }
 
-/* RTE canonical typography — Theme Store explicit requirement:
-   "All RTE-generated content must be consistent (such as h1–h6,
-   blockquotes, ul, ol) across all templates."
-   Promote the typography that previously lived only on
-   `.kt-article__content` / `.kt-main-page__content` to the
-   canonical `.rte` selector so every container that wraps merchant
-   rich-text (article body, page body, product description, footer
-   text, accordion content, featured product description, etc.)
-   inherits the same visual hierarchy. */
 
 .rte h1, .rte h2, .rte h3, .rte h4, .rte h5, .rte h6 {
   font-family: var(--kt-f-heading-family);
@@ -1528,6 +1507,12 @@ html.no-js .kt-desc-truncate--toggle .kt-desc-truncate__full[hidden] {
 
 html.no-js .kt-loader {
   display: none;
+}
+
+/* Shop by color: finish images are revealed by JavaScript. Without it,
+   show the first one so the image column isn't empty. */
+html.no-js .kt-shop-color__image-wrap > [data-finish-image]:first-child {
+  opacity: 1 !important;
 }
 
 /* Shopify's 3D viewer UI wraps <model-viewer> in its own container once

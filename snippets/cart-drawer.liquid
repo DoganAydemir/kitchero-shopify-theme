@@ -44,11 +44,6 @@
             {%- endcomment -%}
             <a href="{{ item.url }}" class="kt-cart-drawer__item-image" tabindex="-1">
               {%- if item.image -%}
-                {%- comment -%}
-                  Prefer merchant-authored image alt over the line title
-                  (Theme Store a11y rule: title is not satisfactory as
-                  alt text). Falls back to item.title when missing.
-                {%- endcomment -%}
                 {%- assign item_alt = item.image.alt | default: item.title -%}
                 {%- comment -%}
                   Was `image_url: width: 192` (~2x retina for the 96px
@@ -217,15 +212,6 @@
 
               {%- comment -%}
                 Row 3: qty stepper on LEFT + remove button on RIGHT.
-
-                Quantity rule respect — `item.variant.quantity_rule.increment`
-                tells Shopify what step size this variant accepts (e.g.
-                wholesale "case of 6" = increment 6). Hardcoded +1/-1
-                previously caused "Unable to update cart" errors for any
-                merchant using B2B bundles, since Shopify rejects non-
-                conforming quantities at the /cart/change.js endpoint.
-                main-cart.liquid already reads this rule; drawer now
-                matches so both surfaces behave identically.
               {%- endcomment -%}
               {%- assign drawer_qty_step = item.variant.quantity_rule.increment | default: 1 -%}
               {%- assign drawer_qty_max = item.variant.quantity_rule.max -%}
@@ -528,12 +514,6 @@
           name="checkout" directly to /checkouts/..., bypassing the
           /cart page. Wrapping only the submit button (not the whole
           drawer) keeps the existing AJAX quantity update path intact.
-
-          Use `{% form 'cart' %}` here so Shopify injects the CSRF
-          authenticity_token + auto-routes to routes.cart_url for
-          the current locale. Hand-rolled `<form action="{{ routes.cart_url }}">`
-          was missing the authenticity token; main-cart.liquid
-          already uses the form block — drawer now matches.
         {%- endcomment -%}
         {%- comment -%}
           Pass `cart` as the second positional argument. Shopify's
@@ -545,15 +525,6 @@
           at line 40; drawer now matches.
         {%- endcomment -%}
         {%- form 'cart', cart, id: 'CartDrawerCheckoutForm', class: 'kt-cart-drawer__checkout-form', novalidate: 'novalidate' -%}
-          {%- comment -%}
-            Installments banner (INS-03): emitted inside the cart
-            form so the `form` object resolves for the
-            payment_terms filter. Renders nothing if Shop Pay
-            Installments isn't configured for the merchant.
-            Positioned at the top of the form (just above the
-            order-note details + checkout button) so the customer
-            sees the financing offer alongside the cart total.
-          {%- endcomment -%}
           {{ form | payment_terms }}
 
           {%- comment -%}

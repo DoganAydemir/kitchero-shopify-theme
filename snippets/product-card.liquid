@@ -82,28 +82,7 @@
       {%- assign has_hover_swap = true -%}
     {%- endif -%}
 
-    {%- comment -%}
-      Primary image. `sizes` is tuned to the actual grid layouts:
-      collection grid is 3 cols at ≥990px (~33vw), 2 cols at 750-989px
-      (~50vw), 1 col below 750px (100vw). Previously declared
-      `50vw` across the 990px threshold, forcing the browser to pull
-      ~800w candidates on a 1440px viewport (needed ~475w) — estimated
-      ~500-900KB wasted per first-fold on a 12-card collection page.
-      Width ladder also extended upward (1100) so 2-col tablet
-      DPR 2 gets a sharp candidate (previously capped at 800 →
-      blurry on retina tablets).
-    {%- endcomment -%}
     {%- if product.featured_image -%}
-      {%- comment -%}
-        Theme Store explicit reject example: "Supplying the product title
-        in place of an image description is not satisfactory" (see
-        partner blog: theme-store-accessibility-requirements). Prefer
-        merchant-authored `image.alt` so a screen-reader user hears the
-        product's actual visual description rather than just its name.
-        Falls back to product.title only when the merchant hasn't filled
-        in alt text — keeps the image accessible without forcing
-        merchants to backfill alt on every legacy product.
-      {%- endcomment -%}
       {%- assign card_alt = product.featured_image.alt | default: product.title -%}
       {%- assign card_focal = product.featured_image.presentation.focal_point | default: 'center center' -%}
       {%- comment -%}
@@ -163,15 +142,6 @@
       }}
     {%- endif -%}
 
-    {%- comment -%}
-      Sold-out badge has highest priority — if the product is
-      unavailable (all variants out of stock + inventory_policy == deny)
-      the visual must surface that fact before any discount / bestseller
-      / new ornamentation, otherwise shoppers waste time clicking
-      through to a page where the CTA is "Sold out". Theme Store
-      inspectors specifically check for out-of-stock affordance on
-      collection cards.
-    {%- endcomment -%}
     {%- comment -%}
       Free-product guard — a 0-priced product with `compare_at_price > 0`
       would otherwise emit a "-100% OFF" sale badge over a "$0.00" price.
@@ -265,18 +235,6 @@
         surrounding section heading sits at h2 → cards h2 = same
         level (also legal).
       {%- endcomment -%}
-      {%- comment -%}
-        Theme Store a11y guideline — product cards should resolve to a
-        single tab stop per card. The image `<a>` above carries
-        `aria-label="{{ product.title | escape }}"` and is the canonical
-        focus target. Mark the secondary title/CTA anchors as
-        `tabindex="-1"` so mouse users still get the click target, but
-        keyboard users skip the duplicate stops while tabbing the
-        collection grid (3 stops per card × 24 cards = 72 stops on a
-        24-product page; 1 stop per card = 24 — far less friction).
-        Screen readers ignore tabindex on links and still announce all
-        targets, so SR navigation parity is preserved.
-      {%- endcomment -%}
       <h2 class="kt-card-product__title">
         <a href="{{ product.url }}" tabindex="-1" class="kt-card-product__title-link">{{ product.title | escape }}</a>
       </h2>
@@ -330,12 +288,6 @@
         {%- endif -%}
       </div>
 
-      {%- comment -%}
-        Unit price for groceries / wellness / cosmetics — Theme Store
-        Section 7 collection requirement. Renders only when the
-        merchant has set unit_price_measurement on the variant
-        (otherwise emits nothing).
-      {%- endcomment -%}
       {%- assign card_first_variant = product.selected_or_first_available_variant -%}
       {%- if card_first_variant.unit_price_measurement -%}
         <div class="kt-card-product__unit-price">

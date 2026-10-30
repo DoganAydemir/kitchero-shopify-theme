@@ -128,14 +128,6 @@ body:has(.kt-announcement-banner) .kt-header[data-header-style="transparent"]:no
   justify-content: space-between;
   padding-top: var(--kt-header-padding-top, 1rem);
   padding-bottom: var(--kt-header-padding-bottom, 1rem);
-  /* Container width MUST match `.page-width` (--kt-page-max, 1500px)
-     so the logo's left edge sits at the exact same x as every
-     section body's left edge. Previously hardcoded 1536px while
-     `.page-width` resolved to 1500px — the 36px delta produced an
-     18px horizontal shift between the logo and section content
-     ("KITCHERO" sitting noticeably left of "STUDIO" / "OUR
-     PHILOSOPHY"). Sharing the merchant-controlled token keeps
-     them locked regardless of the "Page width" slider. */
   max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding-left: 1.5rem;
@@ -748,13 +740,6 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
   border-radius: 50%;
 }
 
-/* ── Localization selector (desktop header, CLU-03) ─────────
-   <details> popover anchored to the LEFT of the cart icon. Hidden
-   on mobile (<990px) — mobile users get the in-drawer selector at
-   the bottom of the mobile-nav. The native <details> disclosure
-   handles open/close keyboard ergonomics for free (Enter / Space /
-   Esc) and meets CLU-05 (popover, not modal).
-*/
 .kt-header__locale {
   display: none;
   position: relative;
@@ -911,15 +896,7 @@ shopify-account:not(:defined) [slot="signed-in-avatar"] {
 }
 
 /* Mobile Panel — fills the viewport when open. The inner slider is
-   absolute-positioned so its children panels can slide horizontally.
-
-   Z-index needs to clear the sticky header (1000) so the merchant's
-   panel chrome (logo + close button) doesn't end up stacked underneath
-   the page header — previously z-index: 950 left the header visible
-   above the open panel, which rendered the KITCHERO logo twice (once
-   on the header, once inside the panel) and the layout looked broken.
-   1100 sits above header but still under cart-drawer (2100) so the
-   cart can open over an active mobile menu. */
+   absolute-positioned so its children panels can slide horizontally. */
 .kt-header__mobile-panel {
   position: fixed;
   inset: 0;

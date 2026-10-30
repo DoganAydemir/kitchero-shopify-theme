@@ -729,16 +729,7 @@
    Sets opacity:0 + translateY(30px) initially so JS (kt-section-
    main-product.js) can fade-up-stagger via GSAP on load. The JS
    inits in DOMContentLoaded; before that frame paints, we want
-   the column to be invisible-but-laid-out (no CLS).
-
-   Fallbacks:
-   • html.no-js — the CSS reveal selector below shows the column
-     immediately if JS is disabled (Theme Store rule: progressive
-     enhancement, theme stays usable JS-off).
-   • prefers-reduced-motion — JS detects this and either softens
-     the animation (fade only, no translate) or skips entirely.
-     CSS still hides initially so the JS reveal logic runs cleanly.
-   ============================================================ */
+   the column to be invisible-but-laid-out (no CLS). */
 
 /* Direct children of the info-column wrapper get the animation.
    Wrapper-based selector ([data-kt-pdp-anim-group] > *) means every
@@ -909,12 +900,6 @@ html.no-js [data-kt-pdp-anim-group] > * {
   font-weight: 500;
   line-height: 1.3;
   color: rgb(var(--kt-c-fg));
-  /* Truncate to 2 lines so a long product title doesn't push the
-     price off-row in the narrow PDP info column. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
