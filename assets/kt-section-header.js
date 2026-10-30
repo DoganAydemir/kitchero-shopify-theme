@@ -11,6 +11,24 @@
   }
   window.__kitcheroHeaderObservers = [];
 
+  // Cart icon: the scripts that add or change cart lines update the count
+  // badge; keep the icon's accessible name ("Cart (2 items)") in step with it.
+  document.querySelectorAll('.kt-header__cart-icon').forEach(function (icon) {
+    var countEl = icon.querySelector('.kt-header__cart-count');
+    if (!countEl || typeof MutationObserver === 'undefined') return;
+    var syncCartLabel = function () {
+      var n = parseInt(countEl.textContent, 10);
+      if (isNaN(n) || n < 0) n = 0;
+      var label = n === 0 ? icon.getAttribute('data-label-zero')
+        : (n === 1 ? icon.getAttribute('data-label-one') : icon.getAttribute('data-label-other'));
+      if (label) icon.setAttribute('aria-label', label.replace('[count]', String(n)));
+      countEl.setAttribute('aria-hidden', n === 0 ? 'true' : 'false');
+    };
+    var cartLabelObserver = new MutationObserver(syncCartLabel);
+    cartLabelObserver.observe(countEl, { childList: true, characterData: true, subtree: true });
+    window.__kitcheroHeaderObservers.push(cartLabelObserver);
+  });
+
   if (window.__kitcheroHeaderListeners && window.__kitcheroHeaderListeners.length) {
     for (var __li = 0; __li < window.__kitcheroHeaderListeners.length; __li++) {
       var __ln = window.__kitcheroHeaderListeners[__li];

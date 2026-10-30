@@ -178,8 +178,19 @@
           scoped to products (Shopify populates `search.filters` on product-
           only searches). On mobile the sidebar collapses above the grid.
         {%- endcomment -%}
-        <div class="kt-search-page__layout{% if active_scope == 'product' and search.filters.size > 0 %} kt-search-page__layout--with-sidebar{% endif %}">
-          {%- if active_scope == 'product' and search.filters.size > 0 -%}
+        {%- liquid
+          comment
+            Filters and sort apply to product results, so they show on the All and Products tabs (not Articles or Pages).
+          endcomment
+          assign show_search_filters = false
+          if search.filters.size > 0
+            if active_scope == 'all' or active_scope == 'product'
+              assign show_search_filters = true
+            endif
+          endif
+        -%}
+        <div class="kt-search-page__layout{% if show_search_filters %} kt-search-page__layout--with-sidebar{% endif %}">
+          {%- if show_search_filters -%}
             <aside class="kt-search-page__sidebar" aria-label="{{ 'kt.section.collection.filter' | t }}">
               {%- comment -%}
                 Hidden inputs (q, type, options[prefix]) preserve the search
@@ -191,7 +202,7 @@
                 action_url: routes.search_url,
                 form_id: 'SearchFiltersForm',
                 hidden_terms: search.terms,
-                hidden_type: 'product',
+                hidden_type: search_type,
                 hidden_options_prefix: 'last',
                 layout: 'vertical'
               -%}
@@ -204,10 +215,10 @@
                 {{ 'kt.search.results_count' | t: count: search.results_count, terms: safe_terms }}
               </p>
 
-              {%- if active_scope == 'product' and search.sort_options.size > 0 -%}
+              {%- if show_search_filters and search.sort_options.size > 0 -%}
                 <form class="kt-search-page__sort" action="{{ routes.search_url }}" method="get" data-search-sort-form>
                   <input type="hidden" name="q" value="{{ search.terms | escape }}">
-                  <input type="hidden" name="type" value="product">
+                  <input type="hidden" name="type" value="{{ search_type | escape }}">
                   <input type="hidden" name="options[prefix]" value="last">
                   {%- comment -%}
                     Preserve every active filter as a hidden input so

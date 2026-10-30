@@ -42,9 +42,9 @@ EDITS = [
     ('templates/product.json', 'main', 'trust_badges', {'badge_3_text': ''}),
     # Header and footer
     ('sections/header-group.json', 'announcement-banner', 'announcement-1',
-        {'text': 'New cabinet finishes for fall — explore the color library'}),
+        {'text': 'New cabinet finishes for fall: explore the color library'}),
     ('sections/header-group.json', 'announcement-banner', 'announcement_PBAwCp',
-        {'text': 'Plan your kitchen with our design team — request a consultation'}),
+        {'text': 'Plan your kitchen with our design team: request a consultation'}),
     ('sections/header-group.json', 'header', None, {'mobile_cta_text': 'Request a quote', 'mobile_cta_link': 'shopify://pages/contact'}),
     ('sections/header-group.json', 'header', 'menu_link_badge_YxnfCJ', {'badge_text': 'Sale'}),
     ('sections/footer-group.json', 'footer', 'link_list_r7bk7C', {'heading': 'Shop'}),
@@ -380,6 +380,14 @@ if entry and isinstance(entry[1].get('current'), dict):
         current['kt_mf_sample_product'] = 'custom.sample_product'
         entry[2] = True
 
+# Cart note on, so the demo shows the cart note field (30.10)
+entry = doc('config/settings_data.json')
+if entry and isinstance(entry[1].get('current'), dict):
+    current = entry[1]['current']
+    if current.get('kt_cart_show_note') is not True:
+        current['kt_cart_show_note'] = True
+        entry[2] = True
+
 # Favicon (audit E13)
 entry = doc('config/settings_data.json')
 if entry and isinstance(entry[1].get('current'), dict):
@@ -405,6 +413,12 @@ PHRASES = [
     # Consultation wording instead of booking (audit #17)
     ('Book a one-to-one studio visit.', 'Request a one-to-one consultation.'),
     ('Bring measurements, sketches, mood boards', 'Share measurements, sketches, or mood boards'),
+    # No em dashes in demo copy (30.10)
+    ('daily needs — with', 'daily needs, with'),
+    ('final installation — designed', 'final installation, designed'),
+    ('everyday routines — from the first', 'everyday routines, from the first'),
+    ('or mood boards — we', 'or mood boards, and we'),
+    ('its story — and watch', 'its story and watch'),
 ]
 EXACT = {'Catalogue': 'Catalog', 'Why Choose Us?': 'Why choose us', 'Book a studio visit': 'Request a consultation',
          'Backed by our guarantee': 'Warranty information', 'Quality warranty': 'Warranty',

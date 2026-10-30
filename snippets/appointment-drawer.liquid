@@ -19,12 +19,12 @@
       {% form 'contact', id: 'appointment-form' %}
         <input type="hidden" name="contact[Request type]" value="{{ 'kt.section.appointment.title' | t | escape }}">
         {%- if product -%}
-          <input type="hidden" name="contact[Product]" value="{{ product.title | escape }} — {{ request.origin }}{{ product.url }}">
+          <input type="hidden" name="contact[Product]" value="{{ product.title | escape }}: {{ request.origin }}{{ product.url }}">
         {%- endif -%}
         {%- if form.posted_successfully? -%}
           <span data-appointment-posted-successfully hidden></span>
           <p class="kt-form__success" role="status" data-contact-feedback="appointment-form">
-            {{ 'kt.section.appointment.success' | t | default: 'Thanks — we will be in touch shortly.' }}
+            {{ 'kt.section.appointment.success' | t | default: 'Thanks, we will be in touch shortly.' }}
           </p>
         {%- endif -%}
 

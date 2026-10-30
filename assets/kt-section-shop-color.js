@@ -70,7 +70,7 @@
         if (!a) return;
         if (link) {
           a.setAttribute('href', link);
-          a.setAttribute('aria-label', name + (cat ? ' — ' + cat : ''));
+          a.setAttribute('aria-label', name + (cat ? ', ' + cat : ''));
           a.style.pointerEvents = '';
           a.hidden = false;
         } else {
