@@ -741,12 +741,17 @@ html.no-js .kt-cart-drawer {
    payment buttons themselves; we only control the wrapper spacing.
    Stacked vertically below the main Checkout button so the primary CTA
    keeps visual priority and express options read as "also available". */
-.kt-cart-drawer__additional-checkout {
-  margin-top: 0.5rem;
+.kt-cart-drawer__additional-checkout,
+.kt-cart-drawer__additional-checkout > * {
+  margin-top: 0;
 }
 
-.kt-cart-drawer__additional-checkout > * {
-  margin-top: 0.5rem;
+.kt-cart-drawer__additional-checkout shopify-accelerated-checkout-cart {
+  display: block;
+  --shopify-accelerated-checkout-button-block-size: 48px;
+  --shopify-accelerated-checkout-button-inline-size: 48px;
+  --shopify-accelerated-checkout-button-border-radius: 4px;
+  --shopify-accelerated-checkout-row-gap: 8px;
 }
 
 /* Optional order-note disclosure — collapsed by default to keep the
@@ -895,6 +900,35 @@ button.kt-cart-drawer__continue:hover {
 button.kt-cart-drawer__continue:focus-visible {
   outline: 2px solid var(--kt-stone-900);
   outline-offset: 2px;
+}
+
+/* Short screens (iPhone SE and similar): with express payment buttons the
+   footer took about two thirds of the drawer and left one cart line half
+   visible. Tighter footer spacing, 42px express buttons and a text-style
+   "Continue shopping" give the line items more room. */
+@media screen and (max-height: 700px) {
+  .kt-cart-drawer__footer {
+    padding-top: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    gap: 0.75rem;
+  }
+
+  .kt-cart-drawer__additional-checkout shopify-accelerated-checkout-cart {
+    --shopify-accelerated-checkout-button-block-size: 42px;
+    --shopify-accelerated-checkout-button-inline-size: 42px;
+  }
+
+  button.kt-cart-drawer__continue {
+    padding: 0.25rem 1rem;
+    border-color: transparent;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  button.kt-cart-drawer__continue:hover {
+    border-color: transparent;
+    background-color: transparent;
+  }
 }
 
 /* ── Reduced motion ─────────────────────────────────────── */
