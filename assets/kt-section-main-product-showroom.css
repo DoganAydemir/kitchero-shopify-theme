@@ -18,12 +18,6 @@
 }
 
 .kt-showroom__container {
-  /* Match `.page-width` (--kt-page-max, 1500px) so the showroom
-     template's columns align with the header logo and the rest of
-     the storefront sections. Hardcoded 1536px previously made the
-     showroom container 36px wider than every neighboring section,
-     producing a subtle left-edge shift between the logo, hero,
-     and showroom content. */
   max-width: var(--kt-page-max, 1500px);
   margin: 0 auto;
   padding: 0 0;
@@ -164,12 +158,6 @@
   cursor: zoom-in;
 }
 
-/* WCAG 2.4.7 Focus Visible — the gallery slides ship as
-   `role="button"` with `tabindex="0"` so keyboard users can press
-   Enter/Space to open the lightbox (parity with the click handler).
-   Without an explicit focus ring the keyboard path is invisible:
-   surface a soft outline only on `:focus-visible` so mouse clicks
-   stay clean. */
 .kt-showroom__gallery-full:focus-visible,
 .kt-showroom__gallery-half:focus-visible,
 .kt-showroom__gallery-mobile-slide:focus-visible {
@@ -312,10 +300,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* Title: text-3xl lg:text-4xl font-serif tracking-tight.
-   The bottom margin carries the gap the old title-row wrapper used to
-   provide — the info column is a flex column with no parent gap, so the
-   spacing below the title lives here now. */
 .kt-showroom__title {
   font-family: var(--kt-f-accent-family);
   font-size: calc(var(--kt-f-heading-scale, 1) * (1.875rem));

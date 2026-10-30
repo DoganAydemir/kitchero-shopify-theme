@@ -7,18 +7,6 @@
       &larr; {{ 'kt.customer.order.back_to_account' | t }}
     </a>
 
-    {%- comment -%}
-      Account sidebar + content layout. Previously the order page
-      rendered the title + body directly inside the wide container
-      with only a single "← Back to account" link as navigation. A
-      customer deep-linking to /account/orders/:id (bookmark, email
-      receipt link) and hitting refresh would lose the account
-      shell entirely — no path to Addresses, no Logout. Wrapping in
-      the shared `.kt-account__layout` + rendering the same sidebar
-      restores the shell on every account URL. `current: 'orders'`
-      marks the Details link active because this order detail view
-      is conceptually reached from the Details landing.
-    {%- endcomment -%}
     {%- assign order_date_formatted = order.created_at | date: format: 'date' -%}
     <div class="kt-account__layout">
       {%- render 'account-nav', current: 'orders' -%}
@@ -96,15 +84,6 @@
       {%- endif -%}
     {%- endfor -%}
 
-    {%- comment -%}
-      Pending-fulfillment note. When an order has been placed but no
-      fulfillment has started yet (common first 1-6 hours post-order),
-      the tracking block below renders nothing, which looked to
-      customers like tracking info was missing rather than pending.
-      This note fills the gap with a reassuring "we'll update you"
-      copy, suppressed once a fulfillment exists or the order is
-      canceled (cancellation note above already explains THAT state).
-    {%- endcomment -%}
     {%- if fulfillment_count == 0 and order.cancelled_at == blank -%}
       <div class="kt-order__pending" role="note">
         <p class="kt-order__pending-text">
@@ -164,15 +143,6 @@
                 alt: image_alt_text
               }}
             {%- else -%}
-              {%- comment -%}
-                Shopify placeholder SVG keeps the 80×80 slot visually
-                balanced when a line item has no product image
-                (imported orders, deleted products, digital goods).
-                An empty <div> left a blank square that looked like a
-                broken asset and shifted row height inconsistently
-                between items — Theme Store's empty-state rule
-                requires a visible fallback on every image slot.
-              {%- endcomment -%}
               {{ 'product-1' | placeholder_svg_tag: 'kt-order__item-image kt-order__item-image--placeholder' }}
             {%- endif -%}
 
@@ -307,16 +277,6 @@
           <dd>{{ order.line_items_subtotal_price | money_with_currency }}</dd>
         </div>
 
-        {%- comment -%}
-          Discount breakdown. Previously surfaced only an aggregate
-          "Discount: -$X" line; customers filing disputes or cross-
-          checking promotional emails had no way to see which codes
-          actually applied. `order.cart_level_discount_applications`
-          lists each applied code with its localized title and saved
-          amount. Fall back to the aggregate row when no code-level
-          attributions exist (e.g., an automatic discount that the
-          API doesn't attribute to an individual code).
-        {%- endcomment -%}
         {%- if order.cart_level_discount_applications.size > 0 -%}
           {%- for discount in order.cart_level_discount_applications -%}
             <div class="kt-order__totals-row kt-order__totals-row--discount">

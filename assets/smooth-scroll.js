@@ -67,8 +67,16 @@
       lenis.resize();
     });
   }
-  if (typeof ResizeObserver !== 'undefined') {
+  // This file can run before <body> is parsed (it is added to <head> by a
+  // script), so wait for the body before observing it.
+  function observeBody() {
+    if (typeof ResizeObserver === 'undefined' || !document.body) return;
     new ResizeObserver(queueResize).observe(document.body);
+  }
+  if (document.body) {
+    observeBody();
+  } else {
+    document.addEventListener('DOMContentLoaded', observeBody, { once: true });
   }
   window.addEventListener('load', queueResize);
   window.addEventListener('pageshow', queueResize);

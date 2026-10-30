@@ -57,13 +57,6 @@
 
               {%- when 'title' -%}
                 <h1 class="kt-pdp__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
-                {%- comment -%}
-                  Variant SKU rendered for B2B / wholesale shoppers and
-                  inventory tracking — Theme Store Section 7 expects SKU
-                  visible and updated on variant change. JS in
-                  assets/kt-product-form.js refreshes [data-product-sku]
-                  on variant select.
-                {%- endcomment -%}
                 {%- if product.selected_or_first_available_variant.sku != blank -%}
                   <p class="kt-pdp__sku" data-product-sku>
                     <span class="visually-hidden">{{ 'kt.product.sku.label' | t | default: 'SKU' }}: </span>
@@ -79,18 +72,6 @@
                 {%- render 'pdp-meta', block: block, product: product, current_variant: current_variant -%}
 
               {%- when 'vendor' -%}
-                {%- comment -%}
-                  Vendor block — Theme Store: "Themes must support blocks
-                  for all or most elements on the main section of the
-                  product page (product price, vendor, description as
-                  individual blocks)". Linked to the vendor's collection
-                  by Shopify convention so customers can browse the rest
-                  of that maker's catalog with one click; merchants who
-                  treat vendor as a brand category get free cross-product
-                  navigation. The block self-suppresses when product.vendor
-                  is blank (Shopify allows vendor-less products) so the
-                  PDP doesn't emit an empty link.
-                {%- endcomment -%}
                 {%- if product.vendor != blank -%}
                   <div class="kt-pdp__vendor" {{ block.shopify_attributes }}>
                     {%- if block.settings.show_label -%}
@@ -263,18 +244,6 @@
               {%- when 'door_sample' -%}
                 {%- assign sample_product = block.settings.sample_product -%}
                 {%- if sample_product == blank and request.design_mode -%}
-                  {%- comment -%}
-                    Editor-only hint when the merchant added the door-
-                    sample block but didn't pick a sample product yet.
-                    Previously the snippet silently fell back to the
-                    current PDP product (`| default: product`) which
-                    rendered a self-sample button — confusing because
-                    a $1 sample-box product is meant to be a tiny
-                    physical preview, not the SKU shoppers are looking
-                    at. Removing the fallback + showing this hint
-                    forces the merchant to make a deliberate pick,
-                    aligning with the showroom/door-sample UX intent.
-                  {%- endcomment -%}
                   <div class="kt-pdp__door-sample kt-pdp__door-sample--placeholder" {{ block.shopify_attributes }}>
                     <p class="kt-pdp__details-hint">{{ 'kt.product.sample.editor_hint' | t }}</p>
                   </div>
@@ -509,13 +478,6 @@
                 {%- endif -%}
 
               {%- when 'liquid' -%}
-                {%- comment -%}
-                  Custom Liquid block — Theme Store requires Custom Liquid
-                  blocks "wherever app blocks would be used". Sits next
-                  to {%- when '@app' -%} so a merchant who needs to drop
-                  in arbitrary Liquid (not packaged as an app extension)
-                  has a first-class slot inside the PDP info column.
-                {%- endcomment -%}
                 <div class="kt-pdp__custom-liquid" {{ block.shopify_attributes }}>
                   {{ block.settings.custom_liquid }}
                 </div>

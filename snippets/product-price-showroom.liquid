@@ -65,15 +65,6 @@
 
   {%- render 'product-unit-price', product: product, variant: variant -%}
 
-  {%- comment -%}
-    Tax-inclusive indicator — Theme Store mandate (Section 7) for any
-    PDP path that displays a price. The default `product-price.liquid`
-    renders this; the showroom variant was missing it, so EU-market
-    merchants running `product.showroom.json` shipped a price with no
-    tax disclosure. Mirrors the wording / class used on the default
-    PDP for visual consistency. Suppressed for free products — no
-    tax discussion makes sense at $0.
-  {%- endcomment -%}
   {%- if cart.taxes_included and is_free == false -%}
     <span class="kt-showroom-price__tax-note">
       {{ 'kt.product.taxes_included' | t | default: 'Tax included.' }}

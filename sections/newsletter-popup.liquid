@@ -128,21 +128,6 @@
                 {%- endif -%}
               </h2>
               <p class="kt-newsletter-popup__success-desc" id="NewsletterPopupDesc-{{ section.id }}">
-                {%- comment -%}
-                  XSS defense: the merchant-editable `success_description`
-                  (textarea) and `success_code` (text) are NOT auto-
-                  escaped by Liquid — a direct output of a textarea
-                  variable emits raw bytes. Previously the raw
-                  description was passed through
-                  `| replace: '[code]', success_code_html`, so a
-                  merchant admin with content-edit rights could paste
-                  a script tag into either field and execute JS on
-                  every visitor who saw the success state. Shopify's
-                  threat model trusts the admin, but Theme Store policy
-                  flags this as a stored-XSS vector the theme must
-                  defuse — escape both inputs first, then inject the
-                  `<span>` via the replace.
-                {%- endcomment -%}
                 {%- assign desc_default = 'Your 15% discount code has been sent to your inbox. Use code [code] at checkout.' -%}
                 {%- assign desc_safe = section.settings.success_description | default: desc_default | escape -%}
                 {%- assign code_safe = section.settings.success_code | escape -%}
@@ -257,10 +242,6 @@
             </div>
             {%- render 'form-field-error', form: form, field: 'email', describedby_id: popup_email_err -%}
 
-            {%- comment -%}
-              Honeypot — appended to the popup form. Backend rejects
-              any submission with non-empty contact[website].
-            {%- endcomment -%}
             <p class="kt-form__honeypot" aria-hidden="true" inert>
               <label for="NewsletterPopupTrap-{{ section.id }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
               <input type="text" id="NewsletterPopupTrap-{{ section.id }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">

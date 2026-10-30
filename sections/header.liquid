@@ -170,19 +170,6 @@
                 {%- else -%}
                   <a href="{{ link.url }}" {{ kt_trigger_attrs }}>{{ kt_trigger_label }}</a>
                 {%- endif -%}
-                {%- comment -%}
-                  Previously emitted role="menu" + role="menuitem" here
-                  to match the APG "application menu" pattern, but the
-                  JS wiring is plain Tab-through navigation (not
-                  arrow-key grid + typeahead). Declaring APG menu roles
-                  without implementing the full keyboard pattern fails
-                  WCAG 4.1.2 (axe `aria-required-children`/
-                  `aria-required-parent`). Native &lt;nav aria-label&gt;
-                  (parent) + &lt;ul&gt;&lt;li&gt;&lt;a&gt; (here) is the
-                  correct semantics for standard navigation — SRs
-                  announce "navigation", "list", "link" which matches
-                  the actual interaction model.
-                {%- endcomment -%}
                 <div class="kt-header__mega-menu" id="kt-header-mega-{{ link.handle }}">
                   {%- assign menu_parent_title = link.title | escape -%}
                   {%- unless link_is_toggle_only -%}
@@ -372,12 +359,6 @@
         endif
       -%}
       {%- comment -%}
-        Theme Store 2026 direction — Shopify is migrating themes to the
-        `<shopify-account>` web component (Customer Accounts 2.0,
-        passwordless login, in-storefront sheet). Per the developer
-        changelog, the component "will soon become a theme requirement
-        for all themes submitted to or updated in the Theme Store."
-
         We render `<shopify-account>` whenever the store has customer
         accounts turned on (`shop.customer_accounts_enabled`). The
         component handles BOTH legacy and new account systems —
@@ -434,17 +415,6 @@
       {%- endif -%}
       {%- endif -%}
 
-      {%- comment -%}
-        Localization selector — Theme Store rule CLU-03 requires
-        the country/language selector to sit LEFT of the cart icon
-        in the header. CLU-05 requires popover (NOT modal) so we
-        use a native <details> disclosure. CLU-06 displays full
-        country name + currency code + symbol. Only emits when the
-        store has more than one configured country OR language —
-        single-locale stores see nothing here. CSS scopes this
-        block to desktop only (≥ 990px); mobile users still get
-        the in-drawer selector at the bottom of the mobile-nav.
-      {%- endcomment -%}
       {%- assign show_locale_select = false -%}
       {%- if settings.kt_show_locale_selector and localization.available_languages.size > 1 -%}
         {%- assign show_locale_select = true -%}
@@ -504,15 +474,6 @@
       {%- endif -%}
 
       {%- comment -%} Cart {%- endcomment -%}
-      {%- comment -%}
-        aria-label includes the item count so WCAG 2.5.3 Label in
-        Name is satisfied — the visible badge shows the count, so
-        the accessible name must also contain it. Previously
-        `aria-label="Cart"` clashed with the visible "5" (or whatever
-        count was showing), and voice-control users saying "click
-        cart 5" would fail to match. Translation key interpolates
-        count — zero-count plural handled via pluralize.
-      {%- endcomment -%}
       {%- if section.settings.show_cart_icon -%}
       <a href="{{ routes.cart_url }}" class="kt-header__icon kt-header__cart-icon" aria-label="{{ 'kt.header.cart.label_with_count' | t: count: cart.item_count }}" aria-haspopup="dialog" aria-controls="cart-drawer" aria-expanded="false">
         <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">

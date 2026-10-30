@@ -173,35 +173,9 @@
                 `data-add-to-cart` + `data-add-to-cart-text` so the JS
                 can toggle loading / sold-out / success labels without
                 hand-querying by class name.
-
-                `{{ form | payment_button }}` emits Shopify's Dynamic
-                Checkout Buttons (Shop Pay, PayPal, Google Pay, Apple
-                Pay) — Theme Store explicitly requires these on any
-                section that sells a product, and they only render when
-                the merchant has express-checkout methods enabled, so
-                the gate below hides the entire block if the merchant
-                has opted out.
               {%- endcomment -%}
               <div class="kt-featured-product__form" data-product-form data-product-id="{{ product.id }}" data-product-url="{{ product.url }}" {{ block.shopify_attributes }}>
                 {%- if product != blank -%}
-                  {%- comment -%}
-                    Quantity rule + selling plan + error sentinel parity
-                    with snippets/product-form.liquid. Earlier the buy-
-                    button block here was a hand-rolled `<input id> +
-                    submit` pair, which silently broke three flows:
-                      · subscription-only products (requires_selling_plan)
-                        — POSTed to /cart/add without `selling_plan`,
-                        Shopify rejected with no UI feedback
-                      · variants with quantity_rule (e.g. case-of-6) —
-                        always sent qty=1, /cart/change.js error path
-                        rejected the order
-                      · /cart/add.js errors — assets/kt-product-form.js looks
-                        for [data-product-form-error] on the form; when
-                        absent, error events fire-and-forget into the
-                        DOM with no surface to render on
-                    Resolved here so the Featured Product section is
-                    transactionally equivalent to the main PDP form.
-                  {%- endcomment -%}
                   {%- comment -%}
                     Pre-compute the form id outside the {% form %}
                     tag — Shopify's form tag does not parse filter
@@ -305,12 +279,6 @@
               </div>
 
             {%- when 'liquid' -%}
-              {%- comment -%}
-                Custom Liquid block — Theme Store requires Custom Liquid
-                blocks alongside @app blocks so merchants without a packaged
-                app extension can still drop arbitrary Liquid into the
-                featured product card.
-              {%- endcomment -%}
               <div class="kt-featured-product__custom-liquid" {{ block.shopify_attributes }}>
                 {{ block.settings.custom_liquid }}
               </div>
@@ -343,13 +311,6 @@
 {%- endcomment -%}
 <script src="{{ 'kt-product-form.js' | asset_url }}" defer="defer"></script>
 
-{%- comment -%}
-  Selling-plan picker JS only emits when the product actually has
-  subscription plans configured. Required for atomic price updates +
-  ATC label switch when the customer ticks a subscription cadence —
-  Theme Store rejects subscription products that don't show the
-  discounted price before commit.
-{%- endcomment -%}
 {%- if product.selling_plan_groups.size > 0 -%}
   <script src="{{ 'selling-plan-picker.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}

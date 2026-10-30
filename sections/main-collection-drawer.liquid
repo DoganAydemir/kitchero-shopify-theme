@@ -120,12 +120,6 @@
           <span>{{ 'kt.section.collection.filters' | t | default: 'Filters' }}{% if active_filters_count > 0 %} ({{ active_filters_count }}){% endif %}</span>
         </button>
 
-        {%- comment -%}
-          Sort dropdown — Theme Store Section 7 collection requirement.
-          Auto-submits via the assets/collection-filters.js change handler
-          (data-collection-sort selector). Must appear on every collection
-          layout, not just the vertical/list variants.
-        {%- endcomment -%}
         {%- assign drawer_sort_by = collection.sort_by | default: collection.default_sort_by -%}
         <form class="kt-collection__sort-form" method="get" action="{{ collection.url }}" data-collection-sort-form>
           {%- for filter in collection.filters -%}

@@ -7,15 +7,6 @@
 {%- assign contact_form_heading_line1_default = 'kt.section.contact.form_heading_line1_default' | t -%}
 {%- assign contact_form_heading_line2_default = 'kt.section.contact.form_heading_line2_default' | t -%}
 {%- assign contact_form_description_default = 'kt.section.contact.form_description_default' | t -%}
-  {%- comment -%}
-    Section landmark aria-label. The previous version read
-    `section.settings.heading | default: contact_region_label` but
-    `heading` was never declared in this section's schema — the
-    Liquid value was always nil, falling through to the default.
-    Simplified to the canonical region label (translated). If a
-    merchant ever needs a custom landmark label they can add a
-    setting; until then the dead reference is removed.
-  {%- endcomment -%}
 <section
   class="kt-contact color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   style=""
@@ -186,7 +177,6 @@
               {%- assign contact_id_phone = 'contact-phone-' | append: section.id -%}
               {%- assign contact_id_message = 'contact-message-' | append: section.id -%}
               {%- assign contact_id_trap = 'contact-website-trap-' | append: section.id -%}
-              {%- comment -%} Pre-built error IDs — filters aren't allowed inside {% render %} arguments by the Theme Store submission parser, so build them here and pass the plain variable. {%- endcomment -%}
               {%- assign contact_id_first_error = contact_id_first | append: '-error' -%}
               {%- assign contact_id_last_error = contact_id_last | append: '-error' -%}
               {%- assign contact_id_email_error = contact_id_email | append: '-error' -%}
@@ -270,13 +260,6 @@
                 {%- render 'form-field-error', form: form, field: 'body', describedby_id: contact_id_message_error -%}
               </div>
 
-              {%- comment -%}
-                Honeypot — bots fill every input; humans skip the
-                hidden one. Backend should reject any submission with
-                a non-empty `contact[website]`. Position via CSS, not
-                `display:none`/`visibility:hidden` (some bots skip
-                hidden fields by inspecting computed style).
-              {%- endcomment -%}
               <p class="kt-form__honeypot" aria-hidden="true" inert>
                 <label for="{{ contact_id_trap }}">{{ 'kt.a11y.honeypot' | t | default: 'Leave this field empty' }}</label>
                 <input type="text" id="{{ contact_id_trap }}" name="contact[website]" tabindex="-1" autocomplete="off" aria-hidden="true">

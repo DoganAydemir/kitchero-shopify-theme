@@ -21,9 +21,6 @@
     try {
       var reason = event && event.reason;
 
-      // Only cancelled requests (AbortError, e.g. a newer search replacing an
-      // older one) are expected and kept out of the console. Every other
-      // rejection is left to the browser so it is logged with its stack.
       if (reason && reason.name === 'AbortError') {
         event.preventDefault();
       }

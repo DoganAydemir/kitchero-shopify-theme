@@ -41,15 +41,6 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'testimonial' -%}
           <div class="kt-testimonials-marquee__item" {{ block.shopify_attributes }}>
-            {%- comment -%}
-              Per-block rating. Previously every testimonial rendered a
-              fixed 5-star cluster — a "review aggregator" look-and-feel
-              with no real backing data. Theme Store flags patterns
-              that imply review aggregation without actual merchant
-              input. The rating is now per-block (merchant-editable
-              integer 0-5); 0 hides the stars entirely so merchants
-              can run testimonials with no rating claim at all.
-            {%- endcomment -%}
             {%- assign marquee_rating = block.settings.rating | default: 0 -%}
             {%- if marquee_rating > 0 -%}
               <div

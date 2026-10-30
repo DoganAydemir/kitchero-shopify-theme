@@ -98,14 +98,6 @@
                   <span class="kt-shop-the-look__popup-price">{{ hotspot_price_html }}</span>
                 {%- endif -%}
               </div>
-              {%- comment -%}
-                Only emit the CTA when the merchant actually supplied a
-                product URL for this hotspot. Falling back to `href="#"`
-                looks functional but scrolls to page top — misleading for
-                shoppers and a Theme Store "broken link" red flag. In the
-                theme editor we surface a hint so merchants notice the
-                gap; on the live storefront we render nothing.
-              {%- endcomment -%}
               {%- if hotspot_link != blank -%}
                 <a href="{{ hotspot_link | escape }}" class="kt-shop-the-look__popup-link">
                   {{ 'kt.section.shop_the_look.view_details' | t | default: 'View Details' }}

@@ -21,7 +21,6 @@
 {%- assign cart_heading_default = 'kt.section.main_cart.heading_default' | t -%}
 {%- assign cart_recommendations_heading_default = 'kt.section.recommendations.heading_default' | t -%}
 {% # theme-check-enable UnusedAssign %}
-{%- comment -%} Pre-resolve filtered values — the Theme Store submission parser rejects `|` filters inside {% render %} arguments. {%- endcomment -%}
 {%- assign cart_eyebrow = section.settings.eyebrow | default: cart_eyebrow_default -%}
 {%- assign cart_heading = section.settings.heading | default: cart_heading_default -%}
 {%- assign cart_heading_tag = section.settings.heading_tag | default: 'h1' -%}
@@ -60,21 +59,6 @@
               <div class="kt-cart-page__item" data-line-key="{{ item.key }}" role="listitem">
                 {%- comment -%} Product: thumb + info {%- endcomment -%}
                 <div class="kt-cart-page__item-product">
-                  {%- comment -%}
-                    Previously had `aria-hidden="true"` to avoid SRs
-                    announcing the thumbnail link twice (once for
-                    thumb, once for title). But aria-hidden on a
-                    focusable `<a href>` fails axe-core's
-                    `aria-hidden-focus` rule (WCAG 4.1.2): an element
-                    with aria-hidden cannot contain focusable
-                    descendants, and `<a href>` IS focusable even
-                    with tabindex="-1". Kept tabindex="-1" to skip
-                    keyboard tab order; dropped aria-hidden. SR users
-                    now hear the product linked twice — the image's
-                    `alt={{ item.title }}` provides an accessible
-                    name, which axe accepts. Minor redundancy trade
-                    for passing the strict rule.
-                  {%- endcomment -%}
                   <a href="{{ item.url }}" class="kt-cart-page__item-image" tabindex="-1">
                     {%- if item.image -%}
                       {%- assign cart_item_alt = item.image.alt | default: item.title -%}
@@ -121,14 +105,6 @@
                       </ul>
                     {%- endif -%}
 
-                    {%- comment -%}
-                      Selling-plan (subscription) label. Previously a
-                      subscription line item showed its product + variant
-                      but never surfaced "Delivers every 30 days" — the
-                      subscription cadence was invisible between ATC and
-                      the checkout's summary panel, eroding confidence
-                      for anyone who'd just picked a plan on the PDP.
-                    {%- endcomment -%}
                     {%- if item.selling_plan_allocation -%}
                       <p class="kt-cart-page__item-selling-plan">
                         {{- item.selling_plan_allocation.selling_plan.name | escape -}}
@@ -426,14 +402,6 @@
 
               <div class="kt-cart-page__summary-row">
                 <span class="kt-cart-page__summary-label">{{ 'kt.cart.subtotal' | t }}</span>
-                {%- comment -%}
-                  data-cart-subtotal — Shopify Theme Store rule
-                  INS-05: the cart subtotal element must carry this
-                  attribute so Shopify's <shopify-payment-terms>
-                  custom element auto-refreshes its installment quote
-                  when cart contents change (its mutation observer
-                  watches for this attribute).
-                {%- endcomment -%}
                 <span class="kt-cart-page__summary-value" data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
               </div>
 
@@ -446,14 +414,6 @@
                 {%- endfor -%}
               {%- endif -%}
 
-              {%- comment -%}
-                Installments banner (INS-03): per Shopify's
-                pricing-payments/installments rule, the banner must
-                sit immediately below the cart subtotal. Uses the
-                cart form context (active inside `{% form 'cart' %}`
-                wrapping this template). Renders nothing if Shop
-                Pay Installments is not configured for the merchant.
-              {%- endcomment -%}
               {{ form | payment_terms }}
 
               {%- comment -%}
@@ -464,14 +424,6 @@
                 back to ?redirect=/cart, so the customer lands on a
                 refreshed cart with the discount already applied. Works
                 without JS (plain form POST).
-
-                Error handling is server-side — Shopify surfaces
-                invalid codes as a flash message on the redirected
-                /cart render via cart.cart_level_discount_applications
-                reflecting (or not reflecting) the attempted code.
-                For richer inline feedback merchants can swap the
-                server form for an AJAX handler later; this baseline
-                closes the parity gap with zero JS requirement.
               {%- endcomment -%}
               {%- if settings.kt_cart_show_discount -%}
                 {%- assign page_applied_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' -%}
@@ -648,25 +600,6 @@
           </aside>
         </div>
 
-        {%- comment -%}
-          ── Cart upsell / cross-sell ─────────────────────────
-          Mirrors the cart-drawer recommendations pattern (snippets/
-          cart-drawer.liquid:465-520) so the same Search & Discovery
-          metafield drives both surfaces. We deliberately read the
-          curated `shopify--discovery--product_recommendation.
-          related_products` list rather than the heuristic
-          `recommendations` resource — Theme Store policy frowns on
-          "you might also like" walls that surface randomly-related
-          products without any merchant signal. Renders nothing if:
-          - the merchant disabled the toggle, OR
-          - the Search & Discovery app isn't installed (metafield
-            empty), OR
-          - the only related products are already in the cart
-            (already-in-cart skip below).
-
-          Competitive parity — main-cart was missing the upsell
-          surface that comparable Theme Store themes ship.
-        {%- endcomment -%}
         {%- if section.settings.show_recommendations and cart.item_count > 0 -%}
           {%- assign cart_page_anchor = cart.items[0].product -%}
           {%- assign cart_page_recs = cart_page_anchor.metafields.shopify--discovery--product_recommendation.related_products.value -%}
@@ -735,14 +668,6 @@
                     {% render block %}
                   </div>
                 {%- when 'liquid' -%}
-                  {%- comment -%}
-                    Custom Liquid block — Theme Store mandatory feature.
-                    Pairs with the @app block so merchants who can't
-                    install an app (or who need a one-off snippet)
-                    can drop in custom Liquid without editing theme
-                    code. Rendered identically to the @app block
-                    container so styling stays consistent.
-                  {%- endcomment -%}
                   {%- if block.settings.custom_liquid != blank -%}
                     <div class="kt-cart-page__block kt-cart-page__block--liquid" {{ block.shopify_attributes }}>
                       {{ block.settings.custom_liquid }}

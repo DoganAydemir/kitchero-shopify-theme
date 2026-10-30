@@ -124,17 +124,6 @@
       <link rel="stylesheet" href="{{ 'kt-loader.css' | asset_url }}" media="all">
     {%- endif -%}
 
-    {%- comment -%}
-      Drawer / overlay CSS — loaded in <head> so the stylesheet
-      applies before first paint. These files are small (5-10KB
-      each) and only render work when the drawer opens, so the
-      parser-blocking cost is negligible. Previously emitted in
-      <body> with `media="print" onload="this.media='all'"` async-
-      swap, but the onload handler didn't fire reliably across
-      CSP / extension combos and left the cart drawer unstyled:
-      opened drawer rendered full-width instead of a right-side
-      panel. <head>-loaded `stylesheet_tag` guarantees application.
-    {%- endcomment -%}
     {%- if settings.kt_cart_type == 'drawer' -%}
       <link rel="stylesheet" href="{{ 'kt-cart-drawer.css' | asset_url }}" media="all">
     {%- endif -%}
@@ -166,14 +155,6 @@
     {%- render 'head-section-css', html: kt_overlay_group -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-      {%- comment -%}
-        Localization stylesheet was previously preloaded — counted
-        as a 5th resource hint. Now lazy-loaded via plain
-        stylesheet_tag (no preload kw), saving the hint slot for
-        body+heading fonts above. The selector is below-fold in
-        the footer (mobile drawer is opened on demand) so async
-        load is acceptable.
-      {%- endcomment -%}
       <link rel="stylesheet" href="{{ 'kt-localization-form.css' | asset_url }}" media="all">
       <script src="{{ 'kt-localization-form.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
@@ -256,15 +237,6 @@
       render. Markup kept in <body> so it lives inside the layout
       flow (and so `{% section 'cart-drawer' %}` participates in
       the Section Rendering API for AJAX refresh).
-
-      TSB-001 (Theme Store rule "static sections can't be added or
-      removed by Liquid templates or layouts"): the section is
-      now ALWAYS rendered. The internal `settings.kt_cart_type`
-      gate moved into sections/cart-drawer.liquid so the section
-      participates unconditionally in the layout while emitting
-      empty markup on stores configured for "page" cart mode.
-      Keeps Section Rendering API hooks consistent and matches
-      Shopify Skeleton's pattern for optional drawers.
     {%- endcomment -%}
     {% section 'cart-drawer' %}
     {%- render 'search-overlay' -%}
@@ -373,34 +345,9 @@
           cartUpdate:       {{ routes.cart_update_url | json }},
           cart:             {{ routes.cart_url | json }},
           predictiveSearch: {{ routes.predictive_search_url | json }},
-          {%- comment -%}
-            `search` was missing here; kt-predictive-search.js's "press
-            Enter to search anyway" path was hardcoding `/search`,
-            which 404s on multi-locale storefronts where the locale
-            prefix is required (e.g. `/de/search`). `routes.search_url`
-            resolves to the correct localized path on every Market.
-          {%- endcomment -%}
           search:           {{ routes.search_url | json }},
         },
         searchSettings: {
-          {%- comment -%}
-            Placeholder convention — pass `[count]` / `[subtotal]` as
-            the `| t:` argument so the rendered string has a JS-
-            replaceable token (square brackets). We previously used
-            Liquid-style curly-brace placeholders (count in double
-            braces) which collide with Liquid's own tag syntax:
-            Shopify's parser greedy-matches the closing double-brace
-            from INSIDE the nested string and closes the outer filter
-            tag early, spilling raw Liquid source into the page → a
-            JS SyntaxError when browsers encounter the opener in
-            script. Square-bracket placeholders dodge the syntax
-            conflict entirely and follow Skeleton's placeholder
-            convention. Also: keep this comment free of literal
-            double-brace sequences — Liquid comment tags do NOT
-            sandbox embedded output delimiters from the parser, and
-            a stray pair inside a comment will be reported as an
-            unclosed comment tag at the line of the outer open.
-          {%- endcomment -%}
           types:               {{ search_types | json }},
           resultsAnnouncement: {{ 'kt.search.results_announcement' | t: count: '[count]' | json }},
           noResults:           {{ 'kt.search.no_results_announcement' | t | json }},

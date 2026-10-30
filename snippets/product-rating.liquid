@@ -76,17 +76,6 @@
         supported via the `color` inheritance pattern on the <stop>
         element.
       {%- endcomment -%}
-      {%- comment -%}
-        SVG defs use `id` to let `fill="url(#…)"` reference the
-        gradient. On a collection grid with N rating components
-        a literal `id="half-star"` collides N times — the HTML
-        spec forbids duplicate ids in the same document, Chrome
-        DevTools Issues panel flags every occurrence, and some
-        browsers resolve the url() reference to the first match
-        (typically fine, but validators reject). Scope the id to
-        the product so it's always unique. Fallback `'solo'` for
-        snippets rendered outside a product loop.
-      {%- endcomment -%}
       {%- assign rating_gradient_id = 'half-star-' | append: product.id | default: 'half-star-solo' -%}
       <svg aria-hidden="true" focusable="false" class="kt-rating__star kt-rating__star--half" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="none">
         <defs>

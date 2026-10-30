@@ -54,10 +54,6 @@
   margin-bottom: 2.5rem;
 }
 
-/* Outer wrapper — stacks the input/button ROW and the consent
-   paragraph vertically. Was previously a single flex-row that
-   also held the consent <p> as a sibling, which collapsed the
-   button to a square when consent text was visible. */
 .kt-newsletter-page__form {
   display: flex;
   flex-direction: column;
@@ -85,14 +81,6 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Single focus ring — previously the input painted its own 1px
-   stone-500 border AND an extra 2px stone-900 outline w/ 2px
-   offset on :focus-visible, which read as two concentric
-   rectangles ("double border"). Now :focus simply darkens the
-   existing border and adds a 1px stone-900 box-shadow that sits
-   directly on the border's outside edge — visually a single
-   ~2px ring, no gap, no second box. Box-shadow doesn't affect
-   layout, so the form-row doesn't shift on focus. */
 .kt-newsletter-page__input:focus,
 .kt-newsletter-page__input:focus-visible {
   border-color: rgb(var(--kt-c-fg, 28 25 23));

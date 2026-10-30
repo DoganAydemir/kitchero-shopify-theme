@@ -60,12 +60,6 @@
       });
     });
 
-    // Desktop filter bar dropdowns. One panel open at a time: it opens on
-    // hover (short delay, so sweeping the pointer across the bar does not
-    // flash panels), on tap, or from the keyboard, and it closes as soon as
-    // the pointer leaves, focus moves elsewhere or Escape is pressed. A
-    // mouse click on the trigger keeps the hover behavior instead of
-    // pinning the panel open (the old :focus-within rule did that).
     var dropdowns = Array.prototype.slice.call(section.querySelectorAll('[data-filter-dropdown]'));
     if (dropdowns.length) {
       var lastPointer = 'mouse';
