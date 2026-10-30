@@ -10,10 +10,6 @@
 @media screen and (min-width: 990px) {
   .kt-showroom {
     padding-top: 3rem;
-    /* More breathing room below the last gallery image before the next
-       section (e.g. Why Choose Us) on desktop, where the gallery is the
-       tall column. Mobile keeps the tighter 4rem. */
-    padding-bottom: 6rem;
   }
 }
 
@@ -282,11 +278,21 @@
   flex-direction: column;
 }
 
+/* Sticky columns on desktop. A column that fits the screen sticks below
+   the header. A taller one scrolls until its end is in view and then
+   stays there, so the shorter column never leaves an empty strip next to
+   the longer one (e.g. when accordions open). --kt-sticky-h is the
+   column height, set by kt-section-main-product.js. Without it the info
+   column sticks at 5rem as before and the gallery does not stick. */
 @media screen and (min-width: 990px) {
   .kt-showroom__info-sticky {
     position: sticky;
-    top: 5rem;
-    padding-bottom: 6rem;
+    top: min(5rem, calc(100vh - var(--kt-sticky-h, 0px) - 2rem));
+  }
+
+  .kt-showroom__gallery-desktop {
+    position: sticky;
+    top: min(5rem, calc(100vh - var(--kt-sticky-h, 100000px) - 2rem));
   }
 }
 
