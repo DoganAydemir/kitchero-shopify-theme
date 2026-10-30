@@ -856,12 +856,21 @@
   outline-offset: 3px;
 }
 
-.kt-cart-page__additional-checkout {
-  margin-top: 0.5rem;
+/* Shop Pay / PayPal / Google Pay buttons: same 16px step as the rest of the
+   summary column (it is a flex column with a 1rem gap), and 48px buttons
+   like "Buy it now" on the product page. Shopify only reads these custom
+   properties; the buttons themselves are in a closed shadow root. */
+.kt-cart-page__additional-checkout,
+.kt-cart-page__additional-checkout > * {
+  margin-top: 0;
 }
 
-.kt-cart-page__additional-checkout > * {
-  margin-top: 0.5rem;
+.kt-cart-page__additional-checkout shopify-accelerated-checkout-cart {
+  display: block;
+  --shopify-accelerated-checkout-button-block-size: 48px;
+  --shopify-accelerated-checkout-button-inline-size: 48px;
+  --shopify-accelerated-checkout-button-border-radius: 4px;
+  --shopify-accelerated-checkout-row-gap: 8px;
 }
 
 .kt-cart-page__continue {
