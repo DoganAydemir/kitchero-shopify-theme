@@ -1,7 +1,8 @@
 """axe-core accessibility scan of the demo store (final gate, audit #34/#7).
 
-Runs axe (WCAG 2.0-2.2 A and AA rules, including 24px touch targets) on the main templates at desktop and
-mobile widths and fails on any violation in theme markup. Nodes inside
+Runs axe (WCAG 2.0-2.2 A and AA rules, including 24px touch targets, plus best-practice and
+experimental rules) on the main templates at desktop and mobile widths, then again with an item in
+the cart (header count, cart page, cart drawer), and fails on any violation in theme markup. Nodes inside
 Shopify's own widgets (preview bar, Shop Pay, privacy banner) are listed
 separately.
 
@@ -17,10 +18,13 @@ STORE = os.environ['STORE_URL'].rstrip('/')
 PASSWORD = os.environ['PASSWORD']
 PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/premium-pull-down-kitchen-faucet',
          '/products/ivory-shaker-island-kitchen', '/products/emerald-marble-built-in-kitchen', '/cart', '/search?q=sink', '/blogs/journal',
-         '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check']
+         '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check',
+         '/blogs/journal/choosing-the-right-kitchen-faucet-for-your-space']
+# Second pass with an item in the cart (cart count badge, cart page list, drawer).
+CART_PAGES = ['/', '/cart', '/products/premium-pull-down-kitchen-faucet']
 PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
             'shopify-accelerated-checkout', 'shopify-buy-it-now', 'shopify-payment-terms')
-OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']}}
+OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice', 'experimental']}}
 
 axe = Axe()
 theme, platform = {}, {}
@@ -34,16 +38,34 @@ with sync_playwright() as p:
             page.fill('input[type="password"]', PASSWORD)
             page.locator('input[type="password"]').press('Enter')
             page.wait_for_load_state('networkidle')
-        for path in PAGES:
-            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
-            page.wait_for_timeout(1500)
+        def scan(path, tag):
             result = axe.run(page, options=OPTIONS).response
             for violation in result['violations']:
                 for node in violation['nodes']:
                     target = ' '.join(str(t) for t in node['target'])
                     bucket = platform if any(word in target or word in node['html'] for word in PLATFORM) else theme
                     key = (violation['id'], violation['impact'], target[:120])
-                    bucket.setdefault(key, set()).add(f'{label} {path}')
+                    bucket.setdefault(key, set()).add(f'{label} {path}{tag}')
+
+        for path in PAGES:
+            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+            page.wait_for_timeout(1500)
+            scan(path, '')
+
+        page.evaluate("""async () => {
+          const p = await (await fetch('/products/premium-pull-down-kitchen-faucet.js')).json();
+          const v = p.variants.find(x => x.available);
+          await fetch('/cart/add.js', {method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: v.id, quantity: 1})});
+        }""")
+        for path in CART_PAGES:
+            page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
+            page.wait_for_timeout(1500)
+            scan(path, ' (cart)')
+        page.goto(f'{STORE}/', wait_until='networkidle', timeout=60000)
+        page.locator('.kt-header__cart-icon').first.click()
+        page.wait_for_timeout(1500)
+        scan('/', ' (cart drawer)')
         context.close()
     browser.close()
 
