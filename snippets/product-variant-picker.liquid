@@ -219,7 +219,7 @@
               -%}
 
               {%- capture swatch_a11y_label -%}
-                {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
+                {{ option.name }}: {{ value }}{% unless option_available %}, {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
               <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}">
                 <input
@@ -235,7 +235,7 @@
                 <span
                   class="kt-variant-picker__swatch"
                   style="{{ swatch_style }}"
-                  title="{{ value | escape }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}"
+                  title="{{ value | escape }}{% unless option_available %}, {{ 'kt.product.sold_out' | t }}{% endunless %}"
                   aria-hidden="true"
                 ></span>
               </label>
@@ -256,7 +256,7 @@
                 endfor
               -%}
               {%- capture btn_a11y_label -%}
-                {{ option.name }}: {{ value }}{% unless option_available %} — {{ 'kt.product.sold_out' | t }}{% endunless %}
+                {{ option.name }}: {{ value }}{% unless option_available %}, {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
               <label class="kt-variant-picker__btn-label{% unless option_available %} kt-variant-picker__btn-label--soldout{% endunless %}">
                 <input
@@ -354,8 +354,8 @@
             {% unless variant.available %}disabled{% endunless %}
           >
             {{ variant.title | escape }}
-            {%- unless variant.available %} — {{ 'kt.product.sold_out' | t | default: 'sold out' }}{% endunless -%}
-            {%- if variant.available %} — {{ variant.price | money }}{% endif -%}
+            {%- unless variant.available %}, {{ 'kt.product.sold_out' | t | default: 'sold out' }}{% endunless -%}
+            {%- if variant.available %}, {{ variant.price | money }}{% endif -%}
           </option>
         {%- endfor -%}
       </select>

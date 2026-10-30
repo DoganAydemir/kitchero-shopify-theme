@@ -69,6 +69,23 @@
       }
     });
 
+    // Start loading the other gallery images once the shopper reaches for the
+    // variant picker or the thumbnails, so a variant change shows its photo
+    // without a loading state. Nothing extra loads before that.
+    var galleryWarmed = false;
+    var warmGallery = function (event) {
+      if (galleryWarmed || !event.target || !event.target.closest) return;
+      if (!event.target.closest('[data-variant-picker], .kt-gallery__thumb, [data-gallery-main]')) return;
+      galleryWarmed = true;
+      slides.forEach(function (slide) {
+        var lazyImg = slide.querySelector('img.kt-gallery__image[loading="lazy"]');
+        if (lazyImg) lazyImg.loading = 'eager';
+      });
+    };
+    ['pointerover', 'focusin', 'touchstart'].forEach(function (type) {
+      container.addEventListener(type, warmGallery, { passive: true });
+    });
+
     function pauseAllMedia() {
       gallery.querySelectorAll('video').forEach(function (v) {
         try { v.pause(); } catch (e) {  }

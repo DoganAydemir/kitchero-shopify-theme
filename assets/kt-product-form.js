@@ -793,11 +793,11 @@
       if (window.Kitchero && typeof Kitchero.announce === 'function') {
         var announcement = matchedVariant.title;
         if (!matchedVariant.available && Kitchero.variantStrings && Kitchero.variantStrings.soldOut) {
-          announcement += ' — ' + Kitchero.variantStrings.soldOut;
+          announcement += ', ' + Kitchero.variantStrings.soldOut;
         } else {
           var priceEl = container.querySelector('.kt-product-price__current');
           if (priceEl && priceEl.textContent) {
-            announcement += ' — ' + priceEl.textContent.trim();
+            announcement += ', ' + priceEl.textContent.trim();
           }
         }
         Kitchero.announce(announcement);
