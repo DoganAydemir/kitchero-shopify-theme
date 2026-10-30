@@ -83,7 +83,7 @@
     -%}
     <a
       href="{{ routes.root_url }}"
-      class="kt-header__logo{% if settings.kt_logo == blank %} kt-header__logo--text{% endif %}"
+      class="kt-header__logo{% if settings.kt_logo == blank %} kt-header__logo--text{% assign kt_logo_text_size = settings.kt_logo_text | default: shop.name | size %}{% if kt_logo_text_size > 12 %} kt-header__logo--long{% endif %}{% endif %}"
       aria-label="{{ shop.name | escape }}"
       style="{{ kt_logo_style | strip_newlines }}"
     >
