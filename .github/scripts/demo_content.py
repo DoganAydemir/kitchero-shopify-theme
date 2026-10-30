@@ -380,6 +380,14 @@ if entry and isinstance(entry[1].get('current'), dict):
         current['kt_mf_sample_product'] = 'custom.sample_product'
         entry[2] = True
 
+# Cart note on, so the demo shows the cart note field (30.10)
+entry = doc('config/settings_data.json')
+if entry and isinstance(entry[1].get('current'), dict):
+    current = entry[1]['current']
+    if current.get('kt_cart_show_note') is not True:
+        current['kt_cart_show_note'] = True
+        entry[2] = True
+
 # Favicon (audit E13)
 entry = doc('config/settings_data.json')
 if entry and isinstance(entry[1].get('current'), dict):
