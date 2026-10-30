@@ -46,8 +46,7 @@
             class="kt-testimonials-pullquote__slide{% if forloop.first %} kt-testimonials-pullquote__slide--active{% endif %}"
             id="{{ section.id }}-pullquote-slide-{{ forloop.index0 }}"
             data-pullquote-slide="{{ forloop.index0 }}"
-            role="tabpanel"
-            aria-labelledby="{{ section.id }}-pullquote-dot-{{ forloop.index0 }}"
+            {% if quote_blocks.size > 1 %}role="tabpanel" aria-labelledby="{{ section.id }}-pullquote-dot-{{ forloop.index0 }}"{% else %}role="group"{% endif %}
             aria-roledescription="slide"
             aria-label="{{ forloop.index }} / {{ quote_blocks.size }}"
             aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"

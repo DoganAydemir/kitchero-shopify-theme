@@ -11,7 +11,7 @@
     data-cookie-banner
     data-delay="{{ section.settings.delay_seconds | default: 2 }}"
     role="region"
-    aria-labelledby="CookieBannerHeading-{{ section.id }}"
+    {% if section.settings.heading != blank %}aria-labelledby="CookieBannerHeading-{{ section.id }}"{% else %}aria-label="{{ 'kt.cookie_banner.manage_link' | t | default: 'Cookie preferences' }}"{% endif %}
     aria-live="polite"
     hidden
     inert

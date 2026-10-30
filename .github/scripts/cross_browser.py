@@ -46,6 +46,7 @@ TARGETS = [
     ('chromium', 'Chrome desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
     ('firefox', 'Firefox desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
     ('webkit', 'Safari desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
+    ('msedge', 'Edge desktop', {'viewport': {'width': 1280, 'height': 800}}, False),
     ('webkit', 'Safari iPhone', 'iPhone 13', True),
     ('chromium', 'Chrome Android', 'Pixel 7', True),
 ]
@@ -135,7 +136,10 @@ def check_target(context, row, slug, mobile):
 results = []
 with sync_playwright() as p:
     for engine, label, options, mobile in TARGETS:
-        browser = getattr(p, engine).launch()
+        if engine == 'msedge':
+            browser = p.chromium.launch(channel='msedge')  # Microsoft Edge stable (Shopify requirement 9)
+        else:
+            browser = getattr(p, engine).launch()
         if isinstance(options, str):
             options = dict(p.devices[options])
         context = browser.new_context(**options)

@@ -25,7 +25,7 @@
   class="kt-collapsible-minimal color-{{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
   style="--kt-col-count: {{ col_count }};"
-  aria-labelledby="CollapsibleMinimal-{{ section.id }}-heading"
+  {% if heading != blank %}aria-labelledby="CollapsibleMinimal-{{ section.id }}-heading"{% endif %}
 >
   <div class="kt-collapsible-minimal__inner">
     {%- if eyebrow != blank or heading != blank -%}
