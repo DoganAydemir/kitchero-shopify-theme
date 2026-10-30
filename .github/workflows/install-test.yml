@@ -51,6 +51,23 @@ jobs:
           git archive HEAD assets config layout locales sections snippets templates release-notes.md | tar -x -C /tmp/pkg
           find /tmp/pkg -type f | wc -l
 
+      - name: Remove older unpublished install-test copies
+        env:
+          SHOPIFY_FLAG_STORE: ${{ inputs.store }}
+          SHOPIFY_CLI_TTY: '0'
+          CI: '1'
+        run: |
+          # Every run uploads a new copy. Delete the older unpublished copies
+          # (same name) so the store stays under Shopify's 20-theme limit.
+          # The published theme and any other theme are left alone.
+          shopify theme list | tee -a "$GITHUB_STEP_SUMMARY"
+          shopify theme list --role unpublished --json \
+            | jq -r '[.. | objects | select(has("id"))] | .[] | select(.name == "Kitchero 1.0.0 (install test)") | .id' > old.txt
+          echo "Deleting $(grep -c . old.txt || true) older unpublished install-test copies" | tee -a "$GITHUB_STEP_SUMMARY"
+          while read -r id; do
+            [ -n "$id" ] && shopify theme delete --theme "$id" --force
+          done < old.txt
+
       - name: Push unpublished theme
         env:
           SHOPIFY_FLAG_STORE: ${{ inputs.store }}
