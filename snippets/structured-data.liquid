@@ -37,16 +37,6 @@
       "name": {{ shop.name | json }},
       "url": {{ request.origin | json }}
       {%- if brand_logo != blank -%}
-        {%- comment -%}
-          Google's Knowledge Panel + Organization Rich Result spec
-          requires `logo` as ImageObject with explicit width/height,
-          NOT a plain URL string. Previous emission ("logo": "https
-          ://...") passed the Liquid stage but the Rich Results Test
-          flagged it as invalid schema. We pin width to 512 (matches
-          the asked-for asset width above) and resolve the actual
-          height from the source so the ratio stays accurate
-          rather than guessing 1:1.
-        {%- endcomment -%}
         {%- assign brand_logo_h = 512 | times: brand_logo.height | divided_by: brand_logo.width -%}
         ,"logo": {
           "@type": "ImageObject",
@@ -90,15 +80,6 @@
             ,"postalCode": {{ shop.address.zip | json }}
           {%- endif -%}
           {%- if shop.address.country != blank -%}
-            {%- comment -%}
-              Google prefers ISO 3166-1 alpha-2 for addressCountry
-              (e.g. "US", "TR", "DE"). Shopify's `country_code` is
-              that ISO form; `country` is the localized full name.
-              Previous code referenced `country_upper` which isn't a
-              real Liquid property and silently fell back to the
-              localized name. Emit ISO code first, full name as
-              fallback for stores without country_code set.
-            {%- endcomment -%}
             ,"addressCountry": {{ shop.address.country_code | default: shop.address.country | json }}
           {%- endif -%}
         }

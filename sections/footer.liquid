@@ -232,14 +232,8 @@
     {%- comment -%} Large Branding Text {%- endcomment -%}
     <div class="kt-footer__branding">
       {%- comment -%}
-        Large editorial branding word at the bottom of the footer.
-        Default fell back to the literal string 'KITCHERO' which is
-        wrong on a non-Kitchero merchant install (theme reused in
-        another store still reads "KITCHERO"). Default to the
-        merchant's shop.name (uppercased to match the editorial
-        treatment) so brand-new installs render the actual brand
-        without manual setup. Merchants can still override with the
-        branding_text setting.
+        Large branding word at the bottom of the footer: the shop name in
+        uppercase, or the Branding text setting when it is filled in.
       {%- endcomment -%}
       <span class="kt-footer__branding-text" aria-hidden="true" data-text="{{ section.settings.branding_text | default: shop.name | upcase | escape }}"></span>
 

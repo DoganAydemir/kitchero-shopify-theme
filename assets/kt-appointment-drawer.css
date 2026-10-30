@@ -19,23 +19,7 @@
 
 .kt-appointment-drawer__panel {
   position: fixed;
-  /* Earlier revisions tried two strategies that both failed on iOS
-     Safari + Android Chrome:
-
-     1) `top: 0; bottom: 0` alone — at first paint the panel
-        rendered at the LARGE viewport height (URL-bar-collapsed
-        height), and as the URL bar reappeared the panel
-        "shrunk" from its bottom edge, hiding the Send-request
-        submit button below the visible area.
-
-     Now we mirror the cart-drawer's proven pattern: `top: 0;
-     bottom: 0` PLUS the body-scroll-lock from
-     `Kitchero.scrollLock` freezes the URL-bar state at open
-     time (body is `position: fixed`, so iOS can't collapse the
-     bar mid-interaction). Because the URL bar can't move while
-     the drawer is open, `bottom: 0` no longer shrinks under it.
-     Result is identical to the cart-drawer geometry which the
-     user has confirmed works across iOS + Android. */
+  /* Full-height panel; the body scroll lock keeps the mobile URL bar state fixed while the drawer is open, so the submit button stays visible. */
   top: 0;
   right: 0;
   bottom: 0;

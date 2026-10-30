@@ -933,27 +933,7 @@ button.kt-cart-drawer__continue:focus-visible {
 
 /* ── Reduced motion ─────────────────────────────────────── */
 
-/* Reduce-motion handling: keep the slide but shorten it.
- *
- * User-reported bug: "cart drawer pat diye açılıyor" (snaps open).
- * Earlier revisions of this rule replaced the 500ms slide with a
- * 0.2s opacity fade for prefers-reduced-motion users — strictly
- * vestibular-safe but it produced exactly the snap-open feel the
- * user complained about, because kt-base.css's global reduce-motion
- * clamp (`transition-duration: 0.01ms !important`) drowns out
- * unscoped 0.2s rules, leaving only an instantaneous opacity flip.
- *
- * WCAG 2.3.3 ("Animation from Interactions") flags spinning,
- * parallaxing, zooming, and large flashing motion. A lateral
- * 220ms slide of a viewport-edge drawer is well within the
- * "expected, vestibular-safe motion" envelope — Apple Mail,
- * iOS Safari's tab switcher, and macOS Sheets all keep their
- * slide motion under reduce-motion for the same reason.
- *
- * Solution: keep the slide, shorten to 220ms, force-override
- * the global 0.01ms clamp via !important on this single rule.
- * The drawer stays discoverable + smooth without violating the
- * intent of reduce-motion (no parallax, no zoom, no spin). */
+/* Reduce-motion: keep a short 220ms lateral slide (vestibular-safe) instead of an instant opacity flip; this rule overrides the global reduce-motion clamp. */
 /* Note: panel-side reduce-motion override lives next to the slide-
  * in keyframes above (animation-duration: 0.22s !important). The
  * overlay still uses transition (opacity), so its reduce-motion

@@ -69,10 +69,6 @@
 .kt-back-in-stock__backdrop {
   position: absolute;
   inset: 0;
-  /* Slightly less aggressive dim than the previous 0.72 alpha —
-     paired with the panel's subtle border ring it still pops the
-     modal off the page without painting the storefront as fully
-     "switched off". */
   background-color: rgba(15, 13, 12, 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -113,12 +109,6 @@
   }
 }
 
-/* ── Close button ──────────────────────────────────────────────
-   Absolute-positioned so it never participates in the content
-   flow (previous float+sticky pattern caused the description text
-   to wrap underneath it). The hit area stays WCAG 2.5.5 compliant
-   at 44×44 even though the visible chip is 32×32 — extra padding
-   absorbs the touch target without growing the visible footprint. */
 .kt-back-in-stock__close {
   position: absolute;
   top: 0.875rem;
@@ -299,8 +289,6 @@
 .kt-back-in-stock__field input:focus-visible {
   outline: 0;
   border-color: rgba(var(--kt-c-fg), 0.55);
-  /* Single 3px ring at 8% alpha — visible focus indicator without
-     the heavy 2px solid-dark slab from the previous design. */
   box-shadow: 0 0 0 3px rgba(var(--kt-c-fg), 0.08);
 }
 
