@@ -10,9 +10,14 @@ Usage: STORE_URL=... PASSWORD=... python3 axe_check.py
 """
 import os
 import sys
+import urllib.request
 
-from axe_playwright_python.sync_playwright import Axe
 from playwright.sync_api import sync_playwright
+
+# Same engine as the current axe DevTools extension; newer axe versions judge visible text
+# (e.g. label-content-name-mismatch) differently from the 4.10 bundled with axe-playwright-python.
+AXE_VERSION = '4.14.0'
+AXE_JS = urllib.request.urlopen(f'https://cdn.jsdelivr.net/npm/axe-core@{AXE_VERSION}/axe.min.js').read().decode()
 
 STORE = os.environ['STORE_URL'].rstrip('/')
 PASSWORD = os.environ['PASSWORD']
@@ -28,7 +33,6 @@ PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarN
             'userInput')
 OPTIONS = {'resultTypes': ['violations'], 'runOnly': {'type': 'tag', 'values': ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice', 'experimental']}}
 
-axe = Axe()
 theme, platform = {}, {}
 with sync_playwright() as p:
     browser = p.chromium.launch()
@@ -41,7 +45,8 @@ with sync_playwright() as p:
             page.locator('input[type="password"]').press('Enter')
             page.wait_for_load_state('networkidle')
         def scan(path, tag):
-            result = axe.run(page, options=OPTIONS).response
+            page.add_script_tag(content=AXE_JS)
+            result = page.evaluate('opts => axe.run(document, opts)', OPTIONS)
             for violation in result['violations']:
                 for node in violation['nodes']:
                     target = ' '.join(str(t) for t in node['target'])
@@ -71,7 +76,7 @@ with sync_playwright() as p:
         context.close()
     browser.close()
 
-print('## axe-core scan (WCAG 2.2 A/AA)\n')
+print(f'## axe-core {AXE_VERSION} scan (WCAG 2.2 A/AA, best-practice, experimental)\n')
 print(f'Theme violations: {len(theme)} · Shopify platform: {len(platform)}\n')
 for title, bucket in (('Theme', theme), ('Shopify platform', platform)):
     if bucket:
