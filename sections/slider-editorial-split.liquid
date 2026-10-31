@@ -29,6 +29,7 @@
               class="kt-slider-editorial__image-slide{% if forloop.first %} is-active{% endif %}"
               data-editorial-image="{{ forloop.index0 }}"
               aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+              {% unless forloop.first %}inert{% endunless %}
               role="group"
               aria-roledescription="slide"
               aria-label="{{ index_padded }} / {{ total_padded }}"
@@ -102,6 +103,7 @@
               aria-roledescription="slide"
               aria-label="{{ index_padded }} / {{ total_padded }}"
               aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+              {% unless forloop.first %}inert{% endunless %}
               tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
               {{ block.shopify_attributes }}
             >

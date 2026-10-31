@@ -40,11 +40,13 @@ if (!window.__kitcheroSliderEditorialLoaded) {
           var on = i === nextIndex;
           el.classList.toggle('is-active', on);
           el.setAttribute('aria-hidden', on ? 'false' : 'true');
+          el.toggleAttribute('inert', !on);
         });
 
         copySlides.forEach(function (el, i) {
           el.classList.toggle('is-active', i === nextIndex);
           el.setAttribute('aria-hidden', i === nextIndex ? 'false' : 'true');
+          el.toggleAttribute('inert', i !== nextIndex);
         });
 
         navBtns.forEach(function (btn, i) {

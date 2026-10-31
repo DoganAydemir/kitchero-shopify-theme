@@ -204,10 +204,10 @@
       // formatMoney works in cents like the rest of the theme.
       var priceCents = typeof p.price === 'string' ? Math.round(parseFloat(p.price) * 100) : p.price;
       var price = priceCents ? formatMoney(priceCents, p.currency) : '';
-      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
-      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="none">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
       if (img) {
-        html += '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(alt) + '" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
+        html += '<img src="' + escapeHtml(img) + '" alt="" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
       } else {
         html += '<span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true"></span>';
       }
@@ -228,8 +228,8 @@
     html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-collections-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
     html += '<ul class="kt-predictive-search__list" role="none">';
     collections.forEach(function (c) {
-      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
-      html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="none">';
+      html += '<a href="' + escapeHtml(c.url) + '" class="kt-predictive-search__link" role="option">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(c.title) + '</span>';
       html += '</a></li>';
     });
@@ -244,8 +244,8 @@
     html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-articles-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
     html += '<ul class="kt-predictive-search__list" role="none">';
     articles.forEach(function (a) {
-      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
-      html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="none">';
+      html += '<a href="' + escapeHtml(a.url) + '" class="kt-predictive-search__link" role="option">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(a.title) + '</span>';
       html += '</a></li>';
     });
@@ -260,8 +260,8 @@
     html += '<h2 class="kt-predictive-search__group-title" id="kt-predictive-search-pages-heading" role="presentation">' + escapeHtml(heading) + '</h2>';
     html += '<ul class="kt-predictive-search__list" role="none">';
     pages.forEach(function (p) {
-      html += '<li class="predictive-search__item kt-predictive-search__item" role="option">';
-      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link">';
+      html += '<li class="predictive-search__item kt-predictive-search__item" role="none">';
+      html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
       html += '<span class="kt-predictive-search__title">' + escapeHtml(p.title) + '</span>';
       html += '</a></li>';
     });
