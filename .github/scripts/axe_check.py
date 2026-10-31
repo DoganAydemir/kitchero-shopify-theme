@@ -24,7 +24,9 @@ PASSWORD = os.environ['PASSWORD']
 PAGES = ['/', '/collections/all', '/collections/kitchen-cabinets', '/products/premium-pull-down-kitchen-faucet',
          '/products/ivory-shaker-island-kitchen', '/products/emerald-marble-built-in-kitchen', '/cart', '/search?q=sink', '/blogs/journal',
          '/pages/contact', '/pages/about-us', '/pages/financing', '/404-check',
-         '/blogs/journal/choosing-the-right-kitchen-faucet-for-your-space']
+         '/blogs/journal/choosing-the-right-kitchen-faucet-for-your-space', '/collections', '/collections/hardware-storage',
+         '/pages/deals', '/pages/galleries', '/pages/sliders', '/pages/content-faq', '/pages/image-with-text',
+         '/pages/heroes-banners']
 # Second pass with an item in the cart (cart count badge, cart page list, drawer).
 CART_PAGES = ['/', '/cart', '/products/premium-pull-down-kitchen-faucet']
 PLATFORM = ('shopify-pc__', 'shop-pay', 'shopify-payment', 'preview-bar', 'PBarNextFrame', 'shopify-section-privacy',
@@ -58,6 +60,16 @@ with sync_playwright() as p:
             page.goto(f'{STORE}{path}', wait_until='networkidle', timeout=60000)
             page.wait_for_timeout(1500)
             scan(path, '')
+
+        # Search overlay with live results (predictive search listbox).
+        page.goto(f'{STORE}/', wait_until='networkidle', timeout=60000)
+        search_button = page.locator('button[aria-label="Search"]:visible').first
+        if search_button.count():
+            search_button.click()
+            page.wait_for_timeout(800)
+            page.keyboard.type('sink')
+            page.wait_for_timeout(2500)
+            scan('/', ' (search overlay)')
 
         page.evaluate("""async () => {
           const p = await (await fetch('/products/premium-pull-down-kitchen-faucet.js')).json();

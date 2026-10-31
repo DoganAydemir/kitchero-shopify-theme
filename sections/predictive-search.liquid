@@ -31,11 +31,9 @@
       {%- comment -%}
         Products group. Per WAI-ARIA combobox + multi-listbox pattern
         the results wrapper is one role="listbox"; each group is a
-        role="group" labelled by its <h2> id; each result <li> carries
-        role="option" (NOT the inner <a>). This matches the example
-        markup in Shopify's predictive-search docs and lets a
-        screen-reader's combobox navigation announce the option
-        landmark + group label, not the bare anchor text.
+        role="group" labelled by its <h2> id; each result link carries
+        role="option" and its <li> is role="none", so the option has
+        no focusable content nested inside it.
       {%- endcomment -%}
       {%- if predictive_search.resources.results.products.size > 0 -%}
         <div class="kt-predictive-search__group" data-group="products" role="group" aria-labelledby="kt-predictive-search-products-heading">
@@ -44,14 +42,13 @@
           </h2>
           <ul class="kt-predictive-search__list" role="none">
             {%- for product in predictive_search.resources.results.products -%}
-              <li class="predictive-search__item kt-predictive-search__item" role="option">
+              <li class="predictive-search__item kt-predictive-search__item" role="none">
                 <a
                   class="kt-predictive-search__link"
                   href="{{ product.url }}"
-                  aria-label="{{ product.title | escape }}"
+                  role="option"
                 >
                   {%- if product.featured_media != blank -%}
-                    {%- assign image_alt_text = product.featured_media.alt | default: product.title | strip_html -%}
                     {{
                       product.featured_media
                       | image_url: width: 120
@@ -62,7 +59,7 @@
                           width: 60,
                           height: 60,
                           class: 'kt-predictive-search__thumb',
-                          alt: image_alt_text
+                          alt: ''
                     }}
                   {%- else -%}
                     <span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true">
@@ -105,8 +102,8 @@
           </h2>
           <ul class="kt-predictive-search__list" role="none">
             {%- for collection in predictive_search.resources.results.collections -%}
-              <li class="predictive-search__item kt-predictive-search__item" role="option">
-                <a class="kt-predictive-search__link" href="{{ collection.url }}">
+              <li class="predictive-search__item kt-predictive-search__item" role="none">
+                <a class="kt-predictive-search__link" href="{{ collection.url }}" role="option">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ collection.title | escape }}</span>
                   </span>
@@ -125,8 +122,8 @@
           </h2>
           <ul class="kt-predictive-search__list" role="none">
             {%- for article in predictive_search.resources.results.articles -%}
-              <li class="predictive-search__item kt-predictive-search__item" role="option">
-                <a class="kt-predictive-search__link" href="{{ article.url }}">
+              <li class="predictive-search__item kt-predictive-search__item" role="none">
+                <a class="kt-predictive-search__link" href="{{ article.url }}" role="option">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ article.title | escape }}</span>
                     {%- if article.excerpt != blank -%}
@@ -148,8 +145,8 @@
           </h2>
           <ul class="kt-predictive-search__list" role="none">
             {%- for page in predictive_search.resources.results.pages -%}
-              <li class="predictive-search__item kt-predictive-search__item" role="option">
-                <a class="kt-predictive-search__link" href="{{ page.url }}">
+              <li class="predictive-search__item kt-predictive-search__item" role="none">
+                <a class="kt-predictive-search__link" href="{{ page.url }}" role="option">
                   <span class="kt-predictive-search__text">
                     <span class="kt-predictive-search__title">{{ page.title | escape }}</span>
                   </span>
