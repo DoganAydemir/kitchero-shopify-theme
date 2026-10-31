@@ -177,6 +177,7 @@
               {%- assign mob_fetchpriority = 'auto' -%}
             {%- endif -%}
             {%- assign media_alt = media.alt | default: product.title -%}
+            {%- capture kt_mob_counter -%}{{ forloop.index }} / {{ kt_visible_idx.size }}{%- endcapture -%}
             {%- case media.media_type -%}
               {%- when 'image' -%}
                 <button
@@ -184,10 +185,10 @@
                   class="kt-showroom__gallery-mobile-slide"
                   data-gallery-slide="{{ kt_mob_slide }}"
                   data-media-type="image"
-                  aria-label="{{ media_alt | escape }}: {{ 'kt.product.media.image_larger' | t: index: forloop.index }}"
+                  aria-label="{{ media_alt | escape }}, {{ kt_mob_counter }}: {{ 'kt.product.media.view_larger' | t }}"
                 >
                   {{ media | image_url: width: 800 | image_tag: class: 'kt-showroom__gallery-image', loading: mob_loading, fetchpriority: mob_fetchpriority, widths: '375, 550, 800', sizes: '100vw', width: media.width, height: media.height, alt: media_alt }}
-                  <span class="kt-showroom__gallery-counter" aria-hidden="true">{{ forloop.index }} / {{ kt_visible_idx.size }}</span>
+                  <span class="kt-showroom__gallery-counter">{{ kt_mob_counter }}</span>
                 </button>
                 {%- assign kt_mob_slide = kt_mob_slide | plus: 1 -%}
               {%- when 'video' -%}
