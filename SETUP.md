@@ -51,7 +51,7 @@ The header reads the menu assigned in the **Header** section settings (default: 
 
 - **2-level menus** (parent > children) render as flyout dropdowns.
 - **3-level menus** (parent > children > grandchildren) render as mega menus with a grid layout.
-- To show a **Sale badge** on a menu item, include `<span class="kt-header__sale-badge">Sale</span>` in the menu item title (Shopify allows HTML in menu titles).
+- To show a badge on a menu item (for example **Sale**), add a **Menu link badge** block to the **Header** section, enter the menu item name in **Match menu item by name**, then set the **Badge text** and its colors.
 
 ### Footer Menus
 
@@ -77,7 +77,7 @@ Access all theme settings in **Online Store > Themes > Customize > Theme setting
 | **Badges** | Position, corner radius, sale/sold-out color schemes |
 | **Social media** | Links for Facebook, Instagram, YouTube, TikTok, X, Pinterest |
 | **Search** | Enable suggestions, show vendor/price in results |
-| **Cart** | Drawer vs page, show vendor, enable cart note |
+| **Cart** | Drawer vs page, show vendor, show cart note |
 
 ---
 
@@ -176,7 +176,7 @@ Layout: 58% gallery (left) + 42% sticky info (right), with breadcrumb, rating, c
 2. Edit the **Product information** section.
 3. Add blocks:
    - **Trust badges** — Up to 4, each with icon (shipping/returns/warranty/package) and text.
-   - **Collapsible tabs** — Description, shipping, care instructions. Each with title + rich text content (or link to a page). Set `Open by default` for one.
+   - **Collapsible tab** blocks — Description, shipping, care instructions. Each with a heading and rich text content (or a page). Turn on **Open by default** for one.
 4. Optional: add any **app blocks** (e.g., reviews, upsell).
 
 #### `product.showroom.json` (Showroom style)
@@ -191,7 +191,7 @@ Layout: 73% alternating gallery (full/pair pattern) + 27% sticky info. Premium v
 5. Add:
    - **Feature tag blocks** — Short descriptive tags (e.g., "Hand-carved oak", "Custom finish").
    - **Collapsible tab blocks** — About, materials, care.
-   - Configure warranty banner in section settings.
+   - Optional: a **Warranty banner** block.
 
 ---
 
@@ -253,7 +253,7 @@ The theme supports two cart types, toggled in **Theme settings > Cart**:
 
 Both support `@app` blocks for upsells, rewards, and other cart apps.
 
-**Cart note:** Enable in **Theme settings > Cart > Enable cart note**.
+**Cart note:** Turn on **Theme settings > Cart > Show cart note**.
 
 ---
 
