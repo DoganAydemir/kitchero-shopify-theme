@@ -72,32 +72,33 @@ shopify theme push --unpublished
 
 After installing the theme, complete these steps to get it fully operational. Detailed instructions are in [`SETUP.md`](./SETUP.md).
 
-### 1. Create required metafields
+### 1. Connect product data (optional)
 
-The theme reads several optional product and variant metafields. Create them in **Settings > Custom data**. All are optional — each feature falls back gracefully when its metafield is not set. See [`SETUP.md`](./SETUP.md) for full instructions.
+The theme does not require any metafields. Features that use product data
+read the metafield you choose in **Theme settings > Product data**; leave a
+field empty to hide that feature. Create the metafields first in
+**Settings > Custom data**.
 
-**Product metafields** (Settings > Custom data > Products):
-
-| Namespace & key | Type | Purpose |
+| Theme setting | Metafield type | Used for |
 |---|---|---|
-| `custom.deal_ends_at` | Date and time | Powers the countdown timer on deal products |
-| `custom.rating` | Decimal (0–5) | Manual fallback star rating if you don't use a review app |
-| `custom.door_sample` | File (image) | Door-sample thumbnail next to the title on `product.showroom` |
+| Deal end date metafield | Date and time (product) | Countdown on deal products; hidden when empty |
+| Manual rating metafield | Rating or decimal (product) | Star rating when no review app is installed |
+| Feature list metafield | List of single line text (product) | Feature list on the product page |
+| Country of origin metafield | Single line text (product) | Origin line on the product page |
+| Length / Width / Height / Dimension unit metafields | Number or text (product) | Dimensions on the product page |
+| Variant swatch color / image metafields | Color / File (variant) | Swatches when Shopify's native swatches are not set |
+| Sample product metafield | Product reference (product) | Sample box on the premium product page and the sample photo on product cards |
 
-**Variant metafields** (Settings > Custom data > Variants):
+The **Linked products** block (photo swatches that open other products)
+reads a product list you connect as a dynamic source in the theme editor.
 
-| Namespace & key | Type | Purpose |
+**Shopify metafields filled in by apps:**
+
+| Metafield | Source | Used for |
 |---|---|---|
-| `custom.swatch_color` | Color (or text hex) | Overrides color swatch on the variant picker |
-| `custom.swatch_image` | File (image) | Renders an image swatch (wood grain, marble, fabric) on the variant picker |
-
-**Shopify-native metafields** (populated automatically by Shopify or apps):
-
-| Namespace & key | Source | Purpose |
-|---|---|---|
-| `reviews.rating` / `reviews.rating_count` | Review apps (Judge.me, Loox, Stamped, Shopify Reviews) | Star ratings on PDP + product cards + SEO structured data |
-| `shopify--discovery--product_recommendation.complementary_products` | Search & Discovery app | "Complete the look" block on PDP |
-| `shopify--discovery--product_recommendation.related_products` | Search & Discovery app | Cart-page / cart-drawer cross-sell recommendations |
+| `reviews.rating` / `reviews.rating_count` | Review apps | Star ratings on product pages, cards and structured data |
+| `shopify--discovery--product_recommendation.complementary_products` | Search & Discovery app | Complementary products on the product page |
+| `shopify--discovery--product_recommendation.related_products` | Search & Discovery app | Recommendations in the cart drawer |
 
 ### 2. Set up navigation menus
 
@@ -228,13 +229,16 @@ Enable languages in **Settings > Languages**.
 
 ## Browser support
 
-- Chrome / Edge (last 2 versions)
-- Safari (last 2 versions)
-- Firefox (last 2 versions)
-- Mobile Safari (iOS 14+)
-- Chrome Android (last 2 versions)
+Tested on the browsers listed in Shopify's Theme Store requirements:
 
-Graceful degradation for older browsers: animations disabled, but all content and commerce functionality work.
+- Safari: latest 2 versions (macOS) and latest 2 versions (iOS)
+- Chrome: latest 3 versions (macOS, Windows, Android and iOS)
+- Firefox: latest 3 versions (macOS and Windows)
+- Edge: latest 2 versions (Windows)
+- Samsung Internet: latest 2 versions (Android)
+
+Older browsers get the content and commerce features without the scroll
+animations.
 
 ---
 
