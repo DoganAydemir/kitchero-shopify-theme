@@ -17,8 +17,8 @@ on the product page, featured product, header, footer and cart page.
   product page with buy buttons, consultation request buttons and an
   optional sample product box.
 - Cart drawer with a free shipping progress bar, discount code field,
-  gift wrapping request and complementary product recommendations
-  from the Shopify Search & Discovery app.
+  gift wrapping request and product recommendations (the related
+  products you set in the Shopify Search & Discovery app).
 - Predictive search overlay with suggested searches.
 - Customer account templates: login, register, account, order,
   addresses, activate account and reset password.
