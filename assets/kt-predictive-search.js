@@ -207,7 +207,7 @@
       html += '<li class="predictive-search__item kt-predictive-search__item" role="none">';
       html += '<a href="' + escapeHtml(p.url) + '" class="kt-predictive-search__link" role="option">';
       if (img) {
-        html += '<img src="' + escapeHtml(img) + '" alt="" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
+        html += '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(alt) + '" width="60" height="60" class="kt-predictive-search__thumb" loading="lazy">';
       } else {
         html += '<span class="kt-predictive-search__thumb kt-predictive-search__thumb--empty" aria-hidden="true"></span>';
       }

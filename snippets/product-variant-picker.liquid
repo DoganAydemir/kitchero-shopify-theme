@@ -221,9 +221,10 @@
               {%- capture swatch_a11y_label -%}
                 {{ option.name }}: {{ value }}{% unless option_available %}, {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
-              <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}">
+              <label class="kt-variant-picker__swatch-label{% unless option_available %} kt-variant-picker__swatch-label--soldout{% endunless %}" for="VariantOption-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}">
                 <input
                   type="radio"
+                  id="VariantOption-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}"
                   name="option-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ option.name | handle }}"
                   value="{{ value | escape }}"
                   aria-label="{{ swatch_a11y_label | strip | escape }}"
@@ -258,9 +259,10 @@
               {%- capture btn_a11y_label -%}
                 {{ option.name }}: {{ value }}{% unless option_available %}, {{ 'kt.product.sold_out' | t }}{% endunless %}
               {%- endcapture -%}
-              <label class="kt-variant-picker__btn-label{% unless option_available %} kt-variant-picker__btn-label--soldout{% endunless %}">
+              <label class="kt-variant-picker__btn-label{% unless option_available %} kt-variant-picker__btn-label--soldout{% endunless %}" for="VariantOption-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}">
                 <input
                   type="radio"
+                  id="VariantOption-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}"
                   name="option-{{ vp_uid }}-{{ forloop.parentloop.index0 }}-{{ option.name | handle }}"
                   value="{{ value | escape }}"
                   aria-label="{{ btn_a11y_label | strip | escape }}"
@@ -286,7 +288,8 @@
       sent to /cart/add; kt-product-form.js rewrites its value whenever this
       select changes (data-variant-select listener).
     {%- endcomment -%}
-    <select class="visually-hidden" data-variant-select aria-label="{{ 'kt.product.variant' | t | default: 'Variant' }}" tabindex="-1">
+    <label for="VariantSelect-{{ vp_uid }}" class="visually-hidden">{{ 'kt.product.variant' | t | default: 'Variant' }}</label>
+    <select id="VariantSelect-{{ vp_uid }}" class="visually-hidden" data-variant-select tabindex="-1">
       {%- for variant in product.variants -%}
         <option
           value="{{ variant.id }}"

@@ -18,9 +18,10 @@
     </legend>
 
     {%- unless product.requires_selling_plan -%}
-      <label class="kt-selling-plan__option">
+      <label class="kt-selling-plan__option" for="SellingPlan-{{ section.id }}-{{ product.id }}-none">
         <input
           type="radio"
+          id="SellingPlan-{{ section.id }}-{{ product.id }}-none"
           name="selling_plan"
           value=""
           class="kt-selling-plan__radio"
@@ -61,9 +62,10 @@
             {%- assign plan_savings_label = 'kt.product.selling_plan.save_amount' | t: amount: first_adj_money -%}
           {%- endif -%}
         {%- endif -%}
-        <label class="kt-selling-plan__option">
+        <label class="kt-selling-plan__option" for="SellingPlan-{{ section.id }}-{{ product.id }}-{{ plan.id }}">
           <input
             type="radio"
+            id="SellingPlan-{{ section.id }}-{{ product.id }}-{{ plan.id }}"
             name="selling_plan"
             value="{{ plan.id }}"
             class="kt-selling-plan__radio"
